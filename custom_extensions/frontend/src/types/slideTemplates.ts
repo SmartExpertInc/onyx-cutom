@@ -63,6 +63,7 @@ export interface ComponentBasedSlide {
     notes?: string;
     hasCustomPositioning?: boolean; // Flag for custom positions
     originalTemplateId?: string; // Track original template if converted
+    elementPositions?: Record<string, { x: number; y: number }>; // Element drag positions
   };
 }
 

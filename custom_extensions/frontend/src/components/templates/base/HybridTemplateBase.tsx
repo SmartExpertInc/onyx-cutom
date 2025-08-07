@@ -18,7 +18,7 @@ import {
 } from '@/types/positioning';
 
 import { TemplateExtractor } from '@/lib/positioning/TemplateExtractor';
-import PositioningCanvas from '@/components/positioning/PositioningCanvas';
+import DragEnhancer from '@/components/positioning/DragEnhancer';
 import { SlideTheme } from '@/types/slideThemes';
 
 interface HybridTemplateProps extends BaseTemplateProps {
@@ -150,35 +150,44 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
     );
   }
 
-  // Positioning modes: render with positioning canvas
+  // Handle position changes from drag enhancer
+  const handlePositionChange = useCallback((elementId: string, position: { x: number; y: number }) => {
+    // Save position changes to slide data if needed
+    if (slide && onSlideUpdate) {
+      const updatedSlide: ComponentBasedSlide = {
+        ...slide,
+        metadata: {
+          ...slide.metadata,
+          elementPositions: {
+            ...slide.metadata?.elementPositions,
+            [elementId]: position
+          },
+          updatedAt: new Date().toISOString()
+        }
+      };
+      onSlideUpdate(updatedSlide);
+    }
+  }, [slide, onSlideUpdate]);
+
+  // For editable slides: render template with drag-and-drop enabled
   return (
-    <div className="relative">
-      {/* Background template (in hybrid mode) */}
-      {currentMode === 'hybrid' && (
-        <div 
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            width: currentCanvasConfig.width,
-            height: currentCanvasConfig.height
-          }}
-        >
-          {children}
-        </div>
-      )}
-
-      {/* Positioning Canvas */}
-      <PositioningCanvas
-        items={currentItems}
-        canvasConfig={currentCanvasConfig}
-        mode={currentMode}
-        theme={theme}
-        isEditable={isEditable}
-        onItemsChange={handleItemsChange}
-        onModeChange={handleModeChange}
-        onCanvasConfigChange={handleCanvasConfigChange}
+    <div 
+      className="relative positioning-enabled-slide"
+      style={{
+        width: currentCanvasConfig.width,
+        height: currentCanvasConfig.height
+      }}
+    >
+      {/* Render the original template with full styling and interactivity */}
+      {children}
+      
+      {/* Add drag-and-drop functionality */}
+      <DragEnhancer
+        isEnabled={isEditable}
+        slideId={slideId}
+        savedPositions={slide?.metadata?.elementPositions}
+        onPositionChange={handlePositionChange}
       />
-
-
     </div>
   );
 };

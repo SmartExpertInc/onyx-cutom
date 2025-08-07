@@ -312,6 +312,69 @@
   }
 }
 
+/* Positioning enabled slide styles */
+.positioning-enabled-slide {
+  background: inherit;
+}
+
+/* Template element drag enhancements */
+.positioning-enabled-slide .slide-title,
+.positioning-enabled-slide .slide-subtitle,
+.positioning-enabled-slide .slide-content,
+.positioning-enabled-slide .bullet-points,
+.positioning-enabled-slide .slide-image,
+.positioning-enabled-slide .image-placeholder,
+.positioning-enabled-slide .process-step,
+.positioning-enabled-slide .big-number,
+.positioning-enabled-slide .pyramid-item,
+.positioning-enabled-slide .timeline-item,
+.positioning-enabled-slide .challenge-item,
+.positioning-enabled-slide .solution-item,
+.positioning-enabled-slide .grid-item,
+.positioning-enabled-slide .quote-content,
+.positioning-enabled-slide [data-draggable="true"] {
+  position: relative;
+  transition: transform 0.1s ease-out, box-shadow 0.2s ease;
+  cursor: move;
+  border-radius: 4px;
+}
+
+/* Hover effects for draggable elements */
+.positioning-enabled-slide .slide-title:hover,
+.positioning-enabled-slide .slide-subtitle:hover,
+.positioning-enabled-slide .slide-content:hover,
+.positioning-enabled-slide .bullet-points:hover,
+.positioning-enabled-slide .slide-image:hover,
+.positioning-enabled-slide .image-placeholder:hover,
+.positioning-enabled-slide .process-step:hover,
+.positioning-enabled-slide .big-number:hover,
+.positioning-enabled-slide .pyramid-item:hover,
+.positioning-enabled-slide .timeline-item:hover,
+.positioning-enabled-slide .challenge-item:hover,
+.positioning-enabled-slide .solution-item:hover,
+.positioning-enabled-slide .grid-item:hover,
+.positioning-enabled-slide .quote-content:hover,
+.positioning-enabled-slide [data-draggable="true"]:hover {
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  z-index: 10;
+}
+
+/* Dragging state */
+.positioning-enabled-slide .dragging {
+  z-index: 1000 !important;
+  cursor: grabbing !important;
+  user-select: none !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Preserve text editing capabilities */
+.positioning-enabled-slide [contenteditable="true"]:focus,
+.positioning-enabled-slide input:focus,
+.positioning-enabled-slide textarea:focus {
+  cursor: text !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+}
+
 /* High DPI displays */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .positioning-grid line {
