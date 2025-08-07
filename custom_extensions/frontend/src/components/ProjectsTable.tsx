@@ -48,7 +48,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 // Helper function to render SVG icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
   const iconSize = 16;
-  const iconColor = "#0000";
+  const iconColor = "#000000";
 
   switch (type) {
     case "Training Plan":
@@ -1095,6 +1095,11 @@ const FolderRow: React.FC<{
             </span>
           </td>
         )}
+        {columnVisibility.type && (
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            -
+          </td>
+        )}
         {columnVisibility.numberOfLessons && (
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
@@ -1120,11 +1125,6 @@ const FolderRow: React.FC<{
                 ? formatCompletionTimeLocalized(totalCompletionTime)
                 : "-";
             })()}
-          </td>
-        )}
-        {columnVisibility.type && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            -
           </td>
         )}
         <td
@@ -4421,6 +4421,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       {[
                         { key: "title", label: t("interface.title", "Title") },
                         {
+                          key: "type",
+                          label: t("interface.type", "Type"),
+                        },
+                        {
                           key: "created",
                           label: t("interface.created", "Created"),
                         },
@@ -4448,10 +4452,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "interface.estCompletionTimeShort",
                             "Est. completion time"
                           ),
-                        },
-                        {
-                          key: "type",
-                          label: t("interface.type", "Type"),
                         },
                       ].map((column) => (
                         <label
@@ -4604,6 +4604,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       />
                     </th>
                   )}
+                  {columnVisibility.type && (
+                    <th
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                      style={{ width: `${columnWidths.type}%` }}
+                    >
+                      {t("interface.type", "Type")}
+                      <div
+                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                        onMouseDown={(e) => handleResizeStart(e, "type")}
+                      />
+                    </th>
+                  )}
                   {columnVisibility.numberOfLessons && (
                     <th
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
@@ -4643,18 +4655,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         onMouseDown={(e) =>
                           handleResizeStart(e, "estCompletionTime")
                         }
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.type && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.type}%` }}
-                    >
-                      {t("interface.type", "Type")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "type")}
                       />
                     </th>
                   )}
@@ -4808,6 +4808,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </td>
                       )}
+                      {columnVisibility.type && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {p.designMicroproductType ? (
+                            <div className="w-4 h-4 flex items-center justify-center">
+                              {getDesignMicroproductIcon(
+                                p.designMicroproductType
+                              )}
+                            </div>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      )}
                       {columnVisibility.numberOfLessons && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
@@ -4836,19 +4849,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 )
                               : "-";
                           })()}
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <div className="w-4 h-4 flex items-center justify-center">
-                              {getDesignMicroproductIcon(
-                                p.designMicroproductType
-                              )}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
                         </td>
                       )}
                       <td
@@ -4972,6 +4972,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </td>
                       )}
+                      {columnVisibility.type && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {p.designMicroproductType ? (
+                            <div className="w-4 h-4 flex items-center justify-center">
+                              {getDesignMicroproductIcon(
+                                p.designMicroproductType
+                              )}
+                            </div>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      )}
                       {columnVisibility.numberOfLessons && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
@@ -5000,19 +5013,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 )
                               : "-";
                           })()}
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <div className="w-4 h-4 flex items-center justify-center">
-                              {getDesignMicroproductIcon(
-                                p.designMicroproductType
-                              )}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
                         </td>
                       )}
                       <td
