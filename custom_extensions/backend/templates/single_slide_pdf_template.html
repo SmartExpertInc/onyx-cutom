@@ -1560,49 +1560,56 @@
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
             padding: 40px;
             font-family: 'Martel Sans', sans-serif;
+            position: relative;
+            box-sizing: border-box;
         }
         
         .events-container {
             display: flex;
             flex-direction: column;
-            gap: 24px;
-            flex: 1;
-            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
         }
         
         .event-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 24px;
-            padding: 20px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+            margin: 24px 0;
+            text-align: center;
+            width: 100%;
+            position: relative;
         }
         
-        .event-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(4px);
+        .event-item:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 1px;
+            background-color: var(--title-color);
+            opacity: 0.3;
         }
         
         .event-date {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--accent-color);
-            min-width: 140px;
+            font-weight: 700;
+            font-size: 40px;
+            color: var(--title-color);
+            margin-bottom: 8px;
             font-family: 'Martel Sans', sans-serif;
-            text-align: right;
+            text-align: center;
         }
         
         .event-description {
-            font-size: 16px;
+            font-weight: 400;
+            font-size: 22px;
             color: var(--content-color);
-            line-height: 1.5;
-            flex: 1;
             font-family: 'Martel Sans', sans-serif;
+            text-align: center;
         }
         
         /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
@@ -2464,7 +2471,6 @@
                 <!-- DEBUG: event-list template -->
                 <!-- DEBUG: slide.props.events = {{ slide.props.events }} -->
                 <div class="event-list-template">
-                    <h1 class="slide-title">{{ slide.props.title or 'Timeline of events' }}</h1>
                     <div class="events-container">
                         {% if slide.props.events %}
                             {% for event in slide.props.events %}

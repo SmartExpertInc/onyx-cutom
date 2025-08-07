@@ -21,7 +21,7 @@ import EventListTemplate from './EventListTemplate';
 import SixIdeasListTemplate from './SixIdeasListTemplate';
 import ContraindicationsIndicationsTemplate from './ContraindicationsIndicationsTemplate';
 import MetricsAnalyticsTemplate from './MetricsAnalyticsTemplate';
-import OrgChartTemplate from './OrgChartTemplate';
+// import OrgChartTemplate from './OrgChartTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -993,46 +993,46 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'org-chart': {
-    id: 'org-chart',
-    name: 'Organizational Chart',
-    description: 'Hierarchical organizational structure with connecting lines',
-    category: 'layout',
-    icon: '🏢',
-    component: OrgChartTemplate,
-    defaultProps: {
-      title: 'Organizational chart',
-      chartData: [
-        { id: 'ceo', title: 'CEO', level: 0 },
-        { id: 'manager1', title: 'Manager 1', level: 1, parentId: 'ceo' },
-        { id: 'manager2', title: 'Manager 2', level: 1, parentId: 'ceo' },
-        { id: 'teamleader1-1', title: 'Team Leader 1', level: 2, parentId: 'manager1' },
-        { id: 'teamleader1-2', title: 'Team Leader 2', level: 2, parentId: 'manager1' },
-        { id: 'teamleader2-1', title: 'Team Leader 1', level: 2, parentId: 'manager2' },
-        { id: 'teamleader2-2', title: 'Team Leader 2', level: 2, parentId: 'manager2' },
-        { id: 'employee1-1', title: 'Employee 1', level: 3, parentId: 'teamleader1-1' },
-        { id: 'employee1-2', title: 'Employee 2', level: 3, parentId: 'teamleader1-1' },
-        { id: 'employee2-1', title: 'Employee 3', level: 3, parentId: 'teamleader2-1' },
-        { id: 'employee2-2', title: 'Employee 4', level: 3, parentId: 'teamleader2-1' },
-        { id: 'employee3-1', title: 'Employee 5', level: 3, parentId: 'teamleader2-2' }
-      ],
-      titleColor: undefined, // Will use theme color
-      textColor: undefined, // Will use theme content color
-      backgroundColor: undefined, // Will use theme background color
-    },
-    propSchema: {
-      title: { type: 'text', label: 'Title', required: true },
-      chartData: {
-        type: 'array',
-        label: 'Chart Data',
-        description: 'Hierarchical organizational data with parent-child relationships',
-        required: true,
-      },
-      titleColor: { type: 'color', label: 'Title Color', default: undefined },
-      textColor: { type: 'color', label: 'Text Color', default: undefined },
-      backgroundColor: { type: 'color', label: 'Background', default: undefined },
-    }
-  },
+  // 'org-chart': {
+  //   id: 'org-chart',
+  //   name: 'Organizational Chart',
+  //   description: 'Hierarchical organizational structure with connecting lines',
+  //   category: 'layout',
+  //   icon: '🏢',
+  //   // component: OrgChartTemplate,
+  //   defaultProps: {
+  //     title: 'Organizational chart',
+  //     chartData: [
+  //       { id: 'ceo', title: 'CEO', level: 0 },
+  //       { id: 'manager1', title: 'Manager 1', level: 1, parentId: 'ceo' },
+  //       { id: 'manager2', title: 'Manager 2', level: 1, parentId: 'ceo' },
+  //       { id: 'teamleader1-1', title: 'Team Leader 1', level: 2, parentId: 'manager1' },
+  //       { id: 'teamleader1-2', title: 'Team Leader 2', level: 2, parentId: 'manager1' },
+  //       { id: 'teamleader2-1', title: 'Team Leader 1', level: 2, parentId: 'manager2' },
+  //       { id: 'teamleader2-2', title: 'Team Leader 2', level: 2, parentId: 'manager2' },
+  //       { id: 'employee1-1', title: 'Employee 1', level: 3, parentId: 'teamleader1-1' },
+  //       { id: 'employee1-2', title: 'Employee 2', level: 3, parentId: 'teamleader1-1' },
+  //       { id: 'employee2-1', title: 'Employee 3', level: 3, parentId: 'teamleader2-1' },
+  //       { id: 'employee2-2', title: 'Employee 4', level: 3, parentId: 'teamleader2-1' },
+  //       { id: 'employee3-1', title: 'Employee 5', level: 3, parentId: 'teamleader2-2' }
+  //     ],
+  //     titleColor: undefined, // Will use theme color
+  //     textColor: undefined, // Will use theme content color
+  //     backgroundColor: undefined, // Will use theme background color
+  //   },
+  //   propSchema: {
+  //     title: { type: 'text', label: 'Title', required: true },
+  //     chartData: {
+  //       type: 'array',
+  //       label: 'Chart Data',
+  //       description: 'Hierarchical organizational data with parent-child relationships',
+  //       required: true,
+  //     },
+  //     titleColor: { type: 'color', label: 'Title Color', default: undefined },
+  //     textColor: { type: 'color', label: 'Text Color', default: undefined },
+  //     backgroundColor: { type: 'color', label: 'Background', default: undefined },
+  //   }
+  // },
 };
 
 // Utility functions for working with the registry
