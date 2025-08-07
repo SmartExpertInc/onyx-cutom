@@ -177,9 +177,15 @@ export default function CourseOutlineAdvancedPage() {
   const handleLessonTitleChange = (modIdx: number, lessonIdx: number, newTitle: string) => {
     setPreview((prev) => {
       const copy = [...prev];
-      const lines = copy[modIdx].lessons[lessonIdx].split(/\r?\n/);
-      lines[0] = newTitle;
-      copy[modIdx].lessons[lessonIdx] = lines.join("\n");
+      if (newTitle.trim() === "") {
+        // If title is empty, replace the entire lesson content with empty string
+        copy[modIdx].lessons[lessonIdx] = "";
+      } else {
+        // Otherwise, only update the first line
+        const lines = copy[modIdx].lessons[lessonIdx].split(/\r?\n/);
+        lines[0] = newTitle;
+        copy[modIdx].lessons[lessonIdx] = lines.join("\n");
+      }
       return copy;
     });
   };
