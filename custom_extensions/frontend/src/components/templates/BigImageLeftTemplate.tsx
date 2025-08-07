@@ -264,7 +264,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   return (
     <div style={slideStyles}>
       {/* Left side - Clickable Image Placeholder */}
-      <div style={imageContainerStyles}>
+      <div style={imageContainerStyles} data-draggable="true">
         <ClickableImagePlaceholder
           imagePath={imagePath}
           onImageUploaded={handleImageUploaded}
@@ -306,12 +306,18 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
         ) : (
           <h1 
             style={titleStyles}
-            onClick={() => {
+            onClick={(e) => {
+              if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
               if (isEditable) {
                 setEditingTitle(true);
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            data-draggable="true"
           >
             {title || 'Click to add title'}
           </h1>
@@ -345,12 +351,18 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
         ) : (
           <div 
             style={subtitleStyles}
-            onClick={() => {
+            onClick={(e) => {
+              if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
               if (isEditable) {
                 setEditingSubtitle(true);
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            data-draggable="true"
           >
             {subtitle || 'Click to add content'}
           </div>

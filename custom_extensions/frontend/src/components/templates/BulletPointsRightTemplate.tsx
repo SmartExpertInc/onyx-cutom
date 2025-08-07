@@ -662,12 +662,18 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -675,7 +681,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
       <div style={contentRowStyles}>
         {/* Left: Subtitle + Bullets */}
-        <div style={leftColStyles}>
+        <div style={leftColStyles} data-draggable="true">
           {/* Subtitle */}
           {subtitle && (
             isEditable && editingSubtitle ? (
@@ -703,12 +709,18 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
             ) : (
               <div 
                 style={subtitleStyles}
-                onClick={() => {
+                onClick={(e) => {
+                  if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isEditable) {
                     setEditingSubtitle(true);
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                data-draggable="true"
               >
                 {subtitle}
               </div>
@@ -725,7 +737,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
           />
         </div>
         {/* Right: Clickable Image Placeholder */}
-        <div style={rightColStyles}>
+        <div style={rightColStyles} data-draggable="true">
           <ClickableImagePlaceholder
             imagePath={imagePath}
             onImageUploaded={handleImageUploaded}
