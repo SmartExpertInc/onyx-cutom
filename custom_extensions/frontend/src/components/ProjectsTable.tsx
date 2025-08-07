@@ -45,6 +45,379 @@ import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
 
+// Helper function to render SVG icons based on designMicroproductType
+const getDesignMicroproductIcon = (type: string): React.ReactElement => {
+  const iconSize = 16;
+  const iconColor = "#fff";
+
+  switch (type) {
+    case "Text Presentation":
+      return (
+        <svg
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M14 2V8H20"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 13H8"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 17H8"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M10 9H8"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    case "Training Plan":
+      return (
+        <svg
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g fill="none" stroke={iconColor} strokeWidth="1.5">
+            <path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 15.8L7.143 17L10 14M6 8.8L7.143 10L10 7"
+            />
+            <path strokeLinecap="round" d="M13 9h5m-5 7h5" />
+          </g>
+        </svg>
+      );
+    case "PDF Lesson":
+      return (
+        <svg
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M14 2V8H20"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M9 15H15"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M9 11H15"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M9 7H11"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    case "Video Lesson":
+      return (
+        <svg
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M23 7L16 12L23 17V7Z"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M14 5H3C1.9 5 1 5.9 1 7V17C1 18.1 1.9 19 3 19H14C15.1 19 16 18.1 16 17V7C16 5.9 15.1 5 14 5Z"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    case "Interactive Quiz":
+      return (
+        <svg
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="12" cy="12" r="10" stroke={iconColor} strokeWidth="2" />
+          <path
+            d="M9.09 9A3 3 0 0 1 12 6A3 3 0 0 1 14.91 9"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 16C16 14.9 15.1 14 14 14H10C8.9 14 8 14.9 8 16"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M12 12V14"
+            stroke={iconColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    case "Assessment":
+      return React.createElement(
+        "svg",
+        {
+          width: iconSize,
+          height: iconSize,
+          viewBox: "0 0 24 24",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg",
+        },
+        React.createElement("path", {
+          d: "M9 11H15",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M9 15H15",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M9 7H15",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M3 5C3 3.9 3.9 3 5 3H19C20.1 3 21 3.9 21 5V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5Z",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        })
+      );
+    case "Case Study":
+      return React.createElement(
+        "svg",
+        {
+          width: iconSize,
+          height: iconSize,
+          viewBox: "0 0 24 24",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg",
+        },
+        React.createElement("path", {
+          d: "M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M14 2V8H20",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M8 13H16",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M8 17H12",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        })
+      );
+    case "Workshop":
+      return React.createElement(
+        "svg",
+        {
+          width: iconSize,
+          height: iconSize,
+          viewBox: "0 0 24 24",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg",
+        },
+        React.createElement("path", {
+          d: "M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("circle", {
+          cx: "9",
+          cy: "7",
+          r: "4",
+          stroke: iconColor,
+          strokeWidth: "2",
+        }),
+        React.createElement("path", {
+          d: "M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        })
+      );
+    case "Template":
+      return React.createElement(
+        "svg",
+        {
+          width: iconSize,
+          height: iconSize,
+          viewBox: "0 0 24 24",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg",
+        },
+        React.createElement("rect", {
+          x: "3",
+          y: "3",
+          width: "18",
+          height: "18",
+          rx: "2",
+          ry: "2",
+          stroke: iconColor,
+          strokeWidth: "2",
+        }),
+        React.createElement("line", {
+          x1: "3",
+          y1: "9",
+          x2: "21",
+          y2: "9",
+          stroke: iconColor,
+          strokeWidth: "2",
+        }),
+        React.createElement("line", {
+          x1: "9",
+          y1: "21",
+          x2: "9",
+          y2: "9",
+          stroke: iconColor,
+          strokeWidth: "2",
+        })
+      );
+    default:
+      // Default icon for unknown types
+      return React.createElement(
+        "svg",
+        {
+          width: iconSize,
+          height: iconSize,
+          viewBox: "0 0 24 24",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg",
+        },
+        React.createElement("path", {
+          d: "M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M14 2V8H20",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M16 13H8",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        }),
+        React.createElement("path", {
+          d: "M16 17H8",
+          stroke: iconColor,
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        })
+      );
+  }
+};
+
 // Helper function to calculate dynamic text width based on column width
 const calculateTextWidth = (
   columnWidthPercent: number,
@@ -1484,16 +1857,15 @@ const ProjectCard: React.FC<{
                 border: "1px solid #fff",
                 color: "#fff",
                 borderRadius: "6px",
-                padding: "2px 10px",
-                fontSize: "0.75rem",
-                fontWeight: 600,
+                padding: "4px",
                 zIndex: 2,
                 backdropFilter: "blur(2px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {project.designMicroproductType === "Text Presentation"
-                ? t("generate.onePager", "One-Pager")
-                : project.designMicroproductType}
+              {getDesignMicroproductIcon(project.designMicroproductType)}
             </div>
           )}
           {project.isGamma ? (
