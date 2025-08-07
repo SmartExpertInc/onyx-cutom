@@ -13230,17 +13230,22 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             )
             
             if parsed_training_plan:
-                # Detect language and set it
-                parsed_training_plan.detectedLanguage = detect_language(assistant_reply)
-                
-                # Preserve the original theme
+                # Preserve the original language and theme
                 if existing_content and isinstance(existing_content, dict):
+                    # Preserve original language
+                    original_language = existing_content.get("detectedLanguage", payload.language)
+                    parsed_training_plan.detectedLanguage = original_language
+                    logger.info(f"[SMART_EDIT_LANGUAGE] Preserved original language: {original_language}")
+                    
+                    # Preserve original theme
                     original_theme = existing_content.get("theme", "cherry")
                     parsed_training_plan.theme = original_theme
                     logger.info(f"[SMART_EDIT_THEME] Preserved original theme: {original_theme}")
                 else:
-                    # Use the theme from the request payload if available
+                    # Use the language and theme from the request payload if available
+                    parsed_training_plan.detectedLanguage = payload.language or "en"
                     parsed_training_plan.theme = payload.theme or "cherry"
+                    logger.info(f"[SMART_EDIT_LANGUAGE] Using language from payload: {payload.language}")
                     logger.info(f"[SMART_EDIT_THEME] Using theme from payload: {payload.theme}")
                 
                 # Post-process module IDs to ensure № character is preserved
