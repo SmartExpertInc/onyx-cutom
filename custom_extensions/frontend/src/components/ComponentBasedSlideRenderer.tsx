@@ -4,6 +4,7 @@ import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplate } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import HybridTemplateBase from './templates/base/HybridTemplateBase';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
@@ -82,6 +83,9 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     );
   }
 
+  // Check if slide has positioning support
+  const hasPositioningSupport = slide.positioningMode && slide.positioningMode !== 'template';
+  
   // Render the template component with props and theme
   const TemplateComponent = template.component;
   const templateProps = {
@@ -92,6 +96,31 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     theme: currentTheme
   };
 
+  // If positioning is enabled, use HybridTemplateBase
+  if (hasPositioningSupport || (isEditable && slide.items)) {
+    return (
+      <div 
+        className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} positioning-enabled`}
+        data-theme={theme || DEFAULT_SLIDE_THEME}
+      >
+        <HybridTemplateBase
+          slideId={slide.slideId}
+          slide={slide}
+          items={slide.items}
+          canvasConfig={slide.canvasConfig}
+          positioningMode={slide.positioningMode || 'template'}
+          theme={currentTheme}
+          isEditable={isEditable}
+          onUpdate={handlePropsUpdate}
+          onSlideUpdate={onSlideUpdate}
+        >
+          <TemplateComponent {...templateProps} />
+        </HybridTemplateBase>
+      </div>
+    );
+  }
+
+  // Default template rendering
   return (
     <div 
       className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME}`}

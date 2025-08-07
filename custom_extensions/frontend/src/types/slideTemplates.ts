@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
+import { PositionableItem, CanvasConfig, PositioningMode } from '@/types/positioning';
 
 // --- Base Template System Types ---
 
@@ -49,11 +50,19 @@ export interface ComponentBasedSlide {
   templateId: string;
   props: Record<string, any>;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  
+  // NEW: Positioning support
+  items?: PositionableItem[]; // Dynamic positioning data
+  positioningMode?: PositioningMode; // How items are positioned
+  canvasConfig?: CanvasConfig; // Canvas dimensions and settings
+  
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
     version?: string;
     notes?: string;
+    hasCustomPositioning?: boolean; // Flag for custom positions
+    originalTemplateId?: string; // Track original template if converted
   };
 }
 
