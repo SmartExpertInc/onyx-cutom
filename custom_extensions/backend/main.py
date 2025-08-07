@@ -13329,8 +13329,7 @@ async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: 
         async with pool.acquire() as conn:
             await conn.execute("""
                 UPDATE projects 
-                SET microproduct_content = $1, 
-                    updated_at = NOW()
+                SET microproduct_content = $1
                 WHERE id = $2 AND onyx_user_id = $3
             """, payload.updatedContent, payload.projectId, onyx_user_id)
         
@@ -13510,8 +13509,7 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
         # Update the project with the new content
         await conn.execute("""
             UPDATE projects 
-            SET microproduct_content = $1, 
-                updated_at = NOW()
+            SET microproduct_content = $1
             WHERE id = $2 AND onyx_user_id = $3
         """, json.dumps(training_plan_details.dict()), payload.projectId, onyx_user_id)
         
