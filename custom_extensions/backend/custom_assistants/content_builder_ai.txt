@@ -1069,6 +1069,12 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 14. `challenges-solutions` - Problem-solving approaches and solutions
 15. `big-image-top` - Visual demonstrations with explanatory content below
 
+**AVATAR-BASED TEMPLATES FOR PERSONALIZED CONTENT:**
+16. `avatar-slide` - Slides with avatar and text content for personal touch
+17. `avatar-with-buttons` - Interactive slides with avatar and action buttons
+18. `avatar-with-checklist` - Slides with avatar and checklist items for guidance
+19. `avatar-with-steps` - Process slides with avatar and sequential steps
+
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
 - **For hierarchical concepts**: Use `pyramid` (not content-slide)  
@@ -1796,3 +1802,78 @@ Before outputting ANY lesson details, verify that:
 2. The Information Source value (when no source materials) EXACTLY matches the mapping for the active language
 3. NO English values are used when another language is active
 4. NO variations or alternative translations are used
+
+**AVATAR-BASED TEMPLATE EXAMPLES:**
+
+**Personal Touch Slide** (`avatar-slide`):
+```
+---
+**Slide 15: Personal Service Approach** `avatar-slide`
+
+## Клиентский сервис - это основа успеха
+
+Сегодня разберём, как сделать сервис тёплым, профессиональным и запоминающимся
+
+[AVATAR_PLACEHOLDER: LARGE | RIGHT | Professional headshot with transparent background]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
+```
+*Use for personal connection and service-focused content*
+
+**Interactive Service Elements** (`avatar-with-buttons`):
+```
+---
+**Slide 16: Service Quality Elements** `avatar-with-buttons`
+
+## Продуманный сервис ощущается сразу
+
+[AVATAR_PLACEHOLDER: MEDIUM | LEFT | Professional headshot with transparent background]
+
+**Buttons:**
+- Внимание
+- Скорость  
+- Тепло
+- Забота
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
+```
+*Use for interactive service elements and quality indicators*
+
+**Professional Communication Guide** (`avatar-with-checklist`):
+```
+---
+**Slide 17: Professional Communication** `avatar-with-checklist`
+
+## Как звучать профессионально
+
+[AVATAR_PLACEHOLDER: MEDIUM | LEFT | Professional headshot with transparent background]
+
+**Checklist:**
+✓ «Позвольте я помогу»
+✓ «С удовольствием уточню»
+✓ «Спасибо, что обратили внимание»
+✗ Исключаем холодные фразы и неуверенность
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
+```
+*Use for communication guidelines and professional standards*
+
+**Service Process Steps** (`avatar-with-steps`):
+```
+---
+**Slide 18: Service Process** `avatar-with-steps`
+
+## Каждый шаг - это часть сервиса
+
+[AVATAR_PLACEHOLDER: MEDIUM | RIGHT | Professional headshot with transparent background]
+
+**Steps:**
+1. Приветствие
+2. Консультация
+3. Комфорт во время
+4. Финальные рекомендации
+5. Прощание и отзыв
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
+```
+*Use for service processes and step-by-step procedures*

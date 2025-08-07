@@ -282,6 +282,59 @@ export interface SlideEditor {
 
 // --- Utility Types ---
 
+// Avatar-based slide templates
+export interface AvatarSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  content?: string;
+  avatarPath?: string; // Path to uploaded avatar image
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  contentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface AvatarWithButtonsProps extends BaseTemplateProps {
+  title: string;
+  buttons: Array<{
+    text: string;
+    color?: string;
+  }>;
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  buttonColor?: string;
+  voiceoverText?: string;
+}
+
+export interface AvatarWithChecklistProps extends BaseTemplateProps {
+  title: string;
+  items: Array<{
+    text: string;
+    isPositive: boolean; // true for checkmark, false for X
+  }>;
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  itemColor?: string;
+  voiceoverText?: string;
+}
+
+export interface AvatarWithStepsProps extends BaseTemplateProps {
+  title: string;
+  steps: string[];
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  stepColor?: string;
+  voiceoverText?: string;
+}
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -297,7 +350,11 @@ export type TemplateId =
   | 'four-box-grid'
   | 'timeline'
   | 'big-numbers'
-  | 'pyramid';
+  | 'pyramid'
+  | 'avatar-slide'
+  | 'avatar-with-buttons'
+  | 'avatar-with-checklist'
+  | 'avatar-with-steps';
 
 export interface TemplatePreview {
   templateId: string;

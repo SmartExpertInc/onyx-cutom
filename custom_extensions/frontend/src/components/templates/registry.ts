@@ -17,6 +17,10 @@ import { FourBoxGridTemplate } from './FourBoxGridTemplate';
 import { TimelineTemplate } from './TimelineTemplate';
 import { BigNumbersTemplate } from './BigNumbersTemplate';
 import { PyramidTemplate } from './PyramidTemplate';
+import { AvatarSlideTemplate } from './AvatarSlideTemplate';
+import { AvatarWithButtonsTemplate } from './AvatarWithButtonsTemplate';
+import { AvatarWithChecklistTemplate } from './AvatarWithChecklistTemplate';
+import { AvatarWithStepsTemplate } from './AvatarWithStepsTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -827,6 +831,134 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       title: { type: 'text', label: 'Title' },
       subtitle: { type: 'text', label: 'Subtitle' },
       items: { type: 'array', label: 'Pyramid Items' },
+    },
+  },
+
+  'avatar-slide': {
+    id: 'avatar-slide',
+    name: 'Avatar Slide',
+    description: 'Slide with avatar and text content',
+    category: 'media',
+    icon: '👤',
+    component: AvatarSlideTemplate,
+    defaultProps: {
+      title: 'Клиентский сервис - это основа успеха',
+      subtitle: '',
+      content: 'Сегодня разберём, как сделать сервис тёплым, профессиональным и запоминающимся',
+      avatarPath: '',
+      avatarAlt: 'Avatar',
+      backgroundColor: '#ffffff',
+      titleColor: '#e91e63',
+      subtitleColor: '#000000',
+      contentColor: '#e91e63'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle' },
+      content: { type: 'text', label: 'Content' },
+      avatarPath: { type: 'image', label: 'Avatar Image' },
+      avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
+      subtitleColor: { type: 'color', label: 'Subtitle Color', default: '#000000' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#e91e63' }
+    },
+  },
+
+  'avatar-with-buttons': {
+    id: 'avatar-with-buttons',
+    name: 'Avatar with Buttons',
+    description: 'Slide with avatar and interactive buttons',
+    category: 'media',
+    icon: '🔘',
+    component: AvatarWithButtonsTemplate,
+    defaultProps: {
+      title: 'Продуманный сервис ощущается сразу',
+      buttons: [
+        { text: 'Внимание', color: '#e91e63' },
+        { text: 'Скорость', color: '#e91e63' },
+        { text: 'Тепло', color: '#e91e63' },
+        { text: 'Забота', color: '#e91e63' }
+      ],
+      avatarPath: '',
+      avatarAlt: 'Avatar',
+      backgroundColor: '#1a1a2e',
+      titleColor: '#e91e63',
+      buttonColor: '#e91e63'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      buttons: { type: 'array', label: 'Buttons' },
+      avatarPath: { type: 'image', label: 'Avatar Image' },
+      avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a2e' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
+      buttonColor: { type: 'color', label: 'Button Color', default: '#e91e63' }
+    },
+  },
+
+  'avatar-with-checklist': {
+    id: 'avatar-with-checklist',
+    name: 'Avatar with Checklist',
+    description: 'Slide with avatar and checklist items',
+    category: 'media',
+    icon: '✅',
+    component: AvatarWithChecklistTemplate,
+    defaultProps: {
+      title: 'Как звучать профессионально',
+      items: [
+        { text: '«Позвольте я помогу»', isPositive: true },
+        { text: '«С удовольствием уточню»', isPositive: true },
+        { text: '«Спасибо, что обратили внимание»', isPositive: true },
+        { text: 'Исключаем холодные фразы и неуверенность', isPositive: false }
+      ],
+      avatarPath: '',
+      avatarAlt: 'Avatar',
+      backgroundColor: '#ffffff',
+      titleColor: '#e91e63',
+      itemColor: '#000000'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      items: { type: 'array', label: 'Checklist Items' },
+      avatarPath: { type: 'image', label: 'Avatar Image' },
+      avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
+      itemColor: { type: 'color', label: 'Item Color', default: '#000000' }
+    },
+  },
+
+  'avatar-with-steps': {
+    id: 'avatar-with-steps',
+    name: 'Avatar with Steps',
+    description: 'Slide with avatar and process steps',
+    category: 'media',
+    icon: '📋',
+    component: AvatarWithStepsTemplate,
+    defaultProps: {
+      title: 'Каждый шаг - это часть сервиса',
+      steps: [
+        'Приветствие',
+        'Консультация',
+        'Комфорт во время',
+        'Финальные рекомендации',
+        'Прощание и отзыв'
+      ],
+      avatarPath: '',
+      avatarAlt: 'Avatar',
+      backgroundColor: '#1a1a2e',
+      titleColor: '#ffffff',
+      stepColor: '#e91e63'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      steps: { type: 'array', label: 'Steps' },
+      avatarPath: { type: 'image', label: 'Avatar Image' },
+      avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a2e' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      stepColor: { type: 'color', label: 'Step Color', default: '#e91e63' }
     },
   },
 };
