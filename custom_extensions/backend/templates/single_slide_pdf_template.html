@@ -2125,6 +2125,8 @@
                 </div>
                 
             {% elif slide.templateId == 'org-chart' %}
+                <!-- DEBUG: org-chart template -->
+                <!-- DEBUG: slide.props.chartData = {{ slide.props.chartData }} -->
                 <div class="org-chart-template">
                     <h1 class="slide-title">{{ slide.props.title or 'Organizational chart' }}</h1>
                     <div class="org-chart-container">
@@ -2183,6 +2185,9 @@
                 </div>
                 
             {% elif slide.templateId == 'contraindications-indications' %}
+                <!-- DEBUG: contraindications-indications template -->
+                <!-- DEBUG: slide.props.contraindications = {{ slide.props.contraindications }} -->
+                <!-- DEBUG: slide.props.indications = {{ slide.props.indications }} -->
                 <div class="contraindications-indications-template">
                     <h1 class="slide-title">{{ slide.props.title or 'Contraindications and indications' }}</h1>
                     <div class="contraindications-indications-container">
@@ -2235,6 +2240,8 @@
                 </div>
                 
             {% elif slide.templateId == 'metrics-analytics' %}
+                <!-- DEBUG: metrics-analytics template -->
+                <!-- DEBUG: slide.props.metrics = {{ slide.props.metrics }} -->
                 <div class="metrics-analytics-template">
                     <h1 class="slide-title">{{ slide.props.title or 'Metrics and analytics' }}</h1>
                     <div class="metrics-grid">

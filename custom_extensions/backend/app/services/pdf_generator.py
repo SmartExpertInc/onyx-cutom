@@ -1117,6 +1117,28 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             if safe_slide_data.get('props', {}).get('items'):
                 logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
             
+            # Additional debug logging for specific templates
+            template_id = safe_slide_data.get('templateId', 'unknown')
+            logger.info(f"DEBUG: Processing template: {template_id}")
+            
+            if template_id == 'org-chart':
+                chart_data = safe_slide_data.get('props', {}).get('chartData', [])
+                logger.info(f"DEBUG: org-chart chartData length: {len(chart_data)}")
+                logger.info(f"DEBUG: org-chart chartData: {chart_data}")
+            
+            elif template_id == 'contraindications-indications':
+                contraindications = safe_slide_data.get('props', {}).get('contraindications', [])
+                indications = safe_slide_data.get('props', {}).get('indications', [])
+                logger.info(f"DEBUG: contraindications length: {len(contraindications)}")
+                logger.info(f"DEBUG: indications length: {len(indications)}")
+                logger.info(f"DEBUG: contraindications: {contraindications}")
+                logger.info(f"DEBUG: indications: {indications}")
+            
+            elif template_id == 'metrics-analytics':
+                metrics = safe_slide_data.get('props', {}).get('metrics', [])
+                logger.info(f"DEBUG: metrics-analytics metrics length: {len(metrics)}")
+                logger.info(f"DEBUG: metrics-analytics metrics: {metrics}")
+            
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
             logger.info("Template rendered successfully")

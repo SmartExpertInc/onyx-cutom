@@ -141,7 +141,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
 
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingMetrics, setEditingMetrics] = useState<{ [key: number]: boolean }>({});
+  const [editingMetrics, setEditingMetrics] = useState<{ [key: number]: { number?: boolean; text?: boolean } }>({});
 
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
@@ -160,16 +160,25 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
       updatedMetrics[index] = { ...updatedMetrics[index], [field]: value };
       onUpdate({ metrics: updatedMetrics });
     }
-    setEditingMetrics(prev => ({ ...prev, [index]: false }));
+    setEditingMetrics(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: false } 
+    }));
   };
 
-  const handleMetricCancel = (index: number) => {
-    setEditingMetrics(prev => ({ ...prev, [index]: false }));
+  const handleMetricCancel = (index: number, field: 'number' | 'text') => {
+    setEditingMetrics(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: false } 
+    }));
   };
 
-  const handleMetricEdit = (index: number) => {
+  const handleMetricEdit = (index: number, field: 'number' | 'text') => {
     if (!isEditable) return;
-    setEditingMetrics(prev => ({ ...prev, [index]: true }));
+    setEditingMetrics(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: true } 
+    }));
   };
 
   return (
@@ -314,7 +323,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
               <InlineEditor
                 initialValue={metric.number}
                 onSave={(value) => handleMetricSave(index, 'number', value)}
-                onCancel={() => handleMetricCancel(index)}
+                onCancel={() => handleMetricCancel(index, 'number')}
                 multiline={false}
                 placeholder="Enter number..."
                 style={{
@@ -336,7 +345,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                   fontFamily: currentTheme.fonts.titleFont,
                   cursor: isEditable ? 'pointer' : 'default'
                 }}
-                onClick={() => isEditable && handleMetricEdit(index)}
+                onClick={() => isEditable && handleMetricEdit(index, 'number')}
               >
                 {metric.number}
               </div>
@@ -347,7 +356,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
               <InlineEditor
                 initialValue={metric.text}
                 onSave={(value) => handleMetricSave(index, 'text', value)}
-                onCancel={() => handleMetricCancel(index)}
+                onCancel={() => handleMetricCancel(index, 'text')}
                 multiline={true}
                 placeholder="Enter text..."
                 style={{
@@ -367,7 +376,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                   fontFamily: currentTheme.fonts.contentFont,
                   cursor: isEditable ? 'pointer' : 'default'
                 }}
-                onClick={() => isEditable && handleMetricEdit(index)}
+                onClick={() => isEditable && handleMetricEdit(index, 'text')}
               >
                 {metric.text || (isEditable ? 'Click to add text' : '')}
               </div>
