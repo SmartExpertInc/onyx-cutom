@@ -634,19 +634,8 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
-      // Prefetch view page and poll readiness before navigating
-      try { router.prefetch(`/projects/view/${data.id}`); } catch {}
-      const maxWaitMs = 45000;
-      const start = Date.now();
-      while (Date.now() - start < maxWaitMs) {
-        try {
-          const ping = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${data.id}`, { cache: 'no-store' });
-          if (ping.ok) break;
-        } catch {}
-        await new Promise(r => setTimeout(r, 600));
-      }
-
-      router.replace(`/projects/view/${data.id}`);
+      // Navigate immediately without delay to prevent cancellation
+      router.push(`/projects/view/${data.id}`);
 
     } catch (e: any) {
       // Clear timeout on error
@@ -665,6 +654,26 @@ export default function LessonPresentationClient() {
       } else {
         const errorMessage = e.message || "Failed to finalize lesson. Please try again.";
         setError(errorMessage);
+        
+        // Fallback: project may have been created despite response error (e.g., 504). Try to locate it.
+        try {
+          const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store' });
+          if (res.ok) {
+            const list = await res.json();
+            // Try to find latest Slide Deck or Video Lesson Presentation by title
+            const derivedTitle = selectedLesson || (params?.get("prompt")?.trim()?.slice(0, 80) || "Untitled Lesson");
+            const isVideo = productType === 'video_lesson_presentation';
+            // component_name not always present in list; match by product_type/microproduct type as well
+            const candidate = list.find((p: any) => p?.projectName === derivedTitle)
+              || list.find((p: any) => (p?.design_microproduct_type || p?.product_type) === (isVideo ? 'Video Lesson Presentation' : 'Slide Deck'));
+            if (candidate?.id) {
+              router.replace(`/projects/view/${candidate.id}`);
+              return;
+            }
+          }
+        } catch (fallbackErr) {
+          console.warn('Finalize fallback navigation failed:', fallbackErr);
+        }
       }
       
       console.error("Finalization error:", e);

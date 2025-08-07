@@ -10167,7 +10167,7 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     details_data = row_dict.get("microproduct_content")
     
     # 🔍 BACKEND VIEW LOGGING: What we retrieved from database for view
-    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Raw details_data type: {type(details_data)}, value: {json.dumps(details_data, indent=2) if details_data else 'None'}")
+    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Raw details_data type: {type(details_data)}")
     
     # Parse the details_data if it's a JSON string
     parsed_details = None

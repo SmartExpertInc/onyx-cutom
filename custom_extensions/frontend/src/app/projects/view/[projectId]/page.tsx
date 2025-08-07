@@ -211,15 +211,11 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const instanceApiUrl = `${CUSTOM_BACKEND_URL}/projects/view/${currentProjectIdStr}`;
-      // Fetch instance FIRST with robust timeout
-      const withTimeout = async (p: Promise<Response>, ms: number) => {
-        const ac = new AbortController();
-        const t = setTimeout(() => ac.abort(), ms);
-        try { return await fetch(instanceApiUrl, { cache: 'no-store', headers: commonHeaders, signal: ac.signal }); }
-        finally { clearTimeout(t); }
-      };
+      const instanceResPromise = fetch(instanceApiUrl, { cache: 'no-store', headers: commonHeaders });
+      const listApiUrl = `${CUSTOM_BACKEND_URL}/projects`;
+      const listResPromise = fetch(listApiUrl, { cache: 'no-store', headers: commonHeaders });
 
-      const instanceRes = await withTimeout(fetch(instanceApiUrl, { cache: 'no-store', headers: commonHeaders }), 60000);
+      const [instanceRes, listRes] = await Promise.all([instanceResPromise, listResPromise]);
 
       if (!instanceRes.ok) {
         const errorText = await instanceRes.text();
@@ -246,26 +242,14 @@ export default function ProjectInstanceViewPage() {
         setChatRedirectUrl(`${window.location.origin}/chat?chatId=${instanceData.sourceChatSessionId}`);
       }
 
-      // Fetch list in background – do not block page render
-      const listApiUrl = `${CUSTOM_BACKEND_URL}/projects`;
-      (async () => {
-        try {
-          const listAc = new AbortController();
-          const listTimeout = setTimeout(() => listAc.abort(), 30000);
-          const listRes = await fetch(listApiUrl, { cache: 'no-store', headers: commonHeaders, signal: listAc.signal });
-          clearTimeout(listTimeout);
-          if (listRes.ok) {
-            const allMicroproductsData: ProjectListItem[] = await listRes.json();
-            setAllUserMicroproducts(allMicroproductsData);
-            const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
-            setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
-          } else {
-            console.warn(t('interface.projectView.couldNotFetchFullProjectsList', 'Could not fetch full projects list to determine parent project name.'));
-          }
-        } catch (e) {
-          console.warn('Projects list fetch skipped/timed out:', (e as any)?.message || e);
-        }
-      })();
+      if (listRes.ok) {
+        const allMicroproductsData: ProjectListItem[] = await listRes.json();
+        setAllUserMicroproducts(allMicroproductsData);
+        const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
+        setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
+      } else {
+          console.warn(t('interface.projectView.couldNotFetchFullProjectsList', 'Could not fetch full projects list to determine parent project name.'));
+      }
 
       if (instanceData.details) {
         const copiedDetails = JSON.parse(JSON.stringify(instanceData.details));

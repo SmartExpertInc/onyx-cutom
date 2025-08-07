@@ -522,21 +522,8 @@ export default function TextPresentationClient() {
       
       setFinalProjectId(data.id);
       
-      // Prefetch view page and poll readiness before navigating
-      try { router.prefetch(`/projects/view/${data.id}`); } catch {}
-
-      // Poll the project view endpoint until it is ready (avoid 504 on first hit)
-      const maxWaitMs = 45000;
-      const start = Date.now();
-      while (Date.now() - start < maxWaitMs) {
-        try {
-          const ping = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${data.id}`, { cache: 'no-store' });
-          if (ping.ok) break;
-        } catch {}
-        await new Promise(r => setTimeout(r, 600));
-      }
-
-      router.replace(`/projects/view/${data.id}`);
+      // Navigate immediately without delay to prevent cancellation
+      router.push(`/projects/view/${data.id}`);
       
     } catch (error: any) {
       // Clear timeout on error
@@ -551,6 +538,24 @@ export default function TextPresentationClient() {
       } else {
         console.error('Finalization failed:', error);
         setError(error instanceof Error ? error.message : 'Failed to finalize presentation');
+        
+        // Fallback: product may be created even if response failed (e.g., 504). Try to locate it and navigate.
+        try {
+          const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store' });
+          if (res.ok) {
+            const list = await res.json();
+            // Try to find most recent matching Text Presentation by name
+            const expectedName = params?.get("courseName") || 'Untitled';
+            const candidate = list.find((p: any) => (p?.projectName === expectedName) && ((p?.design_microproduct_type || p?.product_type) === 'Text Presentation'))
+              || list.find((p: any) => (p?.design_microproduct_type || p?.product_type) === 'Text Presentation');
+            if (candidate?.id) {
+              router.replace(`/projects/view/${candidate.id}`);
+              return;
+            }
+          }
+        } catch (fallbackErr) {
+          console.warn('Finalize fallback navigation failed:', fallbackErr);
+        }
       }
     } finally {
       setIsGenerating(false);
