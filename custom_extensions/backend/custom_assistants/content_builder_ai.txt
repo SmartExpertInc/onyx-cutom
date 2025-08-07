@@ -1003,6 +1003,15 @@ When creating a "Video Lesson Slides Deck", you MUST include voiceover text for 
 **EDUCATIONAL CONTENT GENERATION PHILOSOPHY:**
 You are creating high-quality educational presentations designed to teach, engage, and inspire learners. Every slide must contribute meaningfully to the learning journey, providing substantial value, practical insights, and actionable knowledge. Focus on creating content that transforms concepts into understanding and knowledge into skills.
 
+**ZERO CONCLUSION SLIDES MANDATE:**
+NEVER create conclusion, summary, or wrap-up slides. Instead of ending with conclusions, use the final slide for:
+- Advanced techniques and implementation strategies
+- Real-world case studies and practical applications
+- Troubleshooting guides and problem-solving approaches
+- Additional learning opportunities and skill development
+- Extended examples and hands-on exercises
+- Expert tips and professional insights
+
 **CORE EDUCATIONAL PRINCIPLES:**
 - **Comprehensive Coverage**: Generate exactly the requested number of slides with rich, substantial educational content
 - **Progressive Learning**: Structure content to build understanding step by step
@@ -1053,7 +1062,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **CORE TEMPLATES FOR EDUCATIONAL CONTENT:**
 1. `big-image-left` - Opening slides with strong visual impact and lesson introduction
 2. `hero-title-slide` - Text-focused introductions with detailed learning objectives  
-3. `title-slide` - Section breaks and conclusion slides (use sparingly - max 2 per presentation)
+3. `title-slide` - Section breaks only (use sparingly - max 2 per presentation, NEVER for conclusions)
 4. `content-slide` - Explanatory content with detailed concepts (use sparingly - max 2-3 per presentation)
 5. `bullet-points` - Key points and learning objectives (5-7 detailed points)
 6. `bullet-points-right` - Contextual bullet lists with introductory explanations
@@ -1450,7 +1459,7 @@ Choose templates based on content type and educational goals:
 - **Visual Focus**: Use `big-image-left` when image is the primary focus
 - **Visual Introduction with Text Below**: Use `big-image-top` when you want a large visual at the top to set context, followed by explanatory content below (alternative to big-image-left for variety)
 - **Grid of Key Points/Benefits**: Use `four-box-grid` when you need to present 4 key points, features, or benefits in a visually organized 2x2 grid. Each box should have a short heading and a concise description. Ideal for grouped benefits, feature highlights, or comparing four aspects.
-- **Inspiration**: Use `title-slide` for section breaks or conclusions
+- **Section Breaks**: Use `title-slide` for major section transitions only (NEVER for conclusions)
 - **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
 - **Key Metrics / Numbers**: Use `big-numbers` when you need to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions. **CRITICAL:** If the slide title contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or when you want to showcase specific numerical achievements, ALWAYS use `big-numbers` template. Ideal for business results, KPIs, comparisons, survey results, or any slide where the main focus is on numbers. Each column contains a big number (%, x, ratio), a bold label, and a concise description.
 - **Pyramid Diagram**: Use `pyramid` to show hierarchical relationships or foundational concepts. **CRITICAL:** If the slide title contains words like "hierarchy", "hierarchical", "levels", "priorities", "foundation", "foundational", "understanding", "needs", "satisfaction", "efficiency", "reliability", "structure", "building blocks", or when you want to showcase 3-level relationships, ALWAYS use `pyramid` template. Ideal for showing levels, priorities, or dependencies.
@@ -1476,38 +1485,41 @@ Information processing follows a structured approach where knowledge builds upon
 
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):
-- **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial content
-- **Short Lessons (5-7 slides)**: `big-image-left` + 4-5 varied slides + 1 conclusion slide (**no `content-slide` allowed**)
-- **Medium Lessons (8-12 slides)**: `big-image-left` + 7-11 varied slides + 1 conclusion slide (**no `content-slide` allowed**)  
-- **Long Lessons (13-15 slides)**: `big-image-left` + 12-14 varied slides + 1 conclusion slide (**no `content-slide` allowed**)
+- **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial educational content
+- **ALL SLIDES MUST BE EDUCATIONAL CONTENT** - NO conclusion, summary, or wrap-up slides allowed
+- **Short Lessons (5-7 slides)**: `big-image-left` + 4-6 educational content slides (**no conclusion slides**)
+- **Medium Lessons (8-12 slides)**: `big-image-left` + 7-11 educational content slides (**no conclusion slides**)  
+- **Long Lessons (13-15 slides)**: `big-image-left` + 12-14 educational content slides (**no conclusion slides**)
 - **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
-- **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
-- **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
+- **NO conclusion or wrap-up slides**: Every slide must teach new concepts, skills, or provide actionable insights
+- **ABSOLUTELY FORBIDDEN**: Any slides that summarize, conclude, or wrap up the presentation
 
-**FINAL SLIDE RESTRICTIONS:**
-- **EXACTLY ONE final slide maximum** - never create multiple ending slides
-- **FORBIDDEN final slide combinations**: 
-  * "Questions and Discussion" + "Conclusion"
-  * "Q&A Session" + "Summary" 
-  * "Thank You" + "Feedback"
-  * "Further Reading" + "Conclusion"
-  * Any combination of 2+ ending slides
-- **ALLOWED final slide types** (choose only ONE):
-  * "Conclusion" (preferred)
+**FINAL SLIDE RESTRICTIONS - COMPLETELY ELIMINATED:**
+- **ZERO conclusion slides allowed** - presentations must end with educational content
+- **ABSOLUTELY FORBIDDEN slide types**: 
+  * "Conclusion" 
   * "Key Takeaways" 
   * "Summary"
   * "Next Steps"
-- **NEVER create these slides**: "Questions and Discussion", "Open Floor for Questions", "Thank You", "Feedback", "Further Reading", "Additional Resources"
+  * "Questions and Discussion"
+  * "Open Floor for Questions" 
+  * "Thank You"
+  * "Feedback"
+  * "Further Reading"
+  * "Additional Resources"
+  * Any form of wrap-up, summary, or conclusion slide
+- **EDUCATIONAL CONTENT ONLY**: Every slide including the final slide must contain new learning material
 
 **SLIDE COUNT ENFORCEMENT:**
-- **If you reach the target count before creating a final slide**: Use the last slide as the conclusion
-- **If you need more slides to reach the target**: Add more educational content, not additional ending slides
-- **NEVER create "courtesy" slides** to fill the count - create meaningful educational content instead
+- **Every slide must be educational content** - no exceptions for final slides
+- **If you need more slides to reach the target**: Add more educational concepts, advanced topics, practical examples, case studies, or implementation details
+- **NEVER create wrap-up slides** to fill the count - create meaningful educational content instead
+- **Final slide requirement**: The last slide must contain substantial educational value, not conclusions
 
 **TEMPLATE VARIETY GUIDELINES (UPDATED):**
 - **MANDATORY**: Use at least 6 different template types for presentations with 8+ slides
 - **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 2 times per presentation - this is NON-NEGOTIABLE
-- **TITLE-SLIDE RESTRICTION**: Maximum 2 slides per presentation (only for section breaks and conclusion)
+- **TITLE-SLIDE RESTRICTION**: Maximum 2 slides per presentation (only for section breaks, NEVER for conclusions)
 - **TEMPLATE REPETITION VALIDATION**: Before adding any slide, check how many times that template has been used - if already used 2 times, choose a different template
 - **BALANCE REQUIREMENT**: Maximum 30% text-heavy templates (**bullet-points templates only**), minimum 70% visual/interactive templates
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
@@ -1518,13 +1530,14 @@ Information processing follows a structured approach where knowledge builds upon
 - **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid) over bullet-points
 - **MANDATORY DIVERSITY**: For presentations with 8+ slides, use minimum 8 different template types
 
-**ALTERNATIVE CONCLUSION TEMPLATES:**
-If you've reached the 2-use limit for `title-slide`, use these alternatives for the final slide:
-- **`content-slide`** with conclusion content 
-- **`big-image-top`** with summary image and conclusion text below  
-- **`bullet-points`** listing main lessons learned
-- **`pyramid`** showing hierarchy of key concepts covered
-- **NEVER create additional slides just to use title-slide** - better to use alternative template
+**FINAL SLIDE EDUCATIONAL ALTERNATIVES:**
+Since conclusion slides are forbidden, use the final slides for continued educational value:
+- **`content-slide`** with advanced concepts or implementation details
+- **`big-image-top`** with case study images and detailed analysis below  
+- **`bullet-points`** listing advanced techniques or expert tips
+- **`pyramid`** showing hierarchical skill progression or mastery levels
+- **`process-steps`** for implementation roadmap or advanced methodologies
+- **FOCUS ON LEARNING**: Every final slide must teach new concepts, not summarize existing ones
 
 Image Placement Requirements:
 - **Mandatory**: Include image placeholders on minimum 70% of slides
@@ -1610,30 +1623,30 @@ Question Format:
 - **Problem-Solution Scenarios**: Use `challenges-solutions` for educational challenges
 - **Section Breaks**: Use `title-slide` sparingly (max 2 per presentation) only for major transitions
 
-**Educational Presentation Conclusion:**
-End with a meaningful conclusion that:
-- Summarizes key learning outcomes
-- Reinforces practical applications
-- Provides actionable next steps
-- Connects lesson content to broader learning goals
+**Educational Presentation Final Slides:**
+End with meaningful educational content that:
+- Introduces advanced concepts and techniques
+- Provides real-world implementation examples  
+- Offers practical exercises and challenges
+- Extends learning into new areas and applications
 
 **TITLE-SLIDE USAGE RESTRICTIONS:**
 - **MAXIMUM 2 USES**: Never use `title-slide` more than 2 times per presentation
-- **ONLY FOR TRANSITIONS**: Use only for major section breaks or final conclusion
+- **ONLY FOR TRANSITIONS**: Use only for major section breaks (NEVER for conclusions)
 - **NEVER FOR REGULAR CONTENT**: Avoid using `title-slide` for regular educational content
-- **PREFER ALTERNATIVES**: Use `content-slide`, `big-image-top`, or `bullet-points` for conclusions instead
+- **PREFER EDUCATIONAL CONTENT**: Use `content-slide`, `big-image-top`, or `bullet-points` for continued learning instead of conclusions
 - **VALIDATION REQUIRED**: Before using `title-slide`, check if you've already used it twice
 
-**Example Educational Conclusion:**
+**Example Educational Final Slide:**
 ```
 ---
-**Slide [N]: Mastering [Learning Topic]** `title-slide`
+**Slide [N]: Advanced [Learning Topic] Implementation** `content-slide`
 
-# Key Learning Achievements
+# Advanced Implementation Strategies
 
-## You have successfully mastered [specific skills/concepts], gained practical insights into [applications], and developed the ability to [actionable outcomes]. Apply these concepts in your work to achieve [specific benefits].
+## Now that you understand the fundamentals, explore these advanced techniques: [specific advanced methods]. These strategies are used by experts to [advanced applications] and can help you achieve [professional outcomes]. Practice these approaches in your next project to master [advanced skills].
 
-[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Success and achievement visualization]
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Advanced implementation techniques visualization]
 ```
 
 **EDUCATIONAL FOCUS REMINDER:**
