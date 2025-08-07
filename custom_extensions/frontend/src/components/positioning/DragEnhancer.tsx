@@ -65,8 +65,14 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       let dragDistance = 0;
       const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
       
-      // Get saved position from props or drag state
-      const savedPos = savedPositions?.[elementId] || dragStateRef.current.get(elementId) || { x: 0, y: 0 };
+      // Get saved position from props, drag state, or data attributes
+      const savedPos = savedPositions?.[elementId] || 
+                      dragStateRef.current.get(elementId) || 
+                      { 
+                        x: parseInt(htmlElement.getAttribute('data-saved-x') || '0'), 
+                        y: parseInt(htmlElement.getAttribute('data-saved-y') || '0') 
+                      } || 
+                      { x: 0, y: 0 };
       let currentX = savedPos.x;
       let currentY = savedPos.y;
 
@@ -74,7 +80,17 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       if (currentX !== 0 || currentY !== 0) {
         htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
         htmlElement.style.position = 'relative';
+        
+        // Set CSS custom properties for CSS-based positioning
+        htmlElement.style.setProperty('--saved-x', currentX.toString());
+        htmlElement.style.setProperty('--saved-y', currentY.toString());
+        
         dragStateRef.current.set(elementId, { x: currentX, y: currentY });
+        
+        // Also store in data attributes for persistence across DOM changes
+        htmlElement.setAttribute('data-saved-x', currentX.toString());
+        htmlElement.setAttribute('data-saved-y', currentY.toString());
+        
         console.log(`📍 Applied saved position to ${elementId}:`, { x: currentX, y: currentY });
       }
 
@@ -127,6 +143,10 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
         htmlElement.style.position = 'relative';
         
+        // Update CSS custom properties during drag
+        htmlElement.style.setProperty('--saved-x', currentX.toString());
+        htmlElement.style.setProperty('--saved-y', currentY.toString());
+        
         // Save position immediately to prevent flickering
         dragStateRef.current.set(elementId, { x: currentX, y: currentY });
         
@@ -144,13 +164,21 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.style.userSelect = '';
         htmlElement.classList.remove('dragging');
         
-        // If element was actually dragged, prevent click events
+        // If element was actually dragged, prevent click events for longer
         if (wasDragged) {
-          // Add a flag to prevent click events for a short time
+          // Add a flag to prevent click events for a longer time
           htmlElement.setAttribute('data-just-dragged', 'true');
+          
+          // Store the current position in a data attribute for persistence
+          htmlElement.setAttribute('data-saved-x', currentX.toString());
+          htmlElement.setAttribute('data-saved-y', currentY.toString());
+          
+          // Store drag timestamp for click prevention
+          htmlElement.setAttribute('data-drag-time', Date.now().toString());
+          
           setTimeout(() => {
             htmlElement.removeAttribute('data-just-dragged');
-          }, 300); // 300ms delay
+          }, 500); // Increased from 300ms to 500ms for better UX
           
           console.log(`✅ Drag completed for element:`, elementId, `(distance: ${dragDistance.toFixed(1)}px)`);
         }

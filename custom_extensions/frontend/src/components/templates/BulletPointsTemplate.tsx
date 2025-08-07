@@ -629,7 +629,22 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
               e.preventDefault();
               e.stopPropagation();
+              console.log('🚫 Click prevented - element was just dragged');
               return;
+            }
+            
+            // Additional check: prevent if element has saved position data (recently dragged)
+            const savedX = e.currentTarget.getAttribute('data-saved-x');
+            const savedY = e.currentTarget.getAttribute('data-saved-y');
+            if (savedX && savedY && (parseInt(savedX) !== 0 || parseInt(savedY) !== 0)) {
+              // Check if this is a recent drag (within last 1 second)
+              const dragTime = e.currentTarget.getAttribute('data-drag-time');
+              if (dragTime && (Date.now() - parseInt(dragTime)) < 1000) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🚫 Click prevented - element was recently dragged');
+                return;
+              }
             }
             
             if (isEditable) {

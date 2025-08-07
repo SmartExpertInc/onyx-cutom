@@ -16,6 +16,14 @@
   transform: translate(0px, 0px); /* Default transform to prevent layout shift */
 }
 
+/* Apply saved positions from data attributes */
+.positioning-enabled-slide [data-draggable="true"][data-saved-x][data-saved-y] {
+  transform: translate(
+    calc(var(--saved-x, 0) * 1px), 
+    calc(var(--saved-y, 0) * 1px)
+  ) !important;
+}
+
 /* Prevent transitions during initial render to avoid flicker */
 .positioning-enabled-slide.initializing [data-draggable="true"] {
   transition: none !important;
