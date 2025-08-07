@@ -1349,14 +1349,81 @@
         .child-node::before {
             content: '';
             position: absolute;
-            top: -20px;
+            top: -30px;
             left: 50%;
-            width: 2px;
-            height: 20px;
-            background-color: var(--content-color);
+            width: 3px;
+            height: 30px;
+            background: linear-gradient(to bottom, var(--content-color), transparent);
             transform: translateX(-50%);
-            border-radius: 1px;
+            border-radius: 2px;
             opacity: 0.6;
+        }
+        
+        /* Космические стили для планет */
+        .planet-node {
+            border-radius: 50% !important;
+            min-width: 180px !important;
+            min-height: 180px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            position: relative !important;
+            overflow: hidden !important;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .planet-node.ceo {
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(255, 215, 0, 0.1) 70%, rgba(255, 215, 0, 0.05) 100%) !important;
+            border: 3px solid rgba(255, 215, 0, 0.6) !important;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 215, 0, 0.2) !important;
+            transform: scale(1.3) !important;
+            min-width: 220px !important;
+            min-height: 220px !important;
+        }
+        
+        .planet-node.c-level {
+            background: radial-gradient(circle, rgba(100, 149, 237, 0.25) 0%, rgba(100, 149, 237, 0.1) 70%, rgba(100, 149, 237, 0.05) 100%) !important;
+            border: 2px solid rgba(100, 149, 237, 0.5) !important;
+            box-shadow: 0 0 40px rgba(100, 149, 237, 0.3), inset 0 0 20px rgba(100, 149, 237, 0.15) !important;
+            transform: scale(1.15) !important;
+            min-width: 200px !important;
+            min-height: 200px !important;
+        }
+        
+        .planet-node.manager {
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.2) 0%, rgba(138, 43, 226, 0.08) 70%, rgba(138, 43, 226, 0.04) 100%) !important;
+            border: 2px solid rgba(138, 43, 226, 0.4) !important;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.25), inset 0 0 15px rgba(138, 43, 226, 0.1) !important;
+            transform: scale(1.05) !important;
+            min-width: 160px !important;
+            min-height: 160px !important;
+        }
+        
+        .planet-node.employee {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.06) 70%, rgba(255, 255, 255, 0.03) 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.08) !important;
+            transform: scale(0.95) !important;
+            min-width: 140px !important;
+            min-height: 140px !important;
+        }
+        
+        .planet-content {
+            text-align: center !important;
+            font-weight: 700 !important;
+            margin-bottom: 4px !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+        
+        .planet-role {
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            opacity: 0.8 !important;
+            text-align: center !important;
+            position: relative !important;
+            z-index: 2 !important;
         }
 
         
@@ -1484,6 +1551,58 @@
             line-height: 1.5;
             font-family: 'Martel Sans', sans-serif;
             font-weight: 500;
+        }
+        
+        /* Event List Template - EXACT FRONTEND MATCH */
+        .event-list-template {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .events-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .event-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+        
+        .event-date {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-color);
+            min-width: 140px;
+            font-family: 'Martel Sans', sans-serif;
+            text-align: right;
+        }
+        
+        .event-description {
+            font-size: 16px;
+            color: var(--content-color);
+            line-height: 1.5;
+            flex: 1;
+            font-family: 'Martel Sans', sans-serif;
         }
         
         /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
@@ -2174,31 +2293,43 @@
                 <!-- DEBUG: org-chart template -->
                 <!-- DEBUG: slide.props.chartData = {{ slide.props.chartData }} -->
                 <div class="org-chart-template">
-                    <h1 class="slide-title">{{ slide.props.title or 'Organizational chart' }}</h1>
+                    <h1 class="slide-title">{{ slide.props.title or 'Космическая галактика команд' }}</h1>
                     <div class="org-chart-container">
                         {% if slide.props.chartData %}
                             {% for node in slide.props.chartData %}
                                 {% if not node.parentId %}
                                     <div class="chart-node root-node">
-                                        <div class="node-content ceo">{{ node.title or 'CEO' }}</div>
+                                        <div class="planet-node ceo">
+                                            <div class="planet-content">{{ node.title or 'CEO' }}</div>
+                                            <div class="planet-role">{{ node.role or 'Галактический лидер' }}</div>
+                                        </div>
                                         {% if slide.props.chartData | selectattr('parentId', 'equalto', node.id) | list | length > 0 %}
                                             <div class="children-container">
                                                 <div class="children-grid">
                                                     {% for child in slide.props.chartData | selectattr('parentId', 'equalto', node.id) %}
                                                         <div class="chart-node child-node">
-                                                            <div class="node-content c-level">{{ child.title or 'CTO' }}</div>
+                                                            <div class="planet-node c-level">
+                                                                <div class="planet-content">{{ child.title or 'CTO' }}</div>
+                                                                <div class="planet-role">{{ child.role or 'Технологический визионер' }}</div>
+                                                            </div>
                                                                                                         {% if slide.props.chartData | selectattr('parentId', 'equalto', child.id) | list | length > 0 %}
                                                 <div class="children-container">
                                                     <div class="children-grid">
                                                                         {% for grandchild in slide.props.chartData | selectattr('parentId', 'equalto', child.id) %}
                                                                             <div class="chart-node grandchild-node">
-                                                                                <div class="node-content manager">{{ grandchild.title or 'Dev Lead' }}</div>
+                                                                                <div class="planet-node manager">
+                                                                                    <div class="planet-content">{{ grandchild.title or 'Dev Lead' }}</div>
+                                                                                    <div class="planet-role">{{ grandchild.role or 'Архитектор кода' }}</div>
+                                                                                </div>
                                                                                                                                 {% if slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) | list | length > 0 %}
                                                     <div class="children-container">
                                                         <div class="children-grid">
                                                                                             {% for employee in slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) %}
                                                                                                 <div class="chart-node employee-node">
-                                                                                                    <div class="node-content employee">{{ employee.title or 'Senior Dev' }}</div>
+                                                                                                    <div class="planet-node employee">
+                                                                                                        <div class="planet-content">{{ employee.title or 'Senior Dev' }}</div>
+                                                                                                        <div class="planet-role">{{ employee.role or 'Ветеран кодинга' }}</div>
+                                                                                                    </div>
                                                                                                 </div>
                                                                                             {% endfor %}
                                                                                         </div>
@@ -2219,17 +2350,29 @@
                             {% endfor %}
                         {% else %}
                             <div class="chart-node root-node">
-                                <div class="node-content ceo">CEO</div>
+                                <div class="planet-node ceo">
+                                    <div class="planet-content">CEO</div>
+                                    <div class="planet-role">Галактический лидер</div>
+                                </div>
                                 <div class="children-container">
                                     <div class="children-grid">
                                         <div class="chart-node child-node">
-                                            <div class="node-content c-level">CTO</div>
+                                            <div class="planet-node c-level">
+                                                <div class="planet-content">CTO</div>
+                                                <div class="planet-role">Технологический визионер</div>
+                                            </div>
                                         </div>
                                         <div class="chart-node child-node">
-                                            <div class="node-content c-level">CFO</div>
+                                            <div class="planet-node c-level">
+                                                <div class="planet-content">CFO</div>
+                                                <div class="planet-role">Финансовый стратег</div>
+                                            </div>
                                         </div>
                                         <div class="chart-node child-node">
-                                            <div class="node-content c-level">CMO</div>
+                                            <div class="planet-node c-level">
+                                                <div class="planet-content">CMO</div>
+                                                <div class="planet-role">Маркетинговый маг</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2311,6 +2454,30 @@
                                 <div class="metric-item">
                                     <div class="metric-number">{{ '%02d' % (i + 1) }}</div>
                                     <div class="metric-text">Key performance indicators (KPIs)</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'event-list' %}
+                <!-- DEBUG: event-list template -->
+                <!-- DEBUG: slide.props.events = {{ slide.props.events }} -->
+                <div class="event-list-template">
+                    <h1 class="slide-title">{{ slide.props.title or 'Timeline of events' }}</h1>
+                    <div class="events-container">
+                        {% if slide.props.events %}
+                            {% for event in slide.props.events %}
+                                <div class="event-item">
+                                    <div class="event-date">{{ event.date or 'Click to add date' }}</div>
+                                    <div class="event-description">{{ event.description or 'Click to add description' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for i in range(3) %}
+                                <div class="event-item">
+                                    <div class="event-date">January {{ i + 1 }}, 2024</div>
+                                    <div class="event-description">Important milestone or event description</div>
                                 </div>
                             {% endfor %}
                         {% endif %}

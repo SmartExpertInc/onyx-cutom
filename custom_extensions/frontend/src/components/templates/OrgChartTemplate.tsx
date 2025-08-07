@@ -7,6 +7,8 @@ interface ChartNode {
   title: string;
   level: number;
   parentId?: string;
+  role?: string;
+  department?: string;
 }
 
 interface InlineEditorProps {
@@ -122,20 +124,20 @@ function InlineEditor({
 }
 
 const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
-  title = 'Organizational chart',
+  title = 'Космическая галактика команд',
   chartData = [
-    { id: 'ceo', title: 'CEO', level: 0 },
-    { id: 'cto', title: 'CTO', level: 1, parentId: 'ceo' },
-    { id: 'cfo', title: 'CFO', level: 1, parentId: 'ceo' },
-    { id: 'cmo', title: 'CMO', level: 1, parentId: 'ceo' },
-    { id: 'dev_lead', title: 'Dev Lead', level: 2, parentId: 'cto' },
-    { id: 'qa_lead', title: 'QA Lead', level: 2, parentId: 'cto' },
-    { id: 'finance_manager', title: 'Finance Manager', level: 2, parentId: 'cfo' },
-    { id: 'hr_manager', title: 'HR Manager', level: 2, parentId: 'cfo' },
-    { id: 'marketing_lead', title: 'Marketing Lead', level: 2, parentId: 'cmo' },
-    { id: 'sales_lead', title: 'Sales Lead', level: 2, parentId: 'cmo' },
-    { id: 'senior_dev', title: 'Senior Dev', level: 3, parentId: 'dev_lead' },
-    { id: 'junior_dev', title: 'Junior Dev', level: 3, parentId: 'dev_lead' }
+    { id: 'ceo', title: 'CEO', level: 0, role: 'Галактический лидер', department: 'Центральная звезда' },
+    { id: 'cto', title: 'CTO', level: 1, parentId: 'ceo', role: 'Технологический визионер', department: 'Планета Инноваций' },
+    { id: 'cfo', title: 'CFO', level: 1, parentId: 'ceo', role: 'Финансовый стратег', department: 'Планета Экономики' },
+    { id: 'cmo', title: 'CMO', level: 1, parentId: 'ceo', role: 'Маркетинговый маг', department: 'Планета Креатива' },
+    { id: 'dev_lead', title: 'Dev Lead', level: 2, parentId: 'cto', role: 'Архитектор кода', department: 'Спутник Разработки' },
+    { id: 'qa_lead', title: 'QA Lead', level: 2, parentId: 'cto', role: 'Защитник качества', department: 'Спутник Тестирования' },
+    { id: 'finance_manager', title: 'Finance Manager', level: 2, parentId: 'cfo', role: 'Хранитель бюджета', department: 'Спутник Финансов' },
+    { id: 'hr_manager', title: 'HR Manager', level: 2, parentId: 'cfo', role: 'Талисман команды', department: 'Спутник HR' },
+    { id: 'marketing_lead', title: 'Marketing Lead', level: 2, parentId: 'cmo', role: 'Мастер брендинга', department: 'Спутник Маркетинга' },
+    { id: 'sales_lead', title: 'Sales Lead', level: 2, parentId: 'cmo', role: 'Охотник за клиентами', department: 'Спутник Продаж' },
+    { id: 'senior_dev', title: 'Senior Dev', level: 3, parentId: 'dev_lead', role: 'Ветеран кодинга', department: 'Орбитальный путь' },
+    { id: 'junior_dev', title: 'Junior Dev', level: 3, parentId: 'dev_lead', role: 'Новичок галактики', department: 'Орбитальный путь' }
   ],
   titleColor,
   textColor,
@@ -177,96 +179,115 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   const getChildren = (parentId: string) => chartData.filter(item => item.parentId === parentId);
   const getRootNodes = () => chartData.filter(item => !item.parentId);
 
-  const renderNode = (node: ChartNode, level: number) => {
+  // Космические стили для разных уровней
+  const getPlanetStyle = (level: number): React.CSSProperties => {
+    const baseStyle: React.CSSProperties = {
+      padding: '20px 30px',
+      margin: '12px',
+      borderRadius: '50%',
+      cursor: isEditable ? 'pointer' : 'default',
+      textAlign: 'center' as const,
+      zIndex: 1,
+      position: 'relative',
+      overflow: 'hidden',
+      transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+      minWidth: '180px',
+      minHeight: '180px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+    };
+
+    switch (level) {
+      case 0: // CEO - Центральная звезда
+        return {
+          ...baseStyle,
+          background: 'radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(255, 215, 0, 0.1) 70%, rgba(255, 215, 0, 0.05) 100%)',
+          border: '3px solid rgba(255, 215, 0, 0.6)',
+          boxShadow: '0 0 60px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 215, 0, 0.2)',
+          transform: 'scale(1.3)',
+          minWidth: '220px',
+          minHeight: '220px',
+        };
+      case 1: // C-level - Планеты
+        return {
+          ...baseStyle,
+          background: 'radial-gradient(circle, rgba(100, 149, 237, 0.25) 0%, rgba(100, 149, 237, 0.1) 70%, rgba(100, 149, 237, 0.05) 100%)',
+          border: '2px solid rgba(100, 149, 237, 0.5)',
+          boxShadow: '0 0 40px rgba(100, 149, 237, 0.3), inset 0 0 20px rgba(100, 149, 237, 0.15)',
+          transform: 'scale(1.15)',
+          minWidth: '200px',
+          minHeight: '200px',
+        };
+      case 2: // Managers - Спутники
+        return {
+          ...baseStyle,
+          background: 'radial-gradient(circle, rgba(138, 43, 226, 0.2) 0%, rgba(138, 43, 226, 0.08) 70%, rgba(138, 43, 226, 0.04) 100%)',
+          border: '2px solid rgba(138, 43, 226, 0.4)',
+          boxShadow: '0 0 30px rgba(138, 43, 226, 0.25), inset 0 0 15px rgba(138, 43, 226, 0.1)',
+          transform: 'scale(1.05)',
+          minWidth: '160px',
+          minHeight: '160px',
+        };
+      default: // Employees - Орбитальные объекты
+        return {
+          ...baseStyle,
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.06) 70%, rgba(255, 255, 255, 0.03) 100%)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.08)',
+          transform: 'scale(0.95)',
+          minWidth: '140px',
+          minHeight: '140px',
+        };
+    }
+  };
+
+  const getFontSize = (level: number) => {
+    switch (level) {
+      case 0: return '20px';
+      case 1: return '18px';
+      case 2: return '16px';
+      default: return '14px';
+    }
+  };
+
+  const getRoleFontSize = (level: number) => {
+    switch (level) {
+      case 0: return '14px';
+      case 1: return '12px';
+      case 2: return '11px';
+      default: return '10px';
+    }
+  };
+
+  const renderPlanet = (node: ChartNode, level: number) => {
     const children = getChildren(node.id);
     const hasChildren = children.length > 0;
     
-    // Modern design styles for different levels
-    const getNodeStyle = (level: number): React.CSSProperties => {
-      const baseStyle: React.CSSProperties = {
-        padding: '16px 24px',
-        margin: '8px',
-        borderRadius: '16px',
-        cursor: isEditable ? 'pointer' : 'default',
-        textAlign: 'center' as const,
-        zIndex: 1,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-        backdropFilter: 'blur(20px)',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        position: 'relative',
-        overflow: 'hidden',
-      };
-
-      switch (level) {
-        case 0: // CEO - Premium style
-          return {
-            ...baseStyle,
-            backgroundColor: 'rgba(255, 215, 0, 0.2)',
-            border: `3px solid rgba(255, 215, 0, 0.5)`,
-            minWidth: '220px',
-            transform: 'scale(1.2)',
-            boxShadow: '0 16px 48px rgba(255, 215, 0, 0.25)',
-          };
-        case 1: // C-level - Executive style
-          return {
-            ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            border: `2px solid rgba(255, 255, 255, 0.4)`,
-            minWidth: '180px',
-            transform: 'scale(1.1)',
-            boxShadow: '0 12px 36px rgba(0,0,0,0.15)',
-          };
-        case 2: // Managers - Professional style
-          return {
-            ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: `2px solid rgba(255, 255, 255, 0.25)`,
-            minWidth: '160px',
-            transform: 'scale(1.05)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-          };
-        default: // Employees - Clean style
-          return {
-            ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-            border: `1px solid rgba(255, 255, 255, 0.2)`,
-            minWidth: '140px',
-            transform: 'scale(1.0)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-          };
-      }
-    };
-
-    const getFontSize = (level: number) => {
-      switch (level) {
-        case 0: return '22px';
-        case 1: return '18px';
-        case 2: return '16px';
-        default: return '14px';
-      }
-    };
-
     return (
       <div key={node.id} style={{ 
         position: 'relative', 
         display: 'flex', 
         flexDirection: 'column', 
         alignItems: 'center',
-        margin: '4px'
+        margin: '8px'
       }}>
+        {/* Планета */}
         <div
-          style={getNodeStyle(level)}
+          style={getPlanetStyle(level)}
           onClick={() => handleChartDataEdit(node.id)}
         >
-          {/* Gradient overlay */}
+          {/* Космическая атмосфера */}
           <div style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-            borderRadius: '16px',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '100%',
+            height: '100%',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+            borderRadius: '50%',
             pointerEvents: 'none',
           }} />
           
@@ -282,9 +303,10 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                 color: txtColor,
                 fontFamily: currentTheme.fonts.contentFont,
                 textAlign: 'center',
-                fontWeight: level === 0 ? '700' : '600',
+                fontWeight: '700',
                 position: 'relative',
                 zIndex: 2,
+                marginBottom: '4px',
               }}
             />
           ) : (
@@ -293,39 +315,56 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                 fontSize: getFontSize(level),
                 color: txtColor,
                 fontFamily: currentTheme.fonts.contentFont,
-                fontWeight: level === 0 ? '700' : '600',
+                fontWeight: '700',
                 position: 'relative',
                 zIndex: 2,
+                marginBottom: '4px',
               }}
             >
               {node.title || (isEditable ? 'Click to add title' : '')}
             </div>
           )}
+          
+          {/* Роль */}
+          <div
+            style={{
+              fontSize: getRoleFontSize(level),
+              color: txtColor,
+              fontFamily: currentTheme.fonts.contentFont,
+              fontWeight: '500',
+              position: 'relative',
+              zIndex: 2,
+              opacity: 0.8,
+              textAlign: 'center',
+            }}
+          >
+            {node.role || 'Роль'}
+          </div>
         </div>
 
         {hasChildren && (
           <div style={{ 
-            paddingTop: '40px', 
+            paddingTop: '60px', 
             position: 'relative', 
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center',
             width: '100%'
           }}>
-            {/* Connection line from parent to children */}
+            {/* Орбитальная дорожка */}
             <div style={{
               position: 'absolute',
               top: '0',
               left: '50%',
-              width: '3px',
-              height: '40px',
-              backgroundColor: txtColor,
+              width: '4px',
+              height: '60px',
+              background: `linear-gradient(to bottom, ${txtColor}, transparent)`,
               transform: 'translateX(-50%)',
               borderRadius: '2px',
               opacity: 0.6,
             }} />
             
-            {/* Children container with visual hierarchy */}
+            {/* Контейнер спутников */}
             <div
               style={{
                 display: 'flex',
@@ -333,23 +372,23 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                 alignItems: 'flex-start',
                 position: 'relative',
                 width: '100%',
-                maxWidth: `${Math.max(children.length * 220, 900)}px`,
-                gap: '30px',
+                maxWidth: `${Math.max(children.length * 240, 1000)}px`,
+                gap: '40px',
                 flexWrap: 'wrap',
-                padding: '20px 0',
+                padding: '30px 0',
               }}
             >
-              {/* Connection line between children */}
+              {/* Орбитальная линия между спутниками */}
               {children.length > 1 && (
                 <div style={{
                   position: 'absolute',
-                  top: '20px',
-                  left: '50px',
-                  right: '50px',
-                  height: '2px',
-                  backgroundColor: txtColor,
+                  top: '30px',
+                  left: '60px',
+                  right: '60px',
+                  height: '3px',
+                  background: `linear-gradient(to right, transparent, ${txtColor}, transparent)`,
                   opacity: 0.4,
-                  borderRadius: '1px',
+                  borderRadius: '2px',
                 }} />
               )}
               
@@ -360,21 +399,21 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                   alignItems: 'center', 
                   position: 'relative', 
                   flex: '0 1 auto',
-                  minWidth: '180px',
+                  minWidth: '200px',
                 }}>
-                  {/* Connection line from horizontal to child */}
+                  {/* Соединительная линия от орбиты к спутнику */}
                   <div style={{
                     position: 'absolute',
-                    top: '-20px',
+                    top: '-30px',
                     left: '50%',
-                    width: '2px',
-                    height: '20px',
-                    backgroundColor: txtColor,
+                    width: '3px',
+                    height: '30px',
+                    background: `linear-gradient(to bottom, ${txtColor}, transparent)`,
                     transform: 'translateX(-50%)',
-                    borderRadius: '1px',
+                    borderRadius: '2px',
                     opacity: 0.6,
                   }} />
-                  {renderNode(child, level + 1)}
+                  {renderPlanet(child, level + 1)}
                 </div>
               ))}
             </div>
@@ -386,83 +425,98 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
 
   return (
     <div style={{ 
-      background: bgColor, 
+      background: `linear-gradient(135deg, ${bgColor} 0%, rgba(0,0,0,0.8) 100%)`, 
       minHeight: 600, 
       padding: '40px', 
       boxSizing: 'border-box',
-      fontFamily: currentTheme.fonts.contentFont
+      fontFamily: currentTheme.fonts.contentFont,
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-             <div style={{ marginBottom: '50px', textAlign: 'center' }}>
-         {isEditable && editingTitle ? (
-           <InlineEditor
-             initialValue={title}
-             onSave={handleTitleSave}
-             onCancel={handleTitleCancel}
-             multiline={false}
-             placeholder="Enter title..."
-             style={{
-               fontWeight: 700,
-               fontSize: currentTheme.fonts.titleSize,
-               color: tColor,
-               textAlign: 'center',
-               width: '100%',
-               fontFamily: currentTheme.fonts.titleFont
-             }}
-           />
-         ) : (
-           <div
-             style={{
-               fontWeight: 700,
-               fontSize: currentTheme.fonts.titleSize,
-               color: tColor,
-               textAlign: 'center',
-               cursor: isEditable ? 'pointer' : 'default',
-               fontFamily: currentTheme.fonts.titleFont
-             }}
-             onClick={() => isEditable && setEditingTitle(true)}
-           >
-             {title || (isEditable ? 'Click to add title' : '')}
-           </div>
-         )}
-       </div>
-
-               <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center',
-          alignItems: 'center',
-          flex: 1,
-          padding: '40px 0',
-          minHeight: '500px'
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            maxWidth: '1400px',
-            position: 'relative',
-          }}>
-            {/* Visual hierarchy indicator */}
-            <div style={{
-              position: 'absolute',
-              top: '20px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              fontSize: '14px',
-              color: txtColor,
-              opacity: 0.7,
-              fontFamily: currentTheme.fonts.contentFont,
-              fontWeight: '500',
+      {/* Космический фон */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%)',
+        pointerEvents: 'none',
+      }} />
+      
+      <div style={{ marginBottom: '50px', textAlign: 'center', position: 'relative', zIndex: 2 }}>
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={false}
+            placeholder="Enter title..."
+            style={{
+              fontWeight: 700,
+              fontSize: currentTheme.fonts.titleSize,
+              color: tColor,
               textAlign: 'center',
-              zIndex: 1,
-            }}>
-              ↓ Иерархическая структура ↓
-            </div>
-            
-            {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
+              width: '100%',
+              fontFamily: currentTheme.fonts.titleFont
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: currentTheme.fonts.titleSize,
+              color: tColor,
+              textAlign: 'center',
+              cursor: isEditable ? 'pointer' : 'default',
+              fontFamily: currentTheme.fonts.titleFont
+            }}
+            onClick={() => isEditable && setEditingTitle(true)}
+          >
+            {title || (isEditable ? 'Click to add title' : '')}
           </div>
+        )}
+      </div>
+
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+        padding: '40px 0',
+        minHeight: '500px',
+        position: 'relative',
+        zIndex: 2,
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          maxWidth: '1600px',
+          position: 'relative',
+        }}>
+          {/* Космическая подсказка */}
+          <div style={{
+            position: 'absolute',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: '14px',
+            color: txtColor,
+            opacity: 0.7,
+            fontFamily: currentTheme.fonts.contentFont,
+            fontWeight: '500',
+            textAlign: 'center',
+            zIndex: 1,
+          }}>
+            🌌 Космическая галактика команд 🌌
+          </div>
+          
+          {getRootNodes().map(rootNode => renderPlanet(rootNode, 0))}
         </div>
+      </div>
     </div>
   );
 };
