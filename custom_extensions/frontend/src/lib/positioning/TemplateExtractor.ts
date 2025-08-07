@@ -45,8 +45,8 @@ export class TemplateExtractor {
     const extractor = this.getExtractorForTemplate(slide.templateId as TemplateId);
     if (!extractor) {
       return {
-        items: this.createFallbackItems(slide),
-        canvasConfig: this.DEFAULT_CANVAS
+        items: TemplateExtractor.createFallbackItems(slide),
+        canvasConfig: TemplateExtractor.DEFAULT_CANVAS
       };
     }
 
@@ -113,7 +113,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: currentY, width: 1080, height: 60 },
@@ -124,7 +124,7 @@ export class TemplateExtractor {
 
     // Image (if present)
     if (props.imagePath || props.imagePrompt) {
-      items.push(this.createImageItem(
+      items.push(TemplateExtractor.createImageItem(
         'main-image',
         props.imagePath || '',
         props.imagePrompt || '',
@@ -134,7 +134,7 @@ export class TemplateExtractor {
 
     // Bullets
     if (props.bullets && props.bullets.length > 0) {
-      const bulletListItem = this.createBulletListItem(
+      const bulletListItem = TemplateExtractor.createBulletListItem(
         'bullet-list',
         props.bullets,
         { x: 60, y: currentY, width: 700, height: props.bullets.length * 40 + 20 }
@@ -144,7 +144,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -159,7 +159,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -169,7 +169,7 @@ export class TemplateExtractor {
 
     // Image on the right
     if (props.imagePath || props.imagePrompt) {
-      items.push(this.createImageItem(
+      items.push(TemplateExtractor.createImageItem(
         'main-image',
         props.imagePath || '',
         props.imagePrompt || '',
@@ -179,7 +179,7 @@ export class TemplateExtractor {
 
     // Bullets on the left
     if (props.bullets && props.bullets.length > 0) {
-      const bulletListItem = this.createBulletListItem(
+      const bulletListItem = TemplateExtractor.createBulletListItem(
         'bullet-list',
         props.bullets,
         { x: 60, y: 180, width: 700, height: props.bullets.length * 40 + 20 }
@@ -189,7 +189,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -206,7 +206,7 @@ export class TemplateExtractor {
 
     // Main title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'main-title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -219,7 +219,7 @@ export class TemplateExtractor {
     
     // Left title
     if (props.leftTitle) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'left-title',
         props.leftTitle,
         { x: 60, y: leftY, width: columnWidth, height: 40 },
@@ -230,7 +230,7 @@ export class TemplateExtractor {
 
     // Left image
     if (props.leftImagePath || props.leftImagePrompt) {
-      items.push(this.createImageItem(
+      items.push(TemplateExtractor.createImageItem(
         'left-image',
         props.leftImagePath || '',
         props.leftImagePrompt || '',
@@ -241,7 +241,7 @@ export class TemplateExtractor {
 
     // Left content
     if (props.leftContent) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'left-content',
         props.leftContent,
         { x: 60, y: leftY, width: columnWidth, height: 200 },
@@ -255,7 +255,7 @@ export class TemplateExtractor {
 
     // Right title
     if (props.rightTitle) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'right-title',
         props.rightTitle,
         { x: rightX, y: rightY, width: columnWidth, height: 40 },
@@ -266,7 +266,7 @@ export class TemplateExtractor {
 
     // Right image
     if (props.rightImagePath || props.rightImagePrompt) {
-      items.push(this.createImageItem(
+      items.push(TemplateExtractor.createImageItem(
         'right-image',
         props.rightImagePath || '',
         props.rightImagePrompt || '',
@@ -277,7 +277,7 @@ export class TemplateExtractor {
 
     // Right content
     if (props.rightContent) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'right-content',
         props.rightContent,
         { x: rightX, y: rightY, width: columnWidth, height: 200 },
@@ -287,7 +287,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -302,7 +302,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -319,7 +319,7 @@ export class TemplateExtractor {
         const y = 200;
 
         // Step container
-        items.push(this.createStepItem(
+        items.push(TemplateExtractor.createStepItem(
           `step-${index + 1}`,
           step,
           index + 1,
@@ -330,7 +330,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -345,7 +345,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -361,7 +361,7 @@ export class TemplateExtractor {
         const x = 60 + index * (itemWidth + 40);
         const y = 200;
 
-        items.push(this.createBigNumberItem(
+        items.push(TemplateExtractor.createBigNumberItem(
           `number-${index + 1}`,
           item,
           { x, y, width: itemWidth, height: 300 }
@@ -371,7 +371,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -386,7 +386,7 @@ export class TemplateExtractor {
 
     // Title and subtitle
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 50 },
@@ -395,7 +395,7 @@ export class TemplateExtractor {
     }
 
     if (props.subtitle) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'subtitle',
         props.subtitle,
         { x: 60, y: 140, width: 800, height: 40 },
@@ -404,7 +404,7 @@ export class TemplateExtractor {
     }
 
     // Pyramid visual (as a shape)
-    items.push(this.createShapeItem(
+    items.push(TemplateExtractor.createShapeItem(
       'pyramid-shape',
       'pyramid',
       { x: 60, y: 200, width: 500, height: 400 }
@@ -420,7 +420,7 @@ export class TemplateExtractor {
 
       props.items.forEach((item, index) => {
         if (index < itemPositions.length) {
-          items.push(this.createPyramidItem(
+          items.push(TemplateExtractor.createPyramidItem(
             `pyramid-item-${index + 1}`,
             item,
             itemPositions[index]
@@ -431,7 +431,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -446,7 +446,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -455,7 +455,7 @@ export class TemplateExtractor {
     }
 
     // Timeline line
-    items.push(this.createShapeItem(
+    items.push(TemplateExtractor.createShapeItem(
       'timeline-line',
       'line',
       { x: 100, y: 350, width: 1000, height: 4 }
@@ -469,7 +469,7 @@ export class TemplateExtractor {
         const x = 100 + index * stepWidth;
         const y = index % 2 === 0 ? 200 : 400; // Alternate above/below line
 
-        items.push(this.createTimelineItem(
+        items.push(TemplateExtractor.createTimelineItem(
           `timeline-step-${index + 1}`,
           step,
           { x, y, width: stepWidth - 20, height: 120 }
@@ -479,7 +479,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -496,7 +496,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -506,14 +506,14 @@ export class TemplateExtractor {
 
     // Challenges column
     if (props.challenges && props.challenges.length > 0) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'challenges-title',
         props.challengesTitle || 'Challenges',
         { x: 60, y: 160, width: columnWidth, height: 40 },
         'heading'
       ));
 
-      items.push(this.createBulletListItem(
+      items.push(TemplateExtractor.createBulletListItem(
         'challenges-list',
         props.challenges,
         { x: 60, y: 220, width: columnWidth, height: props.challenges.length * 40 + 20 },
@@ -525,14 +525,14 @@ export class TemplateExtractor {
     if (props.solutions && props.solutions.length > 0) {
       const rightX = 60 + columnWidth + gap;
       
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'solutions-title',
         props.solutionsTitle || 'Solutions',
         { x: rightX, y: 160, width: columnWidth, height: 40 },
         'heading'
       ));
 
-      items.push(this.createBulletListItem(
+      items.push(TemplateExtractor.createBulletListItem(
         'solutions-list',
         props.solutions,
         { x: rightX, y: 220, width: columnWidth, height: props.solutions.length * 40 + 20 },
@@ -542,7 +542,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -557,7 +557,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -567,7 +567,7 @@ export class TemplateExtractor {
 
     // Content
     if (props.content) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'content',
         props.content,
         { x: 60, y: 180, width: 1080, height: 400 },
@@ -577,7 +577,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -592,7 +592,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 200, width: 1080, height: 100 },
@@ -602,7 +602,7 @@ export class TemplateExtractor {
 
     // Subtitle
     if (props.subtitle) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'subtitle',
         props.subtitle,
         { x: 60, y: 320, width: 1080, height: 60 },
@@ -613,7 +613,7 @@ export class TemplateExtractor {
     // Author and date
     if (props.author || props.date) {
       const authorDate = [props.author, props.date].filter(Boolean).join(' • ');
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'author-date',
         authorDate,
         { x: 60, y: 500, width: 1080, height: 40 },
@@ -623,7 +623,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -638,7 +638,7 @@ export class TemplateExtractor {
 
     // Accent element
     if (props.showAccent) {
-      items.push(this.createShapeItem(
+      items.push(TemplateExtractor.createShapeItem(
         'accent',
         'accent',
         { x: 60, y: 150, width: 200, height: 300 }
@@ -648,7 +648,7 @@ export class TemplateExtractor {
     // Title
     if (props.title) {
       const titleX = props.showAccent ? 300 : 60;
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: titleX, y: 200, width: 1080 - titleX + 60, height: 120 },
@@ -659,7 +659,7 @@ export class TemplateExtractor {
     // Subtitle
     if (props.subtitle) {
       const subtitleX = props.showAccent ? 300 : 60;
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'subtitle',
         props.subtitle,
         { x: subtitleX, y: 340, width: 1080 - subtitleX + 60, height: 80 },
@@ -669,7 +669,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -938,7 +938,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -948,7 +948,7 @@ export class TemplateExtractor {
 
     // Image on the left
     if (props.imagePath || props.imageUrl) {
-      items.push(this.createImageItem(
+      items.push(TemplateExtractor.createImageItem(
         'main-image',
         props.imagePath || props.imageUrl || '',
         props.imagePrompt || '',
@@ -958,7 +958,7 @@ export class TemplateExtractor {
 
     // Content on the right
     if (props.subtitle) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'subtitle',
         props.subtitle,
         { x: 500, y: 160, width: 640, height: 400 },
@@ -968,7 +968,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -983,7 +983,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -993,7 +993,7 @@ export class TemplateExtractor {
 
     // Image at the top
     if (props.imagePath || props.imageUrl) {
-      items.push(this.createImageItem(
+      items.push(TemplateExtractor.createImageItem(
         'main-image',
         props.imagePath || props.imageUrl || '',
         props.imagePrompt || '',
@@ -1003,7 +1003,7 @@ export class TemplateExtractor {
 
     // Content below
     if (props.subtitle) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'subtitle',
         props.subtitle,
         { x: 60, y: 480, width: 1080, height: 120 },
@@ -1013,7 +1013,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -1028,7 +1028,7 @@ export class TemplateExtractor {
 
     // Quote text (centered)
     if (props.quote) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'quote',
         `"${props.quote}"`,
         { x: 150, y: 200, width: 900, height: 200 },
@@ -1038,7 +1038,7 @@ export class TemplateExtractor {
 
     // Author (centered below quote)
     if (props.author) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'author',
         `— ${props.author}`,
         { x: 150, y: 420, width: 900, height: 60 },
@@ -1048,7 +1048,7 @@ export class TemplateExtractor {
 
     // Attribution (if provided)
     if (props.attribution) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'attribution',
         props.attribution,
         { x: 150, y: 500, width: 900, height: 40 },
@@ -1058,7 +1058,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -1073,7 +1073,7 @@ export class TemplateExtractor {
 
     // Title
     if (props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -1096,7 +1096,7 @@ export class TemplateExtractor {
           const x = startX + col * (boxWidth + gap);
           const y = startY + row * (boxHeight + gap);
 
-          items.push(this.createContainerItem(
+          items.push(TemplateExtractor.createContainerItem(
             `box-${index + 1}`,
             {
               type: 'four-box-item',
@@ -1111,7 +1111,7 @@ export class TemplateExtractor {
 
     return {
       items,
-      canvasConfig: this.DEFAULT_CANVAS
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
@@ -1150,7 +1150,7 @@ export class TemplateExtractor {
 
     // Try to extract basic content
     if (slide.props.title) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'title',
         slide.props.title,
         { x: 60, y: 80, width: 1080, height: 60 },
@@ -1159,7 +1159,7 @@ export class TemplateExtractor {
     }
 
     if (slide.props.content) {
-      items.push(this.createTextItem(
+      items.push(TemplateExtractor.createTextItem(
         'content',
         slide.props.content,
         { x: 60, y: 180, width: 1080, height: 400 },
