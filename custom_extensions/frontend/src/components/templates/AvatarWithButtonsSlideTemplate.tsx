@@ -239,7 +239,8 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   };
 
   const buttonStyles: React.CSSProperties = {
-    padding: '20px 32px',
+    padding: '20px 0px',
+    width: '175px',
     borderRadius: '12px',
     border: 'none',
     fontSize: '1.3rem',
