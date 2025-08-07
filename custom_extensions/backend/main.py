@@ -894,65 +894,297 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Example Slide Deck Lesson",
+  "lessonTitle": "Digital Marketing Strategy: A Complete Guide",
   "slides": [
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
-        "templateId": "big-image-left",
-        "props": {
-            "title": "Welcome to the Lesson",
-            "subtitle": "This slide introduces the main topic.",
-            "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-            "imageAlt": "Descriptive alt text",
-            "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-            "imageSize": "large"
-        }
-    },
-    {
-      "slideId": "slide_2_main",
-      "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
+      "templateId": "hero-title-slide",
       "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
-        }
-    },
-
-    {
-      "slideId": "slide_3_bullets",
-      "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
-        ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
+        "title": "Digital Marketing Strategy",
+        "subtitle": "A comprehensive guide to building effective online presence and driving business growth",
+        "author": "Marketing Excellence Team",
+        "date": "2024",
+        "backgroundColor": "#1e40af",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#bfdbfe"
       }
     },
     {
-      "slideId": "slide_4_process",
+      "slideId": "slide_2_agenda",
+      "slideNumber": 2,
+      "slideTitle": "Learning Agenda",
+      "templateId": "bullet-points",
+      "props": {
+        "title": "What We'll Cover Today",
+        "bullets": [
+          "Understanding digital marketing fundamentals",
+          "Market research and target audience analysis",
+          "Content strategy development",
+          "Social media marketing tactics",
+          "Email marketing best practices",
+          "SEO and search marketing"
+        ],
+        "maxColumns": 2,
+        "bulletStyle": "number",
+        "imagePrompt": "A roadmap or pathway illustration showing the learning journey, modern flat design with blue and purple accents",
+        "imageAlt": "Learning roadmap illustration"
+      }
+    },
+    {
+      "slideId": "slide_3_stats",
+      "slideNumber": 3,
+      "slideTitle": "Digital Marketing by the Numbers",
+      "templateId": "big-numbers",
+      "props": {
+        "title": "Digital Marketing Impact",
+        "numbers": [
+          {
+            "value": "4.8B",
+            "label": "Internet Users Worldwide",
+            "color": "#3b82f6"
+          },
+          {
+            "value": "68%",
+            "label": "Of Online Experiences Start with Search",
+            "color": "#8b5cf6"
+          },
+          {
+            "value": "$42",
+            "label": "ROI for Every $1 Spent on Email Marketing",
+            "color": "#10b981"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_ecosystem",
       "slideNumber": 4,
-      "slideTitle": "Step-by-Step Process",
+      "slideTitle": "Digital Marketing Ecosystem",
+      "templateId": "big-image-top",
+      "props": {
+        "title": "The Digital Marketing Landscape",
+        "content": "Understanding the interconnected nature of digital marketing channels and how they work together to create a cohesive customer experience across all touchpoints.",
+        "imageUrl": "https://via.placeholder.com/800x400?text=Digital+Ecosystem",
+        "imageAlt": "Digital marketing ecosystem diagram",
+        "imagePrompt": "A comprehensive diagram showing interconnected digital marketing channels including social media, email, SEO, PPC, content marketing, and analytics in a modern network visualization",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_5_audience_vs_market",
+      "slideNumber": 5,
+      "slideTitle": "Audience vs Market Research",
+      "templateId": "two-column",
+      "props": {
+        "title": "Understanding the Difference",
+        "leftTitle": "Market Research",
+        "leftContent": "• Industry trends and size\n• Competitive landscape\n• Market opportunities\n• Overall demand patterns\n• Economic factors",
+        "rightTitle": "Audience Research",
+        "rightContent": "• Customer demographics\n• Behavioral patterns\n• Pain points and needs\n• Communication preferences\n• Decision-making process"
+      }
+    },
+    {
+      "slideId": "slide_6_personas",
+      "slideNumber": 6,
+      "slideTitle": "Buyer Persona Development",
       "templateId": "process-steps",
       "props": {
-        "title": "Implementation Steps",
+        "title": "Creating Effective Buyer Personas",
         "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
+          "Collect demographic and psychographic data",
+          "Conduct customer interviews and surveys",
+          "Analyze behavioral patterns and preferences",
+          "Identify goals, challenges, and pain points",
+          "Map the customer journey and touchpoints",
+          "Validate personas with real customer data"
         ]
+      }
+    },
+    {
+      "slideId": "slide_7_content_strategy",
+      "slideNumber": 7,
+      "slideTitle": "Content Strategy Foundation",
+      "templateId": "pyramid",
+      "props": {
+        "title": "Content Strategy Pyramid",
+        "levels": [
+          {
+            "text": "Content Distribution & Promotion",
+            "description": "Multi-channel amplification strategy"
+          },
+          {
+            "text": "Content Creation & Production",
+            "description": "High-quality, engaging content development"
+          },
+          {
+            "text": "Content Planning & Calendar",
+            "description": "Strategic planning and scheduling"
+          },
+          {
+            "text": "Content Audit & Analysis",
+            "description": "Understanding current content performance"
+          },
+          {
+            "text": "Goals, Audience & Brand Foundation",
+            "description": "Strategic foundation and core objectives"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_content_types",
+      "slideNumber": 8,
+      "slideTitle": "Content Format Matrix",
+      "templateId": "four-box-grid",
+      "props": {
+        "title": "Content Formats for Different Goals",
+        "boxes": [
+          {
+            "title": "Educational Content",
+            "content": "Blog posts, tutorials, webinars, how-to guides",
+            "icon": "📚"
+          },
+          {
+            "title": "Engagement Content", 
+            "content": "Social media posts, polls, user-generated content",
+            "icon": "💬"
+          },
+          {
+            "title": "Conversion Content",
+            "content": "Case studies, testimonials, product demos",
+            "icon": "🎯"
+          },
+          {
+            "title": "Entertainment Content",
+            "content": "Videos, memes, interactive content, stories",
+            "icon": "🎭"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_9_social_challenges",
+      "slideNumber": 9,
+      "slideTitle": "Social Media Challenges & Solutions",
+      "templateId": "challenges-solutions",
+      "props": {
+        "title": "Overcoming Social Media Obstacles",
+        "challenges": [
+          "Low organic reach and engagement",
+          "Creating consistent, quality content",
+          "Managing multiple platform requirements"
+        ],
+        "solutions": [
+          "Focus on community building and authentic interactions",
+          "Develop content pillars and batch creation workflows", 
+          "Use scheduling tools and platform-specific strategies"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_email_timeline",
+      "slideNumber": 10,
+      "slideTitle": "Email Marketing Campaign Timeline",
+      "templateId": "timeline",
+      "props": {
+        "title": "Building Your Email Marketing Program",
+        "events": [
+          {
+            "date": "Week 1-2",
+            "title": "Foundation Setup",
+            "description": "Choose platform, design templates, set up automation"
+          },
+          {
+            "date": "Week 3-4", 
+            "title": "List Building",
+            "description": "Create lead magnets, optimize signup forms"
+          },
+          {
+            "date": "Week 5-8",
+            "title": "Content Creation",
+            "description": "Develop welcome series, newsletters, promotional campaigns"
+          },
+          {
+            "date": "Week 9-12",
+            "title": "Optimization",
+            "description": "A/B testing, segmentation, performance analysis"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_11_seo_quote",
+      "slideNumber": 11,
+      "slideTitle": "SEO Philosophy",
+      "templateId": "quote-center",
+      "props": {
+        "quote": "The best place to hide a dead body is page 2 of Google search results.",
+        "author": "Digital Marketing Wisdom",
+        "context": "This humorous quote highlights the critical importance of ranking on the first page of search results for visibility and traffic."
+      }
+    },
+    {
+      "slideId": "slide_12_seo_factors",
+      "slideNumber": 12,
+      "slideTitle": "SEO Success Factors",
+      "templateId": "bullet-points-right",
+      "props": {
+        "title": "Key SEO Elements",
+        "bullets": [
+          "Keyword research and strategic implementation",
+          "High-quality, original content creation",
+          "Technical SEO and site speed optimization",
+          "Mobile-first design and user experience",
+          "Authority building through quality backlinks",
+          "Local SEO for geographic targeting"
+        ],
+        "bulletStyle": "dot",
+        "imagePrompt": "SEO optimization illustration with search elements, website structure, and ranking factors in a modern, clean style",
+        "imageAlt": "SEO optimization visual guide"
+      }
+    },
+    {
+      "slideId": "slide_13_paid_advertising",
+      "slideNumber": 13,
+      "slideTitle": "Paid Advertising Strategy",
+      "templateId": "big-image-left",
+      "props": {
+        "title": "Maximizing Paid Campaign ROI",
+        "subtitle": "Strategic paid advertising accelerates reach and drives targeted traffic when organic efforts need support.",
+        "imageUrl": "https://via.placeholder.com/600x400?text=Paid+Advertising",
+        "imageAlt": "Digital advertising dashboard",
+        "imagePrompt": "A modern advertising dashboard showing campaign performance metrics, targeting options, and ROI indicators across multiple platforms",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_14_implementation",
+      "slideNumber": 14,
+      "slideTitle": "90-Day Implementation Plan",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Your Digital Marketing Roadmap",
+        "steps": [
+          "Month 1: Foundation - Research, audit, and strategy development",
+          "Month 2: Launch - Implement core channels and begin content creation",
+          "Month 3: Optimize - Analyze data, refine approach, and scale success"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_15_conclusion",
+      "slideNumber": 15,
+      "slideTitle": "Success Principles",
+      "templateId": "title-slide",
+      "props": {
+        "title": "Your Digital Marketing Success Formula",
+        "subtitle": "Strategy + Consistency + Measurement = Growth",
+        "author": "Remember: Digital marketing is a marathon, not a sprint",
+        "backgroundColor": "#059669",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#d1fae5"
       }
     }
   ],
@@ -1012,8 +1244,59 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_4_process",
+      "slideId": "slide_4_two_column",
       "slideNumber": 4,
+      "slideTitle": "Comparison Analysis",
+      "templateId": "two-column",
+      "voiceoverText": "Let's examine this topic from two different perspectives. On the left, we have one approach, and on the right, we have another. Both perspectives are valuable and complement each other to give you a complete understanding.",
+      "props": {
+        "title": "Two Column Layout",
+        "leftTitle": "Left Column Title",
+        "leftContent": "Content for the left side with detailed explanations",
+        "rightTitle": "Right Column Title",
+        "rightContent": "Content for the right side with detailed information",
+        "columnRatio": "50-50"
+      }
+    },
+    {
+      "slideId": "slide_5_four_box",
+      "slideNumber": 5,
+      "slideTitle": "Four Key Areas",
+      "templateId": "four-box-grid",
+      "voiceoverText": "Now we'll explore four essential areas that are crucial to understanding this topic. Each box represents a different aspect, and together they provide a comprehensive overview of the subject matter.",
+      "props": {
+        "title": "Main Title for Four Boxes",
+        "boxes": [
+          { "heading": "Box 1 Heading", "text": "Detailed description for the first box" },
+          { "heading": "Box 2 Heading", "text": "Comprehensive explanation for the second box" },
+          { "heading": "Box 3 Heading", "text": "Thorough description for the third box" },
+          { "heading": "Box 4 Heading", "text": "In-depth explanation for the fourth box" }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_6_challenges",
+      "slideNumber": 6,
+      "slideTitle": "Problem Solving",
+      "templateId": "challenges-solutions",
+      "voiceoverText": "Every field has its challenges, but for every challenge, there's a solution. Let's examine the common obstacles you might face and the proven strategies to overcome them effectively.",
+      "props": {
+        "title": "Challenges and Solutions",
+        "challengesTitle": "Common Challenges",
+        "solutionsTitle": "Effective Solutions",
+        "challenges": [
+          "Challenge 1 with detailed explanation of the problem",
+          "Challenge 2 with comprehensive analysis of the issue"
+        ],
+        "solutions": [
+          "Solution 1 with detailed approach and implementation strategy",
+          "Solution 2 with comprehensive methodology and practical steps"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_7_process",
+      "slideNumber": 7,
       "slideTitle": "Step-by-Step Process",
       "templateId": "process-steps",
       "voiceoverText": "Finally, let's look at the practical implementation. This step-by-step process shows you exactly how to apply what you've learned. Follow along carefully as we go through each step together.",
@@ -1033,6 +1316,120 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "hasVoiceover": true
 }
 """
+
+def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
+    """
+    Normalize slide props to match frontend template schemas.
+    
+    This function fixes common prop mismatches between AI-generated JSON
+    and the expected frontend template schemas.
+    """
+    if not slides:
+        return slides
+        
+    normalized_slides = []
+    
+    for slide in slides:
+        if not isinstance(slide, dict) or 'templateId' not in slide or 'props' not in slide:
+            normalized_slides.append(slide)
+            continue
+            
+        template_id = slide.get('templateId')
+        props = slide.get('props', {})
+        
+        # Create a copy to avoid modifying the original
+        normalized_slide = slide.copy()
+        normalized_props = props.copy()
+        
+        # Fix four-box-grid template props
+        if template_id == 'four-box-grid':
+            boxes = normalized_props.get('boxes', [])
+            if boxes and isinstance(boxes, list):
+                fixed_boxes = []
+                for box in boxes:
+                    if isinstance(box, dict):
+                        # Convert title/content to heading/text
+                        fixed_box = {
+                            'heading': box.get('heading') or box.get('title', ''),
+                            'text': box.get('text') or box.get('content', '')
+                        }
+                        fixed_boxes.append(fixed_box)
+                    else:
+                        fixed_boxes.append(box)
+                normalized_props['boxes'] = fixed_boxes
+                
+        # Fix two-column template props
+        elif template_id == 'two-column':
+            # Ensure leftTitle and rightTitle exist
+            if 'leftTitle' not in normalized_props:
+                normalized_props['leftTitle'] = 'Left Column'
+            if 'rightTitle' not in normalized_props:
+                normalized_props['rightTitle'] = 'Right Column'
+            
+            # Handle case where AI used leftContent/rightContent but missing titles
+            if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
+                # Try to extract title from content
+                left_content = normalized_props.get('leftContent', '')
+                if '\n' in left_content:
+                    lines = left_content.split('\n')
+                    if lines[0] and not lines[0].startswith('-') and not lines[0].startswith('•'):
+                        normalized_props['leftTitle'] = lines[0].strip()
+                        normalized_props['leftContent'] = '\n'.join(lines[1:]).strip()
+            
+            if normalized_props.get('rightContent') and not normalized_props.get('rightTitle'):
+                # Try to extract title from content
+                right_content = normalized_props.get('rightContent', '')
+                if '\n' in right_content:
+                    lines = right_content.split('\n')
+                    if lines[0] and not lines[0].startswith('-') and not lines[0].startswith('•'):
+                        normalized_props['rightTitle'] = lines[0].strip()
+                        normalized_props['rightContent'] = '\n'.join(lines[1:]).strip()
+                        
+        # Fix challenges-solutions template props
+        elif template_id == 'challenges-solutions':
+            # Convert leftContent/rightContent to challenges/solutions arrays
+            if 'leftContent' in normalized_props and 'challenges' not in normalized_props:
+                left_content = normalized_props.get('leftContent', '')
+                # Parse content into challenges array
+                challenges = []
+                for line in left_content.split('\n'):
+                    line = line.strip()
+                    if line and not line.lower().startswith('common challenges'):
+                        # Remove bullet points and dashes
+                        clean_line = line.lstrip('•-* ').strip()
+                        if clean_line:
+                            challenges.append(clean_line)
+                
+                if challenges:
+                    normalized_props['challenges'] = challenges
+                    del normalized_props['leftContent']
+                    
+            if 'rightContent' in normalized_props and 'solutions' not in normalized_props:
+                right_content = normalized_props.get('rightContent', '')
+                # Parse content into solutions array
+                solutions = []
+                for line in right_content.split('\n'):
+                    line = line.strip()
+                    if line and not line.lower().startswith('recommended resources') and not line.lower().startswith('solutions'):
+                        # Remove bullet points and dashes
+                        clean_line = line.lstrip('•-* ').strip()
+                        if clean_line:
+                            solutions.append(clean_line)
+                
+                if solutions:
+                    normalized_props['solutions'] = solutions
+                    del normalized_props['rightContent']
+            
+            # Ensure required titles exist
+            if 'challengesTitle' not in normalized_props:
+                normalized_props['challengesTitle'] = 'Challenges'
+            if 'solutionsTitle' not in normalized_props:
+                normalized_props['solutionsTitle'] = 'Solutions'
+        
+        normalized_slide['props'] = normalized_props
+        normalized_slides.append(normalized_slide)
+    
+    return normalized_slides
 
 async def get_db_pool():
     if DB_POOL is None:
@@ -2193,65 +2590,297 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Example Slide Deck Lesson",
+  "lessonTitle": "Digital Marketing Strategy: A Complete Guide",
   "slides": [
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
-        "templateId": "big-image-left",
-        "props": {
-            "title": "Welcome to the Lesson",
-            "subtitle": "This slide introduces the main topic.",
-            "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-            "imageAlt": "Descriptive alt text",
-            "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-            "imageSize": "large"
-        }
-    },
-    {
-      "slideId": "slide_2_main",
-      "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
+      "templateId": "hero-title-slide",
       "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
-        }
-    },
-
-    {
-      "slideId": "slide_3_bullets",
-      "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
-        ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
+        "title": "Digital Marketing Strategy",
+        "subtitle": "A comprehensive guide to building effective online presence and driving business growth",
+        "author": "Marketing Excellence Team",
+        "date": "2024",
+        "backgroundColor": "#1e40af",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#bfdbfe"
       }
     },
     {
-      "slideId": "slide_4_process",
+      "slideId": "slide_2_agenda",
+      "slideNumber": 2,
+      "slideTitle": "Learning Agenda",
+      "templateId": "bullet-points",
+      "props": {
+        "title": "What We'll Cover Today",
+        "bullets": [
+          "Understanding digital marketing fundamentals",
+          "Market research and target audience analysis",
+          "Content strategy development",
+          "Social media marketing tactics",
+          "Email marketing best practices",
+          "SEO and search marketing"
+        ],
+        "maxColumns": 2,
+        "bulletStyle": "number",
+        "imagePrompt": "A roadmap or pathway illustration showing the learning journey, modern flat design with blue and purple accents",
+        "imageAlt": "Learning roadmap illustration"
+      }
+    },
+    {
+      "slideId": "slide_3_stats",
+      "slideNumber": 3,
+      "slideTitle": "Digital Marketing by the Numbers",
+      "templateId": "big-numbers",
+      "props": {
+        "title": "Digital Marketing Impact",
+        "numbers": [
+          {
+            "value": "4.8B",
+            "label": "Internet Users Worldwide",
+            "color": "#3b82f6"
+          },
+          {
+            "value": "68%",
+            "label": "Of Online Experiences Start with Search",
+            "color": "#8b5cf6"
+          },
+          {
+            "value": "$42",
+            "label": "ROI for Every $1 Spent on Email Marketing",
+            "color": "#10b981"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_ecosystem",
       "slideNumber": 4,
-      "slideTitle": "Step-by-Step Process",
+      "slideTitle": "Digital Marketing Ecosystem",
+      "templateId": "big-image-top",
+      "props": {
+        "title": "The Digital Marketing Landscape",
+        "content": "Understanding the interconnected nature of digital marketing channels and how they work together to create a cohesive customer experience across all touchpoints.",
+        "imageUrl": "https://via.placeholder.com/800x400?text=Digital+Ecosystem",
+        "imageAlt": "Digital marketing ecosystem diagram",
+        "imagePrompt": "A comprehensive diagram showing interconnected digital marketing channels including social media, email, SEO, PPC, content marketing, and analytics in a modern network visualization",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_5_audience_vs_market",
+      "slideNumber": 5,
+      "slideTitle": "Audience vs Market Research",
+      "templateId": "two-column",
+      "props": {
+        "title": "Understanding the Difference",
+        "leftTitle": "Market Research",
+        "leftContent": "• Industry trends and size\n• Competitive landscape\n• Market opportunities\n• Overall demand patterns\n• Economic factors",
+        "rightTitle": "Audience Research",
+        "rightContent": "• Customer demographics\n• Behavioral patterns\n• Pain points and needs\n• Communication preferences\n• Decision-making process"
+      }
+    },
+    {
+      "slideId": "slide_6_personas",
+      "slideNumber": 6,
+      "slideTitle": "Buyer Persona Development",
       "templateId": "process-steps",
       "props": {
-        "title": "Implementation Steps",
+        "title": "Creating Effective Buyer Personas",
         "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
+          "Collect demographic and psychographic data",
+          "Conduct customer interviews and surveys",
+          "Analyze behavioral patterns and preferences",
+          "Identify goals, challenges, and pain points",
+          "Map the customer journey and touchpoints",
+          "Validate personas with real customer data"
         ]
+      }
+    },
+    {
+      "slideId": "slide_7_content_strategy",
+      "slideNumber": 7,
+      "slideTitle": "Content Strategy Foundation",
+      "templateId": "pyramid",
+      "props": {
+        "title": "Content Strategy Pyramid",
+        "levels": [
+          {
+            "text": "Content Distribution & Promotion",
+            "description": "Multi-channel amplification strategy"
+          },
+          {
+            "text": "Content Creation & Production",
+            "description": "High-quality, engaging content development"
+          },
+          {
+            "text": "Content Planning & Calendar",
+            "description": "Strategic planning and scheduling"
+          },
+          {
+            "text": "Content Audit & Analysis",
+            "description": "Understanding current content performance"
+          },
+          {
+            "text": "Goals, Audience & Brand Foundation",
+            "description": "Strategic foundation and core objectives"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_content_types",
+      "slideNumber": 8,
+      "slideTitle": "Content Format Matrix",
+      "templateId": "four-box-grid",
+      "props": {
+        "title": "Content Formats for Different Goals",
+        "boxes": [
+          {
+            "title": "Educational Content",
+            "content": "Blog posts, tutorials, webinars, how-to guides",
+            "icon": "📚"
+          },
+          {
+            "title": "Engagement Content", 
+            "content": "Social media posts, polls, user-generated content",
+            "icon": "💬"
+          },
+          {
+            "title": "Conversion Content",
+            "content": "Case studies, testimonials, product demos",
+            "icon": "🎯"
+          },
+          {
+            "title": "Entertainment Content",
+            "content": "Videos, memes, interactive content, stories",
+            "icon": "🎭"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_9_social_challenges",
+      "slideNumber": 9,
+      "slideTitle": "Social Media Challenges & Solutions",
+      "templateId": "challenges-solutions",
+      "props": {
+        "title": "Overcoming Social Media Obstacles",
+        "challenges": [
+          "Low organic reach and engagement",
+          "Creating consistent, quality content",
+          "Managing multiple platform requirements"
+        ],
+        "solutions": [
+          "Focus on community building and authentic interactions",
+          "Develop content pillars and batch creation workflows", 
+          "Use scheduling tools and platform-specific strategies"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_email_timeline",
+      "slideNumber": 10,
+      "slideTitle": "Email Marketing Campaign Timeline",
+      "templateId": "timeline",
+      "props": {
+        "title": "Building Your Email Marketing Program",
+        "events": [
+          {
+            "date": "Week 1-2",
+            "title": "Foundation Setup",
+            "description": "Choose platform, design templates, set up automation"
+          },
+          {
+            "date": "Week 3-4", 
+            "title": "List Building",
+            "description": "Create lead magnets, optimize signup forms"
+          },
+          {
+            "date": "Week 5-8",
+            "title": "Content Creation",
+            "description": "Develop welcome series, newsletters, promotional campaigns"
+          },
+          {
+            "date": "Week 9-12",
+            "title": "Optimization",
+            "description": "A/B testing, segmentation, performance analysis"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_11_seo_quote",
+      "slideNumber": 11,
+      "slideTitle": "SEO Philosophy",
+      "templateId": "quote-center",
+      "props": {
+        "quote": "The best place to hide a dead body is page 2 of Google search results.",
+        "author": "Digital Marketing Wisdom",
+        "context": "This humorous quote highlights the critical importance of ranking on the first page of search results for visibility and traffic."
+      }
+    },
+    {
+      "slideId": "slide_12_seo_factors",
+      "slideNumber": 12,
+      "slideTitle": "SEO Success Factors",
+      "templateId": "bullet-points-right",
+      "props": {
+        "title": "Key SEO Elements",
+        "bullets": [
+          "Keyword research and strategic implementation",
+          "High-quality, original content creation",
+          "Technical SEO and site speed optimization",
+          "Mobile-first design and user experience",
+          "Authority building through quality backlinks",
+          "Local SEO for geographic targeting"
+        ],
+        "bulletStyle": "dot",
+        "imagePrompt": "SEO optimization illustration with search elements, website structure, and ranking factors in a modern, clean style",
+        "imageAlt": "SEO optimization visual guide"
+      }
+    },
+    {
+      "slideId": "slide_13_paid_advertising",
+      "slideNumber": 13,
+      "slideTitle": "Paid Advertising Strategy",
+      "templateId": "big-image-left",
+      "props": {
+        "title": "Maximizing Paid Campaign ROI",
+        "subtitle": "Strategic paid advertising accelerates reach and drives targeted traffic when organic efforts need support.",
+        "imageUrl": "https://via.placeholder.com/600x400?text=Paid+Advertising",
+        "imageAlt": "Digital advertising dashboard",
+        "imagePrompt": "A modern advertising dashboard showing campaign performance metrics, targeting options, and ROI indicators across multiple platforms",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_14_implementation",
+      "slideNumber": 14,
+      "slideTitle": "90-Day Implementation Plan",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Your Digital Marketing Roadmap",
+        "steps": [
+          "Month 1: Foundation - Research, audit, and strategy development",
+          "Month 2: Launch - Implement core channels and begin content creation",
+          "Month 3: Optimize - Analyze data, refine approach, and scale success"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_15_conclusion",
+      "slideNumber": 15,
+      "slideTitle": "Success Principles",
+      "templateId": "title-slide",
+      "props": {
+        "title": "Your Digital Marketing Success Formula",
+        "subtitle": "Strategy + Consistency + Measurement = Growth",
+        "author": "Remember: Digital marketing is a marathon, not a sprint",
+        "backgroundColor": "#059669",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#d1fae5"
       }
     }
   ],
@@ -3430,65 +4059,297 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Example Slide Deck Lesson",
+  "lessonTitle": "Digital Marketing Strategy: A Complete Guide",
   "slides": [
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
-        "templateId": "big-image-left",
-        "props": {
-            "title": "Welcome to the Lesson",
-            "subtitle": "This slide introduces the main topic.",
-            "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-            "imageAlt": "Descriptive alt text",
-            "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-            "imageSize": "large"
-        }
-    },
-    {
-      "slideId": "slide_2_main",
-      "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
+      "templateId": "hero-title-slide",
       "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
-        }
-    },
-
-    {
-      "slideId": "slide_3_bullets",
-      "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
-        ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
+        "title": "Digital Marketing Strategy",
+        "subtitle": "A comprehensive guide to building effective online presence and driving business growth",
+        "author": "Marketing Excellence Team",
+        "date": "2024",
+        "backgroundColor": "#1e40af",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#bfdbfe"
       }
     },
     {
-      "slideId": "slide_4_process",
+      "slideId": "slide_2_agenda",
+      "slideNumber": 2,
+      "slideTitle": "Learning Agenda",
+      "templateId": "bullet-points",
+      "props": {
+        "title": "What We'll Cover Today",
+        "bullets": [
+          "Understanding digital marketing fundamentals",
+          "Market research and target audience analysis",
+          "Content strategy development",
+          "Social media marketing tactics",
+          "Email marketing best practices",
+          "SEO and search marketing"
+        ],
+        "maxColumns": 2,
+        "bulletStyle": "number",
+        "imagePrompt": "A roadmap or pathway illustration showing the learning journey, modern flat design with blue and purple accents",
+        "imageAlt": "Learning roadmap illustration"
+      }
+    },
+    {
+      "slideId": "slide_3_stats",
+      "slideNumber": 3,
+      "slideTitle": "Digital Marketing by the Numbers",
+      "templateId": "big-numbers",
+      "props": {
+        "title": "Digital Marketing Impact",
+        "numbers": [
+          {
+            "value": "4.8B",
+            "label": "Internet Users Worldwide",
+            "color": "#3b82f6"
+          },
+          {
+            "value": "68%",
+            "label": "Of Online Experiences Start with Search",
+            "color": "#8b5cf6"
+          },
+          {
+            "value": "$42",
+            "label": "ROI for Every $1 Spent on Email Marketing",
+            "color": "#10b981"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_ecosystem",
       "slideNumber": 4,
-      "slideTitle": "Step-by-Step Process",
+      "slideTitle": "Digital Marketing Ecosystem",
+      "templateId": "big-image-top",
+      "props": {
+        "title": "The Digital Marketing Landscape",
+        "content": "Understanding the interconnected nature of digital marketing channels and how they work together to create a cohesive customer experience across all touchpoints.",
+        "imageUrl": "https://via.placeholder.com/800x400?text=Digital+Ecosystem",
+        "imageAlt": "Digital marketing ecosystem diagram",
+        "imagePrompt": "A comprehensive diagram showing interconnected digital marketing channels including social media, email, SEO, PPC, content marketing, and analytics in a modern network visualization",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_5_audience_vs_market",
+      "slideNumber": 5,
+      "slideTitle": "Audience vs Market Research",
+      "templateId": "two-column",
+      "props": {
+        "title": "Understanding the Difference",
+        "leftTitle": "Market Research",
+        "leftContent": "• Industry trends and size\n• Competitive landscape\n• Market opportunities\n• Overall demand patterns\n• Economic factors",
+        "rightTitle": "Audience Research",
+        "rightContent": "• Customer demographics\n• Behavioral patterns\n• Pain points and needs\n• Communication preferences\n• Decision-making process"
+      }
+    },
+    {
+      "slideId": "slide_6_personas",
+      "slideNumber": 6,
+      "slideTitle": "Buyer Persona Development",
       "templateId": "process-steps",
       "props": {
-        "title": "Implementation Steps",
+        "title": "Creating Effective Buyer Personas",
         "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
+          "Collect demographic and psychographic data",
+          "Conduct customer interviews and surveys",
+          "Analyze behavioral patterns and preferences",
+          "Identify goals, challenges, and pain points",
+          "Map the customer journey and touchpoints",
+          "Validate personas with real customer data"
         ]
+      }
+    },
+    {
+      "slideId": "slide_7_content_strategy",
+      "slideNumber": 7,
+      "slideTitle": "Content Strategy Foundation",
+      "templateId": "pyramid",
+      "props": {
+        "title": "Content Strategy Pyramid",
+        "levels": [
+          {
+            "text": "Content Distribution & Promotion",
+            "description": "Multi-channel amplification strategy"
+          },
+          {
+            "text": "Content Creation & Production",
+            "description": "High-quality, engaging content development"
+          },
+          {
+            "text": "Content Planning & Calendar",
+            "description": "Strategic planning and scheduling"
+          },
+          {
+            "text": "Content Audit & Analysis",
+            "description": "Understanding current content performance"
+          },
+          {
+            "text": "Goals, Audience & Brand Foundation",
+            "description": "Strategic foundation and core objectives"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_content_types",
+      "slideNumber": 8,
+      "slideTitle": "Content Format Matrix",
+      "templateId": "four-box-grid",
+      "props": {
+        "title": "Content Formats for Different Goals",
+        "boxes": [
+          {
+            "title": "Educational Content",
+            "content": "Blog posts, tutorials, webinars, how-to guides",
+            "icon": "📚"
+          },
+          {
+            "title": "Engagement Content", 
+            "content": "Social media posts, polls, user-generated content",
+            "icon": "💬"
+          },
+          {
+            "title": "Conversion Content",
+            "content": "Case studies, testimonials, product demos",
+            "icon": "🎯"
+          },
+          {
+            "title": "Entertainment Content",
+            "content": "Videos, memes, interactive content, stories",
+            "icon": "🎭"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_9_social_challenges",
+      "slideNumber": 9,
+      "slideTitle": "Social Media Challenges & Solutions",
+      "templateId": "challenges-solutions",
+      "props": {
+        "title": "Overcoming Social Media Obstacles",
+        "challenges": [
+          "Low organic reach and engagement",
+          "Creating consistent, quality content",
+          "Managing multiple platform requirements"
+        ],
+        "solutions": [
+          "Focus on community building and authentic interactions",
+          "Develop content pillars and batch creation workflows", 
+          "Use scheduling tools and platform-specific strategies"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_email_timeline",
+      "slideNumber": 10,
+      "slideTitle": "Email Marketing Campaign Timeline",
+      "templateId": "timeline",
+      "props": {
+        "title": "Building Your Email Marketing Program",
+        "events": [
+          {
+            "date": "Week 1-2",
+            "title": "Foundation Setup",
+            "description": "Choose platform, design templates, set up automation"
+          },
+          {
+            "date": "Week 3-4", 
+            "title": "List Building",
+            "description": "Create lead magnets, optimize signup forms"
+          },
+          {
+            "date": "Week 5-8",
+            "title": "Content Creation",
+            "description": "Develop welcome series, newsletters, promotional campaigns"
+          },
+          {
+            "date": "Week 9-12",
+            "title": "Optimization",
+            "description": "A/B testing, segmentation, performance analysis"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_11_seo_quote",
+      "slideNumber": 11,
+      "slideTitle": "SEO Philosophy",
+      "templateId": "quote-center",
+      "props": {
+        "quote": "The best place to hide a dead body is page 2 of Google search results.",
+        "author": "Digital Marketing Wisdom",
+        "context": "This humorous quote highlights the critical importance of ranking on the first page of search results for visibility and traffic."
+      }
+    },
+    {
+      "slideId": "slide_12_seo_factors",
+      "slideNumber": 12,
+      "slideTitle": "SEO Success Factors",
+      "templateId": "bullet-points-right",
+      "props": {
+        "title": "Key SEO Elements",
+        "bullets": [
+          "Keyword research and strategic implementation",
+          "High-quality, original content creation",
+          "Technical SEO and site speed optimization",
+          "Mobile-first design and user experience",
+          "Authority building through quality backlinks",
+          "Local SEO for geographic targeting"
+        ],
+        "bulletStyle": "dot",
+        "imagePrompt": "SEO optimization illustration with search elements, website structure, and ranking factors in a modern, clean style",
+        "imageAlt": "SEO optimization visual guide"
+      }
+    },
+    {
+      "slideId": "slide_13_paid_advertising",
+      "slideNumber": 13,
+      "slideTitle": "Paid Advertising Strategy",
+      "templateId": "big-image-left",
+      "props": {
+        "title": "Maximizing Paid Campaign ROI",
+        "subtitle": "Strategic paid advertising accelerates reach and drives targeted traffic when organic efforts need support.",
+        "imageUrl": "https://via.placeholder.com/600x400?text=Paid+Advertising",
+        "imageAlt": "Digital advertising dashboard",
+        "imagePrompt": "A modern advertising dashboard showing campaign performance metrics, targeting options, and ROI indicators across multiple platforms",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_14_implementation",
+      "slideNumber": 14,
+      "slideTitle": "90-Day Implementation Plan",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Your Digital Marketing Roadmap",
+        "steps": [
+          "Month 1: Foundation - Research, audit, and strategy development",
+          "Month 2: Launch - Implement core channels and begin content creation",
+          "Month 3: Optimize - Analyze data, refine approach, and scale success"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_15_conclusion",
+      "slideNumber": 15,
+      "slideTitle": "Success Principles",
+      "templateId": "title-slide",
+      "props": {
+        "title": "Your Digital Marketing Success Formula",
+        "subtitle": "Strategy + Consistency + Measurement = Growth",
+        "author": "Remember: Digital marketing is a marathon, not a sprint",
+        "backgroundColor": "#059669",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#d1fae5"
       }
     }
   ],
@@ -4649,65 +5510,297 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Example Slide Deck Lesson",
+  "lessonTitle": "Digital Marketing Strategy: A Complete Guide",
   "slides": [
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Introduction",
-        "templateId": "big-image-left",
-        "props": {
-            "title": "Welcome to the Lesson",
-            "subtitle": "This slide introduces the main topic.",
-            "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-            "imageAlt": "Descriptive alt text",
-            "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-            "imageSize": "large"
-        }
-    },
-    {
-      "slideId": "slide_2_main",
-      "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
+      "templateId": "hero-title-slide",
       "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
-        }
-    },
-
-    {
-      "slideId": "slide_3_bullets",
-      "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
-        ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
+        "title": "Digital Marketing Strategy",
+        "subtitle": "A comprehensive guide to building effective online presence and driving business growth",
+        "author": "Marketing Excellence Team",
+        "date": "2024",
+        "backgroundColor": "#1e40af",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#bfdbfe"
       }
     },
     {
-      "slideId": "slide_4_process",
+      "slideId": "slide_2_agenda",
+      "slideNumber": 2,
+      "slideTitle": "Learning Agenda",
+      "templateId": "bullet-points",
+      "props": {
+        "title": "What We'll Cover Today",
+        "bullets": [
+          "Understanding digital marketing fundamentals",
+          "Market research and target audience analysis",
+          "Content strategy development",
+          "Social media marketing tactics",
+          "Email marketing best practices",
+          "SEO and search marketing"
+        ],
+        "maxColumns": 2,
+        "bulletStyle": "number",
+        "imagePrompt": "A roadmap or pathway illustration showing the learning journey, modern flat design with blue and purple accents",
+        "imageAlt": "Learning roadmap illustration"
+      }
+    },
+    {
+      "slideId": "slide_3_stats",
+      "slideNumber": 3,
+      "slideTitle": "Digital Marketing by the Numbers",
+      "templateId": "big-numbers",
+      "props": {
+        "title": "Digital Marketing Impact",
+        "numbers": [
+          {
+            "value": "4.8B",
+            "label": "Internet Users Worldwide",
+            "color": "#3b82f6"
+          },
+          {
+            "value": "68%",
+            "label": "Of Online Experiences Start with Search",
+            "color": "#8b5cf6"
+          },
+          {
+            "value": "$42",
+            "label": "ROI for Every $1 Spent on Email Marketing",
+            "color": "#10b981"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_ecosystem",
       "slideNumber": 4,
-      "slideTitle": "Step-by-Step Process",
+      "slideTitle": "Digital Marketing Ecosystem",
+      "templateId": "big-image-top",
+      "props": {
+        "title": "The Digital Marketing Landscape",
+        "content": "Understanding the interconnected nature of digital marketing channels and how they work together to create a cohesive customer experience across all touchpoints.",
+        "imageUrl": "https://via.placeholder.com/800x400?text=Digital+Ecosystem",
+        "imageAlt": "Digital marketing ecosystem diagram",
+        "imagePrompt": "A comprehensive diagram showing interconnected digital marketing channels including social media, email, SEO, PPC, content marketing, and analytics in a modern network visualization",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_5_audience_vs_market",
+      "slideNumber": 5,
+      "slideTitle": "Audience vs Market Research",
+      "templateId": "two-column",
+      "props": {
+        "title": "Understanding the Difference",
+        "leftTitle": "Market Research",
+        "leftContent": "• Industry trends and size\n• Competitive landscape\n• Market opportunities\n• Overall demand patterns\n• Economic factors",
+        "rightTitle": "Audience Research",
+        "rightContent": "• Customer demographics\n• Behavioral patterns\n• Pain points and needs\n• Communication preferences\n• Decision-making process"
+      }
+    },
+    {
+      "slideId": "slide_6_personas",
+      "slideNumber": 6,
+      "slideTitle": "Buyer Persona Development",
       "templateId": "process-steps",
       "props": {
-        "title": "Implementation Steps",
+        "title": "Creating Effective Buyer Personas",
         "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
+          "Collect demographic and psychographic data",
+          "Conduct customer interviews and surveys",
+          "Analyze behavioral patterns and preferences",
+          "Identify goals, challenges, and pain points",
+          "Map the customer journey and touchpoints",
+          "Validate personas with real customer data"
         ]
+      }
+    },
+    {
+      "slideId": "slide_7_content_strategy",
+      "slideNumber": 7,
+      "slideTitle": "Content Strategy Foundation",
+      "templateId": "pyramid",
+      "props": {
+        "title": "Content Strategy Pyramid",
+        "levels": [
+          {
+            "text": "Content Distribution & Promotion",
+            "description": "Multi-channel amplification strategy"
+          },
+          {
+            "text": "Content Creation & Production",
+            "description": "High-quality, engaging content development"
+          },
+          {
+            "text": "Content Planning & Calendar",
+            "description": "Strategic planning and scheduling"
+          },
+          {
+            "text": "Content Audit & Analysis",
+            "description": "Understanding current content performance"
+          },
+          {
+            "text": "Goals, Audience & Brand Foundation",
+            "description": "Strategic foundation and core objectives"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_content_types",
+      "slideNumber": 8,
+      "slideTitle": "Content Format Matrix",
+      "templateId": "four-box-grid",
+      "props": {
+        "title": "Content Formats for Different Goals",
+        "boxes": [
+          {
+            "title": "Educational Content",
+            "content": "Blog posts, tutorials, webinars, how-to guides",
+            "icon": "📚"
+          },
+          {
+            "title": "Engagement Content", 
+            "content": "Social media posts, polls, user-generated content",
+            "icon": "💬"
+          },
+          {
+            "title": "Conversion Content",
+            "content": "Case studies, testimonials, product demos",
+            "icon": "🎯"
+          },
+          {
+            "title": "Entertainment Content",
+            "content": "Videos, memes, interactive content, stories",
+            "icon": "🎭"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_9_social_challenges",
+      "slideNumber": 9,
+      "slideTitle": "Social Media Challenges & Solutions",
+      "templateId": "challenges-solutions",
+      "props": {
+        "title": "Overcoming Social Media Obstacles",
+        "challenges": [
+          "Low organic reach and engagement",
+          "Creating consistent, quality content",
+          "Managing multiple platform requirements"
+        ],
+        "solutions": [
+          "Focus on community building and authentic interactions",
+          "Develop content pillars and batch creation workflows", 
+          "Use scheduling tools and platform-specific strategies"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_email_timeline",
+      "slideNumber": 10,
+      "slideTitle": "Email Marketing Campaign Timeline",
+      "templateId": "timeline",
+      "props": {
+        "title": "Building Your Email Marketing Program",
+        "events": [
+          {
+            "date": "Week 1-2",
+            "title": "Foundation Setup",
+            "description": "Choose platform, design templates, set up automation"
+          },
+          {
+            "date": "Week 3-4", 
+            "title": "List Building",
+            "description": "Create lead magnets, optimize signup forms"
+          },
+          {
+            "date": "Week 5-8",
+            "title": "Content Creation",
+            "description": "Develop welcome series, newsletters, promotional campaigns"
+          },
+          {
+            "date": "Week 9-12",
+            "title": "Optimization",
+            "description": "A/B testing, segmentation, performance analysis"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_11_seo_quote",
+      "slideNumber": 11,
+      "slideTitle": "SEO Philosophy",
+      "templateId": "quote-center",
+      "props": {
+        "quote": "The best place to hide a dead body is page 2 of Google search results.",
+        "author": "Digital Marketing Wisdom",
+        "context": "This humorous quote highlights the critical importance of ranking on the first page of search results for visibility and traffic."
+      }
+    },
+    {
+      "slideId": "slide_12_seo_factors",
+      "slideNumber": 12,
+      "slideTitle": "SEO Success Factors",
+      "templateId": "bullet-points-right",
+      "props": {
+        "title": "Key SEO Elements",
+        "bullets": [
+          "Keyword research and strategic implementation",
+          "High-quality, original content creation",
+          "Technical SEO and site speed optimization",
+          "Mobile-first design and user experience",
+          "Authority building through quality backlinks",
+          "Local SEO for geographic targeting"
+        ],
+        "bulletStyle": "dot",
+        "imagePrompt": "SEO optimization illustration with search elements, website structure, and ranking factors in a modern, clean style",
+        "imageAlt": "SEO optimization visual guide"
+      }
+    },
+    {
+      "slideId": "slide_13_paid_advertising",
+      "slideNumber": 13,
+      "slideTitle": "Paid Advertising Strategy",
+      "templateId": "big-image-left",
+      "props": {
+        "title": "Maximizing Paid Campaign ROI",
+        "subtitle": "Strategic paid advertising accelerates reach and drives targeted traffic when organic efforts need support.",
+        "imageUrl": "https://via.placeholder.com/600x400?text=Paid+Advertising",
+        "imageAlt": "Digital advertising dashboard",
+        "imagePrompt": "A modern advertising dashboard showing campaign performance metrics, targeting options, and ROI indicators across multiple platforms",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_14_implementation",
+      "slideNumber": 14,
+      "slideTitle": "90-Day Implementation Plan",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Your Digital Marketing Roadmap",
+        "steps": [
+          "Month 1: Foundation - Research, audit, and strategy development",
+          "Month 2: Launch - Implement core channels and begin content creation",
+          "Month 3: Optimize - Analyze data, refine approach, and scale success"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_15_conclusion",
+      "slideNumber": 15,
+      "slideTitle": "Success Principles",
+      "templateId": "title-slide",
+      "props": {
+        "title": "Your Digital Marketing Success Formula",
+        "subtitle": "Strategy + Consistency + Measurement = Growth",
+        "author": "Remember: Digital marketing is a marathon, not a sprint",
+        "backgroundColor": "#059669",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#d1fae5"
       }
     }
   ],
@@ -8753,7 +9846,24 @@ Return ONLY the JSON object.
                             section.id = f"№{number}"
                             logger.info(f"[PROJECT_CREATE_ID_FIX] Fixed ID format to '{section.id}'")
 
-        content_to_store_for_db = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
+        # Apply slide prop normalization for slide decks and video lesson presentations
+        if (selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION] and 
+            hasattr(parsed_content_model_instance, 'slides') and 
+            parsed_content_model_instance.slides):
+            
+            # Normalize slide props to fix schema mismatches
+            slides_dict = [slide.model_dump() if hasattr(slide, 'model_dump') else dict(slide) for slide in parsed_content_model_instance.slides]
+            normalized_slides = normalize_slide_props(slides_dict)
+            
+            # Update the content with normalized slides
+            content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
+            content_dict['slides'] = normalized_slides
+            content_to_store_for_db = content_dict
+            
+            logger.info(f"Applied slide prop normalization for {len(normalized_slides)} slides")
+        else:
+            content_to_store_for_db = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
+            
         derived_product_type = selected_design_template.microproduct_type
         derived_microproduct_type = selected_design_template.template_name
 
@@ -8814,9 +9924,15 @@ Return ONLY the JSON object.
                     final_content_for_response = QuizData(**db_content_dict)
                     logger.info("Re-parsed as QuizData.")
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
+                    # Apply slide normalization before parsing
+                    if 'slides' in db_content_dict and db_content_dict['slides']:
+                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'])
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails.")
                 elif component_name_from_db == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
+                    # Apply slide normalization before parsing
+                    if 'slides' in db_content_dict and db_content_dict['slides']:
+                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'])
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
                 else:
@@ -8902,8 +10018,14 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_QUIZ:
                     parsed_content_for_response = QuizData(**db_content_json)
                 elif component_name == COMPONENT_NAME_SLIDE_DECK:
+                    # Apply slide normalization before parsing
+                    if 'slides' in db_content_json and db_content_json['slides']:
+                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'])
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
+                    # Apply slide normalization before parsing
+                    if 'slides' in db_content_json and db_content_json['slides']:
+                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'])
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 else:
                     logger.warning(f"Unknown component_name '{component_name}' for project {project_id}. Trying fallbacks.", exc_info=not IS_PRODUCTION)
@@ -13979,6 +15101,9 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 elif current_component_name == COMPONENT_NAME_QUIZ:
                     final_content_for_model = QuizData(**db_content)
                 elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
+                    # Apply slide normalization before parsing
+                    if 'slides' in db_content and db_content['slides']:
+                        db_content['slides'] = normalize_slide_props(db_content['slides'])
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
                     final_content_for_model = TrainingPlanDetails(**db_content)
