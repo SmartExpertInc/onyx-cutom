@@ -1805,12 +1805,315 @@ Before outputting ANY lesson details, verify that:
 
 // ... existing code ...
 
-- If the prompt contains words like "event", "date", "schedule", "timeline", "calendar", "milestone", "important date", "key date", or "event list", use the event-list template to display a list of events with dates and descriptions.
+**SLIDE TEMPLATE SELECTION GUIDELINES:**
 
-- If the prompt contains words like "six ideas", "six different", "six concepts", "six points", "six items", "numbered list", "two columns", "ideas list", or "concept list", use the six-ideas-list template to display six numbered ideas in a two-column layout.
+**Event List Template (event-list):**
+Use this template when the content involves chronological events, milestones, or time-based information. Perfect for:
+- Historical timelines and project milestones
+- Event schedules and important dates
+- Product launch timelines and key dates
+- Company history and significant events
+- Personal or professional achievements over time
+- Conference schedules and session timelines
+- Marketing campaign timelines and key dates
+- Product development phases and milestones
+- Training program schedules and modules
+- Business transformation journey and key dates
+- Customer journey touchpoints and important dates
+- Industry evolution and technological milestones
+- Regulatory compliance timelines and deadlines
+- Partnership announcements and key dates
+- Award ceremonies and recognition events
+- Product lifecycle stages and important dates
+- Market entry strategies and timing
+- Competitive analysis timelines
+- Innovation milestones and breakthrough dates
+- Strategic planning phases and key dates
 
-- If the prompt contains words like "contraindications", "indications", "medical", "healthcare", "patient", "treatment", "medication", "drug", "therapy", "clinical", "medical advice", "dosage", "side effects", "precautions", "warnings", "should do", "shouldn't do", "do's and don'ts", or "medical guidelines", use the contraindications-indications template to display medical contraindications and indications in two columns.
+**Six Ideas List Template (six-ideas-list):**
+Use this template for presenting multiple concepts, ideas, or points in a structured format. Ideal for:
+- Innovation brainstorming and creative concepts
+- Product feature lists and capabilities
+- Service offerings and value propositions
+- Strategic initiatives and business ideas
+- Problem-solving approaches and solutions
+- Best practices and recommendations
+- Key benefits and advantages
+- Competitive differentiators and unique selling points
+- Industry trends and emerging concepts
+- Technology solutions and digital transformation ideas
+- Customer pain points and corresponding solutions
+- Market opportunities and growth strategies
+- Operational improvements and efficiency ideas
+- Quality assurance measures and standards
+- Risk management strategies and mitigation approaches
+- Sustainability initiatives and environmental concepts
+- Employee development and training concepts
+- Customer experience enhancement ideas
+- Supply chain optimization strategies
+- Financial management and cost-saving ideas
 
-- If the prompt contains words like "metrics", "analytics", "kpi", "performance", "data", "statistics", "measurement", "tracking", "monitoring", "dashboard", "reporting", "business intelligence", "data analysis", "funnel", "attribution", "clv", "a/b testing", "experimentation", or "data visualization", use the metrics-analytics template to display six key metrics with connecting timeline elements.
+**Contraindications and Indications Template (contraindications-indications):**
+Use this template for medical, healthcare, or safety-related content that requires clear "do's and don'ts". Perfect for:
+- Medical treatment guidelines and protocols
+- Medication instructions and safety warnings
+- Healthcare procedures and patient care instructions
+- Clinical practice guidelines and standards
+- Drug interactions and contraindications
+- Surgical procedures and pre/post-operative care
+- Diagnostic testing protocols and patient preparation
+- Therapeutic interventions and treatment plans
+- Patient safety guidelines and precautions
+- Medical device usage instructions and warnings
+- Clinical trial protocols and participant guidelines
+- Emergency medical procedures and protocols
+- Preventive healthcare recommendations
+- Mental health treatment guidelines
+- Rehabilitation protocols and exercise guidelines
+- Nutritional guidelines and dietary restrictions
+- Occupational health and safety protocols
+- Environmental health guidelines and precautions
+- Public health recommendations and guidelines
+- Veterinary medicine protocols and animal care
 
-- If the prompt contains words like "organizational chart", "org chart", "hierarchy", "structure", "organization", "company structure", "team structure", "reporting structure", "management", "leadership", "ceo", "manager", "employee", "department", "division", "branch", "subsidiary", "corporate structure", or "organizational hierarchy", use the org-chart template to display a hierarchical organizational structure with connecting lines.
+**Metrics and Analytics Template (metrics-analytics):**
+Use this template for data-driven content, performance indicators, and analytical insights. Ideal for:
+- Business performance metrics and KPIs
+- Financial analysis and key indicators
+- Marketing campaign performance data
+- Sales metrics and conversion rates
+- Customer analytics and behavior patterns
+- Operational efficiency measurements
+- Quality metrics and performance standards
+- Employee productivity and engagement metrics
+- Supply chain performance indicators
+- Risk assessment and management metrics
+- Compliance and regulatory metrics
+- Innovation and R&D performance data
+- Market analysis and competitive metrics
+- Customer satisfaction and loyalty metrics
+- Product performance and usage analytics
+- Website and digital platform metrics
+- Social media engagement and reach data
+- Email marketing performance indicators
+- SEO and content marketing metrics
+- ROI and investment performance data
+
+**Organizational Chart Template (org-chart):**
+Use this template for hierarchical structures, organizational relationships, and reporting structures. Perfect for:
+- Company organizational structure and hierarchy
+- Team structures and reporting relationships
+- Project team organization and roles
+- Department structures and management hierarchy
+- Board of directors and governance structure
+- Committee structures and working groups
+- Partnership and alliance organizational structures
+- Franchise and branch network structures
+- Academic and educational institution hierarchies
+- Government and administrative structures
+- Non-profit organization structures
+- Military and security force hierarchies
+- Healthcare organization structures
+- Legal firm partnership structures
+- Consulting firm organizational charts
+- Technology company team structures
+- Manufacturing and operations hierarchies
+- Sales and marketing team structures
+- Research and development organization
+- Customer service and support structures
+
+**Template Selection Triggers:**
+- **Event-related words**: "event", "date", "schedule", "timeline", "calendar", "milestone", "important date", "key date", "event list", "chronological", "history", "anniversary", "deadline", "launch date", "release date", "announcement date"
+- **Ideas/concepts words**: "six ideas", "six different", "six concepts", "six points", "six items", "numbered list", "two columns", "ideas list", "concept list", "features", "benefits", "advantages", "solutions", "approaches", "strategies", "initiatives", "trends", "opportunities"
+- **Medical/healthcare words**: "contraindications", "indications", "medical", "healthcare", "patient", "treatment", "medication", "drug", "therapy", "clinical", "medical advice", "dosage", "side effects", "precautions", "warnings", "should do", "shouldn't do", "do's and don'ts", "medical guidelines", "safety", "protocols", "procedures", "diagnosis", "symptoms"
+- **Analytics/data words**: "metrics", "analytics", "kpi", "performance", "data", "statistics", "measurement", "tracking", "monitoring", "dashboard", "reporting", "business intelligence", "data analysis", "funnel", "attribution", "clv", "a/b testing", "experimentation", "data visualization", "insights", "trends", "patterns", "growth", "conversion", "engagement"
+- **Organizational words**: "organizational chart", "org chart", "hierarchy", "structure", "organization", "company structure", "team structure", "reporting structure", "management", "leadership", "ceo", "manager", "employee", "department", "division", "branch", "subsidiary", "corporate structure", "organizational hierarchy", "chain of command", "reporting lines", "team roles", "responsibilities"
+
+**CONTENT GENERATION GUIDELINES FOR SLIDE TEMPLATES:**
+
+**Event List Template Content Generation:**
+When generating content for event-list templates, create:
+- **3-5 significant events** with specific dates and detailed descriptions
+- **Chronological order** from earliest to latest or most recent
+- **Diverse event types**: mix of achievements, milestones, launches, announcements, partnerships
+- **Specific dates**: use realistic dates (e.g., "March 15, 2024", "Q2 2023", "December 2022")
+- **Detailed descriptions**: 2-3 sentences explaining the event's significance and impact
+- **Context and outcomes**: explain why each event was important and what resulted from it
+- **Professional tone**: maintain business-appropriate language and presentation
+- **Variety in scale**: include both major milestones and smaller but significant events
+- **Industry relevance**: ensure events relate to the topic or industry being discussed
+
+**Six Ideas List Template Content Generation:**
+When generating content for six-ideas-list templates, create:
+- **Exactly 6 ideas** with clear, actionable concepts
+- **Diverse perspectives**: cover different aspects of the topic (strategic, operational, technical, etc.)
+- **Specific and actionable**: each idea should be implementable, not vague concepts
+- **Benefit-focused**: explain what value or advantage each idea provides
+- **Industry-relevant**: ensure ideas are appropriate for the context and audience
+- **Innovative thinking**: include creative solutions and forward-looking concepts
+- **Practical implementation**: provide enough detail to understand how to execute each idea
+- **Measurable outcomes**: where possible, include metrics or success indicators
+- **Risk considerations**: mention potential challenges or requirements for each idea
+- **Scalability**: consider how ideas can be adapted or expanded
+
+**Contraindications and Indications Template Content Generation:**
+When generating content for contraindications-indications templates, create:
+- **5-7 contraindications** (what NOT to do) with clear explanations
+- **5-7 indications** (what TO do) with detailed guidance
+- **Medical accuracy**: ensure all medical information is safe and appropriate
+- **Clear language**: use simple, understandable terms while maintaining professional accuracy
+- **Safety focus**: prioritize patient safety and best practices
+- **Specific scenarios**: include relevant situations and contexts
+- **Evidence-based**: reference established medical guidelines and practices
+- **Comprehensive coverage**: address common concerns and important considerations
+- **Professional tone**: maintain appropriate medical/healthcare language
+- **Risk communication**: clearly explain potential risks and benefits
+
+**Metrics and Analytics Template Content Generation:**
+When generating content for metrics-analytics templates, create:
+- **6 key metrics** with realistic numerical values and percentages
+- **Diverse metric types**: include performance, growth, efficiency, and quality metrics
+- **Realistic values**: use believable numbers that reflect industry standards
+- **Clear descriptions**: explain what each metric measures and why it's important
+- **Trend indicators**: include growth rates, improvements, or performance changes
+- **Business context**: relate metrics to business outcomes and strategic goals
+- **Industry relevance**: ensure metrics are appropriate for the specific industry or topic
+- **Actionable insights**: explain what the metrics mean for decision-making
+- **Comparative context**: provide benchmarks or industry standards where relevant
+- **Visual appeal**: use varied metric types (percentages, ratios, absolute numbers)
+
+**Organizational Chart Template Content Generation:**
+When generating content for org-chart templates, create:
+- **3-4 hierarchical levels** with clear reporting relationships
+- **Realistic roles**: include appropriate job titles and responsibilities
+- **Industry-appropriate structure**: match the organizational type (startup, enterprise, non-profit, etc.)
+- **Clear hierarchy**: establish logical reporting relationships and spans of control
+- **Role descriptions**: provide brief descriptions of key responsibilities
+- **Departmental organization**: group related functions and roles appropriately
+- **Scalable structure**: consider growth and organizational development
+- **Modern practices**: include contemporary organizational design principles
+- **Diversity considerations**: reflect inclusive and representative structures
+- **Functional clarity**: ensure each role has distinct responsibilities and value
+
+**CONTENT QUALITY STANDARDS FOR ALL TEMPLATES:**
+- **Professional accuracy**: ensure all content is factually correct and appropriate
+- **Engaging presentation**: make content interesting and informative
+- **Clear communication**: use simple, direct language that's easy to understand
+- **Actionable insights**: provide value that readers can apply or learn from
+- **Consistent formatting**: maintain professional presentation standards
+- **Relevant examples**: include specific, realistic examples when appropriate
+- **Comprehensive coverage**: address the topic thoroughly without being overwhelming
+- **Audience-appropriate**: tailor content to the intended audience and context
+- **Timely relevance**: ensure content reflects current best practices and trends
+- **Educational value**: provide learning opportunities and new insights
+
+**SAMPLE CONTENT EXAMPLES FOR EACH TEMPLATE:**
+
+**Event List Template Examples:**
+```
+Event 1: "March 15, 2024 - Product Launch Milestone"
+Description: Successfully launched our flagship AI-powered analytics platform, achieving 150% of projected first-month sales targets and securing partnerships with three Fortune 500 companies.
+
+Event 2: "Q2 2023 - Strategic Partnership Formation"
+Description: Established key partnership with leading cloud infrastructure provider, enabling 40% reduction in operational costs and expanding our market reach to 15 new countries.
+
+Event 3: "December 2022 - Series A Funding Round"
+Description: Secured $5.2 million in Series A funding from top-tier venture capital firms, validating our business model and enabling rapid team expansion from 12 to 45 employees.
+```
+
+**Six Ideas List Template Examples:**
+```
+Idea 1: "Implement AI-Powered Customer Segmentation"
+Description: Leverage machine learning algorithms to create dynamic customer segments based on behavior patterns, purchase history, and engagement metrics, enabling personalized marketing campaigns that increase conversion rates by 35%.
+
+Idea 2: "Develop Predictive Analytics Dashboard"
+Description: Build real-time analytics platform that forecasts market trends, customer churn, and revenue projections, providing actionable insights for strategic decision-making and proactive problem-solving.
+
+Idea 3: "Launch Mobile-First Customer Experience"
+Description: Redesign customer journey with mobile-optimized interfaces, one-click purchasing, and seamless cross-platform synchronization, reducing customer acquisition costs by 25% and increasing mobile conversion rates.
+
+Idea 4: "Establish Strategic Partnership Program"
+Description: Create formal partnership framework with complementary businesses, sharing resources, co-marketing opportunities, and joint product development initiatives to expand market reach and reduce customer acquisition costs.
+
+Idea 5: "Implement Automated Quality Assurance"
+Description: Deploy AI-driven testing and quality monitoring systems that identify potential issues before they reach customers, reducing support tickets by 40% and improving customer satisfaction scores.
+
+Idea 6: "Develop Employee Innovation Program"
+Description: Establish internal innovation incubator that encourages employees to propose and develop new product features, creating ownership culture and generating 15% of new product ideas from internal teams.
+```
+
+**Contraindications and Indications Template Examples:**
+```
+Contraindications (What NOT to do):
+- Avoid implementing new features without proper user testing and feedback collection, as this can lead to poor user adoption and negative customer feedback
+- Don't rush product launches without comprehensive quality assurance testing, which can result in technical issues and damage to brand reputation
+- Never ignore customer feedback or support requests, as this can lead to customer churn and negative word-of-mouth marketing
+- Avoid making pricing decisions without thorough market research and competitive analysis, which can result in lost revenue opportunities
+- Don't implement security measures as an afterthought, as this can lead to data breaches and regulatory compliance issues
+
+Indications (What TO do):
+- Conduct thorough user research and gather feedback before implementing new features to ensure market fit and user satisfaction
+- Implement comprehensive quality assurance processes including automated testing, manual review, and user acceptance testing
+- Establish proactive customer support systems with multiple communication channels and rapid response times
+- Perform detailed market analysis including competitor research, pricing studies, and customer value perception surveys
+- Prioritize security from the beginning with regular security audits, employee training, and compliance monitoring
+```
+
+**Metrics and Analytics Template Examples:**
+```
+Metric 1: "Customer Acquisition Cost (CAC) - $45"
+Description: Average cost to acquire a new customer through marketing and sales efforts, representing a 15% improvement from previous quarter and 25% below industry average.
+
+Metric 2: "Customer Lifetime Value (CLV) - $1,200"
+Description: Total revenue expected from a customer over their relationship with the company, showing 30% increase year-over-year due to improved retention strategies.
+
+Metric 3: "Monthly Recurring Revenue (MRR) - $850K"
+Description: Predictable monthly revenue from subscription-based services, growing at 12% month-over-month rate and indicating strong product-market fit.
+
+Metric 4: "Net Promoter Score (NPS) - 72"
+Description: Customer satisfaction and loyalty measurement, placing the company in the top 10% of industry performers and indicating strong customer advocacy.
+
+Metric 5: "Employee Retention Rate - 94%"
+Description: Percentage of employees who remain with the company annually, exceeding industry average of 85% and reflecting positive workplace culture.
+
+Metric 6: "Product Adoption Rate - 78%"
+Description: Percentage of customers actively using core product features, showing strong engagement and indicating successful onboarding processes.
+```
+
+**Organizational Chart Template Examples:**
+```
+Level 1 - Executive Leadership:
+CEO: Sarah Johnson - Overall company strategy, investor relations, and board management
+CTO: Michael Chen - Technology strategy, product development, and engineering leadership
+CFO: Lisa Rodriguez - Financial planning, fundraising, and operational efficiency
+
+Level 2 - Department Heads:
+VP of Engineering: David Kim - Software development, technical architecture, and team management
+VP of Marketing: Jennifer Smith - Brand strategy, customer acquisition, and market positioning
+VP of Sales: Robert Wilson - Revenue generation, customer relationships, and sales operations
+VP of Customer Success: Amanda Davis - Customer onboarding, support, and retention strategies
+
+Level 3 - Team Leaders:
+Engineering Managers: 3 positions - Leading development teams, code quality, and technical delivery
+Marketing Managers: 2 positions - Campaign execution, content creation, and performance optimization
+Sales Managers: 4 positions - Territory management, pipeline development, and quota achievement
+Customer Success Managers: 3 positions - Account management, customer satisfaction, and renewal rates
+
+Level 4 - Individual Contributors:
+Senior Developers: 8 positions - Technical implementation, code review, and mentorship
+Marketing Specialists: 5 positions - Content creation, campaign execution, and analytics
+Sales Representatives: 12 positions - Lead qualification, deal closure, and relationship building
+Customer Success Specialists: 6 positions - Customer support, onboarding, and success planning
+```
+
+**CONTENT GENERATION BEST PRACTICES:**
+- **Always provide specific, actionable content** rather than generic statements
+- **Include realistic numbers and metrics** that reflect industry standards
+- **Use current industry terminology** and best practices
+- **Provide context and explanations** for why each item is important
+- **Maintain professional tone** appropriate for business presentations
+- **Include diverse perspectives** and approaches to the topic
+- **Ensure content is relevant** to the specific industry or context
+- **Provide measurable outcomes** and success indicators where possible
+- **Include risk considerations** and potential challenges
+- **Focus on value creation** and positive impact
