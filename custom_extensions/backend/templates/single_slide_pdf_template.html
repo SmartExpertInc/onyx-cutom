@@ -1237,6 +1237,41 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
+        .node-content.ceo {
+            background-color: rgba(255, 215, 0, 0.2);
+            border: 3px solid var(--content-color);
+            min-width: 180px;
+            font-size: 18px;
+            font-weight: 700;
+            transform: scale(1.1);
+        }
+        
+        .node-content.c-level {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 2px solid var(--content-color);
+            min-width: 160px;
+            font-size: 16px;
+            font-weight: 600;
+            transform: scale(1.05);
+        }
+        
+        .node-content.manager {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--content-color);
+            min-width: 140px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .node-content.employee {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--content-color);
+            min-width: 120px;
+            font-size: 12px;
+            font-weight: 600;
+            transform: scale(0.95);
+        }
+        
         .children-container {
             padding-top: 20px;
             position: relative;
@@ -2127,7 +2162,7 @@
                             {% for node in slide.props.chartData %}
                                 {% if not node.parentId %}
                                     <div class="chart-node root-node">
-                                        <div class="node-content">{{ node.title or 'CEO' }}</div>
+                                        <div class="node-content ceo">{{ node.title or 'CEO' }}</div>
                                         {% if slide.props.chartData | selectattr('parentId', 'equalto', node.id) | list | length > 0 %}
                                             <div class="children-container">
                                                 <div class="vertical-line"></div>
@@ -2135,7 +2170,7 @@
                                                 <div class="children-grid">
                                                     {% for child in slide.props.chartData | selectattr('parentId', 'equalto', node.id) %}
                                                         <div class="chart-node child-node">
-                                                            <div class="node-content">{{ child.title or 'Manager' }}</div>
+                                                            <div class="node-content c-level">{{ child.title or 'CTO' }}</div>
                                                             {% if slide.props.chartData | selectattr('parentId', 'equalto', child.id) | list | length > 0 %}
                                                                 <div class="children-container">
                                                                     <div class="vertical-line"></div>
@@ -2143,7 +2178,20 @@
                                                                     <div class="children-grid">
                                                                         {% for grandchild in slide.props.chartData | selectattr('parentId', 'equalto', child.id) %}
                                                                             <div class="chart-node grandchild-node">
-                                                                                <div class="node-content">{{ grandchild.title or 'Employee' }}</div>
+                                                                                <div class="node-content manager">{{ grandchild.title or 'Dev Lead' }}</div>
+                                                                                {% if slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) | list | length > 0 %}
+                                                                                    <div class="children-container">
+                                                                                        <div class="vertical-line"></div>
+                                                                                        <div class="horizontal-line"></div>
+                                                                                        <div class="children-grid">
+                                                                                            {% for employee in slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) %}
+                                                                                                <div class="chart-node employee-node">
+                                                                                                    <div class="node-content employee">{{ employee.title or 'Senior Dev' }}</div>
+                                                                                                </div>
+                                                                                            {% endfor %}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                {% endif %}
                                                                             </div>
                                                                         {% endfor %}
                                                                     </div>
@@ -2159,16 +2207,19 @@
                             {% endfor %}
                         {% else %}
                             <div class="chart-node root-node">
-                                <div class="node-content">CEO</div>
+                                <div class="node-content ceo">CEO</div>
                                 <div class="children-container">
                                     <div class="vertical-line"></div>
                                     <div class="horizontal-line"></div>
                                     <div class="children-grid">
                                         <div class="chart-node child-node">
-                                            <div class="node-content">Manager 1</div>
+                                            <div class="node-content c-level">CTO</div>
                                         </div>
                                         <div class="chart-node child-node">
-                                            <div class="node-content">Manager 2</div>
+                                            <div class="node-content c-level">CFO</div>
+                                        </div>
+                                        <div class="chart-node child-node">
+                                            <div class="node-content c-level">CMO</div>
                                         </div>
                                     </div>
                                 </div>

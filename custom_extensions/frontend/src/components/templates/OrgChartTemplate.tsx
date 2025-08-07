@@ -125,17 +125,17 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   title = 'Organizational chart',
   chartData = [
     { id: 'ceo', title: 'CEO', level: 0 },
-    { id: 'manager1', title: 'Manager 1', level: 1, parentId: 'ceo' },
-    { id: 'manager2', title: 'Manager 2', level: 1, parentId: 'ceo' },
-    { id: 'teamleader1_1', title: 'Team Leader 1', level: 2, parentId: 'manager1' },
-    { id: 'teamleader2_1', title: 'Team Leader 2', level: 2, parentId: 'manager1' },
-    { id: 'teamleader1_2', title: 'Team Leader 1', level: 2, parentId: 'manager2' },
-    { id: 'teamleader2_2', title: 'Team Leader 2', level: 2, parentId: 'manager2' },
-    { id: 'employee1', title: 'Employee 1', level: 3, parentId: 'teamleader1_1' },
-    { id: 'employee2', title: 'Employee 2', level: 3, parentId: 'teamleader1_1' },
-    { id: 'employee3', title: 'Employee 3', level: 3, parentId: 'teamleader1_2' },
-    { id: 'employee4', title: 'Employee 4', level: 3, parentId: 'teamleader1_2' },
-    { id: 'employee5', title: 'Employee 5', level: 3, parentId: 'teamleader2_2' }
+    { id: 'cto', title: 'CTO', level: 1, parentId: 'ceo' },
+    { id: 'cfo', title: 'CFO', level: 1, parentId: 'ceo' },
+    { id: 'cmo', title: 'CMO', level: 1, parentId: 'ceo' },
+    { id: 'dev_lead', title: 'Dev Lead', level: 2, parentId: 'cto' },
+    { id: 'qa_lead', title: 'QA Lead', level: 2, parentId: 'cto' },
+    { id: 'finance_manager', title: 'Finance Manager', level: 2, parentId: 'cfo' },
+    { id: 'hr_manager', title: 'HR Manager', level: 2, parentId: 'cfo' },
+    { id: 'marketing_lead', title: 'Marketing Lead', level: 2, parentId: 'cmo' },
+    { id: 'sales_lead', title: 'Sales Lead', level: 2, parentId: 'cmo' },
+    { id: 'senior_dev', title: 'Senior Dev', level: 3, parentId: 'dev_lead' },
+    { id: 'junior_dev', title: 'Junior Dev', level: 3, parentId: 'dev_lead' }
   ],
   titleColor,
   textColor,
@@ -180,24 +180,75 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
   const renderNode = (node: ChartNode, level: number) => {
     const children = getChildren(node.id);
     const hasChildren = children.length > 0;
+    
+    // Different styles for different levels
+    const getNodeStyle = (level: number) => {
+      const baseStyle = {
+        padding: '12px 20px',
+        margin: '8px',
+        borderRadius: '12px',
+        cursor: isEditable ? 'pointer' : 'default',
+        textAlign: 'center',
+        zIndex: 1,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        backdropFilter: 'blur(10px)',
+        transition: 'all 0.3s ease',
+      };
 
-    return (
-      <div key={node.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div
-          style={{
-            padding: '12px 20px',
-            margin: '8px',
-            borderRadius: '12px',
+      switch (level) {
+        case 0: // CEO
+          return {
+            ...baseStyle,
+            backgroundColor: 'rgba(255, 215, 0, 0.2)',
+            border: `3px solid ${txtColor}`,
+            minWidth: '180px',
+            transform: 'scale(1.1)',
+          };
+        case 1: // C-level
+          return {
+            ...baseStyle,
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            border: `2px solid ${txtColor}`,
+            minWidth: '160px',
+            transform: 'scale(1.05)',
+          };
+        case 2: // Managers
+          return {
+            ...baseStyle,
             backgroundColor: 'rgba(255, 255, 255, 0.1)',
             border: `2px solid ${txtColor}`,
-            cursor: isEditable ? 'pointer' : 'default',
             minWidth: '140px',
-            textAlign: 'center',
-            zIndex: 1,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            backdropFilter: 'blur(10px)',
-            transition: 'all 0.3s ease',
-          }}
+          };
+        default: // Employees
+          return {
+            ...baseStyle,
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            border: `1px solid ${txtColor}`,
+            minWidth: '120px',
+            transform: 'scale(0.95)',
+          };
+      }
+    };
+
+    const getFontSize = (level: number) => {
+      switch (level) {
+        case 0: return '18px';
+        case 1: return '16px';
+        case 2: return '14px';
+        default: return '12px';
+      }
+    };
+
+    return (
+      <div key={node.id} style={{ 
+        position: 'relative', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center',
+        margin: level === 0 ? '0' : '10px'
+      }}>
+        <div
+          style={getNodeStyle(level)}
           onClick={() => handleChartDataEdit(node.id)}
         >
           {isEditable && editingChartData[node.id] ? (
@@ -208,20 +259,20 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
               multiline={false}
               placeholder="Enter title..."
               style={{
-                fontSize: currentTheme.fonts.contentSize,
+                fontSize: getFontSize(level),
                 color: txtColor,
                 fontFamily: currentTheme.fonts.contentFont,
                 textAlign: 'center',
-                fontWeight: '600',
+                fontWeight: level === 0 ? '700' : '600',
               }}
             />
           ) : (
             <div
               style={{
-                fontSize: currentTheme.fonts.contentSize,
+                fontSize: getFontSize(level),
                 color: txtColor,
                 fontFamily: currentTheme.fonts.contentFont,
-                fontWeight: '600',
+                fontWeight: level === 0 ? '700' : '600',
               }}
             >
               {node.title || (isEditable ? 'Click to add title' : '')}
@@ -230,49 +281,69 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
         </div>
 
         {hasChildren && (
-          <div style={{ paddingTop: '20px', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {/* Vertical line from parent to horizontal line */}
-            <div style={{ position: 'relative', height: '20px' }}>
+          <div style={{ 
+            paddingTop: '30px', 
+            position: 'relative', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center',
+            width: '100%'
+          }}>
+            {/* Curved connection lines */}
+            <div style={{ 
+              position: 'relative', 
+              height: '30px',
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
               <div
                 style={{
                   position: 'absolute',
-                  top: 0,
+                  top: '0',
                   left: '50%',
-                  width: '2px',
-                  height: '20px',
+                  width: '3px',
+                  height: '30px',
                   backgroundColor: txtColor,
                   transform: 'translateX(-50%)',
                   zIndex: 0,
-                  borderRadius: '1px',
+                  borderRadius: '2px',
                 }}
               />
             </div>
 
-            {/* Horizontal line connecting children */}
+            {/* Children container with curved connections */}
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'space-evenly',
+                justifyContent: 'space-around',
                 alignItems: 'flex-start',
                 position: 'relative',
-                marginTop: '20px',
-                width: `${Math.max(children.length * 200, 400)}px`,
-                minWidth: '400px',
+                width: '100%',
+                maxWidth: `${Math.max(children.length * 180, 600)}px`,
+                minWidth: '600px',
               }}
             >
-              {/* Horizontal line */}
-              <div
+              {/* Curved horizontal line */}
+              <svg
                 style={{
                   position: 'absolute',
-                  top: '-20px',
+                  top: '-30px',
                   left: '0',
-                  right: '0',
-                  height: '2px',
-                  backgroundColor: txtColor,
+                  width: '100%',
+                  height: '60px',
                   zIndex: 0,
-                  borderRadius: '1px',
                 }}
-              />
+                viewBox={`0 0 ${Math.max(children.length * 180, 600)} 60`}
+              >
+                <path
+                  d={`M 0 30 Q ${Math.max(children.length * 180, 600) / 4} 0, ${Math.max(children.length * 180, 600) / 2} 30 Q ${(Math.max(children.length * 180, 600) * 3) / 4} 60, ${Math.max(children.length * 180, 600)} 30`}
+                  stroke={txtColor}
+                  strokeWidth="3"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </svg>
               
               {children.map((child, index) => (
                 <div key={child.id} style={{ 
@@ -281,19 +352,19 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                   alignItems: 'center', 
                   position: 'relative', 
                   flex: 1,
-                  margin: '0 10px'
+                  margin: '0 15px'
                 }}>
-                  {/* Vertical line from horizontal to child */}
+                  {/* Vertical line from curve to child */}
                   <div
                     style={{
                       position: 'absolute',
-                      top: '-20px',
+                      top: '-30px',
                       left: '50%',
                       width: '2px',
-                      height: '20px',
+                      height: '30px',
                       backgroundColor: txtColor,
                       transform: 'translateX(-50%)',
-                      zIndex: 0,
+                      zIndex: 1,
                       borderRadius: '1px',
                     }}
                   />
@@ -315,43 +386,49 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
       boxSizing: 'border-box',
       fontFamily: currentTheme.fonts.contentFont
     }}>
-      <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={false}
-            placeholder="Enter title..."
-            style={{
-              fontWeight: 700,
-              fontSize: '24px',
-              color: '#333',
-              textAlign: 'center',
-              width: '100%',
-              fontFamily: 'Arial, sans-serif'
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: '24px',
-              color: '#333',
-              textAlign: 'center',
-              cursor: isEditable ? 'pointer' : 'default',
-              fontFamily: 'Arial, sans-serif'
-            }}
-            onClick={() => isEditable && setEditingTitle(true)}
-          >
-            {title || (isEditable ? 'Click to add title' : '')}
-          </div>
-        )}
-      </div>
+             <div style={{ marginBottom: '50px', textAlign: 'center' }}>
+         {isEditable && editingTitle ? (
+           <InlineEditor
+             initialValue={title}
+             onSave={handleTitleSave}
+             onCancel={handleTitleCancel}
+             multiline={false}
+             placeholder="Enter title..."
+             style={{
+               fontWeight: 700,
+               fontSize: currentTheme.fonts.titleSize,
+               color: tColor,
+               textAlign: 'center',
+               width: '100%',
+               fontFamily: currentTheme.fonts.titleFont
+             }}
+           />
+         ) : (
+           <div
+             style={{
+               fontWeight: 700,
+               fontSize: currentTheme.fonts.titleSize,
+               color: tColor,
+               textAlign: 'center',
+               cursor: isEditable ? 'pointer' : 'default',
+               fontFamily: currentTheme.fonts.titleFont
+             }}
+             onClick={() => isEditable && setEditingTitle(true)}
+           >
+             {title || (isEditable ? 'Click to add title' : '')}
+           </div>
+         )}
+       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
-      </div>
+       <div style={{ 
+         display: 'flex', 
+         justifyContent: 'center',
+         alignItems: 'center',
+         flex: 1,
+         padding: '20px 0'
+       }}>
+         {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
+       </div>
     </div>
   );
 };
