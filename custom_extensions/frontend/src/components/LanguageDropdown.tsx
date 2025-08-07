@@ -23,6 +23,9 @@ const USFlag: React.FC<{ className?: string }> = ({
     <rect fill="#ffffff" x="0" y="14" width="36" height="2" />
     <rect fill="#ffffff" x="0" y="18" width="36" height="2" />
     <rect fill="#ffffff" x="0" y="22" width="36" height="2" />
+    <rect fill="#ffffff" x="0" y="26" width="36" height="2" />
+    <rect fill="#ffffff" x="0" y="30" width="36" height="2" />
+    <rect fill="#ffffff" x="0" y="34" width="36" height="2" />
     <rect fill="#192f5d" rx="1" x="0" y="0" width="14" height="10" />
     <g fill="#ffffff">
       <path d="M2 2l0.2 0.6h0.6l-0.5 0.4 0.2 0.6-0.5-0.4-0.5 0.4 0.2-0.6-0.5-0.4h0.6z" />
