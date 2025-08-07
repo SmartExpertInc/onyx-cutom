@@ -78,7 +78,7 @@ export class TemplateExtractor {
   private static getExtractorForTemplate(templateId: TemplateId): 
     ((props: any) => { items: PositionableItem[]; canvasConfig: CanvasConfig }) | null {
     
-    const extractors = {
+    const extractors: Record<TemplateId, ((props: any) => { items: PositionableItem[]; canvasConfig: CanvasConfig }) | null> = {
       'bullet-points': this.extractBulletPoints,
       'bullet-points-right': this.extractBulletPointsRight,
       'two-column': this.extractTwoColumn,
@@ -89,7 +89,11 @@ export class TemplateExtractor {
       'challenges-solutions': this.extractChallengesSolutions,
       'content-slide': this.extractContentSlide,
       'title-slide': this.extractTitleSlide,
-      'hero-title-slide': this.extractHeroTitleSlide
+      'hero-title-slide': this.extractHeroTitleSlide,
+      'big-image-left': this.extractBigImageLeft,
+      'big-image-top': this.extractBigImageTop,
+      'quote-center': this.extractQuoteCenter,
+      'four-box-grid': this.extractFourBoxGrid
     };
 
     return extractors[templateId] || null;
@@ -913,6 +917,221 @@ export class TemplateExtractor {
       constraints: {
         minWidth: 150,
         minHeight: 100,
+        snapToGrid: true
+      },
+      metadata: {
+        templateOrigin: 'extracted',
+        isUserCreated: false,
+        lastModified: new Date().toISOString()
+      }
+    };
+  }
+
+  /**
+   * Extract items from big image left template
+   */
+  private static extractBigImageLeft(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(this.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Image on the left
+    if (props.imagePath || props.imageUrl) {
+      items.push(this.createImageItem(
+        'main-image',
+        props.imagePath || props.imageUrl || '',
+        props.imagePrompt || '',
+        { x: 60, y: 160, width: 400, height: 400 }
+      ));
+    }
+
+    // Content on the right
+    if (props.subtitle) {
+      items.push(this.createTextItem(
+        'subtitle',
+        props.subtitle,
+        { x: 500, y: 160, width: 640, height: 400 },
+        'text'
+      ));
+    }
+
+    return {
+      items,
+      canvasConfig: this.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from big image top template
+   */
+  private static extractBigImageTop(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(this.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Image at the top
+    if (props.imagePath || props.imageUrl) {
+      items.push(this.createImageItem(
+        'main-image',
+        props.imagePath || props.imageUrl || '',
+        props.imagePrompt || '',
+        { x: 60, y: 160, width: 1080, height: 300 }
+      ));
+    }
+
+    // Content below
+    if (props.subtitle) {
+      items.push(this.createTextItem(
+        'subtitle',
+        props.subtitle,
+        { x: 60, y: 480, width: 1080, height: 120 },
+        'text'
+      ));
+    }
+
+    return {
+      items,
+      canvasConfig: this.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from quote center template
+   */
+  private static extractQuoteCenter(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Quote text (centered)
+    if (props.quote) {
+      items.push(this.createTextItem(
+        'quote',
+        `"${props.quote}"`,
+        { x: 150, y: 200, width: 900, height: 200 },
+        'heading'
+      ));
+    }
+
+    // Author (centered below quote)
+    if (props.author) {
+      items.push(this.createTextItem(
+        'author',
+        `— ${props.author}`,
+        { x: 150, y: 420, width: 900, height: 60 },
+        'text'
+      ));
+    }
+
+    // Attribution (if provided)
+    if (props.attribution) {
+      items.push(this.createTextItem(
+        'attribution',
+        props.attribution,
+        { x: 150, y: 500, width: 900, height: 40 },
+        'text'
+      ));
+    }
+
+    return {
+      items,
+      canvasConfig: this.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from four box grid template
+   */
+  private static extractFourBoxGrid(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(this.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Four boxes in 2x2 grid
+    if (props.boxes && props.boxes.length > 0) {
+      const boxWidth = 500;
+      const boxHeight = 200;
+      const gap = 40;
+      const startX = 60;
+      const startY = 180;
+
+      props.boxes.forEach((box: any, index: number) => {
+        if (index < 4) { // Only handle first 4 boxes
+          const row = Math.floor(index / 2);
+          const col = index % 2;
+          const x = startX + col * (boxWidth + gap);
+          const y = startY + row * (boxHeight + gap);
+
+          items.push(this.createContainerItem(
+            `box-${index + 1}`,
+            {
+              type: 'four-box-item',
+              heading: box.heading || `Box ${index + 1}`,
+              text: box.text || ''
+            },
+            { x, y, width: boxWidth, height: boxHeight }
+          ));
+        }
+      });
+    }
+
+    return {
+      items,
+      canvasConfig: this.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Create a container item for complex content
+   */
+  private static createContainerItem(
+    id: string,
+    content: any,
+    position: Position
+  ): PositionableItem {
+    return {
+      id,
+      type: 'container',
+      content,
+      position,
+      defaultPosition: { ...position },
+      constraints: {
+        minWidth: 200,
+        minHeight: 150,
         snapToGrid: true
       },
       metadata: {
