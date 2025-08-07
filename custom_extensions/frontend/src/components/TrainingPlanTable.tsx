@@ -35,10 +35,10 @@ const NewClockIcon = ({ color = '#FF1414', className = '' }) => (
 );
 
 // Inline editing styles - matching original sizes
-const inlineEditingInputClass = "p-1 bg-yellow-50 border border-yellow-400 rounded text-black outline-none focus:ring-1 focus:ring-yellow-600 placeholder-gray-400 text-xs w-full";
+const inlineEditingInputClass = "p-1 bg-yellow-50/5 border border-yellow-400/5 rounded text-black outline-none focus:ring-1 focus:ring-yellow-600/5 placeholder-gray-400 text-xs w-full";
 const inlineEditingInputSmallClass = `${inlineEditingInputClass} h-8`;
 const inlineEditingInputTitleClass = `${inlineEditingInputClass} text-base font-semibold`;
-const inlineEditingInputMainTitleClass = `${inlineEditingInputClass} text-xl md:text-2xl font-bold bg-gray-700 text-white`;
+const inlineEditingInputMainTitleClass = `${inlineEditingInputClass} text-xl md:text-2xl font-bold text-black`;
 
 const StatusBadge = ({
   type, text, columnContext, isEditing, onTextChange, path, iconColor = '#FF1414', onAutoSave, autoSaveTimeoutRef, onBlur
@@ -1357,7 +1357,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               />
             ) : ( 
               <h1 
-                className="text-xl md:text-2xl font-bold cursor-pointer p-1 rounded"
+                className="text-xl md:text-2xl font-bold cursor-pointer p-1 rounded hover:bg-yellow-50/5"
                 onClick={() => onTextChange && startEditing('mainTitle', undefined, undefined, ['mainTitle'])}
               >
                 {mainTitle}
