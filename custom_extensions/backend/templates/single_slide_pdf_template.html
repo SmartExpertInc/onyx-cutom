@@ -1214,6 +1214,8 @@
             justify-content: center;
             align-items: center;
             flex: 1;
+            padding: 40px;
+            min-height: 500px;
         }
         
         .chart-node {
@@ -1221,126 +1223,97 @@
             flex-direction: column;
             align-items: center;
             position: relative;
+            margin: 8px;
         }
         
         .node-content {
-            padding: 12px 20px;
-            margin: 8px;
-            border-radius: 12px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid var(--content-color);
-            min-width: 140px;
+            padding: 16px 24px;
+            margin: 12px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            min-width: 160px;
             text-align: center;
             font-size: 16px;
             color: var(--content-color);
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .node-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border-radius: 20px;
+            pointer-events: none;
         }
         
         .node-content.ceo {
-            background-color: rgba(255, 215, 0, 0.2);
-            border: 3px solid var(--content-color);
-            min-width: 180px;
-            font-size: 18px;
+            background-color: rgba(255, 215, 0, 0.15);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            min-width: 200px;
+            font-size: 20px;
             font-weight: 700;
-            transform: scale(1.1);
+            transform: scale(1.15);
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.2);
         }
         
         .node-content.c-level {
-            background-color: rgba(255, 255, 255, 0.15);
-            border: 2px solid var(--content-color);
-            min-width: 160px;
-            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            min-width: 180px;
+            font-size: 18px;
             font-weight: 600;
-            transform: scale(1.05);
+            transform: scale(1.08);
+            box-shadow: 0 10px 36px rgba(0,0,0,0.15);
         }
         
         .node-content.manager {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid var(--content-color);
-            min-width: 140px;
-            font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 160px;
+            font-size: 16px;
             font-weight: 600;
+            transform: scale(1.02);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
         }
         
         .node-content.employee {
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--content-color);
-            min-width: 120px;
-            font-size: 12px;
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            min-width: 140px;
+            font-size: 14px;
             font-weight: 600;
-            transform: scale(0.95);
+            transform: scale(0.98);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
         
         .children-container {
-            padding-top: 20px;
+            padding-top: 40px;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-        
-        .vertical-line {
-            position: relative;
-            height: 20px;
-        }
-        
-        .vertical-line::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 2px;
-            height: 20px;
-            background-color: var(--content-color);
-            transform: translateX(-50%);
-            border-radius: 1px;
-        }
-        
-        .horizontal-line {
-            position: relative;
-            margin-top: 20px;
             width: 100%;
-            min-width: 400px;
-        }
-        
-        .horizontal-line::after {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: var(--content-color);
-            border-radius: 1px;
         }
         
         .children-grid {
             display: flex;
-            justify-content: space-evenly;
+            justify-content: center;
             align-items: flex-start;
-            position: relative;
-            margin-top: 20px;
             width: 100%;
-            min-width: 400px;
-        }
-        
-        .child-node {
-            flex: 1;
-            margin: 0 10px;
-        }
-        
-        .child-node::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            width: 2px;
-            height: 20px;
-            background-color: var(--content-color);
-            transform: translateX(-50%);
-            border-radius: 1px;
-        }
+            max-width: 1200px;
+            gap: 20px;
+            flex-wrap: wrap;
+
         
         /* Contraindications and Indications Template - EXACT FRONTEND MATCH */
         .contraindications-indications-template {
@@ -2165,25 +2138,19 @@
                                         <div class="node-content ceo">{{ node.title or 'CEO' }}</div>
                                         {% if slide.props.chartData | selectattr('parentId', 'equalto', node.id) | list | length > 0 %}
                                             <div class="children-container">
-                                                <div class="vertical-line"></div>
-                                                <div class="horizontal-line"></div>
                                                 <div class="children-grid">
                                                     {% for child in slide.props.chartData | selectattr('parentId', 'equalto', node.id) %}
                                                         <div class="chart-node child-node">
                                                             <div class="node-content c-level">{{ child.title or 'CTO' }}</div>
-                                                            {% if slide.props.chartData | selectattr('parentId', 'equalto', child.id) | list | length > 0 %}
-                                                                <div class="children-container">
-                                                                    <div class="vertical-line"></div>
-                                                                    <div class="horizontal-line"></div>
-                                                                    <div class="children-grid">
+                                                                                                        {% if slide.props.chartData | selectattr('parentId', 'equalto', child.id) | list | length > 0 %}
+                                                <div class="children-container">
+                                                    <div class="children-grid">
                                                                         {% for grandchild in slide.props.chartData | selectattr('parentId', 'equalto', child.id) %}
                                                                             <div class="chart-node grandchild-node">
                                                                                 <div class="node-content manager">{{ grandchild.title or 'Dev Lead' }}</div>
-                                                                                {% if slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) | list | length > 0 %}
-                                                                                    <div class="children-container">
-                                                                                        <div class="vertical-line"></div>
-                                                                                        <div class="horizontal-line"></div>
-                                                                                        <div class="children-grid">
+                                                                                                                                {% if slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) | list | length > 0 %}
+                                                    <div class="children-container">
+                                                        <div class="children-grid">
                                                                                             {% for employee in slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) %}
                                                                                                 <div class="chart-node employee-node">
                                                                                                     <div class="node-content employee">{{ employee.title or 'Senior Dev' }}</div>
@@ -2209,8 +2176,6 @@
                             <div class="chart-node root-node">
                                 <div class="node-content ceo">CEO</div>
                                 <div class="children-container">
-                                    <div class="vertical-line"></div>
-                                    <div class="horizontal-line"></div>
                                     <div class="children-grid">
                                         <div class="chart-node child-node">
                                             <div class="node-content c-level">CTO</div>

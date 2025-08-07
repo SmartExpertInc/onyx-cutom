@@ -181,61 +181,89 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
     const children = getChildren(node.id);
     const hasChildren = children.length > 0;
     
-    // Different styles for different levels
+    // Modern design styles for different levels
     const getNodeStyle = (level: number): React.CSSProperties => {
       const baseStyle: React.CSSProperties = {
-        padding: '12px 20px',
-        margin: '8px',
-        borderRadius: '12px',
+        padding: '16px 24px',
+        margin: '12px',
+        borderRadius: '20px',
         cursor: isEditable ? 'pointer' : 'default',
         textAlign: 'center' as const,
         zIndex: 1,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        backdropFilter: 'blur(10px)',
-        transition: 'all 0.3s ease',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+        backdropFilter: 'blur(20px)',
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        position: 'relative',
+        overflow: 'hidden',
+      };
+
+      // Add subtle gradient overlay
+      const gradientOverlay = {
+        position: 'absolute' as const,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        borderRadius: '20px',
+        pointerEvents: 'none' as const,
       };
 
       switch (level) {
-        case 0: // CEO
+        case 0: // CEO - Premium style
           return {
             ...baseStyle,
-            backgroundColor: 'rgba(255, 215, 0, 0.2)',
-            border: `3px solid ${txtColor}`,
+            backgroundColor: 'rgba(255, 215, 0, 0.15)',
+            border: `2px solid rgba(255, 215, 0, 0.4)`,
+            minWidth: '200px',
+            transform: 'scale(1.15)',
+            boxShadow: '0 12px 40px rgba(255, 215, 0, 0.2)',
+          };
+        case 1: // C-level - Executive style
+          return {
+            ...baseStyle,
+            backgroundColor: 'rgba(255, 255, 255, 0.12)',
+            border: `2px solid rgba(255, 255, 255, 0.3)`,
             minWidth: '180px',
-            transform: 'scale(1.1)',
+            transform: 'scale(1.08)',
+            boxShadow: '0 10px 36px rgba(0,0,0,0.15)',
           };
-        case 1: // C-level
+        case 2: // Managers - Professional style
           return {
             ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            border: `2px solid ${txtColor}`,
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+            border: `1px solid rgba(255, 255, 255, 0.2)`,
             minWidth: '160px',
-            transform: 'scale(1.05)',
+            transform: 'scale(1.02)',
+            boxShadow: '0 6px 24px rgba(0,0,0,0.1)',
           };
-        case 2: // Managers
+        default: // Employees - Clean style
           return {
             ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            border: `2px solid ${txtColor}`,
+            backgroundColor: 'rgba(255, 255, 255, 0.06)',
+            border: `1px solid rgba(255, 255, 255, 0.15)`,
             minWidth: '140px',
-          };
-        default: // Employees
-          return {
-            ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            border: `1px solid ${txtColor}`,
-            minWidth: '120px',
-            transform: 'scale(0.95)',
+            transform: 'scale(0.98)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
           };
       }
     };
 
     const getFontSize = (level: number) => {
       switch (level) {
-        case 0: return '18px';
-        case 1: return '16px';
-        case 2: return '14px';
-        default: return '12px';
+        case 0: return '20px';
+        case 1: return '18px';
+        case 2: return '16px';
+        default: return '14px';
+      }
+    };
+
+    const getSpacing = (level: number) => {
+      switch (level) {
+        case 0: return '60px';
+        case 1: return '50px';
+        case 2: return '40px';
+        default: return '30px';
       }
     };
 
@@ -245,12 +273,24 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
         display: 'flex', 
         flexDirection: 'column', 
         alignItems: 'center',
-        margin: level === 0 ? '0' : '10px'
+        margin: level === 0 ? '0' : '8px'
       }}>
         <div
           style={getNodeStyle(level)}
           onClick={() => handleChartDataEdit(node.id)}
         >
+          {/* Gradient overlay */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+            borderRadius: '20px',
+            pointerEvents: 'none',
+          }} />
+          
           {isEditable && editingChartData[node.id] ? (
             <InlineEditor
               initialValue={node.title}
@@ -264,6 +304,8 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                 fontFamily: currentTheme.fonts.contentFont,
                 textAlign: 'center',
                 fontWeight: level === 0 ? '700' : '600',
+                position: 'relative',
+                zIndex: 2,
               }}
             />
           ) : (
@@ -273,6 +315,8 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                 color: txtColor,
                 fontFamily: currentTheme.fonts.contentFont,
                 fontWeight: level === 0 ? '700' : '600',
+                position: 'relative',
+                zIndex: 2,
               }}
             >
               {node.title || (isEditable ? 'Click to add title' : '')}
@@ -282,92 +326,35 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
 
         {hasChildren && (
           <div style={{ 
-            paddingTop: '30px', 
+            paddingTop: getSpacing(level), 
             position: 'relative', 
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center',
             width: '100%'
           }}>
-            {/* Curved connection lines */}
-            <div style={{ 
-              position: 'relative', 
-              height: '30px',
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center'
-            }}>
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '50%',
-                  width: '3px',
-                  height: '30px',
-                  backgroundColor: txtColor,
-                  transform: 'translateX(-50%)',
-                  zIndex: 0,
-                  borderRadius: '2px',
-                }}
-              />
-            </div>
-
-            {/* Children container with curved connections */}
+            {/* Modern children container */}
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'space-around',
+                justifyContent: 'center',
                 alignItems: 'flex-start',
                 position: 'relative',
                 width: '100%',
-                maxWidth: `${Math.max(children.length * 180, 600)}px`,
-                minWidth: '600px',
+                maxWidth: `${Math.max(children.length * 200, 800)}px`,
+                gap: '20px',
+                flexWrap: 'wrap',
               }}
             >
-              {/* Curved horizontal line */}
-              <svg
-                style={{
-                  position: 'absolute',
-                  top: '-30px',
-                  left: '0',
-                  width: '100%',
-                  height: '60px',
-                  zIndex: 0,
-                }}
-                viewBox={`0 0 ${Math.max(children.length * 180, 600)} 60`}
-              >
-                <path
-                  d={`M 0 30 Q ${Math.max(children.length * 180, 600) / 4} 0, ${Math.max(children.length * 180, 600) / 2} 30 Q ${(Math.max(children.length * 180, 600) * 3) / 4} 60, ${Math.max(children.length * 180, 600)} 30`}
-                  stroke={txtColor}
-                  strokeWidth="3"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
-              
               {children.map((child, index) => (
                 <div key={child.id} style={{ 
                   display: 'flex', 
                   flexDirection: 'column', 
                   alignItems: 'center', 
                   position: 'relative', 
-                  flex: 1,
-                  margin: '0 15px'
+                  flex: children.length <= 3 ? '0 1 auto' : '1',
+                  minWidth: children.length <= 3 ? '180px' : '160px',
                 }}>
-                  {/* Vertical line from curve to child */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '-30px',
-                      left: '50%',
-                      width: '2px',
-                      height: '30px',
-                      backgroundColor: txtColor,
-                      transform: 'translateX(-50%)',
-                      zIndex: 1,
-                      borderRadius: '1px',
-                    }}
-                  />
                   {renderNode(child, level + 1)}
                 </div>
               ))}
@@ -420,15 +407,25 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
          )}
        </div>
 
-       <div style={{ 
-         display: 'flex', 
-         justifyContent: 'center',
-         alignItems: 'center',
-         flex: 1,
-         padding: '20px 0'
-       }}>
-         {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
-       </div>
+               <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+          padding: '40px 0',
+          minHeight: '500px'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            maxWidth: '1200px',
+          }}>
+            {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
+          </div>
+        </div>
     </div>
   );
 };
