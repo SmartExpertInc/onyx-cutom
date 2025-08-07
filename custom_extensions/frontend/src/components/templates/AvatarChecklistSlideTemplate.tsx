@@ -269,13 +269,11 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '400px',
-    height: '400px',
-    borderRadius: '50%',
+    width: '623px',
+    height: '562px',
     margin: '0 auto',
     position: 'absolute',
-    bottom: '-50px',
-    left: '20px',
+    top: '-246px',
     zIndex: 3
   };
 
