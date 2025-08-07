@@ -185,16 +185,18 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
       <div key={node.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div
           style={{
-            padding: '8px 16px',
-            margin: '4px',
-            borderRadius: '4px',
-            backgroundColor: 'white',
-            border: `1px solid #333`,
+            padding: '12px 20px',
+            margin: '8px',
+            borderRadius: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: `2px solid ${txtColor}`,
             cursor: isEditable ? 'pointer' : 'default',
-            minWidth: '120px',
+            minWidth: '140px',
             textAlign: 'center',
             zIndex: 1,
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
           }}
           onClick={() => handleChartDataEdit(node.id)}
         >
@@ -206,20 +208,20 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
               multiline={false}
               placeholder="Enter title..."
               style={{
-                fontSize: '14px',
-                color: '#333',
-                fontFamily: 'Arial, sans-serif',
+                fontSize: currentTheme.fonts.contentSize,
+                color: txtColor,
+                fontFamily: currentTheme.fonts.contentFont,
                 textAlign: 'center',
-                fontWeight: '500',
+                fontWeight: '600',
               }}
             />
           ) : (
             <div
               style={{
-                fontSize: '14px',
-                color: '#333',
-                fontFamily: 'Arial, sans-serif',
-                fontWeight: '500',
+                fontSize: currentTheme.fonts.contentSize,
+                color: txtColor,
+                fontFamily: currentTheme.fonts.contentFont,
+                fontWeight: '600',
               }}
             >
               {node.title || (isEditable ? 'Click to add title' : '')}
@@ -236,11 +238,12 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                   position: 'absolute',
                   top: 0,
                   left: '50%',
-                  width: '1px',
+                  width: '2px',
                   height: '20px',
-                  backgroundColor: '#333',
+                  backgroundColor: txtColor,
                   transform: 'translateX(-50%)',
                   zIndex: 0,
+                  borderRadius: '1px',
                 }}
               />
             </div>
@@ -264,9 +267,10 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                   top: '-20px',
                   left: '0',
                   right: '0',
-                  height: '1px',
-                  backgroundColor: '#333',
+                  height: '2px',
+                  backgroundColor: txtColor,
                   zIndex: 0,
+                  borderRadius: '1px',
                 }}
               />
               
@@ -285,11 +289,12 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                       position: 'absolute',
                       top: '-20px',
                       left: '50%',
-                      width: '1px',
+                      width: '2px',
                       height: '20px',
-                      backgroundColor: '#333',
+                      backgroundColor: txtColor,
                       transform: 'translateX(-50%)',
                       zIndex: 0,
+                      borderRadius: '1px',
                     }}
                   />
                   {renderNode(child, level + 1)}
@@ -304,11 +309,11 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
 
   return (
     <div style={{ 
-      background: 'white', 
+      background: bgColor, 
       minHeight: 600, 
       padding: '40px', 
       boxSizing: 'border-box',
-      fontFamily: 'Arial, sans-serif'
+      fontFamily: currentTheme.fonts.contentFont
     }}>
       <div style={{ marginBottom: '40px', textAlign: 'center' }}>
         {isEditable && editingTitle ? (

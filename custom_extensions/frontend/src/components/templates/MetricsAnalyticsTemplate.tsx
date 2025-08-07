@@ -238,76 +238,6 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
         flex: 1,
         position: 'relative'
       }}>
-        {/* Connecting Lines - Rectangular Frame */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '0',
-          right: '0',
-          height: '2px',
-          backgroundColor: numColor,
-          opacity: 0.3,
-          zIndex: 1
-        }} />
-        
-        <div style={{
-          position: 'absolute',
-          top: '0',
-          bottom: '0',
-          left: '50%',
-          width: '2px',
-          backgroundColor: numColor,
-          opacity: 0.3,
-          zIndex: 1
-        }} />
-
-        {/* Top horizontal line connecting top row */}
-        <div style={{
-          position: 'absolute',
-          top: '25%',
-          left: '0',
-          right: '0',
-          height: '2px',
-          backgroundColor: numColor,
-          opacity: 0.3,
-          zIndex: 1
-        }} />
-
-        {/* Bottom horizontal line connecting bottom row */}
-        <div style={{
-          position: 'absolute',
-          top: '75%',
-          left: '0',
-          right: '0',
-          height: '2px',
-          backgroundColor: numColor,
-          opacity: 0.3,
-          zIndex: 1
-        }} />
-
-        {/* Left vertical line connecting left column */}
-        <div style={{
-          position: 'absolute',
-          top: '0',
-          bottom: '0',
-          left: '16.67%',
-          width: '2px',
-          backgroundColor: numColor,
-          opacity: 0.3,
-          zIndex: 1
-        }} />
-
-        {/* Right vertical line connecting right column */}
-        <div style={{
-          position: 'absolute',
-          top: '0',
-          bottom: '0',
-          left: '83.33%',
-          width: '2px',
-          backgroundColor: numColor,
-          opacity: 0.3,
-          zIndex: 1
-        }} />
 
         {metrics.map((metric, index) => (
           <div key={index} style={{ 
@@ -316,7 +246,13 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
             alignItems: 'center',
             textAlign: 'center',
             position: 'relative',
-            zIndex: 2
+            zIndex: 2,
+            padding: '20px',
+            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            transition: 'all 0.3s ease',
+            cursor: isEditable ? 'pointer' : 'default'
           }}>
             {/* Number */}
             {isEditable && editingMetrics[index]?.number ? (
@@ -327,23 +263,25 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                 multiline={false}
                 placeholder="Enter number..."
                 style={{
-                  fontSize: '32px',
+                  fontSize: '36px',
                   fontWeight: 700,
                   color: numColor,
-                  marginBottom: '12px',
+                  marginBottom: '16px',
                   fontFamily: currentTheme.fonts.titleFont,
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               />
             ) : (
               <div 
                 style={{
-                  fontSize: '32px',
+                  fontSize: '36px',
                   fontWeight: 700,
                   color: numColor,
-                  marginBottom: '12px',
+                  marginBottom: '16px',
                   fontFamily: currentTheme.fonts.titleFont,
-                  cursor: isEditable ? 'pointer' : 'default'
+                  cursor: isEditable ? 'pointer' : 'default',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
                 onClick={() => isEditable && handleMetricEdit(index, 'number')}
               >
@@ -362,9 +300,10 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                 style={{
                   fontSize: currentTheme.fonts.contentSize,
                   color: txtColor,
-                  lineHeight: '1.4',
+                  lineHeight: '1.5',
                   fontFamily: currentTheme.fonts.contentFont,
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  fontWeight: '500'
                 }}
               />
             ) : (
@@ -372,9 +311,10 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                 style={{
                   fontSize: currentTheme.fonts.contentSize,
                   color: txtColor,
-                  lineHeight: '1.4',
+                  lineHeight: '1.5',
                   fontFamily: currentTheme.fonts.contentFont,
-                  cursor: isEditable ? 'pointer' : 'default'
+                  cursor: isEditable ? 'pointer' : 'default',
+                  fontWeight: '500'
                 }}
                 onClick={() => isEditable && handleMetricEdit(index, 'text')}
               >
