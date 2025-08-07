@@ -376,7 +376,7 @@ export default function TextPresentationClient() {
                 }
               } catch (e) {
                 // If not JSON, treat as plain text
-                accumulatedText += line;
+                accumulatedText += line + '\n';
                 setContent(accumulatedText);
               }
             }
@@ -387,6 +387,11 @@ export default function TextPresentationClient() {
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
+            }
+            
+            // Force state update to ensure UI reflects content changes
+            if (accumulatedText && accumulatedText !== content) {
+              setContent(accumulatedText);
             }
           }
               } catch (e: any) {
@@ -473,8 +478,12 @@ export default function TextPresentationClient() {
     setIsGenerating(true);
     setError(null);
 
+    // Create AbortController for this request
+    const abortController = new AbortController();
+    
     // Add timeout safeguard to prevent infinite loading
     const timeoutId = setTimeout(() => {
+      abortController.abort();
       setIsGenerating(false);
       setError("Presentation finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
@@ -493,27 +502,43 @@ export default function TextPresentationClient() {
           language: language,
           folderId: folderContext?.folderId || undefined,
         }),
+        signal: abortController.signal
       });
 
       // Clear timeout since request completed
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      
+      // Validate response
+      if (!data || !data.id) {
+        throw new Error("Invalid response from server: missing project ID");
+      }
+      
       setFinalProjectId(data.id);
       
-      // Small delay to ensure state is properly reset before navigation
-      setTimeout(() => {
+      // Navigate immediately without delay to prevent cancellation
       router.push(`/projects/view/${data.id}`);
-      }, 100);
-    } catch (error) {
+      
+    } catch (error: any) {
       // Clear timeout on error
       clearTimeout(timeoutId);
-      console.error('Finalization failed:', error);
-      setError(error instanceof Error ? error.message : 'Failed to finalize presentation');
+      
+      // Handle specific error types
+      if (error.name === 'AbortError') {
+        console.log('Request was aborted');
+        setError("Request was canceled. Please try again.");
+      } else if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
+        setError("Network error occurred. Please check your connection and try again.");
+      } else {
+        console.error('Finalization failed:', error);
+        setError(error instanceof Error ? error.message : 'Failed to finalize presentation');
+      }
     } finally {
       setIsGenerating(false);
     }

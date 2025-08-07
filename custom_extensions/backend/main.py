@@ -1322,14 +1322,15 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
     Normalize slide props to match frontend template schemas.
     
     This function fixes common prop mismatches between AI-generated JSON
-    and the expected frontend template schemas.
+    and the expected frontend template schemas. Invalid slides are automatically
+    removed to prevent rendering errors.
     """
     if not slides:
         return slides
         
     normalized_slides = []
     
-    for slide in slides:
+    for slide_index, slide in enumerate(slides):
         if not isinstance(slide, dict) or 'templateId' not in slide or 'props' not in slide:
             normalized_slides.append(slide)
             continue
@@ -1341,94 +1342,144 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
         normalized_slide = slide.copy()
         normalized_props = props.copy()
         
-        # Fix four-box-grid template props
-        if template_id == 'four-box-grid':
-            boxes = normalized_props.get('boxes', [])
-            if boxes and isinstance(boxes, list):
-                fixed_boxes = []
-                for box in boxes:
-                    if isinstance(box, dict):
-                        # Convert title/content to heading/text
-                        fixed_box = {
-                            'heading': box.get('heading') or box.get('title', ''),
-                            'text': box.get('text') or box.get('content', '')
-                        }
-                        fixed_boxes.append(fixed_box)
-                    else:
-                        fixed_boxes.append(box)
-                normalized_props['boxes'] = fixed_boxes
-                
-        # Fix two-column template props
-        elif template_id == 'two-column':
-            # Ensure leftTitle and rightTitle exist
-            if 'leftTitle' not in normalized_props:
-                normalized_props['leftTitle'] = 'Left Column'
-            if 'rightTitle' not in normalized_props:
-                normalized_props['rightTitle'] = 'Right Column'
-            
-            # Handle case where AI used leftContent/rightContent but missing titles
-            if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
-                # Try to extract title from content
-                left_content = normalized_props.get('leftContent', '')
-                if '\n' in left_content:
-                    lines = left_content.split('\n')
-                    if lines[0] and not lines[0].startswith('-') and not lines[0].startswith('•'):
-                        normalized_props['leftTitle'] = lines[0].strip()
-                        normalized_props['leftContent'] = '\n'.join(lines[1:]).strip()
-            
-            if normalized_props.get('rightContent') and not normalized_props.get('rightTitle'):
-                # Try to extract title from content
-                right_content = normalized_props.get('rightContent', '')
-                if '\n' in right_content:
-                    lines = right_content.split('\n')
-                    if lines[0] and not lines[0].startswith('-') and not lines[0].startswith('•'):
-                        normalized_props['rightTitle'] = lines[0].strip()
-                        normalized_props['rightContent'] = '\n'.join(lines[1:]).strip()
-                        
-        # Fix challenges-solutions template props
-        elif template_id == 'challenges-solutions':
-            # Convert leftContent/rightContent to challenges/solutions arrays
-            if 'leftContent' in normalized_props and 'challenges' not in normalized_props:
-                left_content = normalized_props.get('leftContent', '')
-                # Parse content into challenges array
-                challenges = []
-                for line in left_content.split('\n'):
-                    line = line.strip()
-                    if line and not line.lower().startswith('common challenges'):
-                        # Remove bullet points and dashes
-                        clean_line = line.lstrip('•-* ').strip()
-                        if clean_line:
-                            challenges.append(clean_line)
-                
-                if challenges:
-                    normalized_props['challenges'] = challenges
-                    del normalized_props['leftContent']
+        try:
+            # Fix big-numbers template props
+            if template_id == 'big-numbers':
+                items = normalized_props.get('items', [])
+                if items and isinstance(items, list):
+                    # Validate and fix each item
+                    fixed_items = []
+                    for item in items:
+                        if isinstance(item, dict):
+                            # Ensure each item has required fields
+                            fixed_item = {
+                                'value': str(item.get('value') or item.get('number') or ''),
+                                'label': str(item.get('label') or item.get('title') or ''),
+                                'description': str(item.get('description') or item.get('desc') or item.get('text') or '')
+                            }
+                            # Only add if at least value and label are not empty
+                            if fixed_item['value'] and fixed_item['label']:
+                                fixed_items.append(fixed_item)
                     
-            if 'rightContent' in normalized_props and 'solutions' not in normalized_props:
-                right_content = normalized_props.get('rightContent', '')
-                # Parse content into solutions array
-                solutions = []
-                for line in right_content.split('\n'):
-                    line = line.strip()
-                    if line and not line.lower().startswith('recommended resources') and not line.lower().startswith('solutions'):
-                        # Remove bullet points and dashes
-                        clean_line = line.lstrip('•-* ').strip()
-                        if clean_line:
-                            solutions.append(clean_line)
+                    # Check if we have exactly 3 valid items
+                    if len(fixed_items) == 3:
+                        normalized_props['items'] = fixed_items
+                    else:
+                        # Log the issue and skip this slide
+                        logger.warning(f"Removing slide {slide_index + 1} with template 'big-numbers': Expected 3 items, got {len(fixed_items)}")
+                        continue  # Skip this slide
+                else:
+                    logger.warning(f"Removing slide {slide_index + 1} with template 'big-numbers': Invalid or missing items array")
+                    continue  # Skip this slide
+                    
+            # Fix four-box-grid template props
+            elif template_id == 'four-box-grid':
+                boxes = normalized_props.get('boxes', [])
+                if boxes and isinstance(boxes, list):
+                    fixed_boxes = []
+                    for box in boxes:
+                        if isinstance(box, dict):
+                            # Convert title/content to heading/text
+                            fixed_box = {
+                                'heading': box.get('heading') or box.get('title', ''),
+                                'text': box.get('text') or box.get('content', '')
+                            }
+                            if fixed_box['heading']:  # Only add if heading exists
+                                fixed_boxes.append(fixed_box)
+                    normalized_props['boxes'] = fixed_boxes
+                    
+            # Fix two-column template props
+            elif template_id == 'two-column':
+                # Ensure leftTitle and rightTitle exist
+                if 'leftTitle' not in normalized_props:
+                    normalized_props['leftTitle'] = 'Left Column'
+                if 'rightTitle' not in normalized_props:
+                    normalized_props['rightTitle'] = 'Right Column'
                 
-                if solutions:
-                    normalized_props['solutions'] = solutions
-                    del normalized_props['rightContent']
+                # Handle case where AI used leftContent/rightContent but missing titles
+                if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
+                    # Try to extract title from content
+                    left_content = normalized_props.get('leftContent', '')
+                    if '\n' in left_content:
+                        lines = left_content.split('\n')
+                        if lines[0] and not lines[0].startswith('-') and not lines[0].startswith('•'):
+                            normalized_props['leftTitle'] = lines[0].strip()
+                            normalized_props['leftContent'] = '\n'.join(lines[1:]).strip()
+                
+                if normalized_props.get('rightContent') and not normalized_props.get('rightTitle'):
+                    # Try to extract title from content
+                    right_content = normalized_props.get('rightContent', '')
+                    if '\n' in right_content:
+                        lines = right_content.split('\n')
+                        if lines[0] and not lines[0].startswith('-') and not lines[0].startswith('•'):
+                            normalized_props['rightTitle'] = lines[0].strip()
+                            normalized_props['rightContent'] = '\n'.join(lines[1:]).strip()
+                            
+            # Fix challenges-solutions template props
+            elif template_id == 'challenges-solutions':
+                # Convert leftContent/rightContent to challenges/solutions arrays
+                if 'leftContent' in normalized_props and 'challenges' not in normalized_props:
+                    left_content = normalized_props.get('leftContent', '')
+                    # Parse content into challenges array
+                    challenges = []
+                    for line in left_content.split('\n'):
+                        line = line.strip()
+                        if line and not line.lower().startswith('common challenges'):
+                            # Remove bullet points and dashes
+                            clean_line = line.lstrip('•-* ').strip()
+                            if clean_line:
+                                challenges.append(clean_line)
+                    
+                    if challenges:
+                        normalized_props['challenges'] = challenges
+                        del normalized_props['leftContent']
+                        
+                if 'rightContent' in normalized_props and 'solutions' not in normalized_props:
+                    right_content = normalized_props.get('rightContent', '')
+                    # Parse content into solutions array
+                    solutions = []
+                    for line in right_content.split('\n'):
+                        line = line.strip()
+                        if line and not line.lower().startswith('recommended resources') and not line.lower().startswith('solutions'):
+                            # Remove bullet points and dashes
+                            clean_line = line.lstrip('•-* ').strip()
+                            if clean_line:
+                                solutions.append(clean_line)
+                    
+                    if solutions:
+                        normalized_props['solutions'] = solutions
+                        del normalized_props['rightContent']
+                
+                # Ensure required titles exist
+                if 'challengesTitle' not in normalized_props:
+                    normalized_props['challengesTitle'] = 'Challenges'
+                if 'solutionsTitle' not in normalized_props:
+                    normalized_props['solutionsTitle'] = 'Solutions'
             
-            # Ensure required titles exist
-            if 'challengesTitle' not in normalized_props:
-                normalized_props['challengesTitle'] = 'Challenges'
-            if 'solutionsTitle' not in normalized_props:
-                normalized_props['solutionsTitle'] = 'Solutions'
+            # Fix bullet-points template props
+            elif template_id in ['bullet-points', 'bullet-points-right']:
+                bullets = normalized_props.get('bullets', [])
+                if bullets and isinstance(bullets, list):
+                    # Ensure bullets are strings and not empty
+                    fixed_bullets = [str(bullet).strip() for bullet in bullets if str(bullet).strip()]
+                    if fixed_bullets:
+                        normalized_props['bullets'] = fixed_bullets
+                    else:
+                        logger.warning(f"Removing slide {slide_index + 1} with template '{template_id}': No valid bullet points")
+                        continue  # Skip this slide
+                else:
+                    logger.warning(f"Removing slide {slide_index + 1} with template '{template_id}': Invalid or missing bullets array")
+                    continue  # Skip this slide
         
-        normalized_slide['props'] = normalized_props
-        normalized_slides.append(normalized_slide)
+            normalized_slide['props'] = normalized_props
+            normalized_slides.append(normalized_slide)
+            
+        except Exception as e:
+            logger.error(f"Error normalizing slide {slide_index + 1} with template '{template_id}': {e}")
+            logger.warning(f"Removing problematic slide {slide_index + 1}")
+            continue  # Skip this slide
     
+    logger.info(f"Slide normalization complete: {len(slides)} -> {len(normalized_slides)} slides (removed {len(slides) - len(normalized_slides)} invalid slides)")
     return normalized_slides
 
 async def get_db_pool():

@@ -506,7 +506,7 @@ export default function LessonPresentationClient() {
                 }
               } catch (e) {
                 // If not JSON, treat as plain text
-                accumulatedText += line;
+                accumulatedText += line + '\n';
                 setContent(accumulatedText);
               }
             }
@@ -517,6 +517,11 @@ export default function LessonPresentationClient() {
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
+            }
+            
+            // Force state update to ensure UI reflects content changes
+            if (accumulatedText && accumulatedText !== content) {
+              setContent(accumulatedText);
             }
           }
 
@@ -581,8 +586,12 @@ export default function LessonPresentationClient() {
     setLoading(false);
     setError(null);
 
+    // Create AbortController for this request
+    const abortController = new AbortController();
+
     // Add timeout safeguard to prevent infinite loading
     const timeoutId = setTimeout(() => {
+      abortController.abort();
       setIsGenerating(false);
       setError("Finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
@@ -592,7 +601,7 @@ export default function LessonPresentationClient() {
       const promptQuery = params?.get("prompt")?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
-      const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -607,6 +616,7 @@ export default function LessonPresentationClient() {
           // Include selected theme
           theme: selectedTheme,
         }),
+        signal: abortController.signal
       });
 
       // Clear timeout since request completed
@@ -624,10 +634,8 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
-      // Small delay to ensure state is properly reset before navigation
-      setTimeout(() => {
-        router.push(`/projects/view/${data.id}`);
-      }, 100);
+      // Navigate immediately without delay to prevent cancellation
+      router.push(`/projects/view/${data.id}`);
 
     } catch (e: any) {
       // Clear timeout on error
@@ -637,11 +645,16 @@ export default function LessonPresentationClient() {
       setIsGenerating(false);
       setLoading(false);
       
-      // Set user-friendly error message
-      const errorMessage = e.name === "AbortError" 
-        ? "Request was cancelled" 
-        : e.message || "Failed to finalize lesson. Please try again.";
-      setError(errorMessage);
+      // Handle specific error types
+      if (e.name === 'AbortError') {
+        console.log('Request was aborted');
+        setError("Request was canceled. Please try again.");
+      } else if (e.message?.includes('NetworkError') || e.message?.includes('Failed to fetch')) {
+        setError("Network error occurred. Please check your connection and try again.");
+      } else {
+        const errorMessage = e.message || "Failed to finalize lesson. Please try again.";
+        setError(errorMessage);
+      }
       
       console.error("Finalization error:", e);
     }

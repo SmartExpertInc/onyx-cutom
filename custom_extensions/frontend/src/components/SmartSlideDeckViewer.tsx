@@ -127,15 +127,22 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           return;
         }
 
-        // Validate that slides have templateId and props (component-based format)
-        const hasValidFormat = deck.slides.every((slide: any) => 
-          slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props')
-        );
+        // Filter out slides with invalid format and validate remaining slides
+        const validSlides = deck.slides.filter((slide: any, index: number) => {
+          const hasValidFormat = slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props');
+          if (!hasValidFormat) {
+            console.warn(`Removing slide ${index + 1}: Missing templateId or props`);
+          }
+          return hasValidFormat;
+        });
 
-        if (!hasValidFormat) {
-          setError('Slides must be in component-based format with templateId and props.');
+        if (validSlides.length === 0) {
+          setError('No valid slides found. All slides must be in component-based format with templateId and props.');
           return;
         }
+
+        // Update deck with only valid slides
+        deck.slides = validSlides;
 
         // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
         console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
