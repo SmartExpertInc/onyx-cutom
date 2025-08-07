@@ -1347,13 +1347,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">
         {(mainTitle !== undefined && mainTitle !== null) && (
-          <div className={`p-4 ${isEditingField('mainTitle') ? 'text-black' : currentTheme.courseHeaderTextColor}`} style={{ backgroundColor: currentTheme.courseHeaderBg }}>
+          <div className={`p-4 ${currentTheme.courseHeaderTextColor}`} style={{ backgroundColor: currentTheme.courseHeaderBg }}>
             {isEditingField('mainTitle') && onTextChange ? (
               <input
                 type="text" value={mainTitle || ''}
                 onChange={(e) => handleGenericInputChange(['mainTitle'], e)}
                 onBlur={handleInputBlur}
-                className={inlineEditingInputMainTitleClass} placeholder="Main Training Plan Title"
+                className={`${inlineEditingInputMainTitleClass} ${currentTheme.courseHeaderTextColor}`} placeholder="Main Training Plan Title"
               />
             ) : ( 
               <h1 
