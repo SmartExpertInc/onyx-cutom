@@ -12637,6 +12637,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
 
         logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
+
+        print(payload.aiResponse.strip())
         
         # Return response in the expected format
         return {
