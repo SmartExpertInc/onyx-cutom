@@ -1305,14 +1305,59 @@
             width: 100%;
         }
         
+        .children-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 3px;
+            height: 40px;
+            background-color: var(--content-color);
+            transform: translateX(-50%);
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+        
         .children-grid {
             display: flex;
             justify-content: center;
             align-items: flex-start;
             width: 100%;
-            max-width: 1200px;
-            gap: 20px;
+            max-width: 1400px;
+            gap: 30px;
             flex-wrap: wrap;
+            padding: 20px 0;
+            position: relative;
+        }
+        
+        .children-grid::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background-color: var(--content-color);
+            opacity: 0.4;
+            border-radius: 1px;
+        }
+        
+        .child-node {
+            position: relative;
+        }
+        
+        .child-node::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background-color: var(--content-color);
+            transform: translateX(-50%);
+            border-radius: 1px;
+            opacity: 0.6;
+        }
 
         
         /* Contraindications and Indications Template - EXACT FRONTEND MATCH */

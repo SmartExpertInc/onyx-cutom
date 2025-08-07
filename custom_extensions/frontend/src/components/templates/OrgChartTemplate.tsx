@@ -185,8 +185,8 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
     const getNodeStyle = (level: number): React.CSSProperties => {
       const baseStyle: React.CSSProperties = {
         padding: '16px 24px',
-        margin: '12px',
-        borderRadius: '20px',
+        margin: '8px',
+        borderRadius: '16px',
         cursor: isEditable ? 'pointer' : 'default',
         textAlign: 'center' as const,
         zIndex: 1,
@@ -197,53 +197,41 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
         overflow: 'hidden',
       };
 
-      // Add subtle gradient overlay
-      const gradientOverlay = {
-        position: 'absolute' as const,
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-        borderRadius: '20px',
-        pointerEvents: 'none' as const,
-      };
-
       switch (level) {
         case 0: // CEO - Premium style
           return {
             ...baseStyle,
-            backgroundColor: 'rgba(255, 215, 0, 0.15)',
-            border: `2px solid rgba(255, 215, 0, 0.4)`,
-            minWidth: '200px',
-            transform: 'scale(1.15)',
-            boxShadow: '0 12px 40px rgba(255, 215, 0, 0.2)',
+            backgroundColor: 'rgba(255, 215, 0, 0.2)',
+            border: `3px solid rgba(255, 215, 0, 0.5)`,
+            minWidth: '220px',
+            transform: 'scale(1.2)',
+            boxShadow: '0 16px 48px rgba(255, 215, 0, 0.25)',
           };
         case 1: // C-level - Executive style
           return {
             ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.12)',
-            border: `2px solid rgba(255, 255, 255, 0.3)`,
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            border: `2px solid rgba(255, 255, 255, 0.4)`,
             minWidth: '180px',
-            transform: 'scale(1.08)',
-            boxShadow: '0 10px 36px rgba(0,0,0,0.15)',
+            transform: 'scale(1.1)',
+            boxShadow: '0 12px 36px rgba(0,0,0,0.15)',
           };
         case 2: // Managers - Professional style
           return {
             ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-            border: `1px solid rgba(255, 255, 255, 0.2)`,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: `2px solid rgba(255, 255, 255, 0.25)`,
             minWidth: '160px',
-            transform: 'scale(1.02)',
-            boxShadow: '0 6px 24px rgba(0,0,0,0.1)',
+            transform: 'scale(1.05)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
           };
         default: // Employees - Clean style
           return {
             ...baseStyle,
-            backgroundColor: 'rgba(255, 255, 255, 0.06)',
-            border: `1px solid rgba(255, 255, 255, 0.15)`,
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+            border: `1px solid rgba(255, 255, 255, 0.2)`,
             minWidth: '140px',
-            transform: 'scale(0.98)',
+            transform: 'scale(1.0)',
             boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
           };
       }
@@ -251,19 +239,10 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
 
     const getFontSize = (level: number) => {
       switch (level) {
-        case 0: return '20px';
+        case 0: return '22px';
         case 1: return '18px';
         case 2: return '16px';
         default: return '14px';
-      }
-    };
-
-    const getSpacing = (level: number) => {
-      switch (level) {
-        case 0: return '60px';
-        case 1: return '50px';
-        case 2: return '40px';
-        default: return '30px';
       }
     };
 
@@ -273,7 +252,7 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
         display: 'flex', 
         flexDirection: 'column', 
         alignItems: 'center',
-        margin: level === 0 ? '0' : '8px'
+        margin: '4px'
       }}>
         <div
           style={getNodeStyle(level)}
@@ -287,7 +266,7 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
             right: 0,
             bottom: 0,
             background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-            borderRadius: '20px',
+            borderRadius: '16px',
             pointerEvents: 'none',
           }} />
           
@@ -326,14 +305,27 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
 
         {hasChildren && (
           <div style={{ 
-            paddingTop: getSpacing(level), 
+            paddingTop: '40px', 
             position: 'relative', 
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center',
             width: '100%'
           }}>
-            {/* Modern children container */}
+            {/* Connection line from parent to children */}
+            <div style={{
+              position: 'absolute',
+              top: '0',
+              left: '50%',
+              width: '3px',
+              height: '40px',
+              backgroundColor: txtColor,
+              transform: 'translateX(-50%)',
+              borderRadius: '2px',
+              opacity: 0.6,
+            }} />
+            
+            {/* Children container with visual hierarchy */}
             <div
               style={{
                 display: 'flex',
@@ -341,20 +333,47 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
                 alignItems: 'flex-start',
                 position: 'relative',
                 width: '100%',
-                maxWidth: `${Math.max(children.length * 200, 800)}px`,
-                gap: '20px',
+                maxWidth: `${Math.max(children.length * 220, 900)}px`,
+                gap: '30px',
                 flexWrap: 'wrap',
+                padding: '20px 0',
               }}
             >
+              {/* Connection line between children */}
+              {children.length > 1 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '20px',
+                  left: '50px',
+                  right: '50px',
+                  height: '2px',
+                  backgroundColor: txtColor,
+                  opacity: 0.4,
+                  borderRadius: '1px',
+                }} />
+              )}
+              
               {children.map((child, index) => (
                 <div key={child.id} style={{ 
                   display: 'flex', 
                   flexDirection: 'column', 
                   alignItems: 'center', 
                   position: 'relative', 
-                  flex: children.length <= 3 ? '0 1 auto' : '1',
-                  minWidth: children.length <= 3 ? '180px' : '160px',
+                  flex: '0 1 auto',
+                  minWidth: '180px',
                 }}>
+                  {/* Connection line from horizontal to child */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-20px',
+                    left: '50%',
+                    width: '2px',
+                    height: '20px',
+                    backgroundColor: txtColor,
+                    transform: 'translateX(-50%)',
+                    borderRadius: '1px',
+                    opacity: 0.6,
+                  }} />
                   {renderNode(child, level + 1)}
                 </div>
               ))}
@@ -421,8 +440,26 @@ const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             width: '100%',
-            maxWidth: '1200px',
+            maxWidth: '1400px',
+            position: 'relative',
           }}>
+            {/* Visual hierarchy indicator */}
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              fontSize: '14px',
+              color: txtColor,
+              opacity: 0.7,
+              fontFamily: currentTheme.fonts.contentFont,
+              fontWeight: '500',
+              textAlign: 'center',
+              zIndex: 1,
+            }}>
+              ↓ Иерархическая структура ↓
+            </div>
+            
             {getRootNodes().map(rootNode => renderNode(rootNode, 0))}
           </div>
         </div>
