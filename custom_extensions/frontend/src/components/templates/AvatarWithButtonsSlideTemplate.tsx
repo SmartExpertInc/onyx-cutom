@@ -315,8 +315,9 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '4px'
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                borderRadius: '4px',
+                color: '#ffffff'
               }}
             />
           ) : (
