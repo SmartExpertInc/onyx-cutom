@@ -140,18 +140,19 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   theme,
   isEditable = false
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Ensure text colors have good contrast and are pleasant
-  const safeTitleColor = titleColor === '#ffffff' ? '#2c3e50' : titleColor;
-  const safeContentColor = contentColor === '#ffffff' ? '#34495e' : contentColor;
-  
+  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
+  const [editingBanner, setEditingBanner] = useState(false);
+  const [editingChecklistItems, setEditingChecklistItems] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (autoSaveTimeoutRef.current) {
@@ -200,88 +201,97 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
     minHeight: '600px',
-    height: '100vh',
-    backgroundColor: backgroundColor,
+    backgroundColor,
     display: 'flex',
-    fontFamily: currentTheme.fonts.contentFont,
-    overflow: 'hidden'
+    position: 'relative',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
-  // Left Panel - Dark Promotional Section (40% width)
   const leftPanelStyles: React.CSSProperties = {
     width: '40%',
-    backgroundColor: safeTitleColor === '#333333' ? '#1a1a1a' : safeTitleColor,
-    color: safeTitleColor === '#333333' ? 'white' : '#ffffff',
-    padding: '40px',
+    height: '100%',
+    backgroundColor: backgroundColor,
+    padding: '60px 40px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
     position: 'relative'
   };
 
-  // Right Panel - Light CRM Interface (60% width)
   const rightPanelStyles: React.CSSProperties = {
     width: '60%',
-    backgroundColor: safeContentColor === '#333333' ? '#f8f9fa' : safeContentColor,
+    height: '100%',
+    backgroundColor: backgroundColor,
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative'
   };
 
-  // Logo Styles
-  const logoStyles: React.CSSProperties = {
-    fontSize: '3rem',
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: '8px',
-    fontFamily: 'Georgia, serif'
+  const avatarStyles: React.CSSProperties = {
+    width: '120px',
+    height: '120px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+    marginBottom: '30px',
+    border: '4px solid rgba(255, 255, 255, 0.2)'
   };
 
-  const logoSubtextStyles: React.CSSProperties = {
-    fontSize: '1rem',
-    color: 'white',
+  const titleStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.titleSize,
+    fontFamily: currentTheme.fonts.titleFont,
+    color: titleColor,
+    marginBottom: '20px',
+    lineHeight: 1.3,
+    fontWeight: 'bold'
+  };
+
+  const subtitleStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.contentSize,
+    fontFamily: currentTheme.fonts.contentFont,
+    color: contentColor,
     marginBottom: '40px',
-    fontWeight: 'normal'
+    lineHeight: 1.5,
+    opacity: 0.9
   };
 
-  // Pink Banner Styles
   const bannerStyles: React.CSSProperties = {
-    backgroundColor: safeTitleColor === '#333333' ? '#FF1493' : safeTitleColor,
-    color: safeTitleColor === '#333333' ? 'white' : '#ffffff',
-    padding: '16px 24px',
-    borderRadius: '8px',
-    fontSize: '1.2rem',
-    fontWeight: 'bold',
-    marginBottom: '32px',
-    textAlign: 'center',
-    width: '100%',
-    maxWidth: '400px'
+    backgroundColor: titleColor,
+    color: backgroundColor,
+    padding: '12px 20px',
+    borderRadius: '25px',
+    fontSize: '14px',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    marginBottom: '30px',
+    display: 'inline-block',
+    alignSelf: 'flex-start'
   };
 
-  // Checklist Styles
   const checklistStyles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
-    width: '100%',
-    maxWidth: '400px'
+    gap: '0px'
   };
 
   const checklistItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    fontSize: '1rem',
-    color: safeTitleColor === '#333333' ? 'white' : '#ffffff'
+    marginBottom: '16px',
+    fontSize: '16px',
+    color: contentColor,
+    lineHeight: 1.4
   };
 
   const checkmarkStyles: React.CSSProperties = {
-    color: safeTitleColor === '#333333' ? '#FF1493' : safeTitleColor,
-    fontSize: '1.2rem',
-    fontWeight: 'bold'
+    color: titleColor,
+    marginRight: '12px',
+    fontSize: '18px',
+    flexShrink: 0
   };
 
   // CRM Interface Styles
@@ -344,19 +354,6 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     borderBottom: '1px solid #f0f0f0'
   };
 
-  const avatarStyles: React.CSSProperties = {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    backgroundColor: '#e0e0e0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#666',
-    fontWeight: 'bold',
-    fontSize: '1.1rem'
-  };
-
   const clientInfoStyles: React.CSSProperties = {
     flex: '1'
   };
@@ -388,7 +385,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
       <div style={leftPanelStyles}>
         {/* Pink Banner */}
         <div style={bannerStyles}>
-          {isEditable && editingTitle ? (
+          {isEditable && editingBanner ? (
             <InlineEditor
               initialValue={title || 'Личное отношение - залог следующих ВИЗИТОВ'}
               onSave={handleTitleSave}
@@ -416,7 +413,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
             <div 
               onClick={() => {
                 if (isEditable) {
-                  setEditingTitle(true);
+                  setEditingBanner(true);
                 }
               }}
               className={isEditable ? 'cursor-pointer hover:border hover:border-white hover:border-opacity-50' : ''}

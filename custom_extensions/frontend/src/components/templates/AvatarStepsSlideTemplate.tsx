@@ -145,15 +145,14 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   theme,
   isEditable = false
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Ensure text colors have good contrast and are pleasant
-  const safeTitleColor = titleColor === '#ffffff' ? '#2c3e50' : titleColor;
-  const safeContentColor = contentColor === '#ffffff' ? '#34495e' : contentColor;
-  
+  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingSteps, setEditingSteps] = useState<number[]>([]);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingContent, setEditingContent] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
@@ -181,11 +180,11 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
       newSteps[index] = newText;
       onUpdate({ steps: newSteps });
     }
-    setEditingSteps(editingSteps.filter(i => i !== index));
+    // setEditingSteps(editingSteps.filter(i => i !== index)); // This line was removed from the new_code, so it's removed here.
   };
 
   const handleStepCancel = (index: number) => {
-    setEditingSteps(editingSteps.filter(i => i !== index));
+    // setEditingSteps(editingSteps.filter(i => i !== index)); // This line was removed from the new_code, so it's removed here.
   };
 
   const handleAvatarUploaded = (newAvatarPath: string) => {
@@ -234,7 +233,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: safeTitleColor,
+    color: titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
@@ -257,7 +256,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     fontSize: '1.3rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: '#ffffff',
-    backgroundColor: safeTitleColor,
+    backgroundColor: titleColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
@@ -339,41 +338,18 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
           <div style={stepsContainerStyles}>
             {steps.map((step, index) => (
               <div key={index}>
-                {isEditable && editingSteps.includes(index) ? (
-                  <InlineEditor
-                    initialValue={step}
-                    onSave={(newText) => handleStepSave(index, newText)}
-                    onCancel={() => handleStepCancel(index)}
-                    placeholder="Enter step text..."
-                    className="inline-editor-step"
-                    style={{
-                      ...stepBoxStyles,
-                      margin: '0',
-                      padding: '16px 24px',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      textAlign: 'center'
-                    }}
-                  />
-                ) : (
-                  <button
-                    style={stepBoxStyles}
-                    onClick={() => {
-                      if (isEditable) {
-                        setEditingSteps([...editingSteps, index]);
-                      }
-                    }}
-                    className={isEditable ? 'hover:opacity-80' : ''}
-                  >
-                    {step}
-                  </button>
-                )}
+                {/* The editing logic for steps was removed from the new_code, so this block is simplified */}
+                <button
+                  style={stepBoxStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      // setEditingSteps([...editingSteps, index]); // This line was removed from the new_code, so it's removed here.
+                    }
+                  }}
+                  className={isEditable ? 'hover:opacity-80' : ''}
+                >
+                  {step}
+                </button>
                 {index < steps.length - 1 && (
                   <div style={arrowStyles}>↓</div>
                 )}

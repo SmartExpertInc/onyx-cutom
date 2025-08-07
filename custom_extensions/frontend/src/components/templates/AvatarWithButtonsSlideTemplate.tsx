@@ -144,15 +144,14 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   theme,
   isEditable = false
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Ensure text colors have good contrast and are pleasant
-  const safeTitleColor = titleColor === '#ffffff' ? '#2c3e50' : titleColor;
-  const safeContentColor = contentColor === '#ffffff' ? '#34495e' : contentColor;
-  
+  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingButtons, setEditingButtons] = useState<number[]>([]);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingContent, setEditingContent] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
@@ -180,11 +179,11 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
       newButtons[index] = { ...newButtons[index], text: newText };
       onUpdate({ buttons: newButtons });
     }
-    setEditingButtons(editingButtons.filter(i => i !== index));
+    // setEditingButtons(editingButtons.filter(i => i !== index)); // This line was removed from the new_code, so it's removed here.
   };
 
   const handleButtonCancel = (index: number) => {
-    setEditingButtons(editingButtons.filter(i => i !== index));
+    // setEditingButtons(editingButtons.filter(i => i !== index)); // This line was removed from the new_code, so it's removed here.
   };
 
   const handleAvatarUploaded = (newAvatarPath: string) => {
@@ -246,7 +245,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     fontSize: '1.3rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: '#ffffff',
-    backgroundColor: safeTitleColor,
+    backgroundColor: titleColor, // Changed from safeTitleColor
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
@@ -269,7 +268,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: safeTitleColor,
+    color: titleColor, // Changed from safeTitleColor
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
@@ -336,41 +335,20 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
           <div style={buttonsContainerStyles}>
             {buttons.map((button, index) => (
               <div key={index}>
-                {isEditable && editingButtons.includes(index) ? (
-                  <InlineEditor
-                    initialValue={button.text}
-                    onSave={(newText) => handleButtonSave(index, newText)}
-                    onCancel={() => handleButtonCancel(index)}
-                    placeholder="Enter button text..."
-                    className="inline-editor-button"
-                    style={{
-                      ...buttonStyles,
-                      margin: '0',
-                      padding: '16px 24px',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      textAlign: 'center'
-                    }}
-                  />
-                ) : (
-                  <button
-                    style={buttonStyles}
-                    onClick={() => {
-                      if (isEditable) {
-                        setEditingButtons([...editingButtons, index]);
-                      }
-                    }}
-                    className={isEditable ? 'hover:opacity-80' : ''}
-                  >
-                    {button.text}
-                  </button>
-                )}
+                {/* The editing logic for buttons was removed from the new_code, so this block is simplified. */}
+                {/* The original code had a more complex editing state management for buttons. */}
+                {/* For now, we'll just render the button as a non-editable one. */}
+                <button
+                  style={buttonStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      // setEditingButtons([...editingButtons, index]); // This line was removed from the new_code, so it's removed here.
+                    }
+                  }}
+                  className={isEditable ? 'hover:opacity-80' : ''}
+                >
+                  {button.text}
+                </button>
               </div>
             ))}
           </div>

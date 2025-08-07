@@ -144,15 +144,15 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   theme,
   isEditable = false
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Ensure text colors have good contrast and are pleasant
-  const safeTitleColor = titleColor === '#ffffff' ? '#2c3e50' : titleColor;
-  const safeContentColor = contentColor === '#ffffff' ? '#34495e' : contentColor;
-  
+  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingItems, setEditingItems] = useState<number[]>([]);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingContent, setEditingContent] = useState(false);
+  const [editingChecklistItems, setEditingChecklistItems] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
@@ -180,11 +180,11 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
       newItems[index] = { ...newItems[index], text: newText };
       onUpdate({ items: newItems });
     }
-    setEditingItems(editingItems.filter(i => i !== index));
+    setEditingChecklistItems(editingChecklistItems.filter(i => i !== index));
   };
 
   const handleItemCancel = (index: number) => {
-    setEditingItems(editingItems.filter(i => i !== index));
+    setEditingChecklistItems(editingChecklistItems.filter(i => i !== index));
   };
 
   const handleAvatarUploaded = (newAvatarPath: string) => {
@@ -240,7 +240,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: '2.2rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: safeTitleColor,
+    color: titleColor,
     marginBottom: '32px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
@@ -260,7 +260,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     gap: '16px',
     fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: safeContentColor,
+    color: contentColor,
     lineHeight: '1.4',
     padding: '8px 0'
   };
@@ -268,7 +268,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   const iconStyles: React.CSSProperties = {
     fontSize: '1.4rem',
     fontWeight: 'bold',
-    color: safeTitleColor,
+    color: titleColor,
     minWidth: '24px'
   };
 
@@ -287,7 +287,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     left: 0,
     width: '500px',
     height: '400px',
-    backgroundColor: safeTitleColor,
+    backgroundColor: titleColor,
     borderRadius: '0 0 250px 0',
     zIndex: 1
   };
@@ -370,10 +370,10 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
           <div style={checklistContainerStyles}>
             {items.map((item, index) => (
               <div key={index} style={checklistItemStyles}>
-                <span style={{ ...iconStyles, color: item.isPositive ? safeTitleColor : '#ff4444' }}>
+                <span style={{ ...iconStyles, color: item.isPositive ? titleColor : '#ff4444' }}>
                   {item.isPositive ? '✓' : '✗'}
                 </span>
-                {isEditable && editingItems.includes(index) ? (
+                {isEditable && editingChecklistItems.includes(index) ? (
                   <InlineEditor
                     initialValue={item.text}
                     onSave={(newText) => handleItemSave(index, newText)}
@@ -399,7 +399,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
                   <span
                     onClick={() => {
                       if (isEditable) {
-                        setEditingItems([...editingItems, index]);
+                        setEditingChecklistItems([...editingChecklistItems, index]);
                       }
                     }}
                     className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
