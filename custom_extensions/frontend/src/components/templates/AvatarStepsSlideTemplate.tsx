@@ -220,14 +220,16 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'flex-end',
+    position: 'relative',
+    height: '100%'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
+    fontSize: '2.8rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
-    marginBottom: '32px',
+    marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
     fontWeight: 'bold'
@@ -236,15 +238,16 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   const stepsContainerStyles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
-    width: '100%'
+    gap: '20px',
+    width: '100%',
+    maxWidth: '500px'
   };
 
   const stepBoxStyles: React.CSSProperties = {
-    padding: '16px 24px',
-    borderRadius: '8px',
+    padding: '20px 32px',
+    borderRadius: '12px',
     border: 'none',
-    fontSize: '1.2rem',
+    fontSize: '1.3rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: '#ffffff',
     backgroundColor: titleColor,
@@ -252,21 +255,31 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
     fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+    minHeight: '60px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   };
 
   const arrowStyles: React.CSSProperties = {
-    fontSize: '1.5rem',
+    fontSize: '2rem',
     color: '#ffffff',
     textAlign: 'center',
-    margin: '8px 0'
+    margin: '12px 0',
+    fontWeight: 'bold'
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '180px',
-    height: '180px',
+    width: '300px',
+    height: '300px',
     borderRadius: '50%',
-    margin: '0 auto'
+    margin: '0 auto',
+    position: 'absolute',
+    bottom: '0',
+    right: '40px',
+    zIndex: 3
   };
 
   return (

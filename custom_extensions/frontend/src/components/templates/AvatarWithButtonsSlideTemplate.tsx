@@ -207,11 +207,24 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     gap: '40px'
   };
 
+  const placeholderStyles: React.CSSProperties = {
+    width: '300px',
+    height: '300px',
+    borderRadius: '50%',
+    margin: '0 auto',
+    position: 'absolute',
+    bottom: '0',
+    left: '40px',
+    zIndex: 3
+  };
+
   const leftContentStyles: React.CSSProperties = {
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'flex-end',
+    position: 'relative',
+    height: '100%'
   };
 
   const rightContentStyles: React.CSSProperties = {
@@ -222,44 +235,42 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     gap: '32px'
   };
 
-  const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '32px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word',
-    fontWeight: 'bold',
-    textAlign: 'center'
-  };
-
-  const buttonsContainerStyles: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '16px',
-    width: '100%',
-    maxWidth: '600px'
-  };
-
   const buttonStyles: React.CSSProperties = {
-    padding: '16px 24px',
-    borderRadius: '8px',
+    padding: '20px 32px',
+    borderRadius: '12px',
     border: 'none',
-    fontSize: '1.2rem',
+    fontSize: '1.3rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: '#ffffff',
     backgroundColor: titleColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+    minHeight: '60px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   };
 
-  const placeholderStyles: React.CSSProperties = {
-    width: '180px',
-    height: '180px',
-    borderRadius: '50%',
-    margin: '0 auto'
+  const buttonsContainerStyles: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '20px',
+    width: '100%',
+    maxWidth: '500px'
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: '2.8rem',
+    fontFamily: currentTheme.fonts.titleFont,
+    color: titleColor,
+    marginBottom: '40px',
+    lineHeight: '1.2',
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    textAlign: 'center'
   };
 
   return (

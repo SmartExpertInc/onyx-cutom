@@ -193,6 +193,17 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     }
   };
 
+  const darkShapeStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '400px',
+    height: '500px',
+    backgroundColor: '#1a1a2e',
+    borderRadius: '0 0 300px 0',
+    zIndex: 1
+  };
+
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
     backgroundColor: backgroundColor,
@@ -212,7 +223,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     justifyContent: 'space-between',
     width: '100%',
     maxWidth: '1200px',
-    gap: '40px',
+    gap: '60px',
     position: 'relative',
     zIndex: 2
   };
@@ -221,16 +232,18 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     flex: '1',
     textAlign: 'left',
     zIndex: 2,
-    position: 'relative'
+    position: 'relative',
+    paddingLeft: '60px'
   };
 
   const rightContentStyles: React.CSSProperties = {
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     zIndex: 2,
-    position: 'relative'
+    position: 'relative',
+    height: '100%'
   };
 
   const titleStyles: React.CSSProperties = {
@@ -262,22 +275,15 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     wordWrap: 'break-word'
   };
 
-  const darkShapeStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '300px',
-    height: '400px',
-    backgroundColor: '#1a1a2e',
-    borderRadius: '0 0 200px 0',
-    zIndex: 1
-  };
-
   const placeholderStyles: React.CSSProperties = {
-    width: '200px',
-    height: '200px',
+    width: '300px',
+    height: '300px',
     borderRadius: '50%',
-    margin: '0 auto'
+    margin: '0 auto',
+    position: 'absolute',
+    bottom: '0',
+    right: '40px',
+    zIndex: 3
   };
 
   return (

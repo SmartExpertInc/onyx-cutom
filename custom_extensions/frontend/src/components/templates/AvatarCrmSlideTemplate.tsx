@@ -218,7 +218,9 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: '24px'
+    gap: '24px',
+    position: 'relative',
+    height: '100%'
   };
 
   const rightContentStyles: React.CSSProperties = {
@@ -257,68 +259,76 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '180px',
-    height: '180px',
+    width: '300px',
+    height: '300px',
     borderRadius: '50%',
-    margin: '0 auto'
+    margin: '0 auto',
+    position: 'absolute',
+    bottom: '0',
+    left: '40px',
+    zIndex: 3
   };
 
   const crmWindowStyles: React.CSSProperties = {
     backgroundColor: '#ffffff',
-    borderRadius: '8px',
-    padding: '20px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    width: '400px',
-    maxWidth: '100%'
+    borderRadius: '12px',
+    padding: '24px',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+    width: '450px',
+    maxWidth: '100%',
+    border: '1px solid #e0e0e0'
   };
 
   const crmHeaderStyles: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '16px',
-    borderBottom: '1px solid #e0e0e0',
-    paddingBottom: '8px'
+    marginBottom: '20px',
+    borderBottom: '2px solid #e0e0e0',
+    paddingBottom: '12px'
   };
 
   const crmTitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
+    fontSize: '1.4rem',
     fontWeight: 'bold',
     color: '#333333'
   };
 
   const crmCloseStyles: React.CSSProperties = {
-    fontSize: '1.5rem',
+    fontSize: '1.8rem',
     color: '#666666',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    fontWeight: 'bold'
   };
 
   const crmSubtitleStyles: React.CSSProperties = {
-    fontSize: '0.9rem',
+    fontSize: '1rem',
     color: '#666666',
-    marginBottom: '16px'
+    marginBottom: '20px',
+    lineHeight: '1.4'
   };
 
   const searchBarStyles: React.CSSProperties = {
     width: '100%',
-    padding: '8px 12px',
-    border: '1px solid #e0e0e0',
-    borderRadius: '4px',
-    marginBottom: '16px',
-    fontSize: '0.9rem'
+    padding: '12px 16px',
+    border: '2px solid #e0e0e0',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    fontSize: '1rem',
+    backgroundColor: '#f8f9fa'
   };
 
   const clientItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    padding: '8px 0',
+    gap: '16px',
+    padding: '12px 0',
     borderBottom: '1px solid #f0f0f0'
   };
 
   const avatarStyles: React.CSSProperties = {
-    width: '32px',
-    height: '32px',
+    width: '40px',
+    height: '40px',
     borderRadius: '50%',
     backgroundColor: '#e91e63',
     display: 'flex',
@@ -326,7 +336,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     justifyContent: 'center',
     color: '#ffffff',
     fontWeight: 'bold',
-    fontSize: '0.9rem'
+    fontSize: '1.1rem'
   };
 
   const clientInfoStyles: React.CSSProperties = {
@@ -334,13 +344,13 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const clientNameStyles: React.CSSProperties = {
-    fontSize: '0.9rem',
+    fontSize: '1.1rem',
     fontWeight: 'bold',
     color: '#333333'
   };
 
   const clientEmailStyles: React.CSSProperties = {
-    fontSize: '0.8rem',
+    fontSize: '0.9rem',
     color: '#666666'
   };
 

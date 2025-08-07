@@ -215,9 +215,10 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     zIndex: 2,
-    position: 'relative'
+    position: 'relative',
+    height: '100%'
   };
 
   const rightContentStyles: React.CSSProperties = {
@@ -231,10 +232,10 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2rem',
+    fontSize: '2.2rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
-    marginBottom: '24px',
+    marginBottom: '32px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
     fontWeight: 'bold'
@@ -250,34 +251,40 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   const checklistItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    fontSize: '1.1rem',
+    gap: '16px',
+    fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: contentColor,
-    lineHeight: '1.4'
+    lineHeight: '1.4',
+    padding: '8px 0'
   };
 
   const iconStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
+    fontSize: '1.4rem',
     fontWeight: 'bold',
-    color: titleColor
+    color: titleColor,
+    minWidth: '24px'
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '180px',
-    height: '180px',
+    width: '300px',
+    height: '300px',
     borderRadius: '50%',
-    margin: '0 auto'
+    margin: '0 auto',
+    position: 'absolute',
+    bottom: '0',
+    left: '40px',
+    zIndex: 3
   };
 
   const pinkShapeStyles: React.CSSProperties = {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '400px',
-    height: '300px',
+    width: '500px',
+    height: '400px',
     backgroundColor: titleColor,
-    borderRadius: '0 0 200px 0',
+    borderRadius: '0 0 250px 0',
     zIndex: 1
   };
 
@@ -285,10 +292,10 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '300px',
-    height: '200px',
+    width: '350px',
+    height: '250px',
     backgroundColor: '#1a1a2e',
-    borderRadius: '0 0 150px 0',
+    borderRadius: '0 0 200px 0',
     zIndex: 1
   };
 
