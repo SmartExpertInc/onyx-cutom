@@ -337,7 +337,14 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            // Prevent click if element was just dragged
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+            
             console.log('Title clicked, isEditable:', isEditable);
             if (isEditable) {
               setEditingTitle(true);
@@ -378,7 +385,14 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
       ) : (
         <div 
           style={contentStyles}
-          onClick={() => {
+          onClick={(e) => {
+            // Prevent click if element was just dragged
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+            
             console.log('Content clicked, isEditable:', isEditable);
             if (isEditable) {
               setEditingContent(true);

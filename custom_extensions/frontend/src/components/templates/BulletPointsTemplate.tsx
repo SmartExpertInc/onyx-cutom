@@ -624,7 +624,14 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            // Prevent click if element was just dragged
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+            
             if (isEditable) {
               setEditingTitle(true);
             }

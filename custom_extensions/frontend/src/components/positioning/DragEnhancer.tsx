@@ -73,13 +73,24 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
     const allElements = container.querySelectorAll(draggableSelectors.join(', '));
     
-    // Filter out main template containers (they're too broad and cause conflicts)
+    // Filter out main template containers and flex wrappers (they're too broad and cause conflicts)
     const elements = Array.from(allElements).filter(element => {
       const className = element.className;
+      const style = element.getAttribute('style') || '';
+      
       // Exclude main template containers like "content-slide-template", "bullet-points-template", etc.
       if (className && className.includes('-template') && !element.hasAttribute('data-draggable')) {
         return false;
       }
+      
+      // Exclude flex containers that wrap multiple draggable elements
+      if (style.includes('display: flex') || style.includes('display:flex')) {
+        const childDraggables = element.querySelectorAll('h1, h2, h3, ul, ol, p, [data-draggable="true"]');
+        if (childDraggables.length > 1) {
+          return false; // This flex container has multiple draggable children, exclude it
+        }
+      }
+      
       return true;
     });
     
@@ -118,6 +129,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       let isDragging = false;
       let startX = 0;
       let startY = 0;
+      let dragDistance = 0;
+      const DRAG_THRESHOLD = 5; // Minimum pixels to move before considering it a drag
       
       // Get saved position from props or drag state
       const savedPos = savedPositions?.[elementId] || dragStateRef.current.get(elementId) || { x: 0, y: 0 };
@@ -176,6 +189,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         isDragging = true;
         startX = e.clientX - currentX;
         startY = e.clientY - currentY;
+        dragDistance = 0;
         
         htmlElement.style.zIndex = '1000';
         htmlElement.style.userSelect = 'none';
@@ -190,13 +204,19 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseMove = (e: MouseEvent) => {
         if (!isDragging) return;
 
-        currentX = e.clientX - startX;
-        currentY = e.clientY - startY;
+        const newX = e.clientX - startX;
+        const newY = e.clientY - startY;
+        
+        // Calculate drag distance
+        dragDistance = Math.sqrt((newX - currentX) ** 2 + (newY - currentY) ** 2);
+        
+        currentX = newX;
+        currentY = newY;
 
         htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
         htmlElement.style.position = 'relative';
         
-        // Save position
+        // Save position immediately to prevent flickering
         dragStateRef.current.set(elementId, { x: currentX, y: currentY });
         
         // Prevent event propagation during drag
@@ -206,10 +226,23 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseUp = () => {
         if (!isDragging) return;
         
+        const wasDragged = dragDistance > DRAG_THRESHOLD;
+        
         isDragging = false;
         htmlElement.style.zIndex = '';
         htmlElement.style.userSelect = '';
         htmlElement.classList.remove('dragging');
+        
+        // If element was actually dragged, prevent click events
+        if (wasDragged) {
+          // Add a flag to prevent click events for a short time
+          htmlElement.setAttribute('data-just-dragged', 'true');
+          setTimeout(() => {
+            htmlElement.removeAttribute('data-just-dragged');
+          }, 300); // 300ms delay
+          
+          console.log(`✅ Drag completed for element:`, elementId, `(distance: ${dragDistance.toFixed(1)}px)`);
+        }
         
         // Notify parent of position change
         if (onPositionChange) {
