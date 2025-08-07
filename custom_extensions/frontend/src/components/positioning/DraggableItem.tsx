@@ -128,12 +128,7 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
       {/* The draggable item */}
       <motion.div
         ref={itemRef}
-        className={`
-          absolute cursor-pointer transition-all duration-200
-          ${isSelected ? 'ring-2 ring-blue-500 ring-opacity-75' : ''}
-          ${isDragging ? 'shadow-lg scale-105' : ''}
-          ${isResizing ? 'shadow-md' : ''}
-        `}
+        className="absolute cursor-move"
         style={{
           left: item.position.x,
           top: item.position.y,
@@ -155,53 +150,27 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
           {children}
         </div>
 
-        {/* Selection indicator */}
-        <AnimatePresence>
-          {isSelected && (
-            <motion.div
-              className="absolute inset-0 border-2 border-blue-500 border-dashed pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.1 }}
-            />
-          )}
-        </AnimatePresence>
+
       </motion.div>
 
-      {/* Moveable handles */}
-      {isEditable && isSelected && itemRef.current && (
+      {/* Simple drag functionality */}
+      {isEditable && itemRef.current && (
         <Moveable
           ref={moveableRef}
           target={itemRef.current}
           draggable={true}
-          resizable={true}
-          rotatable={true}
+          resizable={false}
+          rotatable={false}
           throttleDrag={0}
-          throttleResize={0}
-          throttleRotate={0}
           
           // Drag settings
-          onDragStart={() => setIsDragging(true)}
           onDrag={handleDrag}
-          onDragEnd={() => setIsDragging(false)}
           
-          // Resize settings
-          onResizeStart={() => setIsResizing(true)}
-          onResize={handleResize}
-          onResizeEnd={() => setIsResizing(false)}
-          
-          // Rotation settings
-          onRotate={handleRotate}
-          
-          // Visual settings
-          renderDirections={['nw', 'ne', 'sw', 'se', 'n', 's', 'e', 'w']}
+          // Visual settings - minimal
+          renderDirections={[]}
           edge={false}
           zoom={1}
           origin={false}
-          
-          // Styling
-          className="moveable-control"
           
           // Bounds constraint
           bounds={{
@@ -210,31 +179,6 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
             right: 1200, // Canvas width
             bottom: 675  // Canvas height
           }}
-          
-          // Snap to grid
-          snapThreshold={showGrid ? 5 : 0}
-          isDisplaySnapDigit={showGrid}
-          snapGap={showGrid}
-          snapDirections={{
-            top: showGrid,
-            left: showGrid,
-            bottom: showGrid,
-            right: showGrid,
-            center: showGrid,
-            middle: showGrid
-          }}
-          elementSnapDirections={{
-            top: showGrid,
-            left: showGrid,
-            bottom: showGrid,
-            right: showGrid,
-            center: showGrid,
-            middle: showGrid
-          }}
-          
-          // Guidelines
-          snapDistFormat={(v: number) => `${v}px`}
-          maxSnapElementGuidelineDistance={100}
         />
       )}
     </>

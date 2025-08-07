@@ -83,8 +83,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     );
   }
 
-  // Auto-enable positioning for editable slides by default
-  const shouldUsePositioning = isEditable || slide.positioningMode === 'hybrid' || slide.positioningMode === 'free' || slide.items;
+  // Always use positioning for editable slides - PowerPoint-like behavior
+  const shouldUsePositioning = isEditable;
   
   // Render the template component with props and theme
   const TemplateComponent = template.component;

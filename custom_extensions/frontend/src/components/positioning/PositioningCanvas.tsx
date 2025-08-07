@@ -17,7 +17,6 @@ import {
 import { PositioningEngine } from '@/lib/positioning/PositioningEngine';
 import DraggableItem from './DraggableItem';
 import ItemRenderer from './ItemRenderer';
-import PositioningControls from './PositioningControls';
 import { SlideTheme } from '@/types/slideThemes';
 
 interface PositioningCanvasProps {
@@ -326,23 +325,7 @@ export const PositioningCanvas: React.FC<PositioningCanvasProps> = ({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Grid */}
-        {renderGrid()}
 
-        {/* Padding guides */}
-        {canvasConfig.padding && showGrid && (
-          <div
-            className="absolute border border-blue-200 border-dashed pointer-events-none"
-            style={{
-              left: canvasConfig.padding.left,
-              top: canvasConfig.padding.top,
-              right: canvasConfig.padding.right,
-              bottom: canvasConfig.padding.bottom,
-              width: canvasConfig.width - canvasConfig.padding.left - canvasConfig.padding.right,
-              height: canvasConfig.height - canvasConfig.padding.top - canvasConfig.padding.bottom
-            }}
-          />
-        )}
 
         {/* Items */}
         <AnimatePresence>
@@ -358,8 +341,8 @@ export const PositioningCanvas: React.FC<PositioningCanvasProps> = ({
                 // Handle double click for editing
                 console.log('Double clicked item:', itemId);
               }}
-              showGrid={showGrid}
-              gridSize={canvasConfig.gridSize}
+              showGrid={false}
+              gridSize={0}
             >
               <ItemRenderer
                 item={item}
@@ -371,43 +354,10 @@ export const PositioningCanvas: React.FC<PositioningCanvasProps> = ({
           ))}
         </AnimatePresence>
 
-        {/* Canvas info */}
-        <div className="absolute top-2 left-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
-          {canvasConfig.width} × {canvasConfig.height} • {items.length} items
-        </div>
+
       </motion.div>
 
-      {/* Controls */}
-      {isEditable && (
-        <PositioningControls
-          selectedItems={selectedItems}
-          mode={mode}
-          showGrid={showGrid}
-          canUndo={engineRef.current?.canUndo() || false}
-          canRedo={engineRef.current?.canRedo() || false}
-          onModeChange={onModeChange}
-          onToggleGrid={handleToggleGrid}
-          onResetDefaults={handleResetDefaults}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
-          onDeleteSelected={handleDeleteSelected}
-          onDuplicateSelected={handleDuplicateSelected}
-          onAlignItems={handleAlignItems}
-          onDistributeItems={handleDistributeItems}
-          onLockSelected={() => {
-            // TODO: Implement lock functionality
-            console.log('Lock selected items');
-          }}
-          onUnlockSelected={() => {
-            // TODO: Implement unlock functionality
-            console.log('Unlock selected items');
-          }}
-          onToggleVisibility={() => {
-            // TODO: Implement visibility toggle
-            console.log('Toggle visibility');
-          }}
-        />
-      )}
+
     </div>
   );
 };

@@ -146,23 +146,6 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
     return (
       <div className="relative">
         {children}
-        
-        {/* Mode toggle for editable slides - only show if explicitly set to template mode */}
-        {isEditable && slide?.positioningMode === 'template' && (
-          <div className="absolute top-4 right-4 z-10">
-            <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-3 shadow-lg">
-              <div className="text-xs text-gray-600 mb-2">🎯 Positioning Available</div>
-              <button
-                onClick={() => handleModeChange('hybrid')}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition-colors font-medium"
-                title="Switch to Positioning Mode"
-              >
-                🚀 Enable Positioning
-              </button>
-              <div className="text-xs text-gray-500 mt-1">Drag & drop items freely</div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -195,19 +178,7 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
         onCanvasConfigChange={handleCanvasConfigChange}
       />
 
-      {/* Mode indicator */}
-      <div className="absolute top-4 left-4 z-10">
-        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md text-sm">
-          <div 
-            className={`w-2 h-2 rounded-full ${
-              currentMode === 'hybrid' ? 'bg-orange-500' : 'bg-green-500'
-            }`}
-          />
-          <span className="font-medium">
-            {currentMode === 'hybrid' ? 'Hybrid Mode' : 'Free Mode'}
-          </span>
-        </div>
-      </div>
+
     </div>
   );
 };
