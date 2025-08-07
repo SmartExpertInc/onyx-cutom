@@ -13321,13 +13321,18 @@ async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: 
             raise HTTPException(status_code=400, detail="Project is not a training plan")
 
     try:
+        # Log the content structure for debugging
+        logger.info(f"[SMART_EDIT_CONFIRM_CONTENT] Content structure: {type(payload.updatedContent)}")
+        logger.info(f"[SMART_EDIT_CONFIRM_CONTENT] Content keys: {list(payload.updatedContent.keys()) if isinstance(payload.updatedContent, dict) else 'Not a dict'}")
+        
         # Save the confirmed changes to the database
         async with pool.acquire() as conn:
             await conn.execute("""
                 UPDATE projects 
-                SET microproduct_content = $1
+                SET microproduct_content = $1, 
+                    updated_at = NOW()
                 WHERE id = $2 AND onyx_user_id = $3
-            """, json.dumps(payload.updatedContent), payload.projectId, onyx_user_id)
+            """, payload.updatedContent, payload.projectId, onyx_user_id)
         
         logger.info(f"[SMART_EDIT_CONFIRMED] Successfully saved changes for training plan projectId={payload.projectId}")
         
