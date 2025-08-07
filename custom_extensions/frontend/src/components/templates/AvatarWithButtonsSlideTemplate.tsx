@@ -1,7 +1,7 @@
-// custom_extensions/frontend/src/components/templates/AvatarWithStepsTemplate.tsx
+// custom_extensions/frontend/src/components/templates/AvatarWithButtonsSlideTemplate.tsx
 
 import React, { useState, useRef, useEffect } from 'react';
-import { AvatarWithStepsProps } from '@/types/slideTemplates';
+import { AvatarWithButtonsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
@@ -51,7 +51,6 @@ function InlineEditor({
     onSave(value);
   };
 
-  // Auto-resize textarea to fit content
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
@@ -60,11 +59,9 @@ function InlineEditor({
     }
   }, [value, multiline]);
 
-  // Set initial height for textarea to match content
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
@@ -82,7 +79,6 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
-          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -114,7 +110,6 @@ function InlineEditor({
       placeholder={placeholder}
       style={{
         ...style,
-        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -128,17 +123,17 @@ function InlineEditor({
   );
 }
 
-export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
+export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
   title,
-  steps = [
-    'Поприветствовать клиента',
-    'Выяснить потребности',
-    'Предложить решение',
-    'Завершить сделку'
+  buttons = [
+    { text: 'Внимание', color: '#e91e63' },
+    { text: 'Скорость', color: '#e91e63' },
+    { text: 'Тепло', color: '#e91e63' },
+    { text: 'Забота', color: '#e91e63' }
   ],
   avatarPath,
   avatarAlt,
@@ -147,16 +142,13 @@ export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
   theme,
   isEditable = false
 }) => {
-  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingSteps, setEditingSteps] = useState<number[]>([]);
+  const [editingButtons, setEditingButtons] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (autoSaveTimeoutRef.current) {
@@ -165,7 +157,6 @@ export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
     };
   }, []);
 
-  // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
       onUpdate({ title: newTitle });
@@ -177,21 +168,19 @@ export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
     setEditingTitle(false);
   };
 
-  // Handle step text editing
-  const handleStepSave = (index: number, newText: string) => {
+  const handleButtonSave = (index: number, newText: string) => {
     if (onUpdate) {
-      const newSteps = [...steps];
-      newSteps[index] = newText;
-      onUpdate({ steps: newSteps });
+      const newButtons = [...buttons];
+      newButtons[index] = { ...newButtons[index], text: newText };
+      onUpdate({ buttons: newButtons });
     }
-    setEditingSteps(editingSteps.filter(i => i !== index));
+    setEditingButtons(editingButtons.filter(i => i !== index));
   };
 
-  const handleStepCancel = (index: number) => {
-    setEditingSteps(editingSteps.filter(i => i !== index));
+  const handleButtonCancel = (index: number) => {
+    setEditingButtons(editingButtons.filter(i => i !== index));
   };
 
-  // Handle avatar upload
   const handleAvatarUploaded = (newAvatarPath: string) => {
     if (onUpdate) {
       onUpdate({ avatarPath: newAvatarPath });
@@ -210,61 +199,60 @@ export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
 
   const contentContainerStyles: React.CSSProperties = {
     display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    maxWidth: '1200px',
+    gap: '40px'
+  };
+
+  const leftContentStyles: React.CSSProperties = {
+    flex: '1',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  };
+
+  const rightContentStyles: React.CSSProperties = {
+    flex: '1',
+    display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    textAlign: 'center',
-    maxWidth: '900px',
     gap: '32px'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '2.5rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     marginBottom: '32px',
     lineHeight: '1.2',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    textAlign: 'center'
   };
 
-  const stepsContainerStyles: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
+  const buttonsContainerStyles: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '16px',
     width: '100%',
     maxWidth: '600px'
   };
 
-  const stepStyles: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-    padding: '16px 20px',
+  const buttonStyles: React.CSSProperties = {
+    padding: '16px 24px',
     borderRadius: '8px',
-    fontSize: currentTheme.fonts.contentSize,
+    border: 'none',
+    fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    wordWrap: 'break-word'
-  };
-
-  const stepNumberStyles: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    backgroundColor: titleColor,
     color: '#ffffff',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    flexShrink: 0
-  };
-
-  const avatarContainerStyles: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: '32px'
+    backgroundColor: titleColor,
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const placeholderStyles: React.CSSProperties = {
@@ -277,45 +265,8 @@ export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
   return (
     <div style={slideStyles}>
       <div style={contentContainerStyles}>
-        {/* Title */}
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={() => {
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
-
-        {/* Avatar */}
-        <div style={avatarContainerStyles}>
+        {/* Left content - Avatar */}
+        <div style={leftContentStyles}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
             onImageUploaded={handleAvatarUploaded}
@@ -327,53 +278,87 @@ export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
           />
         </div>
 
-        {/* Steps */}
-        <div style={stepsContainerStyles}>
-          {steps.map((step, index) => (
-            <div key={index} style={stepStyles}>
-              <div style={stepNumberStyles}>
-                {index + 1}
+        {/* Right content - Title and Buttons */}
+        <div style={rightContentStyles}>
+          {/* Title */}
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title || ''}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={() => {
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || 'Продуманный сервис ощущается сразу'}
+            </h1>
+          )}
+
+          {/* Buttons Grid */}
+          <div style={buttonsContainerStyles}>
+            {buttons.map((button, index) => (
+              <div key={index}>
+                {isEditable && editingButtons.includes(index) ? (
+                  <InlineEditor
+                    initialValue={button.text}
+                    onSave={(newText) => handleButtonSave(index, newText)}
+                    onCancel={() => handleButtonCancel(index)}
+                    placeholder="Enter button text..."
+                    className="inline-editor-button"
+                    style={{
+                      ...buttonStyles,
+                      margin: '0',
+                      padding: '16px 24px',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      textAlign: 'center'
+                    }}
+                  />
+                ) : (
+                  <button
+                    style={buttonStyles}
+                    onClick={() => {
+                      if (isEditable) {
+                        setEditingButtons([...editingButtons, index]);
+                      }
+                    }}
+                    className={isEditable ? 'hover:opacity-80' : ''}
+                  >
+                    {button.text}
+                  </button>
+                )}
               </div>
-              {isEditable && editingSteps.includes(index) ? (
-                <InlineEditor
-                  initialValue={step}
-                  onSave={(newText) => handleStepSave(index, newText)}
-                  onCancel={() => handleStepCancel(index)}
-                  placeholder="Enter step text..."
-                  className="inline-editor-step"
-                  style={{
-                    flex: 1,
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block',
-                    background: 'transparent',
-                    color: contentColor,
-                    fontSize: currentTheme.fonts.contentSize,
-                    fontFamily: currentTheme.fonts.contentFont
-                  }}
-                />
-              ) : (
-                <span
-                  style={{ flex: 1 }}
-                  onClick={() => {
-                    if (isEditable) {
-                      setEditingSteps([...editingSteps, index]);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {step}
-                </span>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

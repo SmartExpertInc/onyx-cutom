@@ -364,11 +364,11 @@ export type TemplateId =
   | 'timeline'
   | 'big-numbers'
   | 'pyramid'
-  | 'avatar-slide'
+  | 'avatar-service-slide'
   | 'avatar-with-buttons'
-  | 'avatar-with-checklist'
-  | 'avatar-with-steps'
-  | 'avatar-with-quote';
+  | 'avatar-checklist'
+  | 'avatar-steps'
+  | 'avatar-crm';
 
 export interface TemplatePreview {
   templateId: string;

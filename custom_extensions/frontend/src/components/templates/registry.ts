@@ -17,11 +17,11 @@ import { FourBoxGridTemplate } from './FourBoxGridTemplate';
 import { TimelineTemplate } from './TimelineTemplate';
 import { BigNumbersTemplate } from './BigNumbersTemplate';
 import { PyramidTemplate } from './PyramidTemplate';
-import { AvatarSlideTemplate } from './AvatarSlideTemplate';
-import { AvatarWithButtonsTemplate } from './AvatarWithButtonsTemplate';
-import { AvatarWithChecklistTemplate } from './AvatarWithChecklistTemplate';
-import { AvatarWithStepsTemplate } from './AvatarWithStepsTemplate';
-import { AvatarWithQuoteTemplate } from './AvatarWithQuoteTemplate';
+import { AvatarServiceSlideTemplate } from './AvatarServiceSlideTemplate';
+import { AvatarWithButtonsSlideTemplate } from './AvatarWithButtonsSlideTemplate';
+import { AvatarChecklistSlideTemplate } from './AvatarChecklistSlideTemplate';
+import { AvatarCrmSlideTemplate } from './AvatarCrmSlideTemplate';
+import { AvatarStepsSlideTemplate } from './AvatarStepsSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -835,13 +835,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
   },
 
-  'avatar-slide': {
-    id: 'avatar-slide',
-    name: 'Avatar Slide',
-    description: 'Slide with avatar and text content',
+  'avatar-service-slide': {
+    id: 'avatar-service-slide',
+    name: 'Avatar Service Slide',
+    description: 'Slide with avatar and service content - white background with dark shape',
     category: 'media',
     icon: '👤',
-    component: AvatarSlideTemplate,
+    component: AvatarServiceSlideTemplate,
     defaultProps: {
       title: 'Клиентский сервис - это основа успеха',
       subtitle: '',
@@ -869,10 +869,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'avatar-with-buttons': {
     id: 'avatar-with-buttons',
     name: 'Avatar with Buttons',
-    description: 'Slide with avatar and interactive buttons',
+    description: 'Slide with avatar and interactive buttons - dark background',
     category: 'media',
     icon: '🔘',
-    component: AvatarWithButtonsTemplate,
+    component: AvatarWithButtonsSlideTemplate,
     defaultProps: {
       title: 'Продуманный сервис ощущается сразу',
       buttons: [
@@ -898,13 +898,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
   },
 
-  'avatar-with-checklist': {
-    id: 'avatar-with-checklist',
-    name: 'Avatar with Checklist',
-    description: 'Slide with avatar and checklist items',
+  'avatar-checklist': {
+    id: 'avatar-checklist',
+    name: 'Avatar Checklist',
+    description: 'Slide with avatar and checklist - white background with pink shapes',
     category: 'media',
     icon: '✅',
-    component: AvatarWithChecklistTemplate,
+    component: AvatarChecklistSlideTemplate,
     defaultProps: {
       title: 'Как звучать профессионально',
       items: [
@@ -930,13 +930,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
   },
 
-  'avatar-with-steps': {
-    id: 'avatar-with-steps',
-    name: 'Avatar with Steps',
-    description: 'Slide with avatar and process steps',
+  'avatar-steps': {
+    id: 'avatar-steps',
+    name: 'Avatar Steps',
+    description: 'Slide with avatar and process steps - dark background',
     category: 'media',
     icon: '📋',
-    component: AvatarWithStepsTemplate,
+    component: AvatarStepsSlideTemplate,
     defaultProps: {
       title: 'Каждый шаг - это часть сервиса',
       steps: [
@@ -963,34 +963,34 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
   },
 
-  'avatar-with-quote': {
-    id: 'avatar-with-quote',
-    name: 'Avatar with Quote',
-    description: 'Slide with avatar and testimonial quote',
+  'avatar-crm': {
+    id: 'avatar-crm',
+    name: 'Avatar CRM',
+    description: 'Slide with avatar and CRM interface - dark background',
     category: 'media',
-    icon: '👤',
-    component: AvatarWithQuoteTemplate,
+    icon: '💼',
+    component: AvatarCrmSlideTemplate,
     defaultProps: {
-      title: 'Отзыв клиента',
-      quote: 'Отличный сервис! Все было на высшем уровне.',
-      author: 'Анна Петрова',
+      title: 'Личное отношение - залог следующих ВИЗИТОВ',
+      subtitle: 'Помните детали, интересуйтесь, сохраняйте тёплый контакт',
+      content: 'Клиент это почувствует',
       avatarPath: '',
       avatarAlt: 'Avatar',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#1a1a2e',
       titleColor: '#e91e63',
-      quoteColor: '#000000',
-      authorColor: '#e91e63'
+      subtitleColor: '#ffffff',
+      contentColor: '#ffffff'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
-      quote: { type: 'text', label: 'Quote', required: true },
-      author: { type: 'text', label: 'Author' },
+      subtitle: { type: 'text', label: 'Subtitle' },
+      content: { type: 'text', label: 'Content' },
       avatarPath: { type: 'image', label: 'Avatar Image' },
       avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
-      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a2e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
-      quoteColor: { type: 'color', label: 'Quote Color', default: '#000000' },
-      authorColor: { type: 'color', label: 'Author Color', default: '#e91e63' }
+      subtitleColor: { type: 'color', label: 'Subtitle Color', default: '#ffffff' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#ffffff' }
     },
   },
 };

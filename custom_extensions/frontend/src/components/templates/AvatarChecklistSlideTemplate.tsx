@@ -1,7 +1,7 @@
-// custom_extensions/frontend/src/components/templates/AvatarWithQuoteTemplate.tsx
+// custom_extensions/frontend/src/components/templates/AvatarChecklistSlideTemplate.tsx
 
 import React, { useState, useRef, useEffect } from 'react';
-import { AvatarWithQuoteProps } from '@/types/slideTemplates';
+import { AvatarWithChecklistProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
@@ -51,7 +51,6 @@ function InlineEditor({
     onSave(value);
   };
 
-  // Auto-resize textarea to fit content
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
@@ -60,11 +59,9 @@ function InlineEditor({
     }
   }, [value, multiline]);
 
-  // Set initial height for textarea to match content
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
@@ -82,7 +79,6 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
-          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -114,7 +110,6 @@ function InlineEditor({
       placeholder={placeholder}
       style={{
         ...style,
-        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -128,14 +123,18 @@ function InlineEditor({
   );
 }
 
-export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
+export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
   title,
-  quote,
-  author,
+  items = [
+    { text: '«Позвольте я помогу»', isPositive: true },
+    { text: '«С удовольствием уточню»', isPositive: true },
+    { text: '«Спасибо, что обратили внимание»', isPositive: true },
+    { text: 'Исключаем холодные фразы и неуверенность', isPositive: false }
+  ],
   avatarPath,
   avatarAlt,
   slideId,
@@ -143,17 +142,13 @@ export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
   theme,
   isEditable = false
 }) => {
-  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingQuote, setEditingQuote] = useState(false);
-  const [editingAuthor, setEditingAuthor] = useState(false);
+  const [editingItems, setEditingItems] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (autoSaveTimeoutRef.current) {
@@ -162,7 +157,6 @@ export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
     };
   }, []);
 
-  // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
       onUpdate({ title: newTitle });
@@ -174,31 +168,19 @@ export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
     setEditingTitle(false);
   };
 
-  // Handle quote editing
-  const handleQuoteSave = (newQuote: string) => {
+  const handleItemSave = (index: number, newText: string) => {
     if (onUpdate) {
-      onUpdate({ quote: newQuote });
+      const newItems = [...items];
+      newItems[index] = { ...newItems[index], text: newText };
+      onUpdate({ items: newItems });
     }
-    setEditingQuote(false);
+    setEditingItems(editingItems.filter(i => i !== index));
   };
 
-  const handleQuoteCancel = () => {
-    setEditingQuote(false);
+  const handleItemCancel = (index: number) => {
+    setEditingItems(editingItems.filter(i => i !== index));
   };
 
-  // Handle author editing
-  const handleAuthorSave = (newAuthor: string) => {
-    if (onUpdate) {
-      onUpdate({ author: newAuthor });
-    }
-    setEditingAuthor(false);
-  };
-
-  const handleAuthorCancel = () => {
-    setEditingAuthor(false);
-  };
-
-  // Handle avatar upload
   const handleAvatarUploaded = (newAvatarPath: string) => {
     if (onUpdate) {
       onUpdate({ avatarPath: newAvatarPath });
@@ -212,70 +194,73 @@ export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '40px'
+    padding: '40px',
+    position: 'relative',
+    overflow: 'hidden'
   };
 
   const contentContainerStyles: React.CSSProperties = {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
-    textAlign: 'center',
-    maxWidth: '900px',
-    gap: '32px'
+    justifyContent: 'space-between',
+    width: '100%',
+    maxWidth: '1200px',
+    gap: '40px',
+    position: 'relative',
+    zIndex: 2
   };
 
-  const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '32px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word'
-  };
-
-  const quoteContainerStyles: React.CSSProperties = {
+  const leftContentStyles: React.CSSProperties = {
+    flex: '1',
     display: 'flex',
-    flexDirection: 'column',
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: '24px',
-    maxWidth: '700px'
-  };
-
-  const quoteStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    fontStyle: 'italic',
-    lineHeight: '1.6',
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word',
-    padding: '24px',
-    borderRadius: '12px',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    zIndex: 2,
     position: 'relative'
   };
 
-  const quoteMarkStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: '-10px',
-    left: '20px',
-    fontSize: '48px',
-    color: titleColor,
-    fontFamily: 'serif'
-  };
-
-  const authorStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    color: titleColor,
-    fontWeight: 'bold',
-    marginTop: '16px'
-  };
-
-  const avatarContainerStyles: React.CSSProperties = {
+  const rightContentStyles: React.CSSProperties = {
+    flex: '1',
     display: 'flex',
-    justifyContent: 'center',
-    marginBottom: '32px'
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '24px',
+    zIndex: 2,
+    position: 'relative'
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: '2rem',
+    fontFamily: currentTheme.fonts.titleFont,
+    color: titleColor,
+    marginBottom: '24px',
+    lineHeight: '1.2',
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
+  };
+
+  const checklistContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    width: '100%'
+  };
+
+  const checklistItemStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    fontSize: '1.1rem',
+    fontFamily: currentTheme.fonts.contentFont,
+    color: contentColor,
+    lineHeight: '1.4'
+  };
+
+  const iconStyles: React.CSSProperties = {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    color: titleColor
   };
 
   const placeholderStyles: React.CSSProperties = {
@@ -285,48 +270,38 @@ export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
     margin: '0 auto'
   };
 
+  const pinkShapeStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '400px',
+    height: '300px',
+    backgroundColor: titleColor,
+    borderRadius: '0 0 200px 0',
+    zIndex: 1
+  };
+
+  const darkShapeStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '300px',
+    height: '200px',
+    backgroundColor: '#1a1a2e',
+    borderRadius: '0 0 150px 0',
+    zIndex: 1
+  };
+
   return (
     <div style={slideStyles}>
+      {/* Pink shape in top-left corner */}
+      <div style={pinkShapeStyles}></div>
+      {/* Dark shape overlapping */}
+      <div style={darkShapeStyles}></div>
+      
       <div style={contentContainerStyles}>
-        {/* Title */}
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={() => {
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
-
-        {/* Avatar */}
-        <div style={avatarContainerStyles}>
+        {/* Left content - Avatar */}
+        <div style={leftContentStyles}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
             onImageUploaded={handleAvatarUploaded}
@@ -338,19 +313,21 @@ export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
           />
         </div>
 
-        {/* Quote */}
-        <div style={quoteContainerStyles}>
-          <div style={quoteStyles}>
-            <span style={quoteMarkStyles}>"</span>
-            {isEditable && editingQuote ? (
+        {/* Right content - Title and Checklist */}
+        <div style={rightContentStyles}>
+          {/* Title with question mark */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ ...iconStyles, fontSize: '2rem' }}>?</span>
+            {isEditable && editingTitle ? (
               <InlineEditor
-                initialValue={quote || ''}
-                onSave={handleQuoteSave}
-                onCancel={handleQuoteCancel}
+                initialValue={title || ''}
+                onSave={handleTitleSave}
+                onCancel={handleTitleCancel}
                 multiline={true}
-                placeholder="Enter quote..."
-                className="inline-editor-quote"
+                placeholder="Enter slide title..."
+                className="inline-editor-title"
                 style={{
+                  ...titleStyles,
                   margin: '0',
                   padding: '0',
                   border: 'none',
@@ -360,67 +337,69 @@ export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block',
-                  background: 'transparent',
-                  color: contentColor,
-                  fontSize: currentTheme.fonts.contentSize,
-                  fontFamily: currentTheme.fonts.contentFont,
-                  fontStyle: 'italic',
-                  lineHeight: '1.6'
+                  display: 'block'
                 }}
               />
             ) : (
-              <span
+              <h1 
+                style={titleStyles}
                 onClick={() => {
                   if (isEditable) {
-                    setEditingQuote(true);
+                    setEditingTitle(true);
                   }
                 }}
                 className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
               >
-                {quote || 'Click to add quote'}
-              </span>
+                {title || 'Как звучать профессионально'}
+              </h1>
             )}
           </div>
 
-          {/* Author */}
-          {author && (
-            isEditable && editingAuthor ? (
-              <InlineEditor
-                initialValue={author}
-                onSave={handleAuthorSave}
-                onCancel={handleAuthorCancel}
-                placeholder="Enter author name..."
-                className="inline-editor-author"
-                style={{
-                  ...authorStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block',
-                  background: 'transparent'
-                }}
-              />
-            ) : (
-              <span
-                style={authorStyles}
-                onClick={() => {
-                  if (isEditable) {
-                    setEditingAuthor(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                — {author}
-              </span>
-            )
-          )}
+          {/* Checklist */}
+          <div style={checklistContainerStyles}>
+            {items.map((item, index) => (
+              <div key={index} style={checklistItemStyles}>
+                <span style={{ ...iconStyles, color: item.isPositive ? titleColor : '#ff4444' }}>
+                  {item.isPositive ? '✓' : '✗'}
+                </span>
+                {isEditable && editingItems.includes(index) ? (
+                  <InlineEditor
+                    initialValue={item.text}
+                    onSave={(newText) => handleItemSave(index, newText)}
+                    onCancel={() => handleItemCancel(index)}
+                    placeholder="Enter checklist item..."
+                    className="inline-editor-checklist-item"
+                    style={{
+                      ...checklistItemStyles,
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      flex: '1'
+                    }}
+                  />
+                ) : (
+                  <span
+                    onClick={() => {
+                      if (isEditable) {
+                        setEditingItems([...editingItems, index]);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    style={{ flex: '1' }}
+                  >
+                    {item.text}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
