@@ -64,10 +64,11 @@ function isMetadataSlide(content: string): boolean {
   }
   
   // Check for other metadata patterns - slides that contain project info but no actual slide content
-  const hasSlideTitle = /\*\*Slide \d+:/.test(trimmedContent);
+  // Use more flexible pattern to match slide titles in any language: **Word(s) Number:**
+  const hasSlideTitle = /\*\*[^*]+\s+\d+\s*:/.test(trimmedContent);
   const hasColonPattern = /\*\*[^*]+\*\*\s*:\s*\*\*[^*]+\*\*/.test(trimmedContent);
   
-  // If it has colon patterns but no "Slide X:" format, it's likely metadata
+  // If it has colon patterns but no "Word Number:" format, it's likely metadata
   if (hasColonPattern && !hasSlideTitle) {
     return true;
   }
@@ -80,8 +81,9 @@ function extractLayoutFromSlide(slideContent: string): string {
   const lines = slideContent.split('\n');
   
   // Look for layout hint in backticks at the end of the title line
+  // Use more flexible pattern to match any slide title format with backticks
   for (const line of lines) {
-    if (line.trim().startsWith('**Slide ') && line.includes('`')) {
+    if (line.trim().startsWith('**') && line.includes('`')) {
       const match = line.match(/`([^`]+)`/);
       if (match) {
         const layoutHint = match[1].trim();
@@ -336,9 +338,28 @@ export function parsePresentationMarkdown(markdown: string): PresentationData {
   const slides: PresentationSlide[] = rawSlides.map((slideContent, index) => {
     const trimmedContent = slideContent.trim();
     
-    // Extract slide title (first line that starts with **Slide)
-    const titleMatch = trimmedContent.match(/\*\*Slide \d+:\s*([^*`]+)/);
-    const title = titleMatch ? titleMatch[1].trim() : `Slide ${index + 1}`;
+    // Extract slide title using more flexible pattern that works for any language
+    // Look for pattern: **[anything] [number]: [title]** or **[title]** at the beginning
+    let title = `Slide ${index + 1}`;
+    
+    // First try to match numbered slide pattern: **Word(s) Number: Title**
+    const numberedTitleMatch = trimmedContent.match(/\*\*([^*]+)\s+(\d+)\s*:\s*([^*`]+)/);
+    if (numberedTitleMatch) {
+      title = numberedTitleMatch[3].trim();
+    } else {
+      // If no numbered pattern, try to get first bold text as title: **Title**
+      const simpleTitleMatch = trimmedContent.match(/\*\*([^*`]+)\*\*/);
+      if (simpleTitleMatch) {
+        // Clean up the title - remove template indicators and extra formatting
+        let extractedTitle = simpleTitleMatch[1].trim();
+        // Remove template indicators in backticks
+        extractedTitle = extractedTitle.replace(/\s*`[^`]*`\s*$/, '').trim();
+        // Only use it if it's not just a number or very short
+        if (extractedTitle.length > 3 && !/^\d+$/.test(extractedTitle)) {
+          title = extractedTitle;
+        }
+      }
+    }
     
     // Extract layout
     const layout = extractLayoutFromSlide(trimmedContent);

@@ -1099,25 +1099,25 @@ export default function LessonPresentationClient() {
               
               {/* Parse and display slide titles in course outline format */}
               {(() => {
-                // Split slides properly - first try by --- separators, then by **Slide X: patterns
+                // Split slides properly - first try by --- separators, then by language-agnostic patterns
                 let slides = [];
                 if (content.includes('---')) {
                   // Split by --- separators
                   slides = content.split(/^---\s*$/m).filter(slide => slide.trim());
                 } else {
-                  // Split by **Slide X: patterns
-                  slides = content.split(/(?=\*\*Slide \d+:)/).filter(slide => slide.trim());
+                  // Split by language-agnostic pattern: **[anything] [number]: [title]
+                  slides = content.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter(slide => slide.trim());
                 }
                 
-                // Filter out slides that don't have proper "Slide X:" pattern (like presentation titles)
+                // Filter out slides that don't have proper numbered slide pattern (language-agnostic)
                 slides = slides.filter(slideContent => {
-                  const hasSlidePattern = /\*\*Slide \d+:/.test(slideContent);
+                  const hasSlidePattern = /\*\*[^*]+\s+\d+\s*:/.test(slideContent);
                   return hasSlidePattern;
                 });
                 
                 return slides.map((slideContent, slideIdx) => {
-                  // Extract slide title properly - look for **Slide X: pattern
-                  const titleMatch = slideContent.match(/\*\*Slide \d+:\s*([^*`\n]+)/);
+                  // Extract slide title using language-agnostic pattern: **[word(s)] [number]: [title]
+                  const titleMatch = slideContent.match(/\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/);
                   let title = '';
                   
                   if (titleMatch) {
@@ -1143,9 +1143,9 @@ export default function LessonPresentationClient() {
                           value={title}
                           onChange={(e) => {
                             const newTitle = e.target.value;
-                            // Update the content with new title
+                            // Update the content with new title using language-agnostic pattern
                             const slidePattern = titleMatch 
-                              ? new RegExp(`(\\*\\*Slide ${slideIdx + 1}:\\s*)([^*\`\\n]+)`)
+                              ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
                               : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
                             
                             const updatedContent = content.replace(slidePattern, 
