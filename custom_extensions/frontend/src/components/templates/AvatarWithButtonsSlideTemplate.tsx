@@ -214,7 +214,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     height: '562px',
     margin: '0 auto',
     position: 'absolute',
-    top: '-246px',
+    top: '-263px',
     zIndex: 3
   };
 
