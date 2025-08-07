@@ -202,17 +202,19 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
-    minHeight: '600px',
+    height: '100vh',
+    minHeight: '100vh',
     backgroundColor,
     display: 'flex',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    overflow: 'hidden'
   };
 
   const leftPanelStyles: React.CSSProperties = {
     width: '40%',
-    height: '100%',
+    height: '100vh',
+    minHeight: '100vh',
     backgroundColor: backgroundColor,
     padding: '60px 40px',
     display: 'flex',
@@ -223,11 +225,13 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const rightPanelStyles: React.CSSProperties = {
     width: '60%',
-    height: '100%',
+    height: '100vh',
+    minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative'
+    position: 'relative',
+    overflow: 'hidden'
   };
 
   const avatarStyles: React.CSSProperties = {
@@ -530,10 +534,12 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
           position="CENTER"
           description="Click to upload image"
           prompt="Professional business or beauty industry image"
-          className="!h-full !max-h-none"
+          className="!h-screen !max-h-none !min-h-screen !w-full"
           style={{
             width: '100%',
-            height: '100%',
+            height: '100vh',
+            minHeight: '100vh',
+            maxHeight: '100vh',
             objectFit: 'cover',
             borderRadius: '0'
           }}

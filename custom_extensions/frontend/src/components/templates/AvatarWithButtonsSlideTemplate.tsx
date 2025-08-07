@@ -244,7 +244,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     border: 'none',
     fontSize: '1.3rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: '#ffffff',
+    color: '#000000',
     backgroundColor: titleColor, // Changed from safeTitleColor
     cursor: 'pointer',
     transition: 'all 0.3s ease',

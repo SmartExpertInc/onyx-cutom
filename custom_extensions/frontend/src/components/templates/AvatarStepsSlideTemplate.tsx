@@ -255,7 +255,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     border: 'none',
     fontSize: '1.3rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: '#ffffff',
+    color: '#000000',
     backgroundColor: titleColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
