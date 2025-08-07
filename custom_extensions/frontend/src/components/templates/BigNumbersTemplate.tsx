@@ -324,12 +324,18 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -338,7 +344,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
       <div style={gridStyles}>
         {Array.isArray(items) && items.length >= 3 ? (
           items.slice(0, 3).map((item: BigNumberItem, idx: number) => (
-            <div key={idx} style={itemStyles}>
+            <div key={idx} style={itemStyles} data-draggable="true">
               {/* Item Value */}
               {isEditable && editingItemValues.includes(idx) ? (
                 <InlineEditor

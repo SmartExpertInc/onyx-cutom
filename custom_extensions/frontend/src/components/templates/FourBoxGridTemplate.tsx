@@ -296,12 +296,18 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -310,7 +316,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
       <div style={gridStyles}>
         {Array.isArray(boxes) && boxes.length >= 4 ? (
           boxes.slice(0, 4).map((box: any, idx: number) => (
-            <div key={idx} style={boxStyles}>
+            <div key={idx} style={boxStyles} data-draggable="true">
               {/* Box Heading */}
               {isEditable && editingBoxHeadings.includes(idx) ? (
                 <InlineEditor

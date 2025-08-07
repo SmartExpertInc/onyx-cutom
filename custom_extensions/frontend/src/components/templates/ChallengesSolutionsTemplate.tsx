@@ -368,12 +368,18 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -382,7 +388,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
       {/* Two Column Grid */}
       <div style={gridStyles}>
         {/* Challenges Column */}
-        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
+        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)} data-draggable="true">
           <div style={headerStyles}>
             <XMarkIcon />
             {isEditable && editingChallengesTitle ? (
@@ -472,7 +478,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
         </div>
 
         {/* Solutions Column */}
-        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
+        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)} data-draggable="true">
           <div style={headerStyles}>
             <CheckIcon />
             {isEditable && editingSolutionsTitle ? (

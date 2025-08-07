@@ -420,12 +420,18 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -459,12 +465,18 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         ) : (
           <p 
             style={subtitleStyles}
-            onClick={() => {
+            onClick={(e) => {
+              if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
               if (isEditable) {
                 setEditingSubtitle(true);
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            data-draggable="true"
           >
             {subtitle}
           </p>
@@ -477,7 +489,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           <PyramidSVG2 />
           <PyramidSVG3 />
         </div>
-        <div style={itemsContainerStyles}>
+        <div style={itemsContainerStyles} data-draggable="true">
           {Array.isArray(items) && items.slice(0, 3).map((item, index: number) => (
             <div key={index} style={itemWrapperStyles(index)}>
               {/* Item Heading */}

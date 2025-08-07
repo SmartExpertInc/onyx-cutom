@@ -322,12 +322,18 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -339,7 +345,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           gap: '40px',
         }}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} data-draggable="true">
           {/* Left Clickable Image Placeholder */}
           <ClickableImagePlaceholder
             imagePath={leftImagePath}
@@ -426,7 +432,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             </p>
           )}
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}} data-draggable="true">
           {/* Right Clickable Image Placeholder */}
           <ClickableImagePlaceholder
             imagePath={rightImagePath}

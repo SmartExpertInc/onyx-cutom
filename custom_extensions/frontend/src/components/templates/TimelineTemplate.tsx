@@ -340,12 +340,18 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -357,7 +363,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
           const isTop = index % 2 !== 0; // 1, 3 on top
           
           return (
-            <div key={index} style={stepWrapperStyles}>
+            <div key={index} style={stepWrapperStyles} data-draggable="true">
               <div style={milestoneContentStyles(isTop)}>
                 <div style={{...textBlockStyles, order: isTop ? 1 : 3}}>
                   {/* Step Heading */}

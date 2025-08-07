@@ -345,12 +345,18 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
         ) : (
           <h1 
             style={titleStyles}
-            onClick={() => {
+            onClick={(e) => {
+              if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
               if (isEditable) {
                 setEditingTitle(true);
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            data-draggable="true"
           >
             {title || 'Click to add hero title'}
           </h1>
@@ -384,12 +390,18 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
         ) : (
           <div 
             style={subtitleStyles}
-            onClick={() => {
+            onClick={(e) => {
+              if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
               if (isEditable) {
                 setEditingSubtitle(true);
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            data-draggable="true"
           >
             {subtitle || 'Click to add subtitle'}
           </div>

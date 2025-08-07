@@ -245,12 +245,18 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (props.isEditable) {
               setEditingTitle(true);
             }
           }}
           className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {props.title || 'Click to add title'}
         </h1>
@@ -277,6 +283,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                 borderRadius: '12px',
                 padding: '24px 16px',
               }}
+              data-draggable="true"
             >
               <div
                 style={{
