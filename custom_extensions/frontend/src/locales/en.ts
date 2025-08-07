@@ -4,7 +4,8 @@ export const en = {
     lesson: "LESSON",
     save: "Save",
     saving: "Saving...",
-    confirmCancelEdit: "Are you sure you want to cancel? Any unsaved changes will be lost.",
+    confirmCancelEdit:
+      "Are you sure you want to cancel? Any unsaved changes will be lost.",
     errorDetails: "Details:",
     sourceChatTooltip: "Go to the chat where this content was generated",
     sourceChat: "Source Chat",
@@ -12,13 +13,13 @@ export const en = {
     edit: "Edit",
     downloadPdf: "Download PDF",
     saveErrorTitle: "Save Error:",
-    rendering: "Rendering content..."
+    rendering: "Rendering content...",
   },
   qualityTiers: {
     basic: "Basic",
     interactive: "Interactive",
     advanced: "Advanced",
-    immersive: "Immersive"
+    immersive: "Immersive",
   },
   // Action buttons and UI elements
   actions: {
@@ -60,7 +61,8 @@ export const en = {
     // Create from files page
     uploadDocuments: "Upload Documents",
     dragAndDropFiles: "Drag and drop files here, or click to select files",
-    filesWillBeProcessed: "Files will be automatically processed and indexed for content creation",
+    filesWillBeProcessed:
+      "Files will be automatically processed and indexed for content creation",
     selectFiles: "Select Files",
     processingFiles: "Processing Files",
     uploadingAndIndexing: "Uploading & indexing: {fileName}",
@@ -81,24 +83,27 @@ export const en = {
     readyToCreateContent: "Ready to create content from these documents",
     createContent: "Create Content",
     backToFolders: "Back to Folders",
-    selectFilesToCreate: "Select files to create educational content from your documents",
+    selectFilesToCreate:
+      "Select files to create educational content from your documents",
     // 3-dots menu
     addToFavorites: "Add to favorites",
     copyLink: "Copy link",
     removeFromFolder: "Remove from Folder",
     sendToTrash: "Send to trash",
     areYouSure: "Are you sure?",
-    actionPermanent: "This action is permanent and cannot be undone. The project will be deleted forever.",
+    actionPermanent:
+      "This action is permanent and cannot be undone. The project will be deleted forever.",
     deletePermanentlyButton: "Delete Permanently",
     wantToEditInTrash: "Want to edit this? It's in the trash.",
     restoreIt: "Restore it",
     created: "Created",
-    courseOutlineTrashMessage: "This is a Course Outline. Do you want to move just the outline, or the outline and all its lessons?",
+    courseOutlineTrashMessage:
+      "This is a Course Outline. Do you want to move just the outline, or the outline and all its lessons?",
     tokens: "tokens",
     ready: "Ready",
     failed: "Failed",
     processing: "Processing",
-    pleaseWait: "Please wait..."
+    pleaseWait: "Please wait...",
   },
   videoLesson: {
     slide: "Slide",
@@ -117,12 +122,14 @@ export const en = {
     deleteError: "Error deleting projects: {error}",
     updateError: "Error updating name: {error}",
     errorLoadingProjectTitle: "Error Loading Project",
-    errorLoadingProjectMessage: "There was a problem fetching the project data. Please try again later.",
+    errorLoadingProjectMessage:
+      "There was a problem fetching the project data. Please try again later.",
     returnToProjects: "Return to Projects List",
     projectNotFoundTitle: "Project Not Found",
-    projectNotFoundMessage: "The project you are looking for could not be found or you may not have permission to view it.",
+    projectNotFoundMessage:
+      "The project you are looking for could not be found or you may not have permission to view it.",
     allProjects: "All Projects",
-    loadingProject: "Loading Project..."
+    loadingProject: "Loading Project...",
   },
   quiz: {
     quizTitle: "Quiz Title",
@@ -152,30 +159,35 @@ export const en = {
       videoLessonScript: "Video Lesson Script",
       videoLesson: "Video Lesson",
       comingSoon: "Coming soon!",
-      errorNoSessionId: "Error: Source chat session ID is not available. Cannot create lesson."
+      errorNoSessionId:
+        "Error: Source chat session ID is not available. Cannot create lesson.",
     },
     createTest: {
       title: "Create Test",
       quiz: "Quiz",
       quizTooltip: "Create a quiz for this lesson",
-      errorNoSessionId: "Error: Source chat session ID is not available. Cannot create test."
+      errorNoSessionId:
+        "Error: Source chat session ID is not available. Cannot create test.",
     },
     createContent: {
       title: "Create Content",
       lessonTypes: "Lesson Types",
       assessmentTypes: "Assessment Types",
       createNewLesson: "Create New Lesson",
-      chooseContentType: "Choose the type of content you'd like to create for this lesson",
+      chooseContentType:
+        "Choose the type of content you'd like to create for this lesson",
       presentation: "Presentation",
-      presentationDescription: "Create a slide-based presentation with interactive content",
+      presentationDescription:
+        "Create a slide-based presentation with interactive content",
       onePager: "One-Pager",
       onePagerDescription: "Create a comprehensive text-based summary document",
       quiz: "Quiz",
       quizDescription: "Create an interactive quiz to test knowledge",
       videoLesson: "Video Lesson",
-      videoLessonDescription: "Create a video lesson with narration and visuals",
+      videoLessonDescription:
+        "Create a video lesson with narration and visuals",
       soon: "Soon",
-      alreadyCreated: "Already created"
+      alreadyCreated: "Already created",
     },
     openContent: {
       title: "Open Content",
@@ -190,7 +202,7 @@ export const en = {
       videoLesson: "Video Lesson",
       videoLessonSoon: "Video lessons coming soon",
       noContentAvailable: "No content available to open.",
-      soon: "Soon"
+      soon: "Soon",
     },
     openOrCreate: {
       title: "Lesson",
@@ -210,19 +222,23 @@ export const en = {
       createPresentationAndQuiz: "Create presentation or quiz",
       createPresentationAndOnePager: "Create presentation or one-pager",
       createQuizAndOnePager: "Create quiz or one-pager",
-      createAll: "Create presentation, quiz, or one-pager"
+      createAll: "Create presentation, quiz, or one-pager",
     },
     folderSettings: {
       title: "Folder Settings",
       subtitle: "Configure production quality for",
       basic: "Basic",
-      basicDescription: "Simple e-learning content with essential features for straightforward training needs",
+      basicDescription:
+        "Simple e-learning content with essential features for straightforward training needs",
       interactive: "Interactive",
-      interactiveDescription: "Engaging content with interactive elements for better learner engagement and retention",
+      interactiveDescription:
+        "Engaging content with interactive elements for better learner engagement and retention",
       advanced: "Advanced",
-      advancedDescription: "Sophisticated learning experiences with personalized content and advanced interactivity",
+      advancedDescription:
+        "Sophisticated learning experiences with personalized content and advanced interactivity",
       immersive: "Immersive",
-      immersiveDescription: "Premium learning experiences with cutting-edge technology for maximum engagement",
+      immersiveDescription:
+        "Premium learning experiences with cutting-edge technology for maximum engagement",
       features: "Features",
       hoursRange: "Hours Range",
       customRate: "Custom Rate",
@@ -253,12 +269,12 @@ export const en = {
       hours: "h",
       saveChanges: "Save Changes",
       saving: "Saving...",
-      failedToSave: "Failed to save folder tier setting"
+      failedToSave: "Failed to save folder tier setting",
     },
     projectSettings: {
       title: "Course Settings",
       subtitle: "Configure production quality for",
-      failedToSave: "Failed to save project tier setting"
+      failedToSave: "Failed to save project tier setting",
     },
     clientName: {
       title: "Export to PDF",
@@ -271,41 +287,42 @@ export const en = {
       selected: "selected",
       skip: "Skip",
       generate: "Generate PDF",
-      generating: "Generating..."
+      generating: "Generating...",
     },
     folderExport: {
       title: "Generating PDF",
       subtitle: "Creating PDF export for folder",
-      description: "This may take a few moments depending on the number of files..."
+      description:
+        "This may take a few moments depending on the number of files...",
     },
     moduleSettings: {
-      title: 'Module Settings',
-      subtitle: 'Configure production quality for',
-      tier: 'Tier',
-      contentExamples: 'Content Examples',
-      hoursRange: 'Hours Range',
-      example: 'Example',
-      moduleQualityTier: 'Module quality tier set to',
-      perCompletionHour: 'h per completion hour',
-      cancel: 'Cancel',
-      saveChanges: 'Save Changes',
-      saving: 'Saving...',
-      failedToSave: 'Failed to save module tier setting'
+      title: "Module Settings",
+      subtitle: "Configure production quality for",
+      tier: "Tier",
+      contentExamples: "Content Examples",
+      hoursRange: "Hours Range",
+      example: "Example",
+      moduleQualityTier: "Module quality tier set to",
+      perCompletionHour: "h per completion hour",
+      cancel: "Cancel",
+      saveChanges: "Save Changes",
+      saving: "Saving...",
+      failedToSave: "Failed to save module tier setting",
     },
     lessonSettings: {
-      title: 'Lesson Settings',
-      subtitle: 'Configure production quality for',
-      tier: 'Tier',
-      contentExamples: 'Content Examples',
-      hoursRange: 'Hours Range',
-      example: 'Example',
-      lessonQualityTier: 'Lesson quality tier set to',
-      perCompletionHour: 'h per completion hour',
-      cancel: 'Cancel',
-      saveChanges: 'Save Changes',
-      saving: 'Saving...',
-      failedToSave: 'Failed to save lesson tier setting'
-    }
+      title: "Lesson Settings",
+      subtitle: "Configure production quality for",
+      tier: "Tier",
+      contentExamples: "Content Examples",
+      hoursRange: "Hours Range",
+      example: "Example",
+      lessonQualityTier: "Lesson quality tier set to",
+      perCompletionHour: "h per completion hour",
+      cancel: "Cancel",
+      saveChanges: "Save Changes",
+      saving: "Saving...",
+      failedToSave: "Failed to save lesson tier setting",
+    },
   },
   projects: {
     loading: "Loading products...",
@@ -315,12 +332,14 @@ export const en = {
     deleteError: "Error deleting projects: {error}",
     updateError: "Error updating name: {error}",
     errorLoadingProjectTitle: "Error Loading Project",
-    errorLoadingProjectMessage: "There was a problem fetching the project data. Please try again later.",
+    errorLoadingProjectMessage:
+      "There was a problem fetching the project data. Please try again later.",
     returnToProjects: "Return to Projects List",
     projectNotFoundTitle: "Project Not Found",
-    projectNotFoundMessage: "The project you are looking for could not be found or you may not have permission to view it.",
+    projectNotFoundMessage:
+      "The project you are looking for could not be found or you may not have permission to view it.",
     allProjects: "All Projects",
-    loadingProject: "Loading Project..."
+    loadingProject: "Loading Project...",
   },
   // New translations for the projects page interface
   interface: {
@@ -330,17 +349,18 @@ export const en = {
     getUnlimitedAI: "Get unlimited AI",
     credits: "credits",
     loading: "Loading...",
-    
+
     // Sidebar
     jumpTo: "Jump to",
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Shared with you",
     folders: "Folders",
     createOrJoinFolder: "Create or join a folder",
-    organizeProducts: "Organize your products by topic and share them with your team",
+    organizeProducts:
+      "Organize your products by topic and share them with your team",
     templates: "Templates",
     themes: "Themes",
-    
+
     // Main content
     all: "All",
     trainingPlans: "Training Plans",
@@ -353,16 +373,17 @@ export const en = {
     grid: "Grid",
     list: "List",
     noProjectsFound: "No projects found.",
-    
+
     // Table headers
     title: "Title",
+    type: "Type",
     created: "Created",
     creator: "Creator",
     numberOfLessons: "Number of Lessons",
     estCreationTime: "Est. Creation Time",
     estCompletionTime: "Est. Completion Time",
     actions: "Actions",
-    
+
     // Project actions
     rename: "Rename",
     duplicate: "Duplicate",
@@ -374,46 +395,48 @@ export const en = {
     deletePermanently: "Delete Permanently",
     moveToFolder: "Move to Folder",
     settings: "Settings",
-    
+
     // Folder actions
     folderSettings: "Folder Settings",
     renameFolder: "Rename Folder",
     deleteFolder: "Delete Folder",
     moveFolder: "Move Folder",
-    
+
     // Modals
     createFolder: "Create or join a folder",
-    createFolderDescription: "You can join a folder to keep track of what folks are working on.",
+    createFolderDescription:
+      "You can join a folder to keep track of what folks are working on.",
     findOrCreateFolder: "Find or create a new folder",
     createFolderButton: "Create folder",
     createAtTopLevel: "Create at top level (no parent folder)",
     allFolders: "All folders",
     noFoldersFound: "No folders found.",
     done: "Done",
-    
+
     // Image Upload Modal
     imageUpload: {
       title: "Upload Image",
       uploadingText: "Uploading...",
       dragAndDropText: "Drag and drop an image here, or click to browse",
       chooseFileButton: "Choose File",
-      supportedFormatsText: "Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)"
+      supportedFormatsText:
+        "Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)",
     },
-    
+
     // Block Settings Modal
     blockSettings: {
       customizeContent: "Customize your content",
       headlineSettings: "Headline Settings",
-      paragraphSettings: "Paragraph Settings", 
+      paragraphSettings: "Paragraph Settings",
       bulletListSettings: "Bullet List Settings",
       numberedListSettings: "Numbered List Settings",
       alertSettings: "Alert Settings",
-      imageSettings: "Image Settings"
+      imageSettings: "Image Settings",
     },
-    
+
     // Modal common
     modal: {
-      customizeContent: "Customize your content"
+      customizeContent: "Customize your content",
     },
 
     // Image Settings
@@ -430,7 +453,7 @@ export const en = {
       captionHelp: "Captions appear below the image",
       maxWidth: "Max Width",
       maxWidthHelp: "Maximum width the image can take up",
-      width: "Width", 
+      width: "Width",
       widthHelp: "Specific width for the image",
       height: "Height",
       heightHelp: "Specific height for the image",
@@ -445,7 +468,8 @@ export const en = {
       sideBySideRight: "Side-by-side (image right)",
       inlineLeft: "Inline (image left, text wraps)",
       inlineRight: "Inline (image right, text wraps)",
-      layoutModeDescription: "Side-by-side: Image and content are equal height. Inline: Text flows around the image.",
+      layoutModeDescription:
+        "Side-by-side: Image and content are equal height. Inline: Text flows around the image.",
       layoutPartner: "Layout Partner",
       layoutPartnerHelp: "Choose which content block to pair with this image",
       layoutProportion: "Layout Proportion",
@@ -460,19 +484,19 @@ export const en = {
       proportionImageLarger: "60% - 40% (Image larger)",
       proportionImageSmaller: "40% - 60% (Image smaller)",
       proportionImageMuchLarger: "70% - 30% (Image much larger)",
-      proportionImageMuchSmaller: "30% - 70% (Image much smaller)"
+      proportionImageMuchSmaller: "30% - 70% (Image much smaller)",
     },
-    
+
     // Quality tiers
     basic: "Basic",
-    interactive: "Interactive", 
+    interactive: "Interactive",
     advanced: "Advanced",
     immersive: "Immersive",
-    
+
     // Time units
     hours: "h",
     minutes: "min",
-    
+
     // Status
     private: "Private",
     createdByYou: "Created by you",
@@ -480,17 +504,17 @@ export const en = {
     item: "item",
     items: "items",
     loadingProjects: "Loading projects...",
-    
+
     // Help button
     help: "Help",
-    
+
     // Language selector
     language: "Language",
     english: "English",
-    ukrainian: "Ukrainian", 
+    ukrainian: "Ukrainian",
     spanish: "Spanish",
     russian: "Russian",
-    
+
     // Date formatting
     today: "Today",
     yesterday: "Yesterday",
@@ -503,10 +527,12 @@ export const en = {
     howToGetStarted: "How would you like to get started?",
     home: "Home",
     pasteInText: "Paste in text",
-    pasteInTextDescription: "Create from notes, an outline, or existing content",
+    pasteInTextDescription:
+      "Create from notes, an outline, or existing content",
     generateDescription: "Create from a one-line prompt in a few seconds",
     importFileOrUrl: "Import file or URL",
-    importFileOrUrlDescription: "Enhance existing docs, presentations, or webpages",
+    importFileOrUrlDescription:
+      "Enhance existing docs, presentations, or webpages",
     popular: "POPULAR",
 
     // Projects table toolbar
@@ -519,7 +545,8 @@ export const en = {
 
     // PDF Download Modal
     customizePDF: "Customize PDF",
-    customizePDFDescription: "Enter a client name and select which folders/products to include in the PDF.",
+    customizePDFDescription:
+      "Enter a client name and select which folders/products to include in the PDF.",
     clientNameOptional: "Client Name (optional)",
     enterClientName: "Enter client name",
     selectFoldersAndProducts: "Select Folders & Products",
@@ -547,18 +574,25 @@ export const en = {
       subtitle: "What would you like to create today?",
       subtitleFromFiles: "Create content from your selected files",
       subtitleFromText: "Create content from your text",
-      aiWillUseDocuments: "The AI will use your selected documents as source material to create educational content.",
-      aiWillUseTextAsContext: "The AI will use your text as reference material and context to create new educational content.",
-      aiWillBuildUponText: "The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.",
-      presentationQuestion: "Do you want to create a presentation from an existing Course Outline?",
-      quizQuestion: "Do you want to create a quiz from an existing Course Outline?",
-      onePagerQuestion: "Do you want to create a one-pager from an existing Course Outline?",
+      aiWillUseDocuments:
+        "The AI will use your selected documents as source material to create educational content.",
+      aiWillUseTextAsContext:
+        "The AI will use your text as reference material and context to create new educational content.",
+      aiWillBuildUponText:
+        "The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.",
+      presentationQuestion:
+        "Do you want to create a presentation from an existing Course Outline?",
+      quizQuestion:
+        "Do you want to create a quiz from an existing Course Outline?",
+      onePagerQuestion:
+        "Do you want to create a one-pager from an existing Course Outline?",
       promptPlaceholder: "Describe what you'd like to make",
       // Additional keys for preview pages
       loading: "Generating...",
       back: "Back",
       backButton: "Back",
-      lessonQuestion: "Do you want to create a lesson from an existing Course Outline?",
+      lessonQuestion:
+        "Do you want to create a lesson from an existing Course Outline?",
       yesContentForLesson: "Yes, content for the lesson from the outline",
       noStandaloneLesson: "No, I want standalone lesson",
       yesContentForQuiz: "Yes, content for the quiz from the outline",
@@ -642,9 +676,11 @@ export const en = {
       generatingOnePagerContent: "Generating one-pager content...",
       onePagerContentPlaceholder: "One-pager content will appear here...",
       finalizingOnePager: "Finalizing one-pager...",
-      failedToGenerateOnePager: "Failed to generate one-pager – please try again later.",
+      failedToGenerateOnePager:
+        "Failed to generate one-pager – please try again later.",
       untitledOnePager: "Untitled One-Pager",
-      adjustTextAndImageStyles: "Adjust text and image styles for your one-pager",
+      adjustTextAndImageStyles:
+        "Adjust text and image styles for your one-pager",
       // Theme options
       wine: "Wine",
       default: "Default",
@@ -652,15 +688,16 @@ export const en = {
       deloitte: "Deloitte",
       lunaria: "Lunaria",
       zephyr: "Zephyr",
-
     },
 
     // Theme picker translations
     themePicker: {
       title: "Presentation Themes",
-      description: "Choose a theme to change the visual style of your presentation. Changes will be applied immediately.",
+      description:
+        "Choose a theme to change the visual style of your presentation. Changes will be applied immediately.",
       applying: "Applying...",
-      footerInfo: "Theme changes are automatically saved and will be applied to your PDF downloads."
+      footerInfo:
+        "Theme changes are automatically saved and will be applied to your PDF downloads.",
     },
 
     // Course Outline specific translations
@@ -697,12 +734,13 @@ export const en = {
       credits: "credits",
       generate: "Generate",
       helpComingSoon: "Help (coming soon)",
-      finalizingProduct: "Finalizing product..."
+      finalizingProduct: "Finalizing product...",
     },
 
     // Pipelines
     pipelines: {
-      deleteConfirmation: "Are you sure you want to delete the product \"{name}\"? This action cannot be undone."
+      deleteConfirmation:
+        'Are you sure you want to delete the product "{name}"? This action cannot be undone.',
     },
 
     // Project View Page
@@ -721,10 +759,13 @@ export const en = {
       visibleColumns: "Visible Columns",
       loadingContentDisplay: "Loading content display...",
       contentDetails: "Content Details",
-      utilizesDesignComponent: "This project instance utilizes the design component:",
+      utilizesDesignComponent:
+        "This project instance utilizes the design component:",
       unknownComponent: "Unknown",
-      specificUIForDirectViewing: "A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.",
-      editGeneralDetails: "You can typically edit the project's general details (like name or design template) via the main project editing page.",
+      specificUIForDirectViewing:
+        "A specific UI for direct viewing or editing this component type might not yet be fully implemented on this page.",
+      editGeneralDetails:
+        "You can typically edit the project's general details (like name or design template) via the main project editing page.",
       toggleRawContentPreview: "Toggle Raw Content Preview",
       noSlideDeckData: "No slide deck data available",
       // Theme-related translations
@@ -732,29 +773,38 @@ export const en = {
       changeTheme: "Change presentation theme",
       changingTheme: "Changing...",
       projectDataNotLoaded: "Project data not loaded yet.",
-      contentEditingNotSupported: "Content editing is currently supported for {types} types on this page.",
-      projectDataOrIdNotAvailable: "Project data or ID is not available for download.",
+      contentEditingNotSupported:
+        "Content editing is currently supported for {types} types on this page.",
+      projectDataOrIdNotAvailable:
+        "Project data or ID is not available for download.",
       errorProjectIdOrDataMissing: "Error: Project ID or data is missing.",
-      errorProjectInstanceDataNotLoaded: "Error: Project instance data not loaded.",
-      errorCannotSaveComponentType: "Error: Cannot save. Content editing for this component type is not supported here.",
+      errorProjectInstanceDataNotLoaded:
+        "Error: Project instance data not loaded.",
+      errorCannotSaveComponentType:
+        "Error: Cannot save. Content editing for this component type is not supported here.",
       contentSavedSuccessfully: "Content saved successfully!",
       saveFailed: "Save failed: {error}",
-      errorProjectIdOrEditableDataMissing: "Project ID or editable data is missing.",
-      errorProjectInstanceDataNotLoadedForSave: "Project instance data not loaded.",
-      errorContentEditingNotSupportedForSave: "Content editing is not supported for this component type on this page.",
+      errorProjectIdOrEditableDataMissing:
+        "Project ID or editable data is missing.",
+      errorProjectInstanceDataNotLoadedForSave:
+        "Project instance data not loaded.",
+      errorContentEditingNotSupportedForSave:
+        "Content editing is not supported for this component type on this page.",
       errorFailedToSaveModuleTierSetting: "Failed to save module tier setting",
       errorFailedToSaveLessonTierSetting: "Failed to save lesson tier setting",
       errorFailedToMoveToTrash: "Could not move to trash",
       // New translations for missing strings
       invalidProjectIdFormat: "Invalid Project ID format.",
-      couldNotFetchFullProjectsList: "Could not fetch full projects list to determine parent project name.",
+      couldNotFetchFullProjectsList:
+        "Could not fetch full projects list to determine parent project name.",
       newTrainingPlanTitle: "New Training Plan",
       newPdfLessonTitle: "New PDF Lesson",
       newSlideDeckTitle: "New Slide Deck",
       newVideoLessonTitle: "New Video Lesson",
       newQuizTitle: "New Quiz",
       newTextPresentationTitle: "New Text Presentation",
-      unknownErrorOccurred: "An unknown error occurred while fetching project data.",
+      unknownErrorOccurred:
+        "An unknown error occurred while fetching project data.",
       projectIdMissing: "Project ID is missing in URL.",
       projectIdOrEditableDataMissing: "Project ID or editable data is missing.",
       validationError: "Validation error",
@@ -762,7 +812,8 @@ export const en = {
       couldNotSaveData: "Could not save data.",
       contentEditingSupported: "Content editing is currently supported for",
       typesOnThisPage: "types on this page.",
-      projectDataOrIdNotAvailableForDownload: "Project data or ID is not available for download.",
+      projectDataOrIdNotAvailableForDownload:
+        "Project data or ID is not available for download.",
       failedToMoveToTrash: "Failed to move to trash",
       couldNotMoveToTrash: "Could not move to trash",
       loadingProject: "Loading project details...",
@@ -770,7 +821,7 @@ export const en = {
       projectNotFound: "Project not found or data unavailable.",
       project: "Project",
       configureVisibleColumns: "Configure visible columns",
-      moveToTrashTooltip: "Move this product to Trash"
-    }
-  }
-}; 
+      moveToTrashTooltip: "Move this product to Trash",
+    },
+  },
+};
