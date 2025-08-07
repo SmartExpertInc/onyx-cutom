@@ -143,6 +143,10 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
+  // Ensure text colors have good contrast
+  const safeTitleColor = titleColor === '#ffffff' ? '#333333' : titleColor;
+  const safeContentColor = contentColor === '#ffffff' ? '#333333' : contentColor;
+  
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
@@ -251,7 +255,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: '2.5rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
+    color: safeTitleColor,
     marginBottom: '16px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
@@ -261,7 +265,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   const subtitleStyles: React.CSSProperties = {
     fontSize: '1.5rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: safeContentColor,
     marginBottom: '16px',
     lineHeight: '1.6',
     wordWrap: 'break-word',
@@ -271,7 +275,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   const contentStyles: React.CSSProperties = {
     fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: safeContentColor,
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word'

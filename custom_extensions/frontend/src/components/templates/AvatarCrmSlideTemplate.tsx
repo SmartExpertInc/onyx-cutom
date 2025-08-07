@@ -141,6 +141,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   isEditable = false
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  
+  // Ensure text colors have good contrast
+  const safeTitleColor = titleColor === '#ffffff' ? '#333333' : titleColor;
+  const safeContentColor = contentColor === '#ffffff' ? '#333333' : contentColor;
   
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -197,8 +202,9 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
     height: '100vh',
+    backgroundColor: backgroundColor,
     display: 'flex',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: currentTheme.fonts.contentFont,
     overflow: 'hidden'
   };
 
@@ -366,18 +372,14 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     color: '#666'
   };
 
-  // Image Placeholder Styles (50% width of right panel, full height)
+  // Image Placeholder Styles (full width of right panel, full height)
   const imagePlaceholderStyles: React.CSSProperties = {
-    position: 'absolute',
-    right: '0',
-    top: '0',
-    width: '50%',
+    width: '100%',
     height: '100%',
     backgroundColor: '#f0f0f0',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderLeft: '1px solid #e0e0e0'
+    justifyContent: 'center'
   };
 
   return (
@@ -516,41 +518,8 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
         </div>
       </div>
 
-      {/* Right Panel - Light CRM Interface */}
+      {/* Right Panel - Image Only */}
       <div style={rightPanelStyles}>
-        {/* CRM Interface */}
-        <div style={crmContainerStyles}>
-          <div style={crmHeaderStyles}>
-            <span style={crmTitleStyles}>Clients list</span>
-            <span style={crmCloseStyles}>×</span>
-          </div>
-          <div style={crmSubtitleStyles}>
-            View, add, edit and delete your client's detail
-          </div>
-          <input 
-            type="text" 
-            placeholder="🔍 Name, email or phone" 
-            style={searchBarStyles}
-            readOnly
-          />
-          <div style={clientListStyles}>
-            <div style={clientItemStyles}>
-              <div style={avatarStyles}>J</div>
-              <div style={clientInfoStyles}>
-                <div style={clientNameStyles}>Jane Doe</div>
-                <div style={clientEmailStyles}>jane@example.com</div>
-              </div>
-            </div>
-            <div style={clientItemStyles}>
-              <div style={avatarStyles}>J</div>
-              <div style={clientInfoStyles}>
-                <div style={clientNameStyles}>John Doe</div>
-                <div style={clientEmailStyles}>john@example.com</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Image Placeholder - 50% width of right panel, full height */}
         <div style={imagePlaceholderStyles}>
           <ClickableImagePlaceholder

@@ -147,6 +147,10 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
+  // Ensure text colors have good contrast
+  const safeTitleColor = titleColor === '#ffffff' ? '#333333' : titleColor;
+  const safeContentColor = contentColor === '#ffffff' ? '#333333' : contentColor;
+  
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingItems, setEditingItems] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -236,7 +240,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: '2.2rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
+    color: safeTitleColor,
     marginBottom: '32px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
@@ -256,7 +260,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     gap: '16px',
     fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: safeContentColor,
     lineHeight: '1.4',
     padding: '8px 0'
   };
@@ -264,7 +268,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   const iconStyles: React.CSSProperties = {
     fontSize: '1.4rem',
     fontWeight: 'bold',
-    color: titleColor,
+    color: safeTitleColor,
     minWidth: '24px'
   };
 
@@ -283,7 +287,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     left: 0,
     width: '500px',
     height: '400px',
-    backgroundColor: titleColor,
+    backgroundColor: safeTitleColor,
     borderRadius: '0 0 250px 0',
     zIndex: 1
   };
@@ -366,7 +370,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
           <div style={checklistContainerStyles}>
             {items.map((item, index) => (
               <div key={index} style={checklistItemStyles}>
-                <span style={{ ...iconStyles, color: item.isPositive ? titleColor : '#ff4444' }}>
+                <span style={{ ...iconStyles, color: item.isPositive ? safeTitleColor : '#ff4444' }}>
                   {item.isPositive ? '✓' : '✗'}
                 </span>
                 {isEditable && editingItems.includes(index) ? (

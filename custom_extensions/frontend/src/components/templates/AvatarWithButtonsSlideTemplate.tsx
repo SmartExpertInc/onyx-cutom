@@ -147,6 +147,10 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
+  // Ensure text colors have good contrast
+  const safeTitleColor = titleColor === '#ffffff' ? '#333333' : titleColor;
+  const safeContentColor = contentColor === '#ffffff' ? '#333333' : contentColor;
+  
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingButtons, setEditingButtons] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -242,7 +246,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     fontSize: '1.3rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: '#ffffff',
-    backgroundColor: titleColor,
+    backgroundColor: safeTitleColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
@@ -265,7 +269,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
+    color: safeTitleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
