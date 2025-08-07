@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
+//template
 export interface PyramidItem {
   heading: string;
   description: string;
