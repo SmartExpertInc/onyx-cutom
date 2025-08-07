@@ -10,13 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Mont Font Family - Used in Chudo Themes */
+        /* Mont Font Family - Used in Chudo Themes (Optimized - Only Essential Fonts) */
         @font-face {
           font-family: 'Mont Regular';
           src: url('/fonts/fonnts.com-Mont_Regular.ttf') format('truetype');
           font-weight: 400;
           font-style: normal;
-          font-display: swap;
+          font-display: block; /* Changed from swap to block for faster PDF rendering */
         }
 
         @font-face {
@@ -24,40 +24,7 @@
           src: url('/fonts/fonnts.com-Mont_Bold.ttf') format('truetype');
           font-weight: 700;
           font-style: normal;
-          font-display: swap;
-        }
-
-        @font-face {
-          font-family: 'Mont Thin';
-          src: url('/fonts/fonnts.com-Mont_Thin.ttf') format('truetype');
-          font-weight: 100;
-          font-style: normal;
-          font-display: swap;
-        }
-
-        /* Mont Blanc variants (additional weights if needed) */
-        @font-face {
-          font-family: 'Mont Blanc Regular';
-          src: url('/fonts/fonnts.com-Mont_Blanc_Regular_Italic.ttf') format('truetype');
-          font-weight: 400;
-          font-style: italic;
-          font-display: swap;
-        }
-
-        @font-face {
-          font-family: 'Mont Blanc Bold';
-          src: url('/fonts/fonnts.com-Mont_Blanc_Bold_Italic.ttf') format('truetype');
-          font-weight: 700;
-          font-style: italic;
-          font-display: swap;
-        }
-
-        @font-face {
-          font-family: 'Mont Blanc ExtraBold';
-          src: url('/fonts/fonnts.com-Mont_Blanc_ExtraBold.ttf') format('truetype');
-          font-weight: 800;
-          font-style: normal;
-          font-display: swap;
+          font-display: block; /* Changed from swap to block for faster PDF rendering */
         }
         /* Reset and base styles */
         html, body {
@@ -186,6 +153,8 @@
             --border-color: rgb(0, 102, 79);
             --title-font: 'Montserrat', sans-serif;
             --content-font: 'Montserrat', sans-serif;
+            --title-size: 40px;
+            --content-size: 16px;
         }
         
         /* Forta 2 Theme */

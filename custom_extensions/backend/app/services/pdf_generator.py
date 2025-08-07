@@ -15,6 +15,7 @@ import json
 from datetime import datetime
 import base64
 import mimetypes
+import functools
 
 # Attempt to import settings (as before)
 try:
@@ -49,14 +50,14 @@ PDF_CACHE_DIR.mkdir(exist_ok=True)
 
 CHROME_EXEC_PATH = '/usr/bin/chromium'
 
-# Configuration constants for PDF generation - OPTIMIZED
+# Configuration constants for PDF generation - PERFORMANCE OPTIMIZED
 PDF_MIN_SLIDE_HEIGHT = 600
 PDF_MAX_SLIDE_HEIGHT = 3000
 PDF_HEIGHT_SAFETY_MARGIN = 40
-PDF_GENERATION_TIMEOUT = 60000  # Increased to 60 seconds
-PDF_PAGE_TIMEOUT = 30000  # 30 seconds per page
-MAX_CONCURRENT_SLIDES = 3  # Limit concurrent processing
-BROWSER_MEMORY_LIMIT = 1024  # MB
+PDF_GENERATION_TIMEOUT = 30000  # Reduced from 60s to 30s
+PDF_PAGE_TIMEOUT = 10000  # Reduced from 30s to 10s per page
+MAX_CONCURRENT_SLIDES = 2  # Reduced from 3 to 2 for stability
+BROWSER_MEMORY_LIMIT = 512  # Reduced from 1024 to 512 MB
 
 # --- Setup Jinja2 Environment ---
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -82,6 +83,23 @@ def shuffle_filter(seq):
         return seq
 
 jinja_env.filters['shuffle'] = shuffle_filter
+
+# Timeout wrapper to prevent 504 Gateway Timeout errors
+def timeout_wrapper(timeout_seconds: int):
+    """Decorator to add timeout to async functions to prevent 504 errors."""
+    def decorator(func):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                return await asyncio.wait_for(func(*args, **kwargs), timeout=timeout_seconds)
+            except asyncio.TimeoutError:
+                logger.error(f"Function {func.__name__} timed out after {timeout_seconds} seconds")
+                raise HTTPException(
+                    status_code=408, 
+                    detail=f"PDF generation timed out after {timeout_seconds} seconds. Please try with fewer slides or simpler content."
+                )
+        return wrapper
+    return decorator
 
 # Enhanced logging functions for debugging
 async def log_slide_data_structure(slide_data: dict, slide_index: int = None, template_id: str = None):
@@ -302,8 +320,8 @@ async def log_computed_styles(page, slide_index: int = None, template_id: str = 
 
 # Optimized browser launch options
 def get_browser_launch_options():
-    """Get optimized browser launch options for better stability and debugging."""
-    logger.info("Configuring browser launch options for enhanced debugging")
+    """Get optimized browser launch options for performance and stability."""
+    logger.info("Configuring browser launch options for optimal performance")
     return {
         'headless': 'new',
         'args': [
@@ -324,9 +342,16 @@ def get_browser_launch_options():
             '--no-first-run', 
             '--safeBrowse-disable-auto-update',
             '--font-render-hinting=none',
-            '--enable-font-antialiasing'
+            '--enable-font-antialiasing',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-features=TranslateUI',
+            '--disable-ipc-flooding-protection',
+            '--disable-web-security',
+            '--allow-running-insecure-content'
         ],
-        'dumpio': True,  # Capture browser console output
+        'dumpio': False,  # Disabled for performance
         'devtools': False,
         'ignoreHTTPSErrors': True,
         'defaultViewport': None,
@@ -555,12 +580,21 @@ async def generate_pdf_from_html_template(
         await page.setContent(html_content)
         logger.info("HTML content set in Pyppeteer page.")
         
-        # Wait for fonts to load and rendering to complete
-        await page.waitForFunction("""
-            () => {
-                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-            }
-        """, timeout=10000)
+        # Wait for fonts to load and rendering to complete - OPTIMIZED
+        try:
+            await page.waitForFunction("""
+                () => {
+                    // Quick font readiness check with fallback
+                    if (document.fonts && document.fonts.ready) {
+                        return document.fonts.ready.then(() => true);
+                    }
+                    // Fallback: just check if document is loaded
+                    return document.readyState === 'complete';
+                }
+            """, timeout=5000)  # Reduced from 10s to 5s
+        except Exception as e:
+            logger.warning(f"Font loading timeout, proceeding anyway: {e}")
+            # Continue with PDF generation even if fonts aren't fully loaded
         
         # Additional delay for complex rendering
         await asyncio.sleep(2)
@@ -870,11 +904,20 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         
         # Set content and wait for rendering
         await page.setContent(html_content)
-        await page.waitForFunction("""
-            () => {
-                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-            }
-        """, timeout=PDF_PAGE_TIMEOUT)
+        try:
+            await page.waitForFunction("""
+                () => {
+                    // Quick font readiness check with fallback
+                    if (document.fonts && document.fonts.ready) {
+                        return document.fonts.ready.then(() => true);
+                    }
+                    // Fallback: just check if document is loaded
+                    return document.readyState === 'complete';
+                }
+            """, timeout=3000)  # Even shorter timeout for height calculation
+        except Exception as e:
+            logger.warning(f"Font loading timeout during height calculation for {template_id}, proceeding anyway: {e}")
+            # Continue with height calculation even if fonts aren't fully loaded
         
         # Additional delay for complex rendering
         await asyncio.sleep(1)
@@ -956,8 +999,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
     """
     logger.info(f"=== STARTING ENHANCED SINGLE SLIDE PDF GENERATION ===")
     
-    # Log slide data structure
-    await log_slide_data_structure(slide_data, slide_index, template_id)
+    # Simplified logging for performance
+    # await log_slide_data_structure(slide_data, slide_index, template_id)  # Disabled for performance
     
     should_close_browser = browser is None
     page = None
@@ -1121,8 +1164,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             html_content = template.render(**context_data)
             logger.info("Template rendered successfully")
             
-            # Log HTML content for debugging
-            await log_html_content(html_content, slide_index, template_id)
+            # Log HTML content for debugging - DISABLED FOR PERFORMANCE
+            # await log_html_content(html_content, slide_index, template_id)
             
         except Exception as template_error:
             logger.error(f"Template rendering error for {slide_info}{template_info}: {template_error}", exc_info=True)
@@ -1153,21 +1196,30 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         await page.setContent(html_content)
         
         logger.info("Waiting for fonts to load")
-        await page.waitForFunction("""
-            () => {
-                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-            }
-        """, timeout=PDF_PAGE_TIMEOUT)
+        try:
+            await page.waitForFunction("""
+                () => {
+                    // Quick font readiness check with fallback
+                    if (document.fonts && document.fonts.ready) {
+                        return document.fonts.ready.then(() => true);
+                    }
+                    // Fallback: just check if document is loaded
+                    return document.readyState === 'complete';
+                }
+            """, timeout=5000)  # Fixed timeout to 5s instead of PDF_PAGE_TIMEOUT
+        except Exception as e:
+            logger.warning(f"Font loading timeout for {slide_info}{template_info}, proceeding anyway: {e}")
+            # Continue with PDF generation even if fonts aren't fully loaded
         
         # Additional delay for complex rendering
         await asyncio.sleep(1)
         logger.info("Rendering delay completed")
         
-        # Log computed styles
-        await log_computed_styles(page, slide_index, template_id)
+        # Log computed styles - DISABLED FOR PERFORMANCE
+        # await log_computed_styles(page, slide_index, template_id)
         
-        # Log browser console output
-        await log_browser_console_output(page, slide_index, template_id)
+        # Log browser console output - DISABLED FOR PERFORMANCE
+        # await log_browser_console_output(page, slide_index, template_id)
         
         # Generate PDF with exact dimensions
         await page.pdf({
@@ -1224,6 +1276,7 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     
     return successful_paths
 
+@timeout_wrapper(120)  # 2 minute timeout to prevent 504 errors
 async def generate_slide_deck_pdf_with_dynamic_height(
     slides_data: list,
     theme: str,
