@@ -28,6 +28,9 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
     const container = enhancerRef.current.parentElement;
     if (!container) return;
 
+    // Small delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+
     // Find all draggable elements in the template
     const draggableSelectors = [
       // Primary elements - titles and headers
@@ -54,6 +57,13 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
     const elements = container.querySelectorAll(draggableSelectors.join(', '));
     
+    // Debug: log what we found
+    console.log(`🔍 DragEnhancer Debug for slide ${slideId}:`);
+    console.log(`   - Container:`, container);
+    console.log(`   - Selectors:`, draggableSelectors.join(', '));
+    console.log(`   - Found ${elements.length} elements:`, Array.from(elements));
+    console.log(`   - isEnabled:`, isEnabled);
+    
     elements.forEach((element, index) => {
       const htmlElement = element as HTMLElement;
       const elementId = htmlElement.id || `draggable-${slideId}-${index}`;
@@ -62,13 +72,17 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.id = elementId;
       }
 
-      // Add drag cursor
+      // Add drag cursor and debug styling
       htmlElement.style.cursor = 'move';
+      htmlElement.style.transition = 'box-shadow 0.2s ease';
+      
+      // Debug: Add a visible border to confirm element is detected
+      htmlElement.style.border = '1px dashed rgba(59, 130, 246, 0.3)';
       
       // Add hover effect
-      htmlElement.style.transition = 'box-shadow 0.2s ease';
       htmlElement.addEventListener('mouseenter', () => {
-        htmlElement.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+        htmlElement.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.5)';
+        console.log(`🖱️ Hovering over draggable element:`, elementId, htmlElement);
       });
       
       htmlElement.addEventListener('mouseleave', () => {
@@ -93,7 +107,12 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       }
 
       const handleMouseDown = (e: MouseEvent) => {
-        if (e.target !== htmlElement && !htmlElement.contains(e.target as Node)) return;
+        console.log(`🖱️ MouseDown on element:`, elementId, e.target);
+        
+        if (e.target !== htmlElement && !htmlElement.contains(e.target as Node)) {
+          console.log(`❌ MouseDown ignored - target not in element`);
+          return;
+        }
         
         // Don't interfere with text selection or input focus
         const target = e.target as HTMLElement;
@@ -106,9 +125,11 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             target.closest('.inline-editor-challenge') ||
             target.closest('.inline-editor-solution') ||
             target.closest('.inline-editor-solutions-title')) {
+          console.log(`❌ MouseDown ignored - text editing element`);
           return;
         }
 
+        console.log(`✅ Starting drag for element:`, elementId);
         isDragging = true;
         startX = e.clientX - currentX;
         startY = e.clientY - currentY;
@@ -174,6 +195,21 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         const cleanup = (element as any).__dragCleanup;
         if (cleanup) cleanup();
       });
+    };
+    
+    }, 100); // 100ms delay
+
+    // Cleanup function for the effect
+    return () => {
+      clearTimeout(timer);
+      // Also cleanup any existing elements
+      if (container) {
+        const elements = container.querySelectorAll('[data-draggable="true"], h1, h2, h3');
+        elements.forEach(element => {
+          const cleanup = (element as any).__dragCleanup;
+          if (cleanup) cleanup();
+        });
+      }
     };
   }, [isEnabled, slideId, savedPositions, onPositionChange]);
 

@@ -298,6 +298,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
             }
           }}
           className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -337,6 +338,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
               }
             }}
             className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            data-draggable="true"
           >
             {subtitle}
           </h2>
@@ -345,7 +347,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
 
       {/* Metadata */}
       {(author || date) && (
-        <div style={metadataStyles}>
+        <div style={metadataStyles} data-draggable="true">
           {author && (
             isEditable && editingAuthor ? (
               <InlineEditor

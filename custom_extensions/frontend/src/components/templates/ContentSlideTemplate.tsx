@@ -344,6 +344,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -384,6 +385,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {content ? parseContent(content) : <p>Click to add content...</p>}
         </div>
