@@ -92,7 +92,8 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          overflowWrap: 'anywhere'
+          overflowWrap: 'anywhere',
+          color: 'inherit'
         }}
       />
     );
@@ -116,9 +117,10 @@ function InlineEditor({
           boxShadow: 'none',
           width: '100%',
           wordWrap: 'break-word',
-                  boxSizing: 'border-box',
-        display: 'block'
-      }}
+          boxSizing: 'border-box',
+          display: 'block',
+          color: 'inherit'
+        }}
     />
   );
 }
@@ -231,7 +233,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
+    color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',

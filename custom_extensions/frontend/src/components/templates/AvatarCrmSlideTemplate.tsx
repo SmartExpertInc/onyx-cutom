@@ -92,7 +92,8 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          overflowWrap: 'anywhere'
+          overflowWrap: 'anywhere',
+          color: 'inherit'
         }}
       />
     );
@@ -117,7 +118,8 @@ function InlineEditor({
         width: '100%',
         wordWrap: 'break-word',
         boxSizing: 'border-box',
-        display: 'block'
+        display: 'block',
+        color: 'inherit'
       }}
     />
   );
@@ -200,18 +202,17 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100vh',
+    height: '100%',
     minHeight: '600px',
     backgroundColor,
     display: 'flex',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    overflow: 'hidden'
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
   const leftPanelStyles: React.CSSProperties = {
     width: '40%',
-    height: '100vh',
+    height: '100%',
     backgroundColor: backgroundColor,
     padding: '60px 40px',
     display: 'flex',
@@ -222,7 +223,10 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const rightPanelStyles: React.CSSProperties = {
     width: '60%',
-    height: '100vh',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative'
   };
 
@@ -399,11 +403,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block',
+                color: 'inherit',
                 margin: '0',
                 padding: '8px 12px',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                borderRadius: '4px',
-                color: '#ffffff'
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px'
               }}
             />
           ) : (
@@ -441,11 +445,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   wordWrap: 'break-word',
                   boxSizing: 'border-box',
                   display: 'block',
-                  color: '#ffffff',
+                  color: 'inherit',
                   margin: '0',
-                  padding: '8px 12px',
+                  padding: '0',
                   fontSize: '1rem',
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '4px'
                 }}
               />
@@ -482,11 +486,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   wordWrap: 'break-word',
                   boxSizing: 'border-box',
                   display: 'block',
-                  color: '#ffffff',
+                  color: 'inherit',
                   margin: '0',
-                  padding: '8px 12px',
+                  padding: '0',
                   fontSize: '1rem',
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '4px'
                 }}
               />
@@ -523,20 +527,15 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
           imagePath={avatarPath}
           onImageUploaded={handleAvatarUploaded}
           size="LARGE"
-          position="BACKGROUND"
+          position="CENTER"
           description="Click to upload image"
           prompt="Professional business or beauty industry image"
-          className="!h-full !max-h-none !m-0 !mb-0"
+          className="!h-full !max-h-none"
           style={{
             width: '100%',
-            height: '100vh',
+            height: '100%',
             objectFit: 'cover',
-            borderRadius: '0',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0
+            borderRadius: '0'
           }}
         />
       </div>

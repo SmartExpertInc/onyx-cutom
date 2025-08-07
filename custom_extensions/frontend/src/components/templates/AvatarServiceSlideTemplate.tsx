@@ -92,7 +92,8 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          overflowWrap: 'anywhere'
+          overflowWrap: 'anywhere',
+          color: 'inherit'
         }}
       />
     );
@@ -116,9 +117,10 @@ function InlineEditor({
           boxShadow: 'none',
           width: '100%',
           wordWrap: 'break-word',
-                  boxSizing: 'border-box',
-        display: 'block'
-      }}
+          boxSizing: 'border-box',
+          display: 'block',
+          color: 'inherit'
+        }}
     />
   );
 }
@@ -315,9 +317,8 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                borderRadius: '4px',
-                color: '#ffffff'
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px'
               }}
             />
           ) : (
