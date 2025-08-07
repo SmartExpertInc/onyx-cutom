@@ -143,9 +143,9 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Ensure text colors have good contrast
-  const safeTitleColor = titleColor === '#ffffff' ? '#333333' : titleColor;
-  const safeContentColor = contentColor === '#ffffff' ? '#333333' : contentColor;
+  // Ensure text colors have good contrast and are pleasant
+  const safeTitleColor = titleColor === '#ffffff' ? '#2c3e50' : titleColor;
+  const safeContentColor = contentColor === '#ffffff' ? '#34495e' : contentColor;
   
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -211,8 +211,8 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   // Left Panel - Dark Promotional Section (40% width)
   const leftPanelStyles: React.CSSProperties = {
     width: '40%',
-    backgroundColor: '#1a1a1a',
-    color: 'white',
+    backgroundColor: safeTitleColor === '#333333' ? '#1a1a1a' : safeTitleColor,
+    color: safeTitleColor === '#333333' ? 'white' : '#ffffff',
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
@@ -225,7 +225,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   // Right Panel - Light CRM Interface (60% width)
   const rightPanelStyles: React.CSSProperties = {
     width: '60%',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: safeContentColor === '#333333' ? '#f8f9fa' : safeContentColor,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative'
@@ -249,8 +249,8 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   // Pink Banner Styles
   const bannerStyles: React.CSSProperties = {
-    backgroundColor: '#FF1493',
-    color: 'white',
+    backgroundColor: safeTitleColor === '#333333' ? '#FF1493' : safeTitleColor,
+    color: safeTitleColor === '#333333' ? 'white' : '#ffffff',
     padding: '16px 24px',
     borderRadius: '8px',
     fontSize: '1.2rem',
@@ -275,11 +275,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     alignItems: 'center',
     gap: '12px',
     fontSize: '1rem',
-    color: 'white'
+    color: safeTitleColor === '#333333' ? 'white' : '#ffffff'
   };
 
   const checkmarkStyles: React.CSSProperties = {
-    color: '#FF1493',
+    color: safeTitleColor === '#333333' ? '#FF1493' : safeTitleColor,
     fontSize: '1.2rem',
     fontWeight: 'bold'
   };

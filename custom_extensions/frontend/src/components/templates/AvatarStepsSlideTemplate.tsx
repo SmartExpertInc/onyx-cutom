@@ -148,9 +148,9 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
-  // Ensure text colors have good contrast
-  const safeTitleColor = titleColor === '#ffffff' ? '#333333' : titleColor;
-  const safeContentColor = contentColor === '#ffffff' ? '#333333' : contentColor;
+  // Ensure text colors have good contrast and are pleasant
+  const safeTitleColor = titleColor === '#ffffff' ? '#2c3e50' : titleColor;
+  const safeContentColor = contentColor === '#ffffff' ? '#34495e' : contentColor;
   
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSteps, setEditingSteps] = useState<number[]>([]);
