@@ -522,8 +522,21 @@ export default function TextPresentationClient() {
       
       setFinalProjectId(data.id);
       
-      // Navigate immediately without delay to prevent cancellation
-      router.push(`/projects/view/${data.id}`);
+      // Prefetch view page and poll readiness before navigating
+      try { router.prefetch(`/projects/view/${data.id}`); } catch {}
+
+      // Poll the project view endpoint until it is ready (avoid 504 on first hit)
+      const maxWaitMs = 45000;
+      const start = Date.now();
+      while (Date.now() - start < maxWaitMs) {
+        try {
+          const ping = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${data.id}`, { cache: 'no-store' });
+          if (ping.ok) break;
+        } catch {}
+        await new Promise(r => setTimeout(r, 600));
+      }
+
+      router.replace(`/projects/view/${data.id}`);
       
     } catch (error: any) {
       // Clear timeout on error

@@ -634,8 +634,19 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
-      // Navigate immediately without delay to prevent cancellation
-      router.push(`/projects/view/${data.id}`);
+      // Prefetch view page and poll readiness before navigating
+      try { router.prefetch(`/projects/view/${data.id}`); } catch {}
+      const maxWaitMs = 45000;
+      const start = Date.now();
+      while (Date.now() - start < maxWaitMs) {
+        try {
+          const ping = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${data.id}`, { cache: 'no-store' });
+          if (ping.ok) break;
+        } catch {}
+        await new Promise(r => setTimeout(r, 600));
+      }
+
+      router.replace(`/projects/view/${data.id}`);
 
     } catch (e: any) {
       // Clear timeout on error
