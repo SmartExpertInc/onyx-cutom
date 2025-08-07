@@ -321,14 +321,14 @@
 .positioning-enabled-slide h1,
 .positioning-enabled-slide h2,
 .positioning-enabled-slide h3,
-.positioning-enabled-slide [class*="-template"] > div:not(:first-child),
-.positioning-enabled-slide div[style*="display: flex"],
-.positioning-enabled-slide div[style*="flexDirection: row"],
-.positioning-enabled-slide div[style*="flexDirection: column"],
 .positioning-enabled-slide ul,
 .positioning-enabled-slide ol,
 .positioning-enabled-slide p,
-.positioning-enabled-slide [data-draggable="true"] {
+.positioning-enabled-slide [data-draggable="true"],
+.positioning-enabled-slide div[style*="display: flex"]:not([class*="-template"]),
+.positioning-enabled-slide div[style*="flexDirection: row"]:not([class*="-template"]),
+.positioning-enabled-slide div[style*="flexDirection: column"]:not([class*="-template"]),
+.positioning-enabled-slide [class*="-template"] > div:not(:first-child):not([class*="-template"]) {
   position: relative;
   transition: transform 0.1s ease-out, box-shadow 0.2s ease;
   cursor: move;
@@ -339,14 +339,14 @@
 .positioning-enabled-slide h1:hover,
 .positioning-enabled-slide h2:hover,
 .positioning-enabled-slide h3:hover,
-.positioning-enabled-slide [class*="-template"] > div:not(:first-child):hover,
-.positioning-enabled-slide div[style*="display: flex"]:hover,
-.positioning-enabled-slide div[style*="flexDirection: row"]:hover,
-.positioning-enabled-slide div[style*="flexDirection: column"]:hover,
 .positioning-enabled-slide ul:hover,
 .positioning-enabled-slide ol:hover,
 .positioning-enabled-slide p:hover,
-.positioning-enabled-slide [data-draggable="true"]:hover {
+.positioning-enabled-slide [data-draggable="true"]:hover,
+.positioning-enabled-slide div[style*="display: flex"]:not([class*="-template"]):hover,
+.positioning-enabled-slide div[style*="flexDirection: row"]:not([class*="-template"]):hover,
+.positioning-enabled-slide div[style*="flexDirection: column"]:not([class*="-template"]):hover,
+.positioning-enabled-slide [class*="-template"] > div:not(:first-child):not([class*="-template"]):hover {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
   z-index: 10;
 }

@@ -13,6 +13,22 @@ interface DragEnhancerProps {
   onPositionChange?: (elementId: string, position: { x: number; y: number }) => void;
 }
 
+// Helper function to calculate the depth/distance between target and container
+const getElementDepth = (target: HTMLElement, container: HTMLElement): number => {
+  if (target === container) return 0;
+  
+  let depth = 0;
+  let current = target;
+  
+  while (current && current !== container && current.parentElement) {
+    depth++;
+    current = current.parentElement;
+    if (depth > 100) break; // Prevent infinite loops
+  }
+  
+  return current === container ? depth : Infinity;
+};
+
 export const DragEnhancer: React.FC<DragEnhancerProps> = ({
   isEnabled,
   slideId,
@@ -33,35 +49,44 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
     // Find all draggable elements in the template
     const draggableSelectors = [
+      // Explicit markers (highest priority)
+      '[data-draggable="true"]',
+      
       // Primary elements - titles and headers
       'h1',
       'h2', 
       'h3',
       
-      // Main content containers - these are the key draggable elements
-      '[class*="-template"] > div:not(:first-child)', // Direct children of template (skip title)
-      
-      // Specific content elements
-      'div[style*="display: flex"]', // Main flex containers
-      'div[style*="flexDirection: row"]', // Row containers
-      'div[style*="flexDirection: column"]', // Column containers
-      
-      // Text content
+      // Text content elements
       'ul', 
       'ol', 
       'p',
       
-      // Explicit markers
-      '[data-draggable="true"]'
+      // Content containers
+      'div[style*="display: flex"]', // Flex containers
+      'div[style*="flexDirection: row"]', // Row containers
+      'div[style*="flexDirection: column"]', // Column containers
+      
+      // Direct children of templates (skip title)
+      '[class*="-template"] > div:not(:first-child)'
     ];
 
-    const elements = container.querySelectorAll(draggableSelectors.join(', '));
+    const allElements = container.querySelectorAll(draggableSelectors.join(', '));
     
-    // Debug: log what we found
+    // Filter out main template containers (they're too broad and cause conflicts)
+    const elements = Array.from(allElements).filter(element => {
+      const className = element.className;
+      // Exclude main template containers like "content-slide-template", "bullet-points-template", etc.
+      if (className && className.includes('-template') && !element.hasAttribute('data-draggable')) {
+        return false;
+      }
+      return true;
+    });
+    
+    // Debug: log what we found (filtered)
     console.log(`🔍 DragEnhancer Debug for slide ${slideId}:`);
     console.log(`   - Container:`, container);
-    console.log(`   - Selectors:`, draggableSelectors.join(', '));
-    console.log(`   - Found ${elements.length} elements:`, Array.from(elements));
+    console.log(`   - Found ${elements.length} FILTERED elements:`, Array.from(elements));
     console.log(`   - isEnabled:`, isEnabled);
     
     elements.forEach((element, index) => {
@@ -109,22 +134,40 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseDown = (e: MouseEvent) => {
         console.log(`🖱️ MouseDown on element:`, elementId, e.target);
         
-        if (e.target !== htmlElement && !htmlElement.contains(e.target as Node)) {
-          console.log(`❌ MouseDown ignored - target not in element`);
+        // Check if this is the most specific (deepest) draggable element
+        const targetElement = e.target as HTMLElement;
+        const allDraggableElements = Array.from(container.querySelectorAll(draggableSelectors.join(', ')));
+        
+        // Find the most specific draggable element (closest to the actual target)
+        let mostSpecificDraggable = null;
+        let shortestDistance = Infinity;
+        
+        for (const draggableEl of allDraggableElements) {
+          if (draggableEl.contains(targetElement) || draggableEl === targetElement) {
+            const distance = getElementDepth(targetElement, draggableEl as HTMLElement);
+            if (distance < shortestDistance) {
+              shortestDistance = distance;
+              mostSpecificDraggable = draggableEl;
+            }
+          }
+        }
+        
+        // Only proceed if this element is the most specific draggable
+        if (mostSpecificDraggable !== htmlElement) {
+          console.log(`❌ MouseDown ignored - more specific draggable element found:`, mostSpecificDraggable);
           return;
         }
         
         // Don't interfere with text selection or input focus
-        const target = e.target as HTMLElement;
-        if (target.isContentEditable || 
-            target.tagName === 'INPUT' ||
-            target.tagName === 'TEXTAREA' ||
-            target.className.includes('inline-editor') ||
-            target.closest('.inline-editor-title') ||
-            target.closest('.inline-editor-challenges-title') ||
-            target.closest('.inline-editor-challenge') ||
-            target.closest('.inline-editor-solution') ||
-            target.closest('.inline-editor-solutions-title')) {
+        if (targetElement.isContentEditable || 
+            targetElement.tagName === 'INPUT' ||
+            targetElement.tagName === 'TEXTAREA' ||
+            targetElement.className.includes('inline-editor') ||
+            targetElement.closest('.inline-editor-title') ||
+            targetElement.closest('.inline-editor-challenges-title') ||
+            targetElement.closest('.inline-editor-challenge') ||
+            targetElement.closest('.inline-editor-solution') ||
+            targetElement.closest('.inline-editor-solutions-title')) {
           console.log(`❌ MouseDown ignored - text editing element`);
           return;
         }
@@ -138,7 +181,10 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.style.userSelect = 'none';
         htmlElement.classList.add('dragging');
         
+        // CRITICAL: Stop event propagation to prevent parent elements from also dragging
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
       };
 
       const handleMouseMove = (e: MouseEvent) => {
@@ -152,6 +198,9 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         
         // Save position
         dragStateRef.current.set(elementId, { x: currentX, y: currentY });
+        
+        // Prevent event propagation during drag
+        e.stopPropagation();
       };
 
       const handleMouseUp = () => {
