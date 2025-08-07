@@ -11512,15 +11512,18 @@ async def generate_and_finalize_course_outline_for_position(
                                     lesson["completionTime"] = "5m"
                                 # Ensure all required lesson fields are present
                                 lesson.setdefault("check", {"type": "none", "text": ""})
-                                lesson.setdefault("contentAvailable", {"type": "yes", "text": "100%"})
-                                lesson.setdefault("source", "Create from scratch")
+                                # Set content coverage based on source
+                                source = lesson.get("source", "Create from scratch")
+                                content_available = {"type": "yes", "text": "0%"} if source == "Create from scratch" else {"type": "yes", "text": "0%"}
+                                lesson.setdefault("contentAvailable", content_available)
+                                lesson.setdefault("source", source)
                                 updated_lessons.append(lesson)
                             else:
                                 # If lesson is just a string, convert to proper structure
                                 updated_lessons.append({
                                     "title": str(lesson),
                                     "check": {"type": "none", "text": ""},
-                                    "contentAvailable": {"type": "yes", "text": "100%"},
+                                    "contentAvailable": {"type": "yes", "text": "0%"},
                                     "source": "Create from scratch",
                                     "hours": 1,
                                     "completionTime": "5m"

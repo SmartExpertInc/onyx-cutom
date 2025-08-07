@@ -668,7 +668,8 @@ export default function CourseOutlineClient() {
     setHasUserEdits(true);
     setPreview((prev: ModulePreview[]) => {
       const copy = [...prev];
-      copy[modIdx].lessons[lessonIdx] = value;
+      // Only update with markdown formatting if there's actual content
+      copy[modIdx].lessons[lessonIdx] = value.trim() ? value : "";
       return copy;
     });
   };
