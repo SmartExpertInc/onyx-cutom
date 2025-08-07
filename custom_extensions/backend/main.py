@@ -12517,6 +12517,9 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
         # Send completion packet with the parsed outline.
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+
+        print("FULL RESPOSE:", assistant_reply)
+
         yield (json.dumps(done_packet) + "\n").encode()
 
     return StreamingResponse(streamer(), media_type="text/plain")
