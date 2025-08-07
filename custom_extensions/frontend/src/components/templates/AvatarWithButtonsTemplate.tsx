@@ -98,7 +98,6 @@ function InlineEditor({
           lineHeight: '1.6',
           overflowWrap: 'anywhere'
         }}
-        rows={1}
       />
     );
   }
@@ -106,8 +105,8 @@ function InlineEditor({
   return (
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
       type="text"
+      className={`inline-editor-input ${className}`}
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
@@ -122,32 +121,27 @@ function InlineEditor({
         boxShadow: 'none',
         width: '100%',
         wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block',
-        lineHeight: '1.2'
+        display: 'block'
       }}
     />
   );
 }
 
-export const AvatarWithButtonsTemplate: React.FC<AvatarWithButtonsProps & { 
+export const AvatarWithButtonsTemplate: React.FC<AvatarWithButtonsProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
   title,
   buttons = [
-    { text: 'Внимание', color: '#e91e63' },
+    { text: 'Качество', color: '#e91e63' },
     { text: 'Скорость', color: '#e91e63' },
-    { text: 'Тепло', color: '#e91e63' },
-    { text: 'Забота', color: '#e91e63' }
+    { text: 'Внимание', color: '#e91e63' },
+    { text: 'Результат', color: '#e91e63' }
   ],
   avatarPath,
   avatarAlt,
-  backgroundColor = '#1a1a2e',
-  titleColor = '#e91e63',
-  buttonColor = '#e91e63',
   slideId,
   onUpdate,
   theme,
@@ -155,143 +149,211 @@ export const AvatarWithButtonsTemplate: React.FC<AvatarWithButtonsProps & {
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingButtons, setEditingButtons] = useState<number[]>([]);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editingButtonIndex, setEditingButtonIndex] = useState<number | null>(null);
-
+  // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, buttons, avatarPath, avatarAlt, backgroundColor, titleColor, buttonColor }, title: newTitle });
+      onUpdate({ title: newTitle });
     }
-    setIsEditingTitle(false);
+    setEditingTitle(false);
   };
 
   const handleTitleCancel = () => {
-    setIsEditingTitle(false);
+    setEditingTitle(false);
   };
 
-  const handleButtonSave = (newText: string, index: number) => {
+  // Handle button text editing
+  const handleButtonSave = (index: number, newText: string) => {
     if (onUpdate) {
       const newButtons = [...buttons];
       newButtons[index] = { ...newButtons[index], text: newText };
-      onUpdate({ ...{ title, buttons, avatarPath, avatarAlt, backgroundColor, titleColor, buttonColor }, buttons: newButtons });
+      onUpdate({ buttons: newButtons });
     }
-    setEditingButtonIndex(null);
+    setEditingButtons(editingButtons.filter(i => i !== index));
   };
 
-  const handleButtonCancel = () => {
-    setEditingButtonIndex(null);
+  const handleButtonCancel = (index: number) => {
+    setEditingButtons(editingButtons.filter(i => i !== index));
   };
 
+  // Handle avatar upload
   const handleAvatarUploaded = (newAvatarPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, buttons, avatarPath, avatarAlt, backgroundColor, titleColor, buttonColor }, avatarPath: newAvatarPath });
+      onUpdate({ avatarPath: newAvatarPath });
     }
+  };
+
+  const slideStyles: React.CSSProperties = {
+    minHeight: '600px',
+    backgroundColor: backgroundColor,
+    fontFamily: currentTheme.fonts.contentFont,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '40px'
+  };
+
+  const contentContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    maxWidth: '900px',
+    gap: '32px'
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.titleSize,
+    fontFamily: currentTheme.fonts.titleFont,
+    color: titleColor,
+    marginBottom: '32px',
+    lineHeight: '1.2',
+    wordWrap: 'break-word'
+  };
+
+  const buttonsContainerStyles: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '16px',
+    width: '100%',
+    maxWidth: '600px'
+  };
+
+  const buttonStyles: React.CSSProperties = {
+    padding: '16px 24px',
+    borderRadius: '8px',
+    border: 'none',
+    fontSize: currentTheme.fonts.contentSize,
+    fontFamily: currentTheme.fonts.contentFont,
+    color: '#ffffff',
+    backgroundColor: titleColor,
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    wordWrap: 'break-word'
+  };
+
+  const avatarContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '32px'
+  };
+
+  const placeholderStyles: React.CSSProperties = {
+    width: '180px',
+    height: '180px',
+    borderRadius: '50%',
+    margin: '0 auto'
   };
 
   return (
-    <div 
-      className="slide-container relative w-full h-full flex items-center justify-center overflow-hidden"
-      style={{ 
-        backgroundColor: backgroundColor,
-        minHeight: '100vh'
-      }}
-    >
-      {/* Content container */}
-      <div className="relative z-10 w-full h-full flex">
-        {/* Left side - Avatar */}
-        <div className="w-1/3 h-full flex items-center justify-center px-8">
-          {avatarPath ? (
-            <div className="relative">
-              <img 
-                src={avatarPath} 
-                alt={avatarAlt || 'Avatar'}
-                className="w-48 h-48 object-cover rounded-full"
-                style={{ 
-                  cursor: isEditable ? 'pointer' : 'default',
-                  border: '4px solid white',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-                }}
-                onClick={() => isEditable && handleAvatarUploaded('')}
-              />
-              {isEditable && (
-                <div 
-                  className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer rounded-full"
-                  onClick={() => isEditable && handleAvatarUploaded('')}
-                  title="Click to replace avatar"
-                >
-                  <div className="text-center text-white">
-                    <div className="text-xs font-medium">Replace Avatar</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <ClickableImagePlaceholder
-              imagePath={avatarPath}
-              onImageUploaded={handleAvatarUploaded}
-              size="LARGE"
-              position="CENTER"
-              description="Click to upload avatar"
-              prompt="professional headshot with transparent background"
-              isEditable={isEditable}
-              className="w-48 h-48 rounded-full border-4 border-white shadow-lg"
-            />
-          )}
+    <div style={slideStyles}>
+      <div style={contentContainerStyles}>
+        {/* Title */}
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={() => {
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+
+        {/* Avatar */}
+        <div style={avatarContainerStyles}>
+          <ClickableImagePlaceholder
+            imagePath={avatarPath}
+            onImageUploaded={handleAvatarUploaded}
+            size="MEDIUM"
+            position="CENTER"
+            description="Click to upload avatar"
+            prompt="Professional headshot with transparent background"
+            style={placeholderStyles}
+          />
         </div>
 
-        {/* Right side - Text and buttons */}
-        <div className="w-2/3 h-full flex flex-col justify-center px-12">
-          {/* Title */}
-          <div className="mb-8">
-            {isEditable && isEditingTitle ? (
-              <InlineEditor
-                initialValue={title}
-                onSave={handleTitleSave}
-                onCancel={handleTitleCancel}
-                className="text-3xl md:text-4xl font-bold mb-4"
-                style={{ color: titleColor }}
-              />
-            ) : (
-              <div 
-                className="text-3xl md:text-4xl font-bold mb-4 cursor-pointer"
-                style={{ color: titleColor }}
-                onClick={() => isEditable && setIsEditingTitle(true)}
-              >
-                {title}
-              </div>
-            )}
-          </div>
-
-          {/* Buttons Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            {buttons.map((button, index) => (
-              <div key={index} className="relative">
-                {isEditable && editingButtonIndex === index ? (
-                  <InlineEditor
-                    initialValue={button.text}
-                    onSave={(newText) => handleButtonSave(newText, index)}
-                    onCancel={handleButtonCancel}
-                    className="w-full h-16 rounded-lg flex items-center justify-center text-white font-bold text-lg cursor-pointer"
-                    style={{ backgroundColor: buttonColor || buttonColor }}
-                  />
-                ) : (
-                  <div 
-                    className="w-full h-16 rounded-lg flex items-center justify-center text-white font-bold text-lg cursor-pointer transition-all duration-200 hover:opacity-80"
-                    style={{ backgroundColor: buttonColor || buttonColor }}
-                    onClick={() => isEditable && setEditingButtonIndex(index)}
-                  >
-                    {button.text}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Bottom text */}
-          <div className="text-white font-bold text-lg">
-            ! Каждый элемент важен
-          </div>
+        {/* Buttons Grid */}
+        <div style={buttonsContainerStyles}>
+          {buttons.map((button, index) => (
+            <div key={index}>
+              {isEditable && editingButtons.includes(index) ? (
+                <InlineEditor
+                  initialValue={button.text}
+                  onSave={(newText) => handleButtonSave(index, newText)}
+                  onCancel={() => handleButtonCancel(index)}
+                  placeholder="Enter button text..."
+                  className="inline-editor-button"
+                  style={{
+                    ...buttonStyles,
+                    margin: '0',
+                    padding: '16px 24px',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    textAlign: 'center'
+                  }}
+                />
+              ) : (
+                <button
+                  style={buttonStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      setEditingButtons([...editingButtons, index]);
+                    }
+                  }}
+                  className={isEditable ? 'hover:opacity-80' : ''}
+                >
+                  {button.text}
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>

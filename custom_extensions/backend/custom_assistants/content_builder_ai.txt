@@ -1074,6 +1074,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 17. `avatar-with-buttons` - Interactive slides with avatar and action buttons
 18. `avatar-with-checklist` - Slides with avatar and checklist items for guidance
 19. `avatar-with-steps` - Process slides with avatar and sequential steps
+20. `avatar-with-quote` - Testimonial slides with avatar and customer quotes
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
@@ -1877,3 +1878,20 @@ Before outputting ANY lesson details, verify that:
 **VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
 ```
 *Use for service processes and step-by-step procedures*
+
+**Customer Testimonial** (`avatar-with-quote`):
+```
+---
+**Slide 19: Customer Feedback** `avatar-with-quote`
+
+## Отзывы наших клиентов
+
+[AVATAR_PLACEHOLDER: MEDIUM | CENTER | Professional headshot with transparent background]
+
+**Quote:** "Отличный сервис! Все было на высшем уровне. Очень довольна результатом и буду рекомендовать друзьям."
+
+**Author:** Анна Петрова
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
+```
+*Use for customer testimonials and social proof*

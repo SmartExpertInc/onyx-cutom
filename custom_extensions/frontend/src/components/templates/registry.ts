@@ -21,6 +21,7 @@ import { AvatarSlideTemplate } from './AvatarSlideTemplate';
 import { AvatarWithButtonsTemplate } from './AvatarWithButtonsTemplate';
 import { AvatarWithChecklistTemplate } from './AvatarWithChecklistTemplate';
 import { AvatarWithStepsTemplate } from './AvatarWithStepsTemplate';
+import { AvatarWithQuoteTemplate } from './AvatarWithQuoteTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -959,6 +960,37 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a2e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       stepColor: { type: 'color', label: 'Step Color', default: '#e91e63' }
+    },
+  },
+
+  'avatar-with-quote': {
+    id: 'avatar-with-quote',
+    name: 'Avatar with Quote',
+    description: 'Slide with avatar and testimonial quote',
+    category: 'media',
+    icon: '👤',
+    component: AvatarWithQuoteTemplate,
+    defaultProps: {
+      title: 'Отзыв клиента',
+      quote: 'Отличный сервис! Все было на высшем уровне.',
+      author: 'Анна Петрова',
+      avatarPath: '',
+      avatarAlt: 'Avatar',
+      backgroundColor: '#ffffff',
+      titleColor: '#e91e63',
+      quoteColor: '#000000',
+      authorColor: '#e91e63'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      quote: { type: 'text', label: 'Quote', required: true },
+      author: { type: 'text', label: 'Author' },
+      avatarPath: { type: 'image', label: 'Avatar Image' },
+      avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
+      quoteColor: { type: 'color', label: 'Quote Color', default: '#000000' },
+      authorColor: { type: 'color', label: 'Author Color', default: '#e91e63' }
     },
   },
 };

@@ -98,7 +98,6 @@ function InlineEditor({
           lineHeight: '1.6',
           overflowWrap: 'anywhere'
         }}
-        rows={1}
       />
     );
   }
@@ -106,8 +105,8 @@ function InlineEditor({
   return (
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
       type="text"
+      className={`inline-editor-input ${className}`}
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
@@ -122,33 +121,27 @@ function InlineEditor({
         boxShadow: 'none',
         width: '100%',
         wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block',
-        lineHeight: '1.2'
+        display: 'block'
       }}
     />
   );
 }
 
-export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & { 
+export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
   title,
   steps = [
-    'Приветствие',
-    'Консультация',
-    'Комфорт во время',
-    'Финальные рекомендации',
-    'Прощание и отзыв'
+    'Поприветствовать клиента',
+    'Выяснить потребности',
+    'Предложить решение',
+    'Завершить сделку'
   ],
   avatarPath,
   avatarAlt,
-  backgroundColor = '#1a1a2e',
-  titleColor = '#ffffff',
-  stepColor = '#e91e63',
   slideId,
   onUpdate,
   theme,
@@ -156,143 +149,231 @@ export const AvatarWithStepsTemplate: React.FC<AvatarWithStepsProps & {
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSteps, setEditingSteps] = useState<number[]>([]);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
-
+  // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, steps, avatarPath, avatarAlt, backgroundColor, titleColor, stepColor }, title: newTitle });
+      onUpdate({ title: newTitle });
     }
-    setIsEditingTitle(false);
+    setEditingTitle(false);
   };
 
   const handleTitleCancel = () => {
-    setIsEditingTitle(false);
+    setEditingTitle(false);
   };
 
-  const handleStepSave = (newText: string, index: number) => {
+  // Handle step text editing
+  const handleStepSave = (index: number, newText: string) => {
     if (onUpdate) {
       const newSteps = [...steps];
       newSteps[index] = newText;
-      onUpdate({ ...{ title, steps, avatarPath, avatarAlt, backgroundColor, titleColor, stepColor }, steps: newSteps });
+      onUpdate({ steps: newSteps });
     }
-    setEditingStepIndex(null);
+    setEditingSteps(editingSteps.filter(i => i !== index));
   };
 
-  const handleStepCancel = () => {
-    setEditingStepIndex(null);
+  const handleStepCancel = (index: number) => {
+    setEditingSteps(editingSteps.filter(i => i !== index));
   };
 
+  // Handle avatar upload
   const handleAvatarUploaded = (newAvatarPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, steps, avatarPath, avatarAlt, backgroundColor, titleColor, stepColor }, avatarPath: newAvatarPath });
+      onUpdate({ avatarPath: newAvatarPath });
     }
+  };
+
+  const slideStyles: React.CSSProperties = {
+    minHeight: '600px',
+    backgroundColor: backgroundColor,
+    fontFamily: currentTheme.fonts.contentFont,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '40px'
+  };
+
+  const contentContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    maxWidth: '900px',
+    gap: '32px'
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.titleSize,
+    fontFamily: currentTheme.fonts.titleFont,
+    color: titleColor,
+    marginBottom: '32px',
+    lineHeight: '1.2',
+    wordWrap: 'break-word'
+  };
+
+  const stepsContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    width: '100%',
+    maxWidth: '600px'
+  };
+
+  const stepStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    padding: '16px 20px',
+    borderRadius: '8px',
+    fontSize: currentTheme.fonts.contentSize,
+    fontFamily: currentTheme.fonts.contentFont,
+    color: contentColor,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    wordWrap: 'break-word'
+  };
+
+  const stepNumberStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    backgroundColor: titleColor,
+    color: '#ffffff',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    flexShrink: 0
+  };
+
+  const avatarContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '32px'
+  };
+
+  const placeholderStyles: React.CSSProperties = {
+    width: '180px',
+    height: '180px',
+    borderRadius: '50%',
+    margin: '0 auto'
   };
 
   return (
-    <div 
-      className="slide-container relative w-full h-full flex items-center justify-center overflow-hidden"
-      style={{ 
-        backgroundColor: backgroundColor,
-        minHeight: '100vh'
-      }}
-    >
-      {/* Content container */}
-      <div className="relative z-10 w-full h-full flex">
-        {/* Left side - Text and steps */}
-        <div className="w-1/2 h-full flex flex-col justify-center px-12">
-          {/* Title */}
-          <div className="mb-8">
-            {isEditable && isEditingTitle ? (
-              <InlineEditor
-                initialValue={title}
-                onSave={handleTitleSave}
-                onCancel={handleTitleCancel}
-                className="text-3xl md:text-4xl font-bold mb-2"
-                style={{ color: titleColor }}
-              />
-            ) : (
-              <div 
-                className="text-3xl md:text-4xl font-bold mb-2 cursor-pointer"
-                style={{ color: titleColor }}
-                onClick={() => isEditable && setIsEditingTitle(true)}
-              >
-                {title}
-              </div>
-            )}
-          </div>
+    <div style={slideStyles}>
+      <div style={contentContainerStyles}>
+        {/* Title */}
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={() => {
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
 
-          {/* Steps */}
-          <div className="space-y-3">
-            {steps.map((step, index) => (
-              <div key={index} className="relative">
-                {isEditable && editingStepIndex === index ? (
-                  <InlineEditor
-                    initialValue={step}
-                    onSave={(newText) => handleStepSave(newText, index)}
-                    onCancel={handleStepCancel}
-                    className="w-full p-4 rounded-lg text-white font-bold text-lg cursor-pointer"
-                    style={{ backgroundColor: stepColor }}
-                  />
-                ) : (
-                  <div 
-                    className="w-full p-4 rounded-lg text-white font-bold text-lg cursor-pointer transition-all duration-200 hover:opacity-80"
-                    style={{ backgroundColor: stepColor }}
-                    onClick={() => isEditable && setEditingStepIndex(index)}
-                  >
-                    {step}
-                  </div>
-                )}
-                {index < steps.length - 1 && (
-                  <div className="flex justify-center mt-2">
-                    <div className="w-0.5 h-6" style={{ backgroundColor: titleColor }}></div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+        {/* Avatar */}
+        <div style={avatarContainerStyles}>
+          <ClickableImagePlaceholder
+            imagePath={avatarPath}
+            onImageUploaded={handleAvatarUploaded}
+            size="MEDIUM"
+            position="CENTER"
+            description="Click to upload avatar"
+            prompt="Professional headshot with transparent background"
+            style={placeholderStyles}
+          />
         </div>
 
-        {/* Right side - Avatar */}
-        <div className="w-1/2 h-full flex items-center justify-center px-8">
-          {avatarPath ? (
-            <div className="relative">
-              <img 
-                src={avatarPath} 
-                alt={avatarAlt || 'Avatar'}
-                className="w-48 h-48 object-cover rounded-full"
-                style={{ 
-                  cursor: isEditable ? 'pointer' : 'default',
-                  border: '4px solid white',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-                }}
-                onClick={() => isEditable && handleAvatarUploaded('')}
-              />
-              {isEditable && (
-                <div 
-                  className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer rounded-full"
-                  onClick={() => isEditable && handleAvatarUploaded('')}
-                  title="Click to replace avatar"
+        {/* Steps */}
+        <div style={stepsContainerStyles}>
+          {steps.map((step, index) => (
+            <div key={index} style={stepStyles}>
+              <div style={stepNumberStyles}>
+                {index + 1}
+              </div>
+              {isEditable && editingSteps.includes(index) ? (
+                <InlineEditor
+                  initialValue={step}
+                  onSave={(newText) => handleStepSave(index, newText)}
+                  onCancel={() => handleStepCancel(index)}
+                  placeholder="Enter step text..."
+                  className="inline-editor-step"
+                  style={{
+                    flex: 1,
+                    margin: '0',
+                    padding: '0',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    background: 'transparent',
+                    color: contentColor,
+                    fontSize: currentTheme.fonts.contentSize,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <span
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    if (isEditable) {
+                      setEditingSteps([...editingSteps, index]);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
                 >
-                  <div className="text-center text-white">
-                    <div className="text-xs font-medium">Replace Avatar</div>
-                  </div>
-                </div>
+                  {step}
+                </span>
               )}
             </div>
-          ) : (
-            <ClickableImagePlaceholder
-              imagePath={avatarPath}
-              onImageUploaded={handleAvatarUploaded}
-              size="LARGE"
-              position="CENTER"
-              description="Click to upload avatar"
-              prompt="professional headshot with transparent background"
-              isEditable={isEditable}
-              className="w-48 h-48 rounded-full border-4 border-white shadow-lg"
-            />
-          )}
+          ))}
         </div>
       </div>
     </div>

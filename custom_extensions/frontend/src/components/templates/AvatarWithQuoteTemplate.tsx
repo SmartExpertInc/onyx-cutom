@@ -1,7 +1,7 @@
-// custom_extensions/frontend/src/components/templates/AvatarSlideTemplate.tsx
+// custom_extensions/frontend/src/components/templates/AvatarWithQuoteTemplate.tsx
 
 import React, { useState, useRef, useEffect } from 'react';
-import { AvatarSlideProps } from '@/types/slideTemplates';
+import { AvatarWithQuoteProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
@@ -128,14 +128,14 @@ function InlineEditor({
   );
 }
 
-export const AvatarSlideTemplate: React.FC<AvatarSlideProps & {
+export const AvatarWithQuoteTemplate: React.FC<AvatarWithQuoteProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
   title,
-  subtitle,
-  content,
+  quote,
+  author,
   avatarPath,
   avatarAlt,
   slideId,
@@ -149,8 +149,8 @@ export const AvatarSlideTemplate: React.FC<AvatarSlideProps & {
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingSubtitle, setEditingSubtitle] = useState(false);
-  const [editingContent, setEditingContent] = useState(false);
+  const [editingQuote, setEditingQuote] = useState(false);
+  const [editingAuthor, setEditingAuthor] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Cleanup timeouts on unmount
@@ -174,28 +174,28 @@ export const AvatarSlideTemplate: React.FC<AvatarSlideProps & {
     setEditingTitle(false);
   };
 
-  // Handle subtitle editing
-  const handleSubtitleSave = (newSubtitle: string) => {
+  // Handle quote editing
+  const handleQuoteSave = (newQuote: string) => {
     if (onUpdate) {
-      onUpdate({ subtitle: newSubtitle });
+      onUpdate({ quote: newQuote });
     }
-    setEditingSubtitle(false);
+    setEditingQuote(false);
   };
 
-  const handleSubtitleCancel = () => {
-    setEditingSubtitle(false);
+  const handleQuoteCancel = () => {
+    setEditingQuote(false);
   };
 
-  // Handle content editing
-  const handleContentSave = (newContent: string) => {
+  // Handle author editing
+  const handleAuthorSave = (newAuthor: string) => {
     if (onUpdate) {
-      onUpdate({ content: newContent });
+      onUpdate({ author: newAuthor });
     }
-    setEditingContent(false);
+    setEditingAuthor(false);
   };
 
-  const handleContentCancel = () => {
-    setEditingContent(false);
+  const handleAuthorCancel = () => {
+    setEditingAuthor(false);
   };
 
   // Handle avatar upload
@@ -220,46 +220,67 @@ export const AvatarSlideTemplate: React.FC<AvatarSlideProps & {
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    maxWidth: '800px',
-    gap: '24px'
+    maxWidth: '900px',
+    gap: '32px'
   };
 
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
-    marginBottom: '16px',
+    marginBottom: '32px',
     lineHeight: '1.2',
     wordWrap: 'break-word'
   };
 
-  const subtitleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    marginBottom: '16px',
-    lineHeight: '1.6',
-    wordWrap: 'break-word'
+  const quoteContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '24px',
+    maxWidth: '700px'
   };
 
-  const contentStyles: React.CSSProperties = {
+  const quoteStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.contentSize,
     fontFamily: currentTheme.fonts.contentFont,
     color: contentColor,
+    fontStyle: 'italic',
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    padding: '24px',
+    borderRadius: '12px',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    position: 'relative'
+  };
+
+  const quoteMarkStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: '-10px',
+    left: '20px',
+    fontSize: '48px',
+    color: titleColor,
+    fontFamily: 'serif'
+  };
+
+  const authorStyles: React.CSSProperties = {
+    fontSize: currentTheme.fonts.contentSize,
+    fontFamily: currentTheme.fonts.contentFont,
+    color: titleColor,
+    fontWeight: 'bold',
+    marginTop: '16px'
   };
 
   const avatarContainerStyles: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'center',
-    marginTop: '24px'
+    marginBottom: '32px'
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '200px',
-    height: '200px',
+    width: '180px',
+    height: '180px',
     borderRadius: '50%',
     margin: '0 auto'
   };
@@ -304,84 +325,6 @@ export const AvatarSlideTemplate: React.FC<AvatarSlideProps & {
           </h1>
         )}
 
-        {/* Subtitle */}
-        {subtitle && (
-          isEditable && editingSubtitle ? (
-            <InlineEditor
-              initialValue={subtitle}
-              onSave={handleSubtitleSave}
-              onCancel={handleSubtitleCancel}
-              multiline={true}
-              placeholder="Enter subtitle..."
-              className="inline-editor-subtitle"
-              style={{
-                ...subtitleStyles,
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <h2 
-              style={subtitleStyles}
-              onClick={() => {
-                if (isEditable) {
-                  setEditingSubtitle(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {subtitle}
-            </h2>
-          )
-        )}
-
-        {/* Content */}
-        {content && (
-          isEditable && editingContent ? (
-            <InlineEditor
-              initialValue={content}
-              onSave={handleContentSave}
-              onCancel={handleContentCancel}
-              multiline={true}
-              placeholder="Enter content..."
-              className="inline-editor-content"
-              style={{
-                ...contentStyles,
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <p 
-              style={contentStyles}
-              onClick={() => {
-                if (isEditable) {
-                  setEditingContent(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {content}
-            </p>
-          )
-        )}
-
         {/* Avatar */}
         <div style={avatarContainerStyles}>
           <ClickableImagePlaceholder
@@ -393,6 +336,91 @@ export const AvatarSlideTemplate: React.FC<AvatarSlideProps & {
             prompt="Professional headshot with transparent background"
             style={placeholderStyles}
           />
+        </div>
+
+        {/* Quote */}
+        <div style={quoteContainerStyles}>
+          <div style={quoteStyles}>
+            <span style={quoteMarkStyles}>"</span>
+            {isEditable && editingQuote ? (
+              <InlineEditor
+                initialValue={quote || ''}
+                onSave={handleQuoteSave}
+                onCancel={handleQuoteCancel}
+                multiline={true}
+                placeholder="Enter quote..."
+                className="inline-editor-quote"
+                style={{
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  background: 'transparent',
+                  color: contentColor,
+                  fontSize: currentTheme.fonts.contentSize,
+                  fontFamily: currentTheme.fonts.contentFont,
+                  fontStyle: 'italic',
+                  lineHeight: '1.6'
+                }}
+              />
+            ) : (
+              <span
+                onClick={() => {
+                  if (isEditable) {
+                    setEditingQuote(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {quote || 'Click to add quote'}
+              </span>
+            )}
+          </div>
+
+          {/* Author */}
+          {author && (
+            isEditable && editingAuthor ? (
+              <InlineEditor
+                initialValue={author}
+                onSave={handleAuthorSave}
+                onCancel={handleAuthorCancel}
+                placeholder="Enter author name..."
+                className="inline-editor-author"
+                style={{
+                  ...authorStyles,
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  background: 'transparent'
+                }}
+              />
+            ) : (
+              <span
+                style={authorStyles}
+                onClick={() => {
+                  if (isEditable) {
+                    setEditingAuthor(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                — {author}
+              </span>
+            )
+          )}
         </div>
       </div>
     </div>

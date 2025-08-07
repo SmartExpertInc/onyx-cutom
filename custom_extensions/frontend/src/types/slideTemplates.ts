@@ -335,6 +335,19 @@ export interface AvatarWithStepsProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
+export interface AvatarWithQuoteProps extends BaseTemplateProps {
+  title: string;
+  quote: string;
+  author?: string;
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  quoteColor?: string;
+  authorColor?: string;
+  voiceoverText?: string;
+}
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -354,7 +367,8 @@ export type TemplateId =
   | 'avatar-slide'
   | 'avatar-with-buttons'
   | 'avatar-with-checklist'
-  | 'avatar-with-steps';
+  | 'avatar-with-steps'
+  | 'avatar-with-quote';
 
 export interface TemplatePreview {
   templateId: string;
