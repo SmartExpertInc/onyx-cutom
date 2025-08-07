@@ -1357,7 +1357,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               />
             ) : ( 
               <h1 
-                className="text-xl md:text-2xl font-bold cursor-pointer hover:bg-yellow-50 p-1 rounded"
+                className="text-xl md:text-2xl font-bold cursor-pointer p-1 rounded"
                 onClick={() => onTextChange && startEditing('mainTitle', undefined, undefined, ['mainTitle'])}
               >
                 {mainTitle}
