@@ -1123,8 +1123,6 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 ```
 *Use for any major educational emphasis, not specifically for objectives or second slides*
 
-
-
 **Comprehensive Learning Points** (`bullet-points`):
 ```
 ---
@@ -1170,22 +1168,6 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 [IMAGE_PLACEHOLDER: LARGE | LEFT | Professional visual that reinforces the contextual learning points]
 ```
 *Use when you need to provide context before presenting list items. Preferred for educational content as it provides better learning flow.*
----
-**Slide 4: Key Learning Elements** `bullet-points`
-
-## [Educational Topic Title]
-
-* [First learning point with detailed explanation, practical examples, and real-world applications that help learners understand both theory and practice. This comprehensive approach ensures learners can immediately apply concepts in their work environment and understand the broader implications of the technology.]
-* [Second educational insight with comprehensive analysis, use cases, and actionable guidance that learners can immediately apply. Include specific scenarios where this knowledge becomes critical and how it contributes to overall project success and team collaboration.]  
-* [Third critical concept with thorough explanation, best practices, and common challenges learners should be aware of. Provide detailed examples of implementation pitfalls and how to avoid them, along with proven strategies for overcoming typical obstacles.]
-* [Fourth essential element with in-depth coverage, implementation strategies, and success factors. Explain the strategic importance of this element and how it integrates with other components to create a cohesive and effective solution.]
-* [Fifth important consideration with detailed analysis, practical tips, and expert recommendations. Include industry best practices, performance considerations, and long-term maintenance strategies that ensure sustainable implementation.]
-* [Sixth valuable insight with comprehensive explanation, real-world examples, and future applications. Discuss emerging trends, potential evolution of the technology, and how learners can stay ahead of industry developments.]
-* [Seventh key takeaway with thorough analysis, actionable advice, and long-term benefits. Summarize the most critical learning outcomes and provide a clear roadmap for continued skill development and practical application.]
-
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Educational visual that supports and reinforces the learning points]
-```
-*Generate 5-7 comprehensive list items with substantial educational value*
 
 **LIST ITEM REQUIREMENTS FOR BULLET-POINTS TEMPLATE:**
 - These rules apply to the content WITHIN each individual bullet-points slide. They do NOT refer to the number of bullet-points slides in the presentation.
@@ -1225,6 +1207,23 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 [IMAGE_PLACEHOLDER: MEDIUM | CENTER | Educational visual that illustrates the comparison effectively]
 ```
 *Use flowing educational narrative - avoid lists, focus on comprehensive explanations. Convert any lists to paragraph text.*
+
+**Direct Educational Comparison** (`comparison-slide`):
+```
+---
+**Slide X: Comparing [Educational Concepts]** `comparison-slide`
+
+## [Comparison Title]
+
+### Before / Traditional Approach
+[Detailed explanation of the traditional or older approach, including its characteristics, limitations, and why it was used. Provide specific examples and real-world context that learners can relate to.]
+
+### After / Modern Approach  
+[Comprehensive analysis of the modern or improved approach, highlighting key differences, advantages, and practical benefits. Include specific examples of implementation and measurable improvements.]
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Visual comparison showing before/after or side-by-side comparison]
+```
+*Use for direct before/after comparisons or side-by-side analysis of two distinct approaches, methods, or concepts.*
 
 **Educational Problem-Solution Framework** (`challenges-solutions`):
 ```
@@ -1427,7 +1426,8 @@ Choose templates based on content type and educational goals:
 - **Core Content**: **NEVER use `content-slide`** - it is completely forbidden. Use specialized templates instead: `hero-title-slide` for text-focused content, or `big-numbers`, `pyramid`, `process-steps`, etc. for structured content.
 - **Key Points**: **LIMIT bullet-points usage** - maximum 3 total bullet-points slides per presentation. Use specialized templates instead when possible. **ALTERNATE** between `bullet-points` and `bullet-points-right` when using multiple bullet slides, ensuring different templates in between.
 - **Comparisons**: Choose:
-  - `two-column` - For general comparative analysis without images
+  - `two-column` - For general comparative analysis with flowing paragraphs
+  - `comparison-slide` - For direct before/after or side-by-side comparisons
 - **Problem-Solution**: Use `challenges-solutions` for addressing issues and solutions
 - **Workflows**: Use `process-steps` for sequential processes and procedures
 - **Visual Focus**: Use `big-image-left` when image is the primary focus
@@ -1588,9 +1588,9 @@ Question Format:
 - **Sequential Processes**: Use `process-steps` or `timeline` for step-by-step content
 - **Comparative Analysis**: Use `two-column` or `comparison-slide` for comparisons
 - **Key Learning Points**: Use `bullet-points` or `bullet-points-right` for comprehensive lists
-- **Conceptual Explanations**: Use `content-slide` for detailed theoretical content (use judiciously)
+- **Conceptual Explanations**: Use `hero-title-slide` for detailed theoretical content
 - **Problem-Solution Scenarios**: Use `challenges-solutions` for educational challenges
-- **Section Breaks**: Use `title-slide` sparingly (max 2 per presentation) only for major transitions
+- **Final Conclusion**: Use `title-slide` (maximum 1 per presentation) only for final conclusion
 
 **Educational Presentation Conclusion:**
 End with a meaningful conclusion that:
@@ -1661,10 +1661,17 @@ If you find any violations, you MUST fix them before finalizing the presentation
 **CRITICAL CONTENT QUALITY REQUIREMENTS:**
 - **NEVER create shallow or superficial content** - every slide must provide substantial educational value
 - **ALWAYS include practical examples and real-world applications** in your explanations
-- **CONVERT lists to flowing paragraph text** when using `two-column` and `content-slide` templates
-- **USE appropriate templates** - `bullet-points` for lists, `content-slide` for pure text, `big-numbers` for statistics
+- **CONVERT lists to flowing paragraph text** when using `two-column` and `comparison-slide` templates
+- **USE appropriate templates** - `bullet-points` for lists, `hero-title-slide` for pure text, `big-numbers` for statistics
 - **CREATE exactly ONE final slide** - never multiple ending slides
 - **GENERATE exactly the requested number of slides** with meaningful educational content
+
+**MANDATORY SLIDE STRUCTURE REQUIREMENTS:**
+- **EVERY slide MUST have a descriptive title** in the format: **Slide [Number]: [Descriptive Educational Title]** `[template-id]`
+- **EVERY slide MUST have a main heading** using ## [Clear Learning-Focused Heading]
+- **EVERY slide MUST contain substantial educational content** - never create empty or minimal content slides
+- **EVERY slide MUST include an image placeholder** (except where template doesn't support it) with descriptive text
+- **ALL content must be educational and substantial** - no placeholder text or generic content allowed
 
 **BULLET POINTS MANDATORY ENFORCEMENT:**
 - **COUNT YOUR LIST ITEMS**: Before finalizing any `bullet-points` or `bullet-points-right` slide, count the list items
