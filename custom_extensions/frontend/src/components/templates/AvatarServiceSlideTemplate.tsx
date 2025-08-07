@@ -92,8 +92,7 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          overflowWrap: 'anywhere',
-          color: 'inherit'
+          overflowWrap: 'anywhere'
         }}
       />
     );
@@ -117,10 +116,9 @@ function InlineEditor({
           boxShadow: 'none',
           width: '100%',
           wordWrap: 'break-word',
-          boxSizing: 'border-box',
-          display: 'block',
-          color: 'inherit'
-        }}
+                  boxSizing: 'border-box',
+        display: 'block'
+      }}
     />
   );
 }

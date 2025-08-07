@@ -92,8 +92,7 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          overflowWrap: 'anywhere',
-          color: 'inherit'
+          overflowWrap: 'anywhere'
         }}
       />
     );
@@ -118,8 +117,7 @@ function InlineEditor({
         width: '100%',
         wordWrap: 'break-word',
         boxSizing: 'border-box',
-        display: 'block',
-        color: 'inherit'
+        display: 'block'
       }}
     />
   );
@@ -401,7 +399,6 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block',
-                color: 'inherit',
                 margin: '0',
                 padding: '8px 12px',
                 backgroundColor: 'rgba(0, 0, 0, 0.7)',
@@ -444,11 +441,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   wordWrap: 'break-word',
                   boxSizing: 'border-box',
                   display: 'block',
-                  color: 'inherit',
+                  color: '#ffffff',
                   margin: '0',
-                  padding: '0',
+                  padding: '8px 12px',
                   fontSize: '1rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
                   borderRadius: '4px'
                 }}
               />
@@ -485,11 +482,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   wordWrap: 'break-word',
                   boxSizing: 'border-box',
                   display: 'block',
-                  color: 'inherit',
+                  color: '#ffffff',
                   margin: '0',
-                  padding: '0',
+                  padding: '8px 12px',
                   fontSize: '1rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
                   borderRadius: '4px'
                 }}
               />
