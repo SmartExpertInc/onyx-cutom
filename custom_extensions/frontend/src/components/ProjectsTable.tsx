@@ -1645,9 +1645,7 @@ const ProjectCard: React.FC<{
                 position: "absolute",
                 top: 8,
                 left: 8,
-                background: "rgba(255,255,255,0.3)",
-                border: "1px solid #fff",
-                color: "#fff",
+                background: "#fff",
                 borderRadius: "6px",
                 padding: "4px",
                 zIndex: 2,
@@ -3267,7 +3265,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               const contentType = (
                 proj.designMicroproductType || ""
               ).toLowerCase();
-              const isQuiz = contentType === "quiz";
+              const isQuiz = contentType === "quiz" || contentType === "quizdisplay";
               const isTextPresentation = contentType === "text presentation";
               const isVideoLesson = contentType === "video lesson";
               const isPdfLesson = contentType === "pdf lesson";
