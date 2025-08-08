@@ -17019,6 +17019,7 @@ class TextPresentationWizardFinalize(BaseModel):
 class TextPresentationEditRequest(BaseModel):
     content: str
     editPrompt: str
+    language: Optional[str] = "en"  # Add language field with default fallback
     chatSessionId: Optional[str] = None
 
 @app.post("/api/custom/text-presentation/generate")
@@ -17281,12 +17282,12 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
     wiz_payload = {
         "product": "Text Presentation Edit",
         "prompt": payload.editPrompt,
-        "language": "en",  # Default to English for edits
+        "language": payload.language,  # Use the language from the request
         "originalContent": payload.content,
         "editMode": True
     }
 
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():

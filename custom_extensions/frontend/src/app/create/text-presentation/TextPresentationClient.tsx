@@ -190,6 +190,7 @@ export default function TextPresentationClient() {
       const payload: any = {
         content,
         editPrompt,
+        language, // Include the current language in the edit request
       };
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
