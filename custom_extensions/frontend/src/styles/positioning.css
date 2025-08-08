@@ -8,7 +8,8 @@
 
 /* ONLY target elements with explicit data-draggable="true" attribute */
 .positioning-enabled-slide [data-draggable="true"] {
-  position: relative; /* Essential for transform to work relative to original position */
+  /* FIXED: Don't set position: relative by default to avoid layout issues */
+  /* position: relative; */ /* Removed to prevent flex layout interference */
   transition: transform 0.1s ease-out, box-shadow 0.2s ease;
   cursor: move;
   border-radius: 4px;
@@ -27,8 +28,9 @@
   z-index: 10;
 }
 
-/* Dragging state */
+/* Dragging state - only apply position: relative when actually dragging */
 .positioning-enabled-slide .dragging {
+  position: relative !important; /* Only set position when dragging */
   z-index: 1000 !important;
   cursor: grabbing !important;
   user-select: none !important;

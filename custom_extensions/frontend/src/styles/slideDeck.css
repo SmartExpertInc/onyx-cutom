@@ -749,6 +749,29 @@
   position: relative !important;
 }
 
+/* FIXED: Ensure draggable elements in bullet points template don't affect height */
+.bullet-points-template [data-draggable="true"] {
+  /* Prevent height expansion from draggable elements */
+  height: auto !important;
+  max-height: none !important;
+  /* Ensure flex items maintain their intended size */
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  /* Prevent overflow issues */
+  overflow: visible !important;
+}
+
+/* FIXED: Ensure the UnifiedBulletEditor doesn't expand beyond its container */
+.bullet-points-template .bulletsContainerStyles {
+  /* Maintain intended height */
+  height: auto !important;
+  max-height: none !important;
+  /* Prevent flex expansion */
+  flex: 1 1 50% !important;
+  /* Ensure proper overflow handling */
+  overflow: visible !important;
+}
+
 .number-badge {
   display: flex;
   align-items: center;

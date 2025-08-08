@@ -48,13 +48,14 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       htmlElement.addEventListener('mouseenter', handleMouseEnter);
       htmlElement.addEventListener('mouseleave', handleMouseLeave);
 
-      // Position state
+      // Position state - FIXED: Don't apply position: relative unless actually dragging
       const savedPos = savedPositions?.[elementId] || dragStateRef.current.get(elementId) || { x: 0, y: 0 };
       let currentX = savedPos.x;
       let currentY = savedPos.y;
       if (currentX !== 0 || currentY !== 0) {
+        // Only apply transform, don't change position property to avoid layout issues
         htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
-        htmlElement.style.position = 'relative';
+        // Don't set position: relative here - only set it when actually dragging
         dragStateRef.current.set(elementId, { x: currentX, y: currentY });
       }
 
@@ -73,6 +74,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const startDrag = (e: MouseEvent) => {
         if (isDragging) return;
         isDragging = true;
+        // FIXED: Only set position: relative when actually dragging to avoid layout issues
+        htmlElement.style.position = 'relative';
         htmlElement.style.zIndex = '1000';
         htmlElement.style.userSelect = 'none';
         htmlElement.classList.add('dragging');
@@ -142,7 +145,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           currentX = newX;
           currentY = newY;
           htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
-          htmlElement.style.position = 'relative';
+          // Position is already set to relative when dragging started
           dragStateRef.current.set(elementId, { x: currentX, y: currentY });
           e.stopPropagation();
         }
@@ -157,6 +160,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
         if (isDragging) {
           isDragging = false;
+          // FIXED: Reset position to original value to avoid layout issues
+          htmlElement.style.position = '';
           htmlElement.style.zIndex = '';
           htmlElement.style.userSelect = '';
           htmlElement.classList.remove('dragging');
@@ -201,6 +206,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.style.cursor = '';
         htmlElement.style.boxShadow = '';
         htmlElement.style.transform = '';
+        // FIXED: Reset position to avoid layout issues
         htmlElement.style.position = '';
         htmlElement.classList.remove('dragging');
         htmlElement.removeAttribute('data-just-dragged');
