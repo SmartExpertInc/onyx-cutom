@@ -186,12 +186,22 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   }, [slide, onSlideUpdate]);
 
   // For editable slides: render template with drag-and-drop enabled
+  // FIXED: Use more flexible positioning that doesn't interfere with slide flow
   return (
     <div 
       className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''}`}
       style={{
-        width: currentCanvasConfig.width,
-        height: currentCanvasConfig.height
+        // Use max-width and max-height instead of fixed dimensions to allow natural flow
+        maxWidth: currentCanvasConfig.width,
+        maxHeight: currentCanvasConfig.height,
+        width: '100%',
+        height: 'auto',
+        minHeight: '600px', // Ensure minimum height for consistency
+        position: 'relative',
+        // Ensure the wrapper doesn't interfere with slide spacing
+        margin: 0,
+        padding: 0,
+        display: 'block'
       }}
     >
       {/* Render the original template with full styling and interactivity */}

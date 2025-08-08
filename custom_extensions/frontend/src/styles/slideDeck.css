@@ -357,6 +357,38 @@
   min-width: 0;
 }
 
+/* FIXED: Ensure all slide containers maintain proper spacing */
+.slides-container > div {
+  margin-bottom: 40px !important;
+  position: relative;
+}
+
+.slides-container > div:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* FIXED: Ensure component-based slide deck containers maintain proper spacing */
+.component-based-slide-deck .slide-container {
+  margin-bottom: 40px !important;
+  position: relative;
+}
+
+.component-based-slide-deck .slide-container:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* FIXED: Ensure positioning-enabled slides don't interfere with container spacing */
+.positioning-enabled-slide {
+  /* Allow natural flow within the container */
+  width: 100% !important;
+  height: auto !important;
+  /* Ensure proper display */
+  display: block !important;
+  /* Don't interfere with container margins */
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .professional-slide {
   width: var(--slide-width);
   height: var(--slide-height);
@@ -690,6 +722,31 @@
   color: var(--gray-700) !important;
   font-size: 1.2rem !important;
   font-weight: 600 !important;
+}
+
+/* FIXED: Ensure bullet-points-template maintains proper spacing */
+.bullet-points-template {
+  /* Ensure the template doesn't interfere with slide container spacing */
+  margin: 0 !important;
+  padding: 0 !important;
+  /* Allow natural height flow */
+  height: auto !important;
+  min-height: 600px;
+  /* Ensure proper display */
+  display: block !important;
+  /* Prevent any positioning issues */
+  position: relative !important;
+}
+
+/* Ensure positioning-enabled slides with bullet-points-template maintain spacing */
+.positioning-enabled-slide .bullet-points-template {
+  /* Override any conflicting styles from the positioning wrapper */
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  /* Maintain natural flow */
+  display: block !important;
+  position: relative !important;
 }
 
 .number-badge {
