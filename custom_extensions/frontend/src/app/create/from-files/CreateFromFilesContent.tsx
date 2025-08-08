@@ -423,7 +423,7 @@ export default function CreateFromFilesContent() {
       </Link>
 
         {/* Header Content */}
-        <div className="flex items-center justify-between mb-6">
+        {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Link
               href="/create"
@@ -433,7 +433,7 @@ export default function CreateFromFilesContent() {
               {t('interface.fromFiles.backToCreate', 'Back to Create')}
             </Link>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex flex-col gap-2 mb-8">
           <h1 className="text-3xl font-bold text-gray-900">{t('interface.fromFiles.browseYourFiles', 'Browse Your Files')}</h1>
