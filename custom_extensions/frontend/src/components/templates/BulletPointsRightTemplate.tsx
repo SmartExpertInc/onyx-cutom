@@ -660,28 +660,30 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
           }}
         />
       ) : (
-        <h1 
-          style={titleStyles}
-          onClick={(e) => {
-            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          data-draggable="true"
-        >
-          {title || 'Click to add title'}
-        </h1>
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        </div>
       )}
 
       <div style={contentRowStyles}>
         {/* Left: Subtitle + Bullets */}
-        <div style={leftColStyles} data-draggable="true">
+        <div style={leftColStyles}>
           {/* Subtitle */}
           {subtitle && (
             isEditable && editingSubtitle ? (
@@ -707,22 +709,24 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
                 }}
               />
             ) : (
-              <div 
-                style={subtitleStyles}
-                onClick={(e) => {
-                  if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  if (isEditable) {
-                    setEditingSubtitle(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                data-draggable="true"
-              >
-                {subtitle}
+              <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+                <div 
+                  style={subtitleStyles}
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      setEditingSubtitle(true);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {subtitle}
+                </div>
               </div>
             )
           )}
