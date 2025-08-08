@@ -347,7 +347,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           gap: '40px',
         }}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} data-draggable="true">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Left Clickable Image Placeholder */}
           <div data-draggable="true">
             <ClickableImagePlaceholder
@@ -452,7 +452,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             )}
           </div>
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}} data-draggable="true">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
           {/* Right Clickable Image Placeholder */}
           <div data-draggable="true">
             <ClickableImagePlaceholder
