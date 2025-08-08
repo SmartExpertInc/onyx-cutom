@@ -230,7 +230,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       <div className="mt-4">
         {isEditing ? (
           <>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.prompts', 'Items')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt, promptIndex) => (
                 <div key={prompt.id} className="flex items-start">
@@ -274,7 +274,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               ))}
             </div>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt) => (
                 <div key={prompt.id} className="flex items-center space-x-2">
@@ -293,7 +293,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               ))}
             </div>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.prompts', 'Items')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt, promptIndex) => (
                 <div key={prompt.id} className="flex items-start">
@@ -315,7 +315,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               ))}
             </div>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt) => (
                 <div key={prompt.id} className="flex items-center space-x-2">
@@ -338,7 +338,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         ) : (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
+              <h4 className="italic mb-2 text-black">{t('quiz.prompts', 'Items')}:</h4>
               {question.prompts.map((prompt) => (
                 <div key={prompt.id} className="mb-2 flex items-center">
                   <span className="text-black flex-1">{prompt.text}</span>
@@ -346,7 +346,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               ))}
             </div>
             <div>
-              <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+              <h4 className="italic mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}:</h4>
               {question.prompts.map((prompt) => {
                 const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
                 return (
@@ -532,7 +532,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     return (
       <div className="mt-4">
         <div className="space-y-2">
-          <h4 className="font-medium text-black">{t('quiz.acceptableAnswers', 'Acceptable Answers')}:</h4>
+          <h4 className="italic text-black">{t('quiz.acceptableAnswers', 'Acceptable Answers')}:</h4>
           {question.acceptable_answers.map((answer, answerIndex) => (
             <div key={answerIndex}>
               {isEditing ? (
