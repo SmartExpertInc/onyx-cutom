@@ -389,7 +389,7 @@ const ClientNameModal: React.FC<{
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-gray-100">
         <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer"
           onClick={onClose}
         >
           <svg
@@ -609,13 +609,13 @@ const ClientNameModal: React.FC<{
             <button
               type="button"
               onClick={handleSkip}
-              className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300"
+              className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300 cursor-pointer"
             >
               {t("interface.skip", "Skip")}
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md cursor-pointer"
             >
               {t("common.downloadPdf", "Download PDF")}
             </button>
@@ -1033,7 +1033,7 @@ const FolderRow: React.FC<{
                   <circle cx="15" cy="19" r="2" />
                 </svg>
               </div>
-              <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
+              <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200 cursor-pointer">
                 <ChevronRight
                   size={16}
                   className={`transition-transform duration-200 ${
@@ -1702,7 +1702,7 @@ const ProjectCard: React.FC<{
         <button
           ref={buttonRef}
           onClick={handleMenuToggle}
-          className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
         >
           <MoreHorizontal size={16} />
         </button>
@@ -1739,7 +1739,7 @@ const ProjectCard: React.FC<{
               <div className="py-1">
                 <button
                   onClick={handleRestoreProject}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <RefreshCw size={14} />
                   <span>{t("actions.restore", "Restore")}</span>
@@ -1751,7 +1751,7 @@ const ProjectCard: React.FC<{
                     setMenuOpen(false);
                     setPermanentDeleteConfirmOpen(true);
                   }}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
                 >
                   <Trash2 size={14} />
                   <span>
@@ -1762,7 +1762,7 @@ const ProjectCard: React.FC<{
             ) : (
               <>
                 <div className="py-1">
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
                   </button>
@@ -1773,12 +1773,12 @@ const ProjectCard: React.FC<{
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
                   </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
@@ -1786,12 +1786,12 @@ const ProjectCard: React.FC<{
                   </button>
                   <button
                     onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
                   </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
                   </button>
@@ -1803,7 +1803,7 @@ const ProjectCard: React.FC<{
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
@@ -1817,7 +1817,7 @@ const ProjectCard: React.FC<{
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md"
+                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
                     >
                       <FolderMinus size={16} className="text-orange-500" />
                       <span>
@@ -1834,7 +1834,7 @@ const ProjectCard: React.FC<{
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
@@ -1867,7 +1867,7 @@ const ProjectCard: React.FC<{
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setPermanentDeleteConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
               >
                 {t("actions.cancel", "Cancel")}
               </button>
@@ -1878,7 +1878,7 @@ const ProjectCard: React.FC<{
                   onDeletePermanently(project.id);
                   setPermanentDeleteConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
               >
                 {t("actions.deletePermanentlyButton", "Delete Permanently")}
               </button>
@@ -1908,7 +1908,7 @@ const ProjectCard: React.FC<{
             <div className="flex justify-center gap-3">
               <button
                 onClick={() => setTrashConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
               >
                 {t("actions.cancel", "Cancel")}
               </button>
@@ -1917,7 +1917,7 @@ const ProjectCard: React.FC<{
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer"
               >
                 {t("actions.outlineOnly", "Outline Only")}
               </button>
@@ -1926,7 +1926,7 @@ const ProjectCard: React.FC<{
                   onDelete(project.id, "all");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
               >
                 {t("actions.moveAll", "Move All")}
               </button>
@@ -1959,7 +1959,7 @@ const ProjectCard: React.FC<{
                   onRestore(project.id);
                   setShowRestorePrompt(false);
                 }}
-                className="font-semibold underline hover:text-orange-700"
+                className="font-semibold underline hover:text-orange-700 cursor-pointer"
               >
                 {t("actions.restoreIt", "Restore it")}
               </button>
@@ -2005,7 +2005,7 @@ const ProjectCard: React.FC<{
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
                 disabled={isRenaming}
               >
                 {t("actions.cancel", "Cancel")}
@@ -2276,7 +2276,7 @@ const ProjectRowMenu: React.FC<{
     <div ref={menuRef} className="inline-block">
       <button
         ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600"
+        className="text-gray-400 hover:text-gray-600 cursor-pointer"
         onClick={handleMenuToggle}
       >
         <MoreHorizontal size={20} />
@@ -2317,7 +2317,7 @@ const ProjectRowMenu: React.FC<{
                     setMenuOpen(false);
                     onRestore(project.id);
                   }}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <RefreshCw size={14} />
                   <span>Restore</span>
@@ -2329,7 +2329,7 @@ const ProjectRowMenu: React.FC<{
                     setMenuOpen(false);
                     setPermanentDeleteConfirmOpen(true);
                   }}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
                 >
                   <Trash2 size={14} />
                   <span>Delete permanently</span>
@@ -2338,7 +2338,7 @@ const ProjectRowMenu: React.FC<{
             ) : (
               <>
                 <div className="py-1">
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
                   </button>
@@ -2349,12 +2349,12 @@ const ProjectRowMenu: React.FC<{
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
                   </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
@@ -2362,12 +2362,12 @@ const ProjectRowMenu: React.FC<{
                   </button>
                   <button
                     onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
                   </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
                   </button>
@@ -2379,7 +2379,7 @@ const ProjectRowMenu: React.FC<{
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
@@ -2393,7 +2393,7 @@ const ProjectRowMenu: React.FC<{
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md"
+                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
                     >
                       <FolderMinus size={16} className="text-orange-500" />
                       <span>
@@ -2410,7 +2410,7 @@ const ProjectRowMenu: React.FC<{
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
@@ -2441,7 +2441,7 @@ const ProjectRowMenu: React.FC<{
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setPermanentDeleteConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
               >
                 {t("actions.cancel", "Cancel")}
               </button>
@@ -2452,7 +2452,7 @@ const ProjectRowMenu: React.FC<{
                   onDeletePermanently(project.id);
                   setPermanentDeleteConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
               >
                 {t("actions.deletePermanentlyButton", "Delete Permanently")}
               </button>
@@ -2482,7 +2482,7 @@ const ProjectRowMenu: React.FC<{
             <div className="flex justify-center gap-3">
               <button
                 onClick={() => setTrashConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
               >
                 {t("actions.cancel", "Cancel")}
               </button>
@@ -2491,7 +2491,7 @@ const ProjectRowMenu: React.FC<{
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer"
               >
                 {t("actions.outlineOnly", "Outline Only")}
               </button>
@@ -2500,7 +2500,7 @@ const ProjectRowMenu: React.FC<{
                   onDelete(project.id, "all");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
               >
                 {t("actions.moveAll", "Move All")}
               </button>
@@ -2541,7 +2541,7 @@ const ProjectRowMenu: React.FC<{
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
                 disabled={isRenaming}
               >
                 Cancel
@@ -2808,7 +2808,7 @@ const FolderRowMenu: React.FC<{
       <div ref={menuRef} className="inline-block">
         <button
           ref={buttonRef}
-          className="text-gray-400 hover:text-gray-600"
+          className="text-gray-400 hover:text-gray-600 cursor-pointer"
           onClick={handleMenuToggle}
         >
           <MoreHorizontal size={20} />
@@ -2842,27 +2842,27 @@ const FolderRowMenu: React.FC<{
                 </p>
               </div>
               <div className="py-1">
-                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                   <Share2 size={16} className="text-gray-500" />
                   <span>{t("actions.share", "Share")}</span>
                 </button>
                 <button
                   onClick={handleRenameClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <PenLine size={16} className="text-gray-500" />
                   <span>{t("actions.rename", "Rename")}</span>
                 </button>
                 <button
                   onClick={handleSettingsClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <Settings size={16} className="text-gray-500" />
                   <span>{t("actions.settings", "Settings")}</span>
                 </button>
                 <button
                   onClick={handleExportFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
@@ -2871,7 +2871,7 @@ const FolderRowMenu: React.FC<{
               <div className="py-1 border-t border-gray-100">
                 <button
                   onClick={handleDeleteFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
                 >
                   <Trash2 size={14} />
                   <span>{t("actions.delete", "Delete")}</span>
@@ -2919,7 +2919,7 @@ const FolderRowMenu: React.FC<{
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800"
+                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
                 disabled={isRenaming}
               >
                 {t("actions.cancel", "Cancel")}
@@ -4336,7 +4336,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
-              <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg">
+              <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg cursor-pointer">
                 <Plus size={16} className="text-white" />
                 {t("interface.createNew", "Create new")}
                 <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
@@ -4344,7 +4344,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 </span>
               </button>
             </Link>
-            <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm">
+            <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm cursor-pointer">
               {t("interface.import", "Import")}
               <ChevronsUpDown size={16} className="text-gray-500" />
             </button>
@@ -4361,7 +4361,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
                     activeFilter === filter
                       ? "bg-white shadow-sm border border-gray-200 text-black"
                       : "text-gray-600 hover:bg-gray-100"
@@ -4374,7 +4374,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             })}
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700">
+            <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer">
               <ArrowUpDown size={16} className="text-gray-800" />
               {t("interface.sort", "Sort")}
             </button>
@@ -4384,7 +4384,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <div className="relative" data-columns-dropdown>
                 <button
                   onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
-                  className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700"
+                  className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer"
                 >
                   <List size={16} className="text-gray-800" />
                   {t("interface.columns", "Columns")}
@@ -4474,7 +4474,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             {viewMode === "list" && (
               <button
                 onClick={handlePdfDownload}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer"
                 title={t(
                   "interface.downloadPDF",
                   "Download projects list as PDF"
@@ -4488,7 +4488,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-md ${
+                className={`p-1.5 rounded-md cursor-pointer ${
                   viewMode === "grid" ? "bg-white shadow-sm" : ""
                 }`}
               >
@@ -4496,7 +4496,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-1.5 rounded-md ${
+                className={`p-1.5 rounded-md cursor-pointer ${
                   viewMode === "list" ? "bg-white shadow-sm" : ""
                 }`}
               >
