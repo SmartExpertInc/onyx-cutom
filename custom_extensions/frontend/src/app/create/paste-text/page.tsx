@@ -80,25 +80,6 @@ export default function PasteTextPage() {
           "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
       }}
     >
-      {/* Breadcrumb Navigation
-      <nav className="fixed top-6 left-6 flex items-center text-sm text-gray-600">
-        <Link
-          href="/projects"
-          className="flex items-center hover:text-gray-900 transition-colors"
-        >
-          <HomeIcon className="h-4 w-4" />
-        </Link>
-        <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-        <Link
-          href="/create"
-          className="hover:text-gray-900 transition-colors"
-        >
-          {t('interface.createWithAI', 'Create')}
-        </Link>
-        <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-        <span className="text-gray-900 font-medium">{t('interface.pasteText.title', 'Paste Text')}</span>
-      </nav> */}
-
       {/* back button absolute top-left */}
       <Link
         href="/create"
