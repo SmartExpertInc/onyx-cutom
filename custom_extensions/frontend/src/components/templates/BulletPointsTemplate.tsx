@@ -643,7 +643,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
         </h1>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }} data-draggable="true">
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
         {/* Left: Clickable Image Placeholder */}
         <div style={placeholderContainerStyles} data-draggable="true">
           <ClickableImagePlaceholder
@@ -658,7 +658,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
           />
         </div>
         {/* Right: Unified bullet points editor */}
-        <div style={bulletsContainerStyles} data-draggable="true">
+        <div style={bulletsContainerStyles}>
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle={bulletStyle}
