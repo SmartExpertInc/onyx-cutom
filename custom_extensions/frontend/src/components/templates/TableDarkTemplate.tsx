@@ -294,11 +294,22 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
         {/* Table Container */}
         <div className="overflow-hidden rounded-lg shadow-2xl">
-          <table className="w-full border-collapse">
+          <table 
+            className="w-full border-collapse"
+            style={{
+              backgroundColor: tableBackgroundColor,
+              WebkitPrintColorAdjust: 'exact',
+              printColorAdjust: 'exact'
+            }}
+          >
             
             {/* Headers */}
             <thead>
-              <tr style={{ backgroundColor: headerBackgroundColor }}>
+              <tr style={{ 
+                backgroundColor: headerBackgroundColor,
+                WebkitPrintColorAdjust: 'exact',
+                printColorAdjust: 'exact'
+              }}>
                 <th 
                   className="p-4 text-left font-bold border-r-2"
                   style={{ 
@@ -373,7 +384,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   className="border-b-2 hover:bg-opacity-10 hover:bg-white transition-colors group"
                   style={{ 
                     borderColor: themeContent,
-                    backgroundColor: tableBackgroundColor 
+                    backgroundColor: tableBackgroundColor,
+                    WebkitPrintColorAdjust: 'exact',
+                    printColorAdjust: 'exact'
                   }}
                 >
                   {row.map((cell, colIndex) => {
@@ -389,7 +402,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         style={{ 
                           color: "#ffffff",
                           borderColor: themeContent,
-                          fontSize: '1rem'
+                          fontSize: '1rem',
+                          WebkitPrintColorAdjust: 'exact',
+                          printColorAdjust: 'exact'
                         }}
                       >
                         {isEditingThisCell && isEditable ? (

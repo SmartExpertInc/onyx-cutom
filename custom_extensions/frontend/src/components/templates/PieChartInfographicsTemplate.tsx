@@ -268,6 +268,14 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             fontSize="16"
             fontWeight="bold"
             className="select-none"
+            style={{
+              fontFamily: 'Arial, sans-serif',
+              paintOrder: 'stroke fill',
+              stroke: '#000000',
+              strokeWidth: '0.5px',
+              strokeLinecap: 'round',
+              strokeLinejoin: 'round'
+            }}
           >
             {segment.label}
           </text>

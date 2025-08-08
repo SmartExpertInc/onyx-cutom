@@ -384,7 +384,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                           color: "#000000",
                           borderColor: tableBorderColor,
                           fontSize: '0.95rem',
-                          backgroundColor: isFirstColumn ? 'rgba(0,0,0,0.02)' : 'transparent'
+                          backgroundColor: isFirstColumn ? 'rgba(0,0,0,0.02)' : 'transparent',
+                          WebkitPrintColorAdjust: 'exact',
+                          printColorAdjust: 'exact'
                         }}
                       >
                         {isEditingThisCell && isEditable ? (
@@ -392,12 +394,14 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                             initialValue={cell}
                             onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
                             onCancel={() => setEditingCell(null)}
-                            style={{
-                              color: "#000000",
-                              textAlign: isFirstColumn ? 'left' : 'center',
-                              fontSize: '0.95rem',
-                              fontWeight: isFirstColumn ? 'bold' : 'normal'
-                            }}
+                                                    style={{
+                          color: "#000000",
+                          textAlign: isFirstColumn ? 'left' : 'center',
+                          fontSize: '0.95rem',
+                          fontWeight: isFirstColumn ? 'bold' : 'normal',
+                          WebkitPrintColorAdjust: 'exact',
+                          printColorAdjust: 'exact'
+                        }}
                           />
                         ) : (
                           <span 
