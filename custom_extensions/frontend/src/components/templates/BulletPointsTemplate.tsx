@@ -626,6 +626,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
           <h1 
             style={titleStyles}
             onClick={(e) => {
+              // Check the wrapper for just-dragged flag
               const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
               if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                 e.preventDefault();
