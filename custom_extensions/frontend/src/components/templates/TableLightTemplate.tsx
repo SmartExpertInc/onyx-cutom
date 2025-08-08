@@ -381,7 +381,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                           isFirstColumn ? 'text-left font-semibold' : 'text-center'
                         }`}
                         style={{ 
-                          color: isFirstColumn ? themeTitle : tableTextColor,
+                          color: "#000000",
                           borderColor: tableBorderColor,
                           fontSize: '0.95rem',
                           backgroundColor: isFirstColumn ? 'rgba(0,0,0,0.02)' : 'transparent'
@@ -393,7 +393,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                             onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
                             onCancel={() => setEditingCell(null)}
                             style={{
-                              color: isFirstColumn ? themeTitle : themeContent,
+                              color: "#000000",
                               textAlign: isFirstColumn ? 'left' : 'center',
                               fontSize: '0.95rem',
                               fontWeight: isFirstColumn ? 'bold' : 'normal'

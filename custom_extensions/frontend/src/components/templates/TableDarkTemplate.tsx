@@ -387,7 +387,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                           isFirstColumn ? 'text-left font-semibold' : 'text-center'
                         }`}
                         style={{ 
-                          color: themeContent,
+                          color: "#ffffff",
                           borderColor: themeContent,
                           fontSize: '1rem'
                         }}
