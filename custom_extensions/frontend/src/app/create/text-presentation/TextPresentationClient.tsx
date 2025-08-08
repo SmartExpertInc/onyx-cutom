@@ -561,7 +561,7 @@ export default function TextPresentationClient() {
       setIsGenerating(false);
     }
   };
-
+  
   // Fetch all outlines when switching to existing outline mode
   useEffect(() => {
     if (useExistingOutline !== true) return;
@@ -647,6 +647,14 @@ export default function TextPresentationClient() {
     { value: "medium", label: t('interface.generate.medium', 'Medium') },
     { value: "long", label: t('interface.generate.long', 'Long') },
   ];
+
+  const sections = content
+    .split('\n')
+    .filter(line => /^##\s|^\d+\.\s/.test(line.trim())) // ловимо `## ` або `1. ` як заголовки
+    .map((line, idx) => {
+      const cleaned = line.replace(/^##\s*/, '').replace(/^\d+\.\s*/, '');
+      return { id: idx + 1, title: cleaned };
+    });
 
   return (
     <>
@@ -868,14 +876,16 @@ export default function TextPresentationClient() {
                   ))}
                 </div>
               ) : (
-                <textarea 
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                  className="w-full border border-green-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                  disabled={loadingEdit}
-                />
+                <ul className="space-y-4">
+      {sections.map(({ id, title }) => (
+        <li key={id} className="flex items-center bg-white shadow rounded-md p-4">
+          <div className="bg-blue-600 text-white font-bold rounded-md w-10 h-10 flex items-center justify-center mr-4">
+            {id}
+          </div>
+          <span className="text-lg font-medium">{title}</span>
+        </li>
+      ))}
+    </ul>
               )}
             </div>
           )}
