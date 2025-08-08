@@ -518,78 +518,7 @@ export default function TextPresentationClient() {
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
-      let data;
-      
-      // Check if this is a streaming response by trying to get a reader (same as lesson presentation and course outline)
-      const reader = response.body?.getReader();
-      if (reader) {
-        // Streaming response (prevents timeout issues)
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let finalResult = null;
-
-        try {
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-            
-            for (const ln of lines) {
-              if (!ln.trim()) continue;
-              try {
-                const pkt = JSON.parse(ln);
-                if (pkt.type === "done") {
-                  finalResult = pkt;
-                  break;
-                } else if (pkt.type === "error") {
-                  throw new Error(pkt.text || pkt.message || "Unknown error occurred");
-                } else if (pkt.type === "progress") {
-                  // Optionally show progress updates (can be logged or shown in UI)
-                  console.log("Progress:", pkt.text);
-                }
-              } catch (e) {
-                // Skip invalid JSON lines unless it's an error we threw
-                if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                  throw e;
-                }
-                continue;
-              }
-            }
-            
-            if (finalResult) break;
-          }
-
-          // Handle any remaining buffer
-          if (buffer.trim() && !finalResult) {
-            try {
-              const pkt = JSON.parse(buffer.trim());
-              if (pkt.type === "done") {
-                finalResult = pkt;
-              } else if (pkt.type === "error") {
-                throw new Error(pkt.text || pkt.message || "Unknown error occurred");
-              }
-            } catch (e) {
-              // Ignore parsing errors for final buffer unless it's an error we threw
-              if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                throw e;
-              }
-            }
-          }
-
-          if (!finalResult) {
-            throw new Error("No final result received from streaming response");
-          }
-
-          data = finalResult;
-        } finally {
-          reader.releaseLock();
-        }
-      } else {
-        // Regular JSON response (fallback)
-        data = await response.json();
-      }
+      const data = await response.json();
       
       // Validate response
       if (!data || !data.id) {
