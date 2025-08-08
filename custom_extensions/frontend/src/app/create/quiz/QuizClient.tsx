@@ -157,7 +157,7 @@ export default function QuizClient() {
   const parseQuizIntoQuestions = (content: string) => {
     if (!content.trim()) return [];
     
-    const questions = [];
+    const questions: Array<{title: string; content: string}> = [];
     
     // Check if content contains quiz questions (numbered questions pattern)
     const quizQuestions = content.match(/^\s*\d+\.\s*\*\*(.*?)\*\*/gm);
