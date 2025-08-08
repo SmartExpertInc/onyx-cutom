@@ -854,9 +854,9 @@ export default function TextPresentationClient() {
                 </div>
               )}
               {/* Lesson-style preview, if content is a list of lessons */}
-              {Array.isArray(lessonList) && lessonList.length > 0 ? (
+              {Array.isArray(content) && content.length > 0 ? (
                 <div className="flex flex-col gap-4">
-                  {lessonList.map((lesson: string, idx: number) => (
+                  {content.map((lesson: string, idx: number) => (
                     <div key={idx} className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm">
                       <div className="flex items-center justify-center w-14 h-14 bg-[#1769FF] rounded-l-xl text-white text-lg font-bold">
                         {idx + 1}
