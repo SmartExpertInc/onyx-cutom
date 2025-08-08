@@ -843,7 +843,7 @@ export default function TextPresentationClient() {
         )}
         {/* Content/preview section */}
         
-        <div className="flex flex-col gap-3">
+        <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
@@ -854,12 +854,47 @@ export default function TextPresentationClient() {
                   <LoadingAnimation message="Applying edit..." />
                 </div>
               )}
-              {/* Markdown-style preview, not lesson cards */}
-              <div className="relative w-full">
+              {/* Lesson-style preview, if content is a list of lessons */}
+              {Array.isArray(content) && content.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                  {content.map((lesson: string, idx: number) => (
+                    <div
+                      key={idx}
+                      className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm"
+                      style={{
+                        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
+                        borderRadius: '16px',
+                        border: '1px solid #E5EAF2',
+                        background: '#fff',
+                        minHeight: '70px',
+                        marginBottom: '0.5rem',
+                      }}
+                    >
+                      <div
+                        className="flex items-center justify-center"
+                        style={{
+                          width: '56px',
+                          height: '56px',
+                          background: 'linear-gradient(180deg, #1769FF 0%, #1E90FF 100%)',
+                          borderRadius: '12px 0 0 12px',
+                          color: '#fff',
+                          fontWeight: 600,
+                          fontSize: '18px',
+                        }}
+                      >
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 px-4 py-4 text-[#20355D] text-base font-normal" style={{ minHeight: '56px', display: 'flex', alignItems: 'center' }}>
+                        {lesson}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
                 <textarea
                   ref={textareaRef}
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
                   placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
                   className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh] font-sans text-[15px] text-[#20355D] leading-relaxed"
                   disabled={loadingEdit}
@@ -869,11 +904,10 @@ export default function TextPresentationClient() {
                     overflowY: 'auto',
                   }}
                 />
-                {/* Overlay for scroll indicator if needed */}
-              </div>
+              )}
             </div>
           )}
-        </div>
+        </section>
         {/* Advanced Mode */}
         {streamDone && content && (
           <>
