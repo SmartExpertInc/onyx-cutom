@@ -842,6 +842,7 @@ export default function TextPresentationClient() {
           <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")} rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
         )}
         {/* Content/preview section */}
+        
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
