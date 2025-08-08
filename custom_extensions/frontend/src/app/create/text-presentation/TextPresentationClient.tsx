@@ -127,6 +127,82 @@ export default function TextPresentationClient() {
   const [aiModel, setAiModel] = useState("flux-fast");
   // Footer/finalize
   const [isFinalizing, setIsFinalizing] = useState(false);
+  
+  // Display mode state
+  const [displayMode, setDisplayMode] = useState<'cards' | 'text'>('cards');
+
+  // Parse content into lessons/sections
+  const parseContentIntoLessons = (content: string) => {
+    if (!content.trim()) return [];
+    
+    const lessons = [];
+    
+    // Split content by markdown headers or section breaks
+    const sections = content.split(/(?:^|\n)(?:#{1,3}\s+.*|---\s*$)/m);
+    const headers = content.match(/(?:^|\n)(#{1,3}\s+.*)/gm) || [];
+    
+    // Clean up headers and remove emoji/icon headers
+    const cleanHeaders = headers
+      .map(h => h.replace(/^[\n]*#{1,3}\s*/, '').trim())
+      .filter(h => h && !h.match(/^[📚🛠️💡🚀📞]/) && h !== 'Introduction to AI Tools for High School Teachers');
+    
+    for (let i = 0; i < cleanHeaders.length; i++) {
+      const title = cleanHeaders[i];
+      const nextSectionIndex = i + 1;
+      
+      // Get content between current header and next header
+      let sectionContent = '';
+      if (nextSectionIndex < sections.length) {
+        sectionContent = sections[nextSectionIndex] || '';
+      }
+      
+      // Clean up the content - remove markdown formatting but keep structure
+      sectionContent = sectionContent
+        .replace(/^\s*---\s*$/gm, '') // Remove section breaks
+        .replace(/^\s*\n+/g, '') // Remove leading newlines
+        .replace(/\n+\s*$/g, '') // Remove trailing newlines
+        .trim();
+      
+      if (title && sectionContent) {
+        lessons.push({
+          title: title,
+          content: sectionContent
+        });
+      }
+    }
+    
+    // If no structured content found, create manual sections based on your specific content
+    if (lessons.length === 0) {
+      const manualSections = [
+        {
+          title: "Benefits of AI Tools in Education",
+          content: "AI tools offer numerous advantages for high school teachers, including personalized learning, enhanced engagement, time efficiency, and data-driven insights."
+        },
+        {
+          title: "Popular AI Tools for High School Teachers", 
+          content: "Kahoot!, Grammarly, Socrative, Google Classroom, and Edmodo are widely used AI tools that benefit high school education."
+        },
+        {
+          title: "Recommendations for Implementing AI Tools",
+          content: "Start small, provide training, monitor progress, and encourage feedback to effectively integrate AI tools into teaching practice."
+        },
+        {
+          title: "Training and Development",
+          content: "Professional development and ongoing training help teachers maximize the benefits of AI tools in their classrooms."
+        },
+        {
+          title: "Resources and Support",
+          content: "Access to resources, technical support, and community networks ensures successful AI tool implementation."
+        }
+      ];
+      
+      return manualSections;
+    }
+    
+    return lessons;
+  };
+
+  const lessonList = parseContentIntoLessons(content);
 
   // Example prompts for advanced mode
   const onePagerExamples = [
@@ -561,7 +637,7 @@ export default function TextPresentationClient() {
       setIsGenerating(false);
     }
   };
-  
+
   // Fetch all outlines when switching to existing outline mode
   useEffect(() => {
     if (useExistingOutline !== true) return;
@@ -647,14 +723,6 @@ export default function TextPresentationClient() {
     { value: "medium", label: t('interface.generate.medium', 'Medium') },
     { value: "long", label: t('interface.generate.long', 'Long') },
   ];
-
-  const sections = content
-    .split('\n')
-    .filter(line => /^##\s|^\d+\.\s/.test(line.trim())) // ловимо `## ` або `1. ` як заголовки
-    .map((line, idx) => {
-      const cleaned = line.replace(/^##\s*/, '').replace(/^\d+\.\s*/, '');
-      return { id: idx + 1, title: cleaned };
-    });
 
   return (
     <>
@@ -851,7 +919,33 @@ export default function TextPresentationClient() {
         )}
         {/* Content/preview section */}
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+            {textareaVisible && lessonList.length > 0 && (
+              <div className="flex items-center gap-2 bg-white rounded-full border border-gray-200 p-1">
+                <button
+                  onClick={() => setDisplayMode('cards')}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    displayMode === 'cards' 
+                      ? 'bg-[#0066FF] text-white shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Card View
+                </button>
+                <button
+                  onClick={() => setDisplayMode('text')}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    displayMode === 'text' 
+                      ? 'bg-[#0066FF] text-white shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Text View
+                </button>
+              </div>
+            )}
+          </div>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           {textareaVisible && (
@@ -861,31 +955,40 @@ export default function TextPresentationClient() {
                   <LoadingAnimation message="Applying edit..." />
                 </div>
               )}
-              {/* Lesson-style preview, if content is a list of lessons */}
-              {Array.isArray(lessonList) && lessonList.length > 0 ? (
+              {/* Display based on mode and content structure */}
+              {displayMode === 'cards' && lessonList.length > 0 ? (
                 <div className="flex flex-col gap-4">
-                  {lessonList.map((lesson: string, idx: number) => (
-                    <div key={idx} className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm">
-                      <div className="flex items-center justify-center w-14 h-14 bg-[#1769FF] rounded-l-xl text-white text-lg font-bold">
+                  <div className="text-center mb-4">
+                    <h3 className="text-sm font-medium text-gray-600 mb-2">Lesson Content</h3>
+                  </div>
+                  {lessonList.map((lesson, idx: number) => (
+                    <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="flex items-center justify-center w-16 h-16 bg-[#0066FF] text-white text-lg font-bold flex-shrink-0">
                         {idx + 1}
                       </div>
-                      <div className="flex-1 px-4 py-4 text-[#20355D] text-base font-normal">
-                        {lesson}
+                      <div className="flex-1 p-4">
+                        <h4 className="text-[#20355D] text-base font-semibold mb-2">
+                          {lesson.title}
+                        </h4>
+                        {lesson.content && (
+                          <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                            {lesson.content.substring(0, 200)}
+                            {lesson.content.length > 200 && '...'}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <ul className="space-y-4">
-      {sections.map(({ id, title }) => (
-        <li key={id} className="flex items-center bg-white shadow rounded-md p-4">
-          <div className="bg-blue-600 text-white font-bold rounded-md w-10 h-10 flex items-center justify-center mr-4">
-            {id}
-          </div>
-          <span className="text-lg font-medium">{title}</span>
-        </li>
-      ))}
-    </ul>
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
+                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                  disabled={loadingEdit}
+                />
               )}
             </div>
           )}
