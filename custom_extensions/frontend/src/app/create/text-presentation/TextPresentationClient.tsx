@@ -842,69 +842,87 @@ export default function TextPresentationClient() {
           <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")} rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
         )}
         {/* Content/preview section */}
-        
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
-          {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
+          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.lesson', 'Lesson')} {t('interface.generate.content', 'Content')}</h2>
+          {loading && <LoadingAnimation message={t('interface.generate.generatingLessonContent', 'Generating lesson content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+          
+          {/* Main content display - Custom slide titles display matching course outline format */}
           {textareaVisible && (
-            <div style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+            <div
+              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
+              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+            >
               {loadingEdit && (
-                <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
-                  <LoadingAnimation message="Applying edit..." />
+                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                  <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
                 </div>
               )}
-              {/* Lesson-style preview, if content is a list of lessons */}
-              {Array.isArray(content) && content.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  {content.map((lesson: string, idx: number) => (
-                    <div
-                      key={idx}
-                      className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm"
-                      style={{
-                        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
-                        borderRadius: '16px',
-                        border: '1px solid #E5EAF2',
-                        background: '#fff',
-                        minHeight: '70px',
-                        marginBottom: '0.5rem',
-                      }}
-                    >
-                      <div
-                        className="flex items-center justify-center"
-                        style={{
-                          width: '56px',
-                          height: '56px',
-                          background: 'linear-gradient(180deg, #1769FF 0%, #1E90FF 100%)',
-                          borderRadius: '12px 0 0 12px',
-                          color: '#fff',
-                          fontWeight: 600,
-                          fontSize: '18px',
-                        }}
-                      >
-                        {idx + 1}
+              
+              {/* Parse and display slide titles in course outline format */}
+              {(() => {
+                // Split slides properly - first try by --- separators, then by language-agnostic patterns
+                let slides = [];
+                if (content.includes('---')) {
+                  // Split by --- separators
+                  slides = content.split(/^---\s*$/m).filter(slide => slide.trim());
+                } else {
+                  // Split by language-agnostic pattern: **[anything] [number]: [title]
+                  slides = content.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter(slide => slide.trim());
+                }
+                
+                // Filter out slides that don't have proper numbered slide pattern (language-agnostic)
+                slides = slides.filter(slideContent => {
+                  const hasSlidePattern = /\*\*[^*]+\s+\d+\s*:/.test(slideContent);
+                  return hasSlidePattern;
+                });
+                
+                return slides.map((slideContent, slideIdx) => {
+                  // Extract slide title using language-agnostic pattern: **[word(s)] [number]: [title]
+                  const titleMatch = slideContent.match(/\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/);
+                  let title = '';
+                  
+                  if (titleMatch) {
+                    title = titleMatch[1].trim();
+                  } else {
+                    // Fallback: look for any **text** pattern at the start
+                    const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
+                    title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                  }
+                  
+                  return (
+                    <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
+                      {/* Left colored bar with index - matching course outline styling */}
+                      <div className="w-[60px] bg-[#0066FF] flex items-start justify-center pt-5">
+                        <span className="text-white font-semibold text-base select-none">{slideIdx + 1}</span>
                       </div>
-                      <div className="flex-1 px-4 py-4 text-[#20355D] text-base font-normal" style={{ minHeight: '56px', display: 'flex', alignItems: 'center' }}>
-                        {lesson}
+
+                      {/* Main card - matching course outline styling */}
+                      <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                        {/* Slide title */}
+                        <input
+                          type="text"
+                          value={title}
+                          onChange={(e) => {
+                            const newTitle = e.target.value;
+                            // Update the content with new title using language-agnostic pattern
+                            const slidePattern = titleMatch 
+                              ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
+                              : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
+                            
+                            const updatedContent = content.replace(slidePattern, 
+                              titleMatch ? `$1${newTitle}` : `**${newTitle}**`
+                            );
+                            setContent(updatedContent);
+                          }}
+                          className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
+                          placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
+                        />
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <textarea
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
-                  placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh] font-sans text-[15px] text-[#20355D] leading-relaxed"
-                  disabled={loadingEdit}
-                  style={{
-                    fontFamily: 'inherit',
-                    whiteSpace: 'pre-wrap',
-                    overflowY: 'auto',
-                  }}
-                />
-              )}
+                  );
+                });
+              })()}
             </div>
           )}
         </section>
