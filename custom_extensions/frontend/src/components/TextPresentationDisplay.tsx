@@ -577,68 +577,15 @@ const BlockSettingsModal = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
               <option value="standalone">📄 {t('interface.imageSettings.standalone', 'Standalone (full width)')}</option>
-              <option value="side-by-side-left">⬅️ {t('interface.imageSettings.sideBySideLeft', 'Side-by-side (image left)')}</option>
-              <option value="side-by-side-right">➡️ {t('interface.imageSettings.sideBySideRight', 'Side-by-side (image right)')}</option>
               <option value="inline-left">⬅️ {t('interface.imageSettings.inlineLeft', 'Inline (image left, text wraps)')}</option>
               <option value="inline-right">➡️ {t('interface.imageSettings.inlineRight', 'Inline (image right, text wraps)')}</option>
             </select>
             <p className="text-xs text-gray-500 mt-1">
-              {t('interface.imageSettings.layoutModeDescription', 'Side-by-side: Image and content are equal height. Inline: Text flows around the image.')}
+              {t('interface.imageSettings.layoutModeDescription', 'Inline: Text flows around the image.')}
             </p>
           </div>
 
-          {/* Layout Partner Selection - Only show for side-by-side modes */}
-          {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                {t('interface.imageSettings.partnerContent', 'Partner Content')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.partnerContentHelp', 'content to place alongside image')})</span>
-              </label>
-              <select
-                value={imageBlock.layoutPartnerIndex || ''}
-                onChange={e => {
-                  const value = e.target.value ? parseInt(e.target.value) : null;
-                  console.log('🔄 [LAYOUT CHANGE] Setting layoutPartnerIndex:', value, 'for block:', imageBlock);
-                  onTextChange?.(fieldPath('layoutPartnerIndex'), value);
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              >
-                <option value="">{t('interface.imageSettings.selectContentBlock', 'Select content block...')}</option>
-                {/* This will be populated dynamically based on available content blocks */}
-                <option value="0">{t('interface.imageSettings.block1', 'Block 1: Headline/Paragraph')}</option>
-                <option value="1">{t('interface.imageSettings.block2', 'Block 2: List/Content')}</option>
-                <option value="2">{t('interface.imageSettings.block3', 'Block 3: Another content block')}</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                {t('interface.imageSettings.partnerContentDescription', 'Choose which content block should appear alongside this image.')}
-              </p>
-            </div>
-          )}
 
-          {/* Layout Proportion - Only show for side-by-side modes */}
-          {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                {t('interface.imageSettings.spaceDistribution', 'Space Distribution')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.spaceDistributionHelp', 'how much space each element gets')})</span>
-              </label>
-              <select
-                value={imageBlock.layoutProportion || '50-50'}
-                onChange={e => {
-                  console.log('🔄 [LAYOUT CHANGE] Setting layoutProportion:', e.target.value, 'for block:', imageBlock);
-                  onTextChange?.(fieldPath('layoutProportion'), e.target.value);
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              >
-                <option value="50-50">⚖️ {t('interface.imageSettings.equal', 'Equal (50% each)')}</option>
-                <option value="60-40">📊 {t('interface.imageSettings.imageLarger', 'Image larger (60% image, 40% content)')}</option>
-                <option value="40-60">📝 {t('interface.imageSettings.contentLarger', 'Content larger (40% image, 60% content)')}</option>
-                <option value="70-30">🖼️ {t('interface.imageSettings.imageDominant', 'Image dominant (70% image, 30% content)')}</option>
-                <option value="30-70">📄 {t('interface.imageSettings.contentDominant', 'Content dominant (30% image, 70% content)')}</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                {t('interface.imageSettings.spaceDistributionDescription', 'Controls how much horizontal space the image and content each take up.')}
-              </p>
-            </div>
-          )}
 
           {/* Layout Preview */}
           {(imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone') && (
@@ -646,31 +593,12 @@ const BlockSettingsModal = ({
               <div className="text-center">
                 <div className="text-blue-600 text-sm font-medium mb-2">{t('interface.imageSettings.layoutPreview', 'Layout Preview')}</div>
                 <div className="flex items-center justify-center space-x-2 text-xs">
-                  {imageBlock.layoutMode === 'side-by-side-left' && (
-                    <>
-                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image', 'Image')}</div>
-                      <div className="text-blue-400">+</div>
-                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content', 'Content')}</div>
-                    </>
-                  )}
-                  {imageBlock.layoutMode === 'side-by-side-right' && (
-                    <>
-                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content', 'Content')}</div>
-                      <div className="text-blue-400">+</div>
-                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image', 'Image')}</div>
-                    </>
-                  )}
                   {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
                     <div className="text-blue-600">
                       {t('interface.imageSettings.textWillWrap', 'Text will wrap around the image')}
                     </div>
                   )}
                 </div>
-                {imageBlock.layoutProportion && (
-                  <div className="text-xs text-blue-500 mt-1">
-                    {t('interface.imageSettings.space', 'Space')}: {imageBlock.layoutProportion}
-                  </div>
-                )}
               </div>
             </div>
           )}

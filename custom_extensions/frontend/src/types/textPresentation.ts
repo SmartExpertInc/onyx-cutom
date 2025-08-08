@@ -48,7 +48,7 @@ export interface ImageBlock {
   borderRadius?: string | null;
   maxWidth?: string | null;
   float?: 'left' | 'right' | null;
-  layoutMode?: 'standalone' | 'side-by-side-left' | 'side-by-side-right' | 'inline-left' | 'inline-right' | null;
+  layoutMode?: 'standalone' | 'inline-left' | 'inline-right' | null;
   layoutPartnerIndex?: number | null;
   layoutProportion?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70' | null;
 }
