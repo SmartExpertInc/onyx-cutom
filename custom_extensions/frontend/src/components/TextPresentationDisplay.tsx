@@ -588,7 +588,7 @@ const BlockSettingsModal = ({
 
 
           {/* Layout Preview */}
-          {(imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone') && (
+          {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-dashed border-blue-200">
               <div className="text-center">
                 <div className="text-blue-600 text-sm font-medium mb-2">{t('interface.imageSettings.layoutPreview', 'Layout Preview')}</div>
@@ -599,6 +599,7 @@ const BlockSettingsModal = ({
                     </div>
                   )}
                 </div>
+
               </div>
             </div>
           )}
