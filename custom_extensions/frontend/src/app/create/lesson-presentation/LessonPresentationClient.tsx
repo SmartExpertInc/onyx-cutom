@@ -588,6 +588,7 @@ export default function LessonPresentationClient() {
 
     // Create AbortController for this request
     const abortController = new AbortController();
+    let caughtError: any = null;
 
     // Add timeout safeguard to prevent infinite loading
     const timeoutId = setTimeout(() => {
@@ -637,26 +638,79 @@ export default function LessonPresentationClient() {
       // Navigate immediately without delay to prevent cancellation
       router.push(`/projects/view/${data.id}`);
 
-    } catch (e: any) {
+    } catch (error: any) {
+      caughtError = error;
       // Clear timeout on error
       clearTimeout(timeoutId);
       
-      // Reset generating state on any error
-      setIsGenerating(false);
-      setLoading(false);
-      
       // Handle specific error types
-      if (e.name === 'AbortError') {
+      if (error.name === 'AbortError') {
         console.log('Request was aborted');
         setError("Request was canceled. Please try again.");
-      } else if (e.message?.includes('NetworkError') || e.message?.includes('Failed to fetch')) {
+      } else if (error.message?.includes('504') || error.message?.includes('Gateway Time-out')) {
+        // Handle 504 Gateway Timeout specifically
+        console.log('504 Gateway Timeout detected, implementing fallback strategy...');
+        
+        // Keep loading animation and wait 10 seconds before checking for new projects
+        setTimeout(async () => {
+          try {
+            // Fetch user's projects to check if a new slide deck was created
+            const projectsResponse = await fetch(`${CUSTOM_BACKEND_URL}/projects`, {
+              headers: { 'Content-Type': 'application/json' },
+              cache: 'no-store',
+              credentials: 'same-origin'
+            });
+
+            if (projectsResponse.ok) {
+              const projects = await projectsResponse.json();
+              
+              // Check if the newest project is a slide deck (within last 2 minutes)
+              const now = new Date();
+              const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
+              
+              const newestProject = projects.find((project: any) => {
+                const createdAt = new Date(project.created_at);
+                const isRecentlyCreated = createdAt >= twoMinutesAgo;
+                const isSlideType = project.design_microproduct_type === 'SlideDeckDisplay' || 
+                                  project.design_microproduct_type === 'VideoLessonPresentationDisplay';
+                return isRecentlyCreated && isSlideType;
+              });
+
+              if (newestProject) {
+                // Found a newly created slide deck, redirect to it
+                console.log('Found newly created slide deck, redirecting...', newestProject.id);
+                router.push(`/projects/view/${newestProject.id}`);
+              } else {
+                // No new slide deck found, redirect to products page
+                console.log('No new slide deck found, redirecting to products page');
+                router.push('/projects');
+              }
+            } else {
+              // Failed to fetch projects, redirect to products page
+              router.push('/projects');
+            }
+          } catch (checkError) {
+            // Error checking for new projects, redirect to products page
+            console.error('Error checking for new projects:', checkError);
+            router.push('/projects');
+          } finally {
+            setIsGenerating(false);
+          }
+        }, 10000); // Wait 10 seconds
+
+        // Don't show error immediately for 504 timeouts
+        return;
+      } else if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
         setError("Network error occurred. Please check your connection and try again.");
       } else {
-        const errorMessage = e.message || "Failed to finalize lesson. Please try again.";
-        setError(errorMessage);
+        console.error('Finalization failed:', error);
+        setError(error instanceof Error ? error.message : 'Failed to finalize lesson presentation');
       }
-      
-      console.error("Finalization error:", e);
+    } finally {
+      // Only set isGenerating to false if we're not handling a 504 timeout
+      if (!caughtError?.message?.includes('504') && !caughtError?.message?.includes('Gateway Time-out')) {
+        setIsGenerating(false);
+      }
     }
   };
 
