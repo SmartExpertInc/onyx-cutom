@@ -843,96 +843,44 @@ export default function TextPresentationClient() {
         )}
         {/* Content/preview section */}
         <section className="flex flex-col gap-3">
-  <h2 className="text-sm font-medium text-[#20355D]">
-    {t('interface.generate.presentationContent', 'Presentation Content')}
-  </h2>
-  {loading && (
-    <LoadingAnimation 
-      message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} 
-    />
-  )}
-  {error && (
-    <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">
-      {error}
-    </p>
-  )}
-  
-  {textareaVisible && (
-    <div 
-      className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
-      style={{ animation: 'fadeInDown 0.25s ease-out both' }}
-    >
-      {loadingEdit && (
-        <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
-          <LoadingAnimation 
-            message={t('interface.generate.applyingEdit', 'Applying edit...')} 
-          />
-        </div>
-      )}
-
-      {Array.isArray(lessonList) && lessonList.length > 0 ? (
-        <div className="flex flex-col gap-4">
-          {lessonList.map((lesson: string, idx: number) => (
-            <div key={idx} className="flex rounded-xl shadow-sm overflow-hidden">
-              {/* Left colored bar with index */}
-              <div className="w-[60px] bg-[#0066FF] flex items-start justify-center pt-5">
-                <span className="text-white font-semibold text-base select-none">
-                  {idx + 1}
-                </span>
-              </div>
-              
-              {/* Main card content */}
-              <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
-                <div className="font-medium text-lg text-gray-900">
-                  {lesson}
+          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+          {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
+          {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+          {textareaVisible && (
+            <div style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              {loadingEdit && (
+                <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
+                  <LoadingAnimation message="Applying edit..." />
                 </div>
-              </div>
+              )}
+              {/* Lesson-style preview, if content is a list of lessons */}
+              {Array.isArray(lessonList) && lessonList.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                  {lessonList.map((lesson: string, idx: number) => (
+                    <div key={idx} className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm">
+                      <div className="flex items-center justify-center w-14 h-14 bg-[#1769FF] rounded-l-xl text-white text-lg font-bold">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 px-4 py-4 text-[#20355D] text-base font-normal">
+                        {lesson}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <textarea 
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
+                  className="w-full border border-gray-green rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                  disabled={loadingEdit}
+                />
+              )}
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {/* Parse content into slides if it's not a lesson list */}
-          {(() => {
-            // Split content into slides
-            let slides = [];
-            if (content.includes('---')) {
-              slides = content.split(/^---\s*$/m).filter(slide => slide.trim());
-            } else {
-              // Split by paragraphs if no slide separators
-              slides = content.split('\n\n').filter(slide => slide.trim());
-            }
-
-            return slides.map((slideContent, slideIdx) => (
-              <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
-                {/* Left colored bar with index */}
-                <div className="w-[60px] bg-[#0066FF] flex items-start justify-center pt-5">
-                  <span className="text-white font-semibold text-base select-none">
-                    {slideIdx + 1}
-                  </span>
-                </div>
-
-                {/* Main editable card */}
-                <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
-                  <textarea
-                    value={slideContent}
-                    onChange={(e) => {
-                      const newSlides = [...slides];
-                      newSlides[slideIdx] = e.target.value;
-                      setContent(newSlides.join('\n\n---\n\n'));
-                    }}
-                    className="w-full border-none focus:ring-0 text-gray-900 min-h-[100px]"
-                    placeholder={`${t('interface.generate.slideContent', 'Slide content')} ${slideIdx + 1}`}
-                  />
-                </div>
-              </div>
-            ));
-          })()}
-        </div>
-      )}
-    </div>
-  )}
-</section>
+          )}
+       
+        </section>
         {/* Advanced Mode */}
         {streamDone && content && (
           <>
