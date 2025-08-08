@@ -13774,9 +13774,11 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     async def streamer():
+        logger.info(f"[LESSON_FINALIZE_STREAMER] Starting streamer for {payload.lessonTitle}")
         try:
             # Determine if this is a video lesson presentation
             is_video_lesson = payload.productType == "video_lesson_presentation"
+            logger.info(f"[LESSON_FINALIZE_STREAMER] Product type: {payload.productType}, is_video: {is_video_lesson}")
             
             # Get the appropriate template with retry mechanism
             max_retries = 3
@@ -13787,8 +13789,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         template_id = await _ensure_video_lesson_presentation_template(pool)
                     else:
                         template_id = await _ensure_slide_deck_template(pool)
+                    logger.info(f"[LESSON_FINALIZE_STREAMER] Template ID obtained: {template_id}")
                     break
                 except Exception as e:
+                    logger.error(f"[LESSON_FINALIZE_STREAMER] Template attempt {attempt + 1} failed: {e}")
                     if attempt == max_retries - 1:
                         logger.error(f"Failed to get template after {max_retries} attempts: {e}")
                         yield (json.dumps({"type": "error", "text": "Unable to initialize template"}) + "\n").encode()
@@ -13796,11 +13800,13 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                     await asyncio.sleep(0.5)  # Brief delay before retry
 
             if not template_id:
+                logger.error(f"[LESSON_FINALIZE_STREAMER] No template ID after retries")
                 yield (json.dumps({"type": "error", "text": "Template initialization failed"}) + "\n").encode()
                 return
 
             # Determine the project name - if connected to outline, use correct naming convention
             project_name = payload.lessonTitle.strip()
+            logger.info(f"[LESSON_FINALIZE_STREAMER] Initial project name: {project_name}")
             if payload.outlineProjectId:
                 try:
                     # Fetch outline name from database
@@ -13812,12 +13818,14 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         if outline_row:
                             outline_name = outline_row["project_name"]
                             project_name = f"{outline_name}: {payload.lessonTitle.strip()}"
+                            logger.info(f"[LESSON_FINALIZE_STREAMER] Updated project name with outline: {project_name}")
                 except Exception as e:
                     logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                     # Continue with plain lesson title if outline fetch fails
 
             # Log full JSON for inspection
-            logger.info(f"[LESSON_FINALIZE_JSON] Full AI response JSON: {payload.aiResponse[:5000]}")
+            logger.info(f"[LESSON_FINALIZE_STREAMER] AI response length: {len(payload.aiResponse)} chars")
+            logger.info(f"[LESSON_FINALIZE_STREAMER] AI response preview: {payload.aiResponse[:1000]}")
 
             # Create project data
             project_data = ProjectCreateRequest(
@@ -13831,40 +13839,50 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 theme=payload.theme  # Pass selected theme
             )
             
+            logger.info(f"[LESSON_FINALIZE_STREAMER] About to create project with data: {project_data.projectName}")
+            
             # Create project with proper error handling
             try:
                 created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+                logger.info(f"[LESSON_FINALIZE_STREAMER] Project creation successful: {created_project.id}")
             except HTTPException as e:
+                logger.error(f"[LESSON_FINALIZE_STREAMER] HTTP error creating project: {e.detail}")
                 yield (json.dumps({"type": "error", "text": str(e.detail)}) + "\n").encode()
                 return
             except Exception as e:
-                logger.error(f"Failed to create project: {e}", exc_info=True)
+                logger.error(f"[LESSON_FINALIZE_STREAMER] General error creating project: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": "Failed to create lesson project"}) + "\n").encode()
                 return
 
             # Validate the created project
             if not created_project or not created_project.id:
-                logger.error("Project creation returned invalid result")
+                logger.error("[LESSON_FINALIZE_STREAMER] Project creation returned invalid result")
                 yield (json.dumps({"type": "error", "text": "Project creation failed - invalid response"}) + "\n").encode()
                 return
 
-            logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
+            logger.info(f"[LESSON_FINALIZE_STREAMER] Successfully finalized lesson presentation with project ID: {created_project.id}")
 
             # Log full saved JSON for inspection
             try:
                 async with pool.acquire() as conn:
                     row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
                     if row:
-                        logger.info(f"[LESSON_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(row['microproduct_content'], ensure_ascii=False)[:10000]}")
+                        content_preview = json.dumps(row['microproduct_content'], ensure_ascii=False)[:2000]
+                        logger.info(f"[LESSON_FINALIZE_STREAMER] Project {created_project.id} content preview: {content_preview}")
             except Exception as log_e:
-                logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
+                logger.warning(f"[LESSON_FINALIZE_STREAMER] Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
 
             # Return streaming completion response like course outlines
-            yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
+            success_packet = {"type": "done", "id": created_project.id}
+            logger.info(f"[LESSON_FINALIZE_STREAMER] Sending success packet: {success_packet}")
+            yield (json.dumps(success_packet) + "\n").encode()
+            logger.info(f"[LESSON_FINALIZE_STREAMER] Streamer completed successfully")
             
         except Exception as e:
-            logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": "An unexpected error occurred during finalization"}) + "\n").encode()
+            logger.error(f"[LESSON_FINALIZE_STREAMER] Unexpected error in lesson finalization: {e}", exc_info=True)
+            error_packet = {"type": "error", "text": "An unexpected error occurred during finalization"}
+            logger.info(f"[LESSON_FINALIZE_STREAMER] Sending error packet: {error_packet}")
+            yield (json.dumps(error_packet) + "\n").encode()
 
     return StreamingResponse(
         streamer(),
