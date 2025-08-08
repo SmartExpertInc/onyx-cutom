@@ -151,8 +151,13 @@ export default function TextPresentationClient() {
       .filter(h => h && !h.match(/^[📚🛠️💡🚀📞]/) && h !== 'Introduction to AI Tools for High School Teachers');
     
     for (let i = 0; i < cleanHeaders.length; i++) {
-      const title = cleanHeaders[i];
+      let title = cleanHeaders[i];
       const nextSectionIndex = i + 1;
+      
+      // Clean title - remove {isImportant} and other unwanted patterns
+      title = title
+        .replace(/\{[^}]*\}/g, '') // Remove {isImportant} and similar patterns
+        .trim();
       
       // Get content between current header and next header
       let sectionContent = '';
@@ -165,6 +170,8 @@ export default function TextPresentationClient() {
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/^\s*\n+/g, '') // Remove leading newlines
         .replace(/\n+\s*$/g, '') // Remove trailing newlines
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove ** bold formatting
+        .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
       
       if (title && sectionContent) {
@@ -884,11 +891,11 @@ export default function TextPresentationClient() {
                 <>
                   <div className="relative">
                     <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
-            </select>
+                      <option value="en">English</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="es">Spanish</option>
+                      <option value="ru">Russian</option>
+                    </select>
                     <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                   </div>
                   <div className="relative">
@@ -974,15 +981,20 @@ export default function TextPresentationClient() {
                         {idx + 1}
                       </div>
                       <div className="flex-1 p-4">
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="mb-2">
                           {editingLessonId === idx ? (
-                            <div className="flex items-center gap-2 flex-1">
+                            <div className="flex items-center gap-2">
                               <input
                                 type="text"
                                 value={editedTitles[idx] || lesson.title}
                                 onChange={(e) => handleTitleEdit(idx, e.target.value)}
                                 className="flex-1 text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
                                 autoFocus
+                                onBlur={() => handleTitleSave(idx)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleTitleSave(idx);
+                                  if (e.key === 'Escape') handleTitleCancel(idx);
+                                }}
                               />
                               <button
                                 onClick={() => handleTitleSave(idx)}
@@ -998,17 +1010,12 @@ export default function TextPresentationClient() {
                               </button>
                             </div>
                           ) : (
-                            <>
-                              <h4 className="text-[#20355D] text-base font-semibold">
-                                {getTitleForLesson(lesson, idx)}
-                              </h4>
-                              <button
-                                onClick={() => setEditingLessonId(idx)}
-                                className="text-gray-400 hover:text-gray-600 ml-2"
-                              >
-                                ✏️
-                              </button>
-                            </>
+                            <h4 
+                              className="text-[#20355D] text-base font-semibold cursor-pointer hover:text-[#0066FF] transition-colors"
+                              onClick={() => setEditingLessonId(idx)}
+                            >
+                              {getTitleForLesson(lesson, idx)}
+                            </h4>
                           )}
                         </div>
                         {lesson.content && (
