@@ -548,10 +548,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   borderRadius: '12px',
                   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
                   position: 'relative',
-                  overflow: 'hidden',
-                  // Ensure the card grows to content so the gap below is preserved
-                  height: 'auto',
-                  minHeight: '600px',
                   transform: 'none', // Prevent any additional transforms
                   transition: 'none', // Prevent slide-specific transitions
                 }}

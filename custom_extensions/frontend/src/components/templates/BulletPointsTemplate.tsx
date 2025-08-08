@@ -524,7 +524,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'stretch',
-    padding: '40px',
+    padding: '80px',
     position: 'relative',
     fontFamily: currentTheme.fonts.contentFont
   };
