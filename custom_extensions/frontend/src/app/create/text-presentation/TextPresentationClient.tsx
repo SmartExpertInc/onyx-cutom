@@ -130,6 +130,10 @@ export default function TextPresentationClient() {
   
   // Display mode state
   const [displayMode, setDisplayMode] = useState<'cards' | 'text'>('cards');
+  
+  // State for editing lesson titles
+  const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
+  const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -203,6 +207,32 @@ export default function TextPresentationClient() {
   };
 
   const lessonList = parseContentIntoLessons(content);
+
+  // Handle lesson title editing
+  const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
+    setEditedTitles(prev => ({
+      ...prev,
+      [lessonIndex]: newTitle
+    }));
+  };
+
+  const handleTitleSave = (lessonIndex: number) => {
+    setEditingLessonId(null);
+    // Here you could also update the original content if needed
+  };
+
+  const handleTitleCancel = (lessonIndex: number) => {
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[lessonIndex];
+      return newTitles;
+    });
+    setEditingLessonId(null);
+  };
+
+  const getTitleForLesson = (lesson: any, index: number) => {
+    return editedTitles[index] || lesson.title;
+  };
 
   // Example prompts for advanced mode
   const onePagerExamples = [
@@ -944,13 +974,47 @@ export default function TextPresentationClient() {
                         {idx + 1}
                       </div>
                       <div className="flex-1 p-4">
-                        <h4 className="text-[#20355D] text-base font-semibold mb-2">
-                          {lesson.title}
-                        </h4>
+                        <div className="flex items-center justify-between mb-2">
+                          {editingLessonId === idx ? (
+                            <div className="flex items-center gap-2 flex-1">
+                              <input
+                                type="text"
+                                value={editedTitles[idx] || lesson.title}
+                                onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                                className="flex-1 text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
+                                autoFocus
+                              />
+                              <button
+                                onClick={() => handleTitleSave(idx)}
+                                className="text-green-600 hover:text-green-800 text-sm px-2"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                onClick={() => handleTitleCancel(idx)}
+                                className="text-red-600 hover:text-red-800 text-sm px-2"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <h4 className="text-[#20355D] text-base font-semibold">
+                                {getTitleForLesson(lesson, idx)}
+                              </h4>
+                              <button
+                                onClick={() => setEditingLessonId(idx)}
+                                className="text-gray-400 hover:text-gray-600 ml-2"
+                              >
+                                ✏️
+                              </button>
+                            </>
+                          )}
+                        </div>
                         {lesson.content && (
                           <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
-                            {lesson.content.substring(0, 200)}
-                            {lesson.content.length > 200 && '...'}
+                            {lesson.content.substring(0, 100)}
+                            {lesson.content.length > 100 && '...'}
                           </div>
                         )}
                       </div>
