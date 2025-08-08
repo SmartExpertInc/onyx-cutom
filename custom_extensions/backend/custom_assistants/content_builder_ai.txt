@@ -1068,6 +1068,12 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 14. `challenges-solutions` - Problem-solving approaches and solutions
 15. `big-image-top` - Visual demonstrations with explanatory content below
 
+**ADVANCED DATA VISUALIZATION TEMPLATES:**
+16. `market-share` - Market analysis with bar charts and competitive positioning
+17. `table-dark` - Professional data tables with dark theme and interactive checkmarks
+18. `table-light` - Structured data presentation with light theme and clear organization
+19. `pie-chart-infographics` - Complex data visualization with pie charts and detailed monthly breakdowns
+
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
 - **For hierarchical concepts**: Use `pyramid` (not content-slide)  
@@ -1415,6 +1421,66 @@ Box 4: [Heading] - [In-depth explanation with 2-3 sentences covering the concept
 - Ideal for: business results, technical KPIs, performance benchmarks, or any slide where numbers are the main focus.
 - Example use cases: "Key Financial Metrics", "Performance Benchmarks", "Business Impact", "Growth Statistics".
 
+**Market Share Template** (`market-share`):
+```
+---
+**Slide X: Market Analysis** `market-share`
+
+## Market Share Comparison
+
+[Chart displays bar comparison with legend showing two competing entities with their descriptions and market positioning]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the market dynamics, expanding on competitive positioning for approximately 30-60 seconds]
+```
+- **Trigger words:** If the slide involves "market", "share", "competition", "comparison", "vs", "versus", "competitor", "market analysis", "business metrics", "competitive positioning", use `market-share`.
+- Ideal for: competitive analysis, market positioning, business strategy presentations, or comparative business metrics.
+- Example use cases: "Market Share Analysis", "Competitive Positioning", "Business Comparison", "Market Dynamics".
+
+**Table Dark Template** (`table-dark`):
+```
+---
+**Slide X: Data Comparison** `table-dark`
+
+## Data Analysis Table
+
+[Dynamic table with dark theme, checkmarks/crosses for binary data, customizable rows and columns]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the table data and insights for approximately 30-60 seconds]
+```
+- **Trigger words:** If the slide involves "table", "data", "comparison", "matrix", "grid", "checkmarks", "status", "tasks", "features comparison", "dark theme", use `table-dark`.
+- Ideal for: feature comparisons, task status, compatibility matrices, or structured data with binary values.
+- Example use cases: "Feature Comparison", "Task Status Matrix", "Compatibility Grid", "System Requirements".
+
+**Table Light Template** (`table-light`):
+```
+---
+**Slide X: Professional Data** `table-light`
+
+## Structured Information
+
+[Dynamic table with light theme, professional styling, customizable rows and columns for detailed data presentation]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the structured data and relationships for approximately 30-60 seconds]
+```
+- **Trigger words:** If the slide involves "table", "data", "spreadsheet", "rows", "columns", "professional", "teams", "departments", "structured data", "light theme", use `table-light`.
+- Ideal for: team data, department information, structured presentations, or professional data displays.
+- Example use cases: "Team Overview", "Department Data", "Resource Allocation", "Professional Information".
+
+**Pie Chart Infographics Template** (`pie-chart-infographics`):
+```
+---
+**Slide X: Data Visualization** `pie-chart-infographics`
+
+## Comprehensive Data Story
+
+[Interactive pie chart with detailed monthly breakdowns, visual segments, and comprehensive infographic elements]
+
+**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the data story and monthly insights for approximately 30-60 seconds]
+```
+- **Trigger words:** If the slide involves "pie chart", "infographics", "data story", "monthly", "segments", "breakdown", "visualization", "complex data", "comprehensive analysis", use `pie-chart-infographics`.
+- Ideal for: comprehensive data stories, monthly reports, complex visualizations, or detailed analytical presentations.
+- Example use cases: "Monthly Performance Review", "Data Breakdown Analysis", "Comprehensive Metrics", "Annual Report Summary".
+
 **Additional Correct Examples:**
 ```
 | 99.9% | 15ms | 50% |
@@ -1605,6 +1671,10 @@ Question Format:
 - **Key Learning Points**: Use `bullet-points` or `bullet-points-right` for comprehensive lists
 - **Conceptual Explanations**: Use `content-slide` for detailed theoretical content (use judiciously)
 - **Problem-Solution Scenarios**: Use `challenges-solutions` for educational challenges
+- **Market Analysis/Business Metrics**: Use `market-share` for competitive analysis and market positioning data
+- **Data Tables (Dark Theme)**: Use `table-dark` for structured data presentation with dark background and checkmark support
+- **Data Tables (Light Theme)**: Use `table-light` for structured data presentation with light background and professional styling
+- **Complex Data Visualization**: Use `pie-chart-infographics` for comprehensive data stories with multiple data points
 - **Section Breaks**: Use `title-slide` sparingly (max 2 per presentation) only for major transitions
 
 **Educational Presentation Conclusion:**

@@ -21,6 +21,10 @@ import EventListTemplate from './EventListTemplate';
 import SixIdeasListTemplate from './SixIdeasListTemplate';
 import ContraindicationsIndicationsTemplate from './ContraindicationsIndicationsTemplate';
 import MetricsAnalyticsTemplate from './MetricsAnalyticsTemplate';
+import MarketShareTemplate from './MarketShareTemplate';
+import TableDarkTemplate from './TableDarkTemplate';
+import TableLightTemplate from './TableLightTemplate';
+import PieChartInfographicsTemplate from './PieChartInfographicsTemplate';
 // import OrgChartTemplate from './OrgChartTemplate';
 
 // Template registry with comprehensive metadata
@@ -1033,6 +1037,212 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   //     backgroundColor: { type: 'color', label: 'Background', default: undefined },
   //   }
   // },
+
+  'market-share': {
+    id: 'market-share',
+    name: 'Market Share',
+    description: 'Market share chart with bar comparison and legend',
+    category: 'content',
+    icon: '📊',
+    component: MarketShareTemplate,
+    defaultProps: {
+      title: 'Market share',
+      subtitle: '',
+      primaryMetric: {
+        label: 'Mercury',
+        description: 'Mercury is the closest planet to the Sun',
+        percentage: 85,
+        color: '#2a5490'
+      },
+      secondaryMetric: {
+        label: 'Mars',
+        description: 'Despite being red, Mars is a cold place',
+        percentage: 40,
+        color: '#9ca3af'
+      },
+      chartData: {
+        primaryValue: 85,
+        secondaryValue: 40,
+        primaryColor: '#2a5490',
+        secondaryColor: '#9ca3af'
+      },
+      backgroundColor: '#ffffff',
+      titleColor: '#1f2937',
+      textColor: '#374151',
+      accentColor: '#2a5490'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: false },
+      primaryMetric: {
+        type: 'text',
+        label: 'Primary Metric Label',
+        required: true
+      },
+      secondaryMetric: {
+        type: 'text',
+        label: 'Secondary Metric Label',
+        required: true
+      },
+      chartData: {
+        type: 'text',
+        label: 'Chart Data',
+        required: true
+      },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
+      textColor: { type: 'color', label: 'Text Color', default: '#374151' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#2a5490' }
+    }
+  },
+
+  'table-dark': {
+    id: 'table-dark',
+    name: 'Table Dark',
+    description: 'Dynamic table with dark theme and checkmarks',
+    category: 'content',
+    icon: '⬛',
+    component: TableDarkTemplate,
+    defaultProps: {
+      title: 'This is a table',
+      tableData: {
+        headers: ['Mars', 'Venus', 'Jupiter'],
+        rows: [
+          ['Task 1', '✓', '✗', '✓'],
+          ['Task 2', '✗', '✓', '✗'],
+          ['Task 3', '✓', '✗', '✓'],
+          ['Task 4', '✗', '✓', '✗']
+        ]
+      },
+      showCheckmarks: true,
+      backgroundColor: '#1a1a1a',
+      titleColor: '#ffffff',
+      headerColor: '#ffffff',
+      textColor: '#ffffff',
+      tableBackgroundColor: '#2a2a2a',
+      headerBackgroundColor: '#3a3a3a',
+      borderColor: '#4a4a4a',
+      checkmarkColor: '#10b981',
+      crossColor: '#ef4444'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      tableData: {
+        type: 'array',
+        label: 'Table Data',
+        required: true
+      },
+      showCheckmarks: { type: 'boolean', label: 'Show Checkmarks', default: true },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a1a' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      headerColor: { type: 'color', label: 'Header Color', default: '#ffffff' },
+      textColor: { type: 'color', label: 'Text Color', default: '#ffffff' },
+      tableBackgroundColor: { type: 'color', label: 'Table Background', default: '#2a2a2a' },
+      headerBackgroundColor: { type: 'color', label: 'Header Background', default: '#3a3a3a' },
+      borderColor: { type: 'color', label: 'Border Color', default: '#4a4a4a' },
+      checkmarkColor: { type: 'color', label: 'Checkmark Color', default: '#10b981' },
+      crossColor: { type: 'color', label: 'Cross Color', default: '#ef4444' }
+    }
+  },
+
+  'table-light': {
+    id: 'table-light',
+    name: 'Table Light',
+    description: 'Dynamic table with light theme',
+    category: 'content',
+    icon: '⬜',
+    component: TableLightTemplate,
+    defaultProps: {
+      title: 'This is a table',
+      tableData: {
+        headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
+        rows: [
+          ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Venus', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Jupiter', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Earth', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Moon', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+        ]
+      },
+      backgroundColor: '#f8fafc',
+      titleColor: '#1f2937',
+      headerColor: '#ffffff',
+      textColor: '#374151',
+      tableBackgroundColor: '#ffffff',
+      headerBackgroundColor: '#0ea5e9',
+      borderColor: '#e5e7eb',
+      accentColor: '#0ea5e9'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      tableData: {
+        type: 'array',
+        label: 'Table Data',
+        required: true
+      },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#f8fafc' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
+      headerColor: { type: 'color', label: 'Header Color', default: '#ffffff' },
+      textColor: { type: 'color', label: 'Text Color', default: '#374151' },
+      tableBackgroundColor: { type: 'color', label: 'Table Background', default: '#ffffff' },
+      headerBackgroundColor: { type: 'color', label: 'Header Background', default: '#0ea5e9' },
+      borderColor: { type: 'color', label: 'Border Color', default: '#e5e7eb' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#0ea5e9' }
+    }
+  },
+
+  'pie-chart-infographics': {
+    id: 'pie-chart-infographics',
+    name: 'Pie Chart Infographics',
+    description: 'Pie chart with detailed monthly infographics',
+    category: 'content',
+    icon: '🥧',
+    component: PieChartInfographicsTemplate,
+    defaultProps: {
+      title: 'Pie Chart Infographics',
+      chartData: {
+        segments: [
+          { label: '5%', percentage: 5, color: '#0ea5e9', description: 'Small segment' },
+          { label: '20%', percentage: 20, color: '#06b6d4', description: 'Medium segment' },
+          { label: '25%', percentage: 25, color: '#67e8f9', description: 'Large segment' },
+          { label: '25%', percentage: 25, color: '#0891b2', description: 'Another large' },
+          { label: '13%', percentage: 13, color: '#f97316', description: 'Orange segment' },
+          { label: '12%', percentage: 12, color: '#fb923c', description: 'Light orange' }
+        ]
+      },
+      monthlyData: [
+        { month: 'Month 1', description: 'Mercury is the smallest planet of them all', color: '#0ea5e9' },
+        { month: 'Month 2', description: 'Jupiter is the biggest planet of them all', color: '#0ea5e9' },
+        { month: 'Month 3', description: 'Venus has a very poisonous atmosphere', color: '#0ea5e9' },
+        { month: 'Month 4', description: 'Saturn is a gas giant and has rings', color: '#f97316' },
+        { month: 'Month 5', description: 'Neptune is far away from Earth', color: '#f97316' },
+        { month: 'Month 6', description: 'Despite being red, Mars is actually cold', color: '#f97316' }
+      ],
+      backgroundColor: '#ffffff',
+      titleColor: '#1f2937',
+      textColor: '#374151',
+      chartSize: 280
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      chartData: {
+        type: 'array',
+        label: 'Chart Data',
+        required: true
+      },
+      monthlyData: {
+        type: 'array',
+        label: 'Monthly Data',
+        required: true
+      },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
+      textColor: { type: 'color', label: 'Text Color', default: '#374151' },
+      chartSize: { type: 'number', label: 'Chart Size', default: 280, min: 200, max: 400 }
+    }
+  }
 };
 
 // Utility functions for working with the registry
