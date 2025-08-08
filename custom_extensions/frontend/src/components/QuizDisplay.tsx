@@ -139,7 +139,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
             <div className="flex items-start gap-2">
               <div className="bg-white p-1 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -210,7 +210,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
             <div className="flex items-start gap-2">
               <div className="bg-white p-1 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -376,7 +376,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
             <div className="flex items-start gap-2">
               <div className="bg-white p-1 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -527,7 +527,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           })}
         </div>
         {question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
             <div className="flex items-start gap-2">
               <div className="bg-white p-1 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -580,7 +580,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
             <div className="flex items-start gap-2">
               <div className="bg-white p-1 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
