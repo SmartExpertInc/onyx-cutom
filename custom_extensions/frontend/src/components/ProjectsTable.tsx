@@ -367,12 +367,55 @@ const ClientNameModal: React.FC<{
     setSelectedProjects(new Set());
   };
 
-  const handleSkip = () => {
-    onConfirm(null, Array.from(selectedFolders), Array.from(selectedProjects));
+  const handleCancel = () => {
+    // Reset all state to initial values
     setClientName("");
     setSelectedFolders(new Set());
     setSelectedProjects(new Set());
+    setExpandedFolders(new Set());
+    // Close the modal
+    onClose();
   };
+
+  // Calculate total selectable items (folders + projects)
+  const getAllSelectableItems = () => {
+    const allProjectIds: number[] = [];
+    
+    // Add all project IDs from folders
+    folders.forEach(folder => {
+      allProjectIds.push(...getAllProjectIdsInFolder(folder.id));
+    });
+    
+    // Add unassigned project IDs
+    allProjectIds.push(...unassignedProjects.map(p => p.id));
+    
+    return {
+      folderIds: folders.map(f => f.id),
+      projectIds: allProjectIds
+    };
+  };
+
+  // Check if all items are selected
+  const { folderIds: allFolderIds, projectIds: allProjectIds } = getAllSelectableItems();
+  const isAllSelected = allFolderIds.length > 0 && 
+    allFolderIds.every(id => selectedFolders.has(id)) && 
+    allProjectIds.every(id => selectedProjects.has(id));
+
+  // Handle select all functionality
+  const handleSelectAll = (isChecked: boolean) => {
+    if (isChecked) {
+      // Select all folders and their projects
+      setSelectedFolders(new Set(allFolderIds));
+      setSelectedProjects(new Set(allProjectIds));
+    } else {
+      // Deselect all
+      setSelectedFolders(new Set());
+      setSelectedProjects(new Set());
+    }
+  };
+
+  // Check if any items are selected (folders or projects)
+  const hasAnySelection = selectedFolders.size > 0 || selectedProjects.size > 0;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -448,9 +491,42 @@ const ClientNameModal: React.FC<{
                   "Select Folders & Products"
                 )}
               </label>
-              <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                {selectedProjects.size} {t("interface.selected", "selected")}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                  {selectedProjects.size} {t("interface.selected", "selected")}
+                </span>
+                {(folders.length > 0 || unassignedProjects.length > 0) && (
+                  <label className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer transition-colors">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                      />
+                      {isAllSelected && (
+                        <svg
+                          className="absolute inset-0 w-full h-full pointer-events-none"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M9 12l2 2 4-4"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-blue-600"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-xs font-medium">
+                      {t("interface.selectAll", "Select All")}
+                    </span>
+                  </label>
+                )}
+              </div>
             </div>
             <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50/50 shadow-inner">
               {/* Folders */}
@@ -608,14 +684,19 @@ const ClientNameModal: React.FC<{
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <button
               type="button"
-              onClick={handleSkip}
+              onClick={handleCancel}
               className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300 cursor-pointer"
             >
-              {t("interface.skip", "Skip")}
+              {t("common.cancel", "Cancel")}
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md cursor-pointer"
+              disabled={!hasAnySelection}
+              className={`px-6 py-2.5 rounded-lg transition-all duration-200 font-semibold shadow-sm ${
+                hasAnySelection
+                  ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             >
               {t("common.downloadPdf", "Download PDF")}
             </button>
