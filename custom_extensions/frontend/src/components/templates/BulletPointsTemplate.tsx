@@ -657,8 +657,9 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             style={placeholderStyles}
           />
         </div>
+        
         {/* Right: Unified bullet points editor */}
-        <div style={bulletsContainerStyles}>
+        <div style={bulletsContainerStyles} data-draggable="true">
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle={bulletStyle}
