@@ -27,6 +27,8 @@ export interface MarketShareTemplateProps extends BaseTemplateProps {
     secondaryValue: number;
     primaryColor?: string;
     secondaryColor?: string;
+    primaryYear?: string;
+    secondaryYear?: string;
   };
   backgroundColor?: string;
   titleColor?: string;
@@ -152,14 +154,16 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
     primaryValue: 85,
     secondaryValue: 40,
     primaryColor: '#2a5490',
-    secondaryColor: '#9ca3af'
+    secondaryColor: '#9ca3af',
+    primaryYear: '2023',
+    secondaryYear: '2024'
   },
   bottomText = 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here',
   slideId,
   isEditable = false,
   onUpdate,
   theme
-}) => {
+}: MarketShareTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
 
@@ -170,6 +174,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   const [editingSecondaryLabel, setEditingSecondaryLabel] = useState(false);
   const [editingSecondaryDesc, setEditingSecondaryDesc] = useState(false);
   const [editingBottomText, setEditingBottomText] = useState(false);
+  const [editingPrimaryYear, setEditingPrimaryYear] = useState(false);
+  const [editingSecondaryYear, setEditingSecondaryYear] = useState(false);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -230,6 +236,20 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   const handleBottomTextUpdate = (newText: string) => {
     setEditingBottomText(false);
     const newData = { title, primaryMetric, secondaryMetric, chartData, bottomText: newText };
+    scheduleAutoSave(newData);
+  };
+
+  const handlePrimaryYearUpdate = (newYear: string) => {
+    setEditingPrimaryYear(false);
+    const newChartData = { ...chartData, primaryYear: newYear };
+    const newData = { title, primaryMetric, secondaryMetric, chartData: newChartData };
+    scheduleAutoSave(newData);
+  };
+
+  const handleSecondaryYearUpdate = (newYear: string) => {
+    setEditingSecondaryYear(false);
+    const newChartData = { ...chartData, secondaryYear: newYear };
+    const newData = { title, primaryMetric, secondaryMetric, chartData: newChartData };
     scheduleAutoSave(newData);
   };
 
@@ -300,12 +320,27 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                         marginBottom: '8px'
                       }}
                     ></div>
-                    <p 
-                      className="text-sm font-medium"
-                      style={{ color: contentColor }}
-                    >
-                      20XX
-                    </p>
+                    {editingPrimaryYear && isEditable ? (
+                      <InlineEditor
+                        initialValue={chartData.primaryYear || '2023'}
+                        onSave={handlePrimaryYearUpdate}
+                        onCancel={() => setEditingPrimaryYear(false)}
+                        style={{
+                          color: contentColor,
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          textAlign: 'center'
+                        }}
+                      />
+                    ) : (
+                      <p 
+                        className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                        style={{ color: contentColor }}
+                        onClick={() => isEditable && setEditingPrimaryYear(true)}
+                      >
+                        {chartData.primaryYear || '2023'}
+                      </p>
+                    )}
                   </div>
 
                   {/* Second period */}
@@ -318,12 +353,27 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                         marginBottom: '8px'
                       }}
                     ></div>
-                    <p 
-                      className="text-sm font-medium"
-                      style={{ color: contentColor }}
-                    >
-                      20XX
-                    </p>
+                    {editingSecondaryYear && isEditable ? (
+                      <InlineEditor
+                        initialValue={chartData.secondaryYear || '2024'}
+                        onSave={handleSecondaryYearUpdate}
+                        onCancel={() => setEditingSecondaryYear(false)}
+                        style={{
+                          color: contentColor,
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          textAlign: 'center'
+                        }}
+                      />
+                    ) : (
+                      <p 
+                        className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                        style={{ color: contentColor }}
+                        onClick={() => isEditable && setEditingSecondaryYear(true)}
+                      >
+                        {chartData.secondaryYear || '2024'}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

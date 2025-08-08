@@ -1064,7 +1064,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         primaryValue: 85,
         secondaryValue: 40,
         primaryColor: '#2a5490',
-        secondaryColor: '#9ca3af'
+        secondaryColor: '#9ca3af',
+        primaryYear: '2023',
+        secondaryYear: '2024'
       },
       backgroundColor: '#ffffff',
       titleColor: '#1f2937',
