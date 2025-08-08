@@ -681,51 +681,53 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
       <div style={contentRowStyles}>
         {/* Left: Subtitle + Bullets */}
-        <div style={leftColStyles} data-draggable="true">
+        <div style={leftColStyles}>
           {/* Subtitle */}
-          {subtitle && (
-            isEditable && editingSubtitle ? (
-              <InlineEditor
-                initialValue={subtitle || ''}
-                onSave={handleSubtitleSave}
-                onCancel={handleSubtitleCancel}
-                multiline={true}
-                placeholder="Enter subtitle..."
-                className="inline-editor-subtitle"
-                style={{
-                  ...subtitleStyles,
-                  // Ensure subtitle behaves exactly like div element
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block'
-                }}
-              />
-            ) : (
-              <div 
-                style={subtitleStyles}
-                onClick={(e) => {
-                  if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  if (isEditable) {
-                    setEditingSubtitle(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                data-draggable="true"
-              >
-                {subtitle}
-              </div>
-            )
-          )}
+          
+          <div data-draggable="true">
+            {subtitle && (
+              isEditable && editingSubtitle ? (
+                <InlineEditor
+                  initialValue={subtitle || ''}
+                  onSave={handleSubtitleSave}
+                  onCancel={handleSubtitleCancel}
+                  multiline={true}
+                  placeholder="Enter subtitle..."
+                  className="inline-editor-subtitle"
+                  style={{
+                    ...subtitleStyles,
+                    // Ensure subtitle behaves exactly like div element
+                    padding: '0',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={subtitleStyles}
+                  onClick={(e) => {
+                    if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      setEditingSubtitle(true);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {subtitle || 'Click to add subtitle'}
+                </div>
+              )
+            )}
+          </div>
 
           {/* Unified bullet points editor */}
           <div data-draggable="true">
