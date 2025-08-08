@@ -148,7 +148,7 @@ const LanguageDropdown: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-36 flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+        className="w-36 flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer"
         aria-label="Select language"
       >
         <span className="hidden sm:inline">
@@ -172,7 +172,7 @@ const LanguageDropdown: React.FC = () => {
                 <button
                   key={option.code}
                   onClick={() => handleLanguageSelect(option.code)}
-                  className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-gray-100 transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-gray-100 transition-colors cursor-pointer ${
                     language === option.code
                       ? "bg-blue-50 text-blue-700"
                       : "text-gray-700"
