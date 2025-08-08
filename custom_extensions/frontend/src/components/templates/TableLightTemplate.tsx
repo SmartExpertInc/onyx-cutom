@@ -451,18 +451,6 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
         </div>
 
         {/* Bottom thumbnails strip */}
-        <div className="flex justify-center gap-2 mt-8 opacity-40">
-          {[1,2,3,4,5,6,7,8].map(i => (
-            <div 
-              key={i}
-              className="w-12 h-8 rounded border"
-              style={{ 
-                backgroundColor: tableBackgroundColor,
-                borderColor: borderColor 
-              }}
-            ></div>
-          ))}
-        </div>
       </div>
     </div>
   );
