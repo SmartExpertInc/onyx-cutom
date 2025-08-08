@@ -1542,7 +1542,8 @@
                                             {% set y1 = center_y + radius * (start_angle | sin) %}
                                             {% set x2 = center_x + radius * (end_angle | cos) %}
                                             {% set y2 = center_y + radius * (end_angle | sin) %}
-                                            <path d="M {{ center_x }} {{ center_y }} L {{ x1 }} {{ y1 }} A {{ radius }} {{ radius }} 0 0 1 {{ x2 }} {{ y2 }} Z" fill="{{ segment.color }}" stroke="#ffffff" stroke-width="2"/>
+                                            {% set large_arc_flag = 1 if segment.percentage > 50 else 0 %}
+                                            <path d="M {{ center_x }} {{ center_y }} L {{ x1 }} {{ y1 }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ x2 }} {{ y2 }} Z" fill="{{ segment.color }}" stroke="#ffffff" stroke-width="2"/>
                                             
                                             <!-- Text labels -->
                                             {% set text_angle = (start_angle + end_angle) / 2 %}
