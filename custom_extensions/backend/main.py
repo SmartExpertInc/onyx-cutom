@@ -13774,9 +13774,23 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     async def streamer():
+        last_send = asyncio.get_event_loop().time()
+        
+        async def send_keepalive():
+            nonlocal last_send
+            now = asyncio.get_event_loop().time()
+            if now - last_send > 8:
+                yield b" "
+                last_send = now
+                logger.debug(f"[LESSON_FINALIZE] Sent keep-alive")
+        
         try:
             # Determine if this is a video lesson presentation
             is_video_lesson = payload.productType == "video_lesson_presentation"
+            
+            # Send initial keepalive
+            async for chunk in send_keepalive():
+                yield chunk
             
             # Get the appropriate template with retry mechanism
             max_retries = 3
@@ -13799,6 +13813,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 yield (json.dumps({"type": "error", "text": "Template initialization failed"}) + "\n").encode()
                 return
 
+            # Send keepalive after template lookup
+            async for chunk in send_keepalive():
+                yield chunk
+
             # Get user ID
             onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -13817,6 +13835,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 except Exception as e:
                     logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
 
+            # Send keepalive after outline lookup
+            async for chunk in send_keepalive():
+                yield chunk
+
             # Log full JSON for inspection
             logger.info(f"[LESSON_FINALIZE_JSON] Full AI response JSON: {payload.aiResponse[:5000]}")
 
@@ -13830,6 +13852,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 folder_id=int(payload.folderId) if payload.folderId else None,
                 theme=payload.theme
             )
+
+            # Send keepalive before project creation
+            async for chunk in send_keepalive():
+                yield chunk
 
             try:
                 created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
@@ -13846,6 +13872,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 yield (json.dumps({"type": "error", "text": "Project creation failed - invalid response"}) + "\n").encode()
                 return
 
+            # Send keepalive after project creation
+            async for chunk in send_keepalive():
+                yield chunk
+
             logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
 
             try:
@@ -13855,6 +13885,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         logger.info(f"[LESSON_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(row['microproduct_content'], ensure_ascii=False)[:10000]}")
             except Exception as log_e:
                 logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
+
+            # Send final keepalive before done
+            async for chunk in send_keepalive():
+                yield chunk
 
             yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
         except Exception as e:
@@ -17388,32 +17422,47 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
     
-    try:
-        # Ensure text presentation template exists
-        template_id = await _ensure_text_presentation_template(pool)
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
+    async def streamer():
+        last_send = asyncio.get_event_loop().time()
         
-        # CONSISTENT NAMING: Use the same pattern as lesson presentations
-        # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
-        if payload.outlineId:
-            try:
-                # Fetch outline name from database
-                async with pool.acquire() as conn:
-                    outline_row = await conn.fetchrow(
-                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                        payload.outlineId, onyx_user_id
-                    )
-                    if outline_row:
-                        outline_name = outline_row["project_name"]
-                        project_name = f"{outline_name}: {payload.lesson.strip() if payload.lesson else 'Standalone Presentation'}"
-                        logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Using outline-based naming: {project_name}")
-                    else:
-                        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
-            except Exception as e:
-                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
-                # Continue with plain lesson title if outline fetch fails
-        else:
+        async def send_keepalive():
+            nonlocal last_send
+            now = asyncio.get_event_loop().time()
+            if now - last_send > 8:
+                yield b" "
+                last_send = now
+                logger.debug(f"[TEXT_PRESENTATION_FINALIZE] Sent keep-alive")
+        
+        try:
+            # Ensure text presentation template exists
+            template_id = await _ensure_text_presentation_template(pool)
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
+            
+            # Send keepalive after template lookup
+            async for chunk in send_keepalive():
+                yield chunk
+            
+            # CONSISTENT NAMING: Use the same pattern as lesson presentations
+            # Determine the project name - if connected to outline, use correct naming convention
+            project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
+            if payload.outlineId:
+                try:
+                    # Fetch outline name from database
+                    async with pool.acquire() as conn:
+                        outline_row = await conn.fetchrow(
+                            "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                            payload.outlineId, onyx_user_id
+                        )
+                        if outline_row:
+                            outline_name = outline_row["project_name"]
+                            project_name = f"{outline_name}: {payload.lesson.strip() if payload.lesson else 'Standalone Presentation'}"
+                            logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Using outline-based naming: {project_name}")
+                        else:
+                            logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
+                except Exception as e:
+                    logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
+                    # Continue with plain lesson title if outline fetch fails
+            else:
             logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
@@ -17575,67 +17624,95 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             else:
                 parsed_text_presentation.contentBlocks = valid_content_blocks
         
-        # Always use the consistent project name for database storage
-        # The text title from parsed_text_presentation.textTitle is used for display purposes only
-        final_project_name = project_name
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
-        
-        # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
-        is_standalone_text_presentation = payload.outlineId is None
-        
-        # For text presentation components, we need to insert directly to avoid double parsing
-        # since add_project_to_custom_db would call parse_ai_response_with_llm again
-        insert_query = """
-        INSERT INTO projects (
-            onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
-        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
-        """
-        
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                insert_query,
-                onyx_user_id,
-                final_project_name,  # Use final_project_name for project_name to match the expected pattern
-                "Text Presentation",  # product_type
-                COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
-                project_name,  # microproduct_name
-                parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
-                template_id,  # design_template_id
-                payload.chatSessionId,  # source_chat_session_id
-                is_standalone_text_presentation,  # is_standalone - consistent with outline connection
-                int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
+            # Send keepalive before parsing
+            async for chunk in send_keepalive():
+                yield chunk
+
+            # Always use the consistent project name for database storage
+            # The text title from parsed_text_presentation.textTitle is used for display purposes only
+            final_project_name = project_name
+            
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
+            
+            # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
+            is_standalone_text_presentation = payload.outlineId is None
+            
+            # Send keepalive before database operation
+            async for chunk in send_keepalive():
+                yield chunk
+            
+            # For text presentation components, we need to insert directly to avoid double parsing
+            # since add_project_to_custom_db would call parse_ai_response_with_llm again
+            insert_query = """
+            INSERT INTO projects (
+                onyx_user_id, project_name, product_type, microproduct_type,
+                microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
             )
-        
-        if not row:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create text presentation project entry.")
-        
-        created_project = ProjectDB(**dict(row))
-        
-        # Log full saved JSON for inspection
-        try:
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
+            RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                      microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
+            """
+            
             async with pool.acquire() as conn:
-                content_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
-                if content_row:
-                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(content_row['microproduct_content'], ensure_ascii=False)[:10000]}")
-        except Exception as log_e:
-            logger.warning(f"Failed to log saved text presentation JSON for project {created_project.id}: {log_e}")
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
-        return {"id": created_project.id, "name": final_project_name}
-        
-    except Exception as e:
-        logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    finally:
-        # Always remove from active set and timestamps
-        ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
-        QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+                row = await conn.fetchrow(
+                    insert_query,
+                    onyx_user_id,
+                    final_project_name,  # Use final_project_name for project_name to match the expected pattern
+                    "Text Presentation",  # product_type
+                    COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
+                    project_name,  # microproduct_name
+                    parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
+                    template_id,  # design_template_id
+                    payload.chatSessionId,  # source_chat_session_id
+                    is_standalone_text_presentation,  # is_standalone - consistent with outline connection
+                    int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
+                )
+            
+            if not row:
+                yield (json.dumps({"type": "error", "text": "Failed to create text presentation project entry."}) + "\n").encode()
+                return
+            
+            created_project = ProjectDB(**dict(row))
+            
+            # Send keepalive after project creation
+            async for chunk in send_keepalive():
+                yield chunk
+            
+            # Log full saved JSON for inspection
+            try:
+                async with pool.acquire() as conn:
+                    content_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
+                    if content_row:
+                        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(content_row['microproduct_content'], ensure_ascii=False)[:10000]}")
+            except Exception as log_e:
+                logger.warning(f"Failed to log saved text presentation JSON for project {created_project.id}: {log_e}")
+            
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
+            
+            # Send final keepalive before done
+            async for chunk in send_keepalive():
+                yield chunk
+            
+            yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
+            
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+        finally:
+            # Always remove from active set and timestamps
+            ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
+            QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 @app.get("/api/custom/projects/latest-by-chat")
 async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
