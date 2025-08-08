@@ -873,7 +873,7 @@ export default function TextPresentationClient() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                  className="w-full border border-gray-green rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                  className="w-full border border-green-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
                   disabled={loadingEdit}
                 />
               )}
