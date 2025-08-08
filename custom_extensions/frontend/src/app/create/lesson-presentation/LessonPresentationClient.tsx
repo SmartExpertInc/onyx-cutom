@@ -586,16 +586,6 @@ export default function LessonPresentationClient() {
     setLoading(false);
     setError(null);
 
-    // Create AbortController for this request
-    const abortController = new AbortController();
-
-    // Add timeout safeguard to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      abortController.abort();
-      setIsGenerating(false);
-      setError("Finalization timed out. Please try again.");
-    }, 300000); // 5 minutes timeout
-
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = params?.get("prompt")?.trim() || "";
@@ -615,8 +605,7 @@ export default function LessonPresentationClient() {
           folderId: folderContext?.folderId || undefined,
           // Include selected theme
           theme: selectedTheme,
-        }),
-        signal: abortController.signal
+        })
       });
 
       if (!res.ok || !res.body) {
@@ -657,8 +646,7 @@ export default function LessonPresentationClient() {
           if (finalId) break;
         }
       } finally {
-        // Clear timeout since response completed streaming
-        clearTimeout(timeoutId);
+        // no-op
       }
 
       if (!finalId) {
@@ -668,13 +656,10 @@ export default function LessonPresentationClient() {
       router.push(`/projects/view/${finalId}`);
 
     } catch (e: any) {
-      // Clear timeout on error
-      clearTimeout(timeoutId);
-      
       // Reset generating state on any error
       setIsGenerating(false);
       setLoading(false);
-      
+
       // Handle specific error types
       if (e.name === 'AbortError') {
         console.log('Request was aborted');

@@ -482,16 +482,6 @@ export default function TextPresentationClient() {
     setIsGenerating(true);
     setError(null);
 
-    // Create AbortController for this request
-    const abortController = new AbortController();
-    
-    // Add timeout safeguard to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      abortController.abort();
-      setIsGenerating(false);
-      setError("Presentation finalization timed out. Please try again.");
-    }, 300000); // 5 minutes timeout
-
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
@@ -506,8 +496,7 @@ export default function TextPresentationClient() {
           language: language,
           folderId: folderContext?.folderId || undefined,
           chatSessionId: chatId || undefined,
-        }),
-        signal: abortController.signal
+        })
       });
 
       if (!response.ok || !response.body) {
@@ -548,7 +537,7 @@ export default function TextPresentationClient() {
           if (finalId) break;
         }
       } finally {
-        clearTimeout(timeoutId);
+        // no-op
       }
 
       if (!finalId) {
@@ -562,11 +551,8 @@ export default function TextPresentationClient() {
 
       setFinalProjectId(parsedId);
       router.push(`/projects/view/${finalId}`);
-      
+
     } catch (error: any) {
-      // Clear timeout on error
-      clearTimeout(timeoutId);
-      
       // Handle specific error types
       if (error.name === 'AbortError') {
         console.log('Request was aborted');
