@@ -29,7 +29,10 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
     const container = enhancerRef.current.parentElement;
     if (!container) return;
 
-    const elements = container.querySelectorAll('[data-draggable="true"]');
+    // Support both explicit class and data attribute, but avoid parent wrappers
+    const selector = '.draggable, [data-draggable="true"]';
+    const allNodes = Array.from(container.querySelectorAll(selector));
+    const elements = allNodes.filter((el) => !el.querySelector(selector));
 
     elements.forEach((element, index) => {
       const htmlElement = element as HTMLElement;
