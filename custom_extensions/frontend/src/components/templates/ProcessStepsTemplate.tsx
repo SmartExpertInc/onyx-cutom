@@ -218,49 +218,51 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
         fontFamily: currentTheme.fonts.contentFont,
       }}
     >
-      {/* Title */}
-      {props.isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={props.title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0 auto 40px auto',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={(e) => {
-            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            if (props.isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          data-draggable="true"
-        >
-          {props.title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Title - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+        {props.isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={props.title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0 auto 40px auto',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (props.isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {props.title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div
         style={{
@@ -325,7 +327,13 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
               ) : (
                 <p 
                   style={stepDescriptionStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (props.isEditable) {
                       startEditingStep(index);
                     }

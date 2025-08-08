@@ -393,63 +393,19 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   return (
     <div className="pyramid-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={(e) => {
-            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          data-draggable="true"
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
-
-      {/* Subtitle */}
-      {subtitle && (
-        isEditable && editingSubtitle ? (
+      {/* Title - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingTitle ? (
           <InlineEditor
-            initialValue={subtitle || ''}
-            onSave={handleSubtitleSave}
-            onCancel={handleSubtitleCancel}
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
             multiline={true}
-            placeholder="Enter subtitle..."
-            className="inline-editor-subtitle"
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
             style={{
-              ...subtitleStyles,
-              // Ensure subtitle behaves exactly like p element
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
               margin: '0',
               padding: '0',
               border: 'none',
@@ -463,24 +419,72 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             }}
           />
         ) : (
-          <p 
-            style={subtitleStyles}
+          <h1 
+            style={titleStyles}
             onClick={(e) => {
-              if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                 e.preventDefault();
                 e.stopPropagation();
                 return;
               }
               if (isEditable) {
-                setEditingSubtitle(true);
+                setEditingTitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            data-draggable="true"
+            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
           >
-            {subtitle}
-          </p>
-        )
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
+
+      {/* Subtitle - wrapped */}
+      {subtitle && (
+        <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={subtitle || ''}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                // Ensure subtitle behaves exactly like p element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <p 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+            >
+              {subtitle}
+            </p>
+          )}
+        </div>
       )}
 
       <div style={mainContentStyles}>
@@ -524,7 +528,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
                       startEditingItemHeading(index);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                 >
                   {item.heading || 'Click to add heading'}
                 </div>
@@ -562,7 +566,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
                       startEditingItemDescription(index);
                     }
                   }}
-                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                 >
                   {item.description || 'Click to add description'}
                 </div>

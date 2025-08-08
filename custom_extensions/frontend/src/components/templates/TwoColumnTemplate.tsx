@@ -296,48 +296,50 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       }}
     >
       {/* Main Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={(e) => {
-            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          data-draggable="true"
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div
         style={{
@@ -358,79 +360,83 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             style={placeholderStyles}
           />
           {/* Left Mini title */}
-          {isEditable && editingLeftTitle ? (
-            <InlineEditor
-              initialValue={leftTitle || ''}
-              onSave={handleLeftTitleSave}
-              onCancel={handleLeftTitleCancel}
-              multiline={true}
-              placeholder="Enter left column title..."
-              className="inline-editor-left-title"
-              style={{
-                ...columnTitleStyles,
-                // Ensure title behaves exactly like h2 element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <h2 
-              style={columnTitleStyles}
-              onClick={() => {
-                if (isEditable) {
-                  setEditingLeftTitle(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {leftTitle || 'Click to add left title'}
-            </h2>
-          )}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && editingLeftTitle ? (
+              <InlineEditor
+                initialValue={leftTitle || ''}
+                onSave={handleLeftTitleSave}
+                onCancel={handleLeftTitleCancel}
+                multiline={true}
+                placeholder="Enter left column title..."
+                className="inline-editor-left-title"
+                style={{
+                  ...columnTitleStyles,
+                  // Ensure title behaves exactly like h2 element
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <h2 
+                style={columnTitleStyles}
+                onClick={() => {
+                  if (isEditable) {
+                    setEditingLeftTitle(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {leftTitle || 'Click to add left title'}
+              </h2>
+            )}
+          </div>
           {/* Left Main text */}
-          {isEditable && editingLeftContent ? (
-            <InlineEditor
-              initialValue={leftContent || ''}
-              onSave={handleLeftContentSave}
-              onCancel={handleLeftContentCancel}
-              multiline={true}
-              placeholder="Enter left column content..."
-              className="inline-editor-left-content"
-              style={{
-                ...columnContentStyles,
-                // Ensure content behaves exactly like p element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                overflowWrap: 'anywhere',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <p 
-              style={columnContentStyles}
-              onClick={() => {
-                if (isEditable) {
-                  setEditingLeftContent(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {leftContent || 'Click to add left content'}
-            </p>
-          )}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && editingLeftContent ? (
+              <InlineEditor
+                initialValue={leftContent || ''}
+                onSave={handleLeftContentSave}
+                onCancel={handleLeftContentCancel}
+                multiline={true}
+                placeholder="Enter left column content..."
+                className="inline-editor-left-content"
+                style={{
+                  ...columnContentStyles,
+                  // Ensure content behaves exactly like p element
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  overflowWrap: 'anywhere',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <p 
+                style={columnContentStyles}
+                onClick={() => {
+                  if (isEditable) {
+                    setEditingLeftContent(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {leftContent || 'Click to add left content'}
+              </p>
+            )}
+          </div>
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}} data-draggable="true">
           {/* Right Clickable Image Placeholder */}
@@ -445,79 +451,83 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             style={placeholderStyles}
           />
           {/* Right Mini title */}
-          {isEditable && editingRightTitle ? (
-            <InlineEditor
-              initialValue={rightTitle || ''}
-              onSave={handleRightTitleSave}
-              onCancel={handleRightTitleCancel}
-              multiline={true}
-              placeholder="Enter right column title..."
-              className="inline-editor-right-title"
-              style={{
-                ...columnTitleStyles,
-                // Ensure title behaves exactly like h2 element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <h2 
-              style={columnTitleStyles}
-              onClick={() => {
-                if (isEditable) {
-                  setEditingRightTitle(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {rightTitle || 'Click to add right title'}
-            </h2>
-          )}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && editingRightTitle ? (
+              <InlineEditor
+                initialValue={rightTitle || ''}
+                onSave={handleRightTitleSave}
+                onCancel={handleRightTitleCancel}
+                multiline={true}
+                placeholder="Enter right column title..."
+                className="inline-editor-right-title"
+                style={{
+                  ...columnTitleStyles,
+                  // Ensure title behaves exactly like h2 element
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <h2 
+                style={columnTitleStyles}
+                onClick={() => {
+                  if (isEditable) {
+                    setEditingRightTitle(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {rightTitle || 'Click to add right title'}
+              </h2>
+            )}
+          </div>
           {/* Right Main text */}
-          {isEditable && editingRightContent ? (
-            <InlineEditor
-              initialValue={rightContent || ''}
-              onSave={handleRightContentSave}
-              onCancel={handleRightContentCancel}
-              multiline={true}
-              placeholder="Enter right column content..."
-              className="inline-editor-right-content"
-              style={{
-                ...columnContentStyles,
-                // Ensure content behaves exactly like p element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                overflowWrap: 'anywhere',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <p 
-              style={columnContentStyles}
-              onClick={() => {
-                if (isEditable) {
-                  setEditingRightContent(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {rightContent || 'Click to add right content'}
-            </p>
-          )}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && editingRightContent ? (
+              <InlineEditor
+                initialValue={rightContent || ''}
+                onSave={handleRightContentSave}
+                onCancel={handleRightContentCancel}
+                multiline={true}
+                placeholder="Enter right column content..."
+                className="inline-editor-right-content"
+                style={{
+                  ...columnContentStyles,
+                  // Ensure content behaves exactly like p element
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  overflowWrap: 'anywhere',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <p 
+                style={columnContentStyles}
+                onClick={() => {
+                  if (isEditable) {
+                    setEditingRightContent(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+              >
+                {rightContent || 'Click to add right content'}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>

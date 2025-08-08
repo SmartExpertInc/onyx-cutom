@@ -297,49 +297,51 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   return (
     <div className="big-numbers-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={(e) => {
-            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          data-draggable="true"
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Title - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div style={gridStyles}>
         {Array.isArray(items) && items.length >= 3 ? (
@@ -372,7 +374,13 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
               ) : (
                 <div 
                   style={valueStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingItemValue(idx);
                     }
@@ -410,7 +418,13 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
               ) : (
                 <div 
                   style={labelStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingItemLabel(idx);
                     }
@@ -449,6 +463,12 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                 <div 
                   style={descriptionStyles}
                   onClick={() => {
+                    const el = document.querySelector(`[data-draggable="true"]`);
+                    // Fallback to closest wrapper
+                    const wrapper = (document.activeElement as HTMLElement)?.closest?.('[data-draggable="true"]') || null;
+                    if (wrapper && (wrapper as HTMLElement).getAttribute('data-just-dragged') === 'true') {
+                      return;
+                    }
                     if (isEditable) {
                       startEditingItemDescription(idx);
                     }
