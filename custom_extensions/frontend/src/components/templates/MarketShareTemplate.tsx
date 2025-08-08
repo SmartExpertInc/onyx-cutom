@@ -32,6 +32,7 @@ export interface MarketShareTemplateProps extends BaseTemplateProps {
   titleColor?: string;
   textColor?: string;
   accentColor?: string;
+  bottomText?: string;
   theme?: any;
 }
 
@@ -153,6 +154,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
     primaryColor: '#2a5490',
     secondaryColor: '#9ca3af'
   },
+  bottomText = 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here',
   slideId,
   isEditable = false,
   onUpdate,
@@ -167,6 +169,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   const [editingPrimaryDesc, setEditingPrimaryDesc] = useState(false);
   const [editingSecondaryLabel, setEditingSecondaryLabel] = useState(false);
   const [editingSecondaryDesc, setEditingSecondaryDesc] = useState(false);
+  const [editingBottomText, setEditingBottomText] = useState(false);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -221,6 +224,12 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
     setEditingSecondaryDesc(false);
     const newSecondaryMetric = { ...secondaryMetric, description: newDesc };
     const newData = { title, primaryMetric, secondaryMetric: newSecondaryMetric, chartData };
+    scheduleAutoSave(newData);
+  };
+
+  const handleBottomTextUpdate = (newText: string) => {
+    setEditingBottomText(false);
+    const newData = { title, primaryMetric, secondaryMetric, chartData, bottomText: newText };
     scheduleAutoSave(newData);
   };
 
@@ -321,12 +330,29 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
 
               {/* Bottom description */}
               <div className="text-center max-w-lg mt-8">
-                <p 
-                  className="text-sm leading-relaxed"
-                  style={{ color: contentColor, opacity: 0.8 }}
-                >
-                  Follow the link in the graph to modify its data and then paste the new one here. <span className="font-semibold">For more info, click here</span>
-                </p>
+                {editingBottomText && isEditable ? (
+                  <InlineEditor
+                    initialValue={bottomText}
+                    onSave={handleBottomTextUpdate}
+                    onCancel={() => setEditingBottomText(false)}
+                    multiline={true}
+                    style={{
+                      color: contentColor,
+                      fontSize: '0.875rem',
+                      lineHeight: '1.5',
+                      textAlign: 'center',
+                      opacity: 0.8
+                    }}
+                  />
+                ) : (
+                  <p 
+                    className="text-sm leading-relaxed cursor-pointer hover:opacity-80"
+                    style={{ color: contentColor, opacity: 0.8 }}
+                    onClick={() => isEditable && setEditingBottomText(true)}
+                  >
+                    {bottomText}
+                  </p>
+                )}
               </div>
             </div>
           </div>

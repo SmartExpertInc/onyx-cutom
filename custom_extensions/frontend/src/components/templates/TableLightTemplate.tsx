@@ -115,6 +115,33 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
   
+  // Smart color adaptation for better readability
+  const getTableHeaderColor = () => {
+    // Use a muted version of accent color for better readability
+    if (themeAccent === '#f35657') return '#2563eb'; // Red theme -> Blue headers
+    if (themeAccent === '#3b82f6') return '#0ea5e9'; // Blue theme -> Cyan headers  
+    if (themeAccent === '#60a5fa') return '#0891b2'; // Light blue theme -> Dark cyan headers
+    return '#0ea5e9'; // Default cyan
+  };
+  
+  const getTableBorderColor = () => {
+    // Use subtle borders based on theme
+    if (themeBg === '#110c35') return '#374151'; // Dark theme -> Gray borders
+    if (themeBg === '#1e3a8a') return '#475569'; // Blue theme -> Slate borders
+    return '#e5e7eb'; // Light theme -> Light gray borders
+  };
+  
+  const getTableTextColor = () => {
+    // Ensure good contrast
+    if (themeBg === '#110c35') return '#f8fafc'; // Dark theme -> Very light text
+    if (themeBg === '#1e3a8a') return '#f1f5f9'; // Blue theme -> Light text  
+    return '#374151'; // Light theme -> Dark gray text
+  };
+  
+  const tableHeaderColor = getTableHeaderColor();
+  const tableBorderColor = getTableBorderColor();
+  const tableTextColor = getTableTextColor();
+  
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
@@ -262,17 +289,17 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
         <div className="overflow-hidden rounded-lg shadow-xl border">
           <table 
             className="w-full border-collapse"
-            style={{ backgroundColor: tableBackgroundColor, borderColor: borderColor }}
+            style={{ backgroundColor: tableBackgroundColor, borderColor: tableBorderColor }}
           >
             
             {/* Headers */}
             <thead>
-              <tr style={{ backgroundColor: themeAccent || headerBackgroundColor }}>
+              <tr style={{ backgroundColor: tableHeaderColor }}>
                 <th 
                   className="p-4 text-left font-bold border-r"
                   style={{ 
-                    color: headerColor,
-                    borderColor: borderColor,
+                    color: '#ffffff',
+                    borderColor: tableBorderColor,
                     fontSize: '1rem',
                     backgroundColor: 'transparent'
                   }}
@@ -284,8 +311,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     key={index}
                     className="p-4 text-center font-bold border-r last:border-r-0 relative group"
                     style={{ 
-                      color: headerColor,
-                      borderColor: borderColor,
+                      color: '#ffffff',
+                      borderColor: tableBorderColor,
                       fontSize: '1rem'
                     }}
                   >
@@ -341,7 +368,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 <tr 
                   key={rowIndex}
                   className="border-b hover:bg-gray-50 transition-colors group"
-                  style={{ borderColor: borderColor }}
+                  style={{ borderColor: tableBorderColor }}
                 >
                   {row.map((cell, colIndex) => {
                     const isFirstColumn = colIndex === 0;
@@ -354,8 +381,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                           isFirstColumn ? 'text-left font-semibold' : 'text-center'
                         }`}
                         style={{ 
-                          color: isFirstColumn ? themeTitle : themeContent,
-                          borderColor: borderColor,
+                          color: isFirstColumn ? themeTitle : tableTextColor,
+                          borderColor: tableBorderColor,
                           fontSize: '0.95rem',
                           backgroundColor: isFirstColumn ? 'rgba(0,0,0,0.02)' : 'transparent'
                         }}

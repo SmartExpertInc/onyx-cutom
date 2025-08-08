@@ -26,6 +26,7 @@ export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
   titleColor?: string;
   textColor?: string;
   chartSize?: number;
+  descriptionText?: string;
   theme?: any;
 }
 
@@ -150,6 +151,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   titleColor = '#1f2937',
   textColor = '#374151',
   chartSize = 280,
+  descriptionText = 'To modify this graph, click on it, follow the link, change the data and paste it here',
   theme,
   isEditable = false,
   onUpdate
@@ -161,6 +163,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMonth, setEditingMonth] = useState<number | null>(null);
   const [editingMonthDesc, setEditingMonthDesc] = useState<number | null>(null);
+  const [editingDescText, setEditingDescText] = useState(false);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -187,6 +190,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const handleTitleUpdate = (newTitle: string) => {
     setEditingTitle(false);
     const newData = { title: newTitle, chartData, monthlyData };
+    scheduleAutoSave(newData);
+  };
+
+  const handleDescTextUpdate = (newText: string) => {
+    setEditingDescText(false);
+    const newData = { title, chartData, monthlyData, descriptionText: newText };
     scheduleAutoSave(newData);
   };
 
@@ -302,12 +311,30 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
               {title}
             </h1>
           )}
-          <p 
-            className="text-lg mt-4 opacity-70"
-            style={{ color: themeContent }}
-          >
-            To modify this graph, click on it, follow the link, change the data and paste it here
-          </p>
+          {editingDescText && isEditable ? (
+            <InlineEditor
+              initialValue={descriptionText}
+              onSave={handleDescTextUpdate}
+              onCancel={() => setEditingDescText(false)}
+              multiline={true}
+              style={{
+                color: themeContent,
+                fontSize: '1.125rem',
+                lineHeight: '1.6',
+                opacity: 0.7,
+                textAlign: 'center',
+                marginTop: '1rem'
+              }}
+            />
+          ) : (
+            <p 
+              className="text-lg mt-4 opacity-70 cursor-pointer hover:opacity-80"
+              style={{ color: themeContent }}
+              onClick={() => isEditable && setEditingDescText(true)}
+            >
+              {descriptionText}
+            </p>
+          )}
         </div>
 
         {/* Main Layout Container */}

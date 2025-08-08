@@ -1069,7 +1069,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#ffffff',
       titleColor: '#1f2937',
       textColor: '#374151',
-      accentColor: '#2a5490'
+      accentColor: '#2a5490',
+      bottomText: 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -1092,7 +1093,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
       textColor: { type: 'color', label: 'Text Color', default: '#374151' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#2a5490' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#2a5490' },
+      bottomText: { type: 'text', label: 'Bottom Description', required: false }
     }
   },
 
@@ -1223,7 +1225,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#ffffff',
       titleColor: '#1f2937',
       textColor: '#374151',
-      chartSize: 280
+      chartSize: 280,
+      descriptionText: 'To modify this graph, click on it, follow the link, change the data and paste it here'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -1240,7 +1243,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
       textColor: { type: 'color', label: 'Text Color', default: '#374151' },
-      chartSize: { type: 'number', label: 'Chart Size', default: 280, min: 200, max: 400 }
+      chartSize: { type: 'number', label: 'Chart Size', default: 280, min: 200, max: 400 },
+      descriptionText: { type: 'text', label: 'Description Text', required: false }
     }
   }
 };
