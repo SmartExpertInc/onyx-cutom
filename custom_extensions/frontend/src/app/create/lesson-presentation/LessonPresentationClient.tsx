@@ -672,7 +672,7 @@ export default function LessonPresentationClient() {
                 console.log('project', project);
                 const createdAt = new Date(project.created_at);
                 const isRecentlyCreated = createdAt >= twoMinutesAgo;
-                const isSlideType = project.design_microproduct_type === 'SlideDeckDisplay' || 
+                const isSlideType = project.design_microproduct_type === 'Slide Deck' || 
                                   project.design_microproduct_type === 'VideoLessonPresentationDisplay';
                 return isRecentlyCreated && isSlideType;
               });
