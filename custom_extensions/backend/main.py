@@ -1365,9 +1365,14 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
                     if len(fixed_items) == 3:
                         normalized_props['items'] = fixed_items
                     else:
-                        # Log the issue and skip this slide
-                        logger.warning(f"Removing slide {slide_index + 1} with template 'big-numbers': Expected 3 items, got {len(fixed_items)}")
-                        continue  # Skip this slide
+                        # Pad/trim to exactly 3 items instead of skipping
+                        logger.warning(f"Coercing slide {slide_index + 1} with template 'big-numbers': Expected 3 items, got {len(fixed_items)}")
+                        while len(fixed_items) < 3:
+                            idx = len(fixed_items) + 1
+                            fixed_items.append({'value': '0', 'label': f'Item {idx}', 'description': 'No description available'})
+                        if len(fixed_items) > 3:
+                            fixed_items = fixed_items[:3]
+                        normalized_props['items'] = fixed_items
                 else:
                     logger.warning(f"Removing slide {slide_index + 1} with template 'big-numbers': Invalid or missing items array")
                     continue  # Skip this slide

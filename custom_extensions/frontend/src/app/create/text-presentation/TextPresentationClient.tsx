@@ -127,6 +127,7 @@ export default function TextPresentationClient() {
   const [aiModel, setAiModel] = useState("flux-fast");
   // Footer/finalize
   const [isFinalizing, setIsFinalizing] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
 
   // Example prompts for advanced mode
   const onePagerExamples = [
@@ -324,6 +325,9 @@ export default function TextPresentationClient() {
             throw new Error(`Failed to generate presentation: ${res.status}`);
           }
 
+          const headerChat = res.headers.get("X-Chat-Session-Id");
+          if (headerChat) setChatId(headerChat);
+
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
           
@@ -501,6 +505,7 @@ export default function TextPresentationClient() {
           courseName: params?.get("courseName"),
           language: language,
           folderId: folderContext?.folderId || undefined,
+          chatSessionId: chatId || undefined,
         }),
         signal: abortController.signal
       });
@@ -541,6 +546,18 @@ export default function TextPresentationClient() {
         
         // Fallback: product may be created even if response failed (e.g., 504). Try to locate it and navigate.
         try {
+          // Prefer finding by chat session id for accuracy
+          if (chatId) {
+            const byChat = await fetch(`${CUSTOM_BACKEND_URL}/projects/latest-by-chat?chatId=${encodeURIComponent(chatId)}`, { cache: 'no-store' });
+            if (byChat.ok) {
+              const proj = await byChat.json();
+              if (proj?.id) {
+                router.replace(`/projects/view/${proj.id}`);
+                return;
+              }
+            }
+          }
+
           const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store' });
           if (res.ok) {
             const list = await res.json();
