@@ -111,6 +111,10 @@ export default function QuizClient() {
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
+  // State for editing quiz question titles
+  const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
+  const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
+  
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -148,6 +152,126 @@ export default function QuizClient() {
   ];
 
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+
+  // Parse quiz content into questions/sections
+  const parseQuizIntoQuestions = (content: string) => {
+    if (!content.trim()) return [];
+    
+    const questions = [];
+    
+    // Check if content contains quiz questions (numbered questions pattern)
+    const quizQuestions = content.match(/^\s*\d+\.\s*\*\*(.*?)\*\*/gm);
+    
+    if (quizQuestions && quizQuestions.length > 0) {
+      // Parse quiz format
+      const questionSections = content.split(/(?=^\s*\d+\.\s*\*\*)/m).filter(section => section.trim());
+      
+      questionSections.forEach((section, index) => {
+        const lines = section.trim().split('\n');
+        if (lines.length === 0) return;
+        
+        // Extract question title
+        const questionMatch = lines[0].match(/^\s*\d+\.\s*\*\*(.*?)\*\*/);
+        if (!questionMatch) return;
+        
+        const questionTitle = questionMatch[1].trim();
+        
+        // Extract options and explanation
+        let options = [];
+        let correctAnswer = '';
+        let explanation = '';
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (line.match(/^\s*-\s*[A-D]\)/)) {
+            // Option line
+            options.push(line.replace(/^\s*-\s*/, '').trim());
+          } else if (line.includes('**Correct Answer:**')) {
+            correctAnswer = line.replace(/\*\*Correct Answer:\*\*\s*/, '').trim();
+          } else if (line.includes('**Explanation:**')) {
+            explanation = line.replace(/\*\*Explanation:\*\*\s*/, '').trim();
+          }
+        }
+        
+        questions.push({
+          title: questionTitle,
+          content: `Options:\n${options.join('\n')}\n\nCorrect Answer: ${correctAnswer}\n\nExplanation: ${explanation}`
+        });
+      });
+      
+      return questions;
+    }
+    
+    return [];
+  };
+
+  const questionList = parseQuizIntoQuestions(quizData);
+
+  // Handle question title editing
+  const handleTitleEdit = (questionIndex: number, newTitle: string) => {
+    setEditedTitles(prev => ({
+      ...prev,
+      [questionIndex]: newTitle
+    }));
+  };
+
+  const handleTitleSave = (questionIndex: number) => {
+    setEditingQuestionId(null);
+    // Update the original content with new title
+    updateContentWithNewTitle(questionIndex);
+  };
+
+  const updateContentWithNewTitle = (questionIndex: number) => {
+    const newTitle = editedTitles[questionIndex];
+    if (!newTitle) return;
+
+    const questions = parseQuizIntoQuestions(quizData);
+    if (questionIndex >= questions.length) return;
+
+    const oldTitle = questions[questionIndex].title;
+    
+    // Find and replace the old title with new title in content
+    const patterns = [
+      new RegExp(`^(\\s*${questionIndex + 1}\\.\\s*\\*\\*)${escapeRegExp(oldTitle)}(\\*\\*)`, 'gm'),
+    ];
+
+    let updatedContent = quizData;
+    for (const pattern of patterns) {
+      if (pattern.test(updatedContent)) {
+        updatedContent = updatedContent.replace(pattern, (match, prefix, suffix) => {
+          return prefix + newTitle + suffix;
+        });
+        break;
+      }
+    }
+
+    setQuizData(updatedContent);
+    
+    // Clear the edited title since it's now part of the main content
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[questionIndex];
+      return newTitles;
+    });
+  };
+
+  // Helper function to escape special regex characters
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
+  const handleTitleCancel = (questionIndex: number) => {
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[questionIndex];
+      return newTitles;
+    });
+    setEditingQuestionId(null);
+  };
+
+  const getTitleForQuestion = (question: any, index: number) => {
+    return editedTitles[index] || question.title;
+  };
 
   const toggleExample = (ex: typeof quizExamples[number]) => {
     setSelectedExamples((prev) => {
@@ -915,7 +1039,7 @@ export default function QuizClient() {
           </div>
         )}
 
-          {/* Main content display - Textarea instead of module list */}
+          {/* Main content display - Cards or Textarea */}
           {textareaVisible && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
@@ -926,14 +1050,59 @@ export default function QuizClient() {
                   <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
                 </div>
               )}
-              <textarea
-                ref={textareaRef}
-                value={quizData}
-                onChange={(e) => setQuizData(e.target.value)}
-                placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={loadingEdit}
-              />
+              
+              {/* Display content in card format if questions are available, otherwise show textarea */}
+              {questionList.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                  {questionList.map((question, idx: number) => (
+                    <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="flex items-center justify-center w-16 bg-[#0066FF] text-white text-lg font-bold flex-shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 p-4">
+                        <div className="mb-2">
+                          {editingQuestionId === idx ? (
+                            <input
+                              type="text"
+                              value={editedTitles[idx] || question.title}
+                              onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                              className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
+                              autoFocus
+                              onBlur={() => handleTitleSave(idx)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleTitleSave(idx);
+                                if (e.key === 'Escape') handleTitleCancel(idx);
+                              }}
+                            />
+                          ) : (
+                            <h4 
+                              className="text-[#20355D] text-base font-semibold cursor-pointer"
+                              onClick={() => setEditingQuestionId(idx)}
+                            >
+                              {getTitleForQuestion(question, idx)}
+                            </h4>
+                          )}
+                        </div>
+                        {question.content && (
+                          <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                            {question.content.substring(0, 100)}
+                            {question.content.length > 100 && '...'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <textarea
+                  ref={textareaRef}
+                  value={quizData}
+                  onChange={(e) => setQuizData(e.target.value)}
+                  placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
+                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                  disabled={loadingEdit}
+                />
+              )}
             </div>
           )}
         </section>

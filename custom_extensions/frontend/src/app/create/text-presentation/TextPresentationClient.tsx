@@ -141,7 +141,9 @@ export default function TextPresentationClient() {
     
     const lessons = [];
     
-    // Split content by markdown headers or section breaks
+
+    
+    // Original parsing logic for regular content
     const sections = content.split(/(?:^|\n)(?:#{1,3}\s+.*|---\s*$)/m);
     const headers = content.match(/(?:^|\n)(#{1,3}\s+.*)/gm) || [];
     
@@ -1002,7 +1004,7 @@ export default function TextPresentationClient() {
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
-          className="text-[#20355D] text-base font-semibold cursor-pointer hover:text-[#0066FF] transition-colors"       {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+          {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           {textareaVisible && (
             <div className=" bg-white rounded-xl p-6 flex flex-col gap-6" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 {loadingEdit && (
