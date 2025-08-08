@@ -167,7 +167,7 @@ export default function DataSourceLanding() {
       {/* Top-left home button */}
       <Link
         href="/projects"
-        className="fixed top-6 left-6 flex items-center gap-1 text-sm font-medium bg-white/70 hover:bg-white text-gray-900 backdrop-blur rounded-full px-3 py-1 shadow border border-gray-200"
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
       >
         {/* Home icon */}
         <HomeIcon size={14} className="-ml-0.5" />

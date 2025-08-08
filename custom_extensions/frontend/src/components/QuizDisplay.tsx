@@ -104,7 +104,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${option.id === question.correct_option_id ? 'border-[#797979] bg-[#797979]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${option.id === question.correct_option_id ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
                 >
                   {option.id === question.correct_option_id && (
@@ -175,7 +175,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded border flex items-center justify-center ${correctIds.includes(option.id) ? 'border-[#797979] bg-[#797979]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded border flex items-center justify-center ${correctIds.includes(option.id) ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
                 >
                   {correctIds.includes(option.id) && (
@@ -484,7 +484,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     onDrop={(e) => handleEditDrop(e, itemId)}
                   >
                     <span 
-                        className="w-6 h-6 flex items-center justify-center bg-[#797979] text-white rounded-full mr-3 cursor-grab"
+                        className="w-6 h-6 flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3 cursor-grab"
                         draggable
                         onDragStart={(e) => handleDragStart(e, itemId)}
                     >
@@ -501,7 +501,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 );
               })}
             </div>
-            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#797979]">{t('quiz.addItem', 'Add Item')}</button>
+            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#2563eb]">{t('quiz.addItem', 'Add Item')}</button>
 
              <div className="mt-4">
                 <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
@@ -524,7 +524,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             const item = question.items_to_sort.find(i => i.id === itemId);
             return (
               <div key={itemId} className="flex items-center">
-                <span className="w-6 h-6 flex items-center justify-center bg-[#797979] text-white rounded-full mr-3">
+                <span className="w-6 h-6 flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3">
                   {orderIndex + 1}
                 </span>
                 <span className="text-black">{item?.text}</span>
@@ -608,7 +608,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     return (
       <div key={index} className="mb-8 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="flex items-start mb-4">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#797979] text-white font-semibold mr-3">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2563eb] text-white font-semibold mr-3">
             {questionNumber}
           </span>
           <div className="flex-1">
