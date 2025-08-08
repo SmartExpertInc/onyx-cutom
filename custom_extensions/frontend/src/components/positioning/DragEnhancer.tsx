@@ -92,6 +92,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         }
       };
 
+      const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
       const handleMouseDown = (e: MouseEvent) => {
         // Do not start drag on active editing controls
         const targetElement = e.target as HTMLElement;
@@ -129,8 +131,9 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseMove = (e: MouseEvent) => {
         if (!isMouseDown) return;
 
-        const newX = e.clientX - startOffsetX;
-        const newY = e.clientY - startOffsetY;
+        // Compute new positions
+        let newX = e.clientX - startOffsetX;
+        let newY = e.clientY - startOffsetY;
         const dx = Math.abs(e.clientX - startPageX);
         const dy = Math.abs(e.clientY - startPageY);
         dragDistance = Math.sqrt(dx * dx + dy * dy);
@@ -142,6 +145,14 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         }
 
         if (isDragging) {
+          // Clamp within container bounds
+          const containerRect = (container as HTMLElement).getBoundingClientRect();
+          const elementRect = htmlElement.getBoundingClientRect();
+          const maxX = containerRect.width - elementRect.width;
+          const maxY = containerRect.height - elementRect.height;
+          newX = clamp(newX, -elementRect.left + containerRect.left, maxX - (elementRect.left - containerRect.left));
+          newY = clamp(newY, -elementRect.top + containerRect.top, maxY - (elementRect.top - containerRect.top));
+
           currentX = newX;
           currentY = newY;
           htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;

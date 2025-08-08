@@ -14,18 +14,7 @@
   cursor: move;
   border-radius: 4px;
   /* Prevent initial flicker by ensuring transform is applied immediately */
-  transform: translate(0px, 0px); /* Ensure transform is always applied */
-  /* FIXED: Allow natural height expansion */
-  height: auto !important;
-  /* FIXED: Remove max-height constraints */
-  /* max-height: none !important; */ /* Removed to allow natural expansion */
-  /* FIXED: Allow content to expand naturally */
-  overflow: visible !important;
-  /* FIXED: Ensure draggable elements don't interfere with container spacing */
-  position: relative !important;
-  /* FIXED: Prevent unwanted margin/padding interference */
-  margin: 0 !important;
-  padding: 0 !important;
+  transform: translate(0px, 0px); /* Default transform to prevent layout shift */
 }
 
 /* Prevent transitions during initial render to avoid flicker */

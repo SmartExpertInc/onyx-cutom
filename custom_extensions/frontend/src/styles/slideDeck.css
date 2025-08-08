@@ -361,10 +361,6 @@
 .slides-container > div {
   margin-bottom: 40px !important;
   position: relative;
-  /* FIXED: Ensure the container itself maintains spacing regardless of content height */
-  display: block !important;
-  /* FIXED: Prevent content from consuming the margin */
-  overflow: visible !important;
 }
 
 .slides-container > div:last-child {
@@ -375,10 +371,6 @@
 .component-based-slide-deck .slide-container {
   margin-bottom: 40px !important;
   position: relative;
-  /* FIXED: Ensure the container itself maintains spacing regardless of content height */
-  display: block !important;
-  /* FIXED: Prevent content from consuming the margin */
-  overflow: visible !important;
 }
 
 .component-based-slide-deck .slide-container:last-child {
@@ -395,8 +387,6 @@
   /* Don't interfere with container margins */
   margin: 0 !important;
   padding: 0 !important;
-  /* FIXED: Prevent content from consuming container margins */
-  overflow: visible !important;
 }
 
 .professional-slide {
@@ -739,59 +729,46 @@
   /* Ensure the template doesn't interfere with slide container spacing */
   margin: 0 !important;
   padding: 0 !important;
-  /* FIXED: Allow natural height expansion while maintaining container spacing */
+  /* Allow natural height flow */
   height: auto !important;
-  min-height: 600px !important;
-  /* FIXED: Remove max-height constraint to allow content to expand naturally */
-  /* max-height: 600px !important; */ /* Removed to allow natural expansion */
+  min-height: 600px;
   /* Ensure proper display */
   display: block !important;
   /* Prevent any positioning issues */
   position: relative !important;
-  /* FIXED: Allow content to expand naturally */
-  overflow: visible !important;
 }
 
 /* Ensure positioning-enabled slides with bullet-points-template maintain spacing */
 .positioning-enabled-slide .bullet-points-template {
   /* Override any conflicting styles from the positioning wrapper */
   width: 100% !important;
-  /* FIXED: Allow natural height expansion */
   height: auto !important;
-  min-height: 600px !important;
-  /* FIXED: Remove max-height constraint */
-  /* max-height: 600px !important; */ /* Removed to allow natural expansion */
+  max-height: none !important;
   /* Maintain natural flow */
   display: block !important;
   position: relative !important;
-  /* FIXED: Allow content to expand naturally */
-  overflow: visible !important;
 }
 
 /* FIXED: Ensure draggable elements in bullet points template don't affect height */
 .bullet-points-template [data-draggable="true"] {
-  /* FIXED: Allow natural height expansion for draggable elements */
+  /* Prevent height expansion from draggable elements */
   height: auto !important;
-  /* FIXED: Remove max-height constraint to allow content to expand */
-  /* max-height: none !important; */ /* Removed to allow natural expansion */
+  max-height: none !important;
   /* Ensure flex items maintain their intended size */
   flex-shrink: 0 !important;
   flex-grow: 0 !important;
-  /* FIXED: Allow content to expand naturally */
+  /* Prevent overflow issues */
   overflow: visible !important;
-  /* FIXED: Ensure draggable elements don't interfere with container spacing */
-  position: relative !important;
 }
 
 /* FIXED: Ensure the UnifiedBulletEditor doesn't expand beyond its container */
 .bullet-points-template .bulletsContainerStyles {
-  /* FIXED: Allow natural height expansion */
+  /* Maintain intended height */
   height: auto !important;
-  /* FIXED: Remove max-height constraint */
-  /* max-height: none !important; */ /* Removed to allow natural expansion */
+  max-height: none !important;
   /* Prevent flex expansion */
   flex: 1 1 50% !important;
-  /* FIXED: Allow content to expand naturally */
+  /* Ensure proper overflow handling */
   overflow: visible !important;
 }
 
