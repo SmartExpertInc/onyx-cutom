@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import TextPresentationDisplay from "../../../components/TextPresentationDisplay";
+import { TextPresentationData } from "@/types/textPresentation";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -58,6 +60,8 @@ export default function TextPresentationClient() {
   const [streamDone, setStreamDone] = useState(false);
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
+  const [parsedData, setParsedData] = useState<TextPresentationData | null>(null);
+  const [showRawText, setShowRawText] = useState(false);
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
@@ -106,6 +110,15 @@ export default function TextPresentationClient() {
       }
     }
   }, [isFromText, textMode]);
+
+  // Update parsed data when content changes
+  useEffect(() => {
+    if (content && content.trim()) {
+      setParsedData(parseRawContentToTextPresentationData(content));
+    } else {
+      setParsedData(null);
+    }
+  }, [content]);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestInProgressRef = useRef(false);
@@ -648,6 +661,126 @@ export default function TextPresentationClient() {
     { value: "long", label: t('interface.generate.long', 'Long') },
   ];
 
+  // Function to parse raw content into TextPresentationData format
+  const parseRawContentToTextPresentationData = (rawContent: string): TextPresentationData => {
+    if (!rawContent || !rawContent.trim()) {
+      return {
+        textTitle: "",
+        contentBlocks: [],
+        detectedLanguage: "en"
+      };
+    }
+
+    const lines = rawContent.split('\n').filter(line => line.trim());
+    const contentBlocks: any[] = [];
+    let textTitle = "";
+    let detectedLanguage = "en";
+
+    // Extract title from first heading
+    for (const line of lines) {
+      if (line.startsWith('# ')) {
+        textTitle = line.replace('# ', '').trim();
+        break;
+      } else if (line.startsWith('## ')) {
+        textTitle = line.replace('## ', '').trim();
+        break;
+      }
+    }
+
+    // If no title found, use first meaningful line
+    if (!textTitle && lines.length > 0) {
+      textTitle = lines[0].replace(/^[*#\s]+/, '').trim();
+    }
+
+    // Parse content blocks
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      if (!line) continue;
+
+      // Headings
+      if (line.startsWith('## ')) {
+        const text = line.replace('## ', '').trim();
+        contentBlocks.push({
+          type: 'headline',
+          level: 2,
+          text: text,
+          iconName: 'info'
+        });
+      } else if (line.startsWith('### ')) {
+        const text = line.replace('### ', '').trim();
+        contentBlocks.push({
+          type: 'headline',
+          level: 3,
+          text: text
+        });
+      } else if (line.startsWith('#### ')) {
+        const text = line.replace('#### ', '').trim();
+        contentBlocks.push({
+          type: 'headline',
+          level: 4,
+          text: text,
+          iconName: 'target'
+        });
+      }
+      // Paragraphs
+      else if (line && !line.startsWith('#') && !line.startsWith('-') && !line.startsWith('*') && !line.startsWith('1.')) {
+        contentBlocks.push({
+          type: 'paragraph',
+          text: line
+        });
+      }
+      // Bullet lists
+      else if (line.startsWith('- ') || line.startsWith('* ')) {
+        const items = [line.replace(/^[-*]\s*/, '')];
+        // Collect subsequent list items
+        let j = i + 1;
+        while (j < lines.length && (lines[j].startsWith('- ') || lines[j].startsWith('* '))) {
+          items.push(lines[j].replace(/^[-*]\s*/, ''));
+          j++;
+        }
+        i = j - 1; // Skip processed lines
+        
+        contentBlocks.push({
+          type: 'bullet_list',
+          items: items,
+          iconName: 'chevronRight'
+        });
+      }
+      // Numbered lists
+      else if (/^\d+\.\s/.test(line)) {
+        const items = [line.replace(/^\d+\.\s*/, '')];
+        // Collect subsequent numbered items
+        let j = i + 1;
+        let nextNum = 2;
+        while (j < lines.length && lines[j].match(new RegExp(`^${nextNum}\\.\\s`))) {
+          items.push(lines[j].replace(/^\d+\.\s*/, ''));
+          j++;
+          nextNum++;
+        }
+        i = j - 1; // Skip processed lines
+        
+        contentBlocks.push({
+          type: 'numbered_list',
+          items: items
+        });
+      }
+      // Section breaks
+      else if (line === '---') {
+        contentBlocks.push({
+          type: 'section_break',
+          style: 'solid'
+        });
+      }
+    }
+
+    return {
+      textTitle: textTitle || "Text Presentation",
+      contentBlocks: contentBlocks,
+      detectedLanguage: detectedLanguage
+    };
+  };
+
   return (
     <>
     <main className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)" }}>
@@ -843,7 +976,18 @@ export default function TextPresentationClient() {
         )}
         {/* Content/preview section */}
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+            {content && (
+              <button
+                type="button"
+                onClick={() => setShowRawText(!showRawText)}
+                className="text-xs text-blue-600 hover:text-blue-700 px-2 py-1 rounded border border-blue-200 hover:bg-blue-50"
+              >
+                {showRawText ? 'Show Styled' : 'Show Raw Text'}
+              </button>
+            )}
+          </div>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           {textareaVisible && (
@@ -853,16 +997,43 @@ export default function TextPresentationClient() {
                   <LoadingAnimation message="Applying edit..." />
                 </div>
               )}
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={loadingEdit}
-              />
-          </div>
-        )}
+              
+              {/* Show styled content using TextPresentationDisplay */}
+              {parsedData && !showRawText && (
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                  <TextPresentationDisplay
+                    dataToDisplay={parsedData}
+                    isEditing={false}
+                    parentProjectName=""
+                  />
+                </div>
+              )}
+              
+              {/* Show raw text for editing */}
+              {showRawText && (
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
+                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                  disabled={loadingEdit}
+                />
+              )}
+              
+              {/* Hidden textarea for editing functionality when showing styled view */}
+              {!showRawText && (
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
+                  className="sr-only"
+                  disabled={loadingEdit}
+                />
+              )}
+            </div>
+          )}
         </section>
         {/* Advanced Mode */}
         {streamDone && content && (
