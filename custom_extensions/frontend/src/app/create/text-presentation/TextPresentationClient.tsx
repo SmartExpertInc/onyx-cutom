@@ -843,7 +843,7 @@ export default function TextPresentationClient() {
         )}
         {/* Content/preview section */}
         
-        <section className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
@@ -854,34 +854,26 @@ export default function TextPresentationClient() {
                   <LoadingAnimation message="Applying edit..." />
                 </div>
               )}
-              {/* Lesson-style preview, if content is a list of lessons */}
-              {Array.isArray(content) && content.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  {content.map((lesson: string, idx: number) => (
-                    <div key={idx} className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm">
-                      <div className="flex items-center justify-center w-14 h-14 bg-[#1769FF] rounded-l-xl text-white text-lg font-bold">
-                        {idx + 1}
-                      </div>
-                      <div className="flex-1 px-4 py-4 text-[#20355D] text-base font-normal">
-                        {lesson}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
+              {/* Markdown-style preview, not lesson cards */}
+              <div className="relative w-full">
                 <textarea
                   ref={textareaRef}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh] font-sans text-[15px] text-[#20355D] leading-relaxed"
                   disabled={loadingEdit}
+                  style={{
+                    fontFamily: 'inherit',
+                    whiteSpace: 'pre-wrap',
+                    overflowY: 'auto',
+                  }}
                 />
-              )}
+                {/* Overlay for scroll indicator if needed */}
+              </div>
             </div>
           )}
-       
-        </section>
+        </div>
         {/* Advanced Mode */}
         {streamDone && content && (
           <>
