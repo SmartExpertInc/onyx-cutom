@@ -6,6 +6,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
+// Extend JSX namespace for SVG elements
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      svg: React.SVGProps<SVGSVGElement>;
+      path: React.SVGProps<SVGPathElement>;
+      circle: React.SVGProps<SVGCircleElement>;
+      text: React.SVGProps<SVGTextElement>;
+      g: React.SVGProps<SVGGElement>;
+      defs: React.SVGProps<SVGDefsElement>;
+      filter: React.SVGProps<SVGFilterElement>;
+      feDropShadow: React.SVGProps<SVGFEDropShadowElement>;
+      span: React.HTMLAttributes<HTMLSpanElement>;
+    }
+  }
+}
+
 // Pie Chart Infographics Template Props
 export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
   title: string;
@@ -131,12 +148,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   title = 'Pie Chart Infographics',
   chartData = {
     segments: [
-      { label: '5%', percentage: 5, color: '#0ea5e9', description: 'Small segment' },
-      { label: '20%', percentage: 20, color: '#06b6d4', description: 'Medium segment' },
-      { label: '25%', percentage: 25, color: '#67e8f9', description: 'Large segment' },
-      { label: '25%', percentage: 25, color: '#0891b2', description: 'Another large' },
-      { label: '13%', percentage: 13, color: '#f97316', description: 'Orange segment' },
-      { label: '12%', percentage: 12, color: '#fb923c', description: 'Light orange' }
+      { label: '15%', percentage: 15, color: '#0ea5e9', description: 'Blue segment' },
+      { label: '20%', percentage: 20, color: '#06b6d4', description: 'Cyan segment' },
+      { label: '25%', percentage: 25, color: '#67e8f9', description: 'Light blue segment' },
+      { label: '20%', percentage: 20, color: '#0891b2', description: 'Dark blue segment' },
+      { label: '12%', percentage: 12, color: '#f97316', description: 'Orange segment' },
+      { label: '8%', percentage: 8, color: '#fb923c', description: 'Light orange segment' }
     ]
   },
   monthlyData = [
@@ -215,7 +232,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     scheduleAutoSave(newData);
   };
 
-  // Create SVG pie chart
+  // Create SVG pie chart with proper PDF rendering
   const createPieChart = () => {
     const size = chartSize;
     const radius = size * 0.35;
@@ -225,28 +242,34 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     let cumulativePercentage = 0;
     
     return chartData.segments.map((segment, index) => {
-      const startAngle = (cumulativePercentage / 100) * 2 * Math.PI - Math.PI / 2;
-      const endAngle = ((cumulativePercentage + segment.percentage) / 100) * 2 * Math.PI - Math.PI / 2;
+      const startAngle = (cumulativePercentage / 100) * 360;
+      const endAngle = ((cumulativePercentage + segment.percentage) / 100) * 360;
       
-      const x1 = centerX + radius * Math.cos(startAngle);
-      const y1 = centerY + radius * Math.sin(startAngle);
-      const x2 = centerX + radius * Math.cos(endAngle);
-      const y2 = centerY + radius * Math.sin(endAngle);
+      // Calculate coordinates for the arc
+      const startRad = (startAngle - 90) * Math.PI / 180;
+      const endRad = (endAngle - 90) * Math.PI / 180;
+      
+      const x1 = centerX + radius * Math.cos(startRad);
+      const y1 = centerY + radius * Math.sin(startRad);
+      const x2 = centerX + radius * Math.cos(endRad);
+      const y2 = centerY + radius * Math.sin(endRad);
       
       const largeArcFlag = segment.percentage > 50 ? 1 : 0;
       
+      // Create the path data for the pie slice with better precision
       const pathData = [
-        `M ${centerX} ${centerY}`,
-        `L ${x1} ${y1}`,
-        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+        `M ${centerX.toFixed(2)} ${centerY.toFixed(2)}`,
+        `L ${x1.toFixed(2)} ${y1.toFixed(2)}`,
+        `A ${radius.toFixed(2)} ${radius.toFixed(2)} 0 ${largeArcFlag} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`,
         'Z'
       ].join(' ');
       
       // Calculate text position for percentage label
-      const textAngle = (startAngle + endAngle) / 2;
+      const textAngle = (startAngle + endAngle) / 2 - 90;
+      const textRad = textAngle * Math.PI / 180;
       const textRadius = radius * 0.7;
-      const textX = centerX + textRadius * Math.cos(textAngle);
-      const textY = centerY + textRadius * Math.sin(textAngle);
+      const textX = centerX + textRadius * Math.cos(textRad);
+      const textY = centerY + textRadius * Math.sin(textRad);
       
       cumulativePercentage += segment.percentage;
       
@@ -256,23 +279,25 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             d={pathData}
             fill={segment.color}
             stroke="#ffffff"
-            strokeWidth="2"
+            strokeWidth="3"
+            strokeLinejoin="round"
+            strokeLinecap="round"
             className="transition-all duration-300 hover:opacity-80"
           />
           <text
-            x={textX}
-            y={textY}
+            x={textX.toFixed(2)}
+            y={textY.toFixed(2)}
             textAnchor="middle"
             dominantBaseline="middle"
             fill="#ffffff"
-            fontSize="16"
+            fontSize="18"
             fontWeight="bold"
             className="select-none"
             style={{
-              fontFamily: 'Arial, sans-serif',
+              fontFamily: 'Arial, Helvetica, sans-serif',
               paintOrder: 'stroke fill',
               stroke: '#000000',
-              strokeWidth: '0.5px',
+              strokeWidth: '1px',
               strokeLinecap: 'round',
               strokeLinejoin: 'round'
             }}
@@ -409,15 +434,25 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             <svg 
               width={chartSize} 
               height={chartSize} 
+              viewBox={`0 0 ${chartSize} ${chartSize}`}
               className="filter drop-shadow-lg"
+              style={{
+                shapeRendering: 'geometricPrecision',
+                textRendering: 'optimizeLegibility'
+              }}
             >
+              <defs>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="2" dy="2" stdDeviation="3" floodColor="#000000" floodOpacity="0.3"/>
+                </filter>
+              </defs>
               <circle
                 cx={chartSize / 2}
                 cy={chartSize / 2}
                 r={chartSize * 0.12}
                 fill={themeBg}
                 stroke="#e5e7eb"
-                strokeWidth="1"
+                strokeWidth="2"
               />
               {createPieChart()}
             </svg>
