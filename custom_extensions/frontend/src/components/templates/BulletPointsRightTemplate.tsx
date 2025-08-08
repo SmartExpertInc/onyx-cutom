@@ -681,7 +681,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
       <div style={contentRowStyles}>
         {/* Left: Subtitle + Bullets */}
-        <div style={leftColStyles} data-draggable="true">
+        <div style={leftColStyles}>
           {/* Subtitle */}
           {subtitle && (
             isEditable && editingSubtitle ? (
@@ -728,26 +728,30 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
           )}
 
           {/* Unified bullet points editor */}
-          <UnifiedBulletEditor
-            bullets={bullets || []}
-            bulletStyle={bulletStyle}
-            onUpdate={handleBulletsUpdate}
-            theme={currentTheme}
-            isEditable={isEditable}
-          />
+          <div data-draggable="true">
+            <UnifiedBulletEditor
+              bullets={bullets || []}
+              bulletStyle={bulletStyle}
+              onUpdate={handleBulletsUpdate}
+              theme={currentTheme}
+              isEditable={isEditable}
+            />
+          </div>
         </div>
         {/* Right: Clickable Image Placeholder */}
-        <div style={rightColStyles} data-draggable="true">
-          <ClickableImagePlaceholder
-            imagePath={imagePath}
-            onImageUploaded={handleImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Click to upload image"
-            prompt={displayPrompt}
-            isEditable={isEditable}
-            style={placeholderStyles}
-          />
+        <div style={rightColStyles}>
+          <div data-draggable="true">
+            <ClickableImagePlaceholder
+              imagePath={imagePath}
+              onImageUploaded={handleImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt={displayPrompt}
+              isEditable={isEditable}
+              style={placeholderStyles}
+            />
+          </div>
         </div>
       </div>
     </div>

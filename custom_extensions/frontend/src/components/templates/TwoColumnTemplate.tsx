@@ -347,18 +347,20 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           gap: '40px',
         }}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} data-draggable="true">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Left Clickable Image Placeholder */}
-          <ClickableImagePlaceholder
-            imagePath={leftImagePath}
-            onImageUploaded={handleLeftImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Click to upload image"
-            prompt={leftDisplayPrompt}
-            isEditable={isEditable}
-            style={placeholderStyles}
-          />
+          <div data-draggable="true">
+            <ClickableImagePlaceholder
+              imagePath={leftImagePath}
+              onImageUploaded={handleLeftImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt={leftDisplayPrompt}
+              isEditable={isEditable}
+              style={placeholderStyles}
+            />
+          </div>
           {/* Left Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
             {isEditable && editingLeftTitle ? (
@@ -387,7 +389,13 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             ) : (
               <h2 
                 style={columnTitleStyles}
-                onClick={() => {
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isEditable) {
                     setEditingLeftTitle(true);
                   }
@@ -426,7 +434,13 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             ) : (
               <p 
                 style={columnContentStyles}
-                onClick={() => {
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isEditable) {
                     setEditingLeftContent(true);
                   }
@@ -438,18 +452,20 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             )}
           </div>
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}} data-draggable="true">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
           {/* Right Clickable Image Placeholder */}
-          <ClickableImagePlaceholder
-            imagePath={rightImagePath}
-            onImageUploaded={handleRightImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Click to upload image"
-            prompt={rightDisplayPrompt}
-            isEditable={isEditable}
-            style={placeholderStyles}
-          />
+          <div data-draggable="true">
+            <ClickableImagePlaceholder
+              imagePath={rightImagePath}
+              onImageUploaded={handleRightImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt={rightDisplayPrompt}
+              isEditable={isEditable}
+              style={placeholderStyles}
+            />
+          </div>
           {/* Right Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
             {isEditable && editingRightTitle ? (
@@ -478,7 +494,13 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             ) : (
               <h2 
                 style={columnTitleStyles}
-                onClick={() => {
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isEditable) {
                     setEditingRightTitle(true);
                   }
@@ -517,12 +539,18 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             ) : (
               <p 
                 style={columnContentStyles}
-                onClick={() => {
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isEditable) {
                     setEditingRightContent(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
                 {rightContent || 'Click to add right content'}
               </p>
