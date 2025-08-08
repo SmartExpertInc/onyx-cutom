@@ -654,38 +654,6 @@ export default function LessonPresentationClient() {
       } else {
         const errorMessage = e.message || "Failed to finalize lesson. Please try again.";
         setError(errorMessage);
-        
-        // Fallback: project may have been created despite response error (e.g., 504). Try to locate it.
-        try {
-          // Prefer finding by chat session id for accuracy
-          if (chatId) {
-            const byChat = await fetch(`${CUSTOM_BACKEND_URL}/projects/latest-by-chat?chatId=${encodeURIComponent(chatId)}`, { cache: 'no-store' });
-            if (byChat.ok) {
-              const proj = await byChat.json();
-              if (proj?.id) {
-                router.replace(`/projects/view/${proj.id}`);
-                return;
-              }
-            }
-          }
-
-          // Fallback to projects list if chat lookup fails
-          const res = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store' });
-          if (res.ok) {
-            const list = await res.json();
-            // Try to find latest Slide Deck or Video Lesson Presentation by title
-            const derivedTitle = selectedLesson || (params?.get("prompt")?.trim()?.slice(0, 80) || "Untitled Lesson");
-            const isVideo = productType === 'video_lesson_presentation';
-            const candidate = list.find((p: any) => p?.projectName === derivedTitle)
-              || list.find((p: any) => (p?.design_microproduct_type || p?.product_type) === (isVideo ? 'Video Lesson Presentation' : 'Slide Deck'));
-            if (candidate?.id) {
-              router.replace(`/projects/view/${candidate.id}`);
-              return;
-            }
-          }
-        } catch (fallbackErr) {
-          console.warn('Finalize fallback navigation failed:', fallbackErr);
-        }
       }
       
       console.error("Finalization error:", e);

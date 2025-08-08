@@ -127,8 +127,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           return;
         }
 
-        // Coerce slides with invalid format to content-slide instead of filtering out
-        const processedSlides = deck.slides.map((slide: any, index: number) => {
+        // Coerce slides with invalid format into safe content-slide format
+        const coercedSlides = deck.slides.map((slide: any, index: number) => {
           const hasValidFormat = slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props');
           if (!hasValidFormat) {
             console.warn(`Coercing slide ${index + 1} to content-slide: Missing templateId or props`);
@@ -139,71 +139,17 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 title: slide.slideTitle || slide.title || `Slide ${index + 1}`,
                 content: slide.voiceoverText || slide.content || JSON.stringify(slide, null, 2)
               },
-              slideNumber: index + 1,
               slideTitle: slide.slideTitle || slide.title || `Slide ${index + 1}`,
-              voiceoverText: slide.voiceoverText || ''
+              voiceoverText: slide.voiceoverText || '',
+              slideNumber: slide.slideNumber || index + 1,
+              metadata: slide.metadata || {}
             };
           }
-
-          // For timeline template, check if props have the correct structure
-          if (slide.templateId === 'timeline' && slide.props) {
-            if (slide.props.events && !slide.props.steps) {
-              console.warn(`Fixing timeline slide ${index + 1}: Converting events to steps`);
-              const steps = slide.props.events.map((event: any) => ({
-                heading: event.title || event.date || event.heading || 'Step',
-                description: event.description || 'No description'
-              }));
-              slide.props = {
-                ...slide.props,
-                steps: steps
-              };
-              delete slide.props.events;
-            }
-          }
-
-          // For pyramid template, ensure it has title, subtitle, and items
-          if (slide.templateId === 'pyramid' && slide.props) {
-            if (!slide.props.title) slide.props.title = slide.slideTitle || 'Pyramid Title';
-            if (!slide.props.subtitle) slide.props.subtitle = 'Pyramid description';
-            if (!slide.props.items || !Array.isArray(slide.props.items)) {
-              slide.props.items = [
-                { heading: 'Level 1', description: 'Top level' },
-                { heading: 'Level 2', description: 'Middle level' },
-                { heading: 'Level 3', description: 'Bottom level' }
-              ];
-            }
-          }
-
-          // For big-numbers template, ensure exactly 3 items
-          if (slide.templateId === 'big-numbers' && slide.props) {
-            if (!slide.props.items || !Array.isArray(slide.props.items)) {
-              slide.props.items = [
-                { value: '0', label: 'Item 1', description: 'No description' },
-                { value: '0', label: 'Item 2', description: 'No description' },
-                { value: '0', label: 'Item 3', description: 'No description' }
-              ];
-            } else {
-              // Ensure exactly 3 items
-              while (slide.props.items.length < 3) {
-                const idx = slide.props.items.length + 1;
-                slide.props.items.push({ value: '0', label: `Item ${idx}`, description: 'No description' });
-              }
-              if (slide.props.items.length > 3) {
-                slide.props.items = slide.props.items.slice(0, 3);
-              }
-            }
-          }
-
           return slide;
         });
 
-        if (processedSlides.length === 0) {
-          setError('No slides found in deck.');
-          return;
-        }
-
-        // Update deck with processed slides
-        deck.slides = processedSlides;
+        // Update deck with coerced slides
+        deck.slides = coercedSlides;
 
         // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
         console.log('🔍 RAW SLIDES DATA FROM BACKEND:');

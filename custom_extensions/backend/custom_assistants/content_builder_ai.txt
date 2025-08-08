@@ -1232,16 +1232,16 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 ## Project Phases and Key Deliverables
 
-**Heading:** Project Initiation
+**Heading:** Project Initiation and Planning
 **Description:** Complete stakeholder alignment, define project scope, and establish success criteria. Conduct initial data assessment and begin infrastructure planning. Assemble project team and establish governance framework.
 
-**Heading:** Data Foundation
+**Heading:** Data Foundation Development
 **Description:** Implement data collection and storage systems. Complete data cleaning and preprocessing activities. Establish data quality monitoring and validation procedures.
 
-**Heading:** Model Development  
+**Heading:** Model Development and Training
 **Description:** Train and validate initial AI models. Conduct extensive testing and performance evaluation. Refine algorithms based on validation results and business requirements.
 
-**Heading:** Production Launch
+**Heading:** Production Launch and Optimization
 **Description:** Deploy models to production environments. Monitor performance and gather user feedback. Implement optimization improvements and establish ongoing maintenance procedures.
 
 [IMAGE_PLACEHOLDER: MEDIUM | CENTER | Project timeline with milestones, deliverables, and resource allocation]
@@ -1350,7 +1350,6 @@ Effective AI governance requires comprehensive frameworks that address technical
 
 **VOICEOVER:** Your AI transformation journey starts today. With the knowledge and frameworks we've explored, you're equipped to make informed decisions and create meaningful impact through artificial intelligence technologies.
 ```
-*Generate 5-7 comprehensive list items with substantial educational value*
 
 **LIST ITEM REQUIREMENTS FOR BULLET-POINTS TEMPLATE:**
 - These rules apply to the content WITHIN each individual bullet-points slide. They do NOT refer to the number of bullet-points slides in the presentation.
@@ -1373,216 +1372,6 @@ Effective AI governance requires comprehensive frameworks that address technical
 - **INCORRECT**: Slide with 3 list items (too few)
 - **INCORRECT**: Slide with 5 list items but each is only 1 sentence (too short)
 - **CORRECT**: Slide with 6 list items, each with 2-3 sentences of detailed content
-
-**Comparative Learning Analysis** (`two-column`):
-```
----
-**Slide 5: Comparative Analysis of [Learning Concepts]** `two-column`
-
-## [Educational Comparison Title]
-
-### [First Concept/Approach]
-[Comprehensive explanation of the first concept with detailed analysis, practical examples, and real-world applications. Discuss advantages, use cases, and when this approach is most effective. Include specific scenarios and outcomes. Convert any natural lists into flowing paragraph text.]
-
-### [Second Concept/Approach]
-[Thorough analysis of the second concept with practical insights, implementation considerations, and educational benefits. Explain key differences, advantages, and practical applications learners should understand. Use paragraph format, not bullet points.]
-
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Educational visual that illustrates the comparison effectively]
-```
-*Use flowing educational narrative - avoid lists, focus on comprehensive explanations. Convert any lists to paragraph text.*
-
-**Educational Problem-Solution Framework** (`challenges-solutions`):
-```
----
-**Slide 6: Overcoming [Learning Challenge]** `challenges-solutions`
-
-## [Educational Challenge and Solution Title]
-
-### Learning Challenges
-[Detailed analysis of common challenges learners face in this area, including specific obstacles, misconceptions, and practical difficulties. Explain why these challenges occur and their impact on learning outcomes.]
-
-### Educational Solutions  
-[Comprehensive strategies and approaches to overcome these challenges, including proven methodologies, practical techniques, and step-by-step guidance. Provide actionable solutions learners can implement immediately.]
-
-[IMAGE_PLACEHOLDER: LARGE | CENTER | Visual representation of the problem-solution educational flow]
-```
-*Focus on educational challenges and proven learning solutions*
-
-**Process Steps Slides** (`process-steps`):
-```
----
-**Slide 7: [Process Description]** `process-steps`
-
-## [Process Title]
-
-1. [First step with detailed description covering 2-3 sentences explaining what to do, why it's important, and how to implement it effectively. Include specific techniques, tools, or considerations.]
-
-2. [Second step with comprehensive explanation spanning 2-3 sentences that details the process, discusses potential challenges, and provides practical guidance. Include best practices and common pitfalls to avoid.]
-
-3. [Third step with thorough description using 2-3 sentences to elaborate on the methodology, explain the reasoning behind the approach, and highlight key success factors. Include specific examples or scenarios.]
-
-4. [Fourth step with in-depth explanation covering 2-3 sentences that summarizes the final phase, discusses quality assurance measures, and provides next steps or follow-up actions. Include validation criteria or success indicators.]
-
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Process flow diagram]
-```
-**PROCESS STEPS CONTENT REQUIREMENTS:**
-- Each step MUST contain 2-3 detailed sentences with comprehensive explanations
-- Include specific techniques, tools, best practices, and practical guidance
-- Provide examples, scenarios, or use cases where relevant
-- Discuss potential challenges and how to overcome them
-- **MANDATORY DETAIL:** Each step must include practical implementation guidance and real-world applications
-- **Depth requirement:** Never use single-sentence descriptions - always provide substantial educational content
-
-**Title Slides** (`title-slide`):
-```
----
-**Slide 9: [Simple Title]** `title-slide`
-
-# [Main Title]
-## [Subtitle]
-
-[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Background visual]
-
-
-
-- Use for section breaks or conclusions
-- Simple text-focused design
-```
-
-**Bullet Points Right Slides** (`bullet-points-right`):
-```
----
-**Slide 10: [Key Points Topic]** `bullet-points-right`
-
-## [Main Title]
-
-[Subtitle or context before the list]
-
-* [First key point]
-* [Second key point]
-* [Third key point]
-* [Fourth key point]
-* [Fifth key point]
-* [Sixth key point]
-
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
-
--Use this template when you want to provide a short context, summary, or explanation (subtitle) before presenting a list of key points.
--Choose bullet-points-right instead of bullet-points if the slide needs a subtitle or introductory sentence above the bullet list.
--The subtitle should be 1-2 sentences and give context or highlight the importance of the following points.
--List items should be concise, actionable, and directly related to the subtitle/context. Use 5-7 list items for comprehensive coverage.
--The image placeholder is always on the left and should visually represent the overall topic of the list items (not individual items).
--Ideal for: summarizing main takeaways, listing security principles, highlighting grouped recommendations, or when you want to draw attention to the context before the list.
--Avoid using this template for long paragraphs or when a visual is not needed.
--Example use cases: "Key Security Principles", "Main Benefits", "Summary of Recommendations".
-```
-
-**Big Image Top Slides** (`big-image-top`):
-```
----
-**Slide 11: [Visual Topic]** `big-image-top`
-
-## [Main Title]
-
-[Subtitle or content goes here]
-
-[IMAGE_PLACEHOLDER: LARGE | TOP | Relevant visual for the topic]
-```
-- Use this template when you want to visually introduce a topic with a large image at the top, followed by a title and content/description below.
-- The image should be relevant and engaging, setting the context for the slide.
-- Ideal for: visual introductions, topic overviews, inspirational quotes with visuals, or when you want to focus attention on a visual before the main content.
-- Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
-```
-
-**Four Box Grid Slides** (`four-box-grid`):
-```
----
-**Slide 12: [Grid Topic]** `four-box-grid`
-
-## [Main Title]
-
-Box 1: [Heading] - [Detailed description with 2-3 sentences explaining the concept, its benefits, and practical applications. Include specific examples or use cases where relevant.]
-
-Box 2: [Heading] - [Comprehensive explanation covering 2-3 sentences with detailed insights, implementation considerations, and real-world impact. Provide concrete examples or scenarios.]
-
-Box 3: [Heading] - [Thorough description spanning 2-3 sentences that elaborates on the concept, discusses best practices, and highlights key advantages. Include practical tips or recommendations.]
-
-Box 4: [Heading] - [In-depth explanation with 2-3 sentences covering the concept details, potential challenges, and strategic importance. Provide actionable insights or future considerations.]
-
-```
-- Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
-- **CRITICAL:** Use the exact format "Box N: [Heading] - [Description]" (not bullet points) so the parser can convert it to the boxes array.
-- **CONTENT REQUIREMENTS:** Each box description MUST contain 2-3 detailed sentences with comprehensive explanations, examples, and practical insights.
-- **AVOID SHORT DESCRIPTIONS:** Never use single-sentence descriptions. Always provide substantial content that educates and informs.
-- **MANDATORY DETAIL:** Each box must include practical examples, implementation considerations, and real-world applications.
-- Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
-- Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
-```
-
-**Timeline Slides** (`timeline`):
-```
----
-**Slide 13: [Timeline Topic]** `timeline`
-
-## [Main Title]
-
-[Horizontal timeline with 4 steps. Each step has a number, heading, and description. Text blocks are placed above and below the line in a chessboard pattern.]
-
-1. [Heading 1] - [Description 1]
-2. [Heading 2] - [Description 2]
-3. [Heading 3] - [Description 3]
-4. [Heading 4] - [Description 4]
-```
-- Use this template for slides that need to show a process, history, or evolution in **exactly 4 key steps**.
-- **CRITICAL:** Always generate exactly 4 steps for the timeline (no more, no less). If the process has fewer or more steps, group or summarize to fit 4.
-- Each step should have a short heading and a concise description.
-- The timeline line and numbers are rendered automatically; just provide the steps array.
-- Example use cases: "History and Evolution", "Project Milestones", "Key Phases of Development".
-```
-
-**Big Numbers Slides** (`big-numbers`):
-```
----
-**Slide 14: Key Financial Metrics** `big-numbers`
-
-## Key Financial Metrics
-
-| 25% | 3x | 50% |
-|:----:|:---:|:---:|
-| **Profit Margin** | **Growth Rate** | **Customer Retention** |
-| The company has achieved a profit margin of 25%, indicating strong profitability. | Our growth rate has increased 3 times over the last five years, showcasing rapid expansion. | Customer retention stands at 50%, reflecting our commitment to customer satisfaction. |
-```
-
-**CRITICAL NUMERICAL VALUE RULE FOR BIG-NUMBERS:**
-- **FIRST ROW MUST CONTAIN ONLY NUMBERS**: The first row of the table MUST contain only numerical values (percentages like 25%, multipliers like 3x, ratios like 2:1, whole numbers like 95, decimals like 4.2, etc.). 
-- **NEVER put text, names, or tool names in the first row** - these belong in the second row as labels.
-- **Examples of CORRECT first row values**: 25%, 3x, 95%, 4.2, 1000+, 2:1, 50ms, 99.9%
-- **Examples of INCORRECT first row values**: "Gprof", "Valgrind", "Python", "React", "Advanced", "Basic"
-
-- **Use this template whenever you want to highlight numerical data, statistics, or metrics. Always use the exact markdown table format shown above.**
-- Each column should have a big number (e.g., %, x, ratio), a bolded label, and a concise description.
-- **Trigger words:** If the slide involves "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or numerical achievements, use `big-numbers`.
-- Ideal for: business results, technical KPIs, performance benchmarks, or any slide where numbers are the main focus.
-- Example use cases: "Key Financial Metrics", "Performance Benchmarks", "Business Impact", "Growth Statistics".
-
-**Additional Correct Examples:**
-```
-| 99.9% | 15ms | 50% |
-|:----:|:---:|:---:|
-| **System Uptime** | **Response Time** | **Cost Reduction** |
-| System maintains 99.9% availability throughout the year. | Average response time reduced to 15 milliseconds. | Operating costs reduced by 50% after optimization. |
-```
-
-```
-| 10x | 95% | 24/7 |
-|:----:|:---:|:---:|
-| **Performance Boost** | **Accuracy Rate** | **Availability** |
-| System performance improved by 10 times after upgrade. | AI model achieves 95% accuracy in predictions. | Services available 24 hours a day, 7 days a week. |
-```
-
-
-
-Content Distribution Strategy (Updated for Component-Based Templates):
 
 **STRATEGIC TEMPLATE SELECTION (REVISED):**
 Choose templates based on content type and educational goals:

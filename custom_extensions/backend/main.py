@@ -1461,6 +1461,33 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
                 if 'solutionsTitle' not in normalized_props:
                     normalized_props['solutionsTitle'] = 'Solutions'
             
+            # Fix timeline template props
+            elif template_id == 'timeline':
+                # Convert "events" to "steps" and restructure data
+                events = normalized_props.get('events', [])
+                if events and isinstance(events, list):
+                    steps = []
+                    for event in events:
+                        if isinstance(event, dict):
+                            # Convert event structure to step structure
+                            heading = (event.get('title') or event.get('heading') or event.get('date') or '').strip()
+                            description = (event.get('description') or '').strip()
+                            if heading or description:
+                                steps.append({
+                                    'heading': heading or 'Timeline Step',
+                                    'description': description or 'No description available'
+                                })
+                    normalized_props['steps'] = steps
+                    normalized_props.pop('events', None)  # Remove the old structure
+                elif 'steps' not in normalized_props:
+                    # Create default steps if no events or steps exist
+                    normalized_props['steps'] = [
+                        {'heading': 'Step 1', 'description': 'First milestone'},
+                        {'heading': 'Step 2', 'description': 'Second milestone'},
+                        {'heading': 'Step 3', 'description': 'Third milestone'},
+                        {'heading': 'Step 4', 'description': 'Final milestone'}
+                    ]
+            
             # Fix bullet-points template props
             elif template_id in ['bullet-points', 'bullet-points-right']:
                 bullets = normalized_props.get('bullets', [])
@@ -1470,11 +1497,11 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
                     if fixed_bullets:
                         normalized_props['bullets'] = fixed_bullets
                     else:
-                        logger.warning(f"Removing slide {slide_index + 1} with template '{template_id}': No valid bullet points")
-                        continue  # Skip this slide
+                        logger.warning(f"Coercing slide {slide_index + 1} with template '{template_id}': No valid bullet points, adding placeholder")
+                        normalized_props['bullets'] = ['No content available']
                 else:
-                    logger.warning(f"Removing slide {slide_index + 1} with template '{template_id}': Invalid or missing bullets array")
-                    continue  # Skip this slide
+                    logger.warning(f"Coercing slide {slide_index + 1} with template '{template_id}': Invalid or missing bullets array, adding placeholder")
+                    normalized_props['bullets'] = ['No content available']
         
             normalized_slide['props'] = normalized_props
             normalized_slides.append(normalized_slide)
@@ -13818,9 +13845,16 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
 
         logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
 
-        print(payload.aiResponse.strip())
-        
-        # Return response in the expected format
+        # Log full saved JSON for inspection
+        try:
+            async with pool.acquire() as conn:
+                row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
+                if row:
+                    logger.info(f"[LESSON_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(row['microproduct_content'], ensure_ascii=False)[:10000]}")
+        except Exception as log_e:
+            logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
+
+        # Return simple JSON response (not streaming for now)
         return {
             "id": created_project.id,
             "projectName": created_project.project_name,
@@ -17582,6 +17616,15 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         created_project = ProjectDB(**dict(row))
         
+        # Log full saved JSON for inspection
+        try:
+            async with pool.acquire() as conn:
+                content_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
+                if content_row:
+                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(content_row['microproduct_content'], ensure_ascii=False)[:10000]}")
+        except Exception as log_e:
+            logger.warning(f"Failed to log saved text presentation JSON for project {created_project.id}: {log_e}")
+        
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
         return {"id": created_project.id, "name": final_project_name}
         
@@ -17593,6 +17636,44 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+
+@app.get("/api/custom/projects/latest-by-chat")
+async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Return the most recently created project for the given source_chat_session_id
+    for the current user. This is used by finalize fallbacks to navigate reliably
+    even when the original finalize request times out.
+    """
+    try:
+        chat_uuid = uuid.UUID(chatId)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid chatId format. Must be UUID")
+
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT id, project_name, design_template_id, product_type, microproduct_type
+                FROM projects
+                WHERE onyx_user_id = $1 AND source_chat_session_id = $2
+                ORDER BY created_at DESC
+                LIMIT 1
+                """,
+                onyx_user_id, chat_uuid
+            )
+        if not row:
+            return JSONResponse(status_code=404, content={"detail": "No project found for chat session"})
+        return {
+            "id": row["id"],
+            "projectName": row["project_name"],
+            "productType": row.get("product_type"),
+            "microproductType": row.get("microproduct_type"),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching latest project by chat: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to fetch latest project by chat session")
 
 # ============================
 # CREDITS MANAGEMENT ENDPOINTS
