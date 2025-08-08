@@ -482,6 +482,16 @@ export default function TextPresentationClient() {
     setIsGenerating(true);
     setError(null);
 
+    // Create AbortController for this request
+    const abortController = new AbortController();
+    
+    // Add timeout safeguard to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+      setIsGenerating(false);
+      setError("Presentation finalization timed out. Please try again.");
+    }, 300000); // 5 minutes timeout
+
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
@@ -496,63 +506,105 @@ export default function TextPresentationClient() {
           language: language,
           folderId: folderContext?.folderId || undefined,
           chatSessionId: chatId || undefined,
-        })
+        }),
+        signal: abortController.signal
       });
 
-      if (!response.ok || !response.body) {
+      // Clear timeout since request completed
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let finalId: string | null = null;
+      let data;
+      
+      // Check if this is a streaming response by trying to get a reader (same as lesson presentation and course outline)
+      const reader = response.body?.getReader();
+      if (reader) {
+        // Streaming response (prevents timeout issues)
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let finalResult = null;
 
-      try {
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
-
-          for (const ln of lines) {
-            const line = ln.trim();
-            if (!line) continue;
-            try {
-              const pkt = JSON.parse(line);
-              if (pkt.type === 'done' && pkt.id) {
-                finalId = pkt.id;
-                break;
-              } else if (pkt.type === 'error') {
-                throw new Error(pkt.text || pkt.message || 'Unknown error during finalization');
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            
+            for (const ln of lines) {
+              if (!ln.trim()) continue;
+              try {
+                const pkt = JSON.parse(ln);
+                if (pkt.type === "done") {
+                  finalResult = pkt;
+                  break;
+                } else if (pkt.type === "error") {
+                  throw new Error(pkt.text || pkt.message || "Unknown error occurred");
+                } else if (pkt.type === "progress") {
+                  // Optionally show progress updates (can be logged or shown in UI)
+                  console.log("Progress:", pkt.text);
+                }
+              } catch (e) {
+                // Skip invalid JSON lines unless it's an error we threw
+                if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
+                  throw e;
+                }
+                continue;
               }
-            } catch {
-              // ignore non-JSON keep-alives
-              continue;
+            }
+            
+            if (finalResult) break;
+          }
+
+          // Handle any remaining buffer
+          if (buffer.trim() && !finalResult) {
+            try {
+              const pkt = JSON.parse(buffer.trim());
+              if (pkt.type === "done") {
+                finalResult = pkt;
+              } else if (pkt.type === "error") {
+                throw new Error(pkt.text || pkt.message || "Unknown error occurred");
+              }
+            } catch (e) {
+              // Ignore parsing errors for final buffer unless it's an error we threw
+              if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
+                throw e;
+              }
             }
           }
 
-          if (finalId) break;
+          if (!finalResult) {
+            throw new Error("No final result received from streaming response");
+          }
+
+          data = finalResult;
+        } finally {
+          reader.releaseLock();
         }
-      } finally {
-        // no-op
+      } else {
+        // Regular JSON response (fallback)
+        data = await response.json();
       }
-
-      if (!finalId) {
-        throw new Error('Invalid response from server: missing project ID');
+      
+      // Validate response
+      if (!data || !data.id) {
+        throw new Error("Invalid response from server: missing project ID");
       }
-
-      const parsedId = Number(finalId);
-      if (Number.isNaN(parsedId)) {
-        throw new Error('Invalid project ID type from server');
-      }
-
-      setFinalProjectId(parsedId);
-      router.push(`/projects/view/${finalId}`);
-
+      
+      setFinalProjectId(data.id);
+      
+      // Navigate immediately without delay to prevent cancellation
+      router.push(`/projects/view/${data.id}`);
+      
     } catch (error: any) {
+      // Clear timeout on error
+      clearTimeout(timeoutId);
+      
       // Handle specific error types
       if (error.name === 'AbortError') {
         console.log('Request was aborted');

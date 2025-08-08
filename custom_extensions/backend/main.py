@@ -13773,12 +13773,18 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         logger.error(f"Error processing credits for lesson presentation: {e}")
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
+    # Use streaming response to prevent timeout issues (same as course outline finalization)
     async def streamer():
         last_send = asyncio.get_event_loop().time()
+        
+        logger.info(f"[PRESENTATION_FINALIZE_STREAM] Starting presentation finalization streamer")
         
         try:
             # Determine if this is a video lesson presentation
             is_video_lesson = payload.productType == "video_lesson_presentation"
+            
+            # Send initial progress update
+            yield (json.dumps({"type": "progress", "text": "Initializing template..."}) + "\n").encode()
             
             # Get the appropriate template with retry mechanism
             max_retries = 3
@@ -13795,26 +13801,27 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         logger.error(f"Failed to get template after {max_retries} attempts: {e}")
                         yield (json.dumps({"type": "error", "text": "Unable to initialize template"}) + "\n").encode()
                         return
-                    await asyncio.sleep(0.5)
+                    await asyncio.sleep(0.5)  # Brief delay before retry
 
             if not template_id:
                 yield (json.dumps({"type": "error", "text": "Template initialization failed"}) + "\n").encode()
                 return
 
-            # Send keep-alive after template setup
+            # Send keep-alive if needed
             now = asyncio.get_event_loop().time()
             if now - last_send > 8:
                 yield b" "
                 last_send = now
-                logger.debug(f"[LESSON_FINALIZE_STREAM] Sent keep-alive after template setup")
+                logger.debug(f"[PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
 
-            # Get user ID
-            onyx_user_id = await get_current_onyx_user_id(request)
-
+            # Send progress update
+            yield (json.dumps({"type": "progress", "text": "Preparing project data..."}) + "\n").encode()
+            
             # Determine the project name - if connected to outline, use correct naming convention
             project_name = payload.lessonTitle.strip()
             if payload.outlineProjectId:
                 try:
+                    # Fetch outline name from database
                     async with pool.acquire() as conn:
                         outline_row = await conn.fetchrow(
                             "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
@@ -13825,45 +13832,50 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                             project_name = f"{outline_name}: {payload.lessonTitle.strip()}"
                 except Exception as e:
                     logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
+                    # Continue with plain lesson title if outline fetch fails
 
-            # Send keep-alive before project creation
+            # Send keep-alive if needed
             now = asyncio.get_event_loop().time()
             if now - last_send > 8:
                 yield b" "
                 last_send = now
-                logger.debug(f"[LESSON_FINALIZE_STREAM] Sent keep-alive before project creation")
+                logger.debug(f"[PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
 
-            # Log full JSON for inspection
-            logger.info(f"[LESSON_FINALIZE_JSON] Full AI response JSON: {payload.aiResponse[:5000]}")
-
+            # Create project data
             project_data = ProjectCreateRequest(
                 projectName=project_name,
                 design_template_id=template_id,
                 microProductName=None,
                 aiResponse=payload.aiResponse.strip(),
                 chatSessionId=payload.chatSessionId,
-                outlineId=payload.outlineProjectId,
-                folder_id=int(payload.folderId) if payload.folderId else None,
-                theme=payload.theme
+                outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
+                folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
+                theme=payload.theme  # Pass selected theme
             )
-
+            
+            # Send progress update
+            yield (json.dumps({"type": "progress", "text": "Creating presentation project..."}) + "\n").encode()
+            
+            # Create project with proper error handling
             try:
                 created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
             except HTTPException as e:
-                yield (json.dumps({"type": "error", "text": str(e.detail)}) + "\n").encode()
+                logger.error(f"HTTP error creating project: {e}")
+                yield (json.dumps({"type": "error", "text": f"Failed to create project: {e.detail}"}) + "\n").encode()
                 return
             except Exception as e:
                 logger.error(f"Failed to create project: {e}", exc_info=True)
                 yield (json.dumps({"type": "error", "text": "Failed to create lesson project"}) + "\n").encode()
                 return
 
-            # Send keep-alive after project creation
+            # Send keep-alive if needed
             now = asyncio.get_event_loop().time()
             if now - last_send > 8:
                 yield b" "
                 last_send = now
-                logger.debug(f"[LESSON_FINALIZE_STREAM] Sent keep-alive after project creation")
+                logger.debug(f"[PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
 
+            # Validate the created project
             if not created_project or not created_project.id:
                 logger.error("Project creation returned invalid result")
                 yield (json.dumps({"type": "error", "text": "Project creation failed - invalid response"}) + "\n").encode()
@@ -13871,6 +13883,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
 
             logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
 
+            # Send progress update
+            yield (json.dumps({"type": "progress", "text": "Finalizing project..."}) + "\n").encode()
+
+            # Log full saved JSON for inspection
             try:
                 async with pool.acquire() as conn:
                     row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
@@ -13879,27 +13895,28 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             except Exception as log_e:
                 logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
 
-            # Send final keep-alive before done packet
+            # Send final keep-alive if needed
             now = asyncio.get_event_loop().time()
             if now - last_send > 8:
                 yield b" "
                 last_send = now
-                logger.debug(f"[LESSON_FINALIZE_STREAM] Sent keep-alive before done packet")
+                logger.debug(f"[PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
 
-            yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
+            # Send completion packet with the project ID (same format as course outline)
+            done_packet = {
+                "type": "done", 
+                "id": created_project.id,
+                "projectName": created_project.project_name,
+                "message": "Lesson presentation finalized successfully"
+            }
+            yield (json.dumps(done_packet) + "\n").encode()
+            
         except Exception as e:
-            logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": "An unexpected error occurred during finalization"}) + "\n").encode()
+            logger.error(f"[PRESENTATION_FINALIZE_STREAM_ERROR] Error in presentation finalization streaming: {e}", exc_info=True)
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
 
-    return StreamingResponse(
-        streamer(),
-        media_type="text/plain",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
+    return StreamingResponse(streamer(), media_type="application/json")
 
 # --- New endpoint: list trashed projects for user ---
 
@@ -17397,106 +17414,244 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
     except Exception as e:
         logger.error(f"Error processing credits for one-pager creation: {e}")
         raise HTTPException(status_code=500, detail="Failed to process credits")
-
+    
     # Create a unique key for this text presentation finalization to prevent duplicates
     text_presentation_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
-
+    
+    # Check if this text presentation is already being processed
+    if text_presentation_key in ACTIVE_QUIZ_FINALIZE_KEYS:  # Reuse the same set for simplicity
+        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_DUPLICATE] Text presentation finalization already in progress for key: {text_presentation_key}")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Text presentation finalization already in progress")
+    
+    # Add to active set and track timestamp
+    ACTIVE_QUIZ_FINALIZE_KEYS.add(text_presentation_key)
+    QUIZ_FINALIZE_TIMESTAMPS[text_presentation_key] = time.time()
+    
+    # Clean up stale entries (older than 5 minutes)
+    current_time = time.time()
+    stale_keys = [key for key, timestamp in QUIZ_FINALIZE_TIMESTAMPS.items() if current_time - timestamp > 300]
+    for stale_key in stale_keys:
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(stale_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
+    
+    # Use streaming response to prevent timeout issues (same as lesson presentation and course outline finalization)
     async def streamer():
         last_send = asyncio.get_event_loop().time()
         
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_STREAM] Starting text presentation finalization streamer")
+        
         try:
-            # Check if this text presentation is already being processed
-            if text_presentation_key in ACTIVE_QUIZ_FINALIZE_KEYS:  # Reuse the same set for simplicity
-                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_DUPLICATE] Text presentation finalization already in progress for key: {text_presentation_key}")
-                yield (json.dumps({"type": "error", "text": "Text presentation finalization already in progress"}) + "\n").encode()
-                return
-            
-            # Add to active set and track timestamp
-            ACTIVE_QUIZ_FINALIZE_KEYS.add(text_presentation_key)
-            QUIZ_FINALIZE_TIMESTAMPS[text_presentation_key] = time.time()
-    
-            # Clean up stale entries (older than 5 minutes)
-            current_time = time.time()
-            stale_keys = [key for key, timestamp in QUIZ_FINALIZE_TIMESTAMPS.items() if current_time - timestamp > 300]
-            for stale_key in stale_keys:
-                ACTIVE_QUIZ_FINALIZE_KEYS.discard(stale_key)
-                QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
-                logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
-            
-            # Send keep-alive after setup
-            now = asyncio.get_event_loop().time()
-            if now - last_send > 8:
-                yield b" "
-                last_send = now
-                logger.debug(f"[TEXT_PRESENTATION_FINALIZE_STREAM] Sent keep-alive after setup")
+            # Send initial progress update
+            yield (json.dumps({"type": "progress", "text": "Initializing text presentation template..."}) + "\n").encode()
             
             # Ensure text presentation template exists
             template_id = await _ensure_text_presentation_template(pool)
             logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
+            
+            # Send keep-alive if needed
+            now = asyncio.get_event_loop().time()
+            if now - last_send > 8:
+                yield b" "
+                last_send = now
+                logger.debug(f"[TEXT_PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
+            
+            # Send progress update
+            yield (json.dumps({"type": "progress", "text": "Preparing project data..."}) + "\n").encode()
+            
+            # CONSISTENT NAMING: Use the same pattern as lesson presentations
+            # Determine the project name - if connected to outline, use correct naming convention
+            project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
+            if payload.outlineId:
+                try:
+                    # Fetch outline name from database
+                    async with pool.acquire() as conn:
+                        outline_row = await conn.fetchrow(
+                            "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                            payload.outlineId, onyx_user_id
+                        )
+                        if outline_row:
+                            outline_name = outline_row["project_name"]
+                            project_name = f"{outline_name}: {payload.lesson.strip() if payload.lesson else 'Standalone Presentation'}"
+                            logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Using outline-based naming: {project_name}")
+                        else:
+                            logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
+                except Exception as e:
+                    logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
+                    # Continue with plain lesson title if outline fetch fails
+            else:
+                logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
+            
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] lesson: {payload.lesson}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] outlineId: {payload.outlineId}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
+            
+            # Send progress update
+            yield (json.dumps({"type": "progress", "text": "Parsing content with AI..."}) + "\n").encode()
+            
+            # Parse the text presentation data using LLM - only call once with consistent project name
+            parsed_text_presentation = await parse_ai_response_with_llm(
+                ai_response=payload.aiResponse,
+                project_name=project_name,  # Use consistent project name
+                target_model=TextPresentationDetails,
+                default_error_model_instance=TextPresentationDetails(
+                    textTitle=project_name,
+                    contentBlocks=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=f"""
+                You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+                This product is for general text like introductions, goal descriptions, etc.
+                Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-        except Exception as e:
-            pass
-        
-        # CONSISTENT NAMING: Use the same pattern as lesson presentations
-        # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
-        if payload.outlineId:
-            try:
-                # Fetch outline name from database
-                async with pool.acquire() as conn:
-                    outline_row = await conn.fetchrow(
-                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                        payload.outlineId, onyx_user_id
-                    )
-                    if outline_row:
-                        outline_name = outline_row["project_name"]
-                        project_name = f"{outline_name}: {payload.lesson.strip() if payload.lesson else 'Standalone Presentation'}"
-                        logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Using outline-based naming: {project_name}")
+                **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
+
+                **Global Fields:**
+                1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+                   - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+                   - Extract ONLY the title part (the last part after the last "**")
+                   - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+                   - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+                   - Do NOT include the course name or "Text Presentation" label in the title
+                   - If no clear pattern is found, use the first meaningful title or heading
+                2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
+                3.  `detectedLanguage` (string): e.g., "en", "ru".
+
+                **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+
+                1.  **`type: "headline"`**
+                    * `level` (integer):
+                        * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
+                        * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
+                        * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
+                        * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
+                    * `text` (string): Headline text.
+                    * `iconName` (string, optional): Based on level and context as described above.
+                    * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
+
+                2.  **`type: "paragraph"`**
+                    * `text` (string): Full paragraph text.
+                    * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
+
+                3.  **`type: "bullet_list"`**
+                    * `items` (array of `ListItem`): Can be strings or other nested content blocks.
+                    * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
+
+                4.  **`type: "numbered_list"`**
+                    * `items` (array of `ListItem`):
+                        * Can be simple strings for basic numbered points.
+                        * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
+                            * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
+                            * The `items` of this *inner* `bullet_list` should then be:
+                                1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
+                                2. A `paragraph` block (for the main descriptive text).
+                                3. Optionally, another `paragraph` block with `isRecommendation: true`.
+                        * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
+
+                5.  **`type: "table"`**
+                    * `headers` (array of strings): The column headers for the table.
+                    * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+                    * `caption` (string, optional): A short description or title for the table, if present in the source text.
+                    * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
+
+
+                6.  **`type: "alert"`**
+                    *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
+                    *   `title` (string, optional): The title of the alert.
+                    *   `text` (string): The body text of the alert.
+                    *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
+
+                7.  **`type: "section_break"`**
+                    * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
+
+                **General Parsing Rules & Icon Names:**
+                * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
+                * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
+                * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
+                * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
+                * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+                * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
+
+                Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
+                  • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+                  • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+                  • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
+
+                Return ONLY the JSON object.
+                """,
+                target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+            )
+            
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
+
+            logger.info(parsed_text_presentation.contentBlocks)
+            
+            # Detect language if not provided
+            if not parsed_text_presentation.detectedLanguage:
+                parsed_text_presentation.detectedLanguage = detect_language(payload.aiResponse)
+            
+            # If parsing failed and we have no content blocks, create a basic structure
+            if not parsed_text_presentation.contentBlocks:
+                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_FALLBACK] LLM parsing failed for text presentation, creating fallback structure")
+                # Create a simple text presentation with the AI response as content
+                parsed_text_presentation.textTitle = project_name
+                parsed_text_presentation.contentBlocks = [
+                    {
+                        "type": "paragraph",
+                        "text": payload.aiResponse
+                    }
+                ]
+            else:
+                # Validate that all content blocks have the required type field
+                valid_content_blocks = []
+                for i, block in enumerate(parsed_text_presentation.contentBlocks):
+                    if hasattr(block, 'type') and block.type:
+                        valid_content_blocks.append(block)
                     else:
-                        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
-            except Exception as e:
-                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
-                # Continue with plain lesson title if outline fetch fails
-        else:
-            logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] lesson: {payload.lesson}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] outlineId: {payload.outlineId}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
-        
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=payload.aiResponse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
-                detectedLanguage=payload.language
-            ),
-            dynamic_instructions=f"""
-            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
-            This product is for general text like introductions, goal descriptions, etc.
-            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
-
-            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
-
-            **Global Fields:**
-            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
-               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
-               - Extract ONLY the title part (the last part after the last "**")
-               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
-               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
-               - Do NOT include the course name or "Text Presentation" label in the title
-               - If no clear pattern is found, use the first meaningful title or heading
-            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
-            3.  `detectedLanguage` (string): e.g., "en", "ru".
-
-            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+                        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] Content block {i} missing type, converting to paragraph")
+                        # Convert to paragraph if type is missing
+                        if hasattr(block, 'text'):
+                            valid_content_blocks.append({
+                                "type": "paragraph",
+                                "text": block.text
+                            })
+                        elif hasattr(block, 'items'):
+                            valid_content_blocks.append({
+                                "type": "bullet_list",
+                                "items": block.items
+                            })
+                        else:
+                            # Fallback to paragraph with string representation
+                            valid_content_blocks.append({
+                                "type": "paragraph",
+                                "text": str(block)
+                            })
+                
+                if not valid_content_blocks:
+                    logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] No valid content blocks found, creating fallback structure")
+                    parsed_text_presentation.contentBlocks = [
+                        {
+                            "type": "paragraph",
+                            "text": payload.aiResponse
+                        }
+                    ]
+                else:
+                    parsed_text_presentation.contentBlocks = valid_content_blocks
+            
+            # Always use the consistent project name for database storage
+            # The text title from parsed_text_presentation.textTitle is used for display purposes only
+            final_project_name = project_name
+            
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
+            
+            # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
+            is_standalone_text_presentation = payload.outlineId is None
 
             1.  **`type: "headline"`**
                 * `level` (integer):
@@ -17560,144 +17715,98 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             """,
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
 
-        logger.info(parsed_text_presentation.contentBlocks)
-        
-        # Detect language if not provided
-        if not parsed_text_presentation.detectedLanguage:
-            parsed_text_presentation.detectedLanguage = detect_language(payload.aiResponse)
-        
-        # If parsing failed and we have no content blocks, create a basic structure
-        if not parsed_text_presentation.contentBlocks:
-            logger.warning(f"[TEXT_PRESENTATION_FINALIZE_FALLBACK] LLM parsing failed for text presentation, creating fallback structure")
-            # Create a simple text presentation with the AI response as content
-            parsed_text_presentation.textTitle = project_name
-            parsed_text_presentation.contentBlocks = [
-                {
-                    "type": "paragraph",
-                    "text": payload.aiResponse
-                }
-            ]
-        else:
-            # Validate that all content blocks have the required type field
-            valid_content_blocks = []
-            for i, block in enumerate(parsed_text_presentation.contentBlocks):
-                if hasattr(block, 'type') and block.type:
-                    valid_content_blocks.append(block)
-                else:
-                    logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] Content block {i} missing type, converting to paragraph")
-                    # Convert to paragraph if type is missing
-                    if hasattr(block, 'text'):
-                        valid_content_blocks.append({
-                            "type": "paragraph",
-                            "text": block.text
-                        })
-                    elif hasattr(block, 'items'):
-                        valid_content_blocks.append({
-                            "type": "bullet_list",
-                            "items": block.items
-                        })
-                    else:
-                        # Fallback to paragraph with string representation
-                        valid_content_blocks.append({
-                            "type": "paragraph",
-                            "text": str(block)
-                        })
-            
-            if not valid_content_blocks:
-                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] No valid content blocks found, creating fallback structure")
-                parsed_text_presentation.contentBlocks = [
-                    {
-                        "type": "paragraph",
-                        "text": payload.aiResponse
-                    }
-                ]
-            else:
-                parsed_text_presentation.contentBlocks = valid_content_blocks
-        
-        # Always use the consistent project name for database storage
-        # The text title from parsed_text_presentation.textTitle is used for display purposes only
-        final_project_name = project_name
-        
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
-        
-        # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
-        is_standalone_text_presentation = payload.outlineId is None
-        
-        # For text presentation components, we need to insert directly to avoid double parsing
-        # since add_project_to_custom_db would call parse_ai_response_with_llm again
-        insert_query = """
-        INSERT INTO projects (
-            onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
-        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
-        """
-        
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                insert_query,
-                onyx_user_id,
-                final_project_name,  # Use final_project_name for project_name to match the expected pattern
-                "Text Presentation",  # product_type
-                COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
-                project_name,  # microproduct_name
-                parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
-                template_id,  # design_template_id
-                payload.chatSessionId,  # source_chat_session_id
-                is_standalone_text_presentation,  # is_standalone - consistent with outline connection
-                int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
-            )
-        
-        if not row:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create text presentation project entry.")
-        
-        created_project = ProjectDB(**dict(row))
-        
-        # Log full saved JSON for inspection
-        try:
-            async with pool.acquire() as conn:
-                content_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
-                if content_row:
-                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(content_row['microproduct_content'], ensure_ascii=False)[:10000]}")
-        except Exception as log_e:
-            logger.warning(f"Failed to log saved text presentation JSON for project {created_project.id}: {log_e}")
-        
-            logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
-            
-            # Send final keep-alive before done packet
+            # Send keep-alive if needed
             now = asyncio.get_event_loop().time()
             if now - last_send > 8:
                 yield b" "
                 last_send = now
-                logger.debug(f"[TEXT_PRESENTATION_FINALIZE_STREAM] Sent keep-alive before done packet")
-                
-            yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
+                logger.debug(f"[TEXT_PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
+
+            # Send progress update
+            yield (json.dumps({"type": "progress", "text": "Creating text presentation project..."}) + "\n").encode()
+            
+            # For text presentation components, we need to insert directly to avoid double parsing
+            # since add_project_to_custom_db would call parse_ai_response_with_llm again
+            insert_query = """
+            INSERT INTO projects (
+                onyx_user_id, project_name, product_type, microproduct_type,
+                microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
+            RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                      microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
+            """
+            
+            async with pool.acquire() as conn:
+                row = await conn.fetchrow(
+                    insert_query,
+                    onyx_user_id,
+                    final_project_name,  # Use final_project_name for project_name to match the expected pattern
+                    "Text Presentation",  # product_type
+                    COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
+                    project_name,  # microproduct_name
+                    parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
+                    template_id,  # design_template_id
+                    payload.chatSessionId,  # source_chat_session_id
+                    is_standalone_text_presentation,  # is_standalone - consistent with outline connection
+                    int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
+                )
+            
+            if not row:
+                yield (json.dumps({"type": "error", "text": "Failed to create text presentation project entry"}) + "\n").encode()
+                return
+            
+            created_project = ProjectDB(**dict(row))
+
+            # Send keep-alive if needed
+            now = asyncio.get_event_loop().time()
+            if now - last_send > 8:
+                yield b" "
+                last_send = now
+                logger.debug(f"[TEXT_PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
+
+            # Send progress update
+            yield (json.dumps({"type": "progress", "text": "Finalizing project..."}) + "\n").encode()
+            
+            # Log full saved JSON for inspection
+            try:
+                async with pool.acquire() as conn:
+                    content_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
+                    if content_row:
+                        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(content_row['microproduct_content'], ensure_ascii=False)[:10000]}")
+            except Exception as log_e:
+                logger.warning(f"Failed to log saved text presentation JSON for project {created_project.id}: {log_e}")
+            
+            # Send final keep-alive if needed
+            now = asyncio.get_event_loop().time()
+            if now - last_send > 8:
+                yield b" "
+                last_send = now
+                logger.debug(f"[TEXT_PRESENTATION_FINALIZE_STREAM] Sent keep-alive")
+
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
+            
+            # Send completion packet with the project ID (same format as course outline and lesson presentation)
+            done_packet = {
+                "type": "done", 
+                "id": created_project.id, 
+                "name": final_project_name,
+                "message": "Text presentation finalized successfully"
+            }
+            yield (json.dumps(done_packet) + "\n").encode()
             
         except Exception as e:
-            logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
+            logger.error(f"[TEXT_PRESENTATION_FINALIZE_STREAM_ERROR] Error in text presentation finalization streaming: {e}", exc_info=True)
             yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
         finally:
             # Always remove from active set and timestamps
             ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
             QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
             logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
 
-    return StreamingResponse(
-        streamer(),
-        media_type="text/plain",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
+    return StreamingResponse(streamer(), media_type="application/json")
 
 @app.get("/api/custom/projects/latest-by-chat")
 async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
