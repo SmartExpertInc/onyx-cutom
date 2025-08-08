@@ -919,51 +919,28 @@ export default function TextPresentationClient() {
         )}
         {/* Content/preview section */}
         <section className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
-            {textareaVisible && lessonList.length > 0 && (
-              <div className="flex items-center gap-2 bg-white rounded-full border border-gray-200 p-1">
-                <button
-                  onClick={() => setDisplayMode('cards')}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    displayMode === 'cards' 
-                      ? 'bg-[#0066FF] text-white shadow-sm' 
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Card View
-                </button>
-                <button
-                  onClick={() => setDisplayMode('text')}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    displayMode === 'text' 
-                      ? 'bg-[#0066FF] text-white shadow-sm' 
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Text View
-                </button>
-              </div>
-            )}
-          </div>
+          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           {textareaVisible && (
-            <div style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-              {loadingEdit && (
-                <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
-                  <LoadingAnimation message="Applying edit..." />
+            <>
+              {lessonList.length > 0 && (
+                <div className="text-center mb-4">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Lesson Content</h3>
                 </div>
               )}
-              {/* Display based on mode and content structure */}
-              {displayMode === 'cards' && lessonList.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  <div className="text-center mb-4">
-                    <h3 className="text-sm font-medium text-gray-600 mb-2">Lesson Content</h3>
+              <div className=" bg-white rounded-xl p-6 flex flex-col gap-6" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                {loadingEdit && (
+                  <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
+                    <LoadingAnimation message="Applying edit..." />
                   </div>
-                  {lessonList.map((lesson, idx: number) => (
+                )}
+                {/* Display content in card format if lessons are available, otherwise show textarea */}
+                {lessonList.length > 0 ? (
+                  <div className="flex flex-col gap-4">
+                    {lessonList.map((lesson, idx: number) => (
                     <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                      <div className="flex items-center justify-center w-16 h-16 bg-[#0066FF] text-white text-lg font-bold flex-shrink-0">
+                      <div className="flex items-center justify-center w-16 bg-[#0066FF] text-white text-lg font-bold flex-shrink-0">
                         {idx + 1}
                       </div>
                       <div className="flex-1 p-4">
@@ -990,7 +967,8 @@ export default function TextPresentationClient() {
                   disabled={loadingEdit}
                 />
               )}
-            </div>
+              </div>
+            </>
           )}
        
         </section>
