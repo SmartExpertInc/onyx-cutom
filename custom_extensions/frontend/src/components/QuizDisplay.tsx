@@ -104,11 +104,11 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded-full border ${option.id === question.correct_option_id ? 'border-[#FF1414] bg-[#FF1414]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${option.id === question.correct_option_id ? 'border-[#FF1414] bg-[#FF1414]' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
                 >
                   {option.id === question.correct_option_id && (
-                    <div className="w-2 h-2 rounded-full bg-white m-auto" />
+                    <div className="w-2 h-2 rounded-full bg-white" />
                   )}
                 </div>
               </div>
@@ -168,11 +168,11 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded border ${correctIds.includes(option.id) ? 'border-[#FF1414] bg-[#FF1414]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded border flex items-center justify-center ${correctIds.includes(option.id) ? 'border-[#FF1414] bg-[#FF1414]' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
                 >
                   {correctIds.includes(option.id) && (
-                    <div className="w-2 h-2 bg-white m-auto" />
+                    <div className="w-2 h-2 bg-white" />
                   )}
                 </div>
               </div>
