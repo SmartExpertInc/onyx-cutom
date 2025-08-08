@@ -16,11 +16,11 @@ export interface TableDarkTemplateProps extends BaseTemplateProps {
   showCheckmarks?: boolean;
   backgroundColor?: string;
   titleColor?: string;
-  themeTitle?: string;
-  themeContent?: string;
+  headerColor?: string;
+  textColor?: string;
   tableBackgroundColor?: string;
   headerBackgroundColor?: string;
-  themeContent?: string;
+  borderColor?: string;
   checkmarkColor?: string;
   crossColor?: string;
   theme?: any;
