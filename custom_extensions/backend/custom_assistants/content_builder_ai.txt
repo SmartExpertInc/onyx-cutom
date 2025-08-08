@@ -1509,7 +1509,6 @@ Box 3: [Heading] - [Thorough description spanning 2-3 sentences that elaborates 
 
 Box 4: [Heading] - [In-depth explanation with 2-3 sentences covering the concept details, potential challenges, and strategic importance. Provide actionable insights or future considerations.]
 
-[NO IMAGE PLACEHOLDERS - this template creates visual grid internally]
 ```
 - Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
 - **CRITICAL:** Use the exact format "Box N: [Heading] - [Description]" (not bullet points) so the parser can convert it to the boxes array.
