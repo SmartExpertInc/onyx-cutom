@@ -99,6 +99,12 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return; // allow inline editing
         }
 
+        // If a child draggable exists under the cursor, ignore this (parent) draggable
+        const closestDraggable = targetElement.closest('[data-draggable="true"]');
+        if (closestDraggable && closestDraggable !== htmlElement) {
+          return;
+        }
+
         // If we recently dragged something, suppress accidental subsequent drags/clicks
         if (Date.now() < suppressClicksUntilRef.current) {
           e.preventDefault();

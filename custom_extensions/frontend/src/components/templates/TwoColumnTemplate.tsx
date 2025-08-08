@@ -347,7 +347,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           gap: '40px',
         }}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} data-draggable="true">
           {/* Left Clickable Image Placeholder */}
           <div data-draggable="true">
             <ClickableImagePlaceholder
@@ -452,7 +452,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             )}
           </div>
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}} data-draggable="true">
           {/* Right Clickable Image Placeholder */}
           <div data-draggable="true">
             <ClickableImagePlaceholder
@@ -550,7 +550,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                     setEditingRightContent(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
               >
                 {rightContent || 'Click to add right content'}
               </p>

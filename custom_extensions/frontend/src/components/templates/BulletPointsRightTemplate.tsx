@@ -681,7 +681,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
       <div style={contentRowStyles}>
         {/* Left: Subtitle + Bullets */}
-        <div style={leftColStyles}>
+        <div style={leftColStyles} data-draggable="true">
           {/* Subtitle */}
           {subtitle && (
             isEditable && editingSubtitle ? (
@@ -739,7 +739,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
           </div>
         </div>
         {/* Right: Clickable Image Placeholder */}
-        <div style={rightColStyles}>
+        <div style={rightColStyles} data-draggable="true">
           <div data-draggable="true">
             <ClickableImagePlaceholder
               imagePath={imagePath}
