@@ -303,7 +303,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   className="p-4 text-left font-bold border-r-2"
                   style={{ 
                     color: themeTitle,
-                    themeContent: themeContent,
+                    borderColor: themeContent,
                     fontSize: '1.1rem'
                   }}
                 >
@@ -315,7 +315,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                     className="p-4 text-center font-bold border-r-2 last:border-r-0 relative group"
                     style={{ 
                       color: themeTitle,
-                      themeContent: themeContent,
+                      borderColor: themeContent,
                       fontSize: '1.1rem'
                     }}
                   >
@@ -372,7 +372,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   key={rowIndex}
                   className="border-b-2 hover:bg-opacity-10 hover:bg-white transition-colors group"
                   style={{ 
-                    themeContent: themeContent,
+                    borderColor: themeContent,
                     backgroundColor: tableBackgroundColor 
                   }}
                 >
@@ -388,7 +388,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         }`}
                         style={{ 
                           color: themeContent,
-                          themeContent: themeContent,
+                          borderColor: themeContent,
                           fontSize: '1rem'
                         }}
                       >
@@ -459,7 +459,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               className="w-12 h-8 rounded border"
               style={{ 
                 backgroundColor: tableBackgroundColor,
-                themeContent: themeContent 
+                borderColor: themeContent 
               }}
             ></div>
           ))}
