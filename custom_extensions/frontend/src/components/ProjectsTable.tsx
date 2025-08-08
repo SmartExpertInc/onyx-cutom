@@ -478,7 +478,7 @@ const ClientNameModal: React.FC<{
                 }
               }}
               placeholder={t("interface.enterClientName", "Enter client name")}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300 cursor-text"
               autoFocus
             />
           </div>
@@ -501,7 +501,7 @@ const ClientNameModal: React.FC<{
                       type="checkbox"
                       checked={isAllSelected}
                       onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                     />
                     <span className="text-xs font-medium">
                       {t("interface.selectAll", "Select all")}
@@ -526,7 +526,7 @@ const ClientNameModal: React.FC<{
                           onChange={(e) =>
                             handleFolderSelection(folder.id, e.target.checked)
                           }
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
                         <div className="flex items-center gap-2 flex-1">
                           <svg
@@ -581,7 +581,7 @@ const ClientNameModal: React.FC<{
                                       });
                                     }
                                   }}
-                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                                 />
                                 <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
                                   {project.title}
@@ -626,7 +626,7 @@ const ClientNameModal: React.FC<{
                               });
                             }
                           }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
                         <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
                           {project.title}

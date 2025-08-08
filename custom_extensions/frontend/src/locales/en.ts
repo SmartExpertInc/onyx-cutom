@@ -75,7 +75,7 @@ export const en = {
     filesInThisFolder: "Files in this folder",
     totalFilesReady: "{total} total files, {ready} ready for content creation",
     stillProcessing: "({processing} still processing)",
-    selectAll: "Select All",
+    selectAll: "Select all",
     noFilesInFolder: "No files in this folder yet",
     uploadSomeDocuments: "Upload some documents to get started",
     filesSelected: "file selected",
