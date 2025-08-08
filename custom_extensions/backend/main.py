@@ -13734,13 +13734,17 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
 
 @app.post("/api/custom/lesson-presentation/finalize")
 async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    logger.info(f"Finalizing lesson presentation: {payload.lessonTitle}")
+    logger.info(f"[LESSON_FINALIZE_ENDPOINT] ==> RECEIVED REQUEST for lesson: {payload.lessonTitle}")
+    logger.info(f"[LESSON_FINALIZE_ENDPOINT] Request headers: {dict(request.headers)}")
+    logger.info(f"[LESSON_FINALIZE_ENDPOINT] Payload keys: {list(payload.__dict__.keys())}")
     
     # Validate required fields early
     if not payload.lessonTitle or not payload.lessonTitle.strip():
+        logger.error(f"[LESSON_FINALIZE_ENDPOINT] Missing lesson title")
         raise HTTPException(status_code=400, detail="Lesson title is required")
     
     if not payload.aiResponse or not payload.aiResponse.strip():
+        logger.error(f"[LESSON_FINALIZE_ENDPOINT] Missing AI response")
         raise HTTPException(status_code=400, detail="AI response content is required")
 
     # Parse AI response to determine slide count for credit calculation
@@ -13884,15 +13888,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             logger.info(f"[LESSON_FINALIZE_STREAMER] Sending error packet: {error_packet}")
             yield (json.dumps(error_packet) + "\n").encode()
 
-    return StreamingResponse(
-        streamer(),
-        media_type="application/json",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
+    return StreamingResponse(streamer(), media_type="application/json")
 
 # --- New endpoint: list trashed projects for user ---
 
@@ -17365,6 +17361,10 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
 @app.post("/api/custom/text-presentation/finalize")
 async def text_presentation_finalize(payload: TextPresentationWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Finalize text presentation creation by parsing AI response and saving to database"""
+    logger.info(f"[TEXT_PRESENTATION_FINALIZE_ENDPOINT] ==> RECEIVED REQUEST")
+    logger.info(f"[TEXT_PRESENTATION_FINALIZE_ENDPOINT] Request headers: {dict(request.headers)}")
+    logger.info(f"[TEXT_PRESENTATION_FINALIZE_ENDPOINT] Payload keys: {list(payload.__dict__.keys())}")
+    
     onyx_user_id = await get_current_onyx_user_id(request)
     styles_param = getattr(payload, 'styles', None)
     logger.info(f"[TEXT_PRESENTATION_FINALIZE] styles param: {styles_param}")
@@ -17663,15 +17663,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
         
-        return StreamingResponse(
-            final_streamer(),
-            media_type="application/json",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "X-Accel-Buffering": "no",
-            },
-        )
+        return StreamingResponse(final_streamer(), media_type="application/json")
         
     except Exception as e:
         logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
@@ -17684,15 +17676,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         async def error_streamer():
             yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
         
-        return StreamingResponse(
-            error_streamer(),
-            media_type="application/json",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "X-Accel-Buffering": "no",
-            },
-        )
+        return StreamingResponse(error_streamer(), media_type="application/json")
 
 @app.get("/api/custom/projects/latest-by-chat")
 async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):

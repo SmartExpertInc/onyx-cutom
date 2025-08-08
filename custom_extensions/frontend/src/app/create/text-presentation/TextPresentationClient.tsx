@@ -494,16 +494,6 @@ export default function TextPresentationClient() {
     setIsGenerating(true);
     setError(null);
 
-    // Create AbortController for this request
-    const abortController = new AbortController();
-    
-    // Add timeout safeguard to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      abortController.abort();
-      setIsGenerating(false);
-      setError("Presentation finalization timed out. Please try again.");
-    }, 300000); // 5 minutes timeout
-
     try {
       const finalizeBody: any = {
         aiResponse: content,
@@ -523,11 +513,7 @@ export default function TextPresentationClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(finalizeBody),
-        signal: abortController.signal
       });
-
-      // Clear timeout since request completed
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -627,9 +613,6 @@ export default function TextPresentationClient() {
       router.push(`/projects/view/${data.id}`);
       
     } catch (error: any) {
-      // Clear timeout on error
-      clearTimeout(timeoutId);
-      
       console.error('[TEXT_PRESENTATION_FINALIZE] Error during finalization:', error);
       
       // Handle specific error types

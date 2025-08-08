@@ -43,52 +43,12 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
 
 // Helper to retry fetch up to 2 times on 504 Gateway Timeout
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
-  let lastError: Error;
-  
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      // Add exponential backoff delay for retries
-      if (attempt > 0) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-      
-      // Set a reasonable timeout for the request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout per attempt
-      
-      const response = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-      
-      // Consider 5xx errors as retryable, but not 4xx errors
-      if (response.ok || (response.status >= 400 && response.status < 500)) {
-        return response;
-      }
-      
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      
-    } catch (error: any) {
-      lastError = error;
-      
-      // Don't retry on abort errors or client errors (4xx)
-      if (error.name === 'AbortError' || (error.message && error.message.includes('4'))) {
-        throw error;
-      }
-      
-      // If this was the last attempt, throw the error
-      if (attempt === retries) {
-        throw error;
-      }
-      
-      console.warn(`Request attempt ${attempt + 1} failed:`, error.message);
-    }
+  let attempt = 0;
+  while (true) {
+    const res = await fetch(input, init);
+    if (res.status !== 504 || attempt >= retries) return res;
+    attempt += 1;
   }
-  
-  throw lastError!;
 }
 
 // Static SVG preview used for each theme tile
@@ -588,16 +548,6 @@ export default function LessonPresentationClient() {
     setLoading(false); // Ensure the preview spinner is not shown while we're in finalize mode
     setError(null);
 
-    // Create AbortController for this request
-    const abortController = new AbortController();
-    
-    // Add timeout safeguard to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      abortController.abort();
-      setIsGenerating(false);
-      setError("Finalization timed out. Please try again.");
-    }, 300000); // 5 minutes timeout
-
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = params?.get("prompt")?.trim() || "";
@@ -622,11 +572,7 @@ export default function LessonPresentationClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalizeBody),
-        signal: abortController.signal
       });
-
-      // Clear timeout since request completed
-      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -724,9 +670,6 @@ export default function LessonPresentationClient() {
       router.push(`/projects/view/${data.id}`);
 
     } catch (e: any) {
-      // Clear timeout on error
-      clearTimeout(timeoutId);
-      
       // Reset generating state on any error
       setIsGenerating(false);
       setLoading(false);
