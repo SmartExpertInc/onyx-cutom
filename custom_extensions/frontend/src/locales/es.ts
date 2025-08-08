@@ -521,6 +521,7 @@ export const es = {
     enterClientName: "Ingrese nombre del cliente",
     selectFoldersAndProducts: "Seleccionar carpetas y productos",
     selected: "seleccionado",
+    selectAll: "Seleccionar todo",
     pdfFolders: "Carpetas",
     pdfUnassignedProducts: "Productos sin asignar",
     noFoldersOrProductsAvailable: "No hay carpetas o productos disponibles",

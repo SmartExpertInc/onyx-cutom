@@ -496,33 +496,15 @@ const ClientNameModal: React.FC<{
                   {selectedProjects.size} {t("interface.selected", "selected")}
                 </span>
                 {(folders.length > 0 || unassignedProjects.length > 0) && (
-                  <label className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer transition-colors">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={isAllSelected}
-                        onChange={(e) => handleSelectAll(e.target.checked)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
-                      />
-                      {isAllSelected && (
-                        <svg
-                          className="absolute inset-0 w-full h-full pointer-events-none"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                        >
-                          <path
-                            d="M9 12l2 2 4-4"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-blue-600"
-                          />
-                        </svg>
-                      )}
-                    </div>
+                  <label className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                    />
                     <span className="text-xs font-medium">
-                      {t("interface.selectAll", "Select All")}
+                      {t("interface.selectAll", "Select all")}
                     </span>
                   </label>
                 )}

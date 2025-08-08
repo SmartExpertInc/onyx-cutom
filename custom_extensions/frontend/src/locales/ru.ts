@@ -506,6 +506,7 @@ export const ru = {
     enterClientName: "Введите имя клиента",
     selectFoldersAndProducts: "Выбрать папки и продукты",
     selected: "выбрано",
+    selectAll: "Выбрать все",
     pdfFolders: "Папки",
     pdfUnassignedProducts: "Неприсвоенные продукты",
     noFoldersOrProductsAvailable: "Папки или продукты недоступны",

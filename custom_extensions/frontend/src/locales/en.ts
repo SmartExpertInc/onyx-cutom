@@ -551,6 +551,7 @@ export const en = {
     enterClientName: "Enter client name",
     selectFoldersAndProducts: "Select Folders & Products",
     selected: "selected",
+    selectAll: "Select All",
     pdfFolders: "Folders",
     pdfUnassignedProducts: "Unassigned Products",
     noFoldersOrProductsAvailable: "No folders or products available",

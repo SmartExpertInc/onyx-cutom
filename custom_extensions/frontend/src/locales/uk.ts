@@ -505,6 +505,7 @@ export const uk = {
     enterClientName: "Введіть ім'я клієнта",
     selectFoldersAndProducts: "Вибрати папки та продукти",
     selected: "вибрано",
+    selectAll: "Вибрати все",
     pdfFolders: "Папки",
     pdfUnassignedProducts: "Непризначені продукти",
     noFoldersOrProductsAvailable: "Папки або продукти недоступні",
