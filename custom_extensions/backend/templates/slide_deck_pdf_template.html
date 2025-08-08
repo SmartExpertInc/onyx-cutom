@@ -1525,11 +1525,7 @@
                                 <div style="display: flex; flex-direction: column; align-items: center;">
                                     <svg width="280" height="280" style="filter: drop-shadow(0 8px 24px rgba(0,0,0,0.1));">
                                         <circle cx="140" cy="140" r="33.6" fill="var(--bg-color)" stroke="#e5e7eb" stroke-width="1"/>
-                                        {% set cumulative_percentage = 0 %}
-                                        {% set total_percentage = 0 %}
-                                        {% for segment in slide.props.chartData.segments %}
-                                            {% set total_percentage = total_percentage + segment.percentage %}
-                                        {% endfor %}
+                                                                            {% set cumulative_percentage = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
                                             {% set start_angle = (cumulative_percentage / 100) * 2 * 3.14159 - 1.5708 %}
                                             {% set end_angle = ((cumulative_percentage + segment.percentage) / 100) * 2 * 3.14159 - 1.5708 %}
@@ -1537,8 +1533,7 @@
                                             {% set y1 = 140 + 98 * (start_angle | sin) %}
                                             {% set x2 = 140 + 98 * (end_angle | cos) %}
                                             {% set y2 = 140 + 98 * (end_angle | sin) %}
-                                            {% set angle_diff = end_angle - start_angle %}
-                                            {% set large_arc_flag = 1 if angle_diff > 3.14159 else 0 %}
+                                                                                    {% set large_arc_flag = 1 if segment.percentage > 50 else 0 %}
                                             <path d="M 140 140 L {{ x1 }} {{ y1 }} A 98 98 0 {{ large_arc_flag }} 1 {{ x2 }} {{ y2 }} Z" fill="{{ segment.color }}" stroke="#ffffff" stroke-width="2"/>
                                             {% set text_angle = (start_angle + end_angle) / 2 %}
                                             {% set text_radius = 68.6 %}
