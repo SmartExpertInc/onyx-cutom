@@ -31,6 +31,7 @@ export interface MarketShareTemplateProps extends BaseTemplateProps {
   titleColor?: string;
   textColor?: string;
   accentColor?: string;
+  theme?: any;
 }
 
 export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
@@ -58,20 +59,20 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   titleColor = '#1f2937',
   textColor = '#374151',
   accentColor = '#2a5490',
-  currentTheme
+  theme
 }) => {
   // Theme-based color adaptation
   const getThemeAwareColor = (lightColor: string, darkColor?: string) => {
-    if (currentTheme?.name === 'dark' || currentTheme?.backgroundColor === '#1a1a2e') {
+    if (theme?.name === 'dark' || theme?.backgroundColor === '#1a1a2e') {
       return darkColor || lightColor;
     }
     return lightColor;
   };
 
-  const themeBackgroundColor = currentTheme?.backgroundColor || backgroundColor;
-  const themeTitleColor = currentTheme?.headingColor || titleColor;
-  const themeTextColor = currentTheme?.textColor || textColor;
-  const themeAccentColor = currentTheme?.accentColor || accentColor;
+  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
+  const themeTitleColor = theme?.headingColor || titleColor;
+  const themeTextColor = theme?.textColor || textColor;
+  const themeAccentColor = theme?.accentColor || accentColor;
 
   // Adjust chart colors for theme
   const finalPrimaryColor = getThemeAwareColor(chartData.primaryColor || '#2a5490', '#4f83cc');

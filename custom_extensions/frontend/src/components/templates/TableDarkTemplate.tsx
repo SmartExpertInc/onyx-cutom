@@ -22,6 +22,7 @@ export interface TableDarkTemplateProps extends BaseTemplateProps {
   borderColor?: string;
   checkmarkColor?: string;
   crossColor?: string;
+  theme?: any;
 }
 
 interface InlineEditorProps {
@@ -107,14 +108,14 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   borderColor = '#4a4a4a',
   checkmarkColor = '#10b981',
   crossColor = '#ef4444',
-  currentTheme,
+  theme,
   isEditable = false,
   onUpdate
 }) => {
   // Theme-based color adaptation
-  const themeBackgroundColor = currentTheme?.backgroundColor || backgroundColor;
-  const themeTitleColor = currentTheme?.headingColor || titleColor;
-  const themeTextColor = currentTheme?.textColor || textColor;
+  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
+  const themeTitleColor = theme?.headingColor || titleColor;
+  const themeTextColor = theme?.textColor || textColor;
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);

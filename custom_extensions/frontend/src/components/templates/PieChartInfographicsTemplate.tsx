@@ -25,6 +25,7 @@ export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
   titleColor?: string;
   textColor?: string;
   chartSize?: number;
+  theme?: any;
 }
 
 interface InlineEditorProps {
@@ -148,14 +149,14 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   titleColor = '#1f2937',
   textColor = '#374151',
   chartSize = 280,
-  currentTheme,
+  theme,
   isEditable = false,
   onUpdate
 }) => {
   // Theme-based color adaptation
-  const themeBackgroundColor = currentTheme?.backgroundColor || backgroundColor;
-  const themeTitleColor = currentTheme?.headingColor || titleColor;
-  const themeTextColor = currentTheme?.textColor || textColor;
+  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
+  const themeTitleColor = theme?.headingColor || titleColor;
+  const themeTextColor = theme?.textColor || textColor;
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);

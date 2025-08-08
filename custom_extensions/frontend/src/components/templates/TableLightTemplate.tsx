@@ -20,6 +20,7 @@ export interface TableLightTemplateProps extends BaseTemplateProps {
   headerBackgroundColor?: string;
   borderColor?: string;
   accentColor?: string;
+  theme?: any;
 }
 
 interface InlineEditorProps {
@@ -106,15 +107,15 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   headerBackgroundColor = '#0ea5e9',
   borderColor = '#e5e7eb',
   accentColor = '#0ea5e9',
-  currentTheme,
+  theme,
   isEditable = false,
   onUpdate
 }) => {
   // Theme-based color adaptation
-  const themeBackgroundColor = currentTheme?.backgroundColor || backgroundColor;
-  const themeTitleColor = currentTheme?.headingColor || titleColor;
-  const themeTextColor = currentTheme?.textColor || textColor;
-  const themeAccentColor = currentTheme?.accentColor || accentColor;
+  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
+  const themeTitleColor = theme?.headingColor || titleColor;
+  const themeTextColor = theme?.textColor || textColor;
+  const themeAccentColor = theme?.accentColor || accentColor;
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
