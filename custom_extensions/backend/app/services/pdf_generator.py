@@ -15,6 +15,7 @@ import json
 from datetime import datetime
 import base64
 import mimetypes
+import math
 
 # Attempt to import settings (as before)
 try:
@@ -82,6 +83,10 @@ def shuffle_filter(seq):
         return seq
 
 jinja_env.filters['shuffle'] = shuffle_filter
+
+# Add math functions for pie chart calculations
+jinja_env.filters['cos'] = lambda x: math.cos(float(x))
+jinja_env.filters['sin'] = lambda x: math.sin(float(x))
 
 # Enhanced logging functions for debugging
 async def log_slide_data_structure(slide_data: dict, slide_index: int = None, template_id: str = None):
@@ -324,7 +329,15 @@ def get_browser_launch_options():
             '--no-first-run', 
             '--safeBrowse-disable-auto-update',
             '--font-render-hinting=none',
-            '--enable-font-antialiasing'
+            '--enable-font-antialiasing',
+            '--enable-logging',
+            '--v=1',
+            '--enable-logging=stderr',
+            '--log-level=0',
+            '--force-color-profile=srgb',
+            '--disable-background-timer-throttling',
+            '--disable-renderer-backgrounding',
+            '--disable-backgrounding-occluded-windows'
         ],
         'dumpio': True,  # Capture browser console output
         'devtools': False,

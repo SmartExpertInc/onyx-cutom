@@ -14,6 +14,7 @@ import time
 import json
 import traceback
 from datetime import datetime
+import math
 
 # Attempt to import settings (as before)
 try:
@@ -88,6 +89,10 @@ def shuffle_filter(seq):
 
 jinja_env.filters['shuffle'] = shuffle_filter
 
+# Add math functions for pie chart calculations
+jinja_env.filters['cos'] = lambda x: math.cos(float(x))
+jinja_env.filters['sin'] = lambda x: math.sin(float(x))
+
 # Enhanced browser launch options with debugging
 def get_browser_launch_options():
     """Get optimized browser launch options for better stability and debugging."""
@@ -117,7 +122,11 @@ def get_browser_launch_options():
             '--enable-logging',
             '--v=1',
             '--enable-logging=stderr',
-            '--log-level=0'
+            '--log-level=0',
+            '--force-color-profile=srgb',
+            '--disable-background-timer-throttling',
+            '--disable-renderer-backgrounding',
+            '--disable-backgrounding-occluded-windows'
         ],
         'dumpio': True,  # Capture browser console output
         'devtools': False,
