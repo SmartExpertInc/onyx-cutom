@@ -21,6 +21,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 }) => {
   const enhancerRef = useRef<HTMLDivElement>(null);
   const dragStateRef = useRef<Map<string, { x: number; y: number }>>(new Map());
+  const suppressClicksUntilRef = useRef<number>(0);
 
   useLayoutEffect(() => {
     if (!isEnabled || !enhancerRef.current) return;
@@ -96,6 +97,14 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return;
         }
 
+        // If we recently dragged something, suppress accidental subsequent drags/clicks
+        if (Date.now() < suppressClicksUntilRef.current) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          return;
+        }
+
         console.log(`✅ Starting drag for element:`, elementId);
         isDragging = true;
         startX = e.clientX - currentX;
@@ -144,14 +153,29 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.style.userSelect = '';
         htmlElement.classList.remove('dragging');
         
-        // If element was actually dragged, prevent click events
+        // If element was actually dragged, prevent click/edit immediately after
         if (wasDragged) {
-          // Add a flag to prevent click events for a short time
+          // 1) Mark element to block pointer events briefly
           htmlElement.setAttribute('data-just-dragged', 'true');
           setTimeout(() => {
             htmlElement.removeAttribute('data-just-dragged');
-          }, 300); // 300ms delay
-          
+          }, 400); // extend a bit to be safe
+
+          // 2) Suppress the very next click globally (capture phase)
+          suppressClicksUntilRef.current = Date.now() + 400;
+          const suppressNextClick = (ev: MouseEvent) => {
+            if (Date.now() < suppressClicksUntilRef.current) {
+              ev.stopImmediatePropagation();
+              ev.stopPropagation();
+              ev.preventDefault();
+            }
+          };
+          // capture=true to intercept before any React handlers
+          document.addEventListener('click', suppressNextClick, true);
+          setTimeout(() => {
+            document.removeEventListener('click', suppressNextClick, true);
+          }, 450);
+
           console.log(`✅ Drag completed for element:`, elementId, `(distance: ${dragDistance.toFixed(1)}px)`);
         }
         
