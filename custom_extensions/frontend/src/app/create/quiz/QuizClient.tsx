@@ -1056,7 +1056,7 @@ export default function QuizClient() {
                 <div className="flex flex-col gap-4">
                   {questionList.map((question, idx: number) => (
                     <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                      <div className="flex items-center justify-center w-16 bg-[#E5EEFF] text-gray-600 text-lg font-bold flex-shrink-0">
+                      <div className="flex items-start justify-center w-16 bg-[#E5EEFF] text-gray-600 text-lg font-bold flex-shrink-0">
                         {idx + 1}
                       </div>
                       <div className="flex-1 p-4">
