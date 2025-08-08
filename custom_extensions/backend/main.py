@@ -13773,103 +13773,108 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         logger.error(f"Error processing credits for lesson presentation: {e}")
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
-    try:
-        # Determine if this is a video lesson presentation
-        is_video_lesson = payload.productType == "video_lesson_presentation"
-        
-        # Get the appropriate template with retry mechanism
-        max_retries = 3
-        template_id = None
-        for attempt in range(max_retries):
+    async def streamer():
+        try:
+            # Determine if this is a video lesson presentation
+            is_video_lesson = payload.productType == "video_lesson_presentation"
+            
+            # Get the appropriate template with retry mechanism
+            max_retries = 3
+            template_id = None
+            for attempt in range(max_retries):
+                try:
+                    if is_video_lesson:
+                        template_id = await _ensure_video_lesson_presentation_template(pool)
+                    else:
+                        template_id = await _ensure_slide_deck_template(pool)
+                    break
+                except Exception as e:
+                    if attempt == max_retries - 1:
+                        logger.error(f"Failed to get template after {max_retries} attempts: {e}")
+                        yield (json.dumps({"type": "error", "text": "Unable to initialize template"}) + "\n").encode()
+                        return
+                    await asyncio.sleep(0.5)  # Brief delay before retry
+
+            if not template_id:
+                yield (json.dumps({"type": "error", "text": "Template initialization failed"}) + "\n").encode()
+                return
+
+            # Determine the project name - if connected to outline, use correct naming convention
+            project_name = payload.lessonTitle.strip()
+            if payload.outlineProjectId:
+                try:
+                    # Fetch outline name from database
+                    async with pool.acquire() as conn:
+                        outline_row = await conn.fetchrow(
+                            "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                            payload.outlineProjectId, onyx_user_id
+                        )
+                        if outline_row:
+                            outline_name = outline_row["project_name"]
+                            project_name = f"{outline_name}: {payload.lessonTitle.strip()}"
+                except Exception as e:
+                    logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
+                    # Continue with plain lesson title if outline fetch fails
+
+            # Log full JSON for inspection
+            logger.info(f"[LESSON_FINALIZE_JSON] Full AI response JSON: {payload.aiResponse[:5000]}")
+
+            # Create project data
+            project_data = ProjectCreateRequest(
+                projectName=project_name,
+                design_template_id=template_id,
+                microProductName=None,
+                aiResponse=payload.aiResponse.strip(),
+                chatSessionId=payload.chatSessionId,
+                outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
+                folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
+                theme=payload.theme  # Pass selected theme
+            )
+            
+            # Create project with proper error handling
             try:
-                if is_video_lesson:
-                    template_id = await _ensure_video_lesson_presentation_template(pool)
-                else:
-                    template_id = await _ensure_slide_deck_template(pool)
-                break
+                created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+            except HTTPException as e:
+                yield (json.dumps({"type": "error", "text": str(e.detail)}) + "\n").encode()
+                return
             except Exception as e:
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to get template after {max_retries} attempts: {e}")
-                    raise HTTPException(status_code=500, detail="Unable to initialize template")
-                await asyncio.sleep(0.5)  # Brief delay before retry
+                logger.error(f"Failed to create project: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": "Failed to create lesson project"}) + "\n").encode()
+                return
 
-        if not template_id:
-            raise HTTPException(status_code=500, detail="Template initialization failed")
+            # Validate the created project
+            if not created_project or not created_project.id:
+                logger.error("Project creation returned invalid result")
+                yield (json.dumps({"type": "error", "text": "Project creation failed - invalid response"}) + "\n").encode()
+                return
 
-        # Get user ID
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lessonTitle.strip()
-        if payload.outlineProjectId:
+            logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
+
+            # Log full saved JSON for inspection
             try:
-                # Fetch outline name from database
                 async with pool.acquire() as conn:
-                    outline_row = await conn.fetchrow(
-                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                        payload.outlineProjectId, onyx_user_id
-                    )
-                    if outline_row:
-                        outline_name = outline_row["project_name"]
-                        project_name = f"{outline_name}: {payload.lessonTitle.strip()}"
-            except Exception as e:
-                logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
-                # Continue with plain lesson title if outline fetch fails
+                    row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
+                    if row:
+                        logger.info(f"[LESSON_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(row['microproduct_content'], ensure_ascii=False)[:10000]}")
+            except Exception as log_e:
+                logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
 
-        # Create project data
-        project_data = ProjectCreateRequest(
-            projectName=project_name,
-            design_template_id=template_id,
-            microProductName=None,
-            aiResponse=payload.aiResponse.strip(),
-            chatSessionId=payload.chatSessionId,
-            outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
-            folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
-            theme=payload.theme  # Pass selected theme
-        )
-        
-        # Create project with proper error handling
-        try:
-            created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
-        except HTTPException as e:
-            # Re-raise HTTP exceptions as-is
-            raise e
+            # Return streaming completion response like course outlines
+            yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
+            
         except Exception as e:
-            logger.error(f"Failed to create project: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail="Failed to create lesson project")
+            logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
+            yield (json.dumps({"type": "error", "text": "An unexpected error occurred during finalization"}) + "\n").encode()
 
-        # Validate the created project
-        if not created_project or not created_project.id:
-            logger.error("Project creation returned invalid result")
-            raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
-
-        logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
-
-        # Log full saved JSON for inspection
-        try:
-            async with pool.acquire() as conn:
-                row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
-                if row:
-                    logger.info(f"[LESSON_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(row['microproduct_content'], ensure_ascii=False)[:10000]}")
-        except Exception as log_e:
-            logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
-
-        # Return simple JSON response (not streaming for now)
-        return {
-            "id": created_project.id,
-            "projectName": created_project.project_name,
-            "message": "Lesson presentation finalized successfully"
-        }
-    
-    except HTTPException:
-        # Re-raise HTTP exceptions without modification
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, 
-            detail="An unexpected error occurred during finalization"
-        )
+    return StreamingResponse(
+        streamer(),
+        media_type="application/json",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 # --- New endpoint: list trashed projects for user ---
 
@@ -17626,16 +17631,50 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             logger.warning(f"Failed to log saved text presentation JSON for project {created_project.id}: {log_e}")
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
-        return {"id": created_project.id, "name": final_project_name}
         
-    except Exception as e:
-        logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    finally:
+        # Streaming response for consistent finalization behavior
+        async def final_streamer():
+            try:
+                yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
+            except Exception as e:
+                logger.error(f"Error in text presentation final streamer: {e}")
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+        
         # Always remove from active set and timestamps
         ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
         QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+        
+        return StreamingResponse(
+            final_streamer(),
+            media_type="application/json",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+        
+    except Exception as e:
+        logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
+        
+        # Always clean up on error
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
+        
+        # Return streaming error response
+        async def error_streamer():
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+        
+        return StreamingResponse(
+            error_streamer(),
+            media_type="application/json",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
 @app.get("/api/custom/projects/latest-by-chat")
 async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):

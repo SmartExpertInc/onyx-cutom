@@ -518,17 +518,73 @@ export default function TextPresentationClient() {
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      
-      // Validate response
-      if (!data || !data.id) {
-        throw new Error("Invalid response from server: missing project ID");
+      // Handle streaming response like course outlines
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No response body reader available");
       }
-      
-      setFinalProjectId(data.id);
-      
-      // Navigate immediately without delay to prevent cancellation
-      router.push(`/projects/view/${data.id}`);
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalResult = null;
+
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const packet = JSON.parse(line);
+              if (packet.type === "done") {
+                finalResult = packet;
+                break;
+              } else if (packet.type === "error") {
+                throw new Error(packet.text || packet.message || "Unknown error occurred");
+              }
+            } catch (e) {
+              // Skip invalid JSON lines unless it's an error we threw
+              if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
+                throw e;
+              }
+              continue;
+            }
+          }
+          
+          if (finalResult) break;
+        }
+
+        // Handle any remaining buffer
+        if (buffer.trim() && !finalResult) {
+          try {
+            const packet = JSON.parse(buffer);
+            if (packet.type === "done") {
+              finalResult = packet;
+            } else if (packet.type === "error") {
+              throw new Error(packet.text || packet.message || "Unknown error occurred");
+            }
+          } catch (e) {
+            // Ignore JSON parse errors for final buffer
+          }
+        }
+
+        if (!finalResult || !finalResult.id) {
+          throw new Error("Invalid response: missing project ID from streaming finalization");
+        }
+
+        setFinalProjectId(finalResult.id);
+        
+        // Navigate immediately without delay to prevent cancellation
+        router.push(`/projects/view/${finalResult.id}`);
+
+      } finally {
+        reader.releaseLock();
+      }
       
     } catch (error: any) {
       // Clear timeout on error
