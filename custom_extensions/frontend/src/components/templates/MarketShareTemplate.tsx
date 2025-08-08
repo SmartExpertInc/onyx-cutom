@@ -2,8 +2,9 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 // Market Share Template Props
 export interface MarketShareTemplateProps extends BaseTemplateProps {
@@ -34,6 +35,103 @@ export interface MarketShareTemplateProps extends BaseTemplateProps {
   theme?: any;
 }
 
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false,
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
+        }}
+        rows={2}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block'
+      }}
+    />
+  );
+}
+
 export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   title = 'Market share',
   subtitle,
@@ -55,30 +153,82 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
     primaryColor: '#2a5490',
     secondaryColor: '#9ca3af'
   },
-  backgroundColor = '#ffffff',
-  titleColor = '#1f2937',
-  textColor = '#374151',
-  accentColor = '#2a5490',
+  slideId,
+  isEditable = false,
+  onUpdate,
   theme
 }) => {
-  // Theme-based color adaptation
-  const getThemeAwareColor = (lightColor: string, darkColor?: string) => {
-    if (theme?.name === 'dark' || theme?.backgroundColor === '#1a1a2e') {
-      return darkColor || lightColor;
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
+
+  // State for inline editing
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingPrimaryLabel, setEditingPrimaryLabel] = useState(false);
+  const [editingPrimaryDesc, setEditingPrimaryDesc] = useState(false);
+  const [editingSecondaryLabel, setEditingSecondaryLabel] = useState(false);
+  const [editingSecondaryDesc, setEditingSecondaryDesc] = useState(false);
+
+  // Auto-save timeout
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const scheduleAutoSave = (newData: any) => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
     }
-    return lightColor;
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      if (onUpdate) {
+        onUpdate(newData);
+      }
+    }, 300);
   };
 
-  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
-  const themeTitleColor = theme?.headingColor || titleColor;
-  const themeTextColor = theme?.textColor || textColor;
-  const themeAccentColor = theme?.accentColor || accentColor;
+  const handleTitleUpdate = (newTitle: string) => {
+    setEditingTitle(false);
+    const newData = { title: newTitle, primaryMetric, secondaryMetric, chartData };
+    scheduleAutoSave(newData);
+  };
 
-  // Adjust chart colors for theme
-  const finalPrimaryColor = getThemeAwareColor(chartData.primaryColor || '#2a5490', '#4f83cc');
-  const finalSecondaryColor = getThemeAwareColor(chartData.secondaryColor || '#9ca3af', '#d1d5db');
+  const handlePrimaryLabelUpdate = (newLabel: string) => {
+    setEditingPrimaryLabel(false);
+    const newPrimaryMetric = { ...primaryMetric, label: newLabel };
+    const newData = { title, primaryMetric: newPrimaryMetric, secondaryMetric, chartData };
+    scheduleAutoSave(newData);
+  };
 
-  // Create chart bars with relative heights
+  const handlePrimaryDescUpdate = (newDesc: string) => {
+    setEditingPrimaryDesc(false);
+    const newPrimaryMetric = { ...primaryMetric, description: newDesc };
+    const newData = { title, primaryMetric: newPrimaryMetric, secondaryMetric, chartData };
+    scheduleAutoSave(newData);
+  };
+
+  const handleSecondaryLabelUpdate = (newLabel: string) => {
+    setEditingSecondaryLabel(false);
+    const newSecondaryMetric = { ...secondaryMetric, label: newLabel };
+    const newData = { title, primaryMetric, secondaryMetric: newSecondaryMetric, chartData };
+    scheduleAutoSave(newData);
+  };
+
+  const handleSecondaryDescUpdate = (newDesc: string) => {
+    setEditingSecondaryDesc(false);
+    const newSecondaryMetric = { ...secondaryMetric, description: newDesc };
+    const newData = { title, primaryMetric, secondaryMetric: newSecondaryMetric, chartData };
+    scheduleAutoSave(newData);
+  };
+
+  // Chart colors using theme
+  const primaryChartColor = accentColor || '#2563eb';
+  const secondaryChartColor = contentColor || '#6b7280';
+
+  // Create chart bars with relative heights based on the reference
   const maxValue = Math.max(chartData.primaryValue, chartData.secondaryValue, 100);
   const primaryHeight = (chartData.primaryValue / maxValue) * 100;
   const secondaryHeight = (chartData.secondaryValue / maxValue) * 100;
@@ -87,161 +237,230 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBackgroundColor,
+        backgroundColor: backgroundColor,
         minHeight: '600px'
       }}
     >
       {/* Main Content Container */}
-      <div className="w-full max-w-5xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto">
         
         {/* Title */}
-        <div className="text-center mb-12">
-          <h1 
-            className="text-5xl font-bold mb-4"
-            style={{ color: themeTitleColor }}
-          >
-            {title}
-          </h1>
-          {subtitle && (
-            <p 
-              className="text-xl opacity-80"
-              style={{ color: themeTextColor }}
+        <div className="text-center mb-16">
+          {editingTitle && isEditable ? (
+            <InlineEditor
+              initialValue={title}
+              onSave={handleTitleUpdate}
+              onCancel={() => setEditingTitle(false)}
+              style={{
+                color: titleColor,
+                fontSize: '3.5rem',
+                fontWeight: 'bold',
+                lineHeight: '1.2',
+                textAlign: 'center'
+              }}
+            />
+          ) : (
+            <h1 
+              className="text-6xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ color: titleColor }}
+              onClick={() => isEditable && setEditingTitle(true)}
             >
-              {subtitle}
-            </p>
+              {title}
+            </h1>
           )}
         </div>
 
-        {/* Main Chart and Legend Container */}
-        <div className="flex items-center justify-center gap-16">
+        {/* Main Layout Container - Recreating exact reference layout */}
+        <div className="flex items-center justify-between">
           
-          {/* Chart Section */}
-          <div className="flex flex-col items-center">
-            
-            {/* Chart Container */}
-            <div className="flex items-end justify-center gap-8 mb-8 h-72">
+          {/* Chart Section - Centered */}
+          <div className="flex-1 flex justify-center">
+            <div className="flex flex-col items-center">
               
-              {/* Time Period Labels */}
-              <div className="flex flex-col items-center gap-16">
-                <div className="w-24 text-center">
-                  <div 
-                    className="rounded-lg shadow-lg mb-3 transition-all duration-300 hover:shadow-xl"
-                    style={{ 
-                      backgroundColor: finalPrimaryColor,
-                      height: `${primaryHeight * 2}px`,
-                      minHeight: '120px',
-                      width: '60px'
-                    }}
-                  ></div>
-                  <p 
-                    className="text-sm font-medium opacity-70"
-                    style={{ color: themeTextColor }}
-                  >
-                    20XX
-                  </p>
-                </div>
+              {/* Y-axis scale */}
+              <div className="flex items-end justify-center mb-4" style={{ height: '300px' }}>
+                <div className="flex items-end gap-12">
+                  
+                  {/* First period */}
+                  <div className="flex flex-col items-center">
+                    <div 
+                      className="w-16 rounded transition-all duration-300 hover:opacity-80"
+                      style={{ 
+                        backgroundColor: primaryChartColor,
+                        height: `${Math.max(primaryHeight * 2.5, 40)}px`,
+                        marginBottom: '8px'
+                      }}
+                    ></div>
+                    <p 
+                      className="text-sm font-medium"
+                      style={{ color: contentColor }}
+                    >
+                      20XX
+                    </p>
+                  </div>
 
-                <div className="w-24 text-center">
-                  <div 
-                    className="rounded-lg shadow-lg mb-3 transition-all duration-300 hover:shadow-xl"
-                    style={{ 
-                      backgroundColor: finalSecondaryColor,
-                      height: `${secondaryHeight * 2}px`,
-                      minHeight: '80px',
-                      width: '60px'
-                    }}
-                  ></div>
-                  <p 
-                    className="text-sm font-medium opacity-70"
-                    style={{ color: themeTextColor }}
-                  >
-                    20XX
-                  </p>
+                  {/* Second period */}
+                  <div className="flex flex-col items-center">
+                    <div 
+                      className="w-16 rounded transition-all duration-300 hover:opacity-80"
+                      style={{ 
+                        backgroundColor: secondaryChartColor,
+                        height: `${Math.max(secondaryHeight * 2.5, 30)}px`,
+                        marginBottom: '8px'
+                      }}
+                    ></div>
+                    <p 
+                      className="text-sm font-medium"
+                      style={{ color: contentColor }}
+                    >
+                      20XX
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Chart Legend Note */}
-            <div className="text-center max-w-md">
-              <p 
-                className="text-sm opacity-70 leading-relaxed"
-                style={{ color: themeTextColor }}
-              >
-                Follow the link in the graph to modify its data and then paste the new one here. <span className="font-semibold">For more info, click here</span>
-              </p>
+              {/* Bottom description */}
+              <div className="text-center max-w-lg mt-8">
+                <p 
+                  className="text-sm leading-relaxed"
+                  style={{ color: contentColor, opacity: 0.8 }}
+                >
+                  Follow the link in the graph to modify its data and then paste the new one here. <span className="font-semibold">For more info, click here</span>
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Legend Section */}
-          <div className="flex flex-col gap-8">
+          {/* Legend Section - Right side */}
+          <div className="flex flex-col gap-12 ml-16">
             
             {/* Primary Metric */}
-            <div className="flex items-start gap-4">
+            <div className="flex items-center gap-4">
               <div 
-                className="w-4 h-4 rounded-full mt-1 flex-shrink-0"
-                style={{ backgroundColor: finalPrimaryColor }}
+                className="w-6 h-6 rounded-full flex-shrink-0"
+                style={{ backgroundColor: primaryChartColor }}
               ></div>
               <div>
-                <h3 
-                  className="text-2xl font-bold mb-2"
-                  style={{ color: themeTitleColor }}
-                >
-                  {primaryMetric.label}
-                </h3>
-                <p 
-                  className="text-base leading-relaxed max-w-xs"
-                  style={{ color: themeTextColor }}
-                >
-                  {primaryMetric.description}
-                </p>
+                {editingPrimaryLabel && isEditable ? (
+                  <InlineEditor
+                    initialValue={primaryMetric.label}
+                    onSave={handlePrimaryLabelUpdate}
+                    onCancel={() => setEditingPrimaryLabel(false)}
+                    style={{
+                      color: titleColor,
+                      fontSize: '2rem',
+                      fontWeight: 'bold',
+                      marginBottom: '8px'
+                    }}
+                  />
+                ) : (
+                  <h3 
+                    className="text-3xl font-bold mb-2 cursor-pointer hover:opacity-80"
+                    style={{ color: titleColor }}
+                    onClick={() => isEditable && setEditingPrimaryLabel(true)}
+                  >
+                    {primaryMetric.label}
+                  </h3>
+                )}
+                {editingPrimaryDesc && isEditable ? (
+                  <InlineEditor
+                    initialValue={primaryMetric.description}
+                    onSave={handlePrimaryDescUpdate}
+                    onCancel={() => setEditingPrimaryDesc(false)}
+                    multiline={true}
+                    style={{
+                      color: contentColor,
+                      fontSize: '1rem',
+                      lineHeight: '1.5'
+                    }}
+                  />
+                ) : (
+                  <p 
+                    className="text-lg leading-relaxed max-w-sm cursor-pointer hover:opacity-80"
+                    style={{ color: contentColor }}
+                    onClick={() => isEditable && setEditingPrimaryDesc(true)}
+                  >
+                    {primaryMetric.description}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Secondary Metric */}
-            <div className="flex items-start gap-4">
+            <div className="flex items-center gap-4">
               <div 
-                className="w-4 h-4 rounded-full mt-1 flex-shrink-0"
-                style={{ backgroundColor: finalSecondaryColor }}
+                className="w-6 h-6 rounded-full flex-shrink-0"
+                style={{ backgroundColor: secondaryChartColor }}
               ></div>
               <div>
-                <h3 
-                  className="text-2xl font-bold mb-2"
-                  style={{ color: themeTitleColor }}
-                >
-                  {secondaryMetric.label}
-                </h3>
-                <p 
-                  className="text-base leading-relaxed max-w-xs"
-                  style={{ color: themeTextColor }}
-                >
-                  {secondaryMetric.description}
-                </p>
+                {editingSecondaryLabel && isEditable ? (
+                  <InlineEditor
+                    initialValue={secondaryMetric.label}
+                    onSave={handleSecondaryLabelUpdate}
+                    onCancel={() => setEditingSecondaryLabel(false)}
+                    style={{
+                      color: titleColor,
+                      fontSize: '2rem',
+                      fontWeight: 'bold',
+                      marginBottom: '8px'
+                    }}
+                  />
+                ) : (
+                  <h3 
+                    className="text-3xl font-bold mb-2 cursor-pointer hover:opacity-80"
+                    style={{ color: titleColor }}
+                    onClick={() => isEditable && setEditingSecondaryLabel(true)}
+                  >
+                    {secondaryMetric.label}
+                  </h3>
+                )}
+                {editingSecondaryDesc && isEditable ? (
+                  <InlineEditor
+                    initialValue={secondaryMetric.description}
+                    onSave={handleSecondaryDescUpdate}
+                    onCancel={() => setEditingSecondaryDesc(false)}
+                    multiline={true}
+                    style={{
+                      color: contentColor,
+                      fontSize: '1rem',
+                      lineHeight: '1.5'
+                    }}
+                  />
+                ) : (
+                  <p 
+                    className="text-lg leading-relaxed max-w-sm cursor-pointer hover:opacity-80"
+                    style={{ color: contentColor }}
+                    onClick={() => isEditable && setEditingSecondaryDesc(true)}
+                  >
+                    {secondaryMetric.description}
+                  </p>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Decorative Navigation Dots */}
-      <div className="absolute bottom-8 left-8 flex gap-3">
+      {/* Decorative Navigation Dots - matching reference exactly */}
+      <div className="absolute bottom-8 left-8 flex gap-2">
         <div 
           className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: themeTextColor, opacity: 0.3 }}
+          style={{ backgroundColor: contentColor, opacity: 0.4 }}
         ></div>
         <div 
           className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: themeTextColor, opacity: 0.7 }}
+          style={{ backgroundColor: contentColor, opacity: 0.8 }}
         ></div>
       </div>
       
-      <div className="absolute bottom-8 right-8 flex gap-3">
+      <div className="absolute bottom-8 right-8 flex gap-2">
         <div 
           className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: themeTextColor, opacity: 0.3 }}
+          style={{ backgroundColor: contentColor, opacity: 0.4 }}
         ></div>
         <div 
           className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: themeTextColor, opacity: 0.7 }}
+          style={{ backgroundColor: contentColor, opacity: 0.8 }}
         ></div>
       </div>
     </div>

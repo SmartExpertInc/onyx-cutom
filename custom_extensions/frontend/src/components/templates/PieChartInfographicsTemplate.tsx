@@ -4,6 +4,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 // Pie Chart Infographics Template Props
 export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
@@ -153,10 +154,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   isEditable = false,
   onUpdate
 }) => {
-  // Theme-based color adaptation
-  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
-  const themeTitleColor = theme?.headingColor || titleColor;
-  const themeTextColor = theme?.textColor || textColor;
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
@@ -272,7 +271,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBackgroundColor,
+        backgroundColor: themeBg,
         minHeight: '600px'
       }}
     >
@@ -287,7 +286,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
               onSave={handleTitleUpdate}
               onCancel={() => setEditingTitle(false)}
               style={{
-                color: themeTitleColor,
+                color: themeTitle,
                 fontSize: '3.5rem',
                 fontWeight: 'bold',
                 lineHeight: '1.2',
@@ -297,7 +296,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           ) : (
             <h1 
               className="text-6xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ color: themeTitleColor }}
+              style={{ color: themeTitle }}
               onClick={() => isEditable && setEditingTitle(true)}
             >
               {title}
@@ -305,7 +304,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           )}
           <p 
             className="text-lg mt-4 opacity-70"
-            style={{ color: themeTextColor }}
+            style={{ color: themeContent }}
           >
             To modify this graph, click on it, follow the link, change the data and paste it here
           </p>
@@ -351,7 +350,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       onCancel={() => setEditingMonthDesc(null)}
                       multiline={true}
                       style={{
-                        color: themeTextColor,
+                        color: themeContent,
                         fontSize: '1rem',
                         lineHeight: '1.5'
                       }}
@@ -359,7 +358,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   ) : (
                     <p 
                       className="cursor-pointer hover:opacity-80"
-                      style={{ color: themeTextColor }}
+                      style={{ color: themeContent }}
                       onClick={() => isEditable && setEditingMonthDesc(index)}
                     >
                       {item.description}
@@ -381,7 +380,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 cx={chartSize / 2}
                 cy={chartSize / 2}
                 r={chartSize * 0.12}
-                fill={themeBackgroundColor}
+                fill={themeBg}
                 stroke="#e5e7eb"
                 strokeWidth="1"
               />
@@ -428,7 +427,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                         onCancel={() => setEditingMonthDesc(null)}
                         multiline={true}
                         style={{
-                          color: themeTextColor,
+                          color: themeContent,
                           fontSize: '1rem',
                           lineHeight: '1.5'
                         }}
@@ -436,7 +435,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     ) : (
                       <p 
                         className="cursor-pointer hover:opacity-80"
-                        style={{ color: themeTextColor }}
+                        style={{ color: themeContent }}
                         onClick={() => isEditable && setEditingMonthDesc(actualIndex)}
                       >
                         {item.description}

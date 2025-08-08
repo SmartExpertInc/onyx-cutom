@@ -4,6 +4,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 // Table Dark Template Props
 export interface TableDarkTemplateProps extends BaseTemplateProps {
@@ -15,11 +16,11 @@ export interface TableDarkTemplateProps extends BaseTemplateProps {
   showCheckmarks?: boolean;
   backgroundColor?: string;
   titleColor?: string;
-  headerColor?: string;
-  textColor?: string;
+  themeTitle?: string;
+  themeContent?: string;
   tableBackgroundColor?: string;
   headerBackgroundColor?: string;
-  borderColor?: string;
+  themeContent?: string;
   checkmarkColor?: string;
   crossColor?: string;
   theme?: any;
@@ -101,21 +102,19 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   showCheckmarks = true,
   backgroundColor = '#1a1a1a',
   titleColor = '#ffffff',
-  headerColor = '#ffffff',
-  textColor = '#ffffff',
+  themeTitle = '#ffffff',
+  themeContent = '#ffffff',
   tableBackgroundColor = '#2a2a2a',
   headerBackgroundColor = '#3a3a3a',
-  borderColor = '#4a4a4a',
+  themeContent = '#4a4a4a',
   checkmarkColor = '#10b981',
   crossColor = '#ef4444',
   theme,
   isEditable = false,
   onUpdate
 }) => {
-  // Theme-based color adaptation
-  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
-  const themeTitleColor = theme?.headingColor || titleColor;
-  const themeTextColor = theme?.textColor || textColor;
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
@@ -255,14 +254,14 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBackgroundColor,
+        backgroundColor: themeBg,
         minHeight: '600px'
       }}
     >
       {/* Decorative curved element */}
       <div 
         className="absolute top-0 right-0 w-64 h-64 rounded-bl-full opacity-20"
-        style={{ backgroundColor: themeTextColor }}
+        style={{ backgroundColor: themeContent }}
       ></div>
 
       {/* Main Content Container */}
@@ -276,7 +275,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               onSave={handleTitleUpdate}
               onCancel={() => setEditingTitle(false)}
               style={{
-                color: themeTitleColor,
+                color: themeTitle,
                 fontSize: '3rem',
                 fontWeight: 'bold',
                 lineHeight: '1.2'
@@ -285,7 +284,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           ) : (
             <h1 
               className="text-5xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ color: themeTitleColor }}
+              style={{ color: themeTitle }}
               onClick={() => isEditable && setEditingTitle(true)}
             >
               {title}
@@ -303,8 +302,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 <th 
                   className="p-4 text-left font-bold border-r-2"
                   style={{ 
-                    color: headerColor,
-                    borderColor: borderColor,
+                    color: themeTitle,
+                    themeContent: themeContent,
                     fontSize: '1.1rem'
                   }}
                 >
@@ -315,8 +314,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                     key={index}
                     className="p-4 text-center font-bold border-r-2 last:border-r-0 relative group"
                     style={{ 
-                      color: headerColor,
-                      borderColor: borderColor,
+                      color: themeTitle,
+                      themeContent: themeContent,
                       fontSize: '1.1rem'
                     }}
                   >
@@ -326,7 +325,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         onSave={(value) => handleHeaderUpdate(index, value)}
                         onCancel={() => setEditingHeader(null)}
                         style={{
-                          color: headerColor,
+                          color: themeTitle,
                           textAlign: 'center',
                           fontWeight: 'bold',
                           fontSize: '1.1rem'
@@ -373,7 +372,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   key={rowIndex}
                   className="border-b-2 hover:bg-opacity-10 hover:bg-white transition-colors group"
                   style={{ 
-                    borderColor: borderColor,
+                    themeContent: themeContent,
                     backgroundColor: tableBackgroundColor 
                   }}
                 >
@@ -388,8 +387,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                           isFirstColumn ? 'text-left font-semibold' : 'text-center'
                         }`}
                         style={{ 
-                          color: textColor,
-                          borderColor: borderColor,
+                          color: themeContent,
+                          themeContent: themeContent,
                           fontSize: '1rem'
                         }}
                       >
@@ -399,7 +398,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                             onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
                             onCancel={() => setEditingCell(null)}
                             style={{
-                              color: textColor,
+                              color: themeContent,
                               textAlign: isFirstColumn ? 'left' : 'center',
                               fontSize: '1rem',
                               fontWeight: isFirstColumn ? 'bold' : 'normal'
@@ -460,7 +459,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               className="w-12 h-8 rounded border"
               style={{ 
                 backgroundColor: tableBackgroundColor,
-                borderColor: borderColor 
+                themeContent: themeContent 
               }}
             ></div>
           ))}

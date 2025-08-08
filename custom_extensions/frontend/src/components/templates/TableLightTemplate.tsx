@@ -4,6 +4,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
 // Table Light Template Props
 export interface TableLightTemplateProps extends BaseTemplateProps {
@@ -111,11 +112,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   isEditable = false,
   onUpdate
 }) => {
-  // Theme-based color adaptation
-  const themeBackgroundColor = theme?.backgroundColor || backgroundColor;
-  const themeTitleColor = theme?.headingColor || titleColor;
-  const themeTextColor = theme?.textColor || textColor;
-  const themeAccentColor = theme?.accentColor || accentColor;
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
@@ -220,7 +218,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBackgroundColor,
+        backgroundColor: themeBg,
         minHeight: '600px'
       }}
     >
@@ -228,7 +226,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
       <div 
         className="absolute top-0 right-0 w-80 h-80 rounded-bl-full opacity-10"
         style={{ 
-          background: `linear-gradient(135deg, ${themeAccentColor}, transparent)` 
+          background: `linear-gradient(135deg, ${themeAccent}, transparent)` 
         }}
       ></div>
 
@@ -243,7 +241,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
               onSave={handleTitleUpdate}
               onCancel={() => setEditingTitle(false)}
               style={{
-                color: themeTitleColor,
+                color: themeTitle,
                 fontSize: '3rem',
                 fontWeight: 'bold',
                 lineHeight: '1.2'
@@ -252,7 +250,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
           ) : (
             <h1 
               className="text-5xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ color: themeTitleColor }}
+              style={{ color: themeTitle }}
               onClick={() => isEditable && setEditingTitle(true)}
             >
               {title}
@@ -269,7 +267,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
             
             {/* Headers */}
             <thead>
-              <tr style={{ backgroundColor: themeAccentColor || headerBackgroundColor }}>
+              <tr style={{ backgroundColor: themeAccent || headerBackgroundColor }}>
                 <th 
                   className="p-4 text-left font-bold border-r"
                   style={{ 
@@ -356,7 +354,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                           isFirstColumn ? 'text-left font-semibold' : 'text-center'
                         }`}
                         style={{ 
-                          color: isFirstColumn ? themeTitleColor : themeTextColor,
+                          color: isFirstColumn ? themeTitle : themeContent,
                           borderColor: borderColor,
                           fontSize: '0.95rem',
                           backgroundColor: isFirstColumn ? 'rgba(0,0,0,0.02)' : 'transparent'
@@ -368,7 +366,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                             onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
                             onCancel={() => setEditingCell(null)}
                             style={{
-                              color: isFirstColumn ? themeTitleColor : themeTextColor,
+                              color: isFirstColumn ? themeTitle : themeContent,
                               textAlign: isFirstColumn ? 'left' : 'center',
                               fontSize: '0.95rem',
                               fontWeight: isFirstColumn ? 'bold' : 'normal'
