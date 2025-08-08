@@ -696,7 +696,7 @@ export default function LessonPresentationClient() {
           } finally {
             setIsGenerating(false);
           }
-        }, 10000); // Wait 10 seconds
+        }, 20000); // Wait 10 seconds
 
         // Don't show error immediately for 504 timeouts
         return;
