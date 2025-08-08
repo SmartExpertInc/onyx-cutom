@@ -619,91 +619,53 @@ export default function LessonPresentationClient() {
         signal: abortController.signal
       });
 
-      // Clear timeout since request completed
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
+      if (!res.ok || !res.body) {
         const errorText = await res.text();
         throw new Error(errorText || `HTTP ${res.status}`);
       }
 
-      let data;
-      
-      // Check if this is a streaming response by trying to get a reader
-      const reader = res.body?.getReader();
-      if (reader) {
-        // Streaming response (like course outlines)
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let finalResult = null;
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalId: string | null = null;
 
-        try {
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-            
-            for (const ln of lines) {
-              if (!ln.trim()) continue;
-              try {
-                const pkt = JSON.parse(ln);
-                if (pkt.type === "done") {
-                  finalResult = pkt;
-                  break;
-                } else if (pkt.type === "error") {
-                  throw new Error(pkt.message || "Unknown error occurred");
-                }
-              } catch (e) {
-                // Skip invalid JSON lines unless it's an error we threw
-                if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                  throw e;
-                }
-                continue;
-              }
-            }
-            
-            if (finalResult) break;
-          }
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
 
-          // Handle any remaining buffer
-          if (buffer.trim() && !finalResult) {
+          for (const ln of lines) {
+            const line = ln.trim();
+            if (!line) continue;
             try {
-              const pkt = JSON.parse(buffer.trim());
-              if (pkt.type === "done") {
-                finalResult = pkt;
+              const pkt = JSON.parse(line);
+              if (pkt.type === "done" && pkt.id) {
+                finalId = pkt.id;
+                break;
               } else if (pkt.type === "error") {
-                throw new Error(pkt.message || "Unknown error occurred");
+                throw new Error(pkt.text || pkt.message || "Unknown error during finalization");
               }
-            } catch (e) {
-              // Ignore parsing errors for final buffer unless it's an error we threw
-              if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                throw e;
-              }
+            } catch {
+              // ignore non-JSON lines/keep-alives
+              continue;
             }
           }
 
-          if (!finalResult) {
-            throw new Error("No final result received from streaming response");
-          }
-
-          data = finalResult;
-        } finally {
-          reader.releaseLock();
+          if (finalId) break;
         }
-      } else {
-        // Regular JSON response (fallback)
-        data = await res.json();
+      } finally {
+        // Clear timeout since response completed streaming
+        clearTimeout(timeoutId);
       }
-      
-      // Ensure we have a valid project ID before navigating
-      if (!data?.id) {
+
+      if (!finalId) {
         throw new Error("Invalid response: missing project ID");
       }
 
-      // Navigate immediately without delay to prevent cancellation
-      router.push(`/projects/view/${data.id}`);
+      router.push(`/projects/view/${finalId}`);
 
     } catch (e: any) {
       // Clear timeout on error

@@ -13774,8 +13774,6 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     async def streamer():
-        last_send = asyncio.get_event_loop().time()
-        
         try:
             # Determine if this is a video lesson presentation
             is_video_lesson = payload.productType == "video_lesson_presentation"
@@ -13793,26 +13791,21 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 except Exception as e:
                     if attempt == max_retries - 1:
                         logger.error(f"Failed to get template after {max_retries} attempts: {e}")
-                        yield (json.dumps({"type": "error", "message": "Unable to initialize template"}) + "\n").encode()
+                        yield (json.dumps({"type": "error", "text": "Unable to initialize template"}) + "\n").encode()
                         return
-                    await asyncio.sleep(0.5)  # Brief delay before retry
+                    await asyncio.sleep(0.5)
 
             if not template_id:
-                yield (json.dumps({"type": "error", "message": "Template initialization failed"}) + "\n").encode()
+                yield (json.dumps({"type": "error", "text": "Template initialization failed"}) + "\n").encode()
                 return
 
-            # Send keep-alive
-            now = asyncio.get_event_loop().time()
-            if now - last_send > 8:
-                yield b" "
-                last_send = now
-                logger.debug(f"[LESSON_FINALIZE_STREAM] Sent keep-alive")
+            # Get user ID
+            onyx_user_id = await get_current_onyx_user_id(request)
 
             # Determine the project name - if connected to outline, use correct naming convention
             project_name = payload.lessonTitle.strip()
             if payload.outlineProjectId:
                 try:
-                    # Fetch outline name from database
                     async with pool.acquire() as conn:
                         outline_row = await conn.fetchrow(
                             "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
@@ -13823,57 +13816,38 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                             project_name = f"{outline_name}: {payload.lessonTitle.strip()}"
                 except Exception as e:
                     logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
-                    # Continue with plain lesson title if outline fetch fails
 
             # Log full JSON for inspection
             logger.info(f"[LESSON_FINALIZE_JSON] Full AI response JSON: {payload.aiResponse[:5000]}")
 
-            # Send keep-alive
-            now = asyncio.get_event_loop().time()
-            if now - last_send > 8:
-                yield b" "
-                last_send = now
-                logger.debug(f"[LESSON_FINALIZE_STREAM] Sent keep-alive")
-
-            # Create project data
             project_data = ProjectCreateRequest(
                 projectName=project_name,
                 design_template_id=template_id,
                 microProductName=None,
                 aiResponse=payload.aiResponse.strip(),
                 chatSessionId=payload.chatSessionId,
-                outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
-                folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
-                theme=payload.theme  # Pass selected theme
+                outlineId=payload.outlineProjectId,
+                folder_id=int(payload.folderId) if payload.folderId else None,
+                theme=payload.theme
             )
-            
-            # Create project with proper error handling
+
             try:
                 created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
             except HTTPException as e:
-                yield (json.dumps({"type": "error", "message": str(e.detail)}) + "\n").encode()
+                yield (json.dumps({"type": "error", "text": str(e.detail)}) + "\n").encode()
                 return
             except Exception as e:
                 logger.error(f"Failed to create project: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "message": "Failed to create lesson project"}) + "\n").encode()
+                yield (json.dumps({"type": "error", "text": "Failed to create lesson project"}) + "\n").encode()
                 return
 
-            # Validate the created project
             if not created_project or not created_project.id:
                 logger.error("Project creation returned invalid result")
-                yield (json.dumps({"type": "error", "message": "Project creation failed - invalid response"}) + "\n").encode()
+                yield (json.dumps({"type": "error", "text": "Project creation failed - invalid response"}) + "\n").encode()
                 return
 
             logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
 
-            # Send keep-alive
-            now = asyncio.get_event_loop().time()
-            if now - last_send > 8:
-                yield b" "
-                last_send = now
-                logger.debug(f"[LESSON_FINALIZE_STREAM] Sent keep-alive")
-
-            # Log full saved JSON for inspection
             try:
                 async with pool.acquire() as conn:
                     row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
@@ -13882,33 +13856,20 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             except Exception as log_e:
                 logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
 
-            # Return streaming completion response like course outlines
-            done_packet = {"type": "done", "id": created_project.id}
-            yield (json.dumps(done_packet) + "\n").encode()
-            
+            yield (json.dumps({"type": "done", "id": created_project.id}) + "\n").encode()
         except Exception as e:
             logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "message": "An unexpected error occurred during finalization"}) + "\n").encode()
+            yield (json.dumps({"type": "error", "text": "An unexpected error occurred during finalization"}) + "\n").encode()
 
     return StreamingResponse(
         streamer(),
-        media_type="application/json",
+        media_type="text/plain",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
         },
     )
-    
-    except HTTPException:
-        # Re-raise HTTP exceptions without modification
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, 
-            detail="An unexpected error occurred during finalization"
-        )
 
 # --- New endpoint: list trashed projects for user ---
 
