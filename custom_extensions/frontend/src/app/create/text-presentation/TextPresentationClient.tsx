@@ -1017,7 +1017,7 @@ export default function TextPresentationClient() {
                   </div>
                 )}
                 {/* Display content in card format if lessons are available, otherwise show textarea */}
-                {lessonList.length > 0 ? (
+                {lessonList.length > 0 && (
                   <div className="flex flex-col gap-4">
                     {lessonList.map((lesson, idx: number) => (
                     <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -1058,15 +1058,16 @@ export default function TextPresentationClient() {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <textarea
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                  disabled={loadingEdit}
-                />
+              // ) : (
+              //   <textarea
+              //     ref={textareaRef}
+              //     value={content}
+              //     onChange={(e) => setContent(e.target.value)}
+              //     placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
+              //     className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+              //     disabled={loadingEdit}
+              //   />
+              // )}
               )}
               </div>
             </>
