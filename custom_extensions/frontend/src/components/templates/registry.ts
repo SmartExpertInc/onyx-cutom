@@ -1206,12 +1206,12 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       title: 'Pie Chart Infographics',
       chartData: {
         segments: [
-          { label: '5%', percentage: 5, color: '#0ea5e9', description: 'Small segment' },
-          { label: '20%', percentage: 20, color: '#06b6d4', description: 'Medium segment' },
-          { label: '25%', percentage: 25, color: '#67e8f9', description: 'Large segment' },
-          { label: '25%', percentage: 25, color: '#0891b2', description: 'Another large' },
-          { label: '13%', percentage: 13, color: '#f97316', description: 'Orange segment' },
-          { label: '12%', percentage: 12, color: '#fb923c', description: 'Light orange' }
+          { label: '15%', percentage: 15, color: '#0ea5e9', description: 'Blue segment' },
+          { label: '20%', percentage: 20, color: '#06b6d4', description: 'Cyan segment' },
+          { label: '25%', percentage: 25, color: '#67e8f9', description: 'Light blue segment' },
+          { label: '20%', percentage: 20, color: '#0891b2', description: 'Dark blue segment' },
+          { label: '12%', percentage: 12, color: '#f97316', description: 'Orange segment' },
+          { label: '8%', percentage: 8, color: '#fb923c', description: 'Light orange segment' }
         ]
       },
       monthlyData: [

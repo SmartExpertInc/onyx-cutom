@@ -1523,7 +1523,7 @@
                                 
                                 <!-- Center - Pie Chart -->
                                 <div style="display: flex; flex-direction: column; align-items: center;">
-                                    <svg width="280" height="280" style="filter: drop-shadow(0 8px 24px rgba(0,0,0,0.1));">
+                                    <svg width="280" height="280" viewBox="0 0 280 280" style="filter: drop-shadow(0 8px 24px rgba(0,0,0,0.1)); shape-rendering: geometricPrecision; text-rendering: optimizeLegibility;">
                                         {% set chart_size = 280 %}
                                         {% set center_x = chart_size / 2 %}
                                         {% set center_y = chart_size / 2 %}
@@ -1531,26 +1531,29 @@
                                         {% set inner_radius = chart_size * 0.12 %}
                                         
                                         <!-- Inner circle -->
-                                        <circle cx="{{ center_x }}" cy="{{ center_y }}" r="{{ inner_radius }}" fill="var(--bg-color)" stroke="#e5e7eb" stroke-width="1"/>
+                                        <circle cx="{{ center_x }}" cy="{{ center_y }}" r="{{ inner_radius }}" fill="var(--bg-color)" stroke="#e5e7eb" stroke-width="2"/>
                                         
                                         <!-- Pie chart segments -->
                                         {% set cumulative_percentage = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
-                                            {% set start_angle = (cumulative_percentage / 100) * 2 * 3.14159 - 1.5708 %}
-                                            {% set end_angle = ((cumulative_percentage + segment.percentage) / 100) * 2 * 3.14159 - 1.5708 %}
-                                            {% set x1 = center_x + radius * (start_angle | cos) %}
-                                            {% set y1 = center_y + radius * (start_angle | sin) %}
-                                            {% set x2 = center_x + radius * (end_angle | cos) %}
-                                            {% set y2 = center_y + radius * (end_angle | sin) %}
+                                            {% set start_angle_deg = (cumulative_percentage / 100) * 360 %}
+                                            {% set end_angle_deg = ((cumulative_percentage + segment.percentage) / 100) * 360 %}
+                                            {% set start_angle_rad = (start_angle_deg - 90) * 3.14159 / 180 %}
+                                            {% set end_angle_rad = (end_angle_deg - 90) * 3.14159 / 180 %}
+                                            {% set x1 = center_x + radius * (start_angle_rad | cos) %}
+                                            {% set y1 = center_y + radius * (start_angle_rad | sin) %}
+                                            {% set x2 = center_x + radius * (end_angle_rad | cos) %}
+                                            {% set y2 = center_y + radius * (end_angle_rad | sin) %}
                                             {% set large_arc_flag = 1 if segment.percentage > 50 else 0 %}
-                                            <path d="M {{ center_x }} {{ center_y }} L {{ x1 }} {{ y1 }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ x2 }} {{ y2 }} Z" fill="{{ segment.color }}" stroke="#ffffff" stroke-width="2"/>
+                                            <path d="M {{ center_x | round(2) }} {{ center_y | round(2) }} L {{ x1 | round(2) }} {{ y1 | round(2) }} A {{ radius | round(2) }} {{ radius | round(2) }} 0 {{ large_arc_flag }} 1 {{ x2 | round(2) }} {{ y2 | round(2) }} Z" fill="{{ segment.color }}" stroke="#ffffff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
                                             
                                             <!-- Text labels -->
-                                            {% set text_angle = (start_angle + end_angle) / 2 %}
+                                            {% set text_angle_deg = (start_angle_deg + end_angle_deg) / 2 - 90 %}
+                                            {% set text_angle_rad = text_angle_deg * 3.14159 / 180 %}
                                             {% set text_radius = radius * 0.7 %}
-                                            {% set text_x = center_x + text_radius * (text_angle | cos) %}
-                                            {% set text_y = center_y + text_radius * (text_angle | sin) %}
-                                            <text x="{{ text_x }}" y="{{ text_y }}" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" font-size="16" font-weight="bold" style="font-family: Arial, sans-serif; paint-order: stroke fill; stroke: #000000; stroke-width: 0.5px; stroke-linecap: round; stroke-linejoin: round;">{{ segment.label }}</text>
+                                            {% set text_x = center_x + text_radius * (text_angle_rad | cos) %}
+                                            {% set text_y = center_y + text_radius * (text_angle_rad | sin) %}
+                                            <text x="{{ text_x | round(2) }}" y="{{ text_y | round(2) }}" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" font-size="18" font-weight="bold" style="font-family: Arial, Helvetica, sans-serif; paint-order: stroke fill; stroke: #000000; stroke-width: 1px; stroke-linecap: round; stroke-linejoin: round;">{{ segment.label }}</text>
                                             
                                             {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                         {% endfor %}
