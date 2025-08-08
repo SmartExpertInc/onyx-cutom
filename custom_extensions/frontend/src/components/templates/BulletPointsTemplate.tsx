@@ -223,6 +223,7 @@ function UnifiedBulletEditor({
     const editLines = editValue.split('\n');
     textareaRefs.current = textareaRefs.current.slice(0, editLines.length);
     
+    // Set proper heights for all textareas after a brief delay to ensure DOM is ready
     if (isEditing) {
       setTimeout(() => {
         textareaRefs.current.forEach((textarea, index) => {
@@ -235,16 +236,20 @@ function UnifiedBulletEditor({
     }
   }, [editValue, isEditing]);
 
+  // Set initial heights when entering edit mode
   useEffect(() => {
     if (isEditing) {
       setTimeout(() => {
         textareaRefs.current.forEach((textarea) => {
           if (textarea) {
             textarea.style.height = 'auto';
+            // Calculate proper height for wrapped text
             const computedStyle = window.getComputedStyle(textarea);
             const lineHeight = parseInt(computedStyle.lineHeight) || 20;
             const padding = parseInt(computedStyle.paddingTop) + parseInt(computedStyle.paddingBottom);
             const border = parseInt(computedStyle.borderTopWidth) + parseInt(computedStyle.borderBottomWidth);
+            
+            // Set a minimum height and ensure all wrapped content is visible
             const minHeight = lineHeight + padding + border;
             const contentHeight = textarea.scrollHeight;
             textarea.style.height = Math.max(minHeight, contentHeight + 4) + 'px';
@@ -270,6 +275,7 @@ function UnifiedBulletEditor({
   };
 
   if (isEditing) {
+    // WYSIWYG editing mode with visible bullet icons
     const editLines = editValue.split('\n');
     const currentBullets = textToBullets(editValue);
     
@@ -294,6 +300,7 @@ function UnifiedBulletEditor({
             const isEmpty = trimmedLine.length === 0;
             const isPlaceholder = trimmedLine === 'Click to add bullet point' || trimmedLine === 'Click to add bullet points...';
             
+            // Only show bullet icon for non-empty lines that aren't placeholders
             const shouldShowBullet = !isEmpty && !isPlaceholder;
             
             return (
@@ -328,22 +335,30 @@ function UnifiedBulletEditor({
                     onKeyDown={(e: React.KeyboardEvent) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
+                        // Insert a new line at the current position
                         const newLines = [...editLines];
                         newLines.splice(index + 1, 0, '');
                         setEditValue(newLines.join('\n'));
+                        
+                        // Focus the new line
                         setFocusedIndex(index + 1);
                       } else if (e.key === 'Backspace') {
                         const target = e.target as HTMLTextAreaElement;
                         const cursorPosition = target.selectionStart;
                         
                         if (cursorPosition === 0 && index > 0) {
+                          // Backspace at the beginning of a line - merge with previous
                           e.preventDefault();
                           const newLines = [...editLines];
                           const currentText = newLines[index];
                           const previousText = newLines[index - 1];
+                          
+                          // Merge current text with previous line
                           newLines[index - 1] = previousText + currentText;
                           newLines.splice(index, 1);
                           setEditValue(newLines.join('\n'));
+                          
+                          // Focus the previous line and position cursor at the end
                           setFocusedIndex(index - 1);
                           setTimeout(() => {
                             const prevTextarea = textareaRefs.current[index - 1];
@@ -353,9 +368,12 @@ function UnifiedBulletEditor({
                             }
                           }, 10);
                         } else if (line === '' && editLines.length > 1) {
+                          // Backspace on empty line - remove the line
                           e.preventDefault();
                           const newLines = editLines.filter((_, i) => i !== index);
                           setEditValue(newLines.join('\n'));
+                          
+                          // Focus the previous line and position cursor at the end
                           setFocusedIndex(Math.max(0, index - 1));
                           setTimeout(() => {
                             const prevTextarea = textareaRefs.current[Math.max(0, index - 1)];
@@ -383,6 +401,7 @@ function UnifiedBulletEditor({
                       setFocusedIndex(index);
                     }}
                     onBlur={() => {
+                      // Only save on blur if we're not switching to another textarea
                       setTimeout(() => {
                         const activeElement = document.activeElement;
                         const isStillInEditMode = activeElement?.classList.contains('bullet-edit-textarea');
@@ -413,8 +432,10 @@ function UnifiedBulletEditor({
                     }}
                     rows={1}
                     onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
+                      // Auto-resize this specific textarea with better wrapping support
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
+                      // Add a small buffer to ensure all wrapped text is visible
                       target.style.height = (target.scrollHeight + 2) + 'px';
                     }}
                   />
@@ -489,8 +510,10 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   theme,
   imagePath
 }) => {
+  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
+  // Inline editing state for title only
   const [editingTitle, setEditingTitle] = useState(false);
   
   const slideStyles: React.CSSProperties = {
@@ -503,10 +526,10 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     alignItems: 'stretch',
     padding: '80px',
     position: 'relative',
-    fontFamily: currentTheme.fonts.contentFont,
-    marginBottom: '40px' // ensure gap after this slide
+    fontFamily: currentTheme.fonts.contentFont
   };
 
+  // Placeholder styles (left)
   const placeholderContainerStyles: React.CSSProperties = {
     flex: '0 0 50%',
     display: 'flex',
@@ -521,6 +544,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     margin: '0 auto'
   };
 
+  // Right (bullets) styles
   const bulletsContainerStyles: React.CSSProperties = {
     flex: '1 1 50%',
     fontSize: currentTheme.fonts.contentSize,
@@ -542,6 +566,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     lineHeight: '1.2'
   };
 
+  // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
       onUpdate({ title: newTitle });
@@ -553,18 +578,21 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     setEditingTitle(false);
   };
 
+  // Handle bullet points update
   const handleBulletsUpdate = (newBullets: string[]) => {
     if (onUpdate) {
       onUpdate({ bullets: newBullets });
     }
   };
 
+  // Handle image upload
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ imagePath: newImagePath });
     }
   };
 
+  // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   return (
@@ -580,6 +608,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
           className="inline-editor-title"
           style={{
             ...titleStyles,
+            // Ensure title behaves exactly like h1 element
             padding: '0',
             border: 'none',
             outline: 'none',
@@ -596,25 +625,27 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
         <h1 
           style={titleStyles}
           onClick={(e) => {
+            // Prevent click if element was just dragged
             if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
               e.preventDefault();
               e.stopPropagation();
               return;
             }
+            
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
-          className={`${isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''} draggable`}
+          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
           data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }} data-draggable="true">
         {/* Left: Clickable Image Placeholder */}
-        <div style={placeholderContainerStyles} className="draggable" data-draggable="true">
+        <div style={placeholderContainerStyles} data-draggable="true">
           <ClickableImagePlaceholder
             imagePath={imagePath}
             onImageUploaded={handleImageUploaded}
@@ -627,7 +658,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
           />
         </div>
         {/* Right: Unified bullet points editor */}
-        <div style={bulletsContainerStyles} className="draggable" data-draggable="true">
+        <div style={bulletsContainerStyles} data-draggable="true">
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle={bulletStyle}
