@@ -17433,6 +17433,9 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             # Ensure text presentation template exists
             template_id = await _ensure_text_presentation_template(pool)
             logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
+
+        except Exception as e:
+            pass
         
         # CONSISTENT NAMING: Use the same pattern as lesson presentations
         # Determine the project name - if connected to outline, use correct naming convention
