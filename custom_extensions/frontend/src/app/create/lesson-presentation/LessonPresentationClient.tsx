@@ -669,8 +669,9 @@ export default function LessonPresentationClient() {
               const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
               
               const newestProject = projects.find((project: any) => {
+                console.log('project', project);
                 const createdAt = new Date(project.created_at);
-                const isRecentlyCreated = true;
+                const isRecentlyCreated = createdAt >= twoMinutesAgo;
                 const isSlideType = project.design_microproduct_type === 'SlideDeckDisplay' || 
                                   project.design_microproduct_type === 'VideoLessonPresentationDisplay';
                 return isRecentlyCreated && isSlideType;
