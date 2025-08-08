@@ -7,16 +7,6 @@ import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, Ali
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
-// Helper to retry fetch up to 2 times on 504 Gateway Timeout
-async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
-  let attempt = 0;
-  while (true) {
-    const res = await fetch(input, init);
-    if (res.status !== 504 || attempt >= retries) return res;
-    attempt += 1;
-  }
-}
-
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
 const LoadingAnimation: React.FC<{ message?: string; fallbackMessage?: string }> = ({ message, fallbackMessage }) => (
@@ -489,45 +479,51 @@ export default function TextPresentationClient() {
       return;
     }
 
-    if (isFinalizing) return; // guard against double-click / duplicate requests
-    setIsFinalizing(true);
     setIsGenerating(true);
     setError(null);
 
+    // Create AbortController for this request
+    const abortController = new AbortController();
+    
+    // Add timeout safeguard to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+      setIsGenerating(false);
+      setError("Presentation finalization timed out. Please try again.");
+    }, 300000); // 5 minutes timeout
+
     try {
-      const finalizeBody: any = {
-        aiResponse: content,
-        outlineId: selectedOutlineId || undefined,
-        lesson: selectedLesson,
-        courseName: params?.get("courseName"),
-        language: language,
-        folderId: folderContext?.folderId || undefined,
-        chatSessionId: chatId || undefined,
-      };
-
-      console.log('[TEXT_PRESENTATION_FINALIZE] Starting finalization with body:', finalizeBody);
-
-      const response = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(finalizeBody),
+        body: JSON.stringify({
+          aiResponse: content,
+          outlineId: selectedOutlineId || undefined,
+          lesson: selectedLesson,
+          courseName: params?.get("courseName"),
+          language: language,
+          folderId: folderContext?.folderId || undefined,
+          chatSessionId: chatId || undefined,
+        }),
+        signal: abortController.signal
       });
+
+      // Clear timeout since request completed
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[TEXT_PRESENTATION_FINALIZE] Response not OK:', response.status, errorText);
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
       let data;
       
-      // Check if this is a streaming response by trying to get a reader (like course outlines)
+      // Check if this is a streaming response by trying to get a reader
       const reader = response.body?.getReader();
       if (reader) {
-        console.log('[TEXT_PRESENTATION_FINALIZE] Processing streaming response');
-        // Streaming response (assistant + parser path)
+        // Streaming response (like course outlines)
         const decoder = new TextDecoder();
         let buffer = "";
         let finalResult = null;
@@ -536,7 +532,6 @@ export default function TextPresentationClient() {
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
-            
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
             buffer = lines.pop() || "";
@@ -545,17 +540,15 @@ export default function TextPresentationClient() {
               if (!ln.trim()) continue;
               try {
                 const pkt = JSON.parse(ln);
-                console.log('[TEXT_PRESENTATION_FINALIZE] Received packet:', pkt);
                 if (pkt.type === "done") {
                   finalResult = pkt;
                   break;
                 } else if (pkt.type === "error") {
-                  throw new Error(pkt.message || pkt.text || "Unknown error occurred");
+                  throw new Error(pkt.message || "Unknown error occurred");
                 }
               } catch (e) {
                 // Skip invalid JSON lines unless it's an error we threw
                 if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                  console.error('[TEXT_PRESENTATION_FINALIZE] Error parsing JSON packet:', e);
                   throw e;
                 }
                 continue;
@@ -569,23 +562,20 @@ export default function TextPresentationClient() {
           if (buffer.trim() && !finalResult) {
             try {
               const pkt = JSON.parse(buffer.trim());
-              console.log('[TEXT_PRESENTATION_FINALIZE] Final buffer packet:', pkt);
               if (pkt.type === "done") {
                 finalResult = pkt;
               } else if (pkt.type === "error") {
-                throw new Error(pkt.message || pkt.text || "Unknown error occurred");
+                throw new Error(pkt.message || "Unknown error occurred");
               }
             } catch (e) {
               // Ignore parsing errors for final buffer unless it's an error we threw
               if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                console.error('[TEXT_PRESENTATION_FINALIZE] Error parsing final buffer:', e);
                 throw e;
               }
             }
           }
 
           if (!finalResult) {
-            console.error('[TEXT_PRESENTATION_FINALIZE] No final result received from streaming response');
             throw new Error("No final result received from streaming response");
           }
 
@@ -594,18 +584,14 @@ export default function TextPresentationClient() {
           reader.releaseLock();
         }
       } else {
-        console.log('[TEXT_PRESENTATION_FINALIZE] Processing regular JSON response');
-        // Regular JSON response (direct parser path)
+        // Regular JSON response (current behavior)
         data = await response.json();
       }
-
-      // Validate response has required id field
+      
+      // Validate response
       if (!data || !data.id) {
-        console.error('[TEXT_PRESENTATION_FINALIZE] Invalid response:', data);
         throw new Error("Invalid response from server: missing project ID");
       }
-
-      console.log('[TEXT_PRESENTATION_FINALIZE] Success! Redirecting to project:', data.id);
       
       setFinalProjectId(data.id);
       
@@ -613,14 +599,14 @@ export default function TextPresentationClient() {
       router.push(`/projects/view/${data.id}`);
       
     } catch (error: any) {
-      console.error('[TEXT_PRESENTATION_FINALIZE] Error during finalization:', error);
+      // Clear timeout on error
+      clearTimeout(timeoutId);
       
       // Handle specific error types
       if (error.name === 'AbortError') {
-        console.log('[TEXT_PRESENTATION_FINALIZE] Request was aborted');
+        console.log('Request was aborted');
         setError("Request was canceled. Please try again.");
       } else if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
-        console.error('[TEXT_PRESENTATION_FINALIZE] Network error:', error);
         setError("Network error occurred. Please check your connection and try again.");
       } else {
         console.error('Finalization failed:', error);
@@ -628,7 +614,6 @@ export default function TextPresentationClient() {
       }
     } finally {
       setIsGenerating(false);
-      setIsFinalizing(false);
     }
   };
 

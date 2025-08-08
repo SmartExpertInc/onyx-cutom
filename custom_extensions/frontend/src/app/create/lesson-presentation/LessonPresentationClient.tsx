@@ -43,12 +43,52 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
 
 // Helper to retry fetch up to 2 times on 504 Gateway Timeout
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
-  let attempt = 0;
-  while (true) {
-    const res = await fetch(input, init);
-    if (res.status !== 504 || attempt >= retries) return res;
-    attempt += 1;
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      // Add exponential backoff delay for retries
+      if (attempt > 0) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5 second delay
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      
+      // Set a reasonable timeout for the request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout per attempt
+      
+      const response = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Consider 5xx errors as retryable, but not 4xx errors
+      if (response.ok || (response.status >= 400 && response.status < 500)) {
+        return response;
+      }
+      
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      
+    } catch (error: any) {
+      lastError = error;
+      
+      // Don't retry on abort errors or client errors (4xx)
+      if (error.name === 'AbortError' || (error.message && error.message.includes('4'))) {
+        throw error;
+      }
+      
+      // If this was the last attempt, throw the error
+      if (attempt === retries) {
+        throw error;
+      }
+      
+      console.warn(`Request attempt ${attempt + 1} failed:`, error.message);
+    }
   }
+  
+  throw lastError!;
 }
 
 // Static SVG preview used for each theme tile
@@ -537,56 +577,62 @@ export default function LessonPresentationClient() {
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
-    if (isGenerating) return; // guard against double-click / duplicate requests
-    
-    // Stop any ongoing preview fetch so it doesn't flash / restart while finalizing
+    if (isGenerating) return;
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
     }
 
     setIsGenerating(true);
-    setLoading(false); // Ensure the preview spinner is not shown while we're in finalize mode
+    setLoading(false);
     setError(null);
+
+    // Create AbortController for this request
+    const abortController = new AbortController();
+
+    // Add timeout safeguard to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+      setIsGenerating(false);
+      setError("Finalization timed out. Please try again.");
+    }, 300000); // 5 minutes timeout
 
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = params?.get("prompt")?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
-      const finalizeBody: any = {
-        outlineProjectId: selectedOutlineId || undefined,
-        lessonTitle: derivedTitle,
-        lengthRange: lengthRangeForOption(lengthOption),
-        aiResponse: content,
-        chatSessionId: chatId || undefined,
-        slidesCount: slidesCount,
-        productType: productType, // Pass product type for video lesson vs regular presentation
-        folderId: folderContext?.folderId || undefined,
-        // Include selected theme
-        theme: selectedTheme,
-      };
-
-      console.log('[LESSON_FINALIZE] Starting finalization with body:', finalizeBody);
-
-      const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalizeBody),
+        body: JSON.stringify({
+          outlineProjectId: selectedOutlineId || undefined,
+          lessonTitle: derivedTitle,
+          lengthRange: lengthRangeForOption(lengthOption),
+          aiResponse: content,
+          chatSessionId: chatId || undefined,
+          slidesCount: slidesCount,
+          productType: productType, // Pass product type for video lesson vs regular presentation
+          folderId: folderContext?.folderId || undefined,
+          // Include selected theme
+          theme: selectedTheme,
+        }),
+        signal: abortController.signal
       });
+
+      // Clear timeout since request completed
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('[LESSON_FINALIZE] Response not OK:', res.status, errorText);
         throw new Error(errorText || `HTTP ${res.status}`);
       }
 
       let data;
       
-      // Check if this is a streaming response by trying to get a reader (like course outlines)
+      // Check if this is a streaming response by trying to get a reader
       const reader = res.body?.getReader();
       if (reader) {
-        console.log('[LESSON_FINALIZE] Processing streaming response');
-        // Streaming response (assistant + parser path)
+        // Streaming response (like course outlines)
         const decoder = new TextDecoder();
         let buffer = "";
         let finalResult = null;
@@ -595,7 +641,6 @@ export default function LessonPresentationClient() {
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
-            
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
             buffer = lines.pop() || "";
@@ -604,17 +649,15 @@ export default function LessonPresentationClient() {
               if (!ln.trim()) continue;
               try {
                 const pkt = JSON.parse(ln);
-                console.log('[LESSON_FINALIZE] Received packet:', pkt);
                 if (pkt.type === "done") {
                   finalResult = pkt;
                   break;
                 } else if (pkt.type === "error") {
-                  throw new Error(pkt.message || pkt.text || "Unknown error occurred");
+                  throw new Error(pkt.message || "Unknown error occurred");
                 }
               } catch (e) {
                 // Skip invalid JSON lines unless it's an error we threw
                 if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                  console.error('[LESSON_FINALIZE] Error parsing JSON packet:', e);
                   throw e;
                 }
                 continue;
@@ -628,23 +671,20 @@ export default function LessonPresentationClient() {
           if (buffer.trim() && !finalResult) {
             try {
               const pkt = JSON.parse(buffer.trim());
-              console.log('[LESSON_FINALIZE] Final buffer packet:', pkt);
               if (pkt.type === "done") {
                 finalResult = pkt;
               } else if (pkt.type === "error") {
-                throw new Error(pkt.message || pkt.text || "Unknown error occurred");
+                throw new Error(pkt.message || "Unknown error occurred");
               }
             } catch (e) {
               // Ignore parsing errors for final buffer unless it's an error we threw
               if (e instanceof Error && e.message !== "Unexpected token" && e.message !== "Unexpected end of JSON input") {
-                console.error('[LESSON_FINALIZE] Error parsing final buffer:', e);
                 throw e;
               }
             }
           }
 
           if (!finalResult) {
-            console.error('[LESSON_FINALIZE] No final result received from streaming response');
             throw new Error("No final result received from streaming response");
           }
 
@@ -653,35 +693,31 @@ export default function LessonPresentationClient() {
           reader.releaseLock();
         }
       } else {
-        console.log('[LESSON_FINALIZE] Processing regular JSON response');
-        // Regular JSON response (direct parser path)
+        // Regular JSON response (fallback)
         data = await res.json();
       }
-
-      // Validate response has required id field
-      if (!data || !data.id) {
-        console.error('[LESSON_FINALIZE] Invalid response:', data);
-        throw new Error("Invalid response from server: missing project ID");
+      
+      // Ensure we have a valid project ID before navigating
+      if (!data?.id) {
+        throw new Error("Invalid response: missing project ID");
       }
 
-      console.log('[LESSON_FINALIZE] Success! Redirecting to project:', data.id);
-      
       // Navigate immediately without delay to prevent cancellation
       router.push(`/projects/view/${data.id}`);
 
     } catch (e: any) {
+      // Clear timeout on error
+      clearTimeout(timeoutId);
+      
       // Reset generating state on any error
       setIsGenerating(false);
       setLoading(false);
       
-      console.error('[LESSON_FINALIZE] Error during finalization:', e);
-      
       // Handle specific error types
       if (e.name === 'AbortError') {
-        console.log('[LESSON_FINALIZE] Request was aborted');
+        console.log('Request was aborted');
         setError("Request was canceled. Please try again.");
       } else if (e.message?.includes('NetworkError') || e.message?.includes('Failed to fetch')) {
-        console.error('[LESSON_FINALIZE] Network error:', e);
         setError("Network error occurred. Please check your connection and try again.");
       } else {
         const errorMessage = e.message || "Failed to finalize lesson. Please try again.";
