@@ -493,7 +493,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           <PyramidSVG2 />
           <PyramidSVG3 />
         </div>
-        <div style={itemsContainerStyles} data-draggable="true">
+        <div style={itemsContainerStyles} >
           {Array.isArray(items) && items.slice(0, 3).map((item, index: number) => (
             <div key={index} style={itemWrapperStyles(index)}>
               {/* Item Heading */}
