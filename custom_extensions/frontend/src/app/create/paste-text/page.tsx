@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Home as HomeIcon, ChevronRight, FileText, Sparkles } from "lucide-react";
+import { Home as HomeIcon, ChevronRight, FileText, Sparkles, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
@@ -80,7 +80,7 @@ export default function PasteTextPage() {
           "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
       }}
     >
-      {/* Breadcrumb Navigation */}
+      {/* Breadcrumb Navigation
       <nav className="fixed top-6 left-6 flex items-center text-sm text-gray-600">
         <Link
           href="/projects"
@@ -97,7 +97,15 @@ export default function PasteTextPage() {
         </Link>
         <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
         <span className="text-gray-900 font-medium">{t('interface.pasteText.title', 'Paste Text')}</span>
-      </nav>
+      </nav> */}
+
+      {/* back button absolute top-left */}
+      <Link
+        href="/create"
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+      >
+        <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
+      </Link>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
