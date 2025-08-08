@@ -225,7 +225,51 @@ export default function TextPresentationClient() {
 
   const handleTitleSave = (lessonIndex: number) => {
     setEditingLessonId(null);
-    // Here you could also update the original content if needed
+    // Update the original content with new title
+    updateContentWithNewTitle(lessonIndex);
+  };
+
+  const updateContentWithNewTitle = (lessonIndex: number) => {
+    const newTitle = editedTitles[lessonIndex];
+    if (!newTitle) return;
+
+    const lessons = parseContentIntoLessons(content);
+    if (lessonIndex >= lessons.length) return;
+
+    const oldTitle = lessons[lessonIndex].title;
+    
+    // Find and replace the old title with new title in content
+    // Look for markdown headers (## or ###) or plain text titles
+    const patterns = [
+      new RegExp(`^(#{1,3}\\s*)${escapeRegExp(oldTitle)}`, 'gm'),
+      new RegExp(`^${escapeRegExp(oldTitle)}$`, 'gm')
+    ];
+
+    let updatedContent = content;
+    for (const pattern of patterns) {
+      if (pattern.test(updatedContent)) {
+        updatedContent = updatedContent.replace(pattern, (match) => {
+          // Preserve markdown formatting if it exists
+          const headerMatch = match.match(/^(#{1,3}\s*)/);
+          return headerMatch ? headerMatch[1] + newTitle : newTitle;
+        });
+        break;
+      }
+    }
+
+    setContent(updatedContent);
+    
+    // Clear the edited title since it's now part of the main content
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[lessonIndex];
+      return newTitles;
+    });
+  };
+
+  // Helper function to escape special regex characters
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
 
   const handleTitleCancel = (lessonIndex: number) => {
@@ -983,32 +1027,18 @@ export default function TextPresentationClient() {
                       <div className="flex-1 p-4">
                         <div className="mb-2">
                           {editingLessonId === idx ? (
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="text"
-                                value={editedTitles[idx] || lesson.title}
-                                onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                className="flex-1 text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
-                                autoFocus
-                                onBlur={() => handleTitleSave(idx)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleTitleSave(idx);
-                                  if (e.key === 'Escape') handleTitleCancel(idx);
-                                }}
-                              />
-                              <button
-                                onClick={() => handleTitleSave(idx)}
-                                className="text-green-600 hover:text-green-800 text-sm px-2"
-                              >
-                                ✓
-                              </button>
-                              <button
-                                onClick={() => handleTitleCancel(idx)}
-                                className="text-red-600 hover:text-red-800 text-sm px-2"
-                              >
-                                ✕
-                              </button>
-                            </div>
+                            <input
+                              type="text"
+                              value={editedTitles[idx] || lesson.title}
+                              onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                              className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
+                              autoFocus
+                              onBlur={() => handleTitleSave(idx)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleTitleSave(idx);
+                                if (e.key === 'Escape') handleTitleCancel(idx);
+                              }}
+                            />
                           ) : (
                             <h4 
                               className="text-[#20355D] text-base font-semibold cursor-pointer hover:text-[#0066FF] transition-colors"
