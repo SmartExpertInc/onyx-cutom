@@ -346,138 +346,144 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
       <div style={gridStyles}>
         {Array.isArray(items) && items.length >= 3 ? (
           items.slice(0, 3).map((item: BigNumberItem, idx: number) => (
-            <div key={idx} style={itemStyles} data-draggable="true">
+            <div key={idx} style={itemStyles}>
               {/* Item Value */}
-              {isEditable && editingItemValues.includes(idx) ? (
-                <InlineEditor
-                  initialValue={item.value || ''}
-                  onSave={(newValue) => handleItemValueSave(idx, newValue)}
-                  onCancel={() => handleItemValueCancel(idx)}
-                  multiline={false}
-                  placeholder="Enter value..."
-                  className="inline-editor-item-value"
-                  style={{
-                    ...valueStyles,
-                    // Ensure value behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={valueStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (isEditable) {
-                      startEditingItemValue(idx);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.value || 'Click to add value'}
-                </div>
-              )}
+              <div data-draggable="true" style={{ width: '100%' }}>
+                {isEditable && editingItemValues.includes(idx) ? (
+                  <InlineEditor
+                    initialValue={item.value || ''}
+                    onSave={(newValue) => handleItemValueSave(idx, newValue)}
+                    onCancel={() => handleItemValueCancel(idx)}
+                    multiline={false}
+                    placeholder="Enter value..."
+                    className="inline-editor-item-value"
+                    style={{
+                      ...valueStyles,
+                      // Ensure value behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={valueStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemValue(idx);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {item.value || 'Click to add value'}
+                  </div>
+                )}
+              </div>
 
               {/* Item Label */}
-              {isEditable && editingItemLabels.includes(idx) ? (
-                <InlineEditor
-                  initialValue={item.label || ''}
-                  onSave={(newLabel) => handleItemLabelSave(idx, newLabel)}
-                  onCancel={() => handleItemLabelCancel(idx)}
-                  multiline={true}
-                  placeholder="Enter label..."
-                  className="inline-editor-item-label"
-                  style={{
-                    ...labelStyles,
-                    // Ensure label behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={labelStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (isEditable) {
-                      startEditingItemLabel(idx);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.label || 'Click to add label'}
-                </div>
-              )}
+              <div data-draggable="true" style={{ width: '100%' }}>
+                {isEditable && editingItemLabels.includes(idx) ? (
+                  <InlineEditor
+                    initialValue={item.label || ''}
+                    onSave={(newLabel) => handleItemLabelSave(idx, newLabel)}
+                    onCancel={() => handleItemLabelCancel(idx)}
+                    multiline={true}
+                    placeholder="Enter label..."
+                    className="inline-editor-item-label"
+                    style={{
+                      ...labelStyles,
+                      // Ensure label behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={labelStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemLabel(idx);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {item.label || 'Click to add label'}
+                  </div>
+                )}
+              </div>
 
               {/* Item Description */}
-              {isEditable && editingItemDescriptions.includes(idx) ? (
-                <InlineEditor
-                  initialValue={item.description || ''}
-                  onSave={(newDescription) => handleItemDescriptionSave(idx, newDescription)}
-                  onCancel={() => handleItemDescriptionCancel(idx)}
-                  multiline={true}
-                  placeholder="Enter description..."
-                  className="inline-editor-item-description"
-                  style={{
-                    ...descriptionStyles,
-                    // Ensure description behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={descriptionStyles}
-                  onClick={() => {
-                    const el = document.querySelector(`[data-draggable="true"]`);
-                    // Fallback to closest wrapper
-                    const wrapper = (document.activeElement as HTMLElement)?.closest?.('[data-draggable="true"]') || null;
-                    if (wrapper && (wrapper as HTMLElement).getAttribute('data-just-dragged') === 'true') {
-                      return;
-                    }
-                    if (isEditable) {
-                      startEditingItemDescription(idx);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.description || 'Click to add description'}
-                </div>
-              )}
+              <div data-draggable="true" style={{ width: '100%' }}>
+                {isEditable && editingItemDescriptions.includes(idx) ? (
+                  <InlineEditor
+                    initialValue={item.description || ''}
+                    onSave={(newDescription) => handleItemDescriptionSave(idx, newDescription)}
+                    onCancel={() => handleItemDescriptionCancel(idx)}
+                    multiline={true}
+                    placeholder="Enter description..."
+                    className="inline-editor-item-description"
+                    style={{
+                      ...descriptionStyles,
+                      // Ensure description behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={descriptionStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemDescription(idx);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {item.description || 'Click to add description'}
+                  </div>
+                )}
+              </div>
             </div>
           ))
         ) : (
