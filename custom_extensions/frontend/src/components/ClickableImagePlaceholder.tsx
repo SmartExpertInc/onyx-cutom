@@ -134,11 +134,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           `}
           style={{
             ...(style || {}),
-            width: (style?.width as any) || undefined,
-            height: (style?.height as any) || undefined
+            // Let component control size via widthPx/heightPx props
           }}
-          widthPx={typeof style?.width === 'number' ? (style?.width as number) : undefined}
-          heightPx={typeof style?.height === 'number' ? (style?.height as number) : undefined}
+          widthPx={widthPx}
+          heightPx={heightPx}
           minWidthPx={120}
           minHeightPx={120}
           onResize={handleResize}
@@ -151,10 +150,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               alt={description}
               className="absolute inset-0"
               style={{
-                width: objectFitMode === 'fill' ? '100%' : 'auto',
-                height: objectFitMode === 'fill' ? '100%' : 'auto',
+                width: '100%',
+                height: '100%',
                 objectFit: objectFitMode,
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                transform: objectFitMode === 'cover' ? `translate(${offset.x}px, ${offset.y}px) scale(${scale})` : 'none',
                 transformOrigin: 'center center',
                 maxWidth: 'none',
                 maxHeight: 'none'
