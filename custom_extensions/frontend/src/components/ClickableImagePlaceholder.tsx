@@ -39,7 +39,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   prompt = 'relevant illustration',
   isEditable = true,
   className = '',
-  style = {}
+  style = {},
+  widthPx,
+  heightPx,
+  objectFit,
+  imageScale,
+  imageOffset,
+  onSizeTransformChange
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [objectFitMode, setObjectFitMode] = useState<'contain'|'cover'|'fill'>(style?.objectFit as any || 'cover');
