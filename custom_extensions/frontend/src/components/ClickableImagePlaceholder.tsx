@@ -48,10 +48,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   onSizeTransformChange
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
-  // Default to natural aspect ratio behavior; remove forced fill-cover
-  const [objectFitMode, setObjectFitMode] = useState<'contain'|'cover'|'fill'>(objectFit || 'contain');
-  const [scale, setScale] = useState<number>(typeof imageScale === 'number' ? imageScale : 1);
-  const [offset, setOffset] = useState<{x:number;y:number}>(imageOffset || { x: 0, y: 0 });
+  // Always contain
+  const objectFitMode: 'contain' = 'contain';
   const imgWrapperRef = useRef<HTMLDivElement>(null);
 
   const sizeClasses = {
@@ -75,22 +73,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleImageUploaded = (newImagePath: string) => {
     onImageUploaded(newImagePath);
-    // After upload: adjust placeholder to keep original image aspect ratio
-    // Create temporary image to read intrinsic dimensions
+    // After upload: adjust placeholder to image aspect ratio and fit within current default box
     const tmp = new window.Image();
     tmp.onload = () => {
-      const w = tmp.naturalWidth || tmp.width;
-      const h = tmp.naturalHeight || tmp.height;
-      if (w > 0 && h > 0) {
-        const ratio = w / h;
-        // Use a reasonable base height and compute width from ratio
-        const targetH = 320; // base height
-        const targetW = Math.round(targetH * ratio);
-        onSizeTransformChange?.({ widthPx: targetW, heightPx: targetH, objectFit: 'contain', imageScale: 1, imageOffset: { x: 0, y: 0 } });
-        setObjectFitMode('contain');
-        setScale(1);
-        setOffset({ x: 0, y: 0 });
-      }
+      const imgW = tmp.naturalWidth || tmp.width;
+      const imgH = tmp.naturalHeight || tmp.height;
+      const wrapperEl = imgWrapperRef.current?.parentElement as HTMLElement | null;
+      const rect = wrapperEl?.getBoundingClientRect();
+      if (!imgW || !imgH || !rect) return;
+
+      const scale = Math.min((rect.width || imgW) / imgW, (rect.height || imgH) / imgH) || 1;
+      const targetW = Math.max(1, Math.round(imgW * scale));
+      const targetH = Math.max(1, Math.round(imgH * scale));
+
+      onSizeTransformChange?.({ widthPx: targetW, heightPx: targetH, objectFit: 'contain', imageScale: 1, imageOffset: { x: 0, y: 0 } });
     };
     tmp.src = newImagePath;
   };
@@ -116,11 +112,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
   };
 
-  const applyPan = (dx: number, dy: number) => {
-    const next = { x: offset.x + dx, y: offset.y + dy };
-    setOffset(next);
-    onSizeTransformChange?.({ imageOffset: next });
-  };
+  // Panning disabled in contain mode
 
   // If we have an image, display it with replace overlay and image controls
   if (imagePath) {
@@ -152,37 +144,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: objectFitMode,
-                transform: objectFitMode === 'cover' ? `translate(${offset.x}px, ${offset.y}px) scale(${scale})` : 'none',
+                 objectFit: 'contain',
+                 transform: 'none',
                 transformOrigin: 'center center',
                 maxWidth: 'none',
                 maxHeight: 'none'
               }}
               draggable={false}
-              onPointerDown={(e) => {
-                // Allow panning only in cover mode (crop)
-                if (!isEditable || objectFitMode !== 'cover') return;
-                const startX = e.clientX; const startY = e.clientY;
-                const move = (ev: PointerEvent) => {
-                  applyPan(ev.clientX - startX, ev.clientY - startY);
-                };
-                const up = () => {
-                  document.removeEventListener('pointermove', move as any);
-                  document.removeEventListener('pointerup', up as any);
-                };
-                document.addEventListener('pointermove', move as any);
-                document.addEventListener('pointerup', up as any, { once: true });
-              }}
+              
             />
-            {isEditable && (
-              <div className="absolute left-2 bottom-2 z-20 flex items-center gap-2 bg-black/50 text-white rounded px-2 py-1 select-none">
-                <button
-                  className="text-xs px-2 py-0.5 rounded hover:bg-white/10"
-                  onClick={(e) => { e.stopPropagation(); const m = objectFitMode === 'contain' ? 'cover' : 'contain'; setObjectFitMode(m); onSizeTransformChange?.({ objectFit: m }); }}
-                  title="Toggle fit mode (contain/cover)"
-                >{objectFitMode}</button>
-              </div>
-            )}
+            {/* No fit toggle; always contain */}
             {isEditable && (
               <div 
                 className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
