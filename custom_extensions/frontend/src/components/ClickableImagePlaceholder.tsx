@@ -48,9 +48,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   onSizeTransformChange
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [objectFitMode, setObjectFitMode] = useState<'contain'|'cover'|'fill'>(style?.objectFit as any || 'cover');
-  const [scale, setScale] = useState<number>(1);
-  const [offset, setOffset] = useState<{x:number;y:number}>({ x: 0, y: 0 });
+  // Default to natural aspect ratio behavior; remove forced fill-cover
+  const [objectFitMode, setObjectFitMode] = useState<'contain'|'cover'|'fill'>(objectFit || 'contain');
+  const [scale, setScale] = useState<number>(typeof imageScale === 'number' ? imageScale : 1);
+  const [offset, setOffset] = useState<{x:number;y:number}>(imageOffset || { x: 0, y: 0 });
   const imgWrapperRef = useRef<HTMLDivElement>(null);
 
   const sizeClasses = {
@@ -74,6 +75,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleImageUploaded = (newImagePath: string) => {
     onImageUploaded(newImagePath);
+    // After upload: adjust placeholder to keep original image aspect ratio
+    // Create temporary image to read intrinsic dimensions
+    const tmp = new Image();
+    tmp.onload = () => {
+      const w = tmp.naturalWidth || tmp.width;
+      const h = tmp.naturalHeight || tmp.height;
+      if (w > 0 && h > 0) {
+        const ratio = w / h;
+        // Use a reasonable base height and compute width from ratio
+        const targetH = 320; // base height
+        const targetW = Math.round(targetH * ratio);
+        onSizeTransformChange?.({ widthPx: targetW, heightPx: targetH, objectFit: 'contain', imageScale: 1, imageOffset: { x: 0, y: 0 } });
+        setObjectFitMode('contain');
+        setScale(1);
+        setOffset({ x: 0, y: 0 });
+      }
+    };
+    tmp.src = newImagePath;
   };
 
   // Derived sizes for default size classes when explicit width/height not provided
@@ -142,6 +161,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               }}
               draggable={false}
               onPointerDown={(e) => {
+                // Allow panning only in cover mode (crop)
                 if (!isEditable || objectFitMode !== 'cover') return;
                 const startX = e.clientX; const startY = e.clientY;
                 const move = (ev: PointerEvent) => {
@@ -159,23 +179,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               <div className="absolute left-2 bottom-2 z-20 flex items-center gap-2 bg-black/50 text-white rounded px-2 py-1 select-none">
                 <button
                   className="text-xs px-2 py-0.5 rounded hover:bg-white/10"
-                  onClick={(e) => { e.stopPropagation(); const m = objectFitMode === 'contain' ? 'cover' : objectFitMode === 'cover' ? 'fill' : 'contain'; setObjectFitMode(m); onSizeTransformChange?.({ objectFit: m }); }}
-                  title="Toggle fit mode (contain/cover/fill)"
+                  onClick={(e) => { e.stopPropagation(); const m = objectFitMode === 'contain' ? 'cover' : 'contain'; setObjectFitMode(m); onSizeTransformChange?.({ objectFit: m }); }}
+                  title="Toggle fit mode (contain/cover)"
                 >{objectFitMode}</button>
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] opacity-80">Scale</span>
-                  <input
-                    type="range"
-                    min={0.25}
-                    max={3}
-                    step={0.05}
-                    value={scale}
-                    onChange={(e) => { const v = parseFloat(e.target.value); setScale(v); onSizeTransformChange?.({ imageScale: v }); }}
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ width: 80 }}
-                  />
-                  <button className="text-xs px-1 py-0.5 rounded hover:bg-white/10" onClick={(e) => { e.stopPropagation(); setScale(1); setOffset({ x: 0, y: 0 }); setObjectFitMode('cover'); onSizeTransformChange?.({ imageScale: 1, imageOffset: { x:0,y:0 }, objectFit: 'cover' }); }} title="Reset">Reset</button>
-                </div>
               </div>
             )}
             {isEditable && (

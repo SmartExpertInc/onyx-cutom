@@ -51,6 +51,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     widthPx: Math.max(minWidthPx, widthPx || 0),
     heightPx: Math.max(minHeightPx, heightPx || 0)
   }));
+  const aspectOnStartRef = useRef<number | null>(null);
   const [isKeyboardResizing, setIsKeyboardResizing] = useState(false);
 
   // Sync external size
@@ -69,6 +70,27 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     if (size.widthPx > 0) el.style.width = `${size.widthPx}px`;
     if (size.heightPx > 0) el.style.height = `${size.heightPx}px`;
   }, [size.widthPx, size.heightPx]);
+
+  // If no explicit size provided, measure content once to preserve template default size
+  useLayoutEffect(() => {
+    if (!wrapperRef.current) return;
+    if ((widthPx && heightPx) || (size.widthPx > 0 && size.heightPx > 0)) return;
+    const el = wrapperRef.current;
+    const content = el.firstElementChild as HTMLElement | null;
+    if (content) {
+      const rect = content.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const init = {
+          widthPx: Math.max(minWidthPx, Math.round(rect.width)),
+          heightPx: Math.max(minHeightPx, Math.round(rect.height))
+        };
+        setSize(init);
+        if (onResize) onResize(init);
+        if (onResizeCommit) onResizeCommit(init);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const commitResize = useCallback((finalSize: { widthPx: number; heightPx: number }) => {
     if (onResizeCommit) onResizeCommit(finalSize);
@@ -94,6 +116,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     startRectRef.current = { x: e.clientX, y: e.clientY, w: rect.width, h: rect.height };
     activeHandleRef.current = handle;
     isResizingRef.current = true;
+    aspectOnStartRef.current = rect.width > 0 && rect.height > 0 ? rect.width / rect.height : null;
     (document.body as any).classList?.add('resizing');
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
@@ -113,15 +136,13 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     if (handle.includes('w')) newW = w - dx;
     if (handle.includes('n')) newH = h - dy;
 
-    // Aspect ratio lock when Shift is pressed
-    const ratio = w / h;
-    const shiftPressed = (e as any).shiftKey || lockAspectRatio;
-    if (shiftPressed && isFinite(ratio) && ratio > 0) {
-      if (Math.abs(dx) > Math.abs(dy)) {
-        newH = newW / ratio;
-      } else {
-        newW = newH * ratio;
-      }
+    // Always keep aspect ratio when resizing from corners
+    const ratio = aspectOnStartRef.current || (w / h);
+    const isCorner = handle === 'nw' || handle === 'ne' || handle === 'se' || handle === 'sw';
+    const keepRatio = lockAspectRatio || isCorner;
+    if (keepRatio && isFinite(ratio) && ratio > 0) {
+      // Prefer width change and derive height
+      newH = newW / ratio;
     }
     updateSize({ widthPx: newW, heightPx: newH }, false);
   };
@@ -155,13 +176,13 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     let next = { ...size };
     switch (e.key) {
       case 'ArrowRight':
-        next.widthPx += step; changed = true; break;
+        next.widthPx += step; next.heightPx = Math.round(next.widthPx / ((size.widthPx || 1) / (size.heightPx || 1))); changed = true; break;
       case 'ArrowLeft':
-        next.widthPx -= step; changed = true; break;
+        next.widthPx -= step; next.heightPx = Math.round(next.widthPx / ((size.widthPx || 1) / (size.heightPx || 1))); changed = true; break;
       case 'ArrowDown':
-        next.heightPx += step; changed = true; break;
+        next.heightPx += step; next.widthPx = Math.round(next.heightPx * ((size.widthPx || 1) / (size.heightPx || 1))); changed = true; break;
       case 'ArrowUp':
-        next.heightPx -= step; changed = true; break;
+        next.heightPx -= step; next.widthPx = Math.round(next.heightPx * ((size.widthPx || 1) / (size.heightPx || 1))); changed = true; break;
       case 'Enter':
         if (isKeyboardResizing) {
           e.preventDefault();
@@ -184,7 +205,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
 
   const handles = isEditable ? (
     <>
-      {['nw','n','ne','e','se','s','sw','w'].map(dir => (
+      {['nw','ne','se','sw'].map(dir => (
         <div
           key={dir}
           role="button"
@@ -224,13 +245,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
           border-radius: 2px; z-index: 30; opacity: 0; transition: opacity 120ms ease;
           touch-action: none; cursor: pointer;
         }
-        [data-resize-handle="n"], [data-resize-handle="s"] { left: 50%; transform: translateX(-50%); }
-        [data-resize-handle="e"], [data-resize-handle="w"] { top: 50%; transform: translateY(-50%); }
         [data-resize-handle="nw"], [data-resize-handle="ne"], [data-resize-handle="se"], [data-resize-handle="sw"] { }
-        [data-resize-handle="n"] { top: -6px; cursor: ns-resize; }
-        [data-resize-handle="s"] { bottom: -6px; cursor: ns-resize; }
-        [data-resize-handle="e"] { right: -6px; cursor: ew-resize; }
-        [data-resize-handle="w"] { left: -6px; cursor: ew-resize; }
         [data-resize-handle="nw"] { top: -6px; left: -6px; cursor: nwse-resize; }
         [data-resize-handle="ne"] { top: -6px; right: -6px; cursor: nesw-resize; }
         [data-resize-handle="se"] { bottom: -6px; right: -6px; cursor: nwse-resize; }
