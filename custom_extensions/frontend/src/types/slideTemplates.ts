@@ -121,6 +121,12 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
   imagePath?: string; // Path to uploaded image
+  // New optional size/transform fields for placeholder/image
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -148,6 +154,12 @@ export interface BulletPointsProps extends BaseTemplateProps {
   imageAlt?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
   imagePath?: string;
+  // Optional size/transform fields for left placeholder image
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {

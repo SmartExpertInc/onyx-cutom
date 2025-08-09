@@ -592,6 +592,12 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     }
   };
 
+  const handleSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      onUpdate(payload);
+    }
+  };
+
   // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
@@ -656,6 +662,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             prompt={displayPrompt}
             isEditable={isEditable}
             style={placeholderStyles}
+            onSizeTransformChange={handleSizeTransformChange}
           />
         </div>
         

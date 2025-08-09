@@ -264,6 +264,12 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     }
   };
 
+  const handleSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      onUpdate(payload);
+    }
+  };
+
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
   const displayPrompt = imagePrompt || imageAlt || "man sitting on a chair";
 
@@ -280,6 +286,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
+          onSizeTransformChange={handleSizeTransformChange}
         />
       </div>
 

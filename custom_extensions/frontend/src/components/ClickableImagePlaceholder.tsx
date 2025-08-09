@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Image, Upload, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
+import ResizablePlaceholder from './ResizablePlaceholder';
 
 interface ClickableImagePlaceholderProps {
   imagePath?: string;
@@ -14,6 +15,19 @@ interface ClickableImagePlaceholderProps {
   isEditable?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  // New optional sizing/transform props
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number; // 1.0 = natural fit
+  imageOffset?: { x: number; y: number };
+  onSizeTransformChange?: (payload: {
+    widthPx?: number;
+    heightPx?: number;
+    objectFit?: 'contain' | 'cover' | 'fill';
+    imageScale?: number;
+    imageOffset?: { x: number; y: number };
+  }) => void;
 }
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
@@ -28,6 +42,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   style = {}
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [objectFitMode, setObjectFitMode] = useState<'contain'|'cover'|'fill'>(style?.objectFit as any || 'cover');
+  const [scale, setScale] = useState<number>(1);
+  const [offset, setOffset] = useState<{x:number;y:number}>({ x: 0, y: 0 });
+  const imgWrapperRef = useRef<HTMLDivElement>(null);
 
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
@@ -52,43 +70,123 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onImageUploaded(newImagePath);
   };
 
-  // If we have an image, display it with replace overlay
+  // Derived sizes for default size classes when explicit width/height not provided
+  const defaultPixelSize = useMemo(() => {
+    switch (size) {
+      case 'LARGE': return { w: 512, h: 384 };
+      case 'MEDIUM': return { w: 384, h: 256 };
+      case 'SMALL': return { w: 256, h: 192 };
+      default: return { w: 384, h: 256 };
+    }
+  }, [size]);
+
+  const effectiveWidth = style?.width ? undefined : undefined; // let class control unless explicit
+  const effectiveHeight = style?.height ? undefined : undefined;
+
+  const handleResize = (s: { widthPx: number; heightPx: number }) => {
+    onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
+  };
+
+  const handleResizeCommit = (s: { widthPx: number; heightPx: number }) => {
+    onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
+  };
+
+  const applyPan = (dx: number, dy: number) => {
+    const next = { x: offset.x + dx, y: offset.y + dy };
+    setOffset(next);
+    onSizeTransformChange?.({ imageOffset: next });
+  };
+
+  // If we have an image, display it with replace overlay and image controls
   if (imagePath) {
     return (
       <>
-        <div 
+        <ResizablePlaceholder
+          isEditable={isEditable}
           className={`
-            ${sizeClasses[size]} 
             ${positionClasses[position]} 
-            rounded-lg overflow-hidden relative
-            ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-            ${className}
+            rounded-lg overflow-hidden relative ${className}
           `}
-          style={style}
+          style={{
+            ...(style || {}),
+            width: (style?.width as any) || undefined,
+            height: (style?.height as any) || undefined
+          }}
+          widthPx={typeof style?.width === 'number' ? (style?.width as number) : undefined}
+          heightPx={typeof style?.height === 'number' ? (style?.height as number) : undefined}
+          minWidthPx={120}
+          minHeightPx={120}
+          onResize={handleResize}
+          onResizeCommit={handleResizeCommit}
+          ariaLabel="Resizable image placeholder"
         >
-          <img 
-            src={imagePath} 
-            alt={description}
-            className="w-full h-full object-cover"
-            style={{ cursor: isEditable ? 'pointer' : 'default' }}
-          />
-          {isEditable && (
-            <div 
-              className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
-              onClick={handleClick}
-              title="Click to replace image"
+          <div ref={imgWrapperRef} className="w-full h-full relative">
+            <img
+              src={imagePath}
+              alt={description}
+              className="absolute inset-0"
               style={{
-                pointerEvents: 'auto',
-                zIndex: 10
+                width: objectFitMode === 'fill' ? '100%' : 'auto',
+                height: objectFitMode === 'fill' ? '100%' : 'auto',
+                objectFit: objectFitMode,
+                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                transformOrigin: 'center center',
+                maxWidth: 'none',
+                maxHeight: 'none'
               }}
-            >
-              <div className="text-center text-white">
-                <Replace className="w-6 h-6 mx-auto mb-1" />
-                <div className="text-xs font-medium">Replace</div>
+              draggable={false}
+              onPointerDown={(e) => {
+                if (!isEditable || objectFitMode !== 'cover') return;
+                const startX = e.clientX; const startY = e.clientY;
+                const move = (ev: PointerEvent) => {
+                  applyPan(ev.clientX - startX, ev.clientY - startY);
+                };
+                const up = () => {
+                  document.removeEventListener('pointermove', move as any);
+                  document.removeEventListener('pointerup', up as any);
+                };
+                document.addEventListener('pointermove', move as any);
+                document.addEventListener('pointerup', up as any, { once: true });
+              }}
+            />
+            {isEditable && (
+              <div className="absolute left-2 bottom-2 z-20 flex items-center gap-2 bg-black/50 text-white rounded px-2 py-1 select-none">
+                <button
+                  className="text-xs px-2 py-0.5 rounded hover:bg-white/10"
+                  onClick={(e) => { e.stopPropagation(); const m = objectFitMode === 'contain' ? 'cover' : objectFitMode === 'cover' ? 'fill' : 'contain'; setObjectFitMode(m); onSizeTransformChange?.({ objectFit: m }); }}
+                  title="Toggle fit mode (contain/cover/fill)"
+                >{objectFitMode}</button>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] opacity-80">Scale</span>
+                  <input
+                    type="range"
+                    min={0.25}
+                    max={3}
+                    step={0.05}
+                    value={scale}
+                    onChange={(e) => { const v = parseFloat(e.target.value); setScale(v); onSizeTransformChange?.({ imageScale: v }); }}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ width: 80 }}
+                  />
+                  <button className="text-xs px-1 py-0.5 rounded hover:bg-white/10" onClick={(e) => { e.stopPropagation(); setScale(1); setOffset({ x: 0, y: 0 }); setObjectFitMode('cover'); onSizeTransformChange?.({ imageScale: 1, imageOffset: { x:0,y:0 }, objectFit: 'cover' }); }} title="Reset">Reset</button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+            {isEditable && (
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
+                onClick={handleClick}
+                title="Click to replace image"
+                style={{ pointerEvents: 'auto', zIndex: 10 }}
+              >
+                <div className="text-center text-white">
+                  <Replace className="w-6 h-6 mx-auto mb-1" />
+                  <div className="text-xs font-medium">Replace</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </ResizablePlaceholder>
 
         <PresentationImageUpload
           isOpen={showUploadModal}
@@ -103,22 +201,26 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Otherwise show placeholder
   return (
     <>
-      <div 
+      <ResizablePlaceholder
+        isEditable={isEditable}
         className={`
-          ${sizeClasses[size]} 
           ${positionClasses[position]} 
           bg-gradient-to-br from-blue-100 to-purple-100 
           border-2 border-dashed border-gray-300 
           rounded-lg flex items-center justify-center 
           text-gray-500 text-sm
           ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-          ${isEditable ? 'cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
+          ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
           ${className}
         `}
         style={style}
-        onClick={handleClick}
+        minWidthPx={120}
+        minHeightPx={120}
+        onResize={(s) => onSizeTransformChange?.(s)}
+        onResizeCommit={(s) => onSizeTransformChange?.(s)}
+        ariaLabel="Resizable image placeholder"
       >
-        <div className="text-center p-4">
+        <div className="text-center p-4" onClick={handleClick} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
           <Image className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <div className="font-medium">{size} Image</div>
           <div className="text-xs mt-1 opacity-75">{description}</div>
@@ -133,7 +235,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             </div>
           )}
         </div>
-      </div>
+      </ResizablePlaceholder>
 
       <PresentationImageUpload
         isOpen={showUploadModal}
