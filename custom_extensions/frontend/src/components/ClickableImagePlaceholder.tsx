@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useRef, useState } from 'react';
-import { Image, Upload, Replace } from 'lucide-react';
+import { Image as ImageIcon, Upload, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import ResizablePlaceholder from './ResizablePlaceholder';
 
@@ -77,7 +77,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onImageUploaded(newImagePath);
     // After upload: adjust placeholder to keep original image aspect ratio
     // Create temporary image to read intrinsic dimensions
-    const tmp = new Image();
+    const tmp = new window.Image();
     tmp.onload = () => {
       const w = tmp.naturalWidth || tmp.width;
       const h = tmp.naturalHeight || tmp.height;
@@ -233,7 +233,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         ariaLabel="Resizable image placeholder"
       >
         <div className="text-center p-4" onClick={handleClick} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
-          <Image className="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <div className="font-medium">{size} Image</div>
           <div className="text-xs mt-1 opacity-75">{description}</div>
           {prompt && (
