@@ -453,7 +453,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           </div>
         </div>
       </div>
-
+      <h1>Hello</h1>
       {/* Main Content Area - Static white container */}
       <div 
         className="main-content"
