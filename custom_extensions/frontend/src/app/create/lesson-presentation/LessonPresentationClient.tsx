@@ -232,11 +232,11 @@ export default function LessonPresentationClient() {
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   
   // Effect to regenerate content when language changes
-  useEffect(() => {
-    if (content && loading) {
-      handleApplyLessonEdit();
-    }
-  }, [language]);
+  // useEffect(() => {
+  //   if (content && !loading) {
+  //     handleApplyLessonEdit();
+  //   }
+  // }, [language]);
 
 
 
@@ -274,6 +274,8 @@ export default function LessonPresentationClient() {
   console.log("content", content);
   console.log("loading", loading);
   console.log("streamDone", streamDone);
+  console.log("isGenerating", isGenerating);
+  console.log("textareaVisible", textareaVisible);
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
