@@ -22,6 +22,9 @@ interface ClickableImagePlaceholderProps {
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number; // 1.0 = natural fit
   imageOffset?: { x: number; y: number };
+  // NEW: mode-aware behavior
+  imageMode?: 'full-side' | 'free-proportion';
+  lockedSide?: 'width' | 'height';
   onSizeTransformChange?: (payload: {
     widthPx?: number;
     heightPx?: number;
