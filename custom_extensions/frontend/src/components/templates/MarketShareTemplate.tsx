@@ -3,33 +3,15 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { BaseTemplateProps } from '@/types/slideTemplates';
-import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-// Market Share Template Props
-export interface MarketShareTemplateProps extends BaseTemplateProps {
-  title: string;
-  subtitle?: string;
-  chartData: Array<{
-    label: string;
-    description: string;
-    percentage: number;
-    color: string;
-    year?: string;
-  }>;
-  backgroundColor?: string;
-  titleColor?: string;
-  textColor?: string;
-  accentColor?: string;
-  bottomText?: string;
-  theme?: any;
-}
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { MarketShareTemplateProps } from '@/types/slideTemplates';
 
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
   onCancel: () => void;
   multiline?: boolean;
+  placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -38,7 +20,8 @@ function InlineEditor({
   initialValue, 
   onSave, 
   onCancel, 
-  multiline = false,
+  multiline = false, 
+  placeholder = "",
   className = "",
   style = {}
 }: InlineEditorProps) {
@@ -69,17 +52,38 @@ function InlineEditor({
     onSave(value);
   };
 
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  // Set initial height for textarea to match content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      // Set initial height based on content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
   if (multiline) {
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
         className={`inline-editor-textarea ${className}`}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
+        placeholder={placeholder}
         style={{
           ...style,
+          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -94,7 +98,7 @@ function InlineEditor({
           display: 'block',
           lineHeight: '1.6'
         }}
-        rows={2}
+        rows={1}
       />
     );
   }
@@ -105,11 +109,13 @@ function InlineEditor({
       className={`inline-editor-input ${className}`}
       type="text"
       value={value}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
+      placeholder={placeholder}
       style={{
         ...style,
+        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -123,6 +129,7 @@ function InlineEditor({
 }
 
 export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
+  slideId,
   title = 'Market share',
   subtitle,
   chartData = [
@@ -142,10 +149,9 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
     }
   ],
   bottomText = 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here',
-  slideId,
-  isEditable = false,
+  theme,
   onUpdate,
-  theme
+  isEditable = false
 }: MarketShareTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
@@ -180,49 +186,73 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
     }, 300);
   };
 
-  const handleTitleUpdate = (newTitle: string) => {
+  const handleTitleSave = (newTitle: string) => {
     setEditingTitle(false);
-    const newData = { title: newTitle, chartData };
+    const newData = { title: newTitle, chartData, bottomText };
     scheduleAutoSave(newData);
   };
 
-  const handleLabelUpdate = (index: number, newLabel: string) => {
+  const handleTitleCancel = () => {
+    setEditingTitle(false);
+  };
+
+  const handleLabelSave = (index: number, newLabel: string) => {
     setEditingLabel(null);
     const newChartData = [...chartData];
     newChartData[index] = { ...newChartData[index], label: newLabel };
-    const newData = { title, chartData: newChartData };
+    const newData = { title, chartData: newChartData, bottomText };
     scheduleAutoSave(newData);
   };
 
-  const handleDescUpdate = (index: number, newDesc: string) => {
+  const handleLabelCancel = (index: number) => {
+    setEditingLabel(null);
+  };
+
+  const handleDescSave = (index: number, newDesc: string) => {
     setEditingDesc(null);
     const newChartData = [...chartData];
     newChartData[index] = { ...newChartData[index], description: newDesc };
-    const newData = { title, chartData: newChartData };
+    const newData = { title, chartData: newChartData, bottomText };
     scheduleAutoSave(newData);
   };
 
-  const handleYearUpdate = (index: number, newYear: string) => {
+  const handleDescCancel = (index: number) => {
+    setEditingDesc(null);
+  };
+
+  const handleYearSave = (index: number, newYear: string) => {
     setEditingYear(null);
     const newChartData = [...chartData];
     newChartData[index] = { ...newChartData[index], year: newYear };
-    const newData = { title, chartData: newChartData };
+    const newData = { title, chartData: newChartData, bottomText };
     scheduleAutoSave(newData);
   };
 
-  const handlePercentageUpdate = (index: number, newValue: string) => {
+  const handleYearCancel = (index: number) => {
+    setEditingYear(null);
+  };
+
+  const handlePercentageSave = (index: number, newValue: string) => {
     setEditingPercentage(null);
     const newPercentage = parseFloat(newValue) || 0;
     const newChartData = [...chartData];
     newChartData[index] = { ...newChartData[index], percentage: newPercentage };
-    const newData = { title, chartData: newChartData };
+    const newData = { title, chartData: newChartData, bottomText };
     scheduleAutoSave(newData);
   };
 
-  const handleBottomTextUpdate = (newText: string) => {
+  const handlePercentageCancel = (index: number) => {
+    setEditingPercentage(null);
+  };
+
+  const handleBottomTextSave = (newText: string) => {
     setEditingBottomText(false);
     const newData = { title, chartData, bottomText: newText };
     scheduleAutoSave(newData);
+  };
+
+  const handleBottomTextCancel = () => {
+    setEditingBottomText(false);
   };
 
   const handleAddColumn = () => {
@@ -234,21 +264,41 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
       year: `${new Date().getFullYear()}`
     };
     const newChartData = [...chartData, newColumn];
-    const newData = { title, chartData: newChartData };
+    const newData = { title, chartData: newChartData, bottomText };
     scheduleAutoSave(newData);
   };
 
   const handleRemoveColumn = (index: number) => {
     if (chartData.length > 1) {
       const newChartData = chartData.filter((_, i) => i !== index);
-      const newData = { title, chartData: newChartData };
+      const newData = { title, chartData: newChartData, bottomText };
       scheduleAutoSave(newData);
     }
   };
 
-  // Chart colors using theme
-  const primaryChartColor = accentColor || '#2563eb';
-  const secondaryChartColor = contentColor || '#6b7280';
+  const startEditingTitle = () => {
+    setEditingTitle(true);
+  };
+
+  const startEditingLabel = (index: number) => {
+    setEditingLabel(index);
+  };
+
+  const startEditingDesc = (index: number) => {
+    setEditingDesc(index);
+  };
+
+  const startEditingYear = (index: number) => {
+    setEditingYear(index);
+  };
+
+  const startEditingPercentage = (index: number) => {
+    setEditingPercentage(index);
+  };
+
+  const startEditingBottomText = () => {
+    setEditingBottomText(true);
+  };
 
   // Create chart bars with relative heights based on the reference
   const maxValue = Math.max(...chartData.map(item => item.percentage), 100);
@@ -270,8 +320,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
           {editingTitle && isEditable ? (
             <InlineEditor
               initialValue={title}
-              onSave={handleTitleUpdate}
-              onCancel={() => setEditingTitle(false)}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
               style={{
                 color: titleColor,
                 fontSize: '3.5rem',
@@ -284,7 +334,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
             <h1 
               className="text-6xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
               style={{ color: titleColor }}
-              onClick={() => isEditable && setEditingTitle(true)}
+              onClick={() => isEditable && startEditingTitle()}
             >
               {title}
             </h1>
@@ -315,8 +365,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                       {editingYear === index && isEditable ? (
                         <InlineEditor
                           initialValue={item.year || `${new Date().getFullYear()}`}
-                          onSave={(value) => handleYearUpdate(index, value)}
-                          onCancel={() => setEditingYear(null)}
+                          onSave={(value) => handleYearSave(index, value)}
+                          onCancel={() => handleYearCancel(index)}
                           style={{
                             color: contentColor,
                             fontSize: '0.875rem',
@@ -328,7 +378,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                         <p 
                           className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
                           style={{ color: contentColor }}
-                          onClick={() => isEditable && setEditingYear(index)}
+                          onClick={() => isEditable && startEditingYear(index)}
                         >
                           {item.year || `${new Date().getFullYear()}`}
                         </p>
@@ -368,8 +418,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                 {editingBottomText && isEditable ? (
                   <InlineEditor
                     initialValue={bottomText}
-                    onSave={handleBottomTextUpdate}
-                    onCancel={() => setEditingBottomText(false)}
+                    onSave={handleBottomTextSave}
+                    onCancel={handleBottomTextCancel}
                     multiline={true}
                     style={{
                       color: contentColor,
@@ -383,7 +433,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                   <p 
                     className="text-sm leading-relaxed cursor-pointer hover:opacity-80"
                     style={{ color: contentColor, opacity: 0.8 }}
-                    onClick={() => isEditable && setEditingBottomText(true)}
+                    onClick={() => isEditable && startEditingBottomText()}
                   >
                     {bottomText}
                   </p>
@@ -405,8 +455,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                   {editingLabel === index && isEditable ? (
                     <InlineEditor
                       initialValue={item.label}
-                      onSave={(value) => handleLabelUpdate(index, value)}
-                      onCancel={() => setEditingLabel(null)}
+                      onSave={(value) => handleLabelSave(index, value)}
+                      onCancel={() => handleLabelCancel(index)}
                       style={{
                         color: titleColor,
                         fontSize: '2rem',
@@ -418,7 +468,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                     <h3 
                       className="text-3xl font-bold mb-2 cursor-pointer hover:opacity-80"
                       style={{ color: titleColor }}
-                      onClick={() => isEditable && setEditingLabel(index)}
+                      onClick={() => isEditable && startEditingLabel(index)}
                     >
                       {item.label}
                     </h3>
@@ -427,8 +477,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                   {editingDesc === index && isEditable ? (
                     <InlineEditor
                       initialValue={item.description}
-                      onSave={(value) => handleDescUpdate(index, value)}
-                      onCancel={() => setEditingDesc(null)}
+                      onSave={(value) => handleDescSave(index, value)}
+                      onCancel={() => handleDescCancel(index)}
                       multiline={true}
                       style={{
                         color: contentColor,
@@ -440,7 +490,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                     <p 
                       className="text-lg leading-relaxed max-w-sm cursor-pointer hover:opacity-80"
                       style={{ color: contentColor }}
-                      onClick={() => isEditable && setEditingDesc(index)}
+                      onClick={() => isEditable && startEditingDesc(index)}
                     >
                       {item.description}
                     </p>
@@ -451,8 +501,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                     {editingPercentage === index && isEditable ? (
                       <InlineEditor
                         initialValue={item.percentage.toString()}
-                        onSave={(value) => handlePercentageUpdate(index, value)}
-                        onCancel={() => setEditingPercentage(null)}
+                        onSave={(value) => handlePercentageSave(index, value)}
+                        onCancel={() => handlePercentageCancel(index)}
                         style={{
                           color: item.color,
                           fontSize: '1.5rem',
@@ -463,7 +513,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                       <p 
                         className="text-2xl font-bold cursor-pointer hover:opacity-80"
                         style={{ color: item.color }}
-                        onClick={() => isEditable && setEditingPercentage(index)}
+                        onClick={() => isEditable && startEditingPercentage(index)}
                       >
                         {item.percentage}%
                       </p>

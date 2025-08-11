@@ -1,57 +1,13 @@
-// custom_extensions/frontend/src/components/templates/PieChartInfographicsTemplate.tsx
-
-'use client';
-
 import React, { useState, useRef, useEffect } from 'react';
-import { BaseTemplateProps } from '@/types/slideTemplates';
-import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-// Extend JSX namespace for SVG elements
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      svg: React.SVGProps<SVGSVGElement>;
-      path: React.SVGProps<SVGPathElement>;
-      circle: React.SVGProps<SVGCircleElement>;
-      text: React.SVGProps<SVGTextElement>;
-      g: React.SVGProps<SVGGElement>;
-      defs: React.SVGProps<SVGDefsElement>;
-      filter: React.SVGProps<SVGFilterElement>;
-      feDropShadow: React.SVGProps<SVGFEDropShadowElement>;
-      span: React.HTMLAttributes<HTMLSpanElement>;
-    }
-  }
-}
-
-// Pie Chart Infographics Template Props
-export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
-  title: string;
-  chartData: {
-    segments: Array<{
-      label: string;
-      percentage: number;
-      color: string;
-      description?: string;
-    }>;
-  };
-  monthlyData: Array<{
-    month: string;
-    description: string;
-    color?: string;
-  }>;
-  backgroundColor?: string;
-  titleColor?: string;
-  textColor?: string;
-  chartSize?: number;
-  descriptionText?: string;
-  theme?: any;
-}
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { PieChartInfographicsTemplateProps } from '@/types/slideTemplates';
 
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
   onCancel: () => void;
   multiline?: boolean;
+  placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -60,7 +16,8 @@ function InlineEditor({
   initialValue, 
   onSave, 
   onCancel, 
-  multiline = false,
+  multiline = false, 
+  placeholder = "",
   className = "",
   style = {}
 }: InlineEditorProps) {
@@ -91,17 +48,38 @@ function InlineEditor({
     onSave(value);
   };
 
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  // Set initial height for textarea to match content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      // Set initial height based on content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
   if (multiline) {
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
         className={`inline-editor-textarea ${className}`}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
+        placeholder={placeholder}
         style={{
           ...style,
+          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -116,7 +94,7 @@ function InlineEditor({
           display: 'block',
           lineHeight: '1.6'
         }}
-        rows={2}
+        rows={1}
       />
     );
   }
@@ -127,11 +105,13 @@ function InlineEditor({
       className={`inline-editor-input ${className}`}
       type="text"
       value={value}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
+      placeholder={placeholder}
       style={{
         ...style,
+        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -145,6 +125,7 @@ function InlineEditor({
 }
 
 export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplateProps> = ({
+  slideId,
   title = 'Pie Chart Infographics',
   chartData = {
     segments: [
@@ -164,15 +145,11 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     { month: 'Month 5', description: 'Neptune is far away from Earth', color: '#f97316' },
     { month: 'Month 6', description: 'Despite being red, Mars is actually cold', color: '#f97316' }
   ],
-  backgroundColor = '#ffffff',
-  titleColor = '#1f2937',
-  textColor = '#374151',
-  chartSize = 280,
   descriptionText = 'To modify this graph, click on it, follow the link, change the data and paste it here',
   theme,
-  isEditable = false,
-  onUpdate
-}) => {
+  onUpdate,
+  isEditable = false
+}: PieChartInfographicsTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
   
@@ -205,35 +182,51 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     }, 300);
   };
 
-  const handleTitleUpdate = (newTitle: string) => {
+  const handleTitleSave = (newTitle: string) => {
     setEditingTitle(false);
-    const newData = { title: newTitle, chartData, monthlyData };
+    const newData = { title: newTitle, chartData, monthlyData, descriptionText };
     scheduleAutoSave(newData);
   };
 
-  const handleDescTextUpdate = (newText: string) => {
+  const handleTitleCancel = () => {
+    setEditingTitle(false);
+  };
+
+  const handleDescTextSave = (newText: string) => {
     setEditingDescText(false);
     const newData = { title, chartData, monthlyData, descriptionText: newText };
     scheduleAutoSave(newData);
   };
 
-  const handleMonthUpdate = (monthIndex: number, newValue: string) => {
+  const handleDescTextCancel = () => {
+    setEditingDescText(false);
+  };
+
+  const handleMonthSave = (monthIndex: number, newValue: string) => {
     setEditingMonth(null);
     const newMonthlyData = [...monthlyData];
     newMonthlyData[monthIndex] = { ...newMonthlyData[monthIndex], month: newValue };
-    const newData = { title, chartData, monthlyData: newMonthlyData };
+    const newData = { title, chartData, monthlyData: newMonthlyData, descriptionText };
     scheduleAutoSave(newData);
   };
 
-  const handleMonthDescUpdate = (monthIndex: number, newValue: string) => {
+  const handleMonthCancel = (monthIndex: number) => {
+    setEditingMonth(null);
+  };
+
+  const handleMonthDescSave = (monthIndex: number, newValue: string) => {
     setEditingMonthDesc(null);
     const newMonthlyData = [...monthlyData];
     newMonthlyData[monthIndex] = { ...newMonthlyData[monthIndex], description: newValue };
-    const newData = { title, chartData, monthlyData: newMonthlyData };
+    const newData = { title, chartData, monthlyData: newMonthlyData, descriptionText };
     scheduleAutoSave(newData);
   };
 
-  const handlePercentageUpdate = (segmentIndex: number, newValue: string) => {
+  const handleMonthDescCancel = (monthIndex: number) => {
+    setEditingMonthDesc(null);
+  };
+
+  const handlePercentageSave = (segmentIndex: number, newValue: string) => {
     setEditingPercentage(null);
     const newPercentage = parseFloat(newValue) || 0;
     
@@ -248,14 +241,39 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     const newData = { 
       title, 
       chartData: { segments: newSegments }, 
-      monthlyData 
+      monthlyData,
+      descriptionText
     };
     scheduleAutoSave(newData);
   };
 
+  const handlePercentageCancel = (segmentIndex: number) => {
+    setEditingPercentage(null);
+  };
+
+  const startEditingTitle = () => {
+    setEditingTitle(true);
+  };
+
+  const startEditingDescText = () => {
+    setEditingDescText(true);
+  };
+
+  const startEditingMonth = (index: number) => {
+    setEditingMonth(index);
+  };
+
+  const startEditingMonthDesc = (index: number) => {
+    setEditingMonthDesc(index);
+  };
+
+  const startEditingPercentage = (index: number) => {
+    setEditingPercentage(index);
+  };
+
   // Create SVG pie chart with proper PDF rendering
   const createPieChart = () => {
-    const size = chartSize;
+    const size = 280;
     const radius = size * 0.35;
     const centerX = size / 2;
     const centerY = size / 2;
@@ -314,8 +332,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             >
               <InlineEditor
                 initialValue={segment.percentage.toString()}
-                onSave={(value) => handlePercentageUpdate(index, value)}
-                onCancel={() => setEditingPercentage(null)}
+                onSave={(value) => handlePercentageSave(index, value)}
+                onCancel={() => handlePercentageCancel(index)}
                 style={{
                   color: '#ffffff',
                   fontSize: '16px',
@@ -346,7 +364,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 strokeLinecap: 'round',
                 strokeLinejoin: 'round'
               }}
-              onClick={() => isEditable && setEditingPercentage(index)}
+              onClick={() => isEditable && startEditingPercentage(index)}
             >
               {segment.label}
             </text>
@@ -372,8 +390,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {editingTitle && isEditable ? (
             <InlineEditor
               initialValue={title}
-              onSave={handleTitleUpdate}
-              onCancel={() => setEditingTitle(false)}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
               style={{
                 color: themeTitle,
                 fontSize: '3.5rem',
@@ -386,7 +404,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             <h1 
               className="text-6xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
               style={{ color: themeTitle }}
-              onClick={() => isEditable && setEditingTitle(true)}
+              onClick={() => isEditable && startEditingTitle()}
             >
               {title}
             </h1>
@@ -394,8 +412,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {editingDescText && isEditable ? (
             <InlineEditor
               initialValue={descriptionText}
-              onSave={handleDescTextUpdate}
-              onCancel={() => setEditingDescText(false)}
+              onSave={handleDescTextSave}
+              onCancel={handleDescTextCancel}
               multiline={true}
               style={{
                 color: themeContent,
@@ -410,7 +428,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             <p 
               className="text-lg mt-4 opacity-70 cursor-pointer hover:opacity-80"
               style={{ color: themeContent }}
-              onClick={() => isEditable && setEditingDescText(true)}
+              onClick={() => isEditable && startEditingDescText()}
             >
               {descriptionText}
             </p>
@@ -431,8 +449,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   {editingMonth === index && isEditable ? (
                     <InlineEditor
                       initialValue={item.month}
-                      onSave={(value) => handleMonthUpdate(index, value)}
-                      onCancel={() => setEditingMonth(null)}
+                      onSave={(value) => handleMonthSave(index, value)}
+                      onCancel={() => handleMonthCancel(index)}
                       style={{
                         color: '#ffffff',
                         textAlign: 'center',
@@ -443,7 +461,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   ) : (
                     <span 
                       className="cursor-pointer hover:opacity-80"
-                      onClick={() => isEditable && setEditingMonth(index)}
+                      onClick={() => isEditable && startEditingMonth(index)}
                     >
                       {item.month}
                     </span>
@@ -453,8 +471,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   {editingMonthDesc === index && isEditable ? (
                     <InlineEditor
                       initialValue={item.description}
-                      onSave={(value) => handleMonthDescUpdate(index, value)}
-                      onCancel={() => setEditingMonthDesc(null)}
+                      onSave={(value) => handleMonthDescSave(index, value)}
+                      onCancel={() => handleMonthDescCancel(index)}
                       multiline={true}
                       style={{
                         color: themeContent,
@@ -466,7 +484,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     <p 
                       className="cursor-pointer hover:opacity-80"
                       style={{ color: themeContent }}
-                      onClick={() => isEditable && setEditingMonthDesc(index)}
+                      onClick={() => isEditable && startEditingMonthDesc(index)}
                     >
                       {item.description}
                     </p>
@@ -479,9 +497,9 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Center - Pie Chart */}
           <div className="flex flex-col items-center">
             <svg 
-              width={chartSize} 
-              height={chartSize} 
-              viewBox={`0 0 ${chartSize} ${chartSize}`}
+              width={280} 
+              height={280} 
+              viewBox="0 0 280 280"
               className="filter drop-shadow-lg"
               style={{
                 shapeRendering: 'geometricPrecision',
@@ -494,9 +512,9 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 </filter>
               </defs>
               <circle
-                cx={chartSize / 2}
-                cy={chartSize / 2}
-                r={chartSize * 0.12}
+                cx={140}
+                cy={140}
+                r={33.6}
                 fill={themeBg}
                 stroke="#e5e7eb"
                 strokeWidth="2"
@@ -518,8 +536,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     {editingMonth === actualIndex && isEditable ? (
                       <InlineEditor
                         initialValue={item.month}
-                        onSave={(value) => handleMonthUpdate(actualIndex, value)}
-                        onCancel={() => setEditingMonth(null)}
+                        onSave={(value) => handleMonthSave(actualIndex, value)}
+                        onCancel={() => handleMonthCancel(actualIndex)}
                         style={{
                           color: '#ffffff',
                           textAlign: 'center',
@@ -530,7 +548,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     ) : (
                       <span 
                         className="cursor-pointer hover:opacity-80"
-                        onClick={() => isEditable && setEditingMonth(actualIndex)}
+                        onClick={() => isEditable && startEditingMonth(actualIndex)}
                       >
                         {item.month}
                       </span>
@@ -540,8 +558,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     {editingMonthDesc === actualIndex && isEditable ? (
                       <InlineEditor
                         initialValue={item.description}
-                        onSave={(value) => handleMonthDescUpdate(actualIndex, value)}
-                        onCancel={() => setEditingMonthDesc(null)}
+                        onSave={(value) => handleMonthDescSave(actualIndex, value)}
+                        onCancel={() => handleMonthDescCancel(actualIndex)}
                         multiline={true}
                         style={{
                           color: themeContent,
@@ -553,7 +571,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       <p 
                         className="cursor-pointer hover:opacity-80"
                         style={{ color: themeContent }}
-                        onClick={() => isEditable && setEditingMonthDesc(actualIndex)}
+                        onClick={() => isEditable && startEditingMonthDesc(actualIndex)}
                       >
                         {item.description}
                       </p>

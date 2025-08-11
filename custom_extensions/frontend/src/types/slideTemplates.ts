@@ -316,6 +316,39 @@ export interface BigNumbersTemplateProps extends BaseTemplateProps {
   theme?: SlideTheme;
 }
 
+export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: {
+    segments: Array<{
+      label: string;
+      percentage: number;
+      color: string;
+      description?: string;
+    }>;
+  };
+  monthlyData: Array<{
+    month: string;
+    description: string;
+    color?: string;
+  }>;
+  descriptionText?: string;
+  theme?: SlideTheme;
+}
+
+export interface MarketShareTemplateProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  chartData: Array<{
+    label: string;
+    description: string;
+    percentage: number;
+    color: string;
+    year?: string;
+  }>;
+  bottomText?: string;
+  theme?: SlideTheme;
+}
+
 // --- Migration and Compatibility ---
 
 export interface LegacySlide {
@@ -363,7 +396,9 @@ export type TemplateId =
   | 'six-ideas-list'
   | 'contraindications-indications'
   | 'metrics-analytics'
-  | 'org-chart';
+  | 'org-chart'
+  | 'pie-chart-infographics'
+  | 'market-share';
 
 export interface TemplatePreview {
   templateId: string;
