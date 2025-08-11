@@ -59,6 +59,46 @@ const mockUserCreditUsageData: Record<string, Array<{ name: string; credits: num
   ]
 };
 
+// Mock users for demonstration
+const mockUsers: UserCredits[] = [
+  {
+    id: 9991,
+    onyx_user_id: 'user1@example.com',
+    name: 'Demo User 1',
+    credits_balance: 150,
+    total_credits_used: 195,
+    credits_purchased: 500,
+    last_purchase_date: '2024-01-15T10:30:00Z',
+    subscription_tier: 'premium',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-15T10:30:00Z'
+  },
+  {
+    id: 9992,
+    onyx_user_id: 'user2@example.com',
+    name: 'Demo User 2',
+    credits_balance: 75,
+    total_credits_used: 210,
+    credits_purchased: 300,
+    last_purchase_date: '2024-01-10T14:20:00Z',
+    subscription_tier: 'standard',
+    created_at: '2024-01-05T00:00:00Z',
+    updated_at: '2024-01-10T14:20:00Z'
+  },
+  {
+    id: 9993,
+    onyx_user_id: 'user3@example.com',
+    name: 'Demo User 3',
+    credits_balance: 200,
+    total_credits_used: 200,
+    credits_purchased: 400,
+    last_purchase_date: '2024-01-12T09:15:00Z',
+    subscription_tier: 'premium',
+    created_at: '2024-01-03T00:00:00Z',
+    updated_at: '2024-01-12T09:15:00Z'
+  }
+];
+
 // Nivo Pie Chart Component for Individual User
 const CreditUsagePieChart: React.FC<{ selectedUser: UserCredits | null }> = ({ selectedUser }) => {
   // Use all users data when no user is selected, or individual user data when selected
@@ -191,7 +231,10 @@ const AdminCreditsPage: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user =>
+  // Combine real users with mock users for demonstration
+  const allUsers = [...users, ...mockUsers];
+  
+  const filteredUsers = allUsers.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.onyx_user_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
