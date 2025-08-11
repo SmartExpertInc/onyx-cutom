@@ -238,11 +238,7 @@ export default function LessonPresentationClient() {
   //   }
   // }, [language]);
 
-useEffect(() => {
-  if (loading && !streamDone) {
-    setStreamDone(true);
-  }
-}, [loading, streamDone]);
+
 
 
 
@@ -321,6 +317,17 @@ useEffect(() => {
   ];
 
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+
+
+
+  useEffect(() => {
+    if (loading && !streamDone) {
+      setStreamDone(true);
+    }
+  }, [loading, streamDone]);
+
+
+
 
   const toggleExample = (ex: typeof lessonExamples[number]) => {
     setSelectedExamples((prev) => {
