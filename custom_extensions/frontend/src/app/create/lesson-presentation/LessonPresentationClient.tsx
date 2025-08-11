@@ -217,6 +217,8 @@ export default function LessonPresentationClient() {
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
   
+
+  console.log("content", content);
   // Product type for video lesson vs regular presentation
   const productType = params?.get("productType") || "lesson_presentation";
   
