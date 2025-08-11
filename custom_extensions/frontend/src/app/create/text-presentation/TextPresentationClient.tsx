@@ -159,8 +159,9 @@ export default function TextPresentationClient() {
       // Clean title - remove {isImportant} and other unwanted patterns
       title = title
         .replace(/\{[^}]*\}/g, '') // Remove {isImportant} and similar patterns
+        .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove **bold** formatting
+        .replace(/[^\w\s]|[\u{1F600}-\u{1F64F}]/gu, '') // Remove emojis and other non-word chars
         .trim();
-      
       // Get content between current header and next header
       let sectionContent = '';
       if (nextSectionIndex < sections.length) {
@@ -284,8 +285,7 @@ export default function TextPresentationClient() {
   };
 
   const getTitleForLesson = (lesson: any, index: number) => {
-    const title = editedTitles[index] || lesson.title;
-    return title.replace(/\*\*/g, '').replace(/[^\w\s]/g, '').trim();
+    return editedTitles[index] || lesson.title;
   };
 
   // Example prompts for advanced mode
