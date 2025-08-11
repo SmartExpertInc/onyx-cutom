@@ -7195,67 +7195,106 @@ def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> 
 
 
 def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Optional[str], existing_content: Optional[Dict[str, bool]] = None) -> Dict[str, Any]:
+    """Smart, robust combo recommendations per tier.
+    Returns a "primary" list of product types composing the chosen combo.
+    Types: 'one-pager' | 'presentation' | 'quiz' | 'video-lesson'
+    """
+    import hashlib
+
     if existing_content is None:
         existing_content = {}
-    title = (lesson_title or "").lower()
-    kw_one_pager = ["introduction", "overview", "basics", "summary", "quick", "reference"]
-    kw_presentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to"]
-    kw_video = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical"]
+
+    title = (lesson_title or "").strip().lower()
+    tier = (quality_tier or "interactive").strip().lower()
+
+    # Keyword signals
+    kw_one_pager = ["introduction", "overview", "basics", "summary", "quick", "reference", "primer", "cheatsheet"]
+    kw_presentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to", "walkthrough"]
+    kw_video = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical", "screencast", "recording"]
     kw_quiz = ["test", "check", "verify", "practice", "exercise", "assessment", "evaluation", "quiz"]
-    weights: Dict[str, float] = {"one-pager": 0.25, "presentation": 0.35, "video-lesson": 0.2, "quiz": 0.2}
-    tier = (quality_tier or "interactive").lower()
+
+    def score_for(keys: list[str]) -> float:
+        hits = sum(1 for k in keys if k in title)
+        return min(1.0, hits / 3.0)  # saturate after 3 hits
+
+    s_one = score_for(kw_one_pager)
+    s_pres = score_for(kw_presentation)
+    s_vid = score_for(kw_video)
+    s_quiz = score_for(kw_quiz)
+
+    # Deterministic variety seed per lesson
+    seed_val = int(hashlib.sha1(f"{title}|{tier}".encode("utf-8")).hexdigest()[:8], 16) / 0xFFFFFFFF
+
+    # Define candidate combos per tier
+    # combos are arrays of product types constituting the recommendation
     if tier == "basic":
-        weights = {"one-pager": 0.6, "presentation": 0.3, "video-lesson": 0.05, "quiz": 0.05}
+        combos = [
+            ["one-pager"],
+            ["presentation"],
+        ]
+        # weights prefer brevity/overview to one-pager, procedural to presentation
+        weights = [
+            0.55 + 0.35 * s_one - 0.10 * s_pres,
+            0.45 + 0.35 * s_pres - 0.10 * s_one,
+        ]
     elif tier == "interactive":
-        weights = {"presentation": 0.45, "quiz": 0.35, "one-pager": 0.15, "video-lesson": 0.05}
+        combos = [
+            ["presentation", "quiz"],
+            ["presentation"],
+            ["one-pager", "quiz"],
+        ]
+        weights = [
+            0.40 + 0.30 * s_pres + 0.30 * s_quiz,  # pres+quiz
+            0.30 + 0.50 * s_pres - 0.10 * s_quiz,  # pres
+            0.30 + 0.40 * s_one + 0.30 * s_quiz,   # one+quiz
+        ]
     elif tier == "advanced":
-        weights = {"presentation": 0.4, "quiz": 0.3, "video-lesson": 0.25, "one-pager": 0.05}
-    elif tier == "immersive":
-        weights = {"video-lesson": 0.5, "quiz": 0.3, "presentation": 0.15, "one-pager": 0.05}
-    def bump(kind: str, amount: float):
-        weights[kind] = weights.get(kind, 0.0) + amount
-    if any(k in title for k in kw_one_pager):
-        bump("one-pager", 0.2)
-    if any(k in title for k in kw_presentation):
-        bump("presentation", 0.25)
-    if any(k in title for k in kw_video):
-        bump("video-lesson", 0.3)
-    if any(k in title for k in kw_quiz):
-        bump("quiz", 0.4)
-    total = sum(max(v, 0.0) for v in weights.values()) or 1.0
-    normalized = {k: max(v, 0.0) / total for k, v in weights.items()}
-    ranked = sorted(normalized.items(), key=lambda kv: kv[1], reverse=True)
-    primary: list[str] = []
-    def try_add(kind: str):
-        if existing_content.get(kind, False):
-            return
-        if kind not in primary:
-            primary.append(kind)
-    if tier == "basic":
-        for kind in ["one-pager", "presentation", "quiz", "video-lesson"]:
-            if len(primary) >= 2:
-                break
-            try_add(kind)
-    elif tier == "interactive":
-        for kind in ["presentation", "quiz", "one-pager", "video-lesson"]:
-            if len(primary) >= 2:
-                break
-            try_add(kind)
-    elif tier == "advanced":
-        for kind in ["presentation", "quiz", "video-lesson", "one-pager"]:
-            if len(primary) >= 2:
-                break
-            try_add(kind)
-    else:
-        for kind in ["video-lesson", "quiz", "presentation", "one-pager"]:
-            if len(primary) >= 2:
-                break
-            try_add(kind)
-    if not primary:
-        primary = [k for k, _ in ranked[:2]]
+        combos = [
+            ["presentation", "quiz"],
+            ["video-lesson", "quiz"],
+        ]
+        weights = [
+            0.50 + 0.30 * s_pres + 0.20 * s_quiz,
+            0.50 + 0.40 * s_vid + 0.20 * s_quiz,
+        ]
+    else:  # immersive
+        combos = [
+            ["video-lesson", "quiz"],
+            ["video-lesson"],
+        ]
+        weights = [
+            0.60 + 0.25 * s_vid + 0.15 * s_quiz,
+            0.40 + 0.60 * s_vid - 0.10 * s_quiz,
+        ]
+
+    # Normalize weights, add small hash-based jitter for deterministic variety
+    eps = 1e-6
+    jitter = [(i + 1) * 0.0005 * seed_val for i in range(len(weights))]
+    norm_weights = [max(eps, w + jitter[i]) for i, w in enumerate(weights)]
+
+    # Sort combos by weight desc, break ties deterministically
+    ranked = sorted(range(len(combos)), key=lambda i: (-norm_weights[i], i))
+
+    # Choose the best combo that doesn’t fully collide with existing content
+    chosen: list[str] | None = None
+    for idx in ranked:
+        c = combos[idx]
+        # If combo has two items and one exists, we still propose the remaining one; if all exist, skip.
+        missing = [t for t in c if not existing_content.get(t, False)]
+        if missing:
+            chosen = missing
+            break
+
+    # Fallback to the top combo if everything existed (rare)
+    if not chosen:
+        chosen = combos[ranked[0]]
+
     return {
-        "primary": primary,
-        "reasoning": f"Tier={tier}; title-signals applied; excludes existing: {', '.join([k for k,v in existing_content.items() if v])}",
+        "primary": chosen,
+        "reasoning": (
+            f"tier={tier}; signals(one={s_one:.2f}, pres={s_pres:.2f}, video={s_vid:.2f}, quiz={s_quiz:.2f}); "
+            f"seed={seed_val:.3f}; combos={combos}"
+        ),
         "last_updated": datetime.utcnow().isoformat(),
         "quality_tier_used": tier,
     }
