@@ -1483,6 +1483,25 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               const newCT = computeCompletionTimeFromPrimary(newPrimary);
               onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completionTime'], newCT);
 
+              // Recalculate creation hours from completion time and rate
+              const minutes = parseInt(newCT.replace(/[^0-9]/g, '')) || 5;
+              const rate = (lessonObj?.custom_rate as number | undefined)
+                ?? (section?.custom_rate as number | undefined)
+                ?? (projectCustomRate as number | undefined)
+                ?? 200; // sensible default
+              const newHours = Math.round((minutes / 60.0) * rate);
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'hours'], newHours);
+
+              // Update section total hours
+              const currentSection = sections?.[sectionIdx];
+              if (currentSection && currentSection.lessons) {
+                const updatedLessons = [...currentSection.lessons];
+                updatedLessons[lessonIdx] = { ...updatedLessons[lessonIdx], hours: newHours } as any;
+                const newTotalHours = updatedLessons.reduce((acc, l: any) => acc + (l?.hours || 0), 0);
+                onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
+                onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
+              }
+
               // Trigger auto-save (debounced to avoid race with batched state)
               if (onAutoSave) {
                 if (autoSaveTimeoutRef.current) {
