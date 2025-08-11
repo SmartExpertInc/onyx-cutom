@@ -72,39 +72,24 @@ async def test_market_share_pdf():
     slide_data = {
         "templateId": "market-share",
         "props": {
-            "title": "Global Market Share Analysis",
-            "subtitle": "Competitive landscape overview",
+            "title": "Market share",
             "chartData": [
                 {
-                    "label": "TechCorp",
-                    "description": "Leading technology solutions provider with innovative products",
-                    "percentage": 35,
+                    "label": "Mercury",
+                    "description": "Mercury is the closest planet to the Sun",
+                    "percentage": 85,
                     "color": "#0ea5e9",
-                    "year": "2024"
+                    "year": "2023"
                 },
                 {
-                    "label": "DataFlow Inc",
-                    "description": "Data analytics and cloud infrastructure specialist",
-                    "percentage": 28,
-                    "color": "#06b6d4",
-                    "year": "2024"
-                },
-                {
-                    "label": "CloudTech",
-                    "description": "Enterprise cloud computing and security solutions",
-                    "percentage": 22,
-                    "color": "#67e8f9",
-                    "year": "2024"
-                },
-                {
-                    "label": "InnovateSoft",
-                    "description": "Software development and consulting services",
-                    "percentage": 15,
-                    "color": "#f97316",
+                    "label": "Mars",
+                    "description": "Despite being red, Mars is a cold place",
+                    "percentage": 40,
+                    "color": "#6b7280",
                     "year": "2024"
                 }
             ],
-            "bottomText": "Market share data based on Q4 2024 industry reports and revenue analysis"
+            "bottomText": "Follow the link in the graph to modify its data and then paste the new one here. For more info, click here"
         }
     }
     

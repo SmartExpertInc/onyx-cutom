@@ -47,11 +47,12 @@ The `MarketShareTemplate` PDF support has been updated to match the new dynamic 
 - ✅ Dynamic chart rendering based on `chartData` array
 - ✅ Background grid with horizontal lines (0%, 25%, 50%, 75%, 100%)
 - ✅ Y-axis labels (0 at bottom, 100 at top)
-- ✅ Responsive chart width based on number of columns
+- ✅ Fixed chart width (240px) for consistent layout
 - ✅ Individual legend items for each chart column
 - ✅ Percentage display for each data point
 - ✅ Year labels under each bar
 - ✅ Theme integration with proper color variables
+- ✅ Layout matching the original design (chart left, legend right)
 
 ## Technical Implementation
 
@@ -110,10 +111,10 @@ interface MarketShareTemplateProps {
 #### MarketShareTemplate PDF Features
 - **Grid System**: Horizontal lines at 0%, 25%, 50%, 75%, 100%
 - **Y-axis Labels**: Properly positioned with 0 at bottom, 100 at top
-- **Dynamic Width**: Chart width adjusts based on number of columns
-- **Bar Heights**: Calculated as `(percentage / 100.0) * 250` pixels
+- **Fixed Width**: Chart width is 240px for consistent layout
+- **Bar Heights**: Calculated as `(percentage / 100.0) * 200` pixels
 - **Legend**: Right-side legend with color indicators and percentages
-- **Responsive Layout**: Flexbox-based layout that adapts to content
+- **Layout**: Chart on left, legend on right with proper spacing
 
 #### PieChartInfographicsTemplate PDF Features
 - **SVG Chart**: High-quality vector graphics
