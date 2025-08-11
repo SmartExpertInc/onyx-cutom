@@ -585,7 +585,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, isFromText, userText, textMode]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -844,10 +844,10 @@ export default function LessonPresentationClient() {
           }
         }
         
-        if (/\S/.test(accumulatedText) && !textareaVisible) {
-          setTextareaVisible(true);
-          setLoading(false);
-        }
+        // if (/\S/.test(accumulatedText) && !textareaVisible) {
+        //   setTextareaVisible(true);
+        //   setLoading(false);
+        // }
       }
     } catch (e: any) {
       if (e.name !== "AbortError") {
