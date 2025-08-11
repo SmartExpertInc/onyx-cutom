@@ -541,17 +541,19 @@ export default function LessonPresentationClient() {
 
             // Determine if this buffer now contains some real (non-whitespace) text
             const hasMeaningfulText = /\S/.test(accumulatedText);
-            console.log("hasMeaningfulText", hasMeaningfulText);
-            console.log("textareaVisible", accumulatedText);
+            // console.log("hasMeaningfulText", hasMeaningfulText);
+            // console.log("textareaVisible", textareaVisible);
             if (hasMeaningfulText && !textareaVisible) {
-              console.log("hasMeaningfulText",);
+              // console.log("hasMeaningfulText",);
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
             }
             
             // Force state update to ensure UI reflects content changes
             if (accumulatedText && accumulatedText !== content) {
+              console.log("accumulatedText");
               setContent(accumulatedText);
+
             }
           }
 
