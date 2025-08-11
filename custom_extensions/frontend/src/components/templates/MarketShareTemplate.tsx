@@ -302,6 +302,9 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   const maxValue = Math.max(...chartData.map((item: any) => item.percentage), 100);
   const chartHeights = chartData.map((item: any) => (item.percentage / maxValue) * 100);
 
+  // Grid values for Y-axis
+  const gridValues = [0, 25, 50, 75, 100];
+
   return (
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
@@ -346,33 +349,50 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
           <div className="flex-1 flex justify-center">
             <div className="flex flex-col items-center">
               
-              {/* Y-axis scale */}
-              <div className="flex items-end justify-center mb-4" style={{ height: '300px' }}>
-                <div className="flex items-end gap-8">
+              {/* Chart Container with Grid */}
+              <div className="relative mb-4" style={{ height: '300px', width: `${chartData.length * 80 + 80}px` }}>
+                
+                {/* Y-axis labels */}
+                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs font-medium" style={{ color: contentColor, width: '30px' }}>
+                  {gridValues.map((value) => (
+                    <div key={value} className="flex items-center">
+                      {value}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Grid lines */}
+                <div className="absolute left-8 top-0 h-full w-full">
+                  {gridValues.map((value) => (
+                    <div 
+                      key={value}
+                      className="absolute w-full border-t border-gray-200"
+                      style={{ 
+                        top: `${100 - (value / 100) * 100}%`,
+                        borderColor: contentColor,
+                        opacity: 0.3
+                      }}
+                    ></div>
+                  ))}
+                </div>
+                
+                {/* Chart bars container */}
+                <div className="absolute left-8 top-0 h-full flex items-end gap-8">
                   
                   {chartData.map((item: any, index: number) => (
                     <div key={index} className="flex flex-col items-center relative group">
-                      {/* Background stack bar (100% height) */}
+                      {/* Main data bar */}
                       <div 
-                        className="w-16 rounded opacity-20 transition-all duration-300"
+                        className="w-16 rounded transition-all duration-300 hover:opacity-80"
                         style={{ 
-                          backgroundColor: contentColor || '#6b7280',
-                          height: '250px',
+                          backgroundColor: item.color,
+                          height: `${Math.max(chartHeights[index] * 2.5, 30)}px`,
                           marginBottom: '8px'
                         }}
                       ></div>
                       
-                      {/* Main data bar */}
-                      <div 
-                        className="w-16 rounded transition-all duration-300 hover:opacity-80 absolute bottom-8"
-                        style={{ 
-                          backgroundColor: item.color,
-                          height: `${Math.max(chartHeights[index] * 2.5, 30)}px`,
-                        }}
-                      ></div>
-                      
                       {/* Year label */}
-                      <div className="mt-8">
+                      <div>
                         {editingYear === index && isEditable ? (
                           <InlineEditor
                             initialValue={item.year || `${new Date().getFullYear()}`}
