@@ -159,8 +159,35 @@ export default function LessonSettingsModal({
   };
 
   // Calculate creation time preview
-  const completionTimeMinutes = parseInt(completionTime.replace('m', ''));
-  const creationHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+  const completionTimeMinutes = parseInt(completionTime.replace('m', '')) || 5;
+  const computeAdvancedPreview = () => {
+    if (!advancedEnabled) {
+      return Math.round((completionTimeMinutes / 60.0) * customRate);
+    }
+    // Use deterministic midpoint breakdown when advanced previewing
+    const primary: string[] = []; // unknown here; fallback to equal split
+    const rates = {
+      presentation: perProductRates.presentation,
+      one_pager: perProductRates.onePager,
+      quiz: perProductRates.quiz,
+      video_lesson: perProductRates.videoLesson,
+    } as any;
+    if (primary.length === 0) {
+      // equal split across 4 types
+      const per = Math.max(1, Math.round(completionTimeMinutes / 4));
+      const total = (per / 60) * (rates.presentation + rates.one_pager + rates.quiz + rates.video_lesson);
+      return Math.round(total);
+    }
+    let total = 0;
+    primary.forEach((p) => {
+      const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+      // use deterministic midpoint per product for preview if needed
+      const mid = p === 'one-pager' ? 3 : p === 'presentation' ? 8 : p === 'quiz' ? 6 : p === 'video-lesson' ? 4 : 5;
+      total += (mid / 60) * Number(rates[key] || customRate);
+    });
+    return Math.round(total);
+  };
+  const creationHours = computeAdvancedPreview();
   const selectedTierData = qualityTiers.find(tier => tier.id === qualityTier);
 
   return (

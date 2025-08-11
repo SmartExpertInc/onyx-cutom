@@ -7343,13 +7343,23 @@ PRODUCT_COMPLETION_RANGES = {
     "video-lesson": (2, 5),
 }
 
+# Deterministic midpoint map for quick access
+PRODUCT_COMPLETION_MIDPOINT = {
+    "one-pager": 3,
+    "presentation": 8,
+    "quiz": 6,
+    "video-lesson": 4,
+}
+
 def compute_completion_time_from_recommendations(primary_types: list[str]) -> str:
     total = 0
     for p in primary_types:
         r = PRODUCT_COMPLETION_RANGES.get(p)
         if not r:
             continue
-        total += random.randint(r[0], r[1])
+        # Use deterministic midpoint rounded up
+        mid = int(math.ceil((r[0] + r[1]) / 2))
+        total += mid
     if total <= 0:
         total = 5
     return f"{total}m"

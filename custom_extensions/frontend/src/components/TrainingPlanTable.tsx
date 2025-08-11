@@ -1464,15 +1464,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const { t } = useLanguage();
 
   const computeCompletionAggregate = (primary: string[]) => {
-    const pick = (min: number, max: number) => Math.floor(min + Math.random() * (max - min + 1));
+    const midpoint = (p: string) => {
+      if (p === 'one-pager') return 3;
+      if (p === 'presentation') return 8;
+      if (p === 'quiz') return 6;
+      if (p === 'video-lesson') return 4;
+      return 5;
+    };
     const breakdown: Record<string, number> = {};
     let total = 0;
     primary.forEach(p => {
-      let m = 0;
-      if (p === 'one-pager') m = pick(2,3);
-      else if (p === 'presentation') m = pick(5,10);
-      else if (p === 'quiz') m = pick(5,7);
-      else if (p === 'video-lesson') m = pick(2,5);
+      const m = midpoint(p);
       breakdown[p] = m;
       total += m;
     });
