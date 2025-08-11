@@ -232,11 +232,11 @@ export default function LessonPresentationClient() {
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   
   // Effect to regenerate content when language changes
-  // useEffect(() => {
-  //   if (content && !loading) {
-  //     handleApplyLessonEdit();
-  //   }
-  // }, [language]);
+  useEffect(() => {
+    if (content && loading) {
+      handleApplyLessonEdit();
+    }
+  }, [language]);
 
 
 
@@ -319,13 +319,7 @@ export default function LessonPresentationClient() {
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
 
 
-  // experimental
-  useEffect(() => {
-    if (loading && !streamDone) {
-      setStreamDone(false);
-      setLoading(false);
-    }
-  }, [loading, streamDone]);
+
 
 
 
