@@ -78,14 +78,14 @@ async def test_market_share_pdf():
                     "label": "Mercury",
                     "description": "Mercury is the closest planet to the Sun",
                     "percentage": 85,
-                    "color": "#0ea5e9",
+                    "color": "#2a5490",
                     "year": "2023"
                 },
                 {
                     "label": "Mars",
                     "description": "Despite being red, Mars is a cold place",
                     "percentage": 40,
-                    "color": "#6b7280",
+                    "color": "#9ca3af",
                     "year": "2024"
                 }
             ],

@@ -44,15 +44,16 @@ The `MarketShareTemplate` PDF support has been updated to match the new dynamic 
 - ✅ Updated `slide_deck_pdf_template.html` (lines 1349-1444)
 
 **New Features**:
-- ✅ Dynamic chart rendering based on `chartData` array
-- ✅ Background grid with horizontal lines (0%, 25%, 50%, 75%, 100%)
-- ✅ Y-axis labels (0 at bottom, 100 at top)
-- ✅ Fixed chart width (240px) for consistent layout
-- ✅ Individual legend items for each chart column
-- ✅ Percentage display for each data point
-- ✅ Year labels under each bar
-- ✅ Theme integration with proper color variables
-- ✅ Layout matching the original design (chart left, legend right)
+- ✅ **Exact frontend layout replication** - 1:1 match with React component
+- ✅ **Dynamic chart rendering** based on `chartData` array
+- ✅ **Background grid** with horizontal lines (0%, 25%, 50%, 75%, 100%)
+- ✅ **Y-axis labels** (0 at bottom, 100 at top)
+- ✅ **Dynamic chart width** based on number of columns
+- ✅ **Individual legend items** for each chart column
+- ✅ **Percentage display** for each data point
+- ✅ **Year labels** under each bar
+- ✅ **Theme integration** with proper color variables
+- ✅ **Proper spacing and typography** matching frontend exactly
 
 ## Technical Implementation
 
@@ -111,10 +112,11 @@ interface MarketShareTemplateProps {
 #### MarketShareTemplate PDF Features
 - **Grid System**: Horizontal lines at 0%, 25%, 50%, 75%, 100%
 - **Y-axis Labels**: Properly positioned with 0 at bottom, 100 at top
-- **Fixed Width**: Chart width is 240px for consistent layout
-- **Bar Heights**: Calculated as `(percentage / 100.0) * 200` pixels
+- **Dynamic Width**: Chart width adjusts based on number of columns: `(columns * 80 + 80)px`
+- **Bar Heights**: Calculated using frontend logic: `(percentage / maxValue) * 100 * 2.5`
 - **Legend**: Right-side legend with color indicators and percentages
-- **Layout**: Chart on left, legend on right with proper spacing
+- **Layout**: Exact frontend replication with proper flexbox structure
+- **Typography**: Matching font sizes, weights, and line heights
 
 #### PieChartInfographicsTemplate PDF Features
 - **SVG Chart**: High-quality vector graphics
