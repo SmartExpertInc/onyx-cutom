@@ -274,7 +274,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
           </div>
         </div>
       ) : (
-        <Timeline position="left" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <Timeline position="right" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
           {sortedActivities.map((activity, index) => (
             <TimelineItem key={activity.id}>
               <TimelineSeparator>
@@ -288,7 +288,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                 {index < sortedActivities.length - 1 && <TimelineConnector />}
               </TimelineSeparator>
               
-              <TimelineContent sx={{ py: '12px', px: 2 }}>
+              <TimelineContent sx={{ py: '20px', px: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   {/* Row 1: Activity Title */}
                   <Typography variant="body2" component="span" fontWeight="medium">
