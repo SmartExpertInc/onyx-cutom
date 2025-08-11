@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useMemo } from 'react';
-import { ImageMode } from '@/types/slideTemplates';
-import ModeAwareImagePlaceholder from './ModeAwareImagePlaceholder';
+import React, { useMemo, useRef, useState } from 'react';
+import { Image as ImageIcon, Upload, Replace } from 'lucide-react';
+import PresentationImageUpload from './PresentationImageUpload';
+import ResizablePlaceholder from './ResizablePlaceholder';
 
 interface ClickableImagePlaceholderProps {
   imagePath?: string;
@@ -14,18 +15,14 @@ interface ClickableImagePlaceholderProps {
   isEditable?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  
-  // Size and transform props
+  // New optional sizing/transform props
   widthPx?: number;
   heightPx?: number;
   objectFit?: 'contain' | 'cover' | 'fill';
-  imageScale?: number;
+  imageScale?: number; // 1.0 = natural fit
   imageOffset?: { x: number; y: number };
-  
-  // NEW: Mode-aware properties
-  imageMode?: ImageMode;
-  lockedSide?: 'width' | 'height';
-  
+  // NEW: Layout mode for Gamma-style full-side behavior
+  layoutMode?: 'free' | 'full-width' | 'full-height';
   onSizeTransformChange?: (payload: {
     widthPx?: number;
     heightPx?: number;
@@ -50,12 +47,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   objectFit,
   imageScale,
   imageOffset,
-  // NEW: Mode-aware properties
-  imageMode = 'free-proportion',
-  lockedSide = 'width',
+  layoutMode = 'free',
   onSizeTransformChange
 }) => {
-  // Position classes for layout
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  // Always contain
+  const objectFitMode: 'contain' = 'contain';
+  const imgWrapperRef = useRef<HTMLDivElement>(null);
+
+  const sizeClasses = {
+    'LARGE': 'h-48 md:h-64',
+    'MEDIUM': 'h-32 md:h-40', 
+    'SMALL': 'h-24 md:h-32'
+  };
+
   const positionClasses = {
     'LEFT': 'float-left mr-6 mb-4',
     'RIGHT': 'float-right ml-6 mb-4',
@@ -63,45 +68,203 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     'BACKGROUND': 'absolute inset-0 z-0'
   };
 
-  // Determine mode based on template context
-  const effectiveMode = useMemo(() => {
-    // If explicitly provided, use it
-    if (imageMode) return imageMode;
-    
-    // Default to free-proportion for most cases
-    return 'free-proportion';
-  }, [imageMode]);
+  const handleClick = () => {
+    if (isEditable) {
+      setShowUploadModal(true);
+    }
+  };
 
-  // Determine locked side based on template context
-  const effectiveLockedSide = useMemo(() => {
-    // If explicitly provided, use it
-    if (lockedSide) return lockedSide;
-    
-    // Default based on position
-    if (position === 'BACKGROUND') return 'width';
-    return 'width';
-  }, [lockedSide, position]);
+  const handleImageUploaded = (newImagePath: string) => {
+    onImageUploaded(newImagePath);
+    // After upload: adjust placeholder based on layout mode
+    const tmp = new window.Image();
+    tmp.onload = () => {
+      const imgW = tmp.naturalWidth || tmp.width;
+      const imgH = tmp.naturalHeight || tmp.height;
+      const wrapperEl = imgWrapperRef.current?.parentElement as HTMLElement | null;
+      const rect = wrapperEl?.getBoundingClientRect();
+      if (!imgW || !imgH || !rect) return;
 
+      let targetW: number;
+      let targetH: number;
+      let effectiveObjectFit: 'contain' | 'cover' | 'fill';
+
+      switch (layoutMode) {
+        case 'full-width':
+          // Full-width mode: lock to container width, allow height adjustment
+          targetW = rect.width || defaultPixelSize.w;
+          // Calculate height to maintain image aspect ratio
+          targetH = Math.round((targetW / imgW) * imgH);
+          effectiveObjectFit = 'cover'; // Fill width completely, crop height
+          break;
+        
+        case 'full-height':
+          // Full-height mode: lock to container height, allow width adjustment
+          targetH = rect.height || defaultPixelSize.h;
+          // Calculate width to maintain image aspect ratio
+          targetW = Math.round((targetH / imgH) * imgW);
+          effectiveObjectFit = 'cover'; // Fill height completely, crop width
+          break;
+        
+        case 'free':
+        default:
+          // Free mode: maintain aspect ratio, fit within container
+          const scale = Math.min((rect.width || imgW) / imgW, (rect.height || imgH) / imgH) || 1;
+          targetW = Math.max(1, Math.round(imgW * scale));
+          targetH = Math.max(1, Math.round(imgH * scale));
+          effectiveObjectFit = 'contain';
+          break;
+      }
+
+      onSizeTransformChange?.({ 
+        widthPx: targetW, 
+        heightPx: targetH, 
+        objectFit: effectiveObjectFit, 
+        imageScale: 1, 
+        imageOffset: { x: 0, y: 0 } 
+      });
+    };
+    tmp.src = newImagePath;
+  };
+
+  // Derived sizes for default size classes when explicit width/height not provided
+  const defaultPixelSize = useMemo(() => {
+    switch (size) {
+      case 'LARGE': return { w: 512, h: 384 };
+      case 'MEDIUM': return { w: 384, h: 256 };
+      case 'SMALL': return { w: 256, h: 192 };
+      default: return { w: 384, h: 256 };
+    }
+  }, [size]);
+
+  const handleResize = (s: { widthPx: number; heightPx: number }) => {
+    onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
+  };
+
+  const handleResizeCommit = (s: { widthPx: number; heightPx: number }) => {
+    onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
+  };
+
+  // Panning disabled in contain mode
+
+  // If we have an image, display it with replace overlay and image controls
+  if (imagePath) {
+    return (
+      <>
+        <ResizablePlaceholder
+          isEditable={isEditable}
+          className={`
+            ${positionClasses[position]} 
+            rounded-lg overflow-hidden relative ${className}
+          `}
+          style={{
+            ...(style || {}),
+            // Let component control size via widthPx/heightPx props
+          }}
+          // Use provided sizes or fall back to default sizes based on size prop
+          widthPx={widthPx || defaultPixelSize.w}
+          heightPx={heightPx || defaultPixelSize.h}
+          minWidthPx={120}
+          minHeightPx={120}
+          layoutMode={layoutMode}
+          onResize={handleResize}
+          onResizeCommit={handleResizeCommit}
+          ariaLabel="Resizable image placeholder"
+        >
+          <div ref={imgWrapperRef} className="w-full h-full relative">
+            <img
+              src={imagePath}
+              alt={description}
+              className="absolute inset-0"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: objectFit || 'contain',
+                transform: 'none',
+                transformOrigin: 'center center',
+                maxWidth: 'none',
+                maxHeight: 'none'
+              }}
+              draggable={false}
+              
+            />
+            {/* No fit toggle; always contain */}
+            {isEditable && (
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
+                onClick={handleClick}
+                title="Click to replace image"
+                style={{ pointerEvents: 'auto', zIndex: 10 }}
+              >
+                <div className="text-center text-white">
+                  <Replace className="w-6 h-6 mx-auto mb-1" />
+                  <div className="text-xs font-medium">Replace</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </ResizablePlaceholder>
+
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={handleImageUploaded}
+          title="Upload Presentation Image"
+        />
+      </>
+    );
+  }
+
+  // Otherwise show placeholder
   return (
-    <div className={positionClasses[position]}>
-      <ModeAwareImagePlaceholder
-        imagePath={imagePath}
-        onImageUploaded={onImageUploaded}
-        description={description}
-        prompt={prompt}
+    <>
+      <ResizablePlaceholder
         isEditable={isEditable}
-        className={className}
+        className={`
+          ${positionClasses[position]} 
+          bg-gradient-to-br from-blue-100 to-purple-100 
+          border-2 border-dashed border-gray-300 
+          rounded-lg flex items-center justify-center 
+          text-gray-500 text-sm
+          ${position === 'BACKGROUND' ? 'opacity-20' : ''}
+          ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
+          ${className}
+        `}
         style={style}
-        mode={effectiveMode}
-        lockedSide={effectiveLockedSide}
-        widthPx={widthPx}
-        heightPx={heightPx}
-        objectFit={objectFit}
-        imageScale={imageScale}
-        imageOffset={imageOffset}
-        onSizeTransformChange={onSizeTransformChange}
+        // Provide default sizes based on size prop to prevent tiny placeholders
+        widthPx={widthPx || defaultPixelSize.w}
+        heightPx={heightPx || defaultPixelSize.h}
+        minWidthPx={120}
+        minHeightPx={120}
+        layoutMode={layoutMode}
+        onResize={(s) => onSizeTransformChange?.(s)}
+        onResizeCommit={(s) => onSizeTransformChange?.(s)}
+        ariaLabel="Resizable image placeholder"
+      >
+        <div className="text-center p-4" onClick={handleClick} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+          <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <div className="font-medium">{size} Image</div>
+          <div className="text-xs mt-1 opacity-75">{description}</div>
+          {prompt && (
+            <div className="text-xs mt-1 opacity-60 italic">
+              "{prompt}"
+            </div>
+          )}
+          {isEditable && (
+            <div className="text-xs mt-2 text-blue-600 font-medium">
+              Click to upload
+            </div>
+          )}
+        </div>
+      </ResizablePlaceholder>
+
+      <PresentationImageUpload
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onImageUploaded={handleImageUploaded}
+        title="Upload Presentation Image"
       />
-    </div>
+    </>
   );
 };
 

@@ -286,10 +286,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
+          layoutMode="full-width"
           onSizeTransformChange={handleSizeTransformChange}
-          // NEW: Full-side mode with width locked, height resizable
-          imageMode="full-side"
-          lockedSide="width"
         />
       </div>
 

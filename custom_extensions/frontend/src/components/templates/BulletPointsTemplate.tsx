@@ -662,9 +662,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             prompt={displayPrompt}
             isEditable={isEditable}
             style={placeholderStyles}
+            layoutMode="free"
             onSizeTransformChange={handleSizeTransformChange}
-            // NEW: Free-proportion mode for bullet points layout
-            imageMode="free-proportion"
           />
         </div>
         
