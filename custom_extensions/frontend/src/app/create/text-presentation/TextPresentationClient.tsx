@@ -134,9 +134,6 @@ export default function TextPresentationClient() {
   // State for editing lesson titles
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
-  // State for editing lesson content
-  const [editingContentId, setEditingContentId] = useState<number | null>(null);
-  const [editedContent, setEditedContent] = useState<{[key: number]: string}>({});
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -272,61 +269,6 @@ export default function TextPresentationClient() {
     });
   };
 
-  // Handle lesson content editing
-  const handleContentEdit = (lessonIndex: number, newContent: string) => {
-    setEditedContent(prev => ({
-      ...prev,
-      [lessonIndex]: newContent
-    }));
-  };
-
-  const handleContentSave = (lessonIndex: number) => {
-    setEditingContentId(null);
-    // Update the original content with new content
-    updateContentWithNewContent(lessonIndex);
-  };
-
-  const updateContentWithNewContent = (lessonIndex: number) => {
-    const newContent = editedContent[lessonIndex];
-    if (!newContent) return;
-
-    const lessons = parseContentIntoLessons(content);
-    if (lessonIndex >= lessons.length) return;
-
-    const oldContent = lessons[lessonIndex].content;
-    const oldTitle = lessons[lessonIndex].title;
-    
-    // Find and replace the old content with new content in the main content
-    // Look for the section that contains this lesson's title and content
-    const titlePattern = new RegExp(`^(#{1,3}\\s*)${escapeRegExp(oldTitle)}`, 'gm');
-    const titleMatch = content.match(titlePattern);
-    
-    if (titleMatch) {
-      // Find the section starting with this title and replace its content
-      const sectionStart = content.indexOf(titleMatch[0]);
-      if (sectionStart !== -1) {
-        // Find the next section (next header) or end of content
-        const nextHeaderMatch = content.slice(sectionStart + titleMatch[0].length).match(/^(#{1,3}\s+.*)/m);
-        const sectionEnd = nextHeaderMatch 
-          ? sectionStart + titleMatch[0].length + content.slice(sectionStart + titleMatch[0].length).indexOf(nextHeaderMatch[0])
-          : content.length;
-        
-        const beforeSection = content.slice(0, sectionStart + titleMatch[0].length);
-        const afterSection = content.slice(sectionEnd);
-        
-        const updatedContent = beforeSection + '\n\n' + newContent + '\n\n' + afterSection;
-        setContent(updatedContent);
-      }
-    }
-    
-    // Clear the edited content since it's now part of the main content
-    setEditedContent(prev => {
-      const newContent = { ...prev };
-      delete newContent[lessonIndex];
-      return newContent;
-    });
-  };
-
   // Helper function to escape special regex characters
   const escapeRegExp = (string: string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -341,21 +283,8 @@ export default function TextPresentationClient() {
     setEditingLessonId(null);
   };
 
-  const handleContentCancel = (lessonIndex: number) => {
-    setEditedContent(prev => {
-      const newContent = { ...prev };
-      delete newContent[lessonIndex];
-      return newContent;
-    });
-    setEditingContentId(null);
-  };
-
   const getTitleForLesson = (lesson: any, index: number) => {
     return editedTitles[index] || lesson.title;
-  };
-
-  const getContentForLesson = (lesson: any, index: number) => {
-    return editedContent[index] || lesson.content;
   };
 
   // Example prompts for advanced mode
@@ -1116,28 +1045,9 @@ export default function TextPresentationClient() {
                           )}
                         </div>
                         {lesson.content && (
-                          <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
-                            {editingContentId === idx ? (
-                              <textarea
-                                value={getContentForLesson(lesson, idx)}
-                                onChange={(e) => handleContentEdit(idx, e.target.value)}
-                                className="w-full text-gray-700 text-sm bg-gray-50 border border-gray-200 rounded px-2 py-1 min-h-[80px] resize-none"
-                                autoFocus
-                                onBlur={() => handleContentSave(idx)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' && e.ctrlKey) handleContentSave(idx);
-                                  if (e.key === 'Escape') handleContentCancel(idx);
-                                }}
-                              />
-                            ) : (
-                              <div 
-                                className="cursor-pointer hover:bg-gray-50 rounded px-2 py-1 -mx-2 -my-1"
-                                onClick={() => setEditingContentId(idx)}
-                              >
-                                {lesson.content.substring(0, 100)}
-                                {lesson.content.length > 100 && '...'}
-                              </div>
-                            )}
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx ? 'filter blur-[2px]' : ''}`}>
+                            {lesson.content.substring(0, 100)}
+                            {lesson.content.length > 100 && '...'}
                           </div>
                         )}
                       </div>
