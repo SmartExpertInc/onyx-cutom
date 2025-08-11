@@ -1116,31 +1116,42 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         const completionTime = lesson.completionTime || '5m';
         const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
         let newHours: number;
-        if (advancedEnabled && Array.isArray(lesson.recommended_content_types?.primary)) {
-          const primary: string[] = lesson.recommended_content_types.primary;
-          // Ensure we have a breakdown; if missing, build one using deterministic midpoints
-          let breakdown: Record<string, number> = (lesson.completion_breakdown || {}) as Record<string, number>;
-          if (!breakdown || Object.keys(breakdown).length === 0) {
-            const midpoint = (p: string) => (p === 'one-pager' ? 3 : p === 'presentation' ? 8 : p === 'quiz' ? 6 : p === 'video-lesson' ? 4 : 0);
-            breakdown = {};
-            primary.forEach(p => { breakdown[p] = midpoint(p); });
-            onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
-            const total = primary.reduce((sum, p) => sum + (breakdown[p] || 0), 0);
-            if (total > 0) onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], `${total}m`);
+        if (advancedEnabled) {
+          // Resolve primary recommended products; may be stored as array or JSON string
+          let primary: string[] = [];
+          const primaryRaw = lesson?.recommended_content_types?.primary;
+          if (Array.isArray(primaryRaw)) {
+            primary = primaryRaw as string[];
+          } else if (typeof primaryRaw === 'string') {
+            try { primary = JSON.parse(primaryRaw); } catch { primary = []; }
           }
-          const rates = {
-            presentation: advancedRates?.presentation ?? customRate,
-            one_pager: advancedRates?.onePager ?? customRate,
-            quiz: advancedRates?.quiz ?? customRate,
-            video_lesson: advancedRates?.videoLesson ?? customRate,
-          } as any;
-          const total = primary.reduce((sum, p) => {
-            const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
-            const minutes = breakdown[p] || 0;
-            const rate = rates[key] ?? customRate;
-            return sum + (minutes / 60.0) * Number(rate);
-          }, 0);
-          newHours = Math.round(total);
+          if (primary.length > 0) {
+            // Ensure we have a breakdown; if missing, build one using deterministic midpoints
+            let breakdown: Record<string, number> = (lesson.completion_breakdown || {}) as Record<string, number>;
+            if (!breakdown || Object.keys(breakdown).length === 0) {
+              const midpoint = (p: string) => (p === 'one-pager' ? 3 : p === 'presentation' ? 8 : p === 'quiz' ? 6 : p === 'video-lesson' ? 4 : 0);
+              breakdown = {};
+              primary.forEach(p => { breakdown[p] = midpoint(p); });
+              onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
+              const total = primary.reduce((sum, p) => sum + (breakdown[p] || 0), 0);
+              if (total > 0) onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], `${total}m`);
+            }
+            const rates = {
+              presentation: advancedRates?.presentation ?? customRate,
+              one_pager: advancedRates?.onePager ?? customRate,
+              quiz: advancedRates?.quiz ?? customRate,
+              video_lesson: advancedRates?.videoLesson ?? customRate,
+            } as any;
+            const total = primary.reduce((sum, p) => {
+              const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+              const minutes = (lesson.completion_breakdown || {})[p] ?? 0;
+              const rate = rates[key] ?? customRate;
+              return sum + (Number(minutes) / 60.0) * Number(rate);
+            }, 0);
+            newHours = Math.round(total);
+          } else {
+            newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+          }
         } else {
           newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
         }
@@ -1632,6 +1643,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         currentCustomRate={lessonSettingsModalState.currentCustomRate}
         currentQualityTier={lessonSettingsModalState.currentQualityTier}
         completionTime={lessonSettingsModalState.completionTime}
+        // Preselect current advanced values from the lesson if present
+        {...(() => {
+          const sIdx = lessonSettingsModalState.sectionIndex;
+          const lIdx = lessonSettingsModalState.lessonIndex;
+          if (sIdx !== undefined && sIdx >= 0 && lIdx !== undefined && lIdx >= 0) {
+            const les: any = dataToDisplay?.sections[sIdx]?.lessons?.[lIdx];
+            return {
+              currentAdvancedEnabled: !!les?.advanced,
+              currentAdvancedRates: les?.advancedRates || undefined,
+            } as any;
+          }
+          return {} as any;
+        })()}
         onSave={handleLessonSettingsSave}
       />
       <ModuleSettingsModal

@@ -12,6 +12,8 @@ interface LessonSettingsModalProps {
   currentQualityTier?: string;
   completionTime: string;
   onSave: (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => void;
+  currentAdvancedEnabled?: boolean;
+  currentAdvancedRates?: { presentation?: number; onePager?: number; quiz?: number; videoLesson?: number };
 }
 
 interface QualityTier {
@@ -34,14 +36,21 @@ export default function LessonSettingsModal({
   currentCustomRate,
   currentQualityTier,
   completionTime,
-  onSave
+  onSave,
+  currentAdvancedEnabled,
+  currentAdvancedRates
 }: LessonSettingsModalProps) {
   const { t } = useLanguage();
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
   const [customRate, setCustomRate] = useState(currentCustomRate || 200);
   const [saving, setSaving] = useState(false);
-  const [advancedEnabled, setAdvancedEnabled] = useState(false);
-  const [perProductRates, setPerProductRates] = useState({ presentation: 200, onePager: 200, quiz: 200, videoLesson: 200 });
+  const [advancedEnabled, setAdvancedEnabled] = useState(!!currentAdvancedEnabled);
+  const [perProductRates, setPerProductRates] = useState({
+    presentation: currentAdvancedRates?.presentation ?? (currentCustomRate || 200),
+    onePager: currentAdvancedRates?.onePager ?? (currentCustomRate || 200),
+    quiz: currentAdvancedRates?.quiz ?? (currentCustomRate || 200),
+    videoLesson: currentAdvancedRates?.videoLesson ?? (currentCustomRate || 200)
+  });
 
   const qualityTiers: QualityTier[] = [
     {
@@ -121,8 +130,15 @@ export default function LessonSettingsModal({
     if (isOpen) {
       setQualityTier(currentQualityTier || 'interactive');
       setCustomRate(currentCustomRate || 200);
+      setAdvancedEnabled(!!currentAdvancedEnabled);
+      setPerProductRates({
+        presentation: currentAdvancedRates?.presentation ?? (currentCustomRate || 200),
+        onePager: currentAdvancedRates?.onePager ?? (currentCustomRate || 200),
+        quiz: currentAdvancedRates?.quiz ?? (currentCustomRate || 200),
+        videoLesson: currentAdvancedRates?.videoLesson ?? (currentCustomRate || 200)
+      });
     }
-  }, [isOpen, currentQualityTier, currentCustomRate]);
+  }, [isOpen, currentCustomRate, currentQualityTier, currentAdvancedEnabled, currentAdvancedRates]);
 
   // Update custom rate when tier changes
   useEffect(() => {
