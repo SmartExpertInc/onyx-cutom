@@ -1170,36 +1170,57 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   // Handle saving module settings
-  const handleModuleSettingsSave = async (customRate: number, qualityTier: string) => {
+  const handleModuleSettingsSave = async (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
     const { sectionIndex } = moduleSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0) {
       // Update module's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'quality_tier'], qualityTier);
-
-      // Optional: advanced flags if present on section (preserve existing unknown fields)
-      const section = dataToDisplay?.sections[sectionIndex] as any;
-      if (section && section.advanced !== undefined) {
-        onTextChange(['sections', sectionIndex, 'advanced'], !!section.advanced);
+      if (advancedEnabled !== undefined) {
+        onTextChange(['sections', sectionIndex, 'advanced'], !!advancedEnabled);
       }
-      if (section && section.advancedRates) {
-        onTextChange(['sections', sectionIndex, 'advancedRates'], section.advancedRates as any);
+      if (advancedRates) {
+        onTextChange(['sections', sectionIndex, 'advancedRates'], advancedRates);
       }
       
-      // Recalculate hours for all lessons in this module and update their quality_tier
+      const section = dataToDisplay?.sections[sectionIndex] as any;
       if (section && section.lessons) {
         let totalSectionHours = 0;
-        
         section.lessons.forEach((lesson: any, lessonIndex: number) => {
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
           const completionTime = lesson.completionTime || '5m';
           const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
-          const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+          let newHours: number;
+          if (advancedEnabled && Array.isArray(lesson?.recommended_content_types?.primary)) {
+            const primary: string[] = lesson.recommended_content_types.primary;
+            const breakdown = (lesson.completion_breakdown || {}) as Record<string, number>;
+            const rates = {
+              presentation: advancedRates?.presentation ?? customRate,
+              one_pager: advancedRates?.onePager ?? customRate,
+              quiz: advancedRates?.quiz ?? customRate,
+              video_lesson: advancedRates?.videoLesson ?? customRate,
+            } as any;
+            let total = 0;
+            if (Object.keys(breakdown).length > 0) {
+              total = primary.reduce((sum, p) => {
+                const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+                return sum + (Number(breakdown[p] || 0) / 60.0) * Number(rates[key] ?? customRate);
+              }, 0);
+            } else {
+              const per = Math.max(1, Math.round(completionTimeMinutes / Math.max(1, primary.length)));
+              total = primary.reduce((sum, p) => {
+                const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+                return sum + (per / 60.0) * Number(rates[key] ?? customRate);
+              }, 0);
+            }
+            newHours = Math.round(total);
+          } else {
+            newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+          }
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
           totalSectionHours += newHours;
         });
-        
         onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
         onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
       }
