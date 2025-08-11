@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Image as ImageIcon, Upload, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import ResizablePlaceholder from './ResizablePlaceholder';
+import ModeAwareImagePlaceholder from './ModeAwareImagePlaceholder';
 
 interface ClickableImagePlaceholderProps {
   imagePath?: string;
@@ -45,6 +46,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   objectFit,
   imageScale,
   imageOffset,
+  // optional mode passed by templates
+  imageMode,
+  lockedSide,
   onSizeTransformChange
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -115,58 +119,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   if (imagePath) {
     return (
       <>
-        <ResizablePlaceholder
+        <ModeAwareImagePlaceholder
+          mode={imageMode || 'free-proportion'}
+          lockedSide={lockedSide}
+          imagePath={imagePath}
+          description={description}
           isEditable={isEditable}
-          className={`
-            ${positionClasses[position]} 
-            rounded-lg overflow-hidden relative ${className}
-          `}
-          style={{
-            ...(style || {}),
-            // Let component control size via widthPx/heightPx props
-          }}
-          // Use provided sizes or fall back to default sizes based on size prop
+          className={`${positionClasses[position]} rounded-lg overflow-hidden relative ${className}`}
+          style={style}
           widthPx={widthPx || defaultPixelSize.w}
           heightPx={heightPx || defaultPixelSize.h}
-          minWidthPx={120}
-          minHeightPx={120}
-          onResize={handleResize}
-          onResizeCommit={handleResizeCommit}
-          ariaLabel="Resizable image placeholder"
-        >
-          <div ref={imgWrapperRef} className="w-full h-full relative">
-            <img
-              src={imagePath}
-              alt={description}
-              className="absolute inset-0"
-              style={{
-                width: '100%',
-                height: '100%',
-                 objectFit: 'contain',
-                 transform: 'none',
-                transformOrigin: 'center center',
-                maxWidth: 'none',
-                maxHeight: 'none'
-              }}
-              draggable={false}
-              
-            />
-            {/* No fit toggle; always contain */}
-            {isEditable && (
-              <div 
-                className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
-                onClick={handleClick}
-                title="Click to replace image"
-                style={{ pointerEvents: 'auto', zIndex: 10 }}
-              >
-                <div className="text-center text-white">
-                  <Replace className="w-6 h-6 mx-auto mb-1" />
-                  <div className="text-xs font-medium">Replace</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </ResizablePlaceholder>
+          onSizeTransformChange={onSizeTransformChange}
+        />
 
         <PresentationImageUpload
           isOpen={showUploadModal}
@@ -203,7 +167,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onResizeCommit={(s) => onSizeTransformChange?.(s)}
         ariaLabel="Resizable image placeholder"
       >
-        <div className="text-center p-4" onClick={handleClick} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            <div className="text-center p-4" onClick={handleClick} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
           <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <div className="font-medium">{size} Image</div>
           <div className="text-xs mt-1 opacity-75">{description}</div>

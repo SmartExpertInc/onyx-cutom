@@ -127,6 +127,10 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number;
   imageOffset?: { x: number; y: number };
+  // NEW: Image placement mode
+  imageMode?: 'full-side' | 'free-proportion';
+  // For full-side mode: which dimension is locked to fill container
+  lockedSide?: 'width' | 'height';
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -160,6 +164,9 @@ export interface BulletPointsProps extends BaseTemplateProps {
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number;
   imageOffset?: { x: number; y: number };
+  // NEW: Image placement mode for bullet layouts
+  imageMode?: 'full-side' | 'free-proportion';
+  lockedSide?: 'width' | 'height';
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {
