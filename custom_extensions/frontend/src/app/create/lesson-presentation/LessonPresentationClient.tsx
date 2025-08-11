@@ -403,6 +403,7 @@ export default function LessonPresentationClient() {
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
+    setTextareaVisible(true);
     console.log("effect запустився, language =", language);
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
