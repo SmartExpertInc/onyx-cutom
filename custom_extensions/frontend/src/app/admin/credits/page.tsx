@@ -598,9 +598,6 @@ const AdminCreditsPage: React.FC = () => {
 
         {/* MUI Table with Sorting and Pagination */}
         <div className="mt-8">
-          <Typography variant="h5" component="h2" className="mb-4 text-gray-900">
-            MUI Table (Sortable & Paginated)
-          </Typography>
           <MUITable 
             users={filteredUsers}
             onUserSelect={(user: UserCredits | null) => setSelectedUser(user)}
