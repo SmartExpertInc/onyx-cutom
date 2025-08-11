@@ -319,10 +319,11 @@ export default function LessonPresentationClient() {
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
 
 
-
+  // experimental
   useEffect(() => {
     if (loading && !streamDone) {
       setStreamDone(true);
+      setLoading(false);
     }
   }, [loading, streamDone]);
 
