@@ -28,7 +28,7 @@ interface TimelineActivity {
   id: string;
   type: 'purchase' | 'product_generation';
   title: string;
-  description: string;
+  description?: string;
   credits: number;
   timestamp: string;
   productType?: string;
