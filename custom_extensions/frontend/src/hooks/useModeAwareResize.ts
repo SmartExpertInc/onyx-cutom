@@ -11,10 +11,10 @@ interface UseModeAwareResizeProps {
 }
 
 interface ResizeConstraints {
-  minWidth: number;
-  maxWidth: number;
-  minHeight: number;
-  maxHeight: number;
+  minWidth?: number;
+  maxWidth?: number;
+  minHeight?: number;
+  maxHeight?: number;
 }
 
 /**
@@ -73,7 +73,7 @@ export const useModeAwareResize = ({
   const handleSliderResize = useCallback((value: number) => {
     if (mode !== 'full-side') return;
 
-    const { minWidth, maxWidth, minHeight, maxHeight } = constraints;
+    const { minWidth = 200, maxWidth = 800, minHeight = 150, maxHeight = 600 } = constraints;
     
     let newWidth = currentWidth;
     let newHeight = currentHeight;
@@ -93,7 +93,7 @@ export const useModeAwareResize = ({
   const handleCornerResize = useCallback((deltaX: number, deltaY: number) => {
     if (mode !== 'free-proportion') return;
 
-    const { minWidth, maxWidth, minHeight, maxHeight } = constraints;
+    const { minWidth = 120, maxWidth = 800, minHeight = 120, maxHeight = 600 } = constraints;
     
     // Proportional resize based on width change
     const newWidth = Math.max(minWidth, Math.min(maxWidth, currentWidth + deltaX));
@@ -109,7 +109,7 @@ export const useModeAwareResize = ({
   const getSliderValue = useCallback(() => {
     if (mode !== 'full-side') return 0;
 
-    const { minWidth, maxWidth, minHeight, maxHeight } = constraints;
+    const { minWidth = 200, maxWidth = 800, minHeight = 150, maxHeight = 600 } = constraints;
     
     if (lockedSide === 'width') {
       return (currentHeight - minHeight) / (maxHeight - minHeight);
@@ -160,7 +160,7 @@ export const useModeAwareResize = ({
     }
 
     // Apply constraints
-    const { minWidth, maxWidth, minHeight, maxHeight } = constraints;
+    const { minWidth = 120, maxWidth = 800, minHeight = 120, maxHeight = 600 } = constraints;
     newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
     newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
 
