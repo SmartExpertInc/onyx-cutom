@@ -1048,54 +1048,43 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Market share',
       subtitle: '',
-      primaryMetric: {
-        label: 'Mercury',
-        description: 'Mercury is the closest planet to the Sun',
-        percentage: 85,
-        color: '#2a5490'
-      },
-      secondaryMetric: {
-        label: 'Mars',
-        description: 'Despite being red, Mars is a cold place',
-        percentage: 40,
-        color: '#9ca3af'
-      },
-      chartData: {
-        primaryValue: 85,
-        secondaryValue: 40,
-        primaryColor: '#2a5490',
-        secondaryColor: '#9ca3af',
-        primaryYear: '2023',
-        secondaryYear: '2024'
-      },
-      backgroundColor: '#ffffff',
-      titleColor: '#1f2937',
-      textColor: '#374151',
-      accentColor: '#2a5490',
+      chartData: [
+        {
+          label: 'Mercury',
+          description: 'Mercury is the closest planet to the Sun',
+          percentage: 85,
+          color: '#2a5490',
+          year: '2023'
+        },
+        {
+          label: 'Mars',
+          description: 'Despite being red, Mars is a cold place',
+          percentage: 40,
+          color: '#9ca3af',
+          year: '2024'
+        }
+      ],
       bottomText: 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
       subtitle: { type: 'text', label: 'Subtitle', required: false },
-      primaryMetric: {
-        type: 'text',
-        label: 'Primary Metric Label',
-        required: true
-      },
-      secondaryMetric: {
-        type: 'text',
-        label: 'Secondary Metric Label',
-        required: true
-      },
       chartData: {
-        type: 'text',
+        type: 'array',
         label: 'Chart Data',
-        required: true
+        required: true,
+        arrayItemType: {
+          type: 'object',
+          label: 'Chart Item',
+          properties: {
+            label: { type: 'text', label: 'Label', required: true },
+            description: { type: 'text', label: 'Description', required: true },
+            percentage: { type: 'number', label: 'Percentage', required: true },
+            color: { type: 'color', label: 'Color', required: true },
+            year: { type: 'text', label: 'Year', required: false }
+          }
+        }
       },
-      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
-      titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
-      textColor: { type: 'color', label: 'Text Color', default: '#374151' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#2a5490' },
       bottomText: { type: 'text', label: 'Bottom Description', required: false }
     }
   },

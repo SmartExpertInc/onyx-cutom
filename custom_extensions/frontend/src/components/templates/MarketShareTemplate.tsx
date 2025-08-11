@@ -1,7 +1,5 @@
 // custom_extensions/frontend/src/components/templates/MarketShareTemplate.tsx
 
-'use client';
-
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { MarketShareTemplateProps } from '@/types/slideTemplates';
@@ -270,7 +268,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
 
   const handleRemoveColumn = (index: number) => {
     if (chartData.length > 1) {
-      const newChartData = chartData.filter((_, i) => i !== index);
+      const newChartData = chartData.filter((_: any, i: number) => i !== index);
       const newData = { title, chartData: newChartData, bottomText };
       scheduleAutoSave(newData);
     }
@@ -301,8 +299,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   };
 
   // Create chart bars with relative heights based on the reference
-  const maxValue = Math.max(...chartData.map(item => item.percentage), 100);
-  const chartHeights = chartData.map(item => (item.percentage / maxValue) * 100);
+  const maxValue = Math.max(...chartData.map((item: any) => item.percentage), 100);
+  const chartHeights = chartData.map((item: any) => (item.percentage / maxValue) * 100);
 
   return (
     <div 
@@ -352,7 +350,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
               <div className="flex items-end justify-center mb-4" style={{ height: '300px' }}>
                 <div className="flex items-end gap-8">
                   
-                  {chartData.map((item, index) => (
+                  {chartData.map((item: any, index: number) => (
                     <div key={index} className="flex flex-col items-center relative">
                       <div 
                         className="w-16 rounded transition-all duration-300 hover:opacity-80"
@@ -445,7 +443,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
           {/* Legend Section - Right side */}
           <div className="flex flex-col gap-8 ml-16">
             
-            {chartData.map((item, index) => (
+            {chartData.map((item: any, index: number) => (
               <div key={index} className="flex items-center gap-4">
                 <div 
                   className="w-6 h-6 rounded-full flex-shrink-0"
