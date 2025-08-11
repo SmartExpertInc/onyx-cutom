@@ -4,6 +4,42 @@ import React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
 import { PositionableItem, CanvasConfig, PositioningMode } from '@/types/positioning';
 
+// --- Image Mode System ---
+
+export type ImageMode = 'full-side' | 'free-proportion';
+
+export interface ImageModeConfig {
+  mode: ImageMode;
+  lockedSide?: 'width' | 'height'; // For full-side mode
+  defaultSize?: {
+    width?: number;
+    height?: number;
+  };
+  constraints?: {
+    minWidth?: number;
+    maxWidth?: number;
+    minHeight?: number;
+    maxHeight?: number;
+  };
+}
+
+export interface PlaceholderProps {
+  imageUrl?: string;
+  imageAlt?: string;
+  imagePath?: string;
+  imagePrompt?: string;
+  // Size and transform properties
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
+  // NEW: Mode-aware properties
+  imageMode?: ImageMode;
+  lockedSide?: 'width' | 'height';
+  modeConfig?: ImageModeConfig;
+}
+
 // --- Base Template System Types ---
 
 export interface BaseTemplateProps {
@@ -121,16 +157,16 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
   imagePath?: string; // Path to uploaded image
-  // New optional size/transform fields for placeholder/image
+  // Size and transform properties
   widthPx?: number;
   heightPx?: number;
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number;
   imageOffset?: { x: number; y: number };
-  // NEW: Image placement mode
-  imageMode?: 'full-side' | 'free-proportion';
-  // For full-side mode: which dimension is locked to fill container
+  // NEW: Mode-aware properties
+  imageMode?: ImageMode;
   lockedSide?: 'width' | 'height';
+  modeConfig?: ImageModeConfig;
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -164,9 +200,10 @@ export interface BulletPointsProps extends BaseTemplateProps {
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number;
   imageOffset?: { x: number; y: number };
-  // NEW: Image placement mode for bullet layouts
-  imageMode?: 'full-side' | 'free-proportion';
+  // NEW: Mode-aware properties
+  imageMode?: ImageMode;
   lockedSide?: 'width' | 'height';
+  modeConfig?: ImageModeConfig;
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {

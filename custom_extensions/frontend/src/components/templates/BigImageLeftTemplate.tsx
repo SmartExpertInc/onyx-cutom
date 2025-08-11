@@ -280,9 +280,10 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
+          onSizeTransformChange={handleSizeTransformChange}
+          // NEW: Full-side mode with height locked, width resizable
           imageMode="full-side"
           lockedSide="height"
-          onSizeTransformChange={handleSizeTransformChange}
         />
       </div>
 
