@@ -2,6 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, Users, Search, RefreshCw } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  TableSortLabel,
+  Paper,
+  Checkbox,
+  Box,
+  Typography
+} from '@mui/material';
 
 interface UserCredits {
   id: number;
@@ -22,6 +36,224 @@ interface CreditTransaction {
   action: 'add' | 'remove';
   reason: string;
 }
+
+type Order = 'asc' | 'desc';
+
+interface MUITableProps {
+  users: UserCredits[];
+  onUserSelect: (user: UserCredits | null) => void;
+  onAddCredits: (user: UserCredits) => void;
+  onRemoveCredits: (user: UserCredits) => void;
+}
+
+const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, onRemoveCredits }) => {
+  const [order, setOrder] = useState<Order>('asc');
+  const [orderBy, setOrderBy] = useState<keyof UserCredits>('name');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedRow, setSelectedRow] = useState<number | null>(null);
+
+  const handleRequestSort = (property: keyof UserCredits) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleRowClick = (userId: number) => {
+    setSelectedRow(selectedRow === userId ? null : userId);
+    const user = users.find(u => u.id === userId);
+    onUserSelect(user || null);
+  };
+
+  const sortedUsers = React.useMemo(() => {
+    const sorted = [...users].sort((a, b) => {
+      let aValue: any = a[orderBy];
+      let bValue: any = b[orderBy];
+
+      // Handle string comparison
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) {
+        return order === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return order === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [users, order, orderBy, page, rowsPerPage]);
+
+  const createSortHandler = (property: keyof UserCredits) => () => {
+    handleRequestSort(property);
+  };
+
+  return (
+    <Paper className="shadow-lg">
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell padding="checkbox">
+                <Checkbox disabled />
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'name'}
+                  direction={orderBy === 'name' ? order : 'asc'}
+                  onClick={createSortHandler('name')}
+                >
+                  User
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'credits_balance'}
+                  direction={orderBy === 'credits_balance' ? order : 'asc'}
+                  onClick={createSortHandler('credits_balance')}
+                >
+                  Credits Balance
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'total_credits_used'}
+                  direction={orderBy === 'total_credits_used' ? order : 'asc'}
+                  onClick={createSortHandler('total_credits_used')}
+                >
+                  Total Used
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>Purchased</TableCell>
+              <TableCell>Tier</TableCell>
+              <TableCell>Last Purchase</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedUsers.map((user) => (
+              <TableRow
+                key={user.id}
+                hover
+                selected={selectedRow === user.id}
+                onClick={() => handleRowClick(user.id)}
+                sx={{ cursor: 'pointer' }}
+              >
+                <TableCell padding="checkbox">
+                  <Checkbox checked={selectedRow === user.id} />
+                </TableCell>
+                <TableCell>
+                  <Box>
+                    <Typography variant="body2" fontWeight="medium">
+                      {user.name}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      {user.onyx_user_id}
+                    </Typography>
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      backgroundColor: user.credits_balance > 50 
+                        ? 'success.light' 
+                        : user.credits_balance > 10 
+                        ? 'warning.light' 
+                        : 'error.light',
+                      color: user.credits_balance > 50 
+                        ? 'success.dark' 
+                        : user.credits_balance > 10 
+                        ? 'warning.dark' 
+                        : 'error.dark',
+                    }}
+                  >
+                    {user.credits_balance}
+                  </Box>
+                </TableCell>
+                <TableCell>{user.total_credits_used}</TableCell>
+                <TableCell>{user.credits_purchased}</TableCell>
+                <TableCell>
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      backgroundColor: 'primary.light',
+                      color: 'primary.dark',
+                    }}
+                  >
+                    {user.subscription_tier}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  {user.last_purchase_date 
+                    ? new Date(user.last_purchase_date).toLocaleDateString()
+                    : 'Never'
+                  }
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddCredits(user);
+                      }}
+                      className="flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 border border-green-300 rounded hover:bg-green-200"
+                    >
+                      <Plus className="w-3 h-3 mr-1" />
+                      Add
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRemoveCredits(user);
+                      }}
+                      className="flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 border border-red-300 rounded hover:bg-red-200"
+                    >
+                      <Minus className="w-3 h-3 mr-1" />
+                      Remove
+                    </button>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={users.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Paper>
+  );
+};
 
 const AdminCreditsPage: React.FC = () => {
   const [users, setUsers] = useState<UserCredits[]>([]);
@@ -370,6 +602,19 @@ const AdminCreditsPage: React.FC = () => {
               </p>
             </div>
           )}
+        </div>
+
+        {/* MUI Table with Sorting and Pagination */}
+        <div className="mt-8">
+          <Typography variant="h5" component="h2" className="mb-4 text-gray-900">
+            MUI Table (Sortable & Paginated)
+          </Typography>
+          <MUITable 
+            users={filteredUsers}
+            onUserSelect={(user: UserCredits | null) => setSelectedUser(user)}
+            onAddCredits={(user: UserCredits) => openTransactionModal(user, 'add')}
+            onRemoveCredits={(user: UserCredits) => openTransactionModal(user, 'remove')}
+          />
         </div>
 
         {/* Transaction Modal */}
