@@ -434,7 +434,8 @@ export default function LessonPresentationClient() {
         setLoading(true);
         setError(null);
         setContent("");
-        setTextareaVisible(true); // Clear previous content
+        setTextareaVisible(true);
+        setLoading(false); // Clear previous content
         let gotFirstChunk = false;
 
         try {
