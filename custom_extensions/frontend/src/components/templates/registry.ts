@@ -1072,18 +1072,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       chartData: {
         type: 'array',
         label: 'Chart Data',
-        required: true,
-        arrayItemType: {
-          type: 'object',
-          label: 'Chart Item',
-          properties: {
-            label: { type: 'text', label: 'Label', required: true },
-            description: { type: 'text', label: 'Description', required: true },
-            percentage: { type: 'number', label: 'Percentage', required: true },
-            color: { type: 'color', label: 'Color', required: true },
-            year: { type: 'text', label: 'Year', required: false }
-          }
-        }
+        required: true
       },
       bottomText: { type: 'text', label: 'Bottom Description', required: false }
     }
