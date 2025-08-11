@@ -229,29 +229,25 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
-  const getActivityIcon = (type: string, productType?: string) => {
+  const getActivityColor = (type: string, productType?: string) => {
     if (type === 'purchase') {
-      return <ShoppingCart className="w-4 h-4" />;
+      return '#4CAF50'; // Green for purchases
     }
     
     switch (productType) {
       case 'Course Outline':
-        return <FileText className="w-4 h-4" />;
+        return '#FF6B6B'; // Red
       case 'Video Lesson':
-        return <Video className="w-4 h-4" />;
+        return '#4ECDC4'; // Teal
       case 'Quiz':
-        return <HelpCircle className="w-4 h-4" />;
+        return '#45B7D1'; // Blue
       case 'Presentation':
-        return <Presentation className="w-4 h-4" />;
+        return '#96CEB4'; // Green
       case 'One-Pager':
-        return <FileCheck className="w-4 h-4" />;
+        return '#FFEAA7'; // Yellow
       default:
-        return <FileText className="w-4 h-4" />;
+        return '#FF6B6B'; // Default red
     }
-  };
-
-  const getTimelineDotColor = (type: string) => {
-    return type === 'purchase' ? 'success' : 'primary';
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -286,29 +282,32 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
               </TimelineOppositeContent>
               
               <TimelineSeparator>
-                <TimelineDot color={getTimelineDotColor(activity.type) as any}>
-                  {getActivityIcon(activity.type, activity.productType)}
+                <TimelineDot sx={{ 
+                  backgroundColor: getActivityColor(activity.type, activity.productType),
+                  color: 'white',
+                  width: 24,
+                  height: 24
+                }}>
                 </TimelineDot>
                 {index < sortedActivities.length - 1 && <TimelineConnector />}
               </TimelineSeparator>
               
-              <TimelineContent sx={{ py: '12px', px: 2 }}>
-                <Paper elevation={3} sx={{ p: 2 }}>
-                  <Typography variant="h6" component="span" fontWeight="medium">
-                    {activity.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    {activity.description}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                    {activity.type === 'purchase' ? (
-                      <Plus className="w-4 h-4 text-green-600 mr-1" />
-                    ) : (
-                      <Minus className="w-4 h-4 text-red-600 mr-1" />
-                    )}
-                    <Typography variant="body2" color="text.secondary">
-                      {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
+              <TimelineContent sx={{ py: '8px', px: 2 }}>
+                <Paper elevation={1} sx={{ p: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" component="span" fontWeight="medium">
+                      {activity.title}
                     </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {activity.type === 'purchase' ? (
+                        <Plus className="w-3 h-3 text-green-600 mr-1" />
+                      ) : (
+                        <Minus className="w-3 h-3 text-red-600 mr-1" />
+                      )}
+                      <Typography variant="caption" color="text.secondary">
+                        {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
+                      </Typography>
+                    </Box>
                   </Box>
                 </Paper>
               </TimelineContent>
