@@ -844,10 +844,10 @@ export default function LessonPresentationClient() {
           }
         }
         
-        // if (/\S/.test(accumulatedText) && !textareaVisible) {
-        //   setTextareaVisible(true);
-        //   setLoading(false);
-        // }
+        if (/\S/.test(accumulatedText) && !textareaVisible) {
+          setTextareaVisible(true);
+          setLoading(false);
+        }
       }
     } catch (e: any) {
       if (e.name !== "AbortError") {
@@ -1114,7 +1114,7 @@ export default function LessonPresentationClient() {
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
           {/* Main content display - Custom slide titles display matching course outline format */}
-          {textareaVisible && (
+          {textareaVisible || content && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
