@@ -170,8 +170,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             // Let component control size via widthPx/heightPx props
           }}
           // Use provided sizes or fall back to default sizes based on size prop
+          // For fixed-left mode, don't set heightPx to allow full container height
           widthPx={widthPx || defaultPixelSize.w}
-          heightPx={heightPx || defaultPixelSize.h}
+          heightPx={layoutMode === 'fixed-left' ? undefined : (heightPx || defaultPixelSize.h)}
           minWidthPx={120}
           minHeightPx={120}
           layoutMode={layoutMode}
@@ -240,8 +241,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         `}
         style={style}
         // Provide default sizes based on size prop to prevent tiny placeholders
+        // For fixed-left mode, don't set heightPx to allow full container height
         widthPx={widthPx || defaultPixelSize.w}
-        heightPx={heightPx || defaultPixelSize.h}
+        heightPx={layoutMode === 'fixed-left' ? undefined : (heightPx || defaultPixelSize.h)}
         minWidthPx={120}
         minHeightPx={120}
         layoutMode={layoutMode}

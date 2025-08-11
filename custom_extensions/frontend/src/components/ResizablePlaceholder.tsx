@@ -52,7 +52,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   const activeHandleRef = useRef<string | null>(null);
   const [size, setSize] = useState<{ widthPx: number; heightPx: number }>(() => ({
     widthPx: Math.max(minWidthPx, widthPx || 0),
-    heightPx: Math.max(minHeightPx, heightPx || 0)
+    heightPx: layoutMode === 'fixed-left' && heightPx === undefined ? 0 : Math.max(minHeightPx, heightPx || 0)
   }));
   const aspectOnStartRef = useRef<number | null>(null);
   const [isKeyboardResizing, setIsKeyboardResizing] = useState(false);
@@ -62,17 +62,24 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     if (typeof widthPx === 'number' || typeof heightPx === 'number') {
       setSize(prev => ({
         widthPx: typeof widthPx === 'number' ? Math.max(minWidthPx, widthPx) : prev.widthPx,
-        heightPx: typeof heightPx === 'number' ? Math.max(minHeightPx, heightPx) : prev.heightPx
+        heightPx: layoutMode === 'fixed-left' && heightPx === undefined ? 0 : 
+                 (typeof heightPx === 'number' ? Math.max(minHeightPx, heightPx) : prev.heightPx)
       }));
     }
-  }, [widthPx, heightPx, minWidthPx, minHeightPx]);
+  }, [widthPx, heightPx, minWidthPx, minHeightPx, layoutMode]);
 
   useLayoutEffect(() => {
     if (!wrapperRef.current) return;
     const el = wrapperRef.current;
     if (size.widthPx > 0) el.style.width = `${size.widthPx}px`;
-    if (size.heightPx > 0) el.style.height = `${size.heightPx}px`;
-  }, [size.widthPx, size.heightPx]);
+    
+    // For fixed-left mode, use 100% height when heightPx is undefined
+    if (layoutMode === 'fixed-left' && heightPx === undefined) {
+      el.style.height = '100%';
+    } else if (size.heightPx > 0) {
+      el.style.height = `${size.heightPx}px`;
+    }
+  }, [size.widthPx, size.heightPx, layoutMode, heightPx]);
 
   // If no explicit size provided, measure content once to preserve template default size
   useLayoutEffect(() => {
