@@ -25,7 +25,7 @@ interface CreditTransaction {
   reason: string;
 }
 
-// Mock data for credit usage by product type
+// Mock data for credit usage by product type (all users)
 const mockCreditUsageData = [
   { name: 'Course Outline', credits: 125, color: '#FF6B6B' },
   { name: 'Video Lesson', credits: 210, color: '#4ECDC4' },
@@ -34,25 +34,63 @@ const mockCreditUsageData = [
   { name: 'One-Pager', credits: 165, color: '#FFEAA7' }
 ];
 
-// Nivo Pie Chart Component
-const CreditUsagePieChart: React.FC = () => {
-  const totalCredits = mockCreditUsageData.reduce((sum, item) => sum + item.credits, 0);
+// Mock data for individual user credit usage
+const mockUserCreditUsageData: Record<string, Array<{ name: string; credits: number; color: string }>> = {
+  'user1@example.com': [
+    { name: 'Course Outline', credits: 25, color: '#FF6B6B' },
+    { name: 'Video Lesson', credits: 45, color: '#4ECDC4' },
+    { name: 'Quiz', credits: 30, color: '#45B7D1' },
+    { name: 'Presentation', credits: 60, color: '#96CEB4' },
+    { name: 'One-Pager', credits: 35, color: '#FFEAA7' }
+  ],
+  'user2@example.com': [
+    { name: 'Course Outline', credits: 15, color: '#FF6B6B' },
+    { name: 'Video Lesson', credits: 80, color: '#4ECDC4' },
+    { name: 'Quiz', credits: 50, color: '#45B7D1' },
+    { name: 'Presentation', credits: 40, color: '#96CEB4' },
+    { name: 'One-Pager', credits: 25, color: '#FFEAA7' }
+  ],
+  'user3@example.com': [
+    { name: 'Course Outline', credits: 35, color: '#FF6B6B' },
+    { name: 'Video Lesson', credits: 25, color: '#4ECDC4' },
+    { name: 'Quiz', credits: 40, color: '#45B7D1' },
+    { name: 'Presentation', credits: 70, color: '#96CEB4' },
+    { name: 'One-Pager', credits: 30, color: '#FFEAA7' }
+  ]
+};
+
+// Nivo Pie Chart Component for Individual User
+const CreditUsagePieChart: React.FC<{ selectedUser: UserCredits | null }> = ({ selectedUser }) => {
+  // Use all users data when no user is selected, or individual user data when selected
+  const chartData = selectedUser 
+    ? (mockUserCreditUsageData[selectedUser.onyx_user_id] || mockCreditUsageData)
+    : mockCreditUsageData;
+  
+  const totalCredits = chartData.reduce((sum: number, item: { credits: number }) => sum + item.credits, 0);
   
   // Transform data for Nivo
-  const chartData = mockCreditUsageData.map(item => ({
+  const nivoData = chartData.map(item => ({
     id: item.name,
     label: item.name,
     value: item.credits,
     color: item.color
   }));
 
+  const chartTitle = selectedUser 
+    ? `Credit Usage for ${selectedUser.name}`
+    : "Credit Usage by Product Type for All Users";
+
+  const summaryText = selectedUser 
+    ? `Total Credits Used by ${selectedUser.name}`
+    : "Total Credits Used";
+
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Credit Usage by Product Type</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">{chartTitle}</h3>
       <div className="h-80">
         <ResponsivePie
-          data={chartData}
-          margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+          data={nivoData}
+          margin={{ top: 40, right: 40, bottom: 40, left: 200 }}
           innerRadius={0.5}
           padAngle={0.7}
           cornerRadius={3}
@@ -73,18 +111,18 @@ const CreditUsagePieChart: React.FC = () => {
           }}
           legends={[
             {
-              anchor: 'bottom',
-              direction: 'row',
+              anchor: 'left',
+              direction: 'column',
               justify: false,
-              translateX: 0,
-              translateY: 56,
-              itemsSpacing: 0,
-              itemWidth: 100,
-              itemHeight: 18,
-              itemTextColor: '#999',
+              translateX: -180,
+              translateY: 0,
+              itemsSpacing: 8,
+              itemWidth: 160,
+              itemHeight: 20,
+              itemTextColor: '#333',
               itemDirection: 'left-to-right',
               itemOpacity: 1,
-              symbolSize: 18,
+              symbolSize: 16,
               symbolShape: 'circle'
             }
           ]}
@@ -92,9 +130,6 @@ const CreditUsagePieChart: React.FC = () => {
             <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
               <div className="font-semibold text-gray-900">{datum.label}</div>
               <div className="text-gray-600">{datum.value.toLocaleString()} credits</div>
-              <div className="text-sm text-gray-500">
-                {((datum.value / totalCredits) * 100).toFixed(1)}% of total
-              </div>
             </div>
           )}
         />
@@ -103,7 +138,7 @@ const CreditUsagePieChart: React.FC = () => {
       {/* Summary Stats */}
       <div className="mt-4 text-center">
         <div className="text-2xl font-bold text-gray-900">{totalCredits.toLocaleString()}</div>
-        <div className="text-sm text-gray-600">Total Credits Used</div>
+        <div className="text-sm text-gray-600">{summaryText}</div>
       </div>
     </div>
   );
@@ -359,7 +394,7 @@ const AdminCreditsPage: React.FC = () => {
         </div>
 
         {/* Credit Usage NIVO Pie Chart */}
-        <CreditUsagePieChart />
+        <CreditUsagePieChart selectedUser={selectedUser} />
 
         {/* MUI Table */}
         <div className="mt-8">
