@@ -1116,9 +1116,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         const completionTime = lesson.completionTime || '5m';
         const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
         let newHours: number;
-        if (advancedEnabled && lesson.completion_breakdown && Array.isArray(lesson.recommended_content_types?.primary)) {
+        if (advancedEnabled && Array.isArray(lesson.recommended_content_types?.primary)) {
           const primary: string[] = lesson.recommended_content_types.primary;
-          const breakdown = lesson.completion_breakdown as Record<string, number>;
+          // Ensure we have a breakdown; if missing, build one using deterministic midpoints
+          let breakdown: Record<string, number> = (lesson.completion_breakdown || {}) as Record<string, number>;
+          if (!breakdown || Object.keys(breakdown).length === 0) {
+            const midpoint = (p: string) => (p === 'one-pager' ? 3 : p === 'presentation' ? 8 : p === 'quiz' ? 6 : p === 'video-lesson' ? 4 : 0);
+            breakdown = {};
+            primary.forEach(p => { breakdown[p] = midpoint(p); });
+            onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
+            const total = primary.reduce((sum, p) => sum + (breakdown[p] || 0), 0);
+            if (total > 0) onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], `${total}m`);
+          }
           const rates = {
             presentation: advancedRates?.presentation ?? customRate,
             one_pager: advancedRates?.onePager ?? customRate,
