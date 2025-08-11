@@ -6737,7 +6737,7 @@ class ProjectUpdateRequest(BaseModel):
     projectName: Optional[str] = None
     design_template_id: Optional[int] = None
     microProductName: Optional[str] = None
-    microProductContent: Optional[MicroProductContentType] = None
+    microProductContent: Optional[Dict[str, Any]] = None
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
     model_config = {"from_attributes": True}
@@ -15271,7 +15271,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
             if design_row: db_microproduct_name_to_store = design_row["template_name"]
 
-        content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
+        content_to_store_for_db = project_update_data.microProductContent if project_update_data.microProductContent else None
         
         # 🔍 BACKEND SAVE LOGGING: What we're about to store in database
         if content_to_store_for_db:
