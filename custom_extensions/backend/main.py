@@ -7318,6 +7318,19 @@ def compute_completion_time_from_recommendations(primary_types: list[str]) -> st
         total = 5
     return f"{total}m"
 
+def sanitize_training_plan_for_parse(content: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        sections = content.get('sections') or []
+        for section in sections:
+            lessons = section.get('lessons') or []
+            for lesson in lessons:
+                if isinstance(lesson, dict):
+                    lesson.pop('recommended_content_types', None)
+    except Exception:
+        pass
+    return content
+
+
 def round_hours_in_content(content: Any) -> Any:
     """Recursively round all hours fields to integers in content structure"""
     if isinstance(content, dict):
