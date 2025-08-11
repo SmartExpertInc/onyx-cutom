@@ -44,6 +44,16 @@ export default function ModuleSettingsModal({
   sectionIndex
 }: ModuleSettingsModalProps) {
   const { t } = useLanguage();
+  
+  // Debug logging for props
+  console.log('🔍 [MODULE_MODAL] Props received:', {
+    isOpen,
+    projectId,
+    sectionIndex,
+    currentCustomRate,
+    moduleTitle
+  });
+  
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
   const [customRate, setCustomRate] = useState(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
@@ -57,9 +67,23 @@ export default function ModuleSettingsModal({
   const [isLoading, setIsLoading] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false); // Track if we've loaded backend data
 
+  // Debug logging when states change
+  React.useEffect(() => {
+    console.log('🔍 [MODULE_MODAL] State changed - customRate:', customRate);
+  }, [customRate]);
+
+  React.useEffect(() => {
+    console.log('🔍 [MODULE_MODAL] State changed - perProductRates:', perProductRates);
+  }, [perProductRates]);
+
   // Fetch effective rates from backend when modal opens
   React.useEffect(() => {
-    if (!isOpen || !projectId) return;
+    if (!isOpen || !projectId) {
+      console.log('🔍 [MODULE_MODAL] Skip fetch:', { isOpen, projectId });
+      return;
+    }
+    
+    console.log('🔍 [MODULE_MODAL] Starting fetch for:', { projectId, sectionIndex });
     
     const fetchEffectiveRates = async () => {
       setIsLoading(true);
@@ -67,29 +91,40 @@ export default function ModuleSettingsModal({
         const params = new URLSearchParams();
         if (sectionIndex !== undefined) params.set('section_index', sectionIndex.toString());
         
-        const response = await fetch(`/api/custom/projects/${projectId}/effective-rates?${params}`, {
+        const url = `/api/custom/projects/${projectId}/effective-rates?${params}`;
+        console.log('🔍 [MODULE_MODAL] Fetching URL:', url);
+        
+        const response = await fetch(url, {
           credentials: 'same-origin'
         });
         
+        console.log('🔍 [MODULE_MODAL] Response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('🔍 [MODULE_MODAL] Backend response:', JSON.stringify(data, null, 2));
           
           // Set advanced enabled state
+          console.log('🔍 [MODULE_MODAL] Setting advancedEnabled to:', data.is_advanced);
           setAdvancedEnabled(data.is_advanced);
           
           // Set per-product rates (convert backend naming to frontend naming)
-          setPerProductRates({
+          const newRates = {
             presentation: data.rates.presentation,
             onePager: data.rates.one_pager,
             quiz: data.rates.quiz,
             videoLesson: data.rates.video_lesson
-          });
+          };
+          console.log('🔍 [MODULE_MODAL] Setting perProductRates to:', JSON.stringify(newRates, null, 2));
+          setPerProductRates(newRates);
           
           // Set single rate fallback
+          console.log('🔍 [MODULE_MODAL] Setting customRate to:', data.fallback_single_rate);
           setCustomRate(data.fallback_single_rate);
           setDataLoaded(true); // Mark data as loaded
         } else {
-          console.warn('Failed to fetch effective rates for module, using defaults');
+          console.warn('🔍 [MODULE_MODAL] Failed to fetch effective rates for module, using defaults');
+          console.log('🔍 [MODULE_MODAL] Fallback to currentCustomRate:', currentCustomRate);
           setAdvancedEnabled(false);
           setPerProductRates({
             presentation: currentCustomRate || 200,
@@ -101,7 +136,7 @@ export default function ModuleSettingsModal({
           setDataLoaded(true); // Mark data as loaded even if fetch fails
         }
       } catch (error) {
-        console.warn('Error fetching effective rates for module:', error);
+        console.error('🔍 [MODULE_MODAL] Error fetching effective rates for module:', error);
         setAdvancedEnabled(false);
         setPerProductRates({
           presentation: currentCustomRate || 200,

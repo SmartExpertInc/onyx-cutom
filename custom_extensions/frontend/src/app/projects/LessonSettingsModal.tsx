@@ -53,6 +53,20 @@ export default function LessonSettingsModal({
 }: LessonSettingsModalProps) {
   const { t } = useLanguage();
   const effectiveRate = currentEffectiveCustomRate ?? currentCustomRate ?? 200;
+  
+  // Debug logging for props
+  console.log('🔍 [LESSON_MODAL] Props received:', {
+    isOpen,
+    projectId,
+    sectionIndex,
+    lessonIndex,
+    currentCustomRate,
+    currentAdvancedEnabled,
+    currentAdvancedRates,
+    currentEffectiveCustomRate,
+    effectiveRate
+  });
+  
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
   const [customRate, setCustomRate] = useState(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
@@ -65,6 +79,23 @@ export default function LessonSettingsModal({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false); // Track if we've loaded backend data
+
+  // Debug logging when states change
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - customRate:', customRate);
+  }, [customRate]);
+
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - perProductRates:', perProductRates);
+  }, [perProductRates]);
+
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - advancedEnabled:', advancedEnabled);
+  }, [advancedEnabled]);
+
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - dataLoaded:', dataLoaded);
+  }, [dataLoaded]);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -141,38 +172,67 @@ export default function LessonSettingsModal({
 
   // Fetch effective rates from backend when modal opens
   React.useEffect(() => {
-    if (!isOpen || !projectId) return;
+    if (!isOpen || !projectId) {
+      console.log('🔍 [LESSON_MODAL] Skip fetch:', { isOpen, projectId });
+      return;
+    }
+    
+    console.log('🔍 [LESSON_MODAL] Starting fetch for:', { projectId, sectionIndex, lessonIndex });
     
     const fetchEffectiveRates = async () => {
+      // Test if the endpoint exists first
+      try {
+        const testResponse = await fetch('/api/custom/projects', { credentials: 'same-origin' });
+        console.log('🔍 [LESSON_MODAL] Backend connectivity test status:', testResponse.status);
+      } catch (e) {
+        console.log('🔍 [LESSON_MODAL] Backend connectivity test error:', e);
+      }
+      
       setIsLoading(true);
       try {
         const params = new URLSearchParams();
         if (sectionIndex !== undefined) params.set('section_index', sectionIndex.toString());
         if (lessonIndex !== undefined) params.set('lesson_index', lessonIndex.toString());
         
-        const response = await fetch(`/api/custom/projects/${projectId}/effective-rates?${params}`, {
+        const url = `/api/custom/projects/${projectId}/effective-rates?${params}`;
+        console.log('🔍 [LESSON_MODAL] Fetching URL:', url);
+        
+        const response = await fetch(url, {
           credentials: 'same-origin'
         });
         
+        console.log('🔍 [LESSON_MODAL] Response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('🔍 [LESSON_MODAL] Backend response:', JSON.stringify(data, null, 2));
           
           // Set advanced enabled state
+          console.log('🔍 [LESSON_MODAL] Setting advancedEnabled to:', data.is_advanced);
           setAdvancedEnabled(data.is_advanced);
           
           // Set per-product rates (convert backend naming to frontend naming)
-          setPerProductRates({
+          const newRates = {
             presentation: data.rates.presentation,
             onePager: data.rates.one_pager,
             quiz: data.rates.quiz,
             videoLesson: data.rates.video_lesson
-          });
+          };
+          console.log('🔍 [LESSON_MODAL] Setting perProductRates to:', JSON.stringify(newRates, null, 2));
+          setPerProductRates(newRates);
           
           // Set single rate fallback
+          console.log('🔍 [LESSON_MODAL] Setting customRate to:', data.fallback_single_rate);
           setCustomRate(data.fallback_single_rate);
           setDataLoaded(true); // Mark data as loaded
         } else {
-          console.warn('Failed to fetch effective rates, using props');
+          console.warn('🔍 [LESSON_MODAL] Failed to fetch effective rates, using props');
+          console.log('🔍 [LESSON_MODAL] Fallback props:', { 
+            currentAdvancedEnabled, 
+            currentAdvancedRates, 
+            effectiveRate, 
+            currentCustomRate 
+          });
           // Fallback to props if endpoint fails
           setAdvancedEnabled(!!currentAdvancedEnabled);
           setPerProductRates({
@@ -185,7 +245,7 @@ export default function LessonSettingsModal({
           setDataLoaded(true); // Mark data as loaded even on fallback
         }
       } catch (error) {
-        console.warn('Error fetching effective rates:', error);
+        console.error('🔍 [LESSON_MODAL] Error fetching effective rates:', error);
         // Fallback to props if fetch fails
         setAdvancedEnabled(!!currentAdvancedEnabled);
         setPerProductRates({
