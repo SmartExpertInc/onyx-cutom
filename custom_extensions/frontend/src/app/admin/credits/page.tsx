@@ -106,41 +106,56 @@ const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, 
       <TableContainer>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
+            <TableRow sx={{ backgroundColor: '#f9fafb' }}>
+              <TableCell padding="checkbox" sx={{ backgroundColor: '#f9fafb' }}>
                 <Checkbox disabled />
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb' }}>
                 <TableSortLabel
                   active={orderBy === 'name'}
                   direction={orderBy === 'name' ? order : 'asc'}
                   onClick={createSortHandler('name')}
+                  sx={{
+                    color: orderBy === 'name' ? '#000000' : '#6b7280',
+                    '&:hover': { color: '#000000' },
+                    '&.MuiTableSortLabel-active': { color: '#000000' }
+                  }}
                 >
                   User
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb' }}>
                 <TableSortLabel
                   active={orderBy === 'credits_balance'}
                   direction={orderBy === 'credits_balance' ? order : 'asc'}
                   onClick={createSortHandler('credits_balance')}
+                  sx={{
+                    color: orderBy === 'credits_balance' ? '#000000' : '#6b7280',
+                    '&:hover': { color: '#000000' },
+                    '&.MuiTableSortLabel-active': { color: '#000000' }
+                  }}
                 >
                   Credits Balance
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb' }}>
                 <TableSortLabel
                   active={orderBy === 'total_credits_used'}
                   direction={orderBy === 'total_credits_used' ? order : 'asc'}
                   onClick={createSortHandler('total_credits_used')}
+                  sx={{
+                    color: orderBy === 'total_credits_used' ? '#000000' : '#6b7280',
+                    '&:hover': { color: '#000000' },
+                    '&.MuiTableSortLabel-active': { color: '#000000' }
+                  }}
                 >
                   Total Used
                 </TableSortLabel>
               </TableCell>
-              <TableCell>Purchased</TableCell>
-              <TableCell>Tier</TableCell>
-              <TableCell>Last Purchase</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Purchased</TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Tier</TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Last Purchase</TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -166,46 +181,22 @@ const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, 
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Box
-                    sx={{
-                      display: 'inline-flex',
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: 1,
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      backgroundColor: user.credits_balance > 50 
-                        ? 'success.light' 
-                        : user.credits_balance > 10 
-                        ? 'warning.light' 
-                        : 'error.light',
-                      color: user.credits_balance > 50 
-                        ? 'success.dark' 
-                        : user.credits_balance > 10 
-                        ? 'warning.dark' 
-                        : 'error.dark',
-                    }}
-                  >
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    user.credits_balance > 50 
+                      ? 'bg-green-100 text-green-800'
+                      : user.credits_balance > 10
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
                     {user.credits_balance}
-                  </Box>
+                  </span>
                 </TableCell>
                 <TableCell>{user.total_credits_used}</TableCell>
                 <TableCell>{user.credits_purchased}</TableCell>
                 <TableCell>
-                  <Box
-                    sx={{
-                      display: 'inline-flex',
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: 1,
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      backgroundColor: 'primary.light',
-                      color: 'primary.dark',
-                    }}
-                  >
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                     {user.subscription_tier}
-                  </Box>
+                  </span>
                 </TableCell>
                 <TableCell>
                   {user.last_purchase_date 
@@ -250,6 +241,13 @@ const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, 
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        sx={{ 
+          backgroundColor: '#f9fafb',
+          color: '#6b7280',
+          '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+            color: '#6b7280'
+          }
+        }}
       />
     </Paper>
   );
