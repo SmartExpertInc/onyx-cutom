@@ -426,6 +426,9 @@ export default function LessonPresentationClient() {
       setFirstLineRemoved(false);
       // Reset stream completion flag for new preview
       setStreamDone(false);
+      if (!textareaVisible) {
+        setTextareaVisible(true);
+      }
       const abortController = new AbortController();
       if (previewAbortRef.current) previewAbortRef.current.abort();
       previewAbortRef.current = abortController;
@@ -1114,7 +1117,7 @@ export default function LessonPresentationClient() {
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
           {/* Main content display - Custom slide titles display matching course outline format */}
-          {textareaVisible || content.length > 0 && (
+          {textareaVisible && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
