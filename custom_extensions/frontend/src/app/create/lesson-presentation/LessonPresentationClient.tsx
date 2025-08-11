@@ -272,9 +272,8 @@ export default function LessonPresentationClient() {
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
   // console.log("content", content);
-  console.log("loading", loading);
-  console.log("streamDone", streamDone);
-  console.log("textareaVisible", textareaVisible);
+  // console.log("loading", loading);
+  // console.log("streamDone", streamDone);
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
@@ -404,6 +403,7 @@ export default function LessonPresentationClient() {
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
+    console.log("effect запустився, language =", language);
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
@@ -413,22 +413,19 @@ export default function LessonPresentationClient() {
       setLoading(false);
       return;
     }
-
+    
     // If creating from text but userText not loaded yet, wait
     if (isFromText && !userText) {
       setLoading(false);
       return;
     }
-
+    console.log("effect запустився, promptQuery =", promptQuery);
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
       setTextareaVisible(false);
       setFirstLineRemoved(false);
       // Reset stream completion flag for new preview
       setStreamDone(false);
-      if (!textareaVisible) {
-        setTextareaVisible(true);
-      }
       const abortController = new AbortController();
       if (previewAbortRef.current) previewAbortRef.current.abort();
       previewAbortRef.current = abortController;
