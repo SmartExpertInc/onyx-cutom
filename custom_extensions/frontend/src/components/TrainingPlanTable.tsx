@@ -110,6 +110,7 @@ interface TrainingPlanTableProps {
   projectQualityTier?: string | null; // Project-level quality tier for fallback
   projectIsAdvanced?: boolean | null;
   projectAdvancedRates?: { presentation?: number; one_pager?: number; quiz?: number; video_lesson?: number } | null;
+  projectId?: number; // Add projectId for API calls
   columnVisibility?: {
     knowledgeCheck: boolean;
     contentAvailability: boolean;
@@ -285,6 +286,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   projectQualityTier,
   projectIsAdvanced,
   projectAdvancedRates,
+  projectId,
   columnVisibility,
 }) => {
   // Inline editing state management
@@ -1668,6 +1670,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           }
           return {} as any;
         })()}
+        projectId={projectId}
+        sectionIndex={lessonSettingsModalState.sectionIndex}
+        lessonIndex={lessonSettingsModalState.lessonIndex}
         onSave={handleLessonSettingsSave}
       />
       <ModuleSettingsModal

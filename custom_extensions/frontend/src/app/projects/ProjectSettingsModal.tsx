@@ -49,28 +49,52 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
     if (!open) return;
     (async () => {
       try {
-        const res = await fetch(`/api/custom-projects-backend/projects/view/${projectId}`, { cache: 'no-store', credentials: 'same-origin' });
-        if (res.ok) {
-          const data = await res.json();
-          const cr = typeof data.custom_rate === 'number' ? data.custom_rate : 200;
-          const qt = data.quality_tier || currentTier || 'interactive';
-          setCustomRate(cr);
-          setSelectedTier(qt);
-          if (data.is_advanced) {
-            setAdvancedEnabled(true);
-            const ar = data.advanced_rates || {};
+        // Fetch project data first
+        const projectResponse = await fetch(`/api/custom/projects/view/${projectId}`, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (projectResponse.ok) {
+          const projectData = await projectResponse.json();
+          const customRateValue = projectData.custom_rate || 200;
+          const tierValue = projectData.quality_tier || 'interactive';
+          
+          setCustomRate(customRateValue);
+          setSelectedTier(tierValue);
+          
+          // Fetch effective rates from the new endpoint
+          const ratesResponse = await fetch(`/api/custom/projects/${projectId}/effective-rates`);
+          if (ratesResponse.ok) {
+            const ratesData = await ratesResponse.json();
+            console.log('ProjectSettingsModal: Fetched effective rates:', ratesData);
+            
+            setAdvancedEnabled(!!ratesData.is_advanced);
+            
+            const backendRates = ratesData.rates || {};
+            const fallbackRate = ratesData.fallback_single_rate || customRateValue;
+            
             setPerProductRates({
-              presentation: typeof ar.presentation === 'number' ? ar.presentation : cr,
-              onePager: typeof ar.one_pager === 'number' ? ar.one_pager : cr,
-              quiz: typeof ar.quiz === 'number' ? ar.quiz : cr,
-              videoLesson: typeof ar.video_lesson === 'number' ? ar.video_lesson : cr,
+              presentation: backendRates.presentation ?? fallbackRate,
+              onePager: backendRates.one_pager ?? fallbackRate,
+              quiz: backendRates.quiz ?? fallbackRate,
+              videoLesson: backendRates.video_lesson ?? fallbackRate,
             });
           } else {
-            setAdvancedEnabled(false);
-            setPerProductRates({ presentation: cr, onePager: cr, quiz: cr, videoLesson: cr });
+            console.warn('ProjectSettingsModal: Failed to fetch effective rates, using defaults');
+            // Fall back to project values or defaults
+            setAdvancedEnabled(!!projectData.is_advanced);
+            const rates = projectData.advanced_rates || {};
+            setPerProductRates({
+              presentation: rates.presentation ?? customRateValue,
+              onePager: rates.one_pager ?? customRateValue,
+              quiz: rates.quiz ?? customRateValue,
+              videoLesson: rates.video_lesson ?? customRateValue,
+            });
           }
         }
-      } catch {}
+      } catch (error) {
+        console.error('ProjectSettingsModal: Error fetching project data:', error);
+      }
     })();
   }, [open, projectId]);
 

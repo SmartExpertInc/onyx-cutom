@@ -15,6 +15,9 @@ interface LessonSettingsModalProps {
   currentAdvancedEnabled?: boolean;
   currentAdvancedRates?: { presentation?: number; onePager?: number; quiz?: number; videoLesson?: number };
   currentEffectiveCustomRate?: number;
+  projectId?: number;
+  sectionIndex?: number;
+  lessonIndex?: number;
 }
 
 interface QualityTier {
@@ -40,7 +43,10 @@ export default function LessonSettingsModal({
   onSave,
   currentAdvancedEnabled,
   currentAdvancedRates,
-  currentEffectiveCustomRate
+  currentEffectiveCustomRate,
+  projectId,
+  sectionIndex,
+  lessonIndex
 }: LessonSettingsModalProps) {
   const { t } = useLanguage();
   const effectiveRate = currentEffectiveCustomRate ?? currentCustomRate ?? 200;
@@ -54,6 +60,7 @@ export default function LessonSettingsModal({
     quiz: currentAdvancedRates?.quiz ?? effectiveRate,
     videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
   });
+  const [loadingRates, setLoadingRates] = useState(false);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -128,20 +135,73 @@ export default function LessonSettingsModal({
     }
   ];
 
-  // Reset modal state when opened with new data
+  // Fetch effective rates from backend when modal opens
+  useEffect(() => {
+    if (isOpen && projectId !== undefined && sectionIndex !== undefined && lessonIndex !== undefined) {
+      setLoadingRates(true);
+      const fetchEffectiveRates = async () => {
+        try {
+          const response = await fetch(`/api/custom/projects/${projectId}/effective-rates?section_index=${sectionIndex}&lesson_index=${lessonIndex}`);
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Fetched effective rates:', data);
+            
+            // Update states with backend data
+            setAdvancedEnabled(!!data.is_advanced);
+            
+            // Use backend rates if available, otherwise fall back to provided values or fallback single rate
+            const backendRates = data.rates || {};
+            const fallbackRate = data.fallback_single_rate || effectiveRate;
+            
+            setPerProductRates({
+              presentation: backendRates.presentation ?? fallbackRate,
+              onePager: backendRates.one_pager ?? fallbackRate,
+              quiz: backendRates.quiz ?? fallbackRate,
+              videoLesson: backendRates.video_lesson ?? fallbackRate
+            });
+          } else {
+            console.warn('Failed to fetch effective rates, using defaults');
+            // Fall back to provided values
+            setAdvancedEnabled(!!currentAdvancedEnabled);
+            setPerProductRates({
+              presentation: currentAdvancedRates?.presentation ?? effectiveRate,
+              onePager: currentAdvancedRates?.onePager ?? effectiveRate,
+              quiz: currentAdvancedRates?.quiz ?? effectiveRate,
+              videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching effective rates:', error);
+          // Fall back to provided values
+          setAdvancedEnabled(!!currentAdvancedEnabled);
+          setPerProductRates({
+            presentation: currentAdvancedRates?.presentation ?? effectiveRate,
+            onePager: currentAdvancedRates?.onePager ?? effectiveRate,
+            quiz: currentAdvancedRates?.quiz ?? effectiveRate,
+            videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+          });
+        } finally {
+          setLoadingRates(false);
+        }
+      };
+      
+      fetchEffectiveRates();
+    } else if (isOpen) {
+      // No project/section/lesson info provided, use current props
+      setQualityTier(currentQualityTier || 'interactive');
+      setCustomRate(currentCustomRate || 200);
+      // Remove rate initialization from here since it's handled by the fetch effect above
+    }
+  }, [isOpen, projectId, sectionIndex, lessonIndex, currentCustomRate, currentQualityTier, currentAdvancedEnabled, currentAdvancedRates, effectiveRate]);
+
+  // Reset modal state when opened with new data (keep existing useEffect but remove rate initialization)
   useEffect(() => {
     if (isOpen) {
       setQualityTier(currentQualityTier || 'interactive');
       setCustomRate(currentCustomRate || 200);
-      setAdvancedEnabled(!!currentAdvancedEnabled);
-      setPerProductRates(prev => ({
-        presentation: currentAdvancedRates?.presentation ?? prev.presentation ?? effectiveRate,
-        onePager: currentAdvancedRates?.onePager ?? prev.onePager ?? effectiveRate,
-        quiz: currentAdvancedRates?.quiz ?? prev.quiz ?? effectiveRate,
-        videoLesson: currentAdvancedRates?.videoLesson ?? prev.videoLesson ?? effectiveRate
-      }));
+      // Remove rate initialization from here since it's handled by the fetch effect above
     }
-  }, [isOpen, currentCustomRate, currentQualityTier, currentAdvancedEnabled, currentAdvancedRates, effectiveRate]);
+  }, [isOpen, currentCustomRate, currentQualityTier]);
 
   // Update custom rate when tier changes
   useEffect(() => {

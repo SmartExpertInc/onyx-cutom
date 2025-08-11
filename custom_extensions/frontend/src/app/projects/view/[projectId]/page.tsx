@@ -1066,6 +1066,7 @@ export default function ProjectInstanceViewPage() {
               projectQualityTier={projectInstanceData.quality_tier}
               projectIsAdvanced={projectInstanceData.is_advanced}
               projectAdvancedRates={projectInstanceData.advanced_rates}
+              projectId={parseInt(projectId as string, 10)}
               columnVisibility={columnVisibility}
             />
           </div>

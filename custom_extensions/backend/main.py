@@ -7229,6 +7229,93 @@ def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> 
     creation_hours = completion_hours * custom_rate
     return round(creation_hours)
 
+def resolve_effective_advanced_config(lesson: dict, section: dict, project: dict, folder: Optional[dict]) -> tuple[bool, dict]:
+    """
+    Resolve effective advanced configuration using inheritance: Lesson > Module/Section > Project > Folder
+    Returns (is_advanced, rates_dict)
+    """
+    # Check lesson level first
+    if lesson.get('advanced') is not None:
+        is_advanced = lesson.get('advanced', False)
+        rates = lesson.get('advancedRates', {})
+        if rates:
+            # Convert frontend naming to backend naming
+            backend_rates = {
+                'presentation': rates.get('presentation'),
+                'one_pager': rates.get('onePager'),
+                'quiz': rates.get('quiz'),
+                'video_lesson': rates.get('videoLesson'),
+            }
+            return is_advanced, backend_rates
+        elif is_advanced:
+            # Advanced is true but no rates, fall back to project/folder rates or single rate
+            pass
+    
+    # Check section/module level
+    if section.get('advanced') is not None:
+        is_advanced = section.get('advanced', False)
+        rates = section.get('advancedRates', {})
+        if rates:
+            backend_rates = {
+                'presentation': rates.get('presentation'),
+                'one_pager': rates.get('onePager'),
+                'quiz': rates.get('quiz'),
+                'video_lesson': rates.get('videoLesson'),
+            }
+            return is_advanced, backend_rates
+        elif is_advanced:
+            pass
+    
+    # Check project level
+    if project.get('is_advanced') is not None:
+        is_advanced = project.get('is_advanced', False)
+        if is_advanced and project.get('advanced_rates'):
+            rates = project.get('advanced_rates', {})
+            if isinstance(rates, str):
+                import json
+                try:
+                    rates = json.loads(rates)
+                except:
+                    rates = {}
+            return is_advanced, rates
+        elif is_advanced:
+            # Advanced is true but no rates, use single rate as fallback
+            single_rate = project.get('custom_rate', 200)
+            return True, {
+                'presentation': single_rate,
+                'one_pager': single_rate,
+                'quiz': single_rate,
+                'video_lesson': single_rate,
+            }
+        else:
+            return False, {}
+    
+    # Check folder level if provided
+    if folder and folder.get('is_advanced') is not None:
+        is_advanced = folder.get('is_advanced', False)
+        if is_advanced and folder.get('advanced_rates'):
+            rates = folder.get('advanced_rates', {})
+            if isinstance(rates, str):
+                import json
+                try:
+                    rates = json.loads(rates)
+                except:
+                    rates = {}
+            return is_advanced, rates
+        elif is_advanced:
+            single_rate = folder.get('custom_rate', 200)
+            return True, {
+                'presentation': single_rate,
+                'one_pager': single_rate,
+                'quiz': single_rate,
+                'video_lesson': single_rate,
+            }
+        else:
+            return False, {}
+    
+    # Default: not advanced
+    return False, {}
+
 
 def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Optional[str], existing_content: Optional[Dict[str, bool]] = None) -> Dict[str, Any]:
     """Smart, robust combo recommendations per tier.
@@ -8175,6 +8262,38 @@ def _clean_loose_json(text: str) -> str:
     return text
 
 # --- API Endpoints ---
+@api.get("/api/custom/projects/{project_id}/effective-rates")
+async def get_effective_rates(project_id: int, section_index: Optional[int] = None, lesson_index: Optional[int] = None, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2", project_id, onyx_user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project = dict(row)
+    details = project.get("microproduct_content") or {}
+    sec = None
+    les = None
+    if isinstance(details, dict) and isinstance(details.get('sections'), list) and section_index is not None:
+        try:
+            sec = details['sections'][section_index]
+        except Exception:
+            sec = None
+    if isinstance(sec, dict) and isinstance(sec.get('lessons'), list) and lesson_index is not None:
+        try:
+            les = sec['lessons'][lesson_index]
+        except Exception:
+            les = None
+    is_adv, rates = resolve_effective_advanced_config(les or {}, sec or {}, project, None)
+    return {
+    "is_advanced": is_adv,
+    "rates": {
+    "presentation": rates.get('presentation'),
+    "one_pager": rates.get('one_pager'),
+    "quiz": rates.get('quiz'),
+    "video_lesson": rates.get('video_lesson'),
+    },
+    "fallback_single_rate": project.get('custom_rate')
+    }
+
 @app.post("/api/custom/pipelines/add", response_model=MicroproductPipelineDBRaw, status_code=status.HTTP_201_CREATED)
 async def add_pipeline(pipeline_data: MicroproductPipelineCreateRequest, pool: asyncpg.Pool = Depends(get_db_pool)):
     discovery_prompts_json_for_db = {str(i+1): prompt for i, prompt in enumerate(pipeline_data.discovery_prompts_list) if prompt.strip()} if pipeline_data.discovery_prompts_list else None
@@ -16005,6 +16124,38 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
     except Exception as e:
         logger.error(f"Error getting lesson data for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail="Failed to get lesson data")
+
+@app.get("/api/custom/projects/{project_id}/effective-rates")
+async def get_effective_rates(project_id: int, section_index: Optional[int] = None, lesson_index: Optional[int] = None, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2", project_id, onyx_user_id)
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        project = dict(row)
+        details = project.get("microproduct_content") or {}
+        sec = None
+        les = None
+        if isinstance(details, dict) and isinstance(details.get('sections'), list) and section_index is not None:
+            try:
+                sec = details['sections'][section_index]
+            except Exception:
+                sec = None
+            if isinstance(sec, dict) and isinstance(sec.get('lessons'), list) and lesson_index is not None:
+                try:
+                    les = sec['lessons'][lesson_index]
+                except Exception:
+                    les = None
+        is_adv, rates = resolve_effective_advanced_config(les or {}, sec or {}, project, None)
+        return {
+            "is_advanced": is_adv,
+            "rates": {
+                "presentation": rates.get('presentation'),
+                "one_pager": rates.get('one_pager'),
+                "quiz": rates.get('quiz'),
+                "video_lesson": rates.get('video_lesson'),
+            },
+            "fallback_single_rate": project.get('custom_rate')
+        }
 
 @app.get("/api/custom/pdf/projects-list", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_projects_list_pdf(
