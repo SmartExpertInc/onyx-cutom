@@ -34,12 +34,12 @@ async def test_pie_chart_pdf():
                 ]
             },
             "monthlyData": [
-                {"month": "Q1 2024", "description": "Strong growth in digital services", "color": "#0ea5e9"},
-                {"month": "Q2 2024", "description": "Market expansion in Asia-Pacific", "color": "#0ea5e9"},
-                {"month": "Q3 2024", "description": "Product innovation and R&D", "color": "#0ea5e9"},
-                {"month": "Q4 2024", "description": "Strategic partnerships formed", "color": "#f97316"},
-                {"month": "Q1 2025", "description": "Global market penetration", "color": "#f97316"},
-                {"month": "Q2 2025", "description": "Revenue optimization achieved", "color": "#f97316"}
+                {"month": "Month 1", "description": "Mercury is the smallest planet of them all", "color": "#0ea5e9"},
+                {"month": "Month 2", "description": "Jupiter is the biggest planet of them all", "color": "#0ea5e9"},
+                {"month": "Month 3", "description": "Venus has a very poisonous atmosphere", "color": "#0ea5e9"},
+                {"month": "Month 4", "description": "Saturn is a gas giant and has rings", "color": "#f97316"},
+                {"month": "Month 5", "description": "Neptune is far away from Earth", "color": "#f97316"},
+                {"month": "Month 6", "description": "Despite being red, Mars is actually cold", "color": "#f97316"}
             ],
             "descriptionText": "Updated market analysis showing quarterly performance trends"
         }
