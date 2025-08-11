@@ -100,7 +100,7 @@ const StatusBadge = ({
 
 interface TrainingPlanTableProps {
   dataToDisplay?: TrainingPlanData | null;
-  onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
+  onTextChange?: (path: (string | number)[], newValue: string | number | boolean | any) => void;
   onAutoSave?: () => void;
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
@@ -108,6 +108,8 @@ interface TrainingPlanTableProps {
   theme?: string;
   projectCustomRate?: number | null; // Project-level custom rate for fallback
   projectQualityTier?: string | null; // Project-level quality tier for fallback
+  projectIsAdvanced?: boolean | null;
+  projectAdvancedRates?: { presentation?: number; one_pager?: number; quiz?: number; video_lesson?: number } | null;
   columnVisibility?: {
     knowledgeCheck: boolean;
     contentAvailability: boolean;
@@ -281,6 +283,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   theme = 'cherry', // Default theme
   projectCustomRate,
   projectQualityTier,
+  projectIsAdvanced,
+  projectAdvancedRates,
   columnVisibility,
 }) => {
   // Inline editing state management
@@ -1092,37 +1096,56 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   // Handle saving lesson settings
-  const handleLessonSettingsSave = (customRate: number, qualityTier: string) => {
+  const handleLessonSettingsSave = (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
     const { sectionIndex, lessonIndex } = lessonSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0 && lessonIndex >= 0) {
       // Update lesson's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
+      if (advancedEnabled !== undefined) {
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'advanced'], !!advancedEnabled);
+      }
+      if (advancedRates) {
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'advancedRates'], advancedRates);
+      }
       
-      // Recalculate hours based on new rate
-      const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex];
-      
+      // Recalculate hours based on new rate or advanced configuration
+      const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex] as any;
       if (lesson) {
-        // Use completion time if available, otherwise default to 5 minutes
         const completionTime = lesson.completionTime || '5m';
         const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
-        const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
-        
+        let newHours: number;
+        if (advancedEnabled && lesson.completion_breakdown && Array.isArray(lesson.recommended_content_types?.primary)) {
+          const primary: string[] = lesson.recommended_content_types.primary;
+          const breakdown = lesson.completion_breakdown as Record<string, number>;
+          const rates = {
+            presentation: advancedRates?.presentation ?? customRate,
+            one_pager: advancedRates?.onePager ?? customRate,
+            quiz: advancedRates?.quiz ?? customRate,
+            video_lesson: advancedRates?.videoLesson ?? customRate,
+          } as any;
+          const total = primary.reduce((sum, p) => {
+            const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+            const minutes = breakdown[p] || 0;
+            const rate = rates[key] ?? customRate;
+            return sum + (minutes / 60.0) * Number(rate);
+          }, 0);
+          newHours = Math.round(total);
+        } else {
+          newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+        }
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
         
-        // Auto-recalculate module total hours
         const section = dataToDisplay?.sections[sectionIndex];
         if (section && section.lessons) {
           const updatedLessons = [...section.lessons];
-          updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newHours };
+          updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newHours } as any;
           const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
-          
           onTextChange(['sections', sectionIndex, 'totalHours'], newTotalHours);
           onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
         }
       }
-      // Clear any existing timeout and mark for pending save
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
@@ -1154,31 +1177,32 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       // Update module's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'quality_tier'], qualityTier);
+
+      // Optional: advanced flags if present on section (preserve existing unknown fields)
+      const section = dataToDisplay?.sections[sectionIndex] as any;
+      if (section && section.advanced !== undefined) {
+        onTextChange(['sections', sectionIndex, 'advanced'], !!section.advanced);
+      }
+      if (section && section.advancedRates) {
+        onTextChange(['sections', sectionIndex, 'advancedRates'], section.advancedRates as any);
+      }
       
       // Recalculate hours for all lessons in this module and update their quality_tier
-      const section = dataToDisplay?.sections[sectionIndex];
-      
       if (section && section.lessons) {
         let totalSectionHours = 0;
         
-        section.lessons.forEach((lesson, lessonIndex) => {
-          // Update lesson's quality_tier to match the new module tier
+        section.lessons.forEach((lesson: any, lessonIndex: number) => {
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
-          
-          // Use completion time if available, otherwise default to 5 minutes
           const completionTime = lesson.completionTime || '5m';
           const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
           const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
-          
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
           totalSectionHours += newHours;
         });
         
-        // Update section total hours and set autoCalculateHours to true
         onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
         onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
       }
-      // Clear any existing timeout and mark for pending save
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
@@ -1418,17 +1442,40 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   const { t } = useLanguage();
 
-  const computeCompletionTimeFromPrimary = (primary: string[]): string => {
+  const computeCompletionAggregate = (primary: string[]) => {
     const pick = (min: number, max: number) => Math.floor(min + Math.random() * (max - min + 1));
+    const breakdown: Record<string, number> = {};
     let total = 0;
     primary.forEach(p => {
-      if (p === 'one-pager') total += pick(2,3);
-      else if (p === 'presentation') total += pick(5,10);
-      else if (p === 'quiz') total += pick(5,7);
-      else if (p === 'video-lesson') total += pick(2,5);
+      let m = 0;
+      if (p === 'one-pager') m = pick(2,3);
+      else if (p === 'presentation') m = pick(5,10);
+      else if (p === 'quiz') m = pick(5,7);
+      else if (p === 'video-lesson') m = pick(2,5);
+      breakdown[p] = m;
+      total += m;
     });
     if (total <= 0) total = 5;
-    return `${total}m`;
+    return { total, breakdown };
+  };
+
+  const resolveEffectiveAdvanced = (section: any, lesson: any) => {
+    const enabled = (lesson?.advanced ?? section?.advanced ?? projectIsAdvanced ?? false) as boolean;
+    const baseRates = projectAdvancedRates || {};
+    const secRates = section?.advancedRates || {};
+    const lesRates = lesson?.advancedRates || {};
+    const rates: any = {
+      presentation: lesRates.presentation ?? secRates.presentation ?? baseRates.presentation ?? projectCustomRate ?? 200,
+      one_pager: lesRates.onePager ?? secRates.onePager ?? baseRates.one_pager ?? projectCustomRate ?? 200,
+      quiz: lesRates.quiz ?? secRates.quiz ?? baseRates.quiz ?? projectCustomRate ?? 200,
+      video_lesson: lesRates.videoLesson ?? secRates.videoLesson ?? baseRates.video_lesson ?? projectCustomRate ?? 200,
+    };
+    return { enabled, rates };
+  };
+
+  const computeCompletionTimeFromPrimary = (primary: string[]): string => {
+    const agg = computeCompletionAggregate(primary);
+    return `${agg.total}m`;
   };
 
   return (
@@ -1452,7 +1499,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           hasVideoLesson: false
         }}
         onUpdateRecommendations={(newPrimary) => {
-          // Update completionTime for the clicked lesson in state
           const sectionIdx = sections?.findIndex(s => s.title === contentModalState.moduleName) ?? -1;
           if (sectionIdx >= 0) {
             const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex(l => l.title === contentModalState.lessonTitle) ?? -1;
@@ -1462,34 +1508,36 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               const effTier = String(getEffectiveLessonTier(section, lessonObj));
 
               // Persist recommended content types
-              onTextChange(
-                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'primary'],
-                JSON.stringify(newPrimary)
-              );
-              onTextChange(
-                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'reasoning'],
-                'manual'
-              );
-              onTextChange(
-                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'last_updated'],
-                new Date().toISOString()
-              );
-              onTextChange(
-                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'quality_tier_used'],
-                effTier
-              );
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'primary'], JSON.stringify(newPrimary));
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'reasoning'], 'manual');
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'last_updated'], new Date().toISOString());
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'quality_tier_used'], effTier);
 
-              // Update completion time
-              const newCT = computeCompletionTimeFromPrimary(newPrimary);
+              // Update completion time and breakdown
+              const agg = computeCompletionAggregate(newPrimary);
+              const newCT = `${agg.total}m`;
               onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completionTime'], newCT);
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completion_breakdown'], agg.breakdown);
 
-              // Recalculate creation hours from completion time and rate
-              const minutes = parseInt(newCT.replace(/[^0-9]/g, '')) || 5;
-              const rate = (lessonObj?.custom_rate as number | undefined)
-                ?? (section?.custom_rate as number | undefined)
-                ?? (projectCustomRate as number | undefined)
-                ?? 200; // sensible default
-              const newHours = Math.round((minutes / 60.0) * rate);
+              // Recalculate creation hours using advanced if enabled
+              const { enabled, rates } = resolveEffectiveAdvanced(section, lessonObj);
+              let newHours: number;
+              if (enabled) {
+                const total = (newPrimary as string[]).reduce((sum, p) => {
+                  const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+                  const minutes = agg.breakdown[p] || 0;
+                  const rate = (rates as any)[key] || projectCustomRate || 200;
+                  return sum + (minutes / 60.0) * Number(rate);
+                }, 0);
+                newHours = Math.round(total);
+              } else {
+                const minutes = agg.total || 5;
+                const rate = (lessonObj?.custom_rate as number | undefined)
+                  ?? (section?.custom_rate as number | undefined)
+                  ?? (projectCustomRate as number | undefined)
+                  ?? 200;
+                newHours = Math.round((minutes / 60.0) * rate);
+              }
               onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'hours'], newHours);
 
               // Update section total hours
@@ -1502,7 +1550,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
               }
 
-              // Trigger auto-save (debounced to avoid race with batched state)
               if (onAutoSave) {
                 if (autoSaveTimeoutRef.current) {
                   clearTimeout(autoSaveTimeoutRef.current);

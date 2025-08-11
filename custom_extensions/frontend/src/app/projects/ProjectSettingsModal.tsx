@@ -35,6 +35,13 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   const [selectedTier, setSelectedTier] = useState(currentTier);
   const [customRate, setCustomRate] = useState<number>(200); // Default to interactive tier
   const [saving, setSaving] = useState(false);
+  const [advancedEnabled, setAdvancedEnabled] = useState(false);
+  const [perProductRates, setPerProductRates] = useState({
+    presentation: 200,
+    onePager: 200,
+    quiz: 200,
+    videoLesson: 200,
+  });
   const { t } = useLanguage();
 
   const qualityTiers: QualityTier[] = [
@@ -134,14 +141,24 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   const handleSave = async () => {
     setSaving(true);
     try {
+      const payload: any = {
+        quality_tier: selectedTier,
+        custom_rate: customRate,
+      };
+      if (advancedEnabled) {
+        payload.is_advanced = true;
+        payload.advanced_rates = {
+          presentation: perProductRates.presentation,
+          one_pager: perProductRates.onePager,
+          quiz: perProductRates.quiz,
+          video_lesson: perProductRates.videoLesson,
+        };
+      }
       const response = await fetch(`/api/custom-projects-backend/projects/${projectId}/tier`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          quality_tier: selectedTier,
-          custom_rate: customRate
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -152,7 +169,6 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
         onTierChange(selectedTier);
       }
       
-      // Refresh the page to update project colors
       window.location.reload();
       
       onClose();
@@ -200,7 +216,19 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.hoursRange', 'Hours Range')}</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left flex items-center gap-2">
+                      {t('modals.folderSettings.hoursRange', 'Hours Range')}
+                      <label className="flex items-center gap-2 ml-2 text-xs">
+                        <input type="checkbox" checked={advancedEnabled} onChange={() => {
+                          const next = !advancedEnabled;
+                          setAdvancedEnabled(next);
+                          if (next) {
+                            setPerProductRates({ presentation: customRate, onePager: customRate, quiz: customRate, videoLesson: customRate });
+                          }
+                        }} />
+                        {t('modals.advanced', 'Advanced')}
+                      </label>
+                    </h4>
                   </div>
                 </div>
               </div>
@@ -255,31 +283,46 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                       <div className="col-span-3">
                         {selectedTier === tier.id ? (
                           <div className="space-y-3">
-                            {/* Slider */}
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">
-                                  {customRate}{t('modals.folderSettings.hours', 'h')}
-                                </span>
-                              </div>
-                              <div className="relative">
-                                <input
-                                  type="range"
-                                  min={tier.hoursRange.min}
-                                  max={tier.hoursRange.max}
-                                  value={customRate}
-                                  onChange={(e) => setCustomRate(parseInt(e.target.value))}
-                                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                                  style={{
-                                    background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
-                                  }}
-                                />
-                                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                  <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
-                                  <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                            {!advancedEnabled && (
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {customRate}{t('modals.folderSettings.hours', 'h')}
+                                  </span>
+                                </div>
+                                <div className="relative">
+                                  <input
+                                    type="range"
+                                    min={tier.hoursRange.min}
+                                    max={tier.hoursRange.max}
+                                    value={customRate}
+                                    onChange={(e) => setCustomRate(parseInt(e.target.value))}
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                  />
+                                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                    <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
+                            {advancedEnabled && (
+                              <div className="space-y-4">
+                                {[
+                                  { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})) },
+                                  { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})) },
+                                  { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})) },
+                                  { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})) },
+                                ].map((cfg) => (
+                                  <div key={cfg.key}>
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-xs text-gray-700">{cfg.label}: <span className="font-semibold">{cfg.value}{t('modals.folderSettings.hours', 'h')}</span></span>
+                                    </div>
+                                    <input type="range" min={tier.hoursRange.min} max={tier.hoursRange.max} value={cfg.value} onChange={(e)=>cfg.setter(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">

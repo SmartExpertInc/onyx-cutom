@@ -6223,6 +6223,28 @@ async def startup_event():
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
                     logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
                     raise e
+
+            # Add is_advanced and advanced_rates to project_folders for advanced per-product rates
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_is_advanced ON project_folders(is_advanced);")
+                logger.info("Ensured is_advanced and advanced_rates on project_folders")
+            except Exception as e:
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding is_advanced/advanced_rates to project_folders: {e}")
+                    raise e
+
+            # Add is_advanced and advanced_rates to projects for advanced per-product rates
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_advanced ON projects(is_advanced);")
+                logger.info("Ensured is_advanced and advanced_rates on projects")
+            except Exception as e:
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding is_advanced/advanced_rates to projects: {e}")
+                    raise e
             
             # Add completionTime column to trashed_projects table to match projects table schema
             try:
@@ -6689,6 +6711,8 @@ class ProjectDB(BaseModel):
     created_at: datetime
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
     model_config = {"from_attributes": True}
 
 class MicroProductApiResponse(BaseModel):
@@ -6704,6 +6728,8 @@ class MicroProductApiResponse(BaseModel):
     sourceChatSessionId: Optional[uuid.UUID] = None
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
     model_config = {"from_attributes": True}
 
 class ProjectApiResponse(BaseModel):
@@ -6745,6 +6771,8 @@ class ProjectUpdateRequest(BaseModel):
 class ProjectTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
 
 BulletListBlock.model_rebuild()
 NumberedListBlock.model_rebuild()
@@ -10385,7 +10413,9 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         sourceChatSessionId=row_dict.get("source_chat_session_id"),
         parentProjectName=row_dict.get('project_name'),
         custom_rate=row_dict.get("custom_rate"),
-        quality_tier=row_dict.get("quality_tier")
+        quality_tier=row_dict.get("quality_tier"),
+        is_advanced=row_dict.get("is_advanced"),
+        advanced_rates=row_dict.get("advanced_rates")
         # folder_id is not in MicroProductApiResponse, but can be added if needed
     )
 
@@ -14919,6 +14949,8 @@ class ProjectFolderCreateRequest(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None  # { presentation, one_pager, quiz, video_lesson }
 
 class ProjectFolderResponse(BaseModel):
     id: int
@@ -14927,6 +14959,8 @@ class ProjectFolderResponse(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
 
 class ProjectFolderListResponse(BaseModel):
     id: int
@@ -14936,6 +14970,8 @@ class ProjectFolderListResponse(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
     project_count: int
     total_lessons: int
     total_hours: int
@@ -14951,6 +14987,8 @@ class ProjectFolderMoveRequest(BaseModel):
 class ProjectFolderTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
 
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
@@ -14964,6 +15002,8 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             pf.parent_id,
             COALESCE(pf.quality_tier, 'medium') as quality_tier,
             COALESCE(pf.custom_rate, 200) as custom_rate,
+            pf.is_advanced as is_advanced,
+            pf.advanced_rates as advanced_rates,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -15022,7 +15062,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
         FROM project_folders pf
         LEFT JOIN projects p ON pf.id = p.folder_id
         WHERE pf.onyx_user_id = $1
-        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id
+        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.is_advanced, pf.advanced_rates
         ORDER BY pf."order" ASC, pf.created_at ASC;
     """
     async with pool.acquire() as conn:
@@ -15041,13 +15081,13 @@ async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Dep
             if not parent_folder:
                 raise HTTPException(status_code=404, detail="Parent folder not found")
         
-        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate;"
-        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate)
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None)
     return ProjectFolderResponse(**dict(row))
 
 @app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
 async def rename_folder(folder_id: int, req: ProjectFolderRenameRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at;"
+    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
     async with pool.acquire() as conn:
         row = await conn.fetchrow(query, req.name, folder_id, onyx_user_id)
     if not row:
@@ -15122,10 +15162,10 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
         if not folder:
             raise HTTPException(status_code=404, detail="Folder not found")
         
-        # Update the folder's quality_tier and custom_rate
+        # Update the folder's quality_tier/custom_rate and advanced fields
         updated_folder = await conn.fetchrow(
-            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate",
-            req.quality_tier, req.custom_rate, folder_id, onyx_user_id
+            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates) WHERE id = $5 AND onyx_user_id = $6 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, folder_id, onyx_user_id
         )
         
         # Get all projects in this folder (including subfolders recursively)
@@ -15191,6 +15231,28 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                                     'video-lesson': False,
                                                 }
                                             )
+                                            # Also record a deterministic completion_breakdown and completionTime
+                                            try:
+                                                primary = lesson['recommended_content_types'].get('primary', [])
+                                                ranges = {
+                                                    'one-pager': (2,3),
+                                                    'presentation': (5,10),
+                                                    'quiz': (5,7),
+                                                    'video-lesson': (2,5),
+                                                }
+                                                breakdown = {}
+                                                total_m = 0
+                                                for p in primary:
+                                                    r = ranges.get(p)
+                                                    if r:
+                                                        mid = int(round((r[0]+r[1])/2))
+                                                        breakdown[p] = mid
+                                                        total_m += mid
+                                                if total_m > 0:
+                                                    lesson['completion_breakdown'] = breakdown
+                                                    lesson['completionTime'] = f"{total_m}m"
+                                            except Exception:
+                                                pass
                                     except Exception:
                                         pass
                                     
@@ -15227,8 +15289,37 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     # Add to total completion time
                                     total_completion_time += completion_time_minutes
                                     
-                                    # Recalculate hours with new folder rate using completion time (or 5 minutes default)
-                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    # Recalculate hours considering advanced per-product rates if enabled
+                                    try:
+                                        primary = []
+                                        if isinstance(lesson.get('recommended_content_types'), dict):
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                        is_adv = bool(updated_folder.get('is_advanced'))
+                                        adv_rates = updated_folder.get('advanced_rates') if is_adv else None
+                                        if is_adv and primary:
+                                            breakdown = lesson.get('completion_breakdown') if isinstance(lesson.get('completion_breakdown'), dict) else None
+                                            rates = {
+                                                'presentation': (adv_rates or {}).get('presentation') or req.custom_rate,
+                                                'one_pager': (adv_rates or {}).get('one_pager') or req.custom_rate,
+                                                'quiz': (adv_rates or {}).get('quiz') or req.custom_rate,
+                                                'video_lesson': (adv_rates or {}).get('video_lesson') or req.custom_rate,
+                                            }
+                                            total_hours = 0.0
+                                            if breakdown:
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    minutes = breakdown.get(p, 0)
+                                                    total_hours += (minutes / 60.0) * float(rates.get(key, req.custom_rate))
+                                            else:
+                                                per = max(1, int(round(completion_time_minutes / max(1, len(primary)))))
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    total_hours += (per / 60.0) * float(rates.get(key, req.custom_rate))
+                                            lesson_creation_hours = int(round(total_hours))
+                                        else:
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    except Exception:
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
@@ -15359,7 +15450,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
 
         update_values.extend([project_id, onyx_user_id])
-        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier;"
+        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
 
         async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
         if not row:
@@ -15573,12 +15664,16 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
             microproduct_name=updated_project["microproduct_name"], 
             microproduct_content=final_content_for_model,
             design_template_id=updated_project["design_template_id"], 
-            created_at=updated_project["created_at"]
+            created_at=updated_project["created_at"],
+            custom_rate=updated_project.get("custom_rate"),
+            quality_tier=updated_project.get("quality_tier"),
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
         )
 
 @app.patch("/api/custom/projects/{project_id}/tier", response_model=ProjectDB)
 async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update the quality tier and custom rate of a project and recalculate creation hours"""
+    """Update the quality tier, custom rate, and advanced rates of a project and recalculate creation hours"""
     async with pool.acquire() as conn:
         # Verify the project exists and belongs to user
         project = await conn.fetchrow(
@@ -15588,10 +15683,10 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
-        # Update the project's quality_tier and custom_rate
+        # Update the project's quality_tier, custom_rate, and advanced fields
         updated_project = await conn.fetchrow(
-            "UPDATE projects SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING *",
-            req.quality_tier, req.custom_rate, project_id, onyx_user_id
+            "UPDATE projects SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates) WHERE id = $5 AND onyx_user_id = $6 RETURNING *",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, project_id, onyx_user_id
         )
         
         # If the project has content, recalculate creation hours
@@ -15734,7 +15829,9 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
             design_template_id=updated_project["design_template_id"], 
             created_at=updated_project["created_at"],
             custom_rate=updated_project["custom_rate"],
-            quality_tier=updated_project["quality_tier"]
+            quality_tier=updated_project["quality_tier"],
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
         )
 
 class ProjectOrderUpdateRequest(BaseModel):

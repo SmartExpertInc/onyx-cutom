@@ -10,7 +10,7 @@ interface ModuleSettingsModalProps {
   moduleTitle: string;
   currentCustomRate?: number;
   currentQualityTier?: string;
-  onSave: (customRate: number, qualityTier: string) => Promise<void>;
+  onSave: (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => Promise<void>;
 }
 
 interface QualityTier {
@@ -38,6 +38,8 @@ export default function ModuleSettingsModal({
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
   const [customRate, setCustomRate] = useState(currentCustomRate || 200);
   const [saving, setSaving] = useState(false);
+  const [advancedEnabled, setAdvancedEnabled] = useState(false);
+  const [perProductRates, setPerProductRates] = useState({ presentation: 200, onePager: 200, quiz: 200, videoLesson: 200 });
 
   const qualityTiers: QualityTier[] = [
     {
@@ -144,7 +146,7 @@ export default function ModuleSettingsModal({
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSave(customRate, qualityTier);
+      await onSave(customRate, qualityTier, advancedEnabled, perProductRates);
       onClose();
     } catch (error) {
       console.error('Error saving module settings:', error);
@@ -190,7 +192,16 @@ export default function ModuleSettingsModal({
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.moduleSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
                   <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.moduleSettings.hoursRange', 'Hours Range')}</h4>
+                    <h4 className="font-semibold text-gray-700 text-sm text-left flex items-center gap-2">
+                      {t('modals.moduleSettings.hoursRange', 'Hours Range')}
+                      <label className="flex items-center gap-2 ml-2 text-xs">
+                        <input type="checkbox" checked={advancedEnabled} onChange={()=>{
+                          const next = !advancedEnabled; setAdvancedEnabled(next);
+                          if (next) setPerProductRates({ presentation: customRate, onePager: customRate, quiz: customRate, videoLesson: customRate });
+                        }} />
+                        {t('modals.advanced', 'Advanced')}
+                      </label>
+                    </h4>
                   </div>
                 </div>
               </div>
@@ -245,31 +256,49 @@ export default function ModuleSettingsModal({
                       <div className="col-span-3">
                         {qualityTier === tier.id ? (
                           <div className="space-y-3">
-                            {/* Slider */}
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">
-                                  {customRate}{t('modals.folderSettings.hours', 'h')}
-                                </span>
-                              </div>
-                              <div className="relative">
-                                <input
-                                  type="range"
-                                  min={tier.hoursRange.min}
-                                  max={tier.hoursRange.max}
-                                  value={customRate}
-                                  onChange={(e) => setCustomRate(parseInt(e.target.value))}
-                                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                                  style={{
-                                    background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
-                                  }}
-                                />
-                                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                  <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
-                                  <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                            {!advancedEnabled && (
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {customRate}{t('modals.folderSettings.hours', 'h')}
+                                  </span>
+                                </div>
+                                <div className="relative">
+                                  <input
+                                    type="range"
+                                    min={tier.hoursRange.min}
+                                    max={tier.hoursRange.max}
+                                    value={customRate}
+                                    onChange={(e) => setCustomRate(parseInt(e.target.value))}
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                    style={{
+                                      background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                    }}
+                                  />
+                                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                    <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
+                            {advancedEnabled && (
+                              <div className="space-y-4">
+                                {[
+                                  { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})) },
+                                  { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})) },
+                                  { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})) },
+                                  { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})) },
+                                ].map((cfg)=> (
+                                  <div key={cfg.key}>
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-xs text-gray-700">{cfg.label}: <span className="font-semibold">{cfg.value}{t('modals.folderSettings.hours', 'h')}</span></span>
+                                    </div>
+                                    <input type="range" min={tier.hoursRange.min} max={tier.hoursRange.max} value={cfg.value} onChange={(e)=>cfg.setter(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">

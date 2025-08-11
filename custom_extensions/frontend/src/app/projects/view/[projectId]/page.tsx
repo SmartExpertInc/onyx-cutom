@@ -1064,6 +1064,8 @@ export default function ProjectInstanceViewPage() {
               theme={trainingPlanData?.theme || 'cherry'}
               projectCustomRate={projectInstanceData.custom_rate}
               projectQualityTier={projectInstanceData.quality_tier}
+              projectIsAdvanced={projectInstanceData.is_advanced}
+              projectAdvancedRates={projectInstanceData.advanced_rates}
               columnVisibility={columnVisibility}
             />
           </div>
