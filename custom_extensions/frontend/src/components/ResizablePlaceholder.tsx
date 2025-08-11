@@ -22,6 +22,8 @@ export interface ResizablePlaceholderProps {
   // Additional class/style for wrapper
   className?: string;
   style?: React.CSSProperties;
+  // Control auto-initialization size from content measurement
+  initializeFromContent?: boolean; // default true
   children: React.ReactNode;
 }
 
@@ -41,6 +43,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   ariaLabel,
   className = '',
   style = {},
+  initializeFromContent = true,
   children
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -74,6 +77,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   // If no explicit size provided, measure content once to preserve template default size
   useLayoutEffect(() => {
     if (!wrapperRef.current) return;
+    if (!initializeFromContent) return;
     if ((widthPx && heightPx) || (size.widthPx > 0 && size.heightPx > 0)) return;
     const el = wrapperRef.current;
     const content = el.firstElementChild as HTMLElement | null;
