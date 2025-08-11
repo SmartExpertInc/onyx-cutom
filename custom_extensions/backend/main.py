@@ -7334,6 +7334,7 @@ def sanitize_training_plan_for_parse(content: Dict[str, Any]) -> Dict[str, Any]:
             for lesson in lessons:
                 if isinstance(lesson, dict):
                     # keep recommended_content_types for persistence
+                    pass
     except Exception:
         pass
     return content
