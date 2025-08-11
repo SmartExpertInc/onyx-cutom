@@ -442,8 +442,10 @@ export default function TextPresentationClient() {
 
       const fetchPreview = async () => {
         setLoading(true);
-      setError(null);
+        setError(null);
         setContent(""); // Clear previous content
+        setTextareaVisible(true);
+        setLoading(false);
         let gotFirstChunk = false;
 
         try {
