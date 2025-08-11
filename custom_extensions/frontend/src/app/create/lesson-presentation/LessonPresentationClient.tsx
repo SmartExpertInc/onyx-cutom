@@ -433,7 +433,8 @@ export default function LessonPresentationClient() {
       const fetchPreview = async () => {
         setLoading(true);
         setError(null);
-        setContent(""); // Clear previous content
+        setContent("");
+        setTextareaVisible(true); // Clear previous content
         let gotFirstChunk = false;
 
         try {
@@ -551,7 +552,7 @@ export default function LessonPresentationClient() {
             
             // Force state update to ensure UI reflects content changes
             if (accumulatedText && accumulatedText !== content) {
-              console.log("accumulatedText");
+              
               setContent(accumulatedText);
 
             }
