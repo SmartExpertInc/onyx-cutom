@@ -182,7 +182,7 @@ export default function LessonSettingsModal({
     const fetchEffectiveRates = async () => {
       // Test if the endpoint exists first
       try {
-        const testResponse = await fetch('/api/custom/projects', { credentials: 'same-origin' });
+        const testResponse = await fetch('/api/custom-projects-backend/projects', { credentials: 'same-origin' });
         console.log('🔍 [LESSON_MODAL] Backend connectivity test status:', testResponse.status);
       } catch (e) {
         console.log('🔍 [LESSON_MODAL] Backend connectivity test error:', e);
@@ -194,7 +194,7 @@ export default function LessonSettingsModal({
         if (sectionIndex !== undefined) params.set('section_index', sectionIndex.toString());
         if (lessonIndex !== undefined) params.set('lesson_index', lessonIndex.toString());
         
-        const url = `/api/custom/projects/${projectId}/effective-rates?${params}`;
+        const url = `/api/custom-projects-backend/projects/${projectId}/effective-rates?${params}`;
         console.log('🔍 [LESSON_MODAL] Fetching URL:', url);
         
         const response = await fetch(url, {

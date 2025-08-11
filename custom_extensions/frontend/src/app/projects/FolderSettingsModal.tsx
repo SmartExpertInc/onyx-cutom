@@ -133,7 +133,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     if (!open) return;
     (async () => {
       try {
-        const res = await fetch(`/api/custom/projects/folders/${folderId}`, { cache: 'no-store', credentials: 'same-origin' });
+        const res = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}`, { cache: 'no-store', credentials: 'same-origin' });
         if (res.ok) {
           const data = await res.json();
           const cr = typeof data.custom_rate === 'number' ? data.custom_rate : 200;

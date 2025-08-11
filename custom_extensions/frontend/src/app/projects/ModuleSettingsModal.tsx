@@ -91,7 +91,7 @@ export default function ModuleSettingsModal({
         const params = new URLSearchParams();
         if (sectionIndex !== undefined) params.set('section_index', sectionIndex.toString());
         
-        const url = `/api/custom/projects/${projectId}/effective-rates?${params}`;
+        const url = `/api/custom-projects-backend/projects/${projectId}/effective-rates?${params}`;
         console.log('🔍 [MODULE_MODAL] Fetching URL:', url);
         
         const response = await fetch(url, {
