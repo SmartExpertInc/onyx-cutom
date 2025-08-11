@@ -284,7 +284,8 @@ export default function TextPresentationClient() {
   };
 
   const getTitleForLesson = (lesson: any, index: number) => {
-    return editedTitles[index] || lesson.title;
+    const title = editedTitles[index] || lesson.title;
+    return title.replace(/\*\*/g, '').replace(/[^\w\s]/g, '').trim();
   };
 
   // Example prompts for advanced mode
