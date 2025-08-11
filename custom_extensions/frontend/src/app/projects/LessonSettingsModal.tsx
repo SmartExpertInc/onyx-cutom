@@ -287,19 +287,6 @@ export default function LessonSettingsModal({
 
   if (typeof window !== 'undefined') (window as any).__modalOpen = true;
 
-  // Don't render the modal content until we have loaded the data from backend
-  if (!dataLoaded) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto mx-4">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-gray-500">Loading settings...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       if (typeof window !== 'undefined') (window as any).__modalOpen = false;
@@ -341,10 +328,20 @@ export default function LessonSettingsModal({
         {/* Header - Fixed */}
         <div className="mb-6 text-center flex-shrink-0">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('modals.lessonSettings.title', 'Lesson Settings')}</h2>
-          <p className="text-gray-600">{t('modals.lessonSettings.subtitle', 'Configure production quality for')} <span className="font-semibold text-blue-600">{lessonTitle}</span></p>
+          <p className="text-gray-600">{lessonTitle}</p>
         </div>
 
-        {/* Scrollable Content */}
+        {/* Loading Overlay */}
+        {!dataLoaded && (
+          <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-xl">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
+              <div className="text-gray-600">Loading settings...</div>
+            </div>
+          </div>
+        )}
+
+        {/* Content - Scrollable */}
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="mb-6">
             
