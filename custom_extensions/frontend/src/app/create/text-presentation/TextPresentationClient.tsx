@@ -27,7 +27,7 @@ const LoadingAnimation: React.FC<{ message?: string; fallbackMessage?: string }>
 );
 
 export default function TextPresentationClient() {
-  const { t, language: globalLanguage } = useLanguage();
+  const { t } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
   
@@ -38,8 +38,27 @@ export default function TextPresentationClient() {
   const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params?.get("outlineId") ? Number(params.get("outlineId")) : null);
   const [selectedLesson, setSelectedLesson] = useState<string>(params?.get("lesson") || "");
-  const [language, setLanguage] = useState<string>(params?.get("lang") || globalLanguage);
+  // Local language state - independent from global language context
+  const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   const [length, setLength] = useState<string>(params?.get("length") || "medium");
+
+  // Handle local language change with content reset
+  const handleLanguageChange = (newLanguage: string) => {
+    // Abort any ongoing generation
+    if (previewAbortRef.current) {
+      previewAbortRef.current.abort();
+    }
+    
+    // Reset content state to trigger fresh generation
+    setContent("");
+    setStreamDone(false);
+    setTextareaVisible(false);
+    setFirstLineRemoved(false);
+    setError(null);
+    
+    // Update language
+    setLanguage(newLanguage);
+  };
   const [selectedStyles, setSelectedStyles] = useState<string[]>(params?.get("styles")?.split(",").filter(Boolean) || []);
   const [showStylesDropdown, setShowStylesDropdown] = useState(false);
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
@@ -69,28 +88,6 @@ export default function TextPresentationClient() {
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
   const [userText, setUserText] = useState('');
   
-  // Sync local language state with global language context
-  useEffect(() => {
-    if (globalLanguage !== language) {
-      setLanguage(globalLanguage);
-    }
-  }, [globalLanguage, language]);
-
-  // Force re-render when global language changes
-  useEffect(() => {
-    // Clear any ongoing streams when language changes
-    if (previewAbortRef.current) {
-      previewAbortRef.current.abort();
-    }
-    // Reset content state to trigger fresh generation
-    if (content && globalLanguage !== language) {
-      setContent("");
-      setStreamDone(false);
-      setTextareaVisible(false);
-      setFirstLineRemoved(false);
-    }
-  }, [globalLanguage]);
-
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
   useEffect(() => {
@@ -904,7 +901,7 @@ export default function TextPresentationClient() {
                   {selectedLesson && (
                     <>
                       <div className="relative">
-                        <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <select value={language} onChange={(e) => handleLanguageChange(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                           <option value="en">{t('interface.generate.english', 'English')}</option>
                           <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
                           <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
@@ -959,7 +956,7 @@ export default function TextPresentationClient() {
               {useExistingOutline === false && (
                 <>
                   <div className="relative">
-                    <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                    <select value={language} onChange={(e) => handleLanguageChange(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                       <option value="en">English</option>
                       <option value="uk">Ukrainian</option>
                       <option value="es">Spanish</option>
@@ -1015,6 +1012,8 @@ export default function TextPresentationClient() {
                 setSelectedModuleIndex(null);
                 setLessonsForModule([]);
                 setSelectedLesson("");
+                // Reset language to default and clear content
+                handleLanguageChange(params?.get("lang") || "en");
               }} className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100">← Back</button>
           </div>
           )}
