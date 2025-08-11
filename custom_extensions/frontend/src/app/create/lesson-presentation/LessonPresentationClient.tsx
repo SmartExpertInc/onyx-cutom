@@ -271,11 +271,11 @@ export default function LessonPresentationClient() {
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
-  console.log("content", content);
-  console.log("loading", loading);
-  console.log("streamDone", streamDone);
-  console.log("isGenerating", isGenerating);
-  console.log("textareaVisible", textareaVisible);
+  // console.log("content", content);
+  // console.log("loading", loading);
+  // console.log("streamDone", streamDone);
+  // console.log("isGenerating", isGenerating);
+  // console.log("textareaVisible")
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
@@ -523,7 +523,7 @@ export default function LessonPresentationClient() {
               try {
                 const pkt = JSON.parse(line);
                 gotFirstChunk = true;
-                
+                console.log("Отриманий пакет:", pkt); // <--- ЛОГ №1
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
@@ -542,8 +542,9 @@ export default function LessonPresentationClient() {
 
             // Determine if this buffer now contains some real (non-whitespace) text
             const hasMeaningfulText = /\S/.test(accumulatedText);
-
+            console.log("hasMeaningfulText:", hasMeaningfulText, "accumulatedText:", accumulatedText); // <--- ЛОГ №2
             if (hasMeaningfulText && !textareaVisible) {
+              console.log("Вмикаю textareaVisible");
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
             }
