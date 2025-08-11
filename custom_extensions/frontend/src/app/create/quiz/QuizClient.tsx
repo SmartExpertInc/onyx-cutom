@@ -195,7 +195,9 @@ export default function QuizClient() {
         
         questions.push({
           title: questionTitle,
-          content: `Options:\n${options.join('\n')}\n\nCorrect Answer: ${correctAnswer}\n\nExplanation: ${explanation}`
+          // content: `Options:\n${options.join('\n')}\n\nCorrect Answer: ${correctAnswer}\n\nExplanation: ${explanation}`
+          content: `${options.join('\n')}\n\nExplanation: ${explanation}`
+
         });
       });
       
@@ -1056,7 +1058,7 @@ export default function QuizClient() {
                 <div className="flex flex-col gap-4">
                   {questionList.map((question, idx: number) => (
                     <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                      <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 text-lg font-bold flex-shrink-0">
+                      <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
                         {idx + 1}
                       </div>
                       <div className="flex-1 p-4">
