@@ -7299,6 +7299,25 @@ def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Opti
         "quality_tier_used": tier,
     }
 
+# --- Completion time from recommendations ---
+PRODUCT_COMPLETION_RANGES = {
+    "one-pager": (2, 3),
+    "presentation": (5, 10),
+    "quiz": (5, 7),
+    "video-lesson": (2, 5),
+}
+
+def compute_completion_time_from_recommendations(primary_types: list[str]) -> str:
+    total = 0
+    for p in primary_types:
+        r = PRODUCT_COMPLETION_RANGES.get(p)
+        if not r:
+            continue
+        total += random.randint(r[0], r[1])
+    if total <= 0:
+        total = 5
+    return f"{total}m"
+
 def round_hours_in_content(content: Any) -> Any:
     """Recursively round all hours fields to integers in content structure"""
     if isinstance(content, dict):
@@ -12844,6 +12863,11 @@ async def generate_and_finalize_course_outline_for_position(
                                         existing_flags
                                     )
                                     lesson.setdefault("recommended_content_types", recommendations)
+                                    # Update completionTime from recommendations
+                                    try:
+                                        lesson["completionTime"] = compute_completion_time_from_recommendations(recommendations.get("primary", []))
+                                    except Exception:
+                                        lesson.setdefault("completionTime", "5m")
                                 except Exception:
                                     pass
                                 updated_lessons.append(lesson)
@@ -12855,7 +12879,6 @@ async def generate_and_finalize_course_outline_for_position(
                                     "contentAvailable": {"type": "yes", "text": "0%"},
                                     "source": "Create from scratch",
                                     "hours": 1,
-                                    "completionTime": "5m",
                                     "recommended_content_types": analyze_lesson_content_recommendations(str(lesson), content.get("quality_tier"), {"presentation": False, "one-pager": False, "quiz": False, "video-lesson": False})
                                 })
                         

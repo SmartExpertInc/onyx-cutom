@@ -1397,6 +1397,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   const { t } = useLanguage();
 
+  const computeCompletionTimeFromPrimary = (primary: string[]): string => {
+    const pick = (min: number, max: number) => Math.floor(min + Math.random() * (max - min + 1));
+    let total = 0;
+    primary.forEach(p => {
+      if (p === 'one-pager') total += pick(2,3);
+      else if (p === 'presentation') total += pick(5,10);
+      else if (p === 'quiz') total += pick(5,7);
+      else if (p === 'video-lesson') total += pick(2,5);
+    });
+    if (total <= 0) total = 5;
+    return `${total}m`;
+  };
+
   return (
     <div className="font-['Inter',_sans-serif] bg-gray-50">
       <CreateContentTypeModal
@@ -1416,6 +1429,21 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           hasQuiz: !!findExistingQuiz(contentModalState.lessonTitle),
           hasOnePager: !!findExistingOnePager(contentModalState.lessonTitle),
           hasVideoLesson: false
+        }}
+        onUpdateRecommendations={(newPrimary) => {
+          // Update completionTime for the clicked lesson in state
+          const sectionIdx = sections?.findIndex(s => s.title === contentModalState.moduleName) ?? -1;
+          if (sectionIdx >= 0) {
+            const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex(l => l.title === contentModalState.lessonTitle) ?? -1;
+            if (lessonIdx >= 0 && onTextChange) {
+              const newCT = computeCompletionTimeFromPrimary(newPrimary);
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completionTime'], newCT);
+              // Trigger auto-save
+              if (onAutoSave) {
+                setTimeout(() => onAutoSave(), 0);
+              }
+            }
+          }
         }}
       />
       <OpenOrCreateModal
