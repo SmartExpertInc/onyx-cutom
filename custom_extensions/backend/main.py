@@ -15319,7 +15319,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                         else:
                                             lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
                                     except Exception:
-                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
