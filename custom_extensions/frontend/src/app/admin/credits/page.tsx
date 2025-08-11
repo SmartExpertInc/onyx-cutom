@@ -12,7 +12,6 @@ import {
   TablePagination,
   TableSortLabel,
   Paper,
-  Checkbox,
   Box,
   Typography
 } from '@mui/material';
@@ -102,7 +101,7 @@ const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, 
   };
 
   return (
-    <Paper className="shadow-lg rounded-lg">
+    <Paper className="shadow rounded-lg overflow-hidden">
       <TableContainer>
         <Table>
           <TableHead>
@@ -168,9 +167,6 @@ const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, 
                   <Box>
                     <Typography variant="body2" fontWeight="medium">
                       {user.name}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      {user.onyx_user_id}
                     </Typography>
                   </Box>
                 </TableCell>
