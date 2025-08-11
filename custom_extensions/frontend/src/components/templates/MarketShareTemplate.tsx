@@ -557,29 +557,6 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Decorative Navigation Dots - matching reference exactly */}
-      <div className="absolute bottom-8 left-8 flex gap-2">
-        <div 
-          className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: contentColor, opacity: 0.4 }}
-        ></div>
-        <div 
-          className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: contentColor, opacity: 0.8 }}
-        ></div>
-      </div>
-      
-      <div className="absolute bottom-8 right-8 flex gap-2">
-        <div 
-          className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: contentColor, opacity: 0.4 }}
-        ></div>
-        <div 
-          className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: contentColor, opacity: 0.8 }}
-        ></div>
-      </div>
     </div>
   );
 };
