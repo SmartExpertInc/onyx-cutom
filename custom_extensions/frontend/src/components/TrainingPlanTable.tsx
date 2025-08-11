@@ -1651,6 +1651,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
             const section: any = dataToDisplay?.sections[sIdx];
             const les: any = section?.lessons?.[lIdx];
             const eff = resolveEffectiveAdvanced(section, les);
+            const effSingle = (les?.custom_rate as number | undefined)
+              ?? (section?.custom_rate as number | undefined)
+              ?? (projectCustomRate as number | undefined)
+              ?? 200;
             return {
               currentAdvancedEnabled: !!eff.enabled,
               currentAdvancedRates: {
@@ -1659,6 +1663,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 quiz: eff.rates.quiz,
                 videoLesson: eff.rates.video_lesson,
               },
+              currentEffectiveCustomRate: effSingle,
             } as any;
           }
           return {} as any;
