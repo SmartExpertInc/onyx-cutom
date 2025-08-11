@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
-import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -30,9 +30,10 @@ interface CreateContentTypeModalProps {
   hasLesson?: boolean;
   hasQuiz?: boolean;
   hasOnePager?: boolean;
-  parentProjectName?: string; // Add outline name for quiz creation
-  recommendedContentTypes?: RecommendedContentTypes; // NEW
-  existingContent?: ExistingContentFlags; // NEW
+  parentProjectName?: string;
+  recommendedContentTypes?: RecommendedContentTypes;
+  existingContent?: ExistingContentFlags;
+  onUpdateRecommendations?: (newPrimary: string[]) => void; // NEW
 }
 
 export const CreateContentTypeModal = ({ 
@@ -48,11 +49,19 @@ export const CreateContentTypeModal = ({
   hasOnePager = false,
   parentProjectName,
   recommendedContentTypes,
-  existingContent
+  existingContent,
+  onUpdateRecommendations
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
   const { t } = useLanguage();
   const [showAllOptions, setShowAllOptions] = useState(false);
+  const [showPrefs, setShowPrefs] = useState(false); // NEW
+
+  // Local recommended state (so UI updates immediately)
+  const [recommendedState, setRecommendedState] = useState<RecommendedContentTypes | undefined>(recommendedContentTypes);
+  useEffect(() => {
+    setRecommendedState(recommendedContentTypes);
+  }, [recommendedContentTypes]);
 
   const contentTypes = [
     { 
@@ -111,11 +120,11 @@ export const CreateContentTypeModal = ({
   }));
 
   const recommendedOnly = useMemo(() => {
-    const rec = recommendedContentTypes?.primary || [];
-    if (!rec.length) return updatedContentTypes; // fallback to all
-    const set = new Set(rec);
+    const primary = recommendedState?.primary || recommendedContentTypes?.primary || [];
+    if (!primary.length) return updatedContentTypes; // fallback to all
+    const set = new Set(primary);
     return updatedContentTypes.filter(ct => set.has(ct.key));
-  }, [recommendedContentTypes, updatedContentTypes]);
+  }, [recommendedState, recommendedContentTypes, updatedContentTypes]);
 
   const handleContentCreate = (contentType: string) => {
     let product = '';
@@ -152,6 +161,35 @@ export const CreateContentTypeModal = ({
     }
     router.push(`/create?${params.toString()}`);
     onClose();
+  };
+
+  // Preferences state
+  const allKeys = ["presentation", "one-pager", "quiz", "video-lesson"];
+  const [selectedPrefs, setSelectedPrefs] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    const prim = recommendedState?.primary || recommendedContentTypes?.primary || [];
+    const next: Record<string, boolean> = {};
+    allKeys.forEach(k => { next[k] = prim.includes(k); });
+    setSelectedPrefs(next);
+  }, [recommendedState, recommendedContentTypes]);
+
+  const handlePrefToggle = (key: string) => {
+    setSelectedPrefs(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handlePrefSave = () => {
+    const newPrimary = allKeys.filter(k => selectedPrefs[k]);
+    if (!newPrimary.length) return; // require at least one selection
+    const next: RecommendedContentTypes = {
+      ...(recommendedState || {}),
+      primary: newPrimary,
+      last_updated: new Date().toISOString(),
+      quality_tier_used: recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used,
+      reasoning: 'manual'
+    };
+    setRecommendedState(next);
+    if (onUpdateRecommendations) onUpdateRecommendations(newPrimary);
+    setShowPrefs(false);
   };
 
   if (!isOpen) return null;
@@ -250,19 +288,27 @@ export const CreateContentTypeModal = ({
         </div>
         
         {/* Recommendations */}
-        {recommendedContentTypes?.primary && recommendedContentTypes.primary.length > 0 && (
+        { (recommendedState?.primary?.length || recommendedContentTypes?.primary?.length) ? (
           <div className="mb-6">
-            <div className="mb-2 text-sm text-gray-600">
+            <div className="mb-2 text-sm text-gray-600 flex items-center">
               <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')}</span>
-              {recommendedContentTypes.quality_tier_used && (
-                <span className="ml-2 text-gray-400">({recommendedContentTypes.quality_tier_used})</span>
+              <button
+                onClick={() => setShowPrefs(true)}
+                className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                aria-label="Customize recommendations"
+                title="Customize"
+              >
+                <Settings size={16} />
+              </button>
+              { (recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used) && (
+                <span className="ml-2 text-gray-400">({recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used})</span>
               )}
             </div>
             <div className="space-y-4">
               {recommendedOnly.map(renderTypeButton)}
             </div>
-            {recommendedContentTypes.reasoning && (
-              <p className="mt-3 text-xs text-gray-500">{recommendedContentTypes.reasoning}</p>
+            { (recommendedState?.reasoning || recommendedContentTypes?.reasoning) && (
+              <p className="mt-3 text-xs text-gray-500">{recommendedState?.reasoning || recommendedContentTypes?.reasoning}</p>
             )}
             <div className="mt-4 flex justify-end">
               <button
@@ -274,10 +320,7 @@ export const CreateContentTypeModal = ({
               </button>
             </div>
           </div>
-        )}
-        
-        {/* If no recommendations, show all */}
-        {!recommendedContentTypes?.primary?.length && (
+        ) : (
           <div className="space-y-4">
             {updatedContentTypes.map(renderTypeButton)}
           </div>
@@ -303,6 +346,57 @@ export const CreateContentTypeModal = ({
             </div>
             <div className="space-y-4 max-h-[70vh] overflow-auto">
               {updatedContentTypes.map(renderTypeButton)}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preferences modal */}
+      {showPrefs && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowPrefs(false)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl border" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">{t('modals.createContent.recommended', 'Recommended')} — {t('modals.createContent.title')}</h3>
+              <button onClick={() => setShowPrefs(false)} className="p-2 rounded-full hover:bg-gray-100">
+                <X size={20} />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">Select which products should be shown as recommended for this lesson.</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { key: 'presentation', label: t('modals.createContent.presentation') },
+                { key: 'one-pager', label: t('modals.createContent.onePager') },
+                { key: 'quiz', label: t('modals.createContent.quiz') },
+                { key: 'video-lesson', label: t('modals.createContent.videoLesson') },
+              ].map(opt => (
+                <label key={opt.key} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 accent-indigo-600"
+                    checked={!!selectedPrefs[opt.key]}
+                    onChange={() => handlePrefToggle(opt.key)}
+                  />
+                  <span className="text-sm text-gray-800">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowPrefs(false)}
+                className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePrefSave}
+                disabled={!Object.values(selectedPrefs).some(Boolean)}
+                className={`px-4 py-2 text-sm rounded-lg text-white ${Object.values(selectedPrefs).some(Boolean) ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}`}
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
