@@ -270,7 +270,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   return (
     <div style={slideStyles}>
       {/* Left side - Clickable Image Placeholder */}
-      <div style={imageContainerStyles} data-draggable="true">
+      <div style={imageContainerStyles} >
         <ClickableImagePlaceholder
           imagePath={imagePath}
           onImageUploaded={handleImageUploaded}
