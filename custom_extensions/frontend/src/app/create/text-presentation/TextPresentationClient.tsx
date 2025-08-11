@@ -27,7 +27,7 @@ const LoadingAnimation: React.FC<{ message?: string; fallbackMessage?: string }>
 );
 
 export default function TextPresentationClient() {
-  const { t } = useLanguage();
+  const { t, language: globalLanguage } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
   
@@ -38,7 +38,7 @@ export default function TextPresentationClient() {
   const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params?.get("outlineId") ? Number(params.get("outlineId")) : null);
   const [selectedLesson, setSelectedLesson] = useState<string>(params?.get("lesson") || "");
-  const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
+  const [language, setLanguage] = useState<string>(params?.get("lang") || globalLanguage);
   const [length, setLength] = useState<string>(params?.get("length") || "medium");
   const [selectedStyles, setSelectedStyles] = useState<string[]>(params?.get("styles")?.split(",").filter(Boolean) || []);
   const [showStylesDropdown, setShowStylesDropdown] = useState(false);
@@ -69,6 +69,28 @@ export default function TextPresentationClient() {
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
   const [userText, setUserText] = useState('');
   
+  // Sync local language state with global language context
+  useEffect(() => {
+    if (globalLanguage !== language) {
+      setLanguage(globalLanguage);
+    }
+  }, [globalLanguage, language]);
+
+  // Force re-render when global language changes
+  useEffect(() => {
+    // Clear any ongoing streams when language changes
+    if (previewAbortRef.current) {
+      previewAbortRef.current.abort();
+    }
+    // Reset content state to trigger fresh generation
+    if (content && globalLanguage !== language) {
+      setContent("");
+      setStreamDone(false);
+      setTextareaVisible(false);
+      setFirstLineRemoved(false);
+    }
+  }, [globalLanguage]);
+
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
   useEffect(() => {
