@@ -1483,9 +1483,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               const newCT = computeCompletionTimeFromPrimary(newPrimary);
               onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completionTime'], newCT);
 
-              // Trigger auto-save
+              // Trigger auto-save (debounced to avoid race with batched state)
               if (onAutoSave) {
-                setTimeout(() => onAutoSave(), 300);
+                if (autoSaveTimeoutRef.current) {
+                  clearTimeout(autoSaveTimeoutRef.current);
+                }
+                autoSaveTimeoutRef.current = setTimeout(() => {
+                  onAutoSave();
+                  autoSaveTimeoutRef.current = null;
+                }, 400);
               }
             }
           }
