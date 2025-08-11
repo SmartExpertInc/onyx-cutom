@@ -1436,8 +1436,32 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           if (sectionIdx >= 0) {
             const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex(l => l.title === contentModalState.lessonTitle) ?? -1;
             if (lessonIdx >= 0 && onTextChange) {
+              const section = sections?.[sectionIdx];
+              const lessonObj = section?.lessons?.[lessonIdx];
+              const effTier = String(getEffectiveLessonTier(section, lessonObj));
+
+              // Persist recommended content types
+              onTextChange(
+                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'primary'],
+                JSON.stringify(newPrimary)
+              );
+              onTextChange(
+                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'reasoning'],
+                'manual'
+              );
+              onTextChange(
+                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'last_updated'],
+                new Date().toISOString()
+              );
+              onTextChange(
+                ['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'quality_tier_used'],
+                effTier
+              );
+
+              // Update completion time
               const newCT = computeCompletionTimeFromPrimary(newPrimary);
               onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completionTime'], newCT);
+
               // Trigger auto-save
               if (onAutoSave) {
                 setTimeout(() => onAutoSave(), 0);
