@@ -8,10 +8,8 @@ import {
   TimelineConnector,
   TimelineContent,
   TimelineDot,
-  TimelineOppositeContent
 } from '@mui/lab';
-import { Typography, Paper, Box } from '@mui/material';
-import { Plus, Minus, ShoppingCart, FileText, Video, HelpCircle, Presentation, FileCheck } from 'lucide-react';
+import { Typography, Box } from '@mui/material';
 
 interface UserCredits {
   id: number;
@@ -36,173 +34,50 @@ interface TimelineActivity {
   productType?: string;
 }
 
+// Product type configuration to reduce redundancy
+const PRODUCT_TYPES = {
+  'Course Outline': { credits: 5, color: '#FF6B6B' },
+  'Video Lesson': { credits: 10, color: '#FF6B6B' },
+  'Quiz': { credits: 5, color: '#FFEAA7' },
+  'Presentation': { credits: 10, color: '#96CEB4' },
+  'One-Pager': { credits: 5, color: '#45B7D1' }
+} as const;
+
+// Generate mock timeline data more efficiently
+const generateMockTimelineData = (userId: string, baseDate: Date): TimelineActivity[] => {
+  const activities: TimelineActivity[] = [];
+  
+  // Add purchase activity
+  activities.push({
+    id: '1',
+    type: 'purchase',
+    title: 'Credit Purchase',
+    credits: Math.floor(Math.random() * 200) + 300, // Random between 300-500
+    timestamp: new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString() // 5 days ago
+  });
+
+  // Add product generation activities
+  const productTypes = Object.keys(PRODUCT_TYPES);
+  productTypes.forEach((productType, index) => {
+    const activityDate = new Date(baseDate.getTime() - (index + 1) * 24 * 60 * 60 * 1000);
+    activities.push({
+      id: (index + 2).toString(),
+      type: 'product_generation',
+      title: `${productType} generated`,
+      credits: PRODUCT_TYPES[productType as keyof typeof PRODUCT_TYPES].credits,
+      timestamp: activityDate.toISOString(),
+      productType
+    });
+  });
+
+  return activities;
+};
+
 // Mock timeline data for users
 const mockUserTimelineData: Record<string, TimelineActivity[]> = {
-  'user1@example.com': [
-    {
-      id: '1',
-      type: 'purchase',
-      title: 'Credit Purchase',
-      description: 'Purchased 500 credits',
-      credits: 500,
-      timestamp: '2024-01-15T10:30:00Z'
-    },
-    {
-      id: '2',
-      type: 'product_generation',
-      title: 'Course Outline Created',
-      description: 'Generated Course Outline"',
-      credits: 5,
-      timestamp: '2024-01-14T14:20:00Z',
-      productType: 'Course Outline'
-    },
-    {
-      id: '3',
-      type: 'product_generation',
-      title: 'Video Lesson Created',
-      description: 'Generated Video Lesson"',
-      credits: 10,
-      timestamp: '2024-01-13T09:15:00Z',
-      productType: 'Video Lesson'
-    },
-    {
-      id: '4',
-      type: 'product_generation',
-      title: 'Quiz Created',
-      description: 'Generated Quiz"',
-      credits: 5,
-      timestamp: '2024-01-12T16:45:00Z',
-      productType: 'Quiz'
-    },
-    {
-      id: '5',
-      type: 'product_generation',
-      title: 'Presentation Created',
-      description: 'Generated Presentation"',
-      credits: 10,
-      timestamp: '2024-01-11T11:30:00Z',
-      productType: 'Presentation'
-    },
-    {
-      id: '6',
-      type: 'product_generation',
-      title: 'One-Pager Created',
-      description: 'Generated One-Pager"',
-      credits: 5,
-      timestamp: '2024-01-10T13:20:00Z',
-      productType: 'One-Pager'
-    }
-  ],
-  'user2@example.com': [
-    {
-      id: '1',
-      type: 'purchase',
-      title: 'Credit Purchase',
-      description: 'Purchased 300 credits',
-      credits: 300,
-      timestamp: '2024-01-10T14:20:00Z'
-    },
-    {
-      id: '2',
-      type: 'product_generation',
-      title: 'Video Lesson Created',
-      description: 'Generated Video Lesson"',
-      credits: 10,
-      timestamp: '2024-01-09T10:15:00Z',
-      productType: 'Video Lesson'
-    },
-    {
-      id: '3',
-      type: 'product_generation',
-      title: 'Quiz Created',
-      description: 'Generated Quiz"',
-      credits: 5,
-      timestamp: '2024-01-08T15:30:00Z',
-      productType: 'Quiz'
-    },
-    {
-      id: '4',
-      type: 'product_generation',
-      title: 'Course Outline Created',
-      description: 'Generated Course Outline"',
-      credits: 5,
-      timestamp: '2024-01-07T12:45:00Z',
-      productType: 'Course Outline'
-    },
-    {
-      id: '5',
-      type: 'product_generation',
-      title: 'Presentation Created',
-      description: 'Generated Presentation"',
-      credits: 10,
-      timestamp: '2024-01-06T09:20:00Z',
-      productType: 'Presentation'
-    },
-    {
-      id: '6',
-      type: 'product_generation',
-      title: 'One-Pager Created',
-      description: 'Generated One-Pager"',
-      credits: 5,
-      timestamp: '2024-01-05T14:10:00Z',
-      productType: 'One-Pager'
-    }
-  ],
-  'user3@example.com': [
-    {
-      id: '1',
-      type: 'purchase',
-      title: 'Credit Purchase',
-      description: 'Purchased 400 credits',
-      credits: 400,
-      timestamp: '2024-01-12T09:15:00Z'
-    },
-    {
-      id: '2',
-      type: 'product_generation',
-      title: 'Presentation Created',
-      description: 'Generated Presentation"',
-      credits: 10,
-      timestamp: '2024-01-11T16:30:00Z',
-      productType: 'Presentation'
-    },
-    {
-      id: '3',
-      type: 'product_generation',
-      title: 'Course Outline Created',
-      description: 'Generated Course Outline"',
-      credits: 5,
-      timestamp: '2024-01-10T11:45:00Z',
-      productType: 'Course Outline'
-    },
-    {
-      id: '4',
-      type: 'product_generation',
-      title: 'Quiz Created',
-      description: 'Generated Quiz"',
-      credits: 5,
-      timestamp: '2024-01-09T13:20:00Z',
-      productType: 'Quiz'
-    },
-    {
-      id: '5',
-      type: 'product_generation',
-      title: 'Video Lesson Created',
-      description: 'Generated Video Lesson"',
-      credits: 10,
-      timestamp: '2024-01-08T10:15:00Z',
-      productType: 'Video Lesson'
-    },
-    {
-      id: '6',
-      type: 'product_generation',
-      title: 'One-Pager Created',
-      description: 'Generated One-Pager"',
-      credits: 5,
-      timestamp: '2024-01-07T14:50:00Z',
-      productType: 'One-Pager'
-    }
-  ]
+  'user1@example.com': generateMockTimelineData('user1@example.com', new Date('2024-01-15')),
+  'user2@example.com': generateMockTimelineData('user2@example.com', new Date('2024-01-10')),
+  'user3@example.com': generateMockTimelineData('user3@example.com', new Date('2024-01-12'))
 };
 
 interface UserActivityTimelineProps {
@@ -234,20 +109,11 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
       return '#4CAF50'; // Green for purchases
     }
     
-    switch (productType) {
-      case 'Course Outline':
-        return '#FF6B6B'; // Red
-      case 'Video Lesson':
-        return '#FF6B6B'; // Red
-      case 'Quiz':
-        return '#FFEAA7'; // Yellow
-      case 'Presentation':
-        return '#96CEB4'; // Green
-      case 'One-Pager':
-        return '#45B7D1'; // Blue
-      default:
-        return '#FF6B6B'; // Default red
+    if (productType && productType in PRODUCT_TYPES) {
+      return PRODUCT_TYPES[productType as keyof typeof PRODUCT_TYPES].color;
     }
+    
+    return '#FF6B6B'; // Default red
   };
 
   const formatTimestamp = (timestamp: string) => {

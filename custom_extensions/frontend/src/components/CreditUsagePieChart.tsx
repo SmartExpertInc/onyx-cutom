@@ -16,38 +16,33 @@ interface UserCredits {
   updated_at: string;
 }
 
+// Constants to avoid redundancy
+const PRODUCT_COLORS = {
+  'Course Outline': '#FF6B6B',
+  'Video Lesson': '#4ECDC4',
+  'Quiz': '#45B7D1',
+  'Presentation': '#96CEB4',
+  'One-Pager': '#FFEAA7'
+} as const;
+
+const PRODUCT_NAMES = Object.keys(PRODUCT_COLORS);
+
+// Helper function to create product data
+const createProductData = (credits: number[]) => 
+  PRODUCT_NAMES.map((name, index) => ({
+    name,
+    credits: credits[index],
+    color: PRODUCT_COLORS[name as keyof typeof PRODUCT_COLORS]
+  }));
+
 // Mock data for credit usage by product type (all users)
-const mockCreditUsageData = [
-  { name: 'Course Outline', credits: 125, color: '#FF6B6B' },
-  { name: 'Video Lesson', credits: 210, color: '#4ECDC4' },
-  { name: 'Quiz', credits: 180, color: '#45B7D1' },
-  { name: 'Presentation', credits: 320, color: '#96CEB4' },
-  { name: 'One-Pager', credits: 165, color: '#FFEAA7' }
-];
+const mockCreditUsageData = createProductData([125, 210, 180, 320, 165]);
 
 // Mock data for individual user credit usage
 const mockUserCreditUsageData: Record<string, Array<{ name: string; credits: number; color: string }>> = {
-  'user1@example.com': [
-    { name: 'Course Outline', credits: 25, color: '#FF6B6B' },
-    { name: 'Video Lesson', credits: 45, color: '#4ECDC4' },
-    { name: 'Quiz', credits: 30, color: '#45B7D1' },
-    { name: 'Presentation', credits: 60, color: '#96CEB4' },
-    { name: 'One-Pager', credits: 35, color: '#FFEAA7' }
-  ],
-  'user2@example.com': [
-    { name: 'Course Outline', credits: 15, color: '#FF6B6B' },
-    { name: 'Video Lesson', credits: 80, color: '#4ECDC4' },
-    { name: 'Quiz', credits: 50, color: '#45B7D1' },
-    { name: 'Presentation', credits: 40, color: '#96CEB4' },
-    { name: 'One-Pager', credits: 25, color: '#FFEAA7' }
-  ],
-  'user3@example.com': [
-    { name: 'Course Outline', credits: 35, color: '#FF6B6B' },
-    { name: 'Video Lesson', credits: 25, color: '#4ECDC4' },
-    { name: 'Quiz', credits: 40, color: '#45B7D1' },
-    { name: 'Presentation', credits: 70, color: '#96CEB4' },
-    { name: 'One-Pager', credits: 30, color: '#FFEAA7' }
-  ]
+  'user1@example.com': createProductData([25, 45, 30, 60, 35]),
+  'user2@example.com': createProductData([15, 80, 50, 40, 25]),
+  'user3@example.com': createProductData([35, 25, 40, 70, 30])
 };
 
 interface CreditUsagePieChartProps {
@@ -94,7 +89,6 @@ const CreditUsagePieChart: React.FC<CreditUsagePieChartProps> = ({ selectedUser 
             from: 'color',
             modifiers: [['darker', 0.2]]
           }}
-          colors={['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']}
           arcLinkLabelsSkipAngle={10}
           arcLinkLabelsTextColor="#333333"
           arcLinkLabelsThickness={2}
