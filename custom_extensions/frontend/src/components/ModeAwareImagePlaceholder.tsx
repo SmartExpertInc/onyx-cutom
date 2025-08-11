@@ -5,6 +5,8 @@ import { Image as ImageIcon, Upload, Replace } from 'lucide-react';
 import { ImageMode, ImageModeConfig } from '@/types/slideTemplates';
 import { useModeAwareResize } from '@/hooks/useModeAwareResize';
 import PresentationImageUpload from './PresentationImageUpload';
+import ResizablePlaceholder from './ResizablePlaceholder';
+import '@/styles/modeAwareImage.css';
 
 interface ModeAwareImagePlaceholderProps {
   // Core props
@@ -321,10 +323,65 @@ const ModeAwareImagePlaceholder: React.FC<ModeAwareImagePlaceholderProps> = ({
     );
   };
 
+  // For free-proportion mode, wrap with ResizablePlaceholder for drag-and-resize
+  if (mode === 'free-proportion') {
+    return (
+      <>
+        <ResizablePlaceholder
+          widthPx={currentDimensions.width}
+          heightPx={currentDimensions.height}
+          isEditable={isEditable}
+          onResize={(size) => {
+            onSizeTransformChange?.({
+              widthPx: size.widthPx,
+              heightPx: size.heightPx,
+              objectFit: 'contain',
+              imageScale: 1,
+              imageOffset: { x: 0, y: 0 }
+            });
+          }}
+          onResizeCommit={(size) => {
+            onSizeTransformChange?.({
+              widthPx: size.widthPx,
+              heightPx: size.heightPx,
+              objectFit: 'contain',
+              imageScale: 1,
+              imageOffset: { x: 0, y: 0 }
+            });
+          }}
+          className={className}
+          style={style}
+        >
+          <div
+            ref={containerRef}
+            className={`mode-aware-image-placeholder ${imagePath ? 'has-image' : ''} ${isResizing ? 'resizing' : ''}`}
+            data-mode={mode}
+            data-locked-side={currentLockedSide}
+            style={{
+              width: '100%',
+              height: '100%'
+            }}
+          >
+            {renderPlaceholder()}
+          </div>
+        </ResizablePlaceholder>
+
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={handleImageUploaded}
+          title="Upload Presentation Image"
+        />
+      </>
+    );
+  }
+
+  // For full-side mode, render directly with slider controls
   return (
     <>
       <div
         ref={containerRef}
+        data-draggable="true"
         className={`mode-aware-image-placeholder ${imagePath ? 'has-image' : ''} ${isResizing ? 'resizing' : ''} ${className}`}
         data-mode={mode}
         data-locked-side={currentLockedSide}
