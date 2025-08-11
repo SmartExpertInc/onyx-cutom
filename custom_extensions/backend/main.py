@@ -8262,7 +8262,7 @@ def _clean_loose_json(text: str) -> str:
     return text
 
 # --- API Endpoints ---
-@api.get("/api/custom/projects/{project_id}/effective-rates")
+@app.get("/api/custom/projects/{project_id}/effective-rates")
 async def get_effective_rates(project_id: int, section_index: Optional[int] = None, lesson_index: Optional[int] = None, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2", project_id, onyx_user_id)
