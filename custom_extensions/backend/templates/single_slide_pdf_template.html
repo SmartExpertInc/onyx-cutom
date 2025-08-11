@@ -2714,17 +2714,18 @@
                             
                             <!-- Center - Simple Pie Chart -->
                             <div style="display: flex; flex-direction: column; align-items: center;">
-                                <!-- Simple pie chart -->
-                                <div style="width: 280px; height: 280px; position: relative; border-radius: 50%; background-color: #f0f0f0; border: 3px solid #ffffff; box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;">
-                                    
-                                    <!-- Pie segments -->
+                                <!-- Simple pie chart using conic-gradient -->
+                                <div style="width: 280px; height: 280px; position: relative; border-radius: 50%; background: conic-gradient(
                                     {% set total_percentage = slide.props.chartData.segments | sum(attribute='percentage') %}
                                     {% set cumulative_percentage = 0 %}
                                     {% for segment in slide.props.chartData.segments %}
-                                        {% set segment_width = (segment.percentage / (total_percentage if total_percentage > 0 else 1)) * 280 %}
-                                        <div style="position: absolute; top: 0; left: {{ cumulative_percentage / (total_percentage if total_percentage > 0 else 1) * 280 }}px; width: {{ segment_width }}px; height: 280px; background-color: {{ segment.color }}; border-right: 2px solid #ffffff;"></div>
+                                        {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 360 %}
+                                        {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 360 %}
+                                        {{ segment.color }} {{ start_angle }}deg {{ end_angle }}deg
+                                        {% if not loop.last %}, {% endif %}
                                         {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                     {% endfor %}
+                                ); border: 3px solid #ffffff; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
                                     
                                     <!-- Inner circle -->
                                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 67px; height: 67px; background-color: var(--bg-color); border-radius: 50%; border: 2px solid #e5e7eb;"></div>
@@ -2732,9 +2733,10 @@
                                     <!-- Percentage labels -->
                                     {% set cumulative_percentage = 0 %}
                                     {% for segment in slide.props.chartData.segments %}
-                                        {% set segment_center = cumulative_percentage + (segment.percentage / 2) %}
-                                        {% set label_x = (segment_center / (total_percentage if total_percentage > 0 else 1)) * 280 %}
-                                        <div style="position: absolute; top: 50%; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif;">{{ segment.label }}</div>
+                                        {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 360 %}
+                                        {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 360 %}
+                                        {% set text_angle = (start_angle + end_angle) / 2 %}
+                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate({{ text_angle }}deg) translateY(-98px); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif;">{{ segment.label }}</div>
                                         {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                     {% endfor %}
                                 </div>

@@ -121,12 +121,12 @@ interface MarketShareTemplateProps {
 - **Typography**: Matching font sizes, weights, and line heights
 
 #### PieChartInfographicsTemplate PDF Features
-- **Simple Chart**: Basic HTML/CSS implementation for reliable PDF generation
-- **Segment Calculation**: Proper percentage-based segment sizing
-- **Text Labels**: Positioned at segment centers with proper styling
+- **Conic Gradient Chart**: CSS conic-gradient for proper circular segment distribution
+- **Segment Calculation**: Proper percentage-based segment sizing around the circle
+- **Text Labels**: Positioned at segment centers using CSS transforms
 - **Monthly Data**: Left and right columns with color-coded items
 - **Inner Circle**: Decorative center element
-- **No Complex Math**: Avoids trigonometric functions for better compatibility
+- **No Complex Math**: Uses CSS conic-gradient for reliable circular segments
 
 ## Testing
 
