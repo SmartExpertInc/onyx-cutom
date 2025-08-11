@@ -403,8 +403,7 @@ export default function LessonPresentationClient() {
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
-    setTextareaVisible(true);
-    console.log("effect запустився, language =", language);
+    
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
@@ -414,13 +413,13 @@ export default function LessonPresentationClient() {
       setLoading(false);
       return;
     }
-    
+
     // If creating from text but userText not loaded yet, wait
     if (isFromText && !userText) {
       setLoading(false);
       return;
     }
-    console.log("effect запустився, promptQuery =", promptQuery);
+
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
       setTextareaVisible(false);
@@ -544,6 +543,7 @@ export default function LessonPresentationClient() {
             const hasMeaningfulText = /\S/.test(accumulatedText);
 
             if (hasMeaningfulText && !textareaVisible) {
+              console.log("hasMeaningfulText",);
               setTextareaVisible(true);
               setLoading(false); // Hide spinner & show textarea
             }
