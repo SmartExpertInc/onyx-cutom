@@ -835,11 +835,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
     // Normalize weights with jitter
     const norm = weights.map((w, i) => Math.max(1e-6, w + (i + 1) * 0.0005 * seedVal));
-    const order = norm.map((w, i) => ({ i, w })).sort((a, b) => b.w - a.w).map(o => o.i);
+    const totalW = norm.reduce((a, b) => a + b, 0) || 1;
+    const r = (seedVal % 1) * totalW;
+    let acc = 0;
+    let chosenIdx = 0;
+    for (let i = 0; i < norm.length; i++) {
+      acc += norm[i];
+      if (r <= acc) { chosenIdx = i; break; }
+    }
+    const others = norm.map((w,i)=>({i,w})).filter(o=>o.i!==chosenIdx).sort((a,b)=>b.w-a.w).map(o=>o.i);
 
     // Choose first viable combo; if items exist, keep only missing ones; skip if all exist
     let chosen: string[] | null = null;
-    for (const idx of order) {
+    for (const idx of [chosenIdx, ...others]) {
       const combo = combos[idx];
       const missing = combo.filter(k => !((k === 'presentation' && existing.hasLesson) ||
                                            (k === 'one-pager' && existing.hasOnePager) ||
@@ -847,7 +855,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                                            (k === 'video-lesson' && existing.hasVideoLesson)));
       if (missing.length > 0) { chosen = missing; break; }
     }
-    if (!chosen) chosen = combos[order[0]];
+    if (!chosen) chosen = combos[chosenIdx];
 
     return { primary: chosen, quality_tier_used: t, reasoning: `tier=${t}; s(one=${sOne.toFixed(2)},pres=${sPres.toFixed(2)},vid=${sVid.toFixed(2)},quiz=${sQuiz.toFixed(2)}) seed=${seedVal.toFixed(3)}` };
   };
