@@ -94,6 +94,7 @@ const CreditUsagePieChart: React.FC<CreditUsagePieChartProps> = ({ selectedUser 
             from: 'color',
             modifiers: [['darker', 0.2]]
           }}
+          colors={['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']}
           arcLinkLabelsSkipAngle={10}
           arcLinkLabelsTextColor="#333333"
           arcLinkLabelsThickness={2}

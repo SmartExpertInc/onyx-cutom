@@ -238,13 +238,13 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
       case 'Course Outline':
         return '#FF6B6B'; // Red
       case 'Video Lesson':
-        return '#4ECDC4'; // Teal
+        return '#FF6B6B'; // Red
       case 'Quiz':
-        return '#45B7D1'; // Blue
+        return '#FFEAA7'; // Yellow
       case 'Presentation':
         return '#96CEB4'; // Green
       case 'One-Pager':
-        return '#FFEAA7'; // Yellow
+        return '#45B7D1'; // Blue
       default:
         return '#FF6B6B'; // Default red
     }
@@ -274,9 +274,20 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
           </div>
         </div>
       ) : (
-        <Timeline position="right" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <Timeline position="left" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
           {sortedActivities.map((activity, index) => (
             <TimelineItem key={activity.id}>
+              <TimelineSeparator>
+                <TimelineDot sx={{ 
+                  backgroundColor: getActivityColor(activity.type, activity.productType),
+                  color: 'white',
+                  width: 24,
+                  height: 24
+                }}>
+                </TimelineDot>
+                {index < sortedActivities.length - 1 && <TimelineConnector />}
+              </TimelineSeparator>
+              
               <TimelineContent sx={{ py: '12px', px: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   {/* Row 1: Activity Title */}
@@ -296,22 +307,11 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                   </Typography>
                   
                   {/* Row 3: Date and time */}
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
                     {formatTimestamp(activity.timestamp)}
                   </Typography>
                 </Box>
               </TimelineContent>
-              
-              <TimelineSeparator>
-                <TimelineDot sx={{ 
-                  backgroundColor: getActivityColor(activity.type, activity.productType),
-                  color: 'white',
-                  width: 24,
-                  height: 24
-                }}>
-                </TimelineDot>
-                {index < sortedActivities.length - 1 && <TimelineConnector />}
-              </TimelineSeparator>
             </TimelineItem>
           ))}
         </Timeline>
