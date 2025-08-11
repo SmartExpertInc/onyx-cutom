@@ -233,7 +233,7 @@ export default function LessonPresentationClient() {
   
   // Effect to regenerate content when language changes
   useEffect(() => {
-    if (content && !loading) {
+    if (content && loading) {
       setTextareaVisible(true); // Make textarea visible when language changes
       setLoadingEdit(true);
       handleApplyLessonEdit();
