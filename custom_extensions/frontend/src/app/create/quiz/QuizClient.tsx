@@ -391,6 +391,8 @@ export default function QuizClient() {
         setLoading(true);
         setError(null);
         setQuizData(""); // Clear previous content
+        setTextareaVisible(true);
+        setLoading(false);
         let gotFirstChunk = false;
 
         try {
