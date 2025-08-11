@@ -230,6 +230,14 @@ export default function LessonPresentationClient() {
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(params?.get("outlineId") ? Number(params.get("outlineId")) : null);
   const [selectedLesson, setSelectedLesson] = useState<string>(params?.get("lesson") || "");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
+  
+  // Effect to regenerate content when language changes
+  useEffect(() => {
+    if (content && !loading) {
+      handleApplyLessonEdit();
+    }
+  }, [language]);
+
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">(
     optionForRange(params?.get("length") || "600-800 words")
   );
