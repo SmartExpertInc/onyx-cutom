@@ -10,26 +10,13 @@ import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 export interface MarketShareTemplateProps extends BaseTemplateProps {
   title: string;
   subtitle?: string;
-  primaryMetric: {
+  chartData: Array<{
     label: string;
     description: string;
-    percentage?: number;
-    color?: string;
-  };
-  secondaryMetric: {
-    label: string;
-    description: string;
-    percentage?: number;
-    color?: string;
-  };
-  chartData?: {
-    primaryValue: number;
-    secondaryValue: number;
-    primaryColor?: string;
-    secondaryColor?: string;
-    primaryYear?: string;
-    secondaryYear?: string;
-  };
+    percentage: number;
+    color: string;
+    year?: string;
+  }>;
   backgroundColor?: string;
   titleColor?: string;
   textColor?: string;
@@ -138,26 +125,22 @@ function InlineEditor({
 export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   title = 'Market share',
   subtitle,
-  primaryMetric = {
-    label: 'Mercury',
-    description: 'Mercury is the closest planet to the Sun',
-    percentage: 85,
-    color: '#2a5490'
-  },
-  secondaryMetric = {
-    label: 'Mars',
-    description: 'Despite being red, Mars is a cold place',
-    percentage: 40,
-    color: '#9ca3af'
-  },
-  chartData = {
-    primaryValue: 85,
-    secondaryValue: 40,
-    primaryColor: '#2a5490',
-    secondaryColor: '#9ca3af',
-    primaryYear: '2023',
-    secondaryYear: '2024'
-  },
+  chartData = [
+    {
+      label: 'Mercury',
+      description: 'Mercury is the closest planet to the Sun',
+      percentage: 85,
+      color: '#2a5490',
+      year: '2023'
+    },
+    {
+      label: 'Mars',
+      description: 'Despite being red, Mars is a cold place',
+      percentage: 40,
+      color: '#9ca3af',
+      year: '2024'
+    }
+  ],
   bottomText = 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here',
   slideId,
   isEditable = false,
@@ -169,13 +152,11 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
 
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingPrimaryLabel, setEditingPrimaryLabel] = useState(false);
-  const [editingPrimaryDesc, setEditingPrimaryDesc] = useState(false);
-  const [editingSecondaryLabel, setEditingSecondaryLabel] = useState(false);
-  const [editingSecondaryDesc, setEditingSecondaryDesc] = useState(false);
+  const [editingLabel, setEditingLabel] = useState<number | null>(null);
+  const [editingDesc, setEditingDesc] = useState<number | null>(null);
   const [editingBottomText, setEditingBottomText] = useState(false);
-  const [editingPrimaryYear, setEditingPrimaryYear] = useState(false);
-  const [editingSecondaryYear, setEditingSecondaryYear] = useState(false);
+  const [editingYear, setEditingYear] = useState<number | null>(null);
+  const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -201,56 +182,68 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
 
   const handleTitleUpdate = (newTitle: string) => {
     setEditingTitle(false);
-    const newData = { title: newTitle, primaryMetric, secondaryMetric, chartData };
+    const newData = { title: newTitle, chartData };
     scheduleAutoSave(newData);
   };
 
-  const handlePrimaryLabelUpdate = (newLabel: string) => {
-    setEditingPrimaryLabel(false);
-    const newPrimaryMetric = { ...primaryMetric, label: newLabel };
-    const newData = { title, primaryMetric: newPrimaryMetric, secondaryMetric, chartData };
+  const handleLabelUpdate = (index: number, newLabel: string) => {
+    setEditingLabel(null);
+    const newChartData = [...chartData];
+    newChartData[index] = { ...newChartData[index], label: newLabel };
+    const newData = { title, chartData: newChartData };
     scheduleAutoSave(newData);
   };
 
-  const handlePrimaryDescUpdate = (newDesc: string) => {
-    setEditingPrimaryDesc(false);
-    const newPrimaryMetric = { ...primaryMetric, description: newDesc };
-    const newData = { title, primaryMetric: newPrimaryMetric, secondaryMetric, chartData };
+  const handleDescUpdate = (index: number, newDesc: string) => {
+    setEditingDesc(null);
+    const newChartData = [...chartData];
+    newChartData[index] = { ...newChartData[index], description: newDesc };
+    const newData = { title, chartData: newChartData };
     scheduleAutoSave(newData);
   };
 
-  const handleSecondaryLabelUpdate = (newLabel: string) => {
-    setEditingSecondaryLabel(false);
-    const newSecondaryMetric = { ...secondaryMetric, label: newLabel };
-    const newData = { title, primaryMetric, secondaryMetric: newSecondaryMetric, chartData };
+  const handleYearUpdate = (index: number, newYear: string) => {
+    setEditingYear(null);
+    const newChartData = [...chartData];
+    newChartData[index] = { ...newChartData[index], year: newYear };
+    const newData = { title, chartData: newChartData };
     scheduleAutoSave(newData);
   };
 
-  const handleSecondaryDescUpdate = (newDesc: string) => {
-    setEditingSecondaryDesc(false);
-    const newSecondaryMetric = { ...secondaryMetric, description: newDesc };
-    const newData = { title, primaryMetric, secondaryMetric: newSecondaryMetric, chartData };
+  const handlePercentageUpdate = (index: number, newValue: string) => {
+    setEditingPercentage(null);
+    const newPercentage = parseFloat(newValue) || 0;
+    const newChartData = [...chartData];
+    newChartData[index] = { ...newChartData[index], percentage: newPercentage };
+    const newData = { title, chartData: newChartData };
     scheduleAutoSave(newData);
   };
 
   const handleBottomTextUpdate = (newText: string) => {
     setEditingBottomText(false);
-    const newData = { title, primaryMetric, secondaryMetric, chartData, bottomText: newText };
+    const newData = { title, chartData, bottomText: newText };
     scheduleAutoSave(newData);
   };
 
-  const handlePrimaryYearUpdate = (newYear: string) => {
-    setEditingPrimaryYear(false);
-    const newChartData = { ...chartData, primaryYear: newYear };
-    const newData = { title, primaryMetric, secondaryMetric, chartData: newChartData };
+  const handleAddColumn = () => {
+    const newColumn = {
+      label: `New Item ${chartData.length + 1}`,
+      description: 'Add your description here',
+      percentage: 50,
+      color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+      year: `${new Date().getFullYear()}`
+    };
+    const newChartData = [...chartData, newColumn];
+    const newData = { title, chartData: newChartData };
     scheduleAutoSave(newData);
   };
 
-  const handleSecondaryYearUpdate = (newYear: string) => {
-    setEditingSecondaryYear(false);
-    const newChartData = { ...chartData, secondaryYear: newYear };
-    const newData = { title, primaryMetric, secondaryMetric, chartData: newChartData };
-    scheduleAutoSave(newData);
+  const handleRemoveColumn = (index: number) => {
+    if (chartData.length > 1) {
+      const newChartData = chartData.filter((_, i) => i !== index);
+      const newData = { title, chartData: newChartData };
+      scheduleAutoSave(newData);
+    }
   };
 
   // Chart colors using theme
@@ -258,9 +251,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   const secondaryChartColor = contentColor || '#6b7280';
 
   // Create chart bars with relative heights based on the reference
-  const maxValue = Math.max(chartData.primaryValue, chartData.secondaryValue, 100);
-  const primaryHeight = (chartData.primaryValue / maxValue) * 100;
-  const secondaryHeight = (chartData.secondaryValue / maxValue) * 100;
+  const maxValue = Math.max(...chartData.map(item => item.percentage), 100);
+  const chartHeights = chartData.map(item => (item.percentage / maxValue) * 100);
 
   return (
     <div 
@@ -308,73 +300,66 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
               
               {/* Y-axis scale */}
               <div className="flex items-end justify-center mb-4" style={{ height: '300px' }}>
-                <div className="flex items-end gap-12">
+                <div className="flex items-end gap-8">
                   
-                  {/* First period */}
-                  <div className="flex flex-col items-center">
-                    <div 
-                      className="w-16 rounded transition-all duration-300 hover:opacity-80"
-                      style={{ 
-                        backgroundColor: primaryChartColor,
-                        height: `${Math.max(primaryHeight * 2.5, 40)}px`,
-                        marginBottom: '8px'
-                      }}
-                    ></div>
-                    {editingPrimaryYear && isEditable ? (
-                      <InlineEditor
-                        initialValue={chartData.primaryYear || '2023'}
-                        onSave={handlePrimaryYearUpdate}
-                        onCancel={() => setEditingPrimaryYear(false)}
-                        style={{
-                          color: contentColor,
-                          fontSize: '0.875rem',
-                          fontWeight: '500',
-                          textAlign: 'center'
+                  {chartData.map((item, index) => (
+                    <div key={index} className="flex flex-col items-center relative">
+                      <div 
+                        className="w-16 rounded transition-all duration-300 hover:opacity-80"
+                        style={{ 
+                          backgroundColor: item.color,
+                          height: `${Math.max(chartHeights[index] * 2.5, 30)}px`,
+                          marginBottom: '8px'
                         }}
-                      />
-                    ) : (
-                      <p 
-                        className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
-                        style={{ color: contentColor }}
-                        onClick={() => isEditable && setEditingPrimaryYear(true)}
+                      ></div>
+                      {editingYear === index && isEditable ? (
+                        <InlineEditor
+                          initialValue={item.year || `${new Date().getFullYear()}`}
+                          onSave={(value) => handleYearUpdate(index, value)}
+                          onCancel={() => setEditingYear(null)}
+                          style={{
+                            color: contentColor,
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            textAlign: 'center'
+                          }}
+                        />
+                      ) : (
+                        <p 
+                          className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                          style={{ color: contentColor }}
+                          onClick={() => isEditable && setEditingYear(index)}
+                        >
+                          {item.year || `${new Date().getFullYear()}`}
+                        </p>
+                      )}
+                      
+                      {/* Remove button */}
+                      {isEditable && chartData.length > 1 && (
+                        <button
+                          onClick={() => handleRemoveColumn(index)}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition-colors"
+                          style={{ fontSize: '10px' }}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {/* Add new column button */}
+                  {isEditable && (
+                    <div className="flex flex-col items-center">
+                      <button
+                        onClick={handleAddColumn}
+                        className="w-16 h-16 border-2 border-dashed border-gray-400 rounded flex items-center justify-center text-gray-400 hover:border-gray-600 hover:text-gray-600 transition-colors"
+                        style={{ marginBottom: '8px' }}
                       >
-                        {chartData.primaryYear || '2023'}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Second period */}
-                  <div className="flex flex-col items-center">
-                    <div 
-                      className="w-16 rounded transition-all duration-300 hover:opacity-80"
-                      style={{ 
-                        backgroundColor: secondaryChartColor,
-                        height: `${Math.max(secondaryHeight * 2.5, 30)}px`,
-                        marginBottom: '8px'
-                      }}
-                    ></div>
-                    {editingSecondaryYear && isEditable ? (
-                      <InlineEditor
-                        initialValue={chartData.secondaryYear || '2024'}
-                        onSave={handleSecondaryYearUpdate}
-                        onCancel={() => setEditingSecondaryYear(false)}
-                        style={{
-                          color: contentColor,
-                          fontSize: '0.875rem',
-                          fontWeight: '500',
-                          textAlign: 'center'
-                        }}
-                      />
-                    ) : (
-                      <p 
-                        className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
-                        style={{ color: contentColor }}
-                        onClick={() => isEditable && setEditingSecondaryYear(true)}
-                      >
-                        {chartData.secondaryYear || '2024'}
-                      </p>
-                    )}
-                  </div>
+                        <span className="text-2xl">+</span>
+                      </button>
+                      <p className="text-sm text-gray-400">Add</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -408,111 +393,85 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
           </div>
 
           {/* Legend Section - Right side */}
-          <div className="flex flex-col gap-12 ml-16">
+          <div className="flex flex-col gap-8 ml-16">
             
-            {/* Primary Metric */}
-            <div className="flex items-center gap-4">
-              <div 
-                className="w-6 h-6 rounded-full flex-shrink-0"
-                style={{ backgroundColor: primaryChartColor }}
-              ></div>
-              <div>
-                {editingPrimaryLabel && isEditable ? (
-                  <InlineEditor
-                    initialValue={primaryMetric.label}
-                    onSave={handlePrimaryLabelUpdate}
-                    onCancel={() => setEditingPrimaryLabel(false)}
-                    style={{
-                      color: titleColor,
-                      fontSize: '2rem',
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}
-                  />
-                ) : (
-                  <h3 
-                    className="text-3xl font-bold mb-2 cursor-pointer hover:opacity-80"
-                    style={{ color: titleColor }}
-                    onClick={() => isEditable && setEditingPrimaryLabel(true)}
-                  >
-                    {primaryMetric.label}
-                  </h3>
-                )}
-                {editingPrimaryDesc && isEditable ? (
-                  <InlineEditor
-                    initialValue={primaryMetric.description}
-                    onSave={handlePrimaryDescUpdate}
-                    onCancel={() => setEditingPrimaryDesc(false)}
-                    multiline={true}
-                    style={{
-                      color: contentColor,
-                      fontSize: '1rem',
-                      lineHeight: '1.5'
-                    }}
-                  />
-                ) : (
-                  <p 
-                    className="text-lg leading-relaxed max-w-sm cursor-pointer hover:opacity-80"
-                    style={{ color: contentColor }}
-                    onClick={() => isEditable && setEditingPrimaryDesc(true)}
-                  >
-                    {primaryMetric.description}
-                  </p>
-                )}
+            {chartData.map((item, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <div 
+                  className="w-6 h-6 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: item.color }}
+                ></div>
+                <div>
+                  {editingLabel === index && isEditable ? (
+                    <InlineEditor
+                      initialValue={item.label}
+                      onSave={(value) => handleLabelUpdate(index, value)}
+                      onCancel={() => setEditingLabel(null)}
+                      style={{
+                        color: titleColor,
+                        fontSize: '2rem',
+                        fontWeight: 'bold',
+                        marginBottom: '8px'
+                      }}
+                    />
+                  ) : (
+                    <h3 
+                      className="text-3xl font-bold mb-2 cursor-pointer hover:opacity-80"
+                      style={{ color: titleColor }}
+                      onClick={() => isEditable && setEditingLabel(index)}
+                    >
+                      {item.label}
+                    </h3>
+                  )}
+                  
+                  {editingDesc === index && isEditable ? (
+                    <InlineEditor
+                      initialValue={item.description}
+                      onSave={(value) => handleDescUpdate(index, value)}
+                      onCancel={() => setEditingDesc(null)}
+                      multiline={true}
+                      style={{
+                        color: contentColor,
+                        fontSize: '1rem',
+                        lineHeight: '1.5'
+                      }}
+                    />
+                  ) : (
+                    <p 
+                      className="text-lg leading-relaxed max-w-sm cursor-pointer hover:opacity-80"
+                      style={{ color: contentColor }}
+                      onClick={() => isEditable && setEditingDesc(index)}
+                    >
+                      {item.description}
+                    </p>
+                  )}
+                  
+                  {/* Percentage display and editing */}
+                  <div className="mt-2">
+                    {editingPercentage === index && isEditable ? (
+                      <InlineEditor
+                        initialValue={item.percentage.toString()}
+                        onSave={(value) => handlePercentageUpdate(index, value)}
+                        onCancel={() => setEditingPercentage(null)}
+                        style={{
+                          color: item.color,
+                          fontSize: '1.5rem',
+                          fontWeight: 'bold'
+                        }}
+                      />
+                    ) : (
+                      <p 
+                        className="text-2xl font-bold cursor-pointer hover:opacity-80"
+                        style={{ color: item.color }}
+                        onClick={() => isEditable && setEditingPercentage(index)}
+                      >
+                        {item.percentage}%
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Secondary Metric */}
-            <div className="flex items-center gap-4">
-              <div 
-                className="w-6 h-6 rounded-full flex-shrink-0"
-                style={{ backgroundColor: secondaryChartColor }}
-              ></div>
-              <div>
-                {editingSecondaryLabel && isEditable ? (
-                  <InlineEditor
-                    initialValue={secondaryMetric.label}
-                    onSave={handleSecondaryLabelUpdate}
-                    onCancel={() => setEditingSecondaryLabel(false)}
-                    style={{
-                      color: titleColor,
-                      fontSize: '2rem',
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}
-                  />
-                ) : (
-                  <h3 
-                    className="text-3xl font-bold mb-2 cursor-pointer hover:opacity-80"
-                    style={{ color: titleColor }}
-                    onClick={() => isEditable && setEditingSecondaryLabel(true)}
-                  >
-                    {secondaryMetric.label}
-                  </h3>
-                )}
-                {editingSecondaryDesc && isEditable ? (
-                  <InlineEditor
-                    initialValue={secondaryMetric.description}
-                    onSave={handleSecondaryDescUpdate}
-                    onCancel={() => setEditingSecondaryDesc(false)}
-                    multiline={true}
-                    style={{
-                      color: contentColor,
-                      fontSize: '1rem',
-                      lineHeight: '1.5'
-                    }}
-                  />
-                ) : (
-                  <p 
-                    className="text-lg leading-relaxed max-w-sm cursor-pointer hover:opacity-80"
-                    style={{ color: contentColor }}
-                    onClick={() => isEditable && setEditingSecondaryDesc(true)}
-                  >
-                    {secondaryMetric.description}
-                  </p>
-                )}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

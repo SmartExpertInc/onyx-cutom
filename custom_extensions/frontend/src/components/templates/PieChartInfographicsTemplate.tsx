@@ -181,6 +181,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingMonth, setEditingMonth] = useState<number | null>(null);
   const [editingMonthDesc, setEditingMonthDesc] = useState<number | null>(null);
   const [editingDescText, setEditingDescText] = useState(false);
+  const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -229,6 +230,26 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     const newMonthlyData = [...monthlyData];
     newMonthlyData[monthIndex] = { ...newMonthlyData[monthIndex], description: newValue };
     const newData = { title, chartData, monthlyData: newMonthlyData };
+    scheduleAutoSave(newData);
+  };
+
+  const handlePercentageUpdate = (segmentIndex: number, newValue: string) => {
+    setEditingPercentage(null);
+    const newPercentage = parseFloat(newValue) || 0;
+    
+    // Update the segment with new percentage
+    const newSegments = [...chartData.segments];
+    newSegments[segmentIndex] = {
+      ...newSegments[segmentIndex],
+      percentage: newPercentage,
+      label: `${newPercentage}%`
+    };
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData 
+    };
     scheduleAutoSave(newData);
   };
 
@@ -284,26 +305,52 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             strokeLinecap="round"
             className="transition-all duration-300 hover:opacity-80"
           />
-          <text
-            x={textX.toFixed(2)}
-            y={textY.toFixed(2)}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="#ffffff"
-            fontSize="18"
-            fontWeight="bold"
-            className="select-none"
-            style={{
-              fontFamily: 'Arial, Helvetica, sans-serif',
-              paintOrder: 'stroke fill',
-              stroke: '#000000',
-              strokeWidth: '1px',
-              strokeLinecap: 'round',
-              strokeLinejoin: 'round'
-            }}
-          >
-            {segment.label}
-          </text>
+          {editingPercentage === index && isEditable ? (
+            <foreignObject
+              x={textX - 30}
+              y={textY - 15}
+              width="60"
+              height="30"
+            >
+              <InlineEditor
+                initialValue={segment.percentage.toString()}
+                onSave={(value) => handlePercentageUpdate(index, value)}
+                onCancel={() => setEditingPercentage(null)}
+                style={{
+                  color: '#ffffff',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  background: 'rgba(0,0,0,0.5)',
+                  borderRadius: '4px',
+                  padding: '2px 4px',
+                  border: '1px solid #ffffff'
+                }}
+              />
+            </foreignObject>
+          ) : (
+            <text
+              x={textX.toFixed(2)}
+              y={textY.toFixed(2)}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="#ffffff"
+              fontSize="18"
+              fontWeight="bold"
+              className="select-none cursor-pointer hover:opacity-80"
+              style={{
+                fontFamily: 'Arial, Helvetica, sans-serif',
+                paintOrder: 'stroke fill',
+                stroke: '#000000',
+                strokeWidth: '1px',
+                strokeLinecap: 'round',
+                strokeLinejoin: 'round'
+              }}
+              onClick={() => isEditable && setEditingPercentage(index)}
+            >
+              {segment.label}
+            </text>
+          )}
         </g>
       );
     });
