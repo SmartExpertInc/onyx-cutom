@@ -138,13 +138,22 @@ export default function LessonSettingsModal({
   // Fetch effective rates from backend when modal opens
   useEffect(() => {
     if (isOpen && projectId !== undefined && sectionIndex !== undefined && lessonIndex !== undefined) {
+      console.log(`LessonSettingsModal: Fetching rates for project ${projectId}, section ${sectionIndex}, lesson ${lessonIndex}`);
+      console.log(`LessonSettingsModal: Current props - advancedEnabled: ${currentAdvancedEnabled}, advancedRates:`, currentAdvancedRates);
+      console.log(`LessonSettingsModal: Current props - effectiveRate: ${effectiveRate}, customRate: ${currentCustomRate}`);
+      
       setLoadingRates(true);
       const fetchEffectiveRates = async () => {
         try {
-          const response = await fetch(`/api/custom/projects/${projectId}/effective-rates?section_index=${sectionIndex}&lesson_index=${lessonIndex}`);
+          const url = `/api/custom/projects/${projectId}/effective-rates?section_index=${sectionIndex}&lesson_index=${lessonIndex}`;
+          console.log(`LessonSettingsModal: Calling API: ${url}`);
+          
+          const response = await fetch(url);
+          console.log(`LessonSettingsModal: API response status: ${response.status}`);
+          
           if (response.ok) {
             const data = await response.json();
-            console.log('Fetched effective rates:', data);
+            console.log('LessonSettingsModal: Fetched effective rates:', data);
             
             // Update states with backend data
             setAdvancedEnabled(!!data.is_advanced);
@@ -153,14 +162,18 @@ export default function LessonSettingsModal({
             const backendRates = data.rates || {};
             const fallbackRate = data.fallback_single_rate || effectiveRate;
             
-            setPerProductRates({
+            const newRates = {
               presentation: backendRates.presentation ?? fallbackRate,
               onePager: backendRates.one_pager ?? fallbackRate,
               quiz: backendRates.quiz ?? fallbackRate,
               videoLesson: backendRates.video_lesson ?? fallbackRate
-            });
+            };
+            
+            console.log('LessonSettingsModal: Setting per-product rates:', newRates);
+            setPerProductRates(newRates);
           } else {
-            console.warn('Failed to fetch effective rates, using defaults');
+            const errorText = await response.text();
+            console.warn(`LessonSettingsModal: Failed to fetch effective rates (${response.status}):`, errorText);
             // Fall back to provided values
             setAdvancedEnabled(!!currentAdvancedEnabled);
             setPerProductRates({
@@ -171,7 +184,7 @@ export default function LessonSettingsModal({
             });
           }
         } catch (error) {
-          console.error('Error fetching effective rates:', error);
+          console.error('LessonSettingsModal: Error fetching effective rates:', error);
           // Fall back to provided values
           setAdvancedEnabled(!!currentAdvancedEnabled);
           setPerProductRates({
@@ -187,10 +200,17 @@ export default function LessonSettingsModal({
       
       fetchEffectiveRates();
     } else if (isOpen) {
+      console.log('LessonSettingsModal: No project/section/lesson info provided, using current props');
       // No project/section/lesson info provided, use current props
       setQualityTier(currentQualityTier || 'interactive');
       setCustomRate(currentCustomRate || 200);
-      // Remove rate initialization from here since it's handled by the fetch effect above
+      setAdvancedEnabled(!!currentAdvancedEnabled);
+      setPerProductRates({
+        presentation: currentAdvancedRates?.presentation ?? effectiveRate,
+        onePager: currentAdvancedRates?.onePager ?? effectiveRate,
+        quiz: currentAdvancedRates?.quiz ?? effectiveRate,
+        videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+      });
     }
   }, [isOpen, projectId, sectionIndex, lessonIndex, currentCustomRate, currentQualityTier, currentAdvancedEnabled, currentAdvancedRates, effectiveRate]);
 
