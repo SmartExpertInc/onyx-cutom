@@ -2,19 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, Users, Search, RefreshCw } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  TableSortLabel,
-  Paper,
-  Box,
-  Typography
-} from '@mui/material';
+import CreditsAdministrationTable from '../../../components/CreditsAdministrationTable';
+import { ResponsivePie } from '@nivo/pie';
 
 interface UserCredits {
   id: number;
@@ -36,210 +25,87 @@ interface CreditTransaction {
   reason: string;
 }
 
-type Order = 'asc' | 'desc';
+// Mock data for credit usage by product type
+const mockCreditUsageData = [
+  { name: 'Course Outline', credits: 125, color: '#FF6B6B' },
+  { name: 'Video Lesson', credits: 210, color: '#4ECDC4' },
+  { name: 'Quiz', credits: 180, color: '#45B7D1' },
+  { name: 'Presentation', credits: 320, color: '#96CEB4' },
+  { name: 'One-Pager', credits: 165, color: '#FFEAA7' }
+];
 
-interface MUITableProps {
-  users: UserCredits[];
-  onUserSelect: (user: UserCredits | null) => void;
-  onAddCredits: (user: UserCredits) => void;
-  onRemoveCredits: (user: UserCredits) => void;
-}
-
-const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, onRemoveCredits }) => {
-  const [order, setOrder] = useState<Order>('asc');
-  const [orderBy, setOrderBy] = useState<keyof UserCredits>('name');
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selectedRow, setSelectedRow] = useState<number | null>(null);
-
-  const handleRequestSort = (property: keyof UserCredits) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleRowClick = (userId: number) => {
-    setSelectedRow(selectedRow === userId ? null : userId);
-    const user = users.find(u => u.id === userId);
-    onUserSelect(user || null);
-  };
-
-  const sortedUsers = React.useMemo(() => {
-    const sorted = [...users].sort((a, b) => {
-      let aValue: any = a[orderBy];
-      let bValue: any = b[orderBy];
-
-      // Handle string comparison
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (aValue < bValue) {
-        return order === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return order === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-
-    return sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [users, order, orderBy, page, rowsPerPage]);
-
-  const createSortHandler = (property: keyof UserCredits) => () => {
-    handleRequestSort(property);
-  };
+// Nivo Pie Chart Component
+const CreditUsagePieChart: React.FC = () => {
+  const totalCredits = mockCreditUsageData.reduce((sum, item) => sum + item.credits, 0);
+  
+  // Transform data for Nivo
+  const chartData = mockCreditUsageData.map(item => ({
+    id: item.name,
+    label: item.name,
+    value: item.credits,
+    color: item.color
+  }));
 
   return (
-    <Paper className="shadow rounded-lg overflow-hidden">
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f9fafb' }}>
-              <TableCell sx={{ backgroundColor: '#f9fafb' }}>
-                <TableSortLabel
-                  active={orderBy === 'name'}
-                  direction={orderBy === 'name' ? order : 'asc'}
-                  onClick={createSortHandler('name')}
-                  sx={{
-                    color: orderBy === 'name' ? '#000000' : '#6b7280',
-                    '&:hover': { color: '#000000' },
-                    '&.MuiTableSortLabel-active': { color: '#000000' }
-                  }}
-                >
-                  User
-                </TableSortLabel>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#f9fafb' }}>
-                <TableSortLabel
-                  active={orderBy === 'credits_balance'}
-                  direction={orderBy === 'credits_balance' ? order : 'asc'}
-                  onClick={createSortHandler('credits_balance')}
-                  sx={{
-                    color: orderBy === 'credits_balance' ? '#000000' : '#6b7280',
-                    '&:hover': { color: '#000000' },
-                    '&.MuiTableSortLabel-active': { color: '#000000' }
-                  }}
-                >
-                  Credits Balance
-                </TableSortLabel>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#f9fafb' }}>
-                <TableSortLabel
-                  active={orderBy === 'total_credits_used'}
-                  direction={orderBy === 'total_credits_used' ? order : 'asc'}
-                  onClick={createSortHandler('total_credits_used')}
-                  sx={{
-                    color: orderBy === 'total_credits_used' ? '#000000' : '#6b7280',
-                    '&:hover': { color: '#000000' },
-                    '&.MuiTableSortLabel-active': { color: '#000000' }
-                  }}
-                >
-                  Total Used
-                </TableSortLabel>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Purchased</TableCell>
-              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Tier</TableCell>
-              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Last Purchase</TableCell>
-              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedUsers.map((user) => (
-              <TableRow
-                key={user.id}
-                hover
-                selected={selectedRow === user.id}
-                onClick={() => handleRowClick(user.id)}
-                sx={{ cursor: 'pointer' }}
-              >
-                <TableCell>
-                  <Box>
-                    <Typography variant="body2" fontWeight="medium">
-                      {user.name}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    user.credits_balance > 50 
-                      ? 'bg-green-100 text-green-800'
-                      : user.credits_balance > 10
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {user.credits_balance}
-                  </span>
-                </TableCell>
-                <TableCell>{user.total_credits_used}</TableCell>
-                <TableCell>{user.credits_purchased}</TableCell>
-                <TableCell>
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {user.subscription_tier}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  {user.last_purchase_date 
-                    ? new Date(user.last_purchase_date).toLocaleDateString()
-                    : 'Never'
-                  }
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAddCredits(user);
-                      }}
-                      className="flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 border border-green-300 rounded hover:bg-green-200"
-                    >
-                      <Plus className="w-3 h-3 mr-1" />
-                      Add
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveCredits(user);
-                      }}
-                      className="flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 border border-red-300 rounded hover:bg-red-200"
-                    >
-                      <Minus className="w-3 h-3 mr-1" />
-                      Remove
-                    </button>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={users.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        sx={{ 
-          backgroundColor: '#f9fafb',
-          color: '#6b7280',
-          '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
-            color: '#6b7280'
-          }
-        }}
-      />
-    </Paper>
+    <div className="bg-white shadow rounded-lg p-6 mb-6">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Credit Usage by Product Type</h3>
+      <div className="h-80">
+        <ResponsivePie
+          data={chartData}
+          margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+          innerRadius={0.5}
+          padAngle={0.7}
+          cornerRadius={3}
+          activeOuterRadiusOffset={8}
+          borderWidth={1}
+          borderColor={{
+            from: 'color',
+            modifiers: [['darker', 0.2]]
+          }}
+          arcLinkLabelsSkipAngle={10}
+          arcLinkLabelsTextColor="#333333"
+          arcLinkLabelsThickness={2}
+          arcLinkLabelsColor={{ from: 'color' }}
+          arcLabelsSkipAngle={10}
+          arcLabelsTextColor={{
+            from: 'color',
+            modifiers: [['darker', 2]]
+          }}
+          legends={[
+            {
+              anchor: 'bottom',
+              direction: 'row',
+              justify: false,
+              translateX: 0,
+              translateY: 56,
+              itemsSpacing: 0,
+              itemWidth: 100,
+              itemHeight: 18,
+              itemTextColor: '#999',
+              itemDirection: 'left-to-right',
+              itemOpacity: 1,
+              symbolSize: 18,
+              symbolShape: 'circle'
+            }
+          ]}
+          tooltip={({ datum }) => (
+            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+              <div className="font-semibold text-gray-900">{datum.label}</div>
+              <div className="text-gray-600">{datum.value.toLocaleString()} credits</div>
+              <div className="text-sm text-gray-500">
+                {((datum.value / totalCredits) * 100).toFixed(1)}% of total
+              </div>
+            </div>
+          )}
+        />
+      </div>
+      
+      {/* Summary Stats */}
+      <div className="mt-4 text-center">
+        <div className="text-2xl font-bold text-gray-900">{totalCredits.toLocaleString()}</div>
+        <div className="text-sm text-gray-600">Total Credits Used</div>
+      </div>
+    </div>
   );
 };
 
@@ -492,109 +358,12 @@ const AdminCreditsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Users Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Credits Balance
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Used
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Purchased
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tier
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Purchase
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-black">{user.name}</div>
-                        <div className="text-sm text-black">{user.onyx_user_id}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.credits_balance > 50 
-                          ? 'bg-green-100 text-green-800'
-                          : user.credits_balance > 10
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {user.credits_balance}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                      {user.total_credits_used}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                      {user.credits_purchased}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {user.subscription_tier}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                      {user.last_purchase_date 
-                        ? new Date(user.last_purchase_date).toLocaleDateString()
-                        : 'Never'
-                      }
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => openTransactionModal(user, 'add')}
-                          className="flex items-center px-3 py-1 text-xs font-medium text-green-700 bg-green-100 border border-green-300 rounded hover:bg-green-200"
-                        >
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add
-                        </button>
-                        <button
-                          onClick={() => openTransactionModal(user, 'remove')}
-                          className="flex items-center px-3 py-1 text-xs font-medium text-red-700 bg-red-100 border border-red-300 rounded hover:bg-red-200"
-                        >
-                          <Minus className="w-3 h-3 mr-1" />
-                          Remove
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Credit Usage NIVO Pie Chart */}
+        <CreditUsagePieChart />
 
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-500">
-                {searchTerm ? 'No users found matching your search' : 'No users found'}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* MUI Table with Sorting and Pagination */}
+        {/* MUI Table */}
         <div className="mt-8">
-          <MUITable 
+          <CreditsAdministrationTable 
             users={filteredUsers}
             onUserSelect={(user: UserCredits | null) => setSelectedUser(user)}
             onAddCredits={(user: UserCredits) => openTransactionModal(user, 'add')}
