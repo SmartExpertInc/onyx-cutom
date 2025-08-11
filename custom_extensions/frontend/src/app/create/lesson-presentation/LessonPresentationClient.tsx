@@ -232,13 +232,11 @@ export default function LessonPresentationClient() {
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   
   // Effect to regenerate content when language changes
-  useEffect(() => {
-    if (content && loading) {
-      setTextareaVisible(true); // Make textarea visible when language changes
-      setLoadingEdit(true);
-      handleApplyLessonEdit();
-    }
-  }, [language]);
+  // useEffect(() => {
+  //   if (content && !loading) {
+  //     handleApplyLessonEdit();
+  //   }
+  // }, [language]);
 
 
 
@@ -587,7 +585,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, isFromText, userText, textMode]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -714,7 +712,7 @@ export default function LessonPresentationClient() {
   const handleApplyLessonEdit = async () => {
     const trimmed = editPrompt.trim();
     if (!trimmed || loadingEdit) return;
-    setTextareaVisible(true);
+
     // Combine existing prompt (if any) with new instruction
     const basePrompt = params?.get("prompt") || "";
     let combined = basePrompt.trim();
