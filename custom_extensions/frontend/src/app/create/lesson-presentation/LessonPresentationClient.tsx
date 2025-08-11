@@ -218,7 +218,7 @@ export default function LessonPresentationClient() {
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
   
 
-  console.log("content", content);
+
   // Product type for video lesson vs regular presentation
   const productType = params?.get("productType") || "lesson_presentation";
   
@@ -263,6 +263,9 @@ export default function LessonPresentationClient() {
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
+  console.log("content", content);
+  console.log("loading", loading);
+  console.log("streamDone", streamDone);
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
