@@ -541,7 +541,8 @@ export default function LessonPresentationClient() {
 
             // Determine if this buffer now contains some real (non-whitespace) text
             const hasMeaningfulText = /\S/.test(accumulatedText);
-
+            console.log("hasMeaningfulText", hasMeaningfulText);
+            console.log("textareaVisible", accumulatedText);
             if (hasMeaningfulText && !textareaVisible) {
               console.log("hasMeaningfulText",);
               setTextareaVisible(true);
