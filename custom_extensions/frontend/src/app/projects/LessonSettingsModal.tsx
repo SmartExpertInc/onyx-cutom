@@ -7,11 +7,15 @@ import { useLanguage } from '../../contexts/LanguageContext';
 interface LessonSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lessonTitle: string;
   currentCustomRate?: number;
   currentQualityTier?: string;
   completionTime: string;
-  onSave: (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => void;
+  onSave: (
+    customRate: number, 
+    qualityTier: string, 
+    advancedEnabled?: boolean, 
+    advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }
+  ) => void;
   currentAdvancedEnabled?: boolean;
   currentAdvancedRates?: { presentation?: number; onePager?: number; quiz?: number; videoLesson?: number };
   currentEffectiveCustomRate?: number;
@@ -36,7 +40,6 @@ interface QualityTier {
 export default function LessonSettingsModal({
   isOpen,
   onClose,
-  lessonTitle,
   currentCustomRate,
   currentQualityTier,
   completionTime,
@@ -60,7 +63,7 @@ export default function LessonSettingsModal({
     quiz: currentAdvancedRates?.quiz ?? effectiveRate,
     videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
   });
-  const [loadingRates, setLoadingRates] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -136,56 +139,39 @@ export default function LessonSettingsModal({
   ];
 
   // Fetch effective rates from backend when modal opens
-  useEffect(() => {
-    if (isOpen && projectId !== undefined && sectionIndex !== undefined && lessonIndex !== undefined) {
-      console.log(`LessonSettingsModal: Fetching rates for project ${projectId}, section ${sectionIndex}, lesson ${lessonIndex}`);
-      console.log(`LessonSettingsModal: Current props - advancedEnabled: ${currentAdvancedEnabled}, advancedRates:`, currentAdvancedRates);
-      console.log(`LessonSettingsModal: Current props - effectiveRate: ${effectiveRate}, customRate: ${currentCustomRate}`);
-      
-      setLoadingRates(true);
-      const fetchEffectiveRates = async () => {
-        try {
-          const url = `/api/custom/projects/${projectId}/effective-rates?section_index=${sectionIndex}&lesson_index=${lessonIndex}`;
-          console.log(`LessonSettingsModal: Calling API: ${url}`);
+  React.useEffect(() => {
+    if (!isOpen || !projectId) return;
+    
+    const fetchEffectiveRates = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (sectionIndex !== undefined) params.set('section_index', sectionIndex.toString());
+        if (lessonIndex !== undefined) params.set('lesson_index', lessonIndex.toString());
+        
+        const response = await fetch(`/api/custom/projects/${projectId}/effective-rates?${params}`, {
+          credentials: 'same-origin'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
           
-          const response = await fetch(url);
-          console.log(`LessonSettingsModal: API response status: ${response.status}`);
+          // Set advanced enabled state
+          setAdvancedEnabled(data.is_advanced);
           
-          if (response.ok) {
-            const data = await response.json();
-            console.log('LessonSettingsModal: Fetched effective rates:', data);
-            
-            // Update states with backend data
-            setAdvancedEnabled(!!data.is_advanced);
-            
-            // Use backend rates if available, otherwise fall back to provided values or fallback single rate
-            const backendRates = data.rates || {};
-            const fallbackRate = data.fallback_single_rate || effectiveRate;
-            
-            const newRates = {
-              presentation: backendRates.presentation ?? fallbackRate,
-              onePager: backendRates.one_pager ?? fallbackRate,
-              quiz: backendRates.quiz ?? fallbackRate,
-              videoLesson: backendRates.video_lesson ?? fallbackRate
-            };
-            
-            console.log('LessonSettingsModal: Setting per-product rates:', newRates);
-            setPerProductRates(newRates);
-          } else {
-            const errorText = await response.text();
-            console.warn(`LessonSettingsModal: Failed to fetch effective rates (${response.status}):`, errorText);
-            // Fall back to provided values
-            setAdvancedEnabled(!!currentAdvancedEnabled);
-            setPerProductRates({
-              presentation: currentAdvancedRates?.presentation ?? effectiveRate,
-              onePager: currentAdvancedRates?.onePager ?? effectiveRate,
-              quiz: currentAdvancedRates?.quiz ?? effectiveRate,
-              videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
-            });
-          }
-        } catch (error) {
-          console.error('LessonSettingsModal: Error fetching effective rates:', error);
-          // Fall back to provided values
+          // Set per-product rates (convert backend naming to frontend naming)
+          setPerProductRates({
+            presentation: data.rates.presentation,
+            onePager: data.rates.one_pager,
+            quiz: data.rates.quiz,
+            videoLesson: data.rates.video_lesson
+          });
+          
+          // Set single rate fallback
+          setCustomRate(data.fallback_single_rate);
+        } else {
+          console.warn('Failed to fetch effective rates, using props');
+          // Fallback to props if endpoint fails
           setAdvancedEnabled(!!currentAdvancedEnabled);
           setPerProductRates({
             presentation: currentAdvancedRates?.presentation ?? effectiveRate,
@@ -193,35 +179,34 @@ export default function LessonSettingsModal({
             quiz: currentAdvancedRates?.quiz ?? effectiveRate,
             videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
           });
-        } finally {
-          setLoadingRates(false);
+          setCustomRate(currentCustomRate || 200);
         }
-      };
-      
-      fetchEffectiveRates();
-    } else if (isOpen) {
-      console.log('LessonSettingsModal: No project/section/lesson info provided, using current props');
-      // No project/section/lesson info provided, use current props
-      setQualityTier(currentQualityTier || 'interactive');
-      setCustomRate(currentCustomRate || 200);
-      setAdvancedEnabled(!!currentAdvancedEnabled);
-      setPerProductRates({
-        presentation: currentAdvancedRates?.presentation ?? effectiveRate,
-        onePager: currentAdvancedRates?.onePager ?? effectiveRate,
-        quiz: currentAdvancedRates?.quiz ?? effectiveRate,
-        videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
-      });
-    }
-  }, [isOpen, projectId, sectionIndex, lessonIndex, currentCustomRate, currentQualityTier, currentAdvancedEnabled, currentAdvancedRates, effectiveRate]);
+      } catch (error) {
+        console.warn('Error fetching effective rates:', error);
+        // Fallback to props if fetch fails
+        setAdvancedEnabled(!!currentAdvancedEnabled);
+        setPerProductRates({
+          presentation: currentAdvancedRates?.presentation ?? effectiveRate,
+          onePager: currentAdvancedRates?.onePager ?? effectiveRate,
+          quiz: currentAdvancedRates?.quiz ?? effectiveRate,
+          videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+        });
+        setCustomRate(currentCustomRate || 200);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchEffectiveRates();
+  }, [isOpen, projectId, sectionIndex, lessonIndex, currentAdvancedEnabled, currentAdvancedRates, effectiveRate, currentCustomRate]);
 
-  // Reset modal state when opened with new data (keep existing useEffect but remove rate initialization)
+  // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setQualityTier(currentQualityTier || 'interactive');
-      setCustomRate(currentCustomRate || 200);
-      // Remove rate initialization from here since it's handled by the fetch effect above
+      // Don't reset rates here - let the fetch effect handle it
     }
-  }, [isOpen, currentCustomRate, currentQualityTier]);
+  }, [isOpen, currentQualityTier]);
 
   // Update custom rate when tier changes
   useEffect(() => {
@@ -261,6 +246,7 @@ export default function LessonSettingsModal({
   const completionTimeMinutes = parseInt(completionTime.replace('m', ''));
   const creationHours = Math.round((completionTimeMinutes / 60.0) * customRate);
   const selectedTierData = qualityTiers.find(tier => tier.id === qualityTier);
+  const lessonTitle = 'Lesson Title'; // Placeholder, replace with actual lesson title if available
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>

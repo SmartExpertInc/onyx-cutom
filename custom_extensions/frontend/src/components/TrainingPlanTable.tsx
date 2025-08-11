@@ -106,11 +106,11 @@ interface TrainingPlanTableProps {
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
   theme?: string;
+  projectId?: number; // Add projectId for fetching effective rates
   projectCustomRate?: number | null; // Project-level custom rate for fallback
   projectQualityTier?: string | null; // Project-level quality tier for fallback
   projectIsAdvanced?: boolean | null;
   projectAdvancedRates?: { presentation?: number; one_pager?: number; quiz?: number; video_lesson?: number } | null;
-  projectId?: number; // Add projectId for API calls
   columnVisibility?: {
     knowledgeCheck: boolean;
     contentAvailability: boolean;
@@ -282,11 +282,11 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   parentProjectName,
   sourceChatSessionId,
   theme = 'cherry', // Default theme
+  projectId,
   projectCustomRate,
   projectQualityTier,
   projectIsAdvanced,
   projectAdvancedRates,
-  projectId,
   columnVisibility,
 }) => {
   // Inline editing state management
@@ -1640,11 +1640,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       />
       <LessonSettingsModal
         isOpen={lessonSettingsModalState.isOpen}
-        onClose={() => setLessonSettingsModalState({ isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' })}
-        lessonTitle={lessonSettingsModalState.lessonTitle}
+        onClose={() => setLessonSettingsModalState({ 
+          isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' 
+        })}
         currentCustomRate={lessonSettingsModalState.currentCustomRate}
         currentQualityTier={lessonSettingsModalState.currentQualityTier}
         completionTime={lessonSettingsModalState.completionTime}
+        projectId={projectId}
+        sectionIndex={lessonSettingsModalState.sectionIndex}
+        lessonIndex={lessonSettingsModalState.lessonIndex}
         // Preselect current advanced values from the effective context
         {...(() => {
           const sIdx = lessonSettingsModalState.sectionIndex;
@@ -1670,9 +1674,6 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           }
           return {} as any;
         })()}
-        projectId={projectId}
-        sectionIndex={lessonSettingsModalState.sectionIndex}
-        lessonIndex={lessonSettingsModalState.lessonIndex}
         onSave={handleLessonSettingsSave}
       />
       <ModuleSettingsModal
@@ -1681,6 +1682,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         moduleTitle={moduleSettingsModalState.moduleTitle}
         currentCustomRate={moduleSettingsModalState.currentCustomRate}
         currentQualityTier={moduleSettingsModalState.currentQualityTier}
+        projectId={projectId}
+        sectionIndex={moduleSettingsModalState.sectionIndex}
         onSave={handleModuleSettingsSave}
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">

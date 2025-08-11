@@ -7229,169 +7229,6 @@ def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> 
     creation_hours = completion_hours * custom_rate
     return round(creation_hours)
 
-def resolve_effective_advanced_config(lesson: dict, section: dict, project: dict, folder: Optional[dict]) -> tuple[bool, dict]:
-    """
-    Resolve effective advanced configuration using inheritance: Lesson > Module/Section > Project > Folder
-    Returns (is_advanced, rates_dict)
-    """
-    logger.info(f"resolve_effective_advanced_config called with lesson keys: {list(lesson.keys()) if lesson else 'None'}")
-    logger.info(f"resolve_effective_advanced_config called with section keys: {list(section.keys()) if section else 'None'}")
-    logger.info(f"resolve_effective_advanced_config called with project keys: {list(project.keys()) if project else 'None'}")
-    
-    # Check lesson level first
-    if lesson.get('advanced') is not None:
-        is_advanced = lesson.get('advanced', False)
-        rates = lesson.get('advancedRates', {})
-        logger.info(f"Lesson level: is_advanced={is_advanced}, rates={rates}")
-        if rates:
-            # Convert frontend naming to backend naming
-            backend_rates = {
-                'presentation': rates.get('presentation'),
-                'one_pager': rates.get('onePager'),
-                'quiz': rates.get('quiz'),
-                'video_lesson': rates.get('videoLesson'),
-            }
-            logger.info(f"Returning lesson level rates: {backend_rates}")
-            return is_advanced, backend_rates
-        elif is_advanced:
-            logger.info("Lesson level advanced=True but no rates, continuing to next level")
-            # Advanced is true but no rates, fall back to project/folder rates or single rate
-            pass
-    
-    # Check section/module level
-    if section.get('advanced') is not None:
-        is_advanced = section.get('advanced', False)
-        rates = section.get('advancedRates', {})
-        logger.info(f"Section level: is_advanced={is_advanced}, rates={rates}")
-        if rates:
-            backend_rates = {
-                'presentation': rates.get('presentation'),
-                'one_pager': rates.get('onePager'),
-                'quiz': rates.get('quiz'),
-                'video_lesson': rates.get('videoLesson'),
-            }
-            logger.info(f"Returning section level rates: {backend_rates}")
-            return is_advanced, backend_rates
-        elif is_advanced:
-            logger.info("Section level advanced=True but no rates, continuing to next level")
-            pass
-    
-    # Check project level
-    if project.get('is_advanced') is not None:
-        is_advanced = project.get('is_advanced', False)
-        logger.info(f"Project level: is_advanced={is_advanced}")
-        if is_advanced and project.get('advanced_rates'):
-            rates = project.get('advanced_rates', {})
-            logger.info(f"Project level advanced_rates (raw): {rates}")
-            if isinstance(rates, str):
-                import json
-                try:
-                    rates = json.loads(rates)
-                    logger.info(f"Project level advanced_rates (parsed): {rates}")
-                except Exception as e:
-                    logger.warning(f"Failed to parse project advanced_rates JSON: {e}")
-                    rates = {}
-            logger.info(f"Returning project level rates: {rates}")
-            return is_advanced, rates
-        elif is_advanced:
-            # Advanced is true but no rates, use single rate as fallback
-            single_rate = project.get('custom_rate', 200)
-            logger.info(f"Project level advanced=True but no rates, using single rate fallback: {single_rate}")
-            fallback_rates = {
-                'presentation': single_rate,
-                'one_pager': single_rate,
-                'quiz': single_rate,
-                'video_lesson': single_rate,
-            }
-            logger.info(f"Returning project level fallback rates: {fallback_rates}")
-            return True, fallback_rates
-        else:
-            logger.info("Project level advanced=False")
-            return False, {}
-    
-    # Check folder level if provided
-    if folder and folder.get('is_advanced') is not None:
-        is_advanced = folder.get('is_advanced', False)
-        logger.info(f"Folder level: is_advanced={is_advanced}")
-        if is_advanced and folder.get('advanced_rates'):
-            rates = folder.get('advanced_rates', {})
-            if isinstance(rates, str):
-                import json
-                try:
-                    rates = json.loads(rates)
-                except Exception as e:
-                    logger.warning(f"Failed to parse folder advanced_rates JSON: {e}")
-                    rates = {}
-            logger.info(f"Returning folder level rates: {rates}")
-            return is_advanced, rates
-        elif is_advanced:
-            single_rate = folder.get('custom_rate', 200)
-            logger.info(f"Folder level advanced=True but no rates, using single rate fallback: {single_rate}")
-            fallback_rates = {
-                'presentation': single_rate,
-                'one_pager': single_rate,
-                'quiz': single_rate,
-                'video_lesson': single_rate,
-            }
-            return True, fallback_rates
-        else:
-            logger.info("Folder level advanced=False")
-            return False, {}
-    
-    # Default: not advanced
-    logger.info("No advanced configuration found at any level, returning default: not advanced")
-    return False, {}
-    
-    # Check project level
-    if project.get('is_advanced') is not None:
-        is_advanced = project.get('is_advanced', False)
-        if is_advanced and project.get('advanced_rates'):
-            rates = project.get('advanced_rates', {})
-            if isinstance(rates, str):
-                import json
-                try:
-                    rates = json.loads(rates)
-                except:
-                    rates = {}
-            return is_advanced, rates
-        elif is_advanced:
-            # Advanced is true but no rates, use single rate as fallback
-            single_rate = project.get('custom_rate', 200)
-            return True, {
-                'presentation': single_rate,
-                'one_pager': single_rate,
-                'quiz': single_rate,
-                'video_lesson': single_rate,
-            }
-        else:
-            return False, {}
-    
-    # Check folder level if provided
-    if folder and folder.get('is_advanced') is not None:
-        is_advanced = folder.get('is_advanced', False)
-        if is_advanced and folder.get('advanced_rates'):
-            rates = folder.get('advanced_rates', {})
-            if isinstance(rates, str):
-                import json
-                try:
-                    rates = json.loads(rates)
-                except:
-                    rates = {}
-            return is_advanced, rates
-        elif is_advanced:
-            single_rate = folder.get('custom_rate', 200)
-            return True, {
-                'presentation': single_rate,
-                'one_pager': single_rate,
-                'quiz': single_rate,
-                'video_lesson': single_rate,
-            }
-        else:
-            return False, {}
-    
-    # Default: not advanced
-    return False, {}
-
 
 def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Optional[str], existing_content: Optional[Dict[str, bool]] = None) -> Dict[str, Any]:
     """Smart, robust combo recommendations per tier.
@@ -8338,58 +8175,6 @@ def _clean_loose_json(text: str) -> str:
     return text
 
 # --- API Endpoints ---
-@app.get("/api/custom/projects/{project_id}/effective-rates")
-async def get_effective_rates(project_id: int, section_index: Optional[int] = None, lesson_index: Optional[int] = None, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    logger.info(f"get_effective_rates called: project_id={project_id}, section_index={section_index}, lesson_index={lesson_index}")
-    
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow("SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2", project_id, onyx_user_id)
-        if not row:
-            logger.warning(f"Project {project_id} not found for user {onyx_user_id}")
-            raise HTTPException(status_code=404, detail="Project not found")
-        
-        project = dict(row)
-        logger.info(f"Project data keys: {list(project.keys())}")
-        logger.info(f"Project is_advanced: {project.get('is_advanced')}")
-        logger.info(f"Project advanced_rates: {project.get('advanced_rates')}")
-        logger.info(f"Project custom_rate: {project.get('custom_rate')}")
-        
-        details = project.get("microproduct_content") or {}
-        sec = None
-        les = None
-        
-        if isinstance(details, dict) and isinstance(details.get('sections'), list) and section_index is not None:
-            try:
-                sec = details['sections'][section_index]
-                logger.info(f"Section {section_index} found with keys: {list(sec.keys()) if sec else 'None'}")
-            except Exception as e:
-                logger.warning(f"Failed to get section {section_index}: {e}")
-                sec = None
-                
-            if isinstance(sec, dict) and isinstance(sec.get('lessons'), list) and lesson_index is not None:
-                try:
-                    les = sec['lessons'][lesson_index]
-                    logger.info(f"Lesson {lesson_index} found with keys: {list(les.keys()) if les else 'None'}")
-                except Exception as e:
-                    logger.warning(f"Failed to get lesson {lesson_index}: {e}")
-                    les = None
-        
-        is_adv, rates = resolve_effective_advanced_config(les or {}, sec or {}, project, None)
-        
-        result = {
-            "is_advanced": is_adv,
-            "rates": {
-                "presentation": rates.get('presentation'),
-                "one_pager": rates.get('one_pager'),
-                "quiz": rates.get('quiz'),
-                "video_lesson": rates.get('video_lesson'),
-            },
-            "fallback_single_rate": project.get('custom_rate')
-        }
-        
-        logger.info(f"get_effective_rates returning: {result}")
-        return result
-
 @app.post("/api/custom/pipelines/add", response_model=MicroproductPipelineDBRaw, status_code=status.HTTP_201_CREATED)
 async def add_pipeline(pipeline_data: MicroproductPipelineCreateRequest, pool: asyncpg.Pool = Depends(get_db_pool)):
     discovery_prompts_json_for_db = {str(i+1): prompt for i, prompt in enumerate(pipeline_data.discovery_prompts_list) if prompt.strip()} if pipeline_data.discovery_prompts_list else None
@@ -16048,6 +15833,145 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
             is_advanced=updated_project.get("is_advanced"),
             advanced_rates=updated_project.get("advanced_rates")
         )
+
+@app.get("/api/custom/projects/{project_id}/effective-rates")
+async def get_effective_rates(
+    project_id: int, 
+    section_index: Optional[int] = None, 
+    lesson_index: Optional[int] = None, 
+    onyx_user_id: str = Depends(get_current_onyx_user_id), 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get effective advanced rates for a project/section/lesson following inheritance chain"""
+    async with pool.acquire() as conn:
+        # Get project and folder data
+        project_row = await conn.fetchrow(
+            """
+            SELECT p.*, pf.is_advanced as folder_is_advanced, pf.advanced_rates as folder_advanced_rates, 
+                   pf.custom_rate as folder_custom_rate
+            FROM projects p
+            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+            """,
+            project_id, onyx_user_id
+        )
+        if not project_row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        project = dict(project_row)
+        
+        # Extract section and lesson if specified
+        section = None
+        lesson = None
+        if project.get("microproduct_content"):
+            content = project["microproduct_content"]
+            if isinstance(content, dict) and isinstance(content.get('sections'), list):
+                sections = content['sections']
+                if section_index is not None and 0 <= section_index < len(sections):
+                    section = sections[section_index]
+                    if isinstance(section, dict) and isinstance(section.get('lessons'), list):
+                        lessons = section['lessons']
+                        if lesson_index is not None and 0 <= lesson_index < len(lessons):
+                            lesson = lessons[lesson_index]
+        
+        # Resolve effective advanced config following inheritance: lesson > section > project > folder
+        is_advanced = False
+        rates = {}
+        fallback_single_rate = 200
+        
+        # Start with folder defaults
+        if project.get('folder_is_advanced'):
+            is_advanced = True
+            if project.get('folder_advanced_rates'):
+                try:
+                    folder_rates = project['folder_advanced_rates']
+                    if isinstance(folder_rates, str):
+                        folder_rates = json.loads(folder_rates)
+                    rates.update(folder_rates)
+                except:
+                    pass
+        folder_single_rate = project.get('folder_custom_rate') or 200
+        
+        # Override with project level
+        if project.get('is_advanced') is not None:
+            is_advanced = bool(project['is_advanced'])
+        if project.get('advanced_rates'):
+            try:
+                project_rates = project['advanced_rates']
+                if isinstance(project_rates, str):
+                    project_rates = json.loads(project_rates)
+                rates.update(project_rates)
+            except:
+                pass
+        project_single_rate = project.get('custom_rate') or folder_single_rate
+        
+        # Override with section level
+        if section:
+            if section.get('advanced') is not None:
+                is_advanced = bool(section['advanced'])
+            if section.get('advancedRates'):
+                section_rates = section['advancedRates']
+                if isinstance(section_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in section_rates:
+                        backend_rates['presentation'] = section_rates['presentation']
+                    if 'onePager' in section_rates:
+                        backend_rates['one_pager'] = section_rates['onePager']
+                    if 'quiz' in section_rates:
+                        backend_rates['quiz'] = section_rates['quiz']
+                    if 'videoLesson' in section_rates:
+                        backend_rates['video_lesson'] = section_rates['videoLesson']
+                    rates.update(backend_rates)
+            section_single_rate = section.get('custom_rate') or project_single_rate
+        else:
+            section_single_rate = project_single_rate
+        
+        # Override with lesson level
+        if lesson:
+            if lesson.get('advanced') is not None:
+                is_advanced = bool(lesson['advanced'])
+            if lesson.get('advancedRates'):
+                lesson_rates = lesson['advancedRates']
+                if isinstance(lesson_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in lesson_rates:
+                        backend_rates['presentation'] = lesson_rates['presentation']
+                    if 'onePager' in lesson_rates:
+                        backend_rates['one_pager'] = lesson_rates['onePager']
+                    if 'quiz' in lesson_rates:
+                        backend_rates['quiz'] = lesson_rates['quiz']
+                    if 'videoLesson' in lesson_rates:
+                        backend_rates['video_lesson'] = lesson_rates['videoLesson']
+                    rates.update(backend_rates)
+            lesson_single_rate = lesson.get('custom_rate') or section_single_rate
+        else:
+            lesson_single_rate = section_single_rate
+        
+        fallback_single_rate = lesson_single_rate
+        
+        # Fill in missing rates with fallback
+        default_rates = {
+            'presentation': fallback_single_rate,
+            'one_pager': fallback_single_rate,
+            'quiz': fallback_single_rate,
+            'video_lesson': fallback_single_rate
+        }
+        for key in default_rates:
+            if key not in rates:
+                rates[key] = default_rates[key]
+        
+        return {
+            "is_advanced": is_advanced,
+            "rates": {
+                "presentation": rates.get('presentation', fallback_single_rate),
+                "one_pager": rates.get('one_pager', fallback_single_rate),
+                "quiz": rates.get('quiz', fallback_single_rate),
+                "video_lesson": rates.get('video_lesson', fallback_single_rate),
+            },
+            "fallback_single_rate": fallback_single_rate
+        }
 
 class ProjectOrderUpdateRequest(BaseModel):
     orders: List[Dict[str, int]]  # List of {projectId: int, order: int}

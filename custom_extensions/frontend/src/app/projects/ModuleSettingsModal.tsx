@@ -10,7 +10,14 @@ interface ModuleSettingsModalProps {
   moduleTitle: string;
   currentCustomRate?: number;
   currentQualityTier?: string;
-  onSave: (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => Promise<void>;
+  onSave: (
+    customRate: number, 
+    qualityTier: string, 
+    advancedEnabled?: boolean, 
+    advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }
+  ) => void;
+  projectId?: number;
+  sectionIndex?: number;
 }
 
 interface QualityTier {
@@ -32,14 +39,89 @@ export default function ModuleSettingsModal({
   moduleTitle,
   currentCustomRate,
   currentQualityTier,
-  onSave
+  onSave,
+  projectId,
+  sectionIndex
 }: ModuleSettingsModalProps) {
   const { t } = useLanguage();
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
   const [customRate, setCustomRate] = useState(currentCustomRate || 200);
   const [saving, setSaving] = useState(false);
   const [advancedEnabled, setAdvancedEnabled] = useState(false);
-  const [perProductRates, setPerProductRates] = useState({ presentation: 200, onePager: 200, quiz: 200, videoLesson: 200 });
+  const [perProductRates, setPerProductRates] = useState({
+    presentation: 200,
+    onePager: 200,
+    quiz: 200,
+    videoLesson: 200,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch effective rates from backend when modal opens
+  React.useEffect(() => {
+    if (!isOpen || !projectId) return;
+    
+    const fetchEffectiveRates = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (sectionIndex !== undefined) params.set('section_index', sectionIndex.toString());
+        
+        const response = await fetch(`/api/custom/projects/${projectId}/effective-rates?${params}`, {
+          credentials: 'same-origin'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Set advanced enabled state
+          setAdvancedEnabled(data.is_advanced);
+          
+          // Set per-product rates (convert backend naming to frontend naming)
+          setPerProductRates({
+            presentation: data.rates.presentation,
+            onePager: data.rates.one_pager,
+            quiz: data.rates.quiz,
+            videoLesson: data.rates.video_lesson
+          });
+          
+          // Set single rate fallback
+          setCustomRate(data.fallback_single_rate);
+        } else {
+          console.warn('Failed to fetch effective rates for module, using defaults');
+          setAdvancedEnabled(false);
+          setPerProductRates({
+            presentation: currentCustomRate || 200,
+            onePager: currentCustomRate || 200,
+            quiz: currentCustomRate || 200,
+            videoLesson: currentCustomRate || 200
+          });
+          setCustomRate(currentCustomRate || 200);
+        }
+      } catch (error) {
+        console.warn('Error fetching effective rates for module:', error);
+        setAdvancedEnabled(false);
+        setPerProductRates({
+          presentation: currentCustomRate || 200,
+          onePager: currentCustomRate || 200,
+          quiz: currentCustomRate || 200,
+          videoLesson: currentCustomRate || 200
+        });
+        setCustomRate(currentCustomRate || 200);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchEffectiveRates();
+  }, [isOpen, projectId, sectionIndex, currentCustomRate]);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setQualityTier(currentQualityTier || 'interactive');
+      // Don't reset rates here - let the fetch effect handle it
+    }
+  }, [isOpen, currentQualityTier]);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -113,14 +195,6 @@ export default function ModuleSettingsModal({
       defaultHours: 700
     }
   ];
-
-  // Reset modal state when opened with new data
-  useEffect(() => {
-    if (isOpen) {
-      setQualityTier(currentQualityTier || 'interactive');
-      setCustomRate(currentCustomRate || 200);
-    }
-  }, [isOpen, currentQualityTier, currentCustomRate]);
 
   // Update custom rate when tier changes
   useEffect(() => {

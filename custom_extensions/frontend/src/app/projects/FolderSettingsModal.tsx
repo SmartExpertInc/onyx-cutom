@@ -127,6 +127,36 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     }
   }, [selectedTier]);
 
+  // Prefill from backend when modal opens
+  React.useEffect(() => {
+    if (!open) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/custom/projects/folders/${folderId}`, { cache: 'no-store', credentials: 'same-origin' });
+        if (res.ok) {
+          const data = await res.json();
+          const cr = typeof data.custom_rate === 'number' ? data.custom_rate : 200;
+          const qt = data.quality_tier || currentTier || 'interactive';
+          setCustomRate(cr);
+          setSelectedTier(qt);
+          if (data.is_advanced) {
+            setAdvancedEnabled(true);
+            const ar = data.advanced_rates || {};
+            setPerProductRates({
+              presentation: typeof ar.presentation === 'number' ? ar.presentation : cr,
+              onePager: typeof ar.one_pager === 'number' ? ar.one_pager : cr,
+              quiz: typeof ar.quiz === 'number' ? ar.quiz : cr,
+              videoLesson: typeof ar.video_lesson === 'number' ? ar.video_lesson : cr,
+            });
+          } else {
+            setAdvancedEnabled(false);
+            setPerProductRates({ presentation: cr, onePager: cr, quiz: cr, videoLesson: cr });
+          }
+        }
+      } catch {}
+    })();
+  }, [open, folderId]);
+
   if (!open) {
     if (typeof window !== 'undefined') (window as any).__modalOpen = false;
     return null;
