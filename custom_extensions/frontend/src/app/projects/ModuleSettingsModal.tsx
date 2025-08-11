@@ -130,6 +130,7 @@ export default function ModuleSettingsModal({
     }
   }, [qualityTier, currentCustomRate]);
 
+
   if (!isOpen) {
     if (typeof window !== 'undefined') (window as any).__modalOpen = false;
     return null;
