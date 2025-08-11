@@ -10160,8 +10160,8 @@ Return ONLY the JSON object.
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
                     db_content_dict = round_hours_in_content(db_content_dict)
-                    db_content_dict = sanitize_training_plan_for_parse(db_content_dict)
-                    final_content_for_response = TrainingPlanDetails(**db_content_dict)
+                    # Preserve custom fields (e.g., recommended_content_types) for edit view
+                    final_content_for_response = db_content_dict
             except Exception as e_parse:
                 logger.error(f"Error parsing content from DB on add (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
 
