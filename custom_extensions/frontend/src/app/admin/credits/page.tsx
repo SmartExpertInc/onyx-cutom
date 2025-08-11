@@ -102,14 +102,11 @@ const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, 
   };
 
   return (
-    <Paper className="shadow-lg">
+    <Paper className="shadow-lg rounded-lg">
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f9fafb' }}>
-              <TableCell padding="checkbox" sx={{ backgroundColor: '#f9fafb' }}>
-                <Checkbox disabled />
-              </TableCell>
               <TableCell sx={{ backgroundColor: '#f9fafb' }}>
                 <TableSortLabel
                   active={orderBy === 'name'}
@@ -167,9 +164,6 @@ const MUITable: React.FC<MUITableProps> = ({ users, onUserSelect, onAddCredits, 
                 onClick={() => handleRowClick(user.id)}
                 sx={{ cursor: 'pointer' }}
               >
-                <TableCell padding="checkbox">
-                  <Checkbox checked={selectedRow === user.id} />
-                </TableCell>
                 <TableCell>
                   <Box>
                     <Typography variant="body2" fontWeight="medium">
