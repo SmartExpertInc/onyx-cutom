@@ -274,12 +274,33 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
           </div>
         </div>
       ) : (
-        <Timeline position="left" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <Timeline position="right" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
           {sortedActivities.map((activity, index) => (
             <TimelineItem key={activity.id}>
-              <TimelineOppositeContent sx={{ m: 'auto 0' }} variant="body2" color="text.secondary">
-                {formatTimestamp(activity.timestamp)}
-              </TimelineOppositeContent>
+              <TimelineContent sx={{ py: '12px', px: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  {/* Row 1: Activity Title */}
+                  <Typography variant="body2" component="span" fontWeight="medium">
+                    {activity.title}
+                  </Typography>
+                  
+                  {/* Row 2: Credits with color */}
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: activity.type === 'purchase' ? '#4CAF50' : '#F44336',
+                      fontWeight: 'medium'
+                    }}
+                  >
+                    {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
+                  </Typography>
+                  
+                  {/* Row 3: Date and time */}
+                  <Typography variant="caption" color="text.secondary">
+                    {formatTimestamp(activity.timestamp)}
+                  </Typography>
+                </Box>
+              </TimelineContent>
               
               <TimelineSeparator>
                 <TimelineDot sx={{ 
@@ -291,26 +312,6 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                 </TimelineDot>
                 {index < sortedActivities.length - 1 && <TimelineConnector />}
               </TimelineSeparator>
-              
-              <TimelineContent sx={{ py: '8px', px: 2 }}>
-                <Paper elevation={1} sx={{ p: 1.5 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" component="span" fontWeight="medium">
-                      {activity.title}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {activity.type === 'purchase' ? (
-                        <Plus className="w-3 h-3 text-green-600 mr-1" />
-                      ) : (
-                        <Minus className="w-3 h-3 text-red-600 mr-1" />
-                      )}
-                      <Typography variant="caption" color="text.secondary">
-                        {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Paper>
-              </TimelineContent>
             </TimelineItem>
           ))}
         </Timeline>
