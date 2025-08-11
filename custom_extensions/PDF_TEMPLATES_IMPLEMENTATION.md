@@ -123,10 +123,10 @@ interface MarketShareTemplateProps {
 #### PieChartInfographicsTemplate PDF Features
 - **Conic Gradient Chart**: CSS conic-gradient for proper circular segment distribution
 - **Segment Calculation**: Proper percentage-based segment sizing around the circle
-- **Text Labels**: Positioned at segment centers using CSS transforms
+- **Text Labels**: Positioned around the circle using simplified positioning logic
 - **Monthly Data**: Left and right columns with color-coded items
 - **Inner Circle**: Decorative center element
-- **No Complex Math**: Uses CSS conic-gradient for reliable circular segments
+- **No Complex Math**: Uses CSS conic-gradient and simplified positioning for reliable rendering
 
 ## Testing
 

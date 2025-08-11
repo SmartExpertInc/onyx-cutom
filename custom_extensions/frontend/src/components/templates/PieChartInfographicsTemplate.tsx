@@ -271,108 +271,44 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingPercentage(index);
   };
 
-  // Create SVG pie chart with proper PDF rendering
-  const createPieChart = () => {
-    const size = 280;
-    const radius = size * 0.35;
-    const centerX = size / 2;
-    const centerY = size / 2;
+  // Create conic gradient for pie chart
+  const createConicGradient = () => {
+    const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
+    let cumulativePercentage = 0;
     
+    const gradientStops = chartData.segments.map((segment, index) => {
+      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
+      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
+      cumulativePercentage += segment.percentage;
+      
+      return `${segment.color} ${startAngle}deg ${endAngle}deg`;
+    });
+    
+    return `conic-gradient(${gradientStops.join(', ')})`;
+  };
+
+  // Calculate label positions for pie chart segments
+  const getLabelPositions = () => {
+    const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
     let cumulativePercentage = 0;
     
     return chartData.segments.map((segment, index) => {
-      const startAngle = (cumulativePercentage / 100) * 360;
-      const endAngle = ((cumulativePercentage + segment.percentage) / 100) * 360;
-      
-      // Calculate coordinates for the arc
-      const startRad = (startAngle - 90) * Math.PI / 180;
-      const endRad = (endAngle - 90) * Math.PI / 180;
-      
-      const x1 = centerX + radius * Math.cos(startRad);
-      const y1 = centerY + radius * Math.sin(startRad);
-      const x2 = centerX + radius * Math.cos(endRad);
-      const y2 = centerY + radius * Math.sin(endRad);
-      
-      const largeArcFlag = segment.percentage > 50 ? 1 : 0;
-      
-      // Create the path data for the pie slice with better precision
-      const pathData = [
-        `M ${centerX.toFixed(2)} ${centerY.toFixed(2)}`,
-        `L ${x1.toFixed(2)} ${y1.toFixed(2)}`,
-        `A ${radius.toFixed(2)} ${radius.toFixed(2)} 0 ${largeArcFlag} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`,
-        'Z'
-      ].join(' ');
-      
-      // Calculate text position for percentage label
-      const textAngle = (startAngle + endAngle) / 2 - 90;
-      const textRad = textAngle * Math.PI / 180;
-      const textRadius = radius * 0.7;
-      const textX = centerX + textRadius * Math.cos(textRad);
-      const textY = centerY + textRadius * Math.sin(textRad);
-      
+      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
+      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
+      const centerAngle = (startAngle + endAngle) / 2;
       cumulativePercentage += segment.percentage;
       
-      return (
-        <g key={index}>
-          <path
-            d={pathData}
-            fill={segment.color}
-            stroke="#ffffff"
-            strokeWidth="3"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            className="transition-all duration-300 hover:opacity-80"
-          />
-          {editingPercentage === index && isEditable ? (
-            <foreignObject
-              x={textX - 30}
-              y={textY - 15}
-              width="60"
-              height="30"
-            >
-              <InlineEditor
-                initialValue={segment.percentage.toString()}
-                onSave={(value) => handlePercentageSave(index, value)}
-                onCancel={() => handlePercentageCancel(index)}
-                style={{
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  textAlign: 'center',
-                  background: 'rgba(0,0,0,0.5)',
-                  borderRadius: '4px',
-                  padding: '2px 4px',
-                  border: '1px solid #ffffff'
-                }}
-              />
-            </foreignObject>
-          ) : (
-            <text
-              x={textX.toFixed(2)}
-              y={textY.toFixed(2)}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill="#ffffff"
-              fontSize="18"
-              fontWeight="bold"
-              className="select-none cursor-pointer hover:opacity-80"
-              style={{
-                fontFamily: 'Arial, Helvetica, sans-serif',
-                paintOrder: 'stroke fill',
-                stroke: '#000000',
-                strokeWidth: '1px',
-                strokeLinecap: 'round',
-                strokeLinejoin: 'round'
-              }}
-              onClick={() => isEditable && startEditingPercentage(index)}
-            >
-              {segment.label}
-            </text>
-          )}
-        </g>
-      );
+      // Convert angle to radians and calculate position
+      const angleRad = (centerAngle - 90) * Math.PI / 180;
+      const radius = 98; // Distance from center
+      const x = 140 + radius * Math.cos(angleRad);
+      const y = 140 + radius * Math.sin(angleRad);
+      
+      return { x, y, angle: centerAngle };
     });
   };
+
+  const labelPositions = getLabelPositions();
 
   return (
     <div 
@@ -496,31 +432,66 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
 
           {/* Center - Pie Chart */}
           <div className="flex flex-col items-center">
-            <svg 
-              width={280} 
-              height={280} 
-              viewBox="0 0 280 280"
-              className="filter drop-shadow-lg"
+            <div 
+              className="relative w-[280px] h-[280px] rounded-full border-3 border-white shadow-lg"
               style={{
-                shapeRendering: 'geometricPrecision',
-                textRendering: 'optimizeLegibility'
+                background: createConicGradient(),
+                borderColor: '#ffffff',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
               }}
             >
-              <defs>
-                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="2" dy="2" stdDeviation="3" floodColor="#000000" floodOpacity="0.3"/>
-                </filter>
-              </defs>
-              <circle
-                cx={140}
-                cy={140}
-                r={33.6}
-                fill={themeBg}
-                stroke="#e5e7eb"
-                strokeWidth="2"
+              {/* Inner circle */}
+              <div 
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2"
+                style={{
+                  backgroundColor: themeBg,
+                  borderColor: '#e5e7eb'
+                }}
               />
-              {createPieChart()}
-            </svg>
+              
+              {/* Percentage labels */}
+              {chartData.segments.map((segment, index) => {
+                const position = labelPositions[index];
+                return (
+                  <div
+                    key={index}
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80"
+                    style={{
+                      left: `${position.x}px`,
+                      top: `${position.y}px`,
+                      color: '#ffffff',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      fontFamily: 'Arial, Helvetica, sans-serif',
+                      textShadow: '1px 1px 2px #000000',
+                      userSelect: 'none'
+                    }}
+                    onClick={() => isEditable && startEditingPercentage(index)}
+                  >
+                    {editingPercentage === index && isEditable ? (
+                      <InlineEditor
+                        initialValue={segment.percentage.toString()}
+                        onSave={(value) => handlePercentageSave(index, value)}
+                        onCancel={() => handlePercentageCancel(index)}
+                        style={{
+                          color: '#ffffff',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                          background: 'rgba(0,0,0,0.5)',
+                          borderRadius: '4px',
+                          padding: '2px 4px',
+                          border: '1px solid #ffffff',
+                          minWidth: '40px'
+                        }}
+                      />
+                    ) : (
+                      segment.label
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Right Column - Months 4-6 */}

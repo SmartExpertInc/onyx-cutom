@@ -1584,13 +1584,27 @@
                                         <!-- Inner circle -->
                                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 67px; height: 67px; background-color: var(--bg-color); border-radius: 50%; border: 2px solid #e5e7eb;"></div>
                                         
-                                        <!-- Percentage labels -->
+                                        <!-- Percentage labels - positioned around the circle -->
                                         {% set cumulative_percentage = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
-                                            {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 360 %}
-                                            {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 360 %}
-                                            {% set text_angle = (start_angle + end_angle) / 2 %}
-                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate({{ text_angle }}deg) translateY(-98px); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif;">{{ segment.label }}</div>
+                                            {% set center_angle = (cumulative_percentage + segment.percentage / 2) / (total_percentage if total_percentage > 0 else 1) * 360 %}
+                                            {% if center_angle < 45 %}
+                                                {% set label_x = 140 + 98 %}
+                                                {% set label_y = 140 %}
+                                            {% elif center_angle < 135 %}
+                                                {% set label_x = 140 %}
+                                                {% set label_y = 140 - 98 %}
+                                            {% elif center_angle < 225 %}
+                                                {% set label_x = 140 - 98 %}
+                                                {% set label_y = 140 %}
+                                            {% elif center_angle < 315 %}
+                                                {% set label_x = 140 %}
+                                                {% set label_y = 140 + 98 %}
+                                            {% else %}
+                                                {% set label_x = 140 + 98 %}
+                                                {% set label_y = 140 %}
+                                            {% endif %}
+                                            <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif;">{{ segment.label }}</div>
                                             {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                         {% endfor %}
                                     </div>
