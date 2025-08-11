@@ -1054,7 +1054,7 @@ export default function QuizClient() {
               )}
               
               {/* Display content in card format if questions are available, otherwise show textarea */}
-              {questionList.length > 0 ? (
+              {questionList.length > 0 && (
                 <div className="flex flex-col gap-4">
                   {questionList.map((question, idx: number) => (
                     <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -1094,16 +1094,18 @@ export default function QuizClient() {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <textarea
-                  ref={textareaRef}
-                  value={quizData}
-                  onChange={(e) => setQuizData(e.target.value)}
-                  placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
-                  className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                  disabled={loadingEdit}
-                />
-              )}
+              )
+              //  : (
+              //   <textarea
+              //     ref={textareaRef}
+              //     value={quizData}
+              //     onChange={(e) => setQuizData(e.target.value)}
+              //     placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
+              //     className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+              //     disabled={loadingEdit}
+              //   />
+              // )
+              }
             </div>
           )}
         </section>
