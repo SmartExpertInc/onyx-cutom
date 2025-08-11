@@ -218,7 +218,14 @@ export default function LessonSettingsModal({
                       <label className="flex items-center gap-2 ml-2 text-xs">
                         <input type="checkbox" checked={advancedEnabled} onChange={()=>{
                           const next = !advancedEnabled; setAdvancedEnabled(next);
-                          if (next) setPerProductRates({ presentation: customRate, onePager: customRate, quiz: customRate, videoLesson: customRate });
+                          if (next) {
+                            setPerProductRates(prev => ({
+                              presentation: prev.presentation ?? (currentAdvancedRates?.presentation ?? (currentCustomRate || 200)),
+                              onePager: prev.onePager ?? (currentAdvancedRates?.onePager ?? (currentCustomRate || 200)),
+                              quiz: prev.quiz ?? (currentAdvancedRates?.quiz ?? (currentCustomRate || 200)),
+                              videoLesson: prev.videoLesson ?? (currentAdvancedRates?.videoLesson ?? (currentCustomRate || 200))
+                            }));
+                          }
                         }} />
                         {t('modals.advanced', 'Advanced')}
                       </label>

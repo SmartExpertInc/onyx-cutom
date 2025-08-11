@@ -1144,7 +1144,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
             } as any;
             const total = primary.reduce((sum, p) => {
               const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
-              const minutes = (lesson.completion_breakdown || {})[p] ?? 0;
+              const minutes = breakdown[p] || 0;
               const rate = rates[key] ?? customRate;
               return sum + (Number(minutes) / 60.0) * Number(rate);
             }, 0);
@@ -1643,15 +1643,22 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         currentCustomRate={lessonSettingsModalState.currentCustomRate}
         currentQualityTier={lessonSettingsModalState.currentQualityTier}
         completionTime={lessonSettingsModalState.completionTime}
-        // Preselect current advanced values from the lesson if present
+        // Preselect current advanced values from the effective context
         {...(() => {
           const sIdx = lessonSettingsModalState.sectionIndex;
           const lIdx = lessonSettingsModalState.lessonIndex;
           if (sIdx !== undefined && sIdx >= 0 && lIdx !== undefined && lIdx >= 0) {
-            const les: any = dataToDisplay?.sections[sIdx]?.lessons?.[lIdx];
+            const section: any = dataToDisplay?.sections[sIdx];
+            const les: any = section?.lessons?.[lIdx];
+            const eff = resolveEffectiveAdvanced(section, les);
             return {
-              currentAdvancedEnabled: !!les?.advanced,
-              currentAdvancedRates: les?.advancedRates || undefined,
+              currentAdvancedEnabled: !!eff.enabled,
+              currentAdvancedRates: {
+                presentation: eff.rates.presentation,
+                onePager: eff.rates.one_pager,
+                quiz: eff.rates.quiz,
+                videoLesson: eff.rates.video_lesson,
+              },
             } as any;
           }
           return {} as any;
