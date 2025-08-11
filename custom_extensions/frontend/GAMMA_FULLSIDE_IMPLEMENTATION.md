@@ -22,6 +22,13 @@ This implementation introduces Gamma-style full-side image behavior for specific
 - **Layout**: Image spans full slide height, width is adjustable  
 - **Resizing**: Only east/west handles for width adjustment
 - **Image behavior**: `object-fit: cover` - fills height completely, crops width
+- **Use cases**: General side-by-side layouts
+
+### 4. Fixed-Left Mode (`layoutMode="fixed-left"`)
+- **Layout**: Fixed left panel anchored to slide's left edge, spans full height
+- **Position**: Cannot be moved, anchored flush to left edge
+- **Resizing**: Only right edge handle for width adjustment
+- **Image behavior**: `object-fit: cover` - fills height completely, crops width horizontally
 - **Use cases**: Big Image Left template
 
 ## Implementation Details
@@ -29,15 +36,16 @@ This implementation introduces Gamma-style full-side image behavior for specific
 ### Component Changes
 
 #### ClickableImagePlaceholder.tsx
-- Added `layoutMode` prop with three options: `'free' | 'full-width' | 'full-height'`
+- Added `layoutMode` prop with four options: `'free' | 'full-width' | 'full-height' | 'fixed-left'`
 - Updated `handleImageUploaded` to implement mode-specific sizing logic
 - Image rendering now uses `objectFit` prop instead of hardcoded `'contain'`
 
 #### ResizablePlaceholder.tsx
-- Added `layoutMode` prop support
+- Added `layoutMode` prop support including `fixed-left` mode
 - Constrained resize logic in `onPointerMove`
 - Dynamic handle rendering based on layout mode
 - Added CSS styles for edge handles (n, s, e, w)
+- Fixed-left mode disables draggable behavior
 
 ### Template Updates
 
@@ -45,7 +53,7 @@ This implementation introduces Gamma-style full-side image behavior for specific
 ```typescript
 <ClickableImagePlaceholder
   // ... other props
-  layoutMode="full-height"
+  layoutMode="fixed-left"
   onSizeTransformChange={handleSizeTransformChange}
 />
 ```
@@ -71,7 +79,7 @@ This implementation introduces Gamma-style full-side image behavior for specific
 ### Type System Updates
 
 #### slideTemplates.ts
-- Added `layoutMode?: 'free' | 'full-width' | 'full-height'` to:
+- Added `layoutMode?: 'free' | 'full-width' | 'full-height' | 'fixed-left'` to:
   - `BigImageLeftProps`
   - `BigImageTopProps` 
   - `BulletPointsProps`
@@ -95,6 +103,12 @@ This implementation introduces Gamma-style full-side image behavior for specific
 2. Calculate width as `(containerHeight / imgH) * imgW`
 3. Use `object-fit: cover`
 
+#### Fixed-Left Mode
+1. Lock placeholder height to container height (full slide height)
+2. Calculate width as `(containerHeight / imgH) * imgW`
+3. Use `object-fit: cover`
+4. Position anchored to left edge of slide
+
 ### Resizing Constraints
 
 #### Free Mode
@@ -111,6 +125,13 @@ This implementation introduces Gamma-style full-side image behavior for specific
 - Only east/west handles visible
 - Height locked to container
 - Only width adjustable
+
+#### Fixed-Left Mode
+- Only east (right edge) handle visible
+- Height locked to full slide height
+- Width adjustable only from right edge
+- Left edge fixed at slide's left border
+- No dragging/moving allowed
 
 ## Visual Design
 

@@ -22,7 +22,7 @@ interface ClickableImagePlaceholderProps {
   imageScale?: number; // 1.0 = natural fit
   imageOffset?: { x: number; y: number };
   // NEW: Layout mode for Gamma-style full-side behavior
-  layoutMode?: 'free' | 'full-width' | 'full-height';
+  layoutMode?: 'free' | 'full-width' | 'full-height' | 'fixed-left';
   onSizeTransformChange?: (payload: {
     widthPx?: number;
     heightPx?: number;
@@ -100,6 +100,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         
         case 'full-height':
           // Full-height mode: lock to container height, allow width adjustment
+          targetH = rect.height || defaultPixelSize.h;
+          // Calculate width to maintain image aspect ratio
+          targetW = Math.round((targetH / imgH) * imgW);
+          effectiveObjectFit = 'cover'; // Fill height completely, crop width
+          break;
+        
+        case 'fixed-left':
+          // Fixed-left mode: lock to container height, width is adjustable from right edge
           targetH = rect.height || defaultPixelSize.h;
           // Calculate width to maintain image aspect ratio
           targetW = Math.round((targetH / imgH) * imgW);

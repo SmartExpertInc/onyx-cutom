@@ -9,7 +9,7 @@ export interface ResizablePlaceholderProps {
   // Maintain aspect ratio toggle
   lockAspectRatio?: boolean;
   // NEW: Layout mode for constrained resizing
-  layoutMode?: 'free' | 'full-width' | 'full-height';
+  layoutMode?: 'free' | 'full-width' | 'full-height' | 'fixed-left';
   // Editable toggle
   isEditable?: boolean;
   // Called continuously during resize (debounced by caller as needed)
@@ -160,6 +160,15 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
         }
         break;
       
+      case 'fixed-left':
+        // Fixed left panel: only right edge can be dragged, height is locked
+        newH = h; // Keep original height
+        // Only allow east handle for right-edge resizing
+        if (handle !== 'e') {
+          return; // Ignore all handles except east (right edge)
+        }
+        break;
+      
       case 'free':
       default:
         // Free mode: allow both dimensions
@@ -267,6 +276,21 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
               />
             ));
           
+          case 'fixed-left':
+            // Only show east handle for right-edge resizing
+            return ['e'].map(dir => (
+              <div
+                key={dir}
+                role="button"
+                aria-label={`Resize ${dir}`}
+                data-resize-handle={dir}
+                onPointerDown={(e) => onPointerDownHandle(e, dir)}
+                onPointerMove={(e) => { /* prevent drag enhancer */ e.stopPropagation(); }}
+                onClick={(e) => e.stopPropagation()}
+                style={getHandleStyle(dir)}
+              />
+            ));
+          
           case 'free':
           default:
             // Show all corner handles for free resizing
@@ -290,7 +314,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   return (
     <div
       ref={wrapperRef}
-      data-draggable="true"
+      data-draggable={layoutMode === 'fixed-left' ? undefined : "true"}
       className={`resizable-placeholder ${className}`}
       style={{ position: 'relative', display: 'inline-block', ...style }}
       tabIndex={isEditable ? 0 : -1}
