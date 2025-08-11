@@ -451,7 +451,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           }}>
             {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
           </div>
-           
+           <h1>Hello</h1>
         </div>
       </div>
 
