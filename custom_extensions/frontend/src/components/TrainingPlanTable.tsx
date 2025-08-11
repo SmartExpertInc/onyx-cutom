@@ -777,41 +777,79 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     tier: string,
     existing: { hasLesson: boolean; hasQuiz: boolean; hasOnePager: boolean; hasVideoLesson: boolean }
   ) => {
-    const title = (lessonTitle || '').toLowerCase();
-    const kwOnePager = ["introduction", "overview", "basics", "summary", "quick", "reference"];
-    const kwPresentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to"];
-    const kwVideo = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical"];
+    const t = (tier || 'interactive').trim().toLowerCase();
+    const title = (lessonTitle || '').trim().toLowerCase();
+
+    // Keyword signals
+    const kwOnePager = ["introduction", "overview", "basics", "summary", "quick", "reference", "primer", "cheatsheet"];
+    const kwPresentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to", "walkthrough"];
+    const kwVideo = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical", "screencast", "recording"];
     const kwQuiz = ["test", "check", "verify", "practice", "exercise", "assessment", "evaluation", "quiz"];
 
-    let weights: Record<string, number> = { 'one-pager': 0.25, presentation: 0.35, 'video-lesson': 0.2, quiz: 0.2 };
-    const t = (tier || 'interactive').toLowerCase();
-    if (t === 'basic') weights = { 'one-pager': 0.6, presentation: 0.3, 'video-lesson': 0.05, quiz: 0.05 };
-    else if (t === 'interactive') weights = { presentation: 0.45, quiz: 0.35, 'one-pager': 0.15, 'video-lesson': 0.05 };
-    else if (t === 'advanced') weights = { presentation: 0.4, quiz: 0.3, 'video-lesson': 0.25, 'one-pager': 0.05 };
-    else if (t === 'immersive') weights = { 'video-lesson': 0.5, quiz: 0.3, presentation: 0.15, 'one-pager': 0.05 };
-
-    const bump = (k: string, v: number) => { weights[k] = (weights[k] || 0) + v; };
-    if (kwOnePager.some(k => title.includes(k))) bump('one-pager', 0.2);
-    if (kwPresentation.some(k => title.includes(k))) bump('presentation', 0.25);
-    if (kwVideo.some(k => title.includes(k))) bump('video-lesson', 0.3);
-    if (kwQuiz.some(k => title.includes(k))) bump('quiz', 0.4);
-
-    const ranked = Object.entries(weights).sort((a,b) => b[1] - a[1]).map(([k]) => k);
-
-    const primary: string[] = [];
-    const tryAdd = (k: string) => {
-      const exists = (k === 'presentation' && existing.hasLesson) || (k === 'one-pager' && existing.hasOnePager) || (k === 'quiz' && existing.hasQuiz) || (k === 'video-lesson' && existing.hasVideoLesson);
-      if (!exists && !primary.includes(k)) primary.push(k);
+    const scoreFor = (keys: string[]) => {
+      const hits = keys.reduce((acc, k) => acc + (title.includes(k) ? 1 : 0), 0);
+      return Math.min(1, hits / 3);
     };
 
-    if (t === 'basic') ['one-pager','presentation','quiz','video-lesson'].forEach(k => primary.length<2 && tryAdd(k));
-    else if (t === 'interactive') ['presentation','quiz','one-pager','video-lesson'].forEach(k => primary.length<2 && tryAdd(k));
-    else if (t === 'advanced') ['presentation','quiz','video-lesson','one-pager'].forEach(k => primary.length<2 && tryAdd(k));
-    else ['video-lesson','quiz','presentation','one-pager'].forEach(k => primary.length<2 && tryAdd(k));
+    const sOne = scoreFor(kwOnePager);
+    const sPres = scoreFor(kwPresentation);
+    const sVid = scoreFor(kwVideo);
+    const sQuiz = scoreFor(kwQuiz);
 
-    if (primary.length === 0) ranked.forEach(k => primary.length<2 && tryAdd(k));
+    // Deterministic jitter (seeded by title+tier)
+    const seedStr = `${title}|${t}`;
+    let hash = 5381;
+    for (let i = 0; i < seedStr.length; i++) hash = ((hash << 5) + hash) + seedStr.charCodeAt(i);
+    const seedVal = (hash >>> 0) / 0xffffffff; // [0,1)
 
-    return { primary, quality_tier_used: t, reasoning: `Tier=${t}; title analysis applied` };
+    // Candidate combos per tier
+    let combos: string[][] = [];
+    let weights: number[] = [];
+
+    if (t === 'basic') {
+      combos = [["one-pager"], ["presentation"]];
+      weights = [
+        0.55 + 0.35 * sOne - 0.10 * sPres,
+        0.45 + 0.35 * sPres - 0.10 * sOne,
+      ];
+    } else if (t === 'interactive') {
+      combos = [["presentation", "quiz"], ["presentation"], ["one-pager", "quiz"]];
+      weights = [
+        0.40 + 0.30 * sPres + 0.30 * sQuiz,
+        0.30 + 0.50 * sPres - 0.10 * sQuiz,
+        0.30 + 0.40 * sOne + 0.30 * sQuiz,
+      ];
+    } else if (t === 'advanced') {
+      combos = [["presentation", "quiz"], ["video-lesson", "quiz"]];
+      weights = [
+        0.50 + 0.30 * sPres + 0.20 * sQuiz,
+        0.50 + 0.40 * sVid + 0.20 * sQuiz,
+      ];
+    } else { // immersive
+      combos = [["video-lesson", "quiz"], ["video-lesson"]];
+      weights = [
+        0.60 + 0.25 * sVid + 0.15 * sQuiz,
+        0.40 + 0.60 * sVid - 0.10 * sQuiz,
+      ];
+    }
+
+    // Normalize weights with jitter
+    const norm = weights.map((w, i) => Math.max(1e-6, w + (i + 1) * 0.0005 * seedVal));
+    const order = norm.map((w, i) => ({ i, w })).sort((a, b) => b.w - a.w).map(o => o.i);
+
+    // Choose first viable combo; if items exist, keep only missing ones; skip if all exist
+    let chosen: string[] | null = null;
+    for (const idx of order) {
+      const combo = combos[idx];
+      const missing = combo.filter(k => !((k === 'presentation' && existing.hasLesson) ||
+                                           (k === 'one-pager' && existing.hasOnePager) ||
+                                           (k === 'quiz' && existing.hasQuiz) ||
+                                           (k === 'video-lesson' && existing.hasVideoLesson)));
+      if (missing.length > 0) { chosen = missing; break; }
+    }
+    if (!chosen) chosen = combos[order[0]];
+
+    return { primary: chosen, quality_tier_used: t, reasoning: `tier=${t}; s(one=${sOne.toFixed(2)},pres=${sPres.toFixed(2)},vid=${sVid.toFixed(2)},quiz=${sQuiz.toFixed(2)}) seed=${seedVal.toFixed(3)}` };
   };
 
   const getEffectiveLessonTier = (section: SectionType | undefined, lesson: LessonType | undefined) => {
@@ -984,13 +1022,28 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   const handleOpenOrCreateCreate = () => {
-    const { lessonTitle, moduleName, lessonNumber, hasLesson, hasQuiz } = openOrCreateModalState;
-    
+    const { lessonTitle, moduleName, lessonNumber } = openOrCreateModalState;
+
+    const existingLesson = findExistingLesson(lessonTitle);
+    const existingQuiz = findExistingQuiz(lessonTitle);
+    const existingVideoLesson = findExistingVideoLesson(lessonTitle);
+    const existingOnePager = findExistingOnePager(lessonTitle);
+
+    const hasLesson = !!existingLesson;
+    const hasQuiz = !!existingQuiz;
+    const hasVideoLesson = !!existingVideoLesson;
+    const hasOnePager = !!existingOnePager;
+
+    const section = (sections || []).find(s => s.title === moduleName);
+    const effectiveTier = String(getEffectiveLessonTier(section, (section?.lessons || []).find(l => l.title === lessonTitle)));
+    const recommended = computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
+
     setContentModalState({ 
       isOpen: true, 
       lessonTitle, 
       moduleName, 
-      lessonNumber 
+      lessonNumber,
+      recommended
     });
     
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false });
