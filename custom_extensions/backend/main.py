@@ -499,6 +499,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -1670,6 +1671,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -2293,6 +2295,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -3140,6 +3143,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -3769,6 +3773,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -4597,6 +4602,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -5220,6 +5226,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -6450,6 +6457,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -7325,7 +7333,7 @@ def sanitize_training_plan_for_parse(content: Dict[str, Any]) -> Dict[str, Any]:
             lessons = section.get('lessons') or []
             for lesson in lessons:
                 if isinstance(lesson, dict):
-                    lesson.pop('recommended_content_types', None)
+                    # keep recommended_content_types for persistence
     except Exception:
         pass
     return content
