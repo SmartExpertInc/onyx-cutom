@@ -232,11 +232,13 @@ export default function LessonPresentationClient() {
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   
   // Effect to regenerate content when language changes
-  // useEffect(() => {
-  //   if (content && !loading) {
-  //     handleApplyLessonEdit();
-  //   }
-  // }, [language]);
+  useEffect(() => {
+    if (content && !loading) {
+      setTextareaVisible(true); // Make textarea visible when language changes
+      setLoadingEdit(true);
+      handleApplyLessonEdit();
+    }
+  }, [language]);
 
 
 
@@ -271,11 +273,9 @@ export default function LessonPresentationClient() {
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
-  // console.log("content", content);
-  // console.log("loading", loading);
-  // console.log("streamDone", streamDone);
-  // console.log("isGenerating", isGenerating);
-  // console.log("textareaVisible")
+  console.log("content", content);
+  console.log("loading", loading);
+  console.log("streamDone", streamDone);
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
@@ -489,25 +489,41 @@ export default function LessonPresentationClient() {
           let buffer = "";
           let accumulatedText = "";
 
-          while (!streamDone && !streamError) {
-            const { value, done } = await reader.read();
-            if (done) break;
-          
-            const chunk = decoder.decode(value, { stream: true });
-            buffer += chunk;
-          
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-          
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              // Process any remaining buffer
+              if (buffer.trim()) {
+                try {
+                  const pkt = JSON.parse(buffer.trim());
+                  if (pkt.type === "delta") {
+                    accumulatedText += pkt.text;
+                    setContent(accumulatedText);
+                  }
+                } catch (e) {
+                  // If not JSON, treat as plain text
+                  accumulatedText += buffer;
+                  setContent(accumulatedText);
+                }
+              }
+              setStreamDone(true);
+              break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+            
+            // Split by newlines and process complete chunks
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ""; // Keep incomplete line in buffer
+            
             for (const line of lines) {
               if (!line.trim()) continue;
-          
+              
               try {
                 const pkt = JSON.parse(line);
-                console.log("[STREAM] Отриманий пакет:", pkt); // ЛОГ №1
-          
                 gotFirstChunk = true;
-          
+                
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
@@ -518,27 +534,19 @@ export default function LessonPresentationClient() {
                   throw new Error(pkt.text || "Unknown error");
                 }
               } catch (e) {
-                console.warn("[STREAM] Не JSON:", line); // ЛОГ №1.1
-                accumulatedText += line + "\n";
+                // If not JSON, treat as plain text
+                accumulatedText += line + '\n';
                 setContent(accumulatedText);
               }
             }
-          
-            // --- Додано для дебага textareaVisible ---
+
+            // Determine if this buffer now contains some real (non-whitespace) text
             const hasMeaningfulText = /\S/.test(accumulatedText);
-            console.log(
-              "[DEBUG] hasMeaningfulText:",
-              hasMeaningfulText,
-              "| accumulatedText:",
-              accumulatedText
-            ); // ЛОГ №2
-          
+
             if (hasMeaningfulText && !textareaVisible) {
-              console.log("[DEBUG] Вмикаю textareaVisible"); // ЛОГ №3
               setTextareaVisible(true);
-              setLoading(false);
+              setLoading(false); // Hide spinner & show textarea
             }
-          
             
             // Force state update to ensure UI reflects content changes
             if (accumulatedText && accumulatedText !== content) {
@@ -705,7 +713,7 @@ export default function LessonPresentationClient() {
   const handleApplyLessonEdit = async () => {
     const trimmed = editPrompt.trim();
     if (!trimmed || loadingEdit) return;
-
+    setTextareaVisible(true);
     // Combine existing prompt (if any) with new instruction
     const basePrompt = params?.get("prompt") || "";
     let combined = basePrompt.trim();
