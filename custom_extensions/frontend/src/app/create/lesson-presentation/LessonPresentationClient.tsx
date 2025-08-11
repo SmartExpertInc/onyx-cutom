@@ -489,41 +489,25 @@ export default function LessonPresentationClient() {
           let buffer = "";
           let accumulatedText = "";
 
-          while (true) {
-            const { done, value } = await reader.read();
-            
-            if (done) {
-              // Process any remaining buffer
-              if (buffer.trim()) {
-                try {
-                  const pkt = JSON.parse(buffer.trim());
-                  if (pkt.type === "delta") {
-                    accumulatedText += pkt.text;
-                    setContent(accumulatedText);
-                  }
-                } catch (e) {
-                  // If not JSON, treat as plain text
-                  accumulatedText += buffer;
-                  setContent(accumulatedText);
-                }
-              }
-              setStreamDone(true);
-              break;
-            }
-
-            buffer += decoder.decode(value, { stream: true });
-            
-            // Split by newlines and process complete chunks
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || ""; // Keep incomplete line in buffer
-            
+          while (!streamDone && !streamError) {
+            const { value, done } = await reader.read();
+            if (done) break;
+          
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+          
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+          
             for (const line of lines) {
               if (!line.trim()) continue;
-              
+          
               try {
                 const pkt = JSON.parse(line);
+                console.log("[STREAM] Отриманий пакет:", pkt); // ЛОГ №1
+          
                 gotFirstChunk = true;
-                console.log("Отриманий пакет:", pkt); // <--- ЛОГ №1
+          
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
@@ -534,20 +518,27 @@ export default function LessonPresentationClient() {
                   throw new Error(pkt.text || "Unknown error");
                 }
               } catch (e) {
-                // If not JSON, treat as plain text
-                accumulatedText += line + '\n';
+                console.warn("[STREAM] Не JSON:", line); // ЛОГ №1.1
+                accumulatedText += line + "\n";
                 setContent(accumulatedText);
               }
             }
-
-            // Determine if this buffer now contains some real (non-whitespace) text
+          
+            // --- Додано для дебага textareaVisible ---
             const hasMeaningfulText = /\S/.test(accumulatedText);
-            console.log("hasMeaningfulText:", hasMeaningfulText, "accumulatedText:", accumulatedText); // <--- ЛОГ №2
+            console.log(
+              "[DEBUG] hasMeaningfulText:",
+              hasMeaningfulText,
+              "| accumulatedText:",
+              accumulatedText
+            ); // ЛОГ №2
+          
             if (hasMeaningfulText && !textareaVisible) {
-              console.log("Вмикаю textareaVisible");
+              console.log("[DEBUG] Вмикаю textareaVisible"); // ЛОГ №3
               setTextareaVisible(true);
-              setLoading(false); // Hide spinner & show textarea
+              setLoading(false);
             }
+          
             
             // Force state update to ensure UI reflects content changes
             if (accumulatedText && accumulatedText !== content) {
