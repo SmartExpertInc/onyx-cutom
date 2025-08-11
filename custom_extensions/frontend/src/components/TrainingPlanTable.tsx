@@ -772,6 +772,24 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return undefined;
   };
 
+  const extractPersistedRecommendations = (lesson: LessonType | undefined, effectiveTier: string) => {
+    const rec: any = (lesson as any)?.recommended_content_types;
+    if (!rec) return null;
+    let primary: any = rec.primary;
+    if (typeof primary === 'string') {
+      try { primary = JSON.parse(primary); } catch (_) { primary = []; }
+    }
+    if (Array.isArray(primary) && primary.length > 0) {
+      return {
+        primary,
+        reasoning: rec.reasoning || 'manual',
+        last_updated: rec.last_updated || new Date().toISOString(),
+        quality_tier_used: rec.quality_tier_used || effectiveTier,
+      };
+    }
+    return null;
+  };
+
   const computeRecommendations = (
     lessonTitle: string,
     tier: string,
@@ -924,7 +942,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     if (!hasLesson && !hasQuiz && !hasVideoLesson && !hasOnePager) {
       const section = (sections || []).find(s => s.title === moduleName);
       const effectiveTier = String(getEffectiveLessonTier(section, lesson));
-      const recommended = computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
+      const persisted = extractPersistedRecommendations(lesson, effectiveTier);
+      const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
       setContentModalState({ 
         isOpen: true, 
         lessonTitle, 
@@ -1043,8 +1062,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const hasOnePager = !!existingOnePager;
 
     const section = (sections || []).find(s => s.title === moduleName);
-    const effectiveTier = String(getEffectiveLessonTier(section, (section?.lessons || []).find(l => l.title === lessonTitle)));
-    const recommended = computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
+    const lessonObj = section?.lessons?.find(l => l.title === lessonTitle);
+    const effectiveTier = String(getEffectiveLessonTier(section, lessonObj));
+    const persisted = extractPersistedRecommendations(lessonObj, effectiveTier);
+    const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
 
     setContentModalState({ 
       isOpen: true, 
