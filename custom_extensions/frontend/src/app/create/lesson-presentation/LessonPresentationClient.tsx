@@ -232,11 +232,23 @@ export default function LessonPresentationClient() {
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   
   // Effect to regenerate content when language changes
-  useEffect(() => {
-    if (content && !loading) {
-      handleApplyLessonEdit();
-    }
-  }, [language]);
+  // useEffect(() => {
+  //   if (content && !loading) {
+  //     handleApplyLessonEdit();
+  //   }
+  // }, [language]);
+
+useEffect(() => {
+  if (loading && !streamDone) {
+    setStreamDone(true);
+  }
+}, [loading, streamDone]);
+
+
+
+
+
+
 
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">(
     optionForRange(params?.get("length") || "600-800 words")
