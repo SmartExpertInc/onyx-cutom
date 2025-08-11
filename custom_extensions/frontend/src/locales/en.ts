@@ -176,7 +176,10 @@ export const en = {
       videoLesson: "Video Lesson",
       videoLessonDescription: "Create a video lesson with narration and visuals",
       soon: "Soon",
-      alreadyCreated: "Already created"
+      alreadyCreated: "Already created",
+      recommended: "Recommended",
+      allOptions: "All content types",
+      other: "Other"
     },
     openContent: {
       title: "Open Content",

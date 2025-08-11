@@ -16,6 +16,12 @@ export interface Lesson {
   completionTime: string; // Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
   custom_rate?: number; // Individual lesson-level custom rate override
   quality_tier?: string; // Individual lesson-level quality tier override
+  recommended_content_types?: {
+    primary: string[];
+    reasoning?: string;
+    last_updated?: string;
+    quality_tier_used?: string;
+  };
 }
 
 export interface Section {

@@ -7193,6 +7193,73 @@ def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> 
     creation_hours = completion_hours * custom_rate
     return round(creation_hours)
 
+
+def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Optional[str], existing_content: Optional[Dict[str, bool]] = None) -> Dict[str, Any]:
+    if existing_content is None:
+        existing_content = {}
+    title = (lesson_title or "").lower()
+    kw_one_pager = ["introduction", "overview", "basics", "summary", "quick", "reference"]
+    kw_presentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to"]
+    kw_video = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical"]
+    kw_quiz = ["test", "check", "verify", "practice", "exercise", "assessment", "evaluation", "quiz"]
+    weights: Dict[str, float] = {"one-pager": 0.25, "presentation": 0.35, "video-lesson": 0.2, "quiz": 0.2}
+    tier = (quality_tier or "interactive").lower()
+    if tier == "basic":
+        weights = {"one-pager": 0.6, "presentation": 0.3, "video-lesson": 0.05, "quiz": 0.05}
+    elif tier == "interactive":
+        weights = {"presentation": 0.45, "quiz": 0.35, "one-pager": 0.15, "video-lesson": 0.05}
+    elif tier == "advanced":
+        weights = {"presentation": 0.4, "quiz": 0.3, "video-lesson": 0.25, "one-pager": 0.05}
+    elif tier == "immersive":
+        weights = {"video-lesson": 0.5, "quiz": 0.3, "presentation": 0.15, "one-pager": 0.05}
+    def bump(kind: str, amount: float):
+        weights[kind] = weights.get(kind, 0.0) + amount
+    if any(k in title for k in kw_one_pager):
+        bump("one-pager", 0.2)
+    if any(k in title for k in kw_presentation):
+        bump("presentation", 0.25)
+    if any(k in title for k in kw_video):
+        bump("video-lesson", 0.3)
+    if any(k in title for k in kw_quiz):
+        bump("quiz", 0.4)
+    total = sum(max(v, 0.0) for v in weights.values()) or 1.0
+    normalized = {k: max(v, 0.0) / total for k, v in weights.items()}
+    ranked = sorted(normalized.items(), key=lambda kv: kv[1], reverse=True)
+    primary: list[str] = []
+    def try_add(kind: str):
+        if existing_content.get(kind, False):
+            return
+        if kind not in primary:
+            primary.append(kind)
+    if tier == "basic":
+        for kind in ["one-pager", "presentation", "quiz", "video-lesson"]:
+            if len(primary) >= 2:
+                break
+            try_add(kind)
+    elif tier == "interactive":
+        for kind in ["presentation", "quiz", "one-pager", "video-lesson"]:
+            if len(primary) >= 2:
+                break
+            try_add(kind)
+    elif tier == "advanced":
+        for kind in ["presentation", "quiz", "video-lesson", "one-pager"]:
+            if len(primary) >= 2:
+                break
+            try_add(kind)
+    else:
+        for kind in ["video-lesson", "quiz", "presentation", "one-pager"]:
+            if len(primary) >= 2:
+                break
+            try_add(kind)
+    if not primary:
+        primary = [k for k, _ in ranked[:2]]
+    return {
+        "primary": primary,
+        "reasoning": f"Tier={tier}; title-signals applied; excludes existing: {', '.join([k for k,v in existing_content.items() if v])}",
+        "last_updated": datetime.utcnow().isoformat(),
+        "quality_tier_used": tier,
+    }
+
 def round_hours_in_content(content: Any) -> Any:
     """Recursively round all hours fields to integers in content structure"""
     if isinstance(content, dict):
@@ -10022,6 +10089,7 @@ Return ONLY the JSON object.
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
                     db_content_dict = round_hours_in_content(db_content_dict)
+                    db_content_dict = sanitize_training_plan_for_parse(db_content_dict)
                     final_content_for_response = TrainingPlanDetails(**db_content_dict)
             except Exception as e_parse:
                 logger.error(f"Error parsing content from DB on add (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
@@ -10095,6 +10163,7 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_TEXT_PRESENTATION:
                     parsed_content_for_response = TextPresentationDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content_json = sanitize_training_plan_for_parse(db_content_json)
                     parsed_content_for_response = TrainingPlanDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_VIDEO_LESSON:
                     parsed_content_for_response = VideoLessonData(**db_content_json)
@@ -12722,6 +12791,22 @@ async def generate_and_finalize_course_outline_for_position(
                                 content_available = {"type": "yes", "text": "0%"} if source == "Create from scratch" else {"type": "yes", "text": "0%"}
                                 lesson.setdefault("contentAvailable", content_available)
                                 lesson.setdefault("source", source)
+                                # Populate recommended content types if missing
+                                try:
+                                    existing_flags = {
+                                        "presentation": False,
+                                        "one-pager": False,
+                                        "quiz": False,
+                                        "video-lesson": False,
+                                    }
+                                    recommendations = analyze_lesson_content_recommendations(
+                                        lesson.get("title", ""),
+                                        lesson.get("quality_tier") or section.get("quality_tier") or content.get("quality_tier"),
+                                        existing_flags
+                                    )
+                                    lesson.setdefault("recommended_content_types", recommendations)
+                                except Exception:
+                                    pass
                                 updated_lessons.append(lesson)
                             else:
                                 # If lesson is just a string, convert to proper structure
@@ -12731,7 +12816,8 @@ async def generate_and_finalize_course_outline_for_position(
                                     "contentAvailable": {"type": "yes", "text": "0%"},
                                     "source": "Create from scratch",
                                     "hours": 1,
-                                    "completionTime": "5m"
+                                    "completionTime": "5m",
+                                    "recommended_content_types": analyze_lesson_content_recommendations(str(lesson), content.get("quality_tier"), {"presentation": False, "one-pager": False, "quiz": False, "video-lesson": False})
                                 })
                         
                         # Calculate total hours from lesson hours
@@ -15007,6 +15093,22 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     
                                     # Update the tier name to match the new folder tier
                                     lesson['quality_tier'] = req.quality_tier
+
+                                    # Recompute recommended content types if missing
+                                    try:
+                                        if 'recommended_content_types' not in lesson or not lesson['recommended_content_types']:
+                                            lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                                lesson.get('title', ''),
+                                                req.quality_tier,
+                                                {
+                                                    'presentation': False,
+                                                    'one-pager': False,
+                                                    'quiz': False,
+                                                    'video-lesson': False,
+                                                }
+                                            )
+                                    except Exception:
+                                        pass
                                     
                                     # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
@@ -15122,6 +15224,21 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             update_clauses.append(f"microproduct_content = ${arg_idx}")
             update_values.append(content_to_store_for_db); arg_idx += 1
             
+            # Ensure lessons have recommendations when storing training plan
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
+                try:
+                    for section in (content_to_store_for_db.get('sections') or []):
+                        lessons = section.get('lessons') or []
+                        for lesson in lessons:
+                            if isinstance(lesson, dict) and ('recommended_content_types' not in lesson or not lesson['recommended_content_types']):
+                                lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                    lesson.get('title', ''),
+                                    lesson.get('quality_tier') or section.get('quality_tier') or content_to_store_for_db.get('quality_tier'),
+                                    {'presentation': False, 'one-pager': False, 'quiz': False, 'video-lesson': False}
+                                )
+                except Exception:
+                    pass
+            
             # SYNC TITLES: For Training Plans, keep project_name and mainTitle synchronized
             if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
                 try:
@@ -15187,6 +15304,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     final_content_for_model = TextPresentationDetails(**db_content)
                     logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
                     final_content_for_model = VideoLessonData(**db_content)
@@ -15198,6 +15316,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                         db_content['slides'] = normalize_slide_props(db_content['slides'])
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 
                 # 🔍 BACKEND VALIDATION RESULT LOGGING
@@ -15260,6 +15379,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 
                 content = project['microproduct_content']
                 if isinstance(content, dict) and 'sections' in content:
+                    content = sanitize_training_plan_for_parse(dict(content))
                     sections = content['sections']
                     
                     # Update the hours in each lesson and recalculate section totals
@@ -15347,6 +15467,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
                     final_content_for_model = TextPresentationDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
                     final_content_for_model = VideoLessonData(**db_content)
@@ -15391,36 +15512,44 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
         
         # If the project has content, recalculate creation hours
         if project['microproduct_content']:
-            try:
+                        try:
                 content = dict(project['microproduct_content'])
                 if isinstance(content, dict) and 'sections' in content:
                     sections = content['sections']
                     
-                    # Update tier names and sum existing hours for section totals
+                    # Update tier names, update recommendations, and sum existing hours for section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
-                            # Clear any existing module-level tier settings to ensure project-level tier takes precedence
                             if 'custom_rate' in section:
                                 del section['custom_rate']
                             if 'quality_tier' in section:
                                 del section['quality_tier']
-                            
-                            # Update the module's tier name to match the new project tier
                             section['quality_tier'] = req.quality_tier
-                                
+                            
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict):
-                                    # Clear any existing lesson-level tier settings to ensure project-level tier takes precedence
                                     if 'custom_rate' in lesson:
                                         del lesson['custom_rate']
                                     if 'quality_tier' in lesson:
                                         del lesson['quality_tier']
-                                    
-                                    # Update the tier name to match the new project tier  
                                     lesson['quality_tier'] = req.quality_tier
+
+                                    try:
+                                        if 'recommended_content_types' not in lesson or not lesson['recommended_content_types']:
+                                            lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                                lesson.get('title', ''),
+                                                req.quality_tier,
+                                                {
+                                                    'presentation': False,
+                                                    'one-pager': False,
+                                                    'quiz': False,
+                                                    'video-lesson': False,
+                                                }
+                                            )
+                                    except Exception:
+                                        pass
                                     
-                                    # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
                                     completion_time_minutes = 5  # Default to 5 minutes
                                     

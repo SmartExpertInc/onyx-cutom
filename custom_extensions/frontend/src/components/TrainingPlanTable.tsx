@@ -343,7 +343,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   }, [onAutoSave]);
 
   const [contentModalState, setContentModalState] = useState<{
-    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
+    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number; recommended?: any;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
 
   const [openOrCreateModalState, setOpenOrCreateModalState] = useState<{
@@ -772,6 +772,52 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return undefined;
   };
 
+  const computeRecommendations = (
+    lessonTitle: string,
+    tier: string,
+    existing: { hasLesson: boolean; hasQuiz: boolean; hasOnePager: boolean; hasVideoLesson: boolean }
+  ) => {
+    const title = (lessonTitle || '').toLowerCase();
+    const kwOnePager = ["introduction", "overview", "basics", "summary", "quick", "reference"];
+    const kwPresentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to"];
+    const kwVideo = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical"];
+    const kwQuiz = ["test", "check", "verify", "practice", "exercise", "assessment", "evaluation", "quiz"];
+
+    let weights: Record<string, number> = { 'one-pager': 0.25, presentation: 0.35, 'video-lesson': 0.2, quiz: 0.2 };
+    const t = (tier || 'interactive').toLowerCase();
+    if (t === 'basic') weights = { 'one-pager': 0.6, presentation: 0.3, 'video-lesson': 0.05, quiz: 0.05 };
+    else if (t === 'interactive') weights = { presentation: 0.45, quiz: 0.35, 'one-pager': 0.15, 'video-lesson': 0.05 };
+    else if (t === 'advanced') weights = { presentation: 0.4, quiz: 0.3, 'video-lesson': 0.25, 'one-pager': 0.05 };
+    else if (t === 'immersive') weights = { 'video-lesson': 0.5, quiz: 0.3, presentation: 0.15, 'one-pager': 0.05 };
+
+    const bump = (k: string, v: number) => { weights[k] = (weights[k] || 0) + v; };
+    if (kwOnePager.some(k => title.includes(k))) bump('one-pager', 0.2);
+    if (kwPresentation.some(k => title.includes(k))) bump('presentation', 0.25);
+    if (kwVideo.some(k => title.includes(k))) bump('video-lesson', 0.3);
+    if (kwQuiz.some(k => title.includes(k))) bump('quiz', 0.4);
+
+    const ranked = Object.entries(weights).sort((a,b) => b[1] - a[1]).map(([k]) => k);
+
+    const primary: string[] = [];
+    const tryAdd = (k: string) => {
+      const exists = (k === 'presentation' && existing.hasLesson) || (k === 'one-pager' && existing.hasOnePager) || (k === 'quiz' && existing.hasQuiz) || (k === 'video-lesson' && existing.hasVideoLesson);
+      if (!exists && !primary.includes(k)) primary.push(k);
+    };
+
+    if (t === 'basic') ['one-pager','presentation','quiz','video-lesson'].forEach(k => primary.length<2 && tryAdd(k));
+    else if (t === 'interactive') ['presentation','quiz','one-pager','video-lesson'].forEach(k => primary.length<2 && tryAdd(k));
+    else if (t === 'advanced') ['presentation','quiz','video-lesson','one-pager'].forEach(k => primary.length<2 && tryAdd(k));
+    else ['video-lesson','quiz','presentation','one-pager'].forEach(k => primary.length<2 && tryAdd(k));
+
+    if (primary.length === 0) ranked.forEach(k => primary.length<2 && tryAdd(k));
+
+    return { primary, quality_tier_used: t, reasoning: `Tier=${t}; title analysis applied` };
+  };
+
+  const getEffectiveLessonTier = (section: SectionType | undefined, lesson: LessonType | undefined) => {
+    return (lesson?.quality_tier || section?.quality_tier || projectQualityTier || 'interactive');
+  };
+
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {
     const lessonTitle = lesson.title;
     
@@ -830,11 +876,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     
     // Scenario 1: No content exists - show create modal
     if (!hasLesson && !hasQuiz && !hasVideoLesson && !hasOnePager) {
+      const section = (sections || []).find(s => s.title === moduleName);
+      const effectiveTier = String(getEffectiveLessonTier(section, lesson));
+      const recommended = computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
       setContentModalState({ 
         isOpen: true, 
         lessonTitle, 
         moduleName, 
-        lessonNumber 
+        lessonNumber,
+        recommended
       });
     }
     // Scenario 2: Only lesson exists (no quiz/video lesson/one-pager) - show open or create modal
@@ -1299,6 +1349,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasQuiz={!!findExistingQuiz(contentModalState.lessonTitle)}
         hasOnePager={!!findExistingOnePager(contentModalState.lessonTitle)}
         parentProjectName={parentProjectName}
+        recommendedContentTypes={contentModalState.recommended}
+        existingContent={{
+          hasLesson: !!findExistingLesson(contentModalState.lessonTitle),
+          hasQuiz: !!findExistingQuiz(contentModalState.lessonTitle),
+          hasOnePager: !!findExistingOnePager(contentModalState.lessonTitle),
+          hasVideoLesson: false
+        }}
       />
       <OpenOrCreateModal
         isOpen={openOrCreateModalState.isOpen}
