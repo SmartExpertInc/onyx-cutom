@@ -1582,15 +1582,15 @@
                                         {% set total_percentage = slide.props.chartData.segments | sum(attribute='percentage') %}
                                         {% set cumulative_percentage = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
-                                            {% set start_angle_deg = (cumulative_percentage / total_percentage) * 360 %}
-                                            {% set end_angle_deg = ((cumulative_percentage + segment.percentage) / total_percentage) * 360 %}
+                                            {% set start_angle_deg = (cumulative_percentage / 100) * 360 %}
+                                            {% set end_angle_deg = ((cumulative_percentage + segment.percentage) / 100) * 360 %}
                                             {% set start_angle_rad = (start_angle_deg - 90) * 3.14159 / 180 %}
                                             {% set end_angle_rad = (end_angle_deg - 90) * 3.14159 / 180 %}
                                             {% set x1 = center_x + radius * (start_angle_rad | cos) %}
                                             {% set y1 = center_y + radius * (start_angle_rad | sin) %}
                                             {% set x2 = center_x + radius * (end_angle_rad | cos) %}
                                             {% set y2 = center_y + radius * (end_angle_rad | sin) %}
-                                            {% set large_arc_flag = 1 if segment.percentage > (total_percentage / 2) else 0 %}
+                                            {% set large_arc_flag = 1 if segment.percentage > 50 else 0 %}
                                             <path d="M {{ center_x | round(2) }} {{ center_y | round(2) }} L {{ x1 | round(2) }} {{ y1 | round(2) }} A {{ radius | round(2) }} {{ radius | round(2) }} 0 {{ large_arc_flag }} 1 {{ x2 | round(2) }} {{ y2 | round(2) }} Z" fill="{{ segment.color }}" stroke="#ffffff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
                                             
                                             <!-- Text labels -->

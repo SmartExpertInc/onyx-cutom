@@ -55,7 +55,7 @@ The `MarketShareTemplate` PDF support has been updated to match the new dynamic 
 - ✅ **Theme integration** with proper color variables
 - ✅ **Proper spacing and typography** matching frontend exactly
 - ✅ **Fixed chart positioning** - bars no longer overlap with Y-axis labels
-- ✅ **Complete pie chart rendering** - proper segment calculation based on total percentage
+- ✅ **Complete pie chart rendering** - proper segment calculation based on percentages (0-100%)
 
 ## Technical Implementation
 
