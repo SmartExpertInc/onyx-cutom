@@ -351,42 +351,56 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                 <div className="flex items-end gap-8">
                   
                   {chartData.map((item: any, index: number) => (
-                    <div key={index} className="flex flex-col items-center relative">
+                    <div key={index} className="flex flex-col items-center relative group">
+                      {/* Background stack bar (100% height) */}
                       <div 
-                        className="w-16 rounded transition-all duration-300 hover:opacity-80"
+                        className="w-16 rounded opacity-20 transition-all duration-300"
                         style={{ 
-                          backgroundColor: item.color,
-                          height: `${Math.max(chartHeights[index] * 2.5, 30)}px`,
+                          backgroundColor: contentColor || '#6b7280',
+                          height: '250px',
                           marginBottom: '8px'
                         }}
                       ></div>
-                      {editingYear === index && isEditable ? (
-                        <InlineEditor
-                          initialValue={item.year || `${new Date().getFullYear()}`}
-                          onSave={(value) => handleYearSave(index, value)}
-                          onCancel={() => handleYearCancel(index)}
-                          style={{
-                            color: contentColor,
-                            fontSize: '0.875rem',
-                            fontWeight: '500',
-                            textAlign: 'center'
-                          }}
-                        />
-                      ) : (
-                        <p 
-                          className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
-                          style={{ color: contentColor }}
-                          onClick={() => isEditable && startEditingYear(index)}
-                        >
-                          {item.year || `${new Date().getFullYear()}`}
-                        </p>
-                      )}
                       
-                      {/* Remove button */}
+                      {/* Main data bar */}
+                      <div 
+                        className="w-16 rounded transition-all duration-300 hover:opacity-80 absolute bottom-8"
+                        style={{ 
+                          backgroundColor: item.color,
+                          height: `${Math.max(chartHeights[index] * 2.5, 30)}px`,
+                        }}
+                      ></div>
+                      
+                      {/* Year label */}
+                      <div className="mt-8">
+                        {editingYear === index && isEditable ? (
+                          <InlineEditor
+                            initialValue={item.year || `${new Date().getFullYear()}`}
+                            onSave={(value) => handleYearSave(index, value)}
+                            onCancel={() => handleYearCancel(index)}
+                            style={{
+                              color: contentColor,
+                              fontSize: '0.875rem',
+                              fontWeight: '500',
+                              textAlign: 'center'
+                            }}
+                          />
+                        ) : (
+                          <p 
+                            className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                            style={{ color: contentColor }}
+                            onClick={() => isEditable && startEditingYear(index)}
+                          >
+                            {item.year || `${new Date().getFullYear()}`}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {/* Remove button - only visible on hover */}
                       {isEditable && chartData.length > 1 && (
                         <button
                           onClick={() => handleRemoveColumn(index)}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition-colors"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100"
                           style={{ fontSize: '10px' }}
                         >
                           ×
