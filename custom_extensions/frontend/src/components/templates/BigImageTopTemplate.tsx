@@ -286,7 +286,6 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
-          layoutMode="full-width"
           onSizeTransformChange={handleSizeTransformChange}
         />
       </div>

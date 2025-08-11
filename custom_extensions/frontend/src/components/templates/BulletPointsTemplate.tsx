@@ -662,7 +662,6 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             prompt={displayPrompt}
             isEditable={isEditable}
             style={placeholderStyles}
-            layoutMode="free"
             onSizeTransformChange={handleSizeTransformChange}
           />
         </div>

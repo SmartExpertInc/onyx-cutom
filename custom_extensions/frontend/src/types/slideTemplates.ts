@@ -127,8 +127,6 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number;
   imageOffset?: { x: number; y: number };
-  // NEW: Layout mode for Gamma-style full-side behavior
-  layoutMode?: 'free' | 'full-width' | 'full-height' | 'fixed-left';
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -162,8 +160,6 @@ export interface BulletPointsProps extends BaseTemplateProps {
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number;
   imageOffset?: { x: number; y: number };
-  // NEW: Layout mode for Gamma-style full-side behavior
-  layoutMode?: 'free' | 'full-width' | 'full-height' | 'fixed-left';
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {

@@ -21,8 +21,6 @@ interface ClickableImagePlaceholderProps {
   objectFit?: 'contain' | 'cover' | 'fill';
   imageScale?: number; // 1.0 = natural fit
   imageOffset?: { x: number; y: number };
-  // NEW: Layout mode for Gamma-style full-side behavior
-  layoutMode?: 'free' | 'full-width' | 'full-height' | 'fixed-left';
   onSizeTransformChange?: (payload: {
     widthPx?: number;
     heightPx?: number;
@@ -47,7 +45,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   objectFit,
   imageScale,
   imageOffset,
-  layoutMode = 'free',
   onSizeTransformChange
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -76,7 +73,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleImageUploaded = (newImagePath: string) => {
     onImageUploaded(newImagePath);
-    // After upload: adjust placeholder based on layout mode
+    // After upload: adjust placeholder to image aspect ratio and fit within current default box
     const tmp = new window.Image();
     tmp.onload = () => {
       const imgW = tmp.naturalWidth || tmp.width;
@@ -85,52 +82,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       const rect = wrapperEl?.getBoundingClientRect();
       if (!imgW || !imgH || !rect) return;
 
-      let targetW: number;
-      let targetH: number;
-      let effectiveObjectFit: 'contain' | 'cover' | 'fill';
+      const scale = Math.min((rect.width || imgW) / imgW, (rect.height || imgH) / imgH) || 1;
+      const targetW = Math.max(1, Math.round(imgW * scale));
+      const targetH = Math.max(1, Math.round(imgH * scale));
 
-      switch (layoutMode) {
-        case 'full-width':
-          // Full-width mode: lock to container width, allow height adjustment
-          targetW = rect.width || defaultPixelSize.w;
-          // Calculate height to maintain image aspect ratio
-          targetH = Math.round((targetW / imgW) * imgH);
-          effectiveObjectFit = 'cover'; // Fill width completely, crop height
-          break;
-        
-        case 'full-height':
-          // Full-height mode: lock to container height, allow width adjustment
-          targetH = rect.height || defaultPixelSize.h;
-          // Calculate width to maintain image aspect ratio
-          targetW = Math.round((targetH / imgH) * imgW);
-          effectiveObjectFit = 'cover'; // Fill height completely, crop width
-          break;
-        
-        case 'fixed-left':
-          // Fixed-left mode: lock to container height, width is adjustable from right edge
-          targetH = rect.height || defaultPixelSize.h;
-          // Calculate width to maintain image aspect ratio
-          targetW = Math.round((targetH / imgH) * imgW);
-          effectiveObjectFit = 'cover'; // Fill height completely, crop width
-          break;
-        
-        case 'free':
-        default:
-          // Free mode: maintain aspect ratio, fit within container
-          const scale = Math.min((rect.width || imgW) / imgW, (rect.height || imgH) / imgH) || 1;
-          targetW = Math.max(1, Math.round(imgW * scale));
-          targetH = Math.max(1, Math.round(imgH * scale));
-          effectiveObjectFit = 'contain';
-          break;
-      }
-
-      onSizeTransformChange?.({ 
-        widthPx: targetW, 
-        heightPx: targetH, 
-        objectFit: effectiveObjectFit, 
-        imageScale: 1, 
-        imageOffset: { x: 0, y: 0 } 
-      });
+      onSizeTransformChange?.({ widthPx: targetW, heightPx: targetH, objectFit: 'contain', imageScale: 1, imageOffset: { x: 0, y: 0 } });
     };
     tmp.src = newImagePath;
   };
@@ -170,12 +126,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             // Let component control size via widthPx/heightPx props
           }}
           // Use provided sizes or fall back to default sizes based on size prop
-          // For fixed-left mode, don't set heightPx to allow full container height
           widthPx={widthPx || defaultPixelSize.w}
-          heightPx={layoutMode === 'fixed-left' ? undefined : (heightPx || defaultPixelSize.h)}
+          heightPx={heightPx || defaultPixelSize.h}
           minWidthPx={120}
           minHeightPx={120}
-          layoutMode={layoutMode}
           onResize={handleResize}
           onResizeCommit={handleResizeCommit}
           ariaLabel="Resizable image placeholder"
@@ -188,8 +142,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: objectFit || 'contain',
-                transform: 'none',
+                 objectFit: 'contain',
+                 transform: 'none',
                 transformOrigin: 'center center',
                 maxWidth: 'none',
                 maxHeight: 'none'
@@ -241,12 +195,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         `}
         style={style}
         // Provide default sizes based on size prop to prevent tiny placeholders
-        // For fixed-left mode, don't set heightPx to allow full container height
         widthPx={widthPx || defaultPixelSize.w}
-        heightPx={layoutMode === 'fixed-left' ? undefined : (heightPx || defaultPixelSize.h)}
+        heightPx={heightPx || defaultPixelSize.h}
         minWidthPx={120}
         minHeightPx={120}
-        layoutMode={layoutMode}
         onResize={(s) => onSizeTransformChange?.(s)}
         onResizeCommit={(s) => onSizeTransformChange?.(s)}
         ariaLabel="Resizable image placeholder"

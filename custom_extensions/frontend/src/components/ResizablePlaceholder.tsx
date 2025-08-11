@@ -8,8 +8,6 @@ export interface ResizablePlaceholderProps {
   heightPx?: number;
   // Maintain aspect ratio toggle
   lockAspectRatio?: boolean;
-  // NEW: Layout mode for constrained resizing
-  layoutMode?: 'free' | 'full-width' | 'full-height' | 'fixed-left';
   // Editable toggle
   isEditable?: boolean;
   // Called continuously during resize (debounced by caller as needed)
@@ -35,7 +33,6 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   widthPx,
   heightPx,
   lockAspectRatio = false,
-  layoutMode = 'free',
   isEditable = false,
   onResize,
   onResizeCommit,
@@ -52,7 +49,7 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   const activeHandleRef = useRef<string | null>(null);
   const [size, setSize] = useState<{ widthPx: number; heightPx: number }>(() => ({
     widthPx: Math.max(minWidthPx, widthPx || 0),
-    heightPx: layoutMode === 'fixed-left' && heightPx === undefined ? 0 : Math.max(minHeightPx, heightPx || 0)
+    heightPx: Math.max(minHeightPx, heightPx || 0)
   }));
   const aspectOnStartRef = useRef<number | null>(null);
   const [isKeyboardResizing, setIsKeyboardResizing] = useState(false);
@@ -62,24 +59,17 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     if (typeof widthPx === 'number' || typeof heightPx === 'number') {
       setSize(prev => ({
         widthPx: typeof widthPx === 'number' ? Math.max(minWidthPx, widthPx) : prev.widthPx,
-        heightPx: layoutMode === 'fixed-left' && heightPx === undefined ? 0 : 
-                 (typeof heightPx === 'number' ? Math.max(minHeightPx, heightPx) : prev.heightPx)
+        heightPx: typeof heightPx === 'number' ? Math.max(minHeightPx, heightPx) : prev.heightPx
       }));
     }
-  }, [widthPx, heightPx, minWidthPx, minHeightPx, layoutMode]);
+  }, [widthPx, heightPx, minWidthPx, minHeightPx]);
 
   useLayoutEffect(() => {
     if (!wrapperRef.current) return;
     const el = wrapperRef.current;
     if (size.widthPx > 0) el.style.width = `${size.widthPx}px`;
-    
-    // For fixed-left mode, use 100% height when heightPx is undefined
-    if (layoutMode === 'fixed-left' && heightPx === undefined) {
-      el.style.height = '100%';
-    } else if (size.heightPx > 0) {
-      el.style.height = `${size.heightPx}px`;
-    }
-  }, [size.widthPx, size.heightPx, layoutMode, heightPx]);
+    if (size.heightPx > 0) el.style.height = `${size.heightPx}px`;
+  }, [size.widthPx, size.heightPx]);
 
   // If no explicit size provided, measure content once to preserve template default size
   useLayoutEffect(() => {
@@ -140,52 +130,16 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
     const handle = activeHandleRef.current || 'se';
     let newW = w;
     let newH = h;
-    
     // Corner/edge logic
     if (handle.includes('e')) newW = w + dx;
     if (handle.includes('s')) newH = h + dy;
     if (handle.includes('w')) newW = w - dx;
     if (handle.includes('n')) newH = h - dy;
 
-    // Apply layout mode constraints
-    switch (layoutMode) {
-      case 'full-width':
-        // Only allow height changes, width stays locked to container
-        newW = w; // Keep original width
-        // Only allow south/north handles for height adjustment
-        if (!handle.includes('s') && !handle.includes('n')) {
-          return; // Ignore width-only handles
-        }
-        break;
-      
-      case 'full-height':
-        // Only allow width changes, height stays locked to container
-        newH = h; // Keep original height
-        // Only allow east/west handles for width adjustment
-        if (!handle.includes('e') && !handle.includes('w')) {
-          return; // Ignore height-only handles
-        }
-        break;
-      
-      case 'fixed-left':
-        // Fixed left panel: only right edge can be dragged, height is locked
-        newH = h; // Keep original height
-        // Only allow east handle for right-edge resizing
-        if (handle !== 'e') {
-          return; // Ignore all handles except east (right edge)
-        }
-        break;
-      
-      case 'free':
-      default:
-        // Free mode: allow both dimensions
-        break;
-    }
-
-    // Always keep aspect ratio when resizing from corners (in free mode)
+    // Always keep aspect ratio when resizing from corners
     const ratio = aspectOnStartRef.current || (w / h);
     const isCorner = handle === 'nw' || handle === 'ne' || handle === 'se' || handle === 'sw';
-    const keepRatio = (lockAspectRatio || isCorner) && layoutMode === 'free';
+    const keepRatio = lockAspectRatio || isCorner;
     if (keepRatio && isFinite(ratio) && ratio > 0) {
       // Prefer width change and derive height
       newH = newW / ratio;
@@ -251,77 +205,25 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
 
   const handles = isEditable ? (
     <>
-      {(() => {
-        switch (layoutMode) {
-          case 'full-width':
-            // Only show north/south handles for height adjustment
-            return ['n', 's'].map(dir => (
-              <div
-                key={dir}
-                role="button"
-                aria-label={`Resize ${dir}`}
-                data-resize-handle={dir}
-                onPointerDown={(e) => onPointerDownHandle(e, dir)}
-                onPointerMove={(e) => { /* prevent drag enhancer */ e.stopPropagation(); }}
-                onClick={(e) => e.stopPropagation()}
-                style={getHandleStyle(dir)}
-              />
-            ));
-          
-          case 'full-height':
-            // Only show east/west handles for width adjustment
-            return ['e', 'w'].map(dir => (
-              <div
-                key={dir}
-                role="button"
-                aria-label={`Resize ${dir}`}
-                data-resize-handle={dir}
-                onPointerDown={(e) => onPointerDownHandle(e, dir)}
-                onPointerMove={(e) => { /* prevent drag enhancer */ e.stopPropagation(); }}
-                onClick={(e) => e.stopPropagation()}
-                style={getHandleStyle(dir)}
-              />
-            ));
-          
-          case 'fixed-left':
-            // Only show east handle for right-edge resizing
-            return ['e'].map(dir => (
-              <div
-                key={dir}
-                role="button"
-                aria-label={`Resize ${dir}`}
-                data-resize-handle={dir}
-                onPointerDown={(e) => onPointerDownHandle(e, dir)}
-                onPointerMove={(e) => { /* prevent drag enhancer */ e.stopPropagation(); }}
-                onClick={(e) => e.stopPropagation()}
-                style={getHandleStyle(dir)}
-              />
-            ));
-          
-          case 'free':
-          default:
-            // Show all corner handles for free resizing
-            return ['nw','ne','se','sw'].map(dir => (
-              <div
-                key={dir}
-                role="button"
-                aria-label={`Resize ${dir}`}
-                data-resize-handle={dir}
-                onPointerDown={(e) => onPointerDownHandle(e, dir)}
-                onPointerMove={(e) => { /* prevent drag enhancer */ e.stopPropagation(); }}
-                onClick={(e) => e.stopPropagation()}
-                style={getHandleStyle(dir)}
-              />
-            ));
-        }
-      })()}
+      {['nw','ne','se','sw'].map(dir => (
+        <div
+          key={dir}
+          role="button"
+          aria-label={`Resize ${dir}`}
+          data-resize-handle={dir}
+          onPointerDown={(e) => onPointerDownHandle(e, dir)}
+          onPointerMove={(e) => { /* prevent drag enhancer */ e.stopPropagation(); }}
+          onClick={(e) => e.stopPropagation()}
+          style={getHandleStyle(dir)}
+        />
+      ))}
     </>
   ) : null;
 
   return (
     <div
       ref={wrapperRef}
-      data-draggable={layoutMode === 'fixed-left' ? undefined : "true"}
+      data-draggable="true"
       className={`resizable-placeholder ${className}`}
       style={{ position: 'relative', display: 'inline-block', ...style }}
       tabIndex={isEditable ? 0 : -1}
@@ -344,10 +246,6 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
           touch-action: none; cursor: pointer;
         }
         [data-resize-handle="nw"], [data-resize-handle="ne"], [data-resize-handle="se"], [data-resize-handle="sw"] { }
-        [data-resize-handle="n"] { top: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-        [data-resize-handle="s"] { bottom: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-        [data-resize-handle="e"] { right: -6px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
-        [data-resize-handle="w"] { left: -6px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
         [data-resize-handle="nw"] { top: -6px; left: -6px; cursor: nwse-resize; }
         [data-resize-handle="ne"] { top: -6px; right: -6px; cursor: nesw-resize; }
         [data-resize-handle="se"] { bottom: -6px; right: -6px; cursor: nwse-resize; }

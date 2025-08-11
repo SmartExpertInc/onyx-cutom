@@ -144,8 +144,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   onUpdate,
   theme,
   isEditable = false,
-  imagePath,
-  widthPx
+  imagePath
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -170,8 +169,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     backgroundColor: backgroundColor,
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
-    alignItems: 'stretch',
-    position: 'relative'
+    alignItems: 'stretch'
     // Removed overflow: 'hidden' to allow natural content expansion
   };
 
@@ -186,38 +184,29 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
   const imageDimensions = getImageDimensions();
 
-  // Fixed left panel - anchored to left edge, full height
   const imageContainerStyles: React.CSSProperties = {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: widthPx ? `${widthPx}px` : '40%', // Use saved width or default 40%
-    backgroundColor: backgroundColor,
+    flex: '0 0 40%',
     display: 'flex',
-    alignItems: 'stretch',
+    alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1
+    backgroundColor: backgroundColor,
+    position: 'relative',
+    minWidth: 0, // для flexbox overflow
   };
 
   const placeholderStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',
-    margin: 0
+    margin: '0 auto'
   };
 
-  // Content container - positioned to the right of the image panel
   const contentContainerStyles: React.CSSProperties = {
-    position: 'absolute',
-    left: widthPx ? `${widthPx}px` : '40%', // Match image container width
-    top: 0,
-    right: 0,
-    bottom: 0,
+    flex: '1 1 60%',
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    zIndex: 0
+    minWidth: 0,
   };
 
   const titleStyles: React.CSSProperties = {
@@ -291,7 +280,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
-          layoutMode="fixed-left"
           onSizeTransformChange={handleSizeTransformChange}
         />
       </div>
