@@ -652,7 +652,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
 
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
         {/* Left: Clickable Image Placeholder */}
-        <div style={placeholderContainerStyles} data-draggable="true">
+        <div style={placeholderContainerStyles} >
           <ClickableImagePlaceholder
             imagePath={imagePath}
             onImageUploaded={handleImageUploaded}

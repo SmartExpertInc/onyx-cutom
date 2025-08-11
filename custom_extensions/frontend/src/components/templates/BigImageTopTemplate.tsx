@@ -276,7 +276,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   return (
     <div style={slideStyles}>
       {/* Top - Clickable Image Placeholder */}
-      <div style={imageContainerStyles} data-draggable="true">
+      <div style={imageContainerStyles}>
         <ClickableImagePlaceholder
           imagePath={imagePath}
           onImageUploaded={handleImageUploaded}

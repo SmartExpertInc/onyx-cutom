@@ -349,7 +349,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       >
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Left Clickable Image Placeholder */}
-          <div data-draggable="true">
             <ClickableImagePlaceholder
               imagePath={leftImagePath}
               onImageUploaded={handleLeftImageUploaded}
@@ -358,9 +357,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               description="Click to upload image"
               prompt={leftDisplayPrompt}
               isEditable={isEditable}
-              style={placeholderStyles}
-            />
-          </div>
+            style={placeholderStyles}
+          />
           {/* Left Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
             {isEditable && editingLeftTitle ? (
@@ -454,7 +452,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
           {/* Right Clickable Image Placeholder */}
-          <div data-draggable="true">
             <ClickableImagePlaceholder
               imagePath={rightImagePath}
               onImageUploaded={handleRightImageUploaded}
@@ -465,7 +462,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               isEditable={isEditable}
               style={placeholderStyles}
             />
-          </div>
           {/* Right Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
             {isEditable && editingRightTitle ? (
