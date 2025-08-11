@@ -322,7 +322,7 @@ export default function LessonPresentationClient() {
   // experimental
   useEffect(() => {
     if (loading && !streamDone) {
-      setStreamDone(true);
+      setStreamDone(false);
       setLoading(false);
     }
   }, [loading, streamDone]);
