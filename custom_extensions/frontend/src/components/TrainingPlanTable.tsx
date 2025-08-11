@@ -1485,7 +1485,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
               // Trigger auto-save
               if (onAutoSave) {
-                setTimeout(() => onAutoSave(), 0);
+                setTimeout(() => onAutoSave(), 300);
               }
             }
           }
