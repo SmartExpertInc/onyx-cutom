@@ -15512,7 +15512,7 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
         
         # If the project has content, recalculate creation hours
         if project['microproduct_content']:
-                        try:
+            try:
                 content = dict(project['microproduct_content'])
                 if isinstance(content, dict) and 'sections' in content:
                     sections = content['sections']
