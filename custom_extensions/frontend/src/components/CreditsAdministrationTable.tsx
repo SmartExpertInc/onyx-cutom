@@ -33,17 +33,17 @@ type Order = 'asc' | 'desc';
 
 interface TableProps {
   users: UserCredits[];
+  selectedUser: UserCredits | null;
   onUserSelect: (user: UserCredits | null) => void;
   onAddCredits: (user: UserCredits) => void;
   onRemoveCredits: (user: UserCredits) => void;
 }
 
-const CreditsAdministrationTable: React.FC<TableProps> = ({ users, onUserSelect, onAddCredits, onRemoveCredits }) => {
+const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser, onUserSelect, onAddCredits, onRemoveCredits }) => {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof UserCredits>('name');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
   const handleRequestSort = (property: keyof UserCredits) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -61,9 +61,9 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, onUserSelect,
   };
 
   const handleRowClick = (userId: number) => {
-    setSelectedRow(selectedRow === userId ? null : userId);
     const user = users.find(u => u.id === userId);
-    onUserSelect(user || null);
+    const isCurrentlySelected = selectedUser?.id === userId;
+    onUserSelect(isCurrentlySelected ? null : user || null);
   };
 
   const sortedUsers = React.useMemo(() => {
@@ -152,7 +152,7 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, onUserSelect,
               <TableRow
                 key={user.id}
                 hover
-                selected={selectedRow === user.id}
+                selected={selectedUser?.id === user.id}
                 onClick={() => handleRowClick(user.id)}
                 sx={{ cursor: 'pointer' }}
               >
