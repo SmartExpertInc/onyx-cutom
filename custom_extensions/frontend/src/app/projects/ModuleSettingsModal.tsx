@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Settings, Clock, Calculator, Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -129,14 +129,6 @@ export default function ModuleSettingsModal({
       setCustomRate(selectedTierData.defaultHours);
     }
   }, [qualityTier, currentCustomRate]);
-
-  const completionPreview = useMemo(() => {
-    if (!advancedEnabled) {
-      return customRate;
-    }
-    // assume equal split across 4 types preview per hour of completion time
-    return Math.round((1 / 4) * (perProductRates.presentation + perProductRates.onePager + perProductRates.quiz + perProductRates.videoLesson));
-  }, [advancedEnabled, customRate, perProductRates]);
 
   if (!isOpen) {
     if (typeof window !== 'undefined') (window as any).__modalOpen = false;

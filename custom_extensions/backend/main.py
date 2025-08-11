@@ -6223,7 +6223,7 @@ async def startup_event():
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
                     logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
                     raise e
-
+            
             # Add is_advanced and advanced_rates to project_folders for advanced per-product rates
             try:
                 await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
@@ -7343,23 +7343,13 @@ PRODUCT_COMPLETION_RANGES = {
     "video-lesson": (2, 5),
 }
 
-# Deterministic midpoint map for quick access
-PRODUCT_COMPLETION_MIDPOINT = {
-    "one-pager": 3,
-    "presentation": 8,
-    "quiz": 6,
-    "video-lesson": 4,
-}
-
 def compute_completion_time_from_recommendations(primary_types: list[str]) -> str:
     total = 0
     for p in primary_types:
         r = PRODUCT_COMPLETION_RANGES.get(p)
         if not r:
             continue
-        # Use deterministic midpoint rounded up
-        mid = int(math.ceil((r[0] + r[1]) / 2))
-        total += mid
+        total += random.randint(r[0], r[1])
     if total <= 0:
         total = 5
     return f"{total}m"
@@ -15329,7 +15319,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                         else:
                                             lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
                                     except Exception:
-                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
