@@ -101,9 +101,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [size]);
 
-  const effectiveWidth = style?.width ? undefined : undefined; // let class control unless explicit
-  const effectiveHeight = style?.height ? undefined : undefined;
-
   const handleResize = (s: { widthPx: number; heightPx: number }) => {
     onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
   };
@@ -128,8 +125,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             ...(style || {}),
             // Let component control size via widthPx/heightPx props
           }}
-          widthPx={widthPx}
-          heightPx={heightPx}
+          // Use provided sizes or fall back to default sizes based on size prop
+          widthPx={widthPx || defaultPixelSize.w}
+          heightPx={heightPx || defaultPixelSize.h}
           minWidthPx={120}
           minHeightPx={120}
           onResize={handleResize}
@@ -196,6 +194,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           ${className}
         `}
         style={style}
+        // Provide default sizes based on size prop to prevent tiny placeholders
+        widthPx={widthPx || defaultPixelSize.w}
+        heightPx={heightPx || defaultPixelSize.h}
         minWidthPx={120}
         minHeightPx={120}
         onResize={(s) => onSizeTransformChange?.(s)}

@@ -48,8 +48,8 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   const startRectRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
   const activeHandleRef = useRef<string | null>(null);
   const [size, setSize] = useState<{ widthPx: number; heightPx: number }>(() => ({
-    widthPx: widthPx || 0,
-    heightPx: heightPx || 0
+    widthPx: Math.max(minWidthPx, widthPx || 0),
+    heightPx: Math.max(minHeightPx, heightPx || 0)
   }));
   const aspectOnStartRef = useRef<number | null>(null);
   const [isKeyboardResizing, setIsKeyboardResizing] = useState(false);
@@ -58,48 +58,36 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   useEffect(() => {
     if (typeof widthPx === 'number' || typeof heightPx === 'number') {
       setSize(prev => ({
-        widthPx: typeof widthPx === 'number' ? widthPx : prev.widthPx,
-        heightPx: typeof heightPx === 'number' ? heightPx : prev.heightPx
+        widthPx: typeof widthPx === 'number' ? Math.max(minWidthPx, widthPx) : prev.widthPx,
+        heightPx: typeof heightPx === 'number' ? Math.max(minHeightPx, heightPx) : prev.heightPx
       }));
     }
-  }, [widthPx, heightPx]);
+  }, [widthPx, heightPx, minWidthPx, minHeightPx]);
 
   useLayoutEffect(() => {
     if (!wrapperRef.current) return;
     const el = wrapperRef.current;
-    // Only apply explicit dimensions if they are meaningful
-    // This allows container CSS to control sizing when no explicit dimensions are set
-    if (size.widthPx > minWidthPx) el.style.width = `${size.widthPx}px`;
-    else el.style.width = '';
-    if (size.heightPx > minHeightPx) el.style.height = `${size.heightPx}px`;
-    else el.style.height = '';
-  }, [size.widthPx, size.heightPx, minWidthPx, minHeightPx]);
+    if (size.widthPx > 0) el.style.width = `${size.widthPx}px`;
+    if (size.heightPx > 0) el.style.height = `${size.heightPx}px`;
+  }, [size.widthPx, size.heightPx]);
 
   // If no explicit size provided, measure content once to preserve template default size
   useLayoutEffect(() => {
     if (!wrapperRef.current) return;
     if ((widthPx && heightPx) || (size.widthPx > 0 && size.heightPx > 0)) return;
-    
     const el = wrapperRef.current;
     const content = el.firstElementChild as HTMLElement | null;
-    if (!content) return;
-    
-    // First, let the content render with its natural CSS sizing
-    const rect = content.getBoundingClientRect();
-    
-    // If content has meaningful dimensions, use them
-    if (rect.width > minWidthPx && rect.height > minHeightPx) {
-      const init = {
-        widthPx: Math.round(rect.width),
-        heightPx: Math.round(rect.height)
-      };
-      setSize(init);
-      if (onResize) onResize(init);
-      if (onResizeCommit) onResizeCommit(init);
-    } else {
-      // If content is too small, don't set explicit dimensions
-      // This allows the container's CSS to control the size
-      // The placeholder will fill its container naturally
+    if (content) {
+      const rect = content.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const init = {
+          widthPx: Math.max(minWidthPx, Math.round(rect.width)),
+          heightPx: Math.max(minHeightPx, Math.round(rect.height))
+        };
+        setSize(init);
+        if (onResize) onResize(init);
+        if (onResizeCommit) onResizeCommit(init);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -109,10 +97,9 @@ const ResizablePlaceholder: React.FC<ResizablePlaceholderProps> = ({
   }, [onResizeCommit]);
 
   const updateSize = useCallback((next: { widthPx: number; heightPx: number }, commit = false) => {
-    // Only apply minimum constraints if we're setting explicit dimensions
     const clamped = {
-      widthPx: next.widthPx > 0 ? Math.max(minWidthPx, Math.round(next.widthPx)) : 0,
-      heightPx: next.heightPx > 0 ? Math.max(minHeightPx, Math.round(next.heightPx)) : 0
+      widthPx: Math.max(minWidthPx, Math.round(next.widthPx)),
+      heightPx: Math.max(minHeightPx, Math.round(next.heightPx))
     };
     setSize(clamped);
     if (onResize) onResize(clamped);
