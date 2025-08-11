@@ -15877,7 +15877,6 @@ async def get_effective_rates(
         # Resolve effective advanced config following inheritance: lesson > section > project > folder
         is_advanced = False
         rates = {}
-        fallback_single_rate = 200
         
         # Start with folder defaults
         if project.get('folder_is_advanced'):

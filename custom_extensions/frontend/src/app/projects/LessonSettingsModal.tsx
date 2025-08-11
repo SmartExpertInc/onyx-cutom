@@ -54,16 +54,17 @@ export default function LessonSettingsModal({
   const { t } = useLanguage();
   const effectiveRate = currentEffectiveCustomRate ?? currentCustomRate ?? 200;
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
-  const [customRate, setCustomRate] = useState(currentCustomRate || 200);
+  const [customRate, setCustomRate] = useState(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
-  const [advancedEnabled, setAdvancedEnabled] = useState(!!currentAdvancedEnabled);
+  const [advancedEnabled, setAdvancedEnabled] = useState(false); // Initialize to false, will be set by fetch
   const [perProductRates, setPerProductRates] = useState({
-    presentation: currentAdvancedRates?.presentation ?? effectiveRate,
-    onePager: currentAdvancedRates?.onePager ?? effectiveRate,
-    quiz: currentAdvancedRates?.quiz ?? effectiveRate,
-    videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+    presentation: 0, // Initialize to 0, will be set by fetch
+    onePager: 0,
+    quiz: 0,
+    videoLesson: 0
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false); // Track if we've loaded backend data
 
   const qualityTiers: QualityTier[] = [
     {
@@ -169,6 +170,7 @@ export default function LessonSettingsModal({
           
           // Set single rate fallback
           setCustomRate(data.fallback_single_rate);
+          setDataLoaded(true); // Mark data as loaded
         } else {
           console.warn('Failed to fetch effective rates, using props');
           // Fallback to props if endpoint fails
@@ -180,6 +182,7 @@ export default function LessonSettingsModal({
             videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
           });
           setCustomRate(currentCustomRate || 200);
+          setDataLoaded(true); // Mark data as loaded even on fallback
         }
       } catch (error) {
         console.warn('Error fetching effective rates:', error);
@@ -192,6 +195,7 @@ export default function LessonSettingsModal({
           videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
         });
         setCustomRate(currentCustomRate || 200);
+        setDataLoaded(true); // Mark data as loaded even on fallback
       } finally {
         setIsLoading(false);
       }
@@ -220,7 +224,21 @@ export default function LessonSettingsModal({
     if (typeof window !== 'undefined') (window as any).__modalOpen = false;
     return null;
   }
+
   if (typeof window !== 'undefined') (window as any).__modalOpen = true;
+
+  // Don't render the modal content until we have loaded the data from backend
+  if (!dataLoaded) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto mx-4">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-gray-500">Loading settings...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {

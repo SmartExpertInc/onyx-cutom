@@ -33,16 +33,17 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   onTierChange 
 }) => {
   const [selectedTier, setSelectedTier] = useState(currentTier);
-  const [customRate, setCustomRate] = useState<number>(200); // Default to interactive tier
+  const [customRate, setCustomRate] = useState<number>(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
-  const [advancedEnabled, setAdvancedEnabled] = useState(false);
+  const [advancedEnabled, setAdvancedEnabled] = useState(false); // Initialize to false, will be set by fetch
   const [perProductRates, setPerProductRates] = useState({
-    presentation: 200,
-    onePager: 200,
-    quiz: 200,
-    videoLesson: 200
+    presentation: 0, // Initialize to 0, will be set by fetch
+    onePager: 0,
+    quiz: 0,
+    videoLesson: 0
   });
   const { t } = useLanguage();
+  const [dataLoaded, setDataLoaded] = useState(false); // Track if we've loaded backend data
 
   const qualityTiers: QualityTier[] = [
     {
@@ -152,15 +153,29 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
             setAdvancedEnabled(false);
             setPerProductRates({ presentation: cr, onePager: cr, quiz: cr, videoLesson: cr });
           }
+          setDataLoaded(true);
         }
       } catch {}
     })();
   }, [open, folderId]);
 
   if (!open) {
-    if (typeof window !== 'undefined') (window as any).__modalOpen = false;
     return null;
   }
+
+  // Don't render the modal content until we have loaded the data from backend
+  if (!dataLoaded) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto mx-4">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-gray-500">Loading folder settings...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (typeof window !== 'undefined') (window as any).__modalOpen = true;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
