@@ -273,9 +273,10 @@ export default function LessonPresentationClient() {
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
-  console.log("content", content);
+  // console.log("content", content);
   console.log("loading", loading);
   console.log("streamDone", streamDone);
+  console.log("textareaVisible", textareaVisible);
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
