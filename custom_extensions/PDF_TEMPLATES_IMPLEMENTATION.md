@@ -121,11 +121,12 @@ interface MarketShareTemplateProps {
 - **Typography**: Matching font sizes, weights, and line heights
 
 #### PieChartInfographicsTemplate PDF Features
-- **SVG Chart**: High-quality vector graphics
-- **Segment Calculation**: Proper arc calculations for pie segments
-- **Text Labels**: Positioned at segment centers with stroke effects
+- **Simple Chart**: Basic HTML/CSS implementation for reliable PDF generation
+- **Segment Calculation**: Proper percentage-based segment sizing
+- **Text Labels**: Positioned at segment centers with proper styling
 - **Monthly Data**: Left and right columns with color-coded items
 - **Inner Circle**: Decorative center element
+- **No Complex Math**: Avoids trigonometric functions for better compatibility
 
 ## Testing
 
