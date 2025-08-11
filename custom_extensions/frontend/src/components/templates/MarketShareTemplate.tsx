@@ -354,7 +354,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
                 
                 {/* Y-axis labels */}
                 <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs font-medium" style={{ color: contentColor, width: '30px' }}>
-                  {gridValues.map((value) => (
+                  {gridValues.slice().reverse().map((value) => (
                     <div key={value} className="flex items-center">
                       {value}
                     </div>
