@@ -270,6 +270,11 @@ export default function CourseOutlineClient() {
   // Currently chosen theme (affects outline colors)
   const [selectedTheme, setSelectedTheme] = useState<string>("cherry");
 
+  // Blur tracking for edited titles (modules and lessons)
+  const [editedIds, setEditedIds] = useState<Set<string>>(new Set());
+  const [originalModuleTitles, setOriginalModuleTitles] = useState<Record<number, string>>({});
+  const [originalLessonTitles, setOriginalLessonTitles] = useState<Record<string, string>>({});
+
   // Theme configuration for outline colors
   const themeConfig = {
     cherry: {
@@ -662,6 +667,22 @@ export default function CourseOutlineClient() {
       copy[index].title = value;
       return copy;
     });
+
+    // Store original module title once, then compare to set blur
+    if (originalModuleTitles[index] == null && preview[index]) {
+      setOriginalModuleTitles((prev) => ({ ...prev, [index]: preview[index].title }));
+    }
+    const original = originalModuleTitles[index] ?? preview[index]?.title ?? "";
+    const id = `mod-${index}`;
+    if (value !== original) {
+      setEditedIds((prev) => new Set([...prev, id]));
+    } else {
+      setEditedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
   const handleLessonChange = (modIdx: number, lessonIdx: number, value: string) => {
@@ -672,6 +693,25 @@ export default function CourseOutlineClient() {
       copy[modIdx].lessons[lessonIdx] = value.trim() ? value : "";
       return copy;
     });
+
+    // Track lesson original title and set blur if changed
+    const key = `${modIdx}-${lessonIdx}`;
+    const currentRaw = preview[modIdx]?.lessons?.[lessonIdx] ?? "";
+    const currentFirst = (currentRaw.split(/\r?\n/)[0] || "").replace(/^\s*[\*\-]\s*/, "");
+    if (originalLessonTitles[key] == null) {
+      setOriginalLessonTitles((prev) => ({ ...prev, [key]: currentFirst }));
+    }
+    const original = originalLessonTitles[key] ?? currentFirst;
+    const lesId = `les-${modIdx}-${lessonIdx}`;
+    if (value !== original) {
+      setEditedIds((prev) => new Set([...prev, lesId]));
+    } else {
+      setEditedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(lesId);
+        return next;
+      });
+    }
   };
 
   const handleLessonsTextareaChange = (modIdx: number, value: string) => {
@@ -1347,6 +1387,7 @@ export default function CourseOutlineClient() {
                     />
 
                     {/* Lessons list */}
+                    <div className={`flex flex-col gap-1 ${editedIds.has(`mod-${modIdx}`) ? 'filter blur-[2px]' : ''}`}>
                     <ul className="flex flex-col gap-1 text-gray-900">
                       {mod.lessons.map((les: string, lessonIdx: number) => {
                          const lines = les.split(/\r?\n/);
@@ -1360,7 +1401,7 @@ export default function CourseOutlineClient() {
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
-                           <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
+                           <li key={lessonIdx} className={`flex items-start gap-2 py-0.5 ${editedIds.has(`les-${modIdx}-${lessonIdx}`) ? 'filter blur-[2px]' : ''}`}>
                              <span className="text-lg leading-none select-none">•</span>
                              <input
                                type="text"
@@ -1376,6 +1417,7 @@ export default function CourseOutlineClient() {
                          );
                        })}
                     </ul>
+                    </div>
                   </div>
                 </div>
               ))}
