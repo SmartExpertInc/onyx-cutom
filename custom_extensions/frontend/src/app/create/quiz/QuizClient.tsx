@@ -218,15 +218,20 @@ export default function QuizClient() {
     }));
     
     // Add to edited titles list if title is different from original
-    const questions = parseQuizIntoQuestions(quizData);
-    if (questionIndex < questions.length) {
-      const originalTitle = questions[questionIndex].title;
+    if (questionIndex < questionList.length) {
+      const originalTitle = questionList[questionIndex].title;
+      console.log(`Title edit - Index: ${questionIndex}, Original: "${originalTitle}", New: "${newTitle}", Different: ${newTitle !== originalTitle}`);
       if (newTitle !== originalTitle) {
-        setEditedTitleIds(prev => new Set([...prev, questionIndex]));
+        setEditedTitleIds(prev => {
+          const newSet = new Set([...prev, questionIndex]);
+          console.log(`Added to edited list: ${questionIndex}, Current list:`, Array.from(newSet));
+          return newSet;
+        });
       } else {
         setEditedTitleIds(prev => {
           const newSet = new Set(prev);
           newSet.delete(questionIndex);
+          console.log(`Removed from edited list: ${questionIndex}, Current list:`, Array.from(newSet));
           return newSet;
         });
       }
@@ -235,12 +240,17 @@ export default function QuizClient() {
 
   const handleTitleSave = (questionIndex: number) => {
     setEditingQuestionId(null);
-    // Remove from edited titles list since it's now saved
-    setEditedTitleIds(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(questionIndex);
-      return newSet;
-    });
+    // Keep the item in edited titles list to maintain permanent blur
+    // Only remove if the title is back to original
+    const newTitle = editedTitles[questionIndex];
+    const originalTitle = questionList[questionIndex].title;
+    if (newTitle === originalTitle) {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(questionIndex);
+        return newSet;
+      });
+    }
     // Update the original content with new title
     updateContentWithNewTitle(questionIndex);
   };
@@ -1116,7 +1126,11 @@ export default function QuizClient() {
                           )}
                         </div>
                         {question.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx || editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${(() => {
+                            const shouldBlur = editingQuestionId === idx || editedTitleIds.has(idx);
+                            console.log(`Blur check for index ${idx}: editing=${editingQuestionId === idx}, inList=${editedTitleIds.has(idx)}, shouldBlur=${shouldBlur}`);
+                            return shouldBlur ? 'filter blur-[2px]' : '';
+                          })()}`}>
                             {question.content}
                           </div>
                         )}

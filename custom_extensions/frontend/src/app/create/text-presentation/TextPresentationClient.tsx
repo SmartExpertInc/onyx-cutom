@@ -227,9 +227,8 @@ export default function TextPresentationClient() {
     }));
     
     // Add to edited titles list if title is different from original
-    const lessons = parseContentIntoLessons(content);
-    if (lessonIndex < lessons.length) {
-      const originalTitle = lessons[lessonIndex].title;
+    if (lessonIndex < lessonList.length) {
+      const originalTitle = lessonList[lessonIndex].title;
       if (newTitle !== originalTitle) {
         setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
       } else {
@@ -244,12 +243,17 @@ export default function TextPresentationClient() {
 
   const handleTitleSave = (lessonIndex: number) => {
     setEditingLessonId(null);
-    // Remove from edited titles list since it's now saved
-    setEditedTitleIds(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(lessonIndex);
-      return newSet;
-    });
+    // Keep the item in edited titles list to maintain permanent blur
+    // Only remove if the title is back to original
+    const newTitle = editedTitles[lessonIndex];
+    const originalTitle = lessonList[lessonIndex].title;
+    if (newTitle === originalTitle) {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(lessonIndex);
+        return newSet;
+      });
+    }
     // Update the original content with new title
     updateContentWithNewTitle(lessonIndex);
   };
