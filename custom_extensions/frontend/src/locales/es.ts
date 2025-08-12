@@ -166,7 +166,9 @@ export const es = {
       videoLesson: "Lección de Video",
       videoLessonDescription: "Crear una lección de video con narración y elementos visuales",
       soon: "Pronto",
-      alreadyCreated: "Ya creado"
+      alreadyCreated: "Ya creado",
+      seeAllContentTypes: "Ver todos los tipos de contenido",
+      backToRecommended: "Volver a recomendados"
     },
     openContent: {
       title: "Abrir Contenido",

@@ -179,7 +179,8 @@ export const en = {
       alreadyCreated: "Already created",
       recommended: "Recommended",
       allOptions: "All content types",
-      other: "Other"
+      seeAllContentTypes: "See all content types",
+      backToRecommended: "Back to recommended"
     },
     openContent: {
       title: "Open Content",

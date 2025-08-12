@@ -166,7 +166,9 @@ export const uk = {
       videoLesson: "Відео-урок",
       videoLessonDescription: "Створити відео-урок з озвучкою та візуальними елементами",
       soon: "Незабаром",
-      alreadyCreated: "Вже створено"
+      alreadyCreated: "Вже створено",
+      seeAllContentTypes: "Переглянути всі типи контенту",
+      backToRecommended: "Повернутися до рекомендованих"
     },
     openContent: {
       title: "Відкрити контент",

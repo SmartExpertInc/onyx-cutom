@@ -321,27 +321,15 @@ export const CreateContentTypeModal = ({
                         onOpenAllContentTypes(); // Open AllContentTypesModal
                       }
                     }}
-                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+                    className="px-4 py-2 text-sm rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
                   >
-                    {t('modals.createContent.other', 'See all content types')}
+                    {t('modals.createContent.seeAllContentTypes', 'See all content types')}
                   </button>
                 </div>
               </>
             ) : (
               // Settings view
               <>
-                <div className="mb-2 text-sm text-gray-600 flex items-center">
-                  <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')} — {t('modals.createContent.title')}</span>
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-                    aria-label="Back to recommendations"
-                    title="Back"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-
                 <p className="text-sm text-gray-600 mb-4">Select which products should be shown as recommended for this lesson.</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -363,7 +351,7 @@ export const CreateContentTypeModal = ({
                   ))}
                 </div>
 
-                <div className="mt-6 flex justify-end gap-3">
+                <div className="mt-6 flex justify-center gap-3">
                   <button
                     onClick={() => setShowSettings(false)}
                     className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-50"
@@ -388,11 +376,13 @@ export const CreateContentTypeModal = ({
         )}
 
         {/* Footer */}
-        <div className="mt-4 pt-6 border-t border-gray-100">
-          <p className="text-sm text-black text-center">
-            {t('modals.createContent.chooseContentType')}
-          </p>
-        </div>
+        {!showSettings && (
+          <div className="mt-4 pt-6 border-t border-gray-100">
+            <p className="text-sm text-black text-center">
+              {t('modals.createContent.chooseContentType')}
+            </p>
+          </div>
+        )}
       </div>
 
 

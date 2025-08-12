@@ -167,7 +167,9 @@ export const ru = {
       videoLesson: "Видео-урок",
       videoLessonDescription: "Создать видео-урок с озвучкой и визуальными элементами",
       soon: "Скоро",
-      alreadyCreated: "Уже создано"
+      alreadyCreated: "Уже создано",
+      seeAllContentTypes: "Посмотреть все типы контента",
+      backToRecommended: "Вернуться к рекомендуемым"
     },
     openContent: {
       title: "Открыть контент",
