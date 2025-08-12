@@ -161,7 +161,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                     gap: 0.5,
                     backgroundColor: '#F8FAFC',
                     borderRadius: 2,
-                    p: 3,
+                    p: 2,
                     border: '1px solid #E2E8F0',
                     textAlign: 'center',
                     minWidth: '120px'
@@ -170,8 +170,8 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                       variant="body2" 
                       component="span" 
                       sx={{ 
-                        fontWeight: 600,
-                        color: '#1F2937',
+                        fontWeight: 400,
+                        color: '#6B7280',
                         fontSize: '14px'
                       }}
                     >
@@ -212,7 +212,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                     gap: 1,
                     backgroundColor: '#F8FAFC',
                     borderRadius: 2,
-                    p: 3,
+                    p: 2,
                     border: '1px solid #E2E8F0',
                     minWidth: '200px'
                   }}>
@@ -223,7 +223,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                         fontWeight: 600,
                         color: '#1F2937',
                         fontSize: '14px',
-                        mb: 1
+                        mb: 0.5
                       }}
                     >
                       {activity.title}
