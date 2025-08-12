@@ -1091,9 +1091,10 @@ export default function TextPresentationClient() {
                           ) : (
                             <h4 
                               className="text-[#20355D] text-base font-semibold cursor-pointer"
-                              onClick={() => {
-                                // Add a small delay to allow blur event to complete
-                                setTimeout(() => setEditingLessonId(idx), 10);
+                              onMouseDown={(e) => {
+                                // Prevent blur event from firing when clicking on another title
+                                e.preventDefault();
+                                setEditingLessonId(idx);
                               }}
                             >
                               {getTitleForLesson(lesson, idx)}
