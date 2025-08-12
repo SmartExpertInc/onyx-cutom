@@ -11,6 +11,7 @@ import {
   Upload,
   Plus,
   Home as HomeIcon,
+  Link as LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FileResponse } from "../../../../components/documents/DocumentsContext";
@@ -182,11 +183,14 @@ const ALLOWED_FILE_TYPES = [
 const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folderId }) => {
   const router = useRouter();
   const { t } = useLanguage();
-  const { folders, files, isLoading, error, getFolderDetails, folderDetails, handleUpload, uploadProgress, setCurrentFolder } = useDocumentsContext();
+  const { folders, files, isLoading, error, getFolderDetails, folderDetails, handleUpload, uploadProgress, setCurrentFolder, createFileFromLink } = useDocumentsContext();
   const [selectedFileIds, setSelectedFileIds] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [linkUrl, setLinkUrl] = useState("");
+  const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
+  const [urlError, setUrlError] = useState<string | null>(null);
+   
   const currentFolder = folderDetails;
   const folderFiles = currentFolder?.files || [];
 
@@ -333,6 +337,41 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
     }
   };
 
+  const validateUrl = (url: string) => {
+    try {
+      new URL(url.includes("://") ? url : `https://${url}`);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleCreateFromWebsite = async () => {
+    const trimmed = linkUrl.trim();
+    if (!trimmed) return;
+    if (!validateUrl(trimmed)) {
+      setUrlError(t('actions.invalidUrl', 'Please enter a valid URL (e.g., https://example.com)'));
+      return;
+    }
+    setUrlError(null);
+    setIsCreatingFromUrl(true);
+    try {
+      await createFileFromLink(trimmed, folderId);
+      setLinkUrl("");
+      await getFolderDetails(folderId);
+    } catch (e) {
+      setUrlError(t('actions.failedToCreateFromUrl', 'Failed to create from URL'));
+    } finally {
+      setIsCreatingFromUrl(false);
+    }
+  };
+
+  const handleUrlKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleCreateFromWebsite();
+    }
+  };
+
   if (isLoading && !folderDetails) {
     return (
       <main
@@ -467,6 +506,57 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
 
       {/* Content */}
       <div className="flex-1 px-6 pb-6" style={{ paddingBottom: selectedFileIds.length > 0 ? '100px' : '24px' }}>
+        {/* Add Website Section */}
+        <div className="mb-8">
+          <div className="rounded-lg p-6 border bg-white">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <LinkIcon className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900">{t('actions.addWebsite', 'Add a website')}</h3>
+                <p className="text-sm text-gray-600 mt-1">{t('actions.addWebsiteHelp', 'Paste a URL to include the page content in this folder')}</p>
+                <div className="mt-4 flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    onKeyDown={handleUrlKeyDown}
+                    placeholder={t('actions.enterUrl', 'Enter URL (e.g., https://example.com/article)')}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
+                  />
+                  <button
+                    onClick={handleCreateFromWebsite}
+                    disabled={isCreatingFromUrl || !linkUrl.trim()}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    {isCreatingFromUrl ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        {t('actions.adding', 'Adding...')}
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4" />
+                        {t('actions.addUrl', 'Add URL')}
+                      </>
+                    )}
+                  </button>
+                </div>
+                {urlError && <p className="text-sm text-red-600 mt-2">{urlError}</p>}
+                {isCreatingFromUrl && (
+                  <div className="mt-3">
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className="bg-blue-500 h-2 animate-pulse w-3/4" />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">{t('actions.fetchingAndIndexing', 'Fetching and indexing content...')}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* File Upload Section */}
         <div className="mb-8">
           <div 

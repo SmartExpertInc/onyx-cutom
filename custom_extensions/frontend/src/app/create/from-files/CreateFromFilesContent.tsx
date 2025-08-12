@@ -475,8 +475,8 @@ export default function CreateFromFilesContent() {
 
       {/* Content */}
       <div className="flex-1 px-6 pb-6">
-        {/* Search bar, URL add, and Create Folder button */}
-        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+        {/* Search bar and Create Folder button */}
+        <div className="flex items-center justify-between mb-6">
           <div className="relative w-full max-w-md">
             <input
               type="text"
@@ -486,35 +486,13 @@ export default function CreateFromFilesContent() {
               className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
             />
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <div className="flex items-center gap-2 w-full sm:w-96">
-              <input
-                type="text"
-                placeholder={t('interface.fromFiles.pasteUrl', 'Paste URL to add as document')}
-                value={fileUrl}
-                onChange={(e) => setFileUrl(e.target.value)}
-                onKeyDown={handleUrlKeyDown}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
-              />
-              <button
-                onClick={handleAddUrl}
-                disabled={isCreatingFromUrl || !fileUrl.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
-              >
-                {isCreatingFromUrl ? t('interface.fromFiles.adding', 'Adding...') : t('interface.fromFiles.addUrl', 'Add URL')}
-              </button>
-            </div>
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
-            >
-              <Plus className="h-4 w-4" />
-              {t('interface.fromFiles.newFolder', 'New Folder')}
-            </button>
-          </div>
-          {urlError && (
-            <div className="w-full text-sm text-red-600">{urlError}</div>
-          )}
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            {t('interface.fromFiles.newFolder', 'New Folder')}
+          </button>
         </div>
 
         {/* Selected items summary and action */}
