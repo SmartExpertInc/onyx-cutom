@@ -193,40 +193,76 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
   const handleDrag = useCallback((e: any) => {
     if (!selectedElement) return;
     
-    setIsDragging(true);
-    const { target, transform } = e;
-    
-    log('MoveableManager', 'onDrag', { 
-      elementId: selectedElement.id, 
-      x: transform.x, 
-      y: transform.y,
-      slideId
-    });
-    
-    // Update position
-    if (onPositionChange) {
-      onPositionChange(selectedElement.id, { x: transform.x, y: transform.y });
+    try {
+      setIsDragging(true);
+      const { target, transform } = e;
+      
+      // Validate transform object
+      if (!transform || typeof transform.x !== 'number' || typeof transform.y !== 'number') {
+        log('MoveableManager', 'handleDrag_invalidTransform', { 
+          elementId: selectedElement.id, 
+          transform,
+          slideId
+        });
+        return;
+      }
+      
+      log('MoveableManager', 'onDrag', { 
+        elementId: selectedElement.id, 
+        x: transform.x, 
+        y: transform.y,
+        slideId
+      });
+      
+      // Update position
+      if (onPositionChange) {
+        onPositionChange(selectedElement.id, { x: transform.x, y: transform.y });
+      }
+    } catch (error) {
+      log('MoveableManager', 'handleDrag_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
+      });
     }
   }, [selectedElement, onPositionChange, slideId]);
 
   const handleDragEnd = useCallback((e: any) => {
     if (!selectedElement) return;
     
-    setIsDragging(false);
-    const { transform } = e;
-    
-    log('MoveableManager', 'onDragEnd', { 
-      elementId: selectedElement.id, 
-      x: transform.x, 
-      y: transform.y,
-      slideId
-    });
-    
-    // Final position update
-    if (onTransformEnd) {
-      onTransformEnd(selectedElement.id, {
-        position: { x: transform.x, y: transform.y },
-        size: { width: transform.width, height: transform.height }
+    try {
+      setIsDragging(false);
+      const { transform } = e;
+      
+      // Validate transform object
+      if (!transform || typeof transform.x !== 'number' || typeof transform.y !== 'number') {
+        log('MoveableManager', 'handleDragEnd_invalidTransform', { 
+          elementId: selectedElement.id, 
+          transform,
+          slideId
+        });
+        return;
+      }
+      
+      log('MoveableManager', 'onDragEnd', { 
+        elementId: selectedElement.id, 
+        x: transform.x, 
+        y: transform.y,
+        slideId
+      });
+      
+      // Final position update
+      if (onTransformEnd) {
+        onTransformEnd(selectedElement.id, {
+          position: { x: transform.x, y: transform.y },
+          size: { width: transform.width || 0, height: transform.height || 0 }
+        });
+      }
+    } catch (error) {
+      log('MoveableManager', 'handleDragEnd_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
       });
     }
   }, [selectedElement, onTransformEnd, slideId]);
@@ -235,40 +271,78 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
   const handleResize = useCallback((e: any) => {
     if (!selectedElement) return;
     
-    setIsResizing(true);
-    const { target, width, height, drag } = e;
-    
-    log('MoveableManager', 'onResize', { 
-      elementId: selectedElement.id, 
-      width, 
-      height,
-      slideId
-    });
-    
-    // Update size
-    if (onSizeChange) {
-      onSizeChange(selectedElement.id, { width, height });
+    try {
+      setIsResizing(true);
+      const { target, width, height, drag } = e;
+      
+      // Validate size values
+      if (typeof width !== 'number' || typeof height !== 'number') {
+        log('MoveableManager', 'handleResize_invalidSize', { 
+          elementId: selectedElement.id, 
+          width,
+          height,
+          slideId
+        });
+        return;
+      }
+      
+      log('MoveableManager', 'onResize', { 
+        elementId: selectedElement.id, 
+        width, 
+        height,
+        slideId
+      });
+      
+      // Update size
+      if (onSizeChange) {
+        onSizeChange(selectedElement.id, { width, height });
+      }
+    } catch (error) {
+      log('MoveableManager', 'handleResize_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
+      });
     }
   }, [selectedElement, onSizeChange, slideId]);
 
   const handleResizeEnd = useCallback((e: any) => {
     if (!selectedElement) return;
     
-    setIsResizing(false);
-    const { width, height, drag } = e;
-    
-    log('MoveableManager', 'onResizeEnd', { 
-      elementId: selectedElement.id, 
-      width, 
-      height,
-      slideId
-    });
-    
-    // Final size update
-    if (onTransformEnd) {
-      onTransformEnd(selectedElement.id, {
-        position: { x: drag.x, y: drag.y },
-        size: { width, height }
+    try {
+      setIsResizing(false);
+      const { width, height, drag } = e;
+      
+      // Validate values
+      if (typeof width !== 'number' || typeof height !== 'number') {
+        log('MoveableManager', 'handleResizeEnd_invalidSize', { 
+          elementId: selectedElement.id, 
+          width,
+          height,
+          slideId
+        });
+        return;
+      }
+      
+      log('MoveableManager', 'onResizeEnd', { 
+        elementId: selectedElement.id, 
+        width, 
+        height,
+        slideId
+      });
+      
+      // Final size update
+      if (onTransformEnd) {
+        onTransformEnd(selectedElement.id, {
+          position: { x: drag?.x || 0, y: drag?.y || 0 },
+          size: { width, height }
+        });
+      }
+    } catch (error) {
+      log('MoveableManager', 'handleResizeEnd_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
       });
     }
   }, [selectedElement, onTransformEnd, slideId]);

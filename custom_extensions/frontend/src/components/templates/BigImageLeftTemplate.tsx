@@ -4,6 +4,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import MoveableManager from '../positioning/MoveableManager';
+import { useMoveableManager } from '@/hooks/useMoveableManager';
+
+// Debug logging utility
+const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const log = (source: string, event: string, data: any) => {
+  if (DEBUG) {
+    console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+  }
+};
 
 interface InlineEditorProps {
   initialValue: string;
@@ -155,6 +165,51 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for MoveableManager integration
+  const imageRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
+  
+  log('BigImageLeftTemplate', 'render', { 
+    slideId, 
+    isEditable, 
+    hasImagePath: !!imagePath,
+    imageRefExists: !!imageRef.current,
+    titleRefExists: !!titleRef.current,
+    subtitleRefExists: !!subtitleRef.current
+  });
+  
+  // Initialize MoveableManager
+  const moveableManager = useMoveableManager({
+    slideId,
+    isEditable,
+    onUpdate
+  });
+  
+  // Create moveable elements
+  const moveableElements = [
+    moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
+      cropMode: moveableManager.getCropMode(`${slideId}-image`)
+    }),
+    moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text'),
+    moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
+  ];
+
+  // Runtime assertions for debugging
+  if (DEBUG) {
+    console.assert(!!imageRef.current, `[BigImageLeftTemplate] Missing imageRef for ${slideId}-image`);
+    console.assert(!!titleRef.current, `[BigImageLeftTemplate] Missing titleRef for ${slideId}-title`);
+    console.assert(!!subtitleRef.current, `[BigImageLeftTemplate] Missing subtitleRef for ${slideId}-subtitle`);
+    console.assert(moveableElements.length === 3, `[BigImageLeftTemplate] Expected 3 moveable elements, got ${moveableElements.length}`);
+  }
+
+  log('BigImageLeftTemplate', 'moveableElementsCreated', { 
+    slideId, 
+    elementsCount: moveableElements.length,
+    elementIds: moveableElements.map(e => e.id),
+    isEnabled: moveableManager.moveableManagerProps.isEnabled
+  });
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -253,24 +308,60 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
   // Handle image upload
   const handleImageUploaded = (newImagePath: string) => {
+    log('BigImageLeftTemplate', 'handleImageUploaded', { 
+      slideId, 
+      newImagePath: !!newImagePath,
+      imageRefExists: !!imageRef.current
+    });
+
     if (onUpdate) {
       onUpdate({ imagePath: newImagePath });
     }
   };
 
   const handleSizeTransformChange = (payload: any) => {
+    log('BigImageLeftTemplate', 'handleSizeTransformChange', { 
+      slideId, 
+      payload,
+      imageRefExists: !!imageRef.current
+    });
+
     if (onUpdate) {
       onUpdate(payload);
     }
   };
 
+  // Handle crop mode change
+  const handleCropModeChange = (mode: 'cover' | 'contain' | 'fill') => {
+    log('BigImageLeftTemplate', 'handleCropModeChange', { 
+      slideId, 
+      mode,
+      imageRefExists: !!imageRef.current
+    });
+
+    moveableManager.handleCropModeChange(`${slideId}-image`, mode);
+  };
+
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
   const displayPrompt = imagePrompt || imageAlt || "man sitting on a chair";
 
+  log('BigImageLeftTemplate', 'rendering', { 
+    slideId, 
+    isEditable,
+    hasImagePath: !!imagePath,
+    moveableElementsCount: moveableElements.length
+  });
+
   return (
     <div style={slideStyles}>
+      {/* MoveableManager for drag/resize functionality */}
+      <MoveableManager
+        {...moveableManager.moveableManagerProps}
+        elements={moveableElements}
+      />
+      
       {/* Left side - Clickable Image Placeholder */}
-      <div style={imageContainerStyles} >
+      <div style={imageContainerStyles}>
         <ClickableImagePlaceholder
           imagePath={imagePath}
           onImageUploaded={handleImageUploaded}
@@ -281,13 +372,22 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           isEditable={isEditable}
           style={placeholderStyles}
           onSizeTransformChange={handleSizeTransformChange}
+          elementId={`${slideId}-image`}
+          elementRef={imageRef}
+          cropMode={moveableManager.getCropMode(`${slideId}-image`)}
+          onCropModeChange={handleCropModeChange}
         />
       </div>
 
       {/* Right side - Content */}
       <div style={contentContainerStyles}>
-        {/* Title - wrapped in persistent draggable wrapper */}
-        <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {/* Title - wrapped */}
+        <div 
+          ref={titleRef}
+          data-moveable-element={`${slideId}-title`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={title || ''}
@@ -299,6 +399,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
               style={{
                 ...titleStyles,
                 // Ensure title behaves exactly like h1 element
+                margin: '0',
                 padding: '0',
                 border: 'none',
                 outline: 'none',
@@ -307,8 +408,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block',
-                lineHeight: '1.2'
+                display: 'block'
               }}
             />
           ) : (
@@ -332,8 +432,13 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           )}
         </div>
 
-        {/* Subtitle - wrapped in persistent draggable wrapper */}
-        <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {/* Subtitle - wrapped */}
+        <div 
+          ref={subtitleRef}
+          data-moveable-element={`${slideId}-subtitle`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
           {isEditable && editingSubtitle ? (
             <InlineEditor
               initialValue={subtitle || ''}
@@ -354,8 +459,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block',
-                lineHeight: '1.6'
+                display: 'block'
               }}
             />
           ) : (

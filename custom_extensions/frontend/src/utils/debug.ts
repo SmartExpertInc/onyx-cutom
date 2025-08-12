@@ -104,3 +104,98 @@ export const diagnoseMoveableIssues = () => {
   
   console.groupEnd();
 };
+
+// Test MoveableManager functionality
+export const testMoveableManager = () => {
+  if (typeof window === 'undefined') return;
+  
+  console.group('[Debug] MoveableManager Test');
+  
+  // Enable debug mode
+  enableMoveableDebug();
+  
+  // Check for elements
+  const elements = document.querySelectorAll('[data-moveable-element]');
+  console.log('Found moveable elements:', elements.length);
+  
+  if (elements.length > 0) {
+    // Try to click the first element
+    const firstElement = elements[0] as HTMLElement;
+    console.log('Clicking first element:', firstElement.getAttribute('data-moveable-element'));
+    
+    // Simulate click
+    firstElement.click();
+    
+    // Check for moveable controls after a short delay
+    setTimeout(() => {
+      const controls = document.querySelectorAll('.moveable-control-box');
+      console.log('Moveable controls after click:', controls.length);
+      
+      if (controls.length === 0) {
+        console.warn('No moveable controls found - possible issue with MoveableManager');
+      } else {
+        console.log('Moveable controls found - system working correctly');
+      }
+    }, 100);
+  } else {
+    console.warn('No moveable elements found - check template integration');
+  }
+  
+  console.groupEnd();
+};
+
+// Test image upload flow
+export const testImageUpload = () => {
+  if (typeof window === 'undefined') return;
+  
+  console.group('[Debug] Image Upload Test');
+  
+  // Enable debug mode
+  enableMoveableDebug();
+  
+  // Look for image placeholders
+  const placeholders = document.querySelectorAll('[data-moveable-element*="-image"]');
+  console.log('Image placeholders found:', placeholders.length);
+  
+  if (placeholders.length > 0) {
+    const firstPlaceholder = placeholders[0] as HTMLElement;
+    console.log('Clicking first image placeholder:', firstPlaceholder.getAttribute('data-moveable-element'));
+    
+    // Simulate click
+    firstPlaceholder.click();
+    
+    // Check for upload modal after a short delay
+    setTimeout(() => {
+      const modals = document.querySelectorAll('[class*="fixed inset-0"]');
+      console.log('Upload modals found:', modals.length);
+      
+      if (modals.length === 0) {
+        console.warn('No upload modal found - possible issue with ClickableImagePlaceholder');
+      } else {
+        console.log('Upload modal found - system working correctly');
+      }
+    }, 100);
+  } else {
+    console.warn('No image placeholders found - check template integration');
+  }
+  
+  console.groupEnd();
+};
+
+// Comprehensive system test
+export const runSystemTest = () => {
+  if (typeof window === 'undefined') return;
+  
+  console.group('[Debug] Comprehensive System Test');
+  
+  // Enable debug mode
+  enableMoveableDebug();
+  
+  // Run all tests
+  diagnoseMoveableIssues();
+  testMoveableManager();
+  testImageUpload();
+  
+  console.log('[Debug] System test completed');
+  console.groupEnd();
+};
