@@ -318,7 +318,7 @@ export const CreateContentTypeModal = ({
                     onOpenAllContentTypes(); // Open AllContentTypesModal
                   }
                 }}
-                className="text-sm px-3 py-2 border rounded-lg hover:bg-gray-50"
+                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
               >
                 {t('modals.createContent.other', 'See all content types')}
               </button>

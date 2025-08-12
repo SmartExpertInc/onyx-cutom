@@ -958,8 +958,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       const persisted = extractPersistedRecommendations(lesson, effectiveTier);
       const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
       
-      // Show all content types modal instead of recommended modal
-      setAllContentTypesModalState({ 
+      // Show CreateContentTypeModal first (with recommended content types)
+      setContentModalState({ 
         isOpen: true, 
         lessonTitle, 
         moduleName, 

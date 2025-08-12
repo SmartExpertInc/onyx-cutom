@@ -54,33 +54,33 @@ export const AllContentTypesModal = ({
         key={type.name}
         onClick={() => !isDisabled && onContentCreate(type.name)}
         disabled={isDisabled}
-        className={`w-full flex items-center p-6 border-2 rounded-xl transition-all duration-200 text-left ${
+        className={`w-full flex items-center p-4 border-2 rounded-lg transition-all duration-200 text-left ${
           isDisabled
             ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
             : `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-md cursor-pointer`
         }`}
       >
-        <div className="flex items-center space-x-4 flex-1">
-          <div className={`p-3 rounded-lg ${
+                  <div className="flex items-center space-x-3 flex-1">
+          <div className={`p-2 rounded-md ${
             isDisabled ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
           }`}>
             {type.icon && React.isValidElement(type.icon) ? 
               React.cloneElement(type.icon as React.ReactElement<any>, { 
-                className: `w-6 h-6 ${isDisabled ? 'text-gray-400' : ''}` 
+                className: `w-5 h-5 ${isDisabled ? 'text-gray-400' : ''}` 
               }) : 
-              <div className="w-6 h-6" />
+              <div className="w-5 h-5" />
             }
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <h3 className="text-lg font-semibold text-black">{type.label}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-base font-semibold text-black">{type.label}</h3>
               {type.soon && (
                 <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
                   {t('modals.createContent.soon')}
                 </span>
               )}
             </div>
-            <p className="text-sm text-black">{type.description}</p>
+            <p className="text-xs text-gray-600">{type.description}</p>
           </div>
         </div>
         {!isDisabled && (
@@ -108,21 +108,21 @@ export const AllContentTypesModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={handleClose}>
-      <div className="bg-white rounded-2xl p-6 w-full max-w-xl shadow-2xl border" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={handleClose}>
+      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl border" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">{t('modals.createContent.allOptions', 'All content types')}</h3>
           <button onClick={handleClose} className="p-2 rounded-full hover:bg-gray-100">
             <X size={20} />
           </button>
         </div>
-        <div className="space-y-4 max-h-[70vh] overflow-auto">
+        <div className="space-y-3 max-h-[70vh] overflow-auto">
           {contentTypes.map(renderTypeButton)}
         </div>
         <div className="mt-4 flex justify-center">
           <button
             onClick={handleBackToRecommended}
-            className="text-sm px-3 py-2 border rounded-lg hover:bg-gray-50"
+            className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
           >
             Back to recommended
           </button>
