@@ -334,21 +334,44 @@ export const CreateContentTypeModal = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
-                    { key: 'presentation', label: t('modals.createContent.presentation') },
-                    { key: 'one-pager', label: t('modals.createContent.onePager') },
-                    { key: 'quiz', label: t('modals.createContent.quiz') },
-                    { key: 'video-lesson', label: t('modals.createContent.videoLesson') },
-                  ].map(opt => (
-                    <label key={opt.key} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 accent-indigo-600"
-                        checked={!!selectedPrefs[opt.key]}
-                        onChange={() => handlePrefToggle(opt.key)}
-                      />
-                      <span className="text-sm text-gray-800">{opt.label}</span>
-                    </label>
-                  ))}
+                    { key: 'presentation', label: t('modals.createContent.presentation'), color: 'blue' },
+                    { key: 'one-pager', label: t('modals.createContent.onePager'), color: 'green' },
+                    { key: 'quiz', label: t('modals.createContent.quiz'), color: 'purple' },
+                    { key: 'video-lesson', label: t('modals.createContent.videoLesson'), color: 'gray' },
+                  ].map(opt => {
+                    const colorClasses = {
+                      blue: 'border-blue-200 hover:border-blue-300 bg-blue-50 hover:bg-blue-100',
+                      green: 'border-green-200 hover:border-green-300 bg-green-50 hover:bg-green-100',
+                      purple: 'border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100',
+                      gray: 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-gray-100'
+                    };
+                    
+                    const checkboxClasses = {
+                      blue: 'accent-blue-600',
+                      green: 'accent-green-600',
+                      purple: 'accent-purple-600',
+                      gray: 'accent-gray-600'
+                    };
+                    
+                    return (
+                      <label 
+                        key={opt.key} 
+                        className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                          selectedPrefs[opt.key] 
+                            ? colorClasses[opt.color as keyof typeof colorClasses]
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          className={`w-4 h-4 ${checkboxClasses[opt.color as keyof typeof checkboxClasses]}`}
+                          checked={!!selectedPrefs[opt.key]}
+                          onChange={() => handlePrefToggle(opt.key)}
+                        />
+                        <span className="text-sm text-gray-800">{opt.label}</span>
+                      </label>
+                    );
+                  })}
                 </div>
 
                 <div className="mt-6 flex justify-center gap-3">
