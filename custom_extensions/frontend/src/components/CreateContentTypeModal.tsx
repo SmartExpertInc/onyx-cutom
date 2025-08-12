@@ -58,7 +58,7 @@ export const CreateContentTypeModal = ({
   const router = useRouter();
   const { t } = useLanguage();
   const [showAllOptions, setShowAllOptions] = useState(false);
-  const [showPrefs, setShowPrefs] = useState(false); // NEW
+  const [showSettings, setShowSettings] = useState(false); // NEW: track if showing settings instead of recommendations
 
   // Local recommended state (so UI updates immediately)
   const [recommendedState, setRecommendedState] = useState<RecommendedContentTypes | undefined>(recommendedContentTypes);
@@ -192,7 +192,7 @@ export const CreateContentTypeModal = ({
     };
     setRecommendedState(next);
     if (onUpdateRecommendations) onUpdateRecommendations(newPrimary);
-    setShowPrefs(false);
+    setShowSettings(false); // Return to recommendations view
   };
 
   if (!isOpen) return null;
@@ -290,39 +290,96 @@ export const CreateContentTypeModal = ({
           </button>
         </div>
         
-        {/* Recommendations */}
+        {/* Recommendations or Settings */}
         { (recommendedState?.primary?.length || recommendedContentTypes?.primary?.length) ? (
           <div className="mb-6">
-            <div className="mb-2 text-sm text-gray-600 flex items-center">
-              <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')}</span>
-              <button
-                onClick={() => setShowPrefs(true)}
-                className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-                aria-label="Customize recommendations"
-                title="Customize"
-              >
-                <Settings size={16} />
-              </button>
-              { (recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used) && (
-                <span className="ml-2 text-gray-400">({recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used})</span>
-              )}
-            </div>
-            <div className="space-y-4">
-              {recommendedOnly.map(renderTypeButton)}
-            </div>
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={() => {
-                  onClose(); // Close this modal
-                  if (onOpenAllContentTypes) {
-                    onOpenAllContentTypes(); // Open AllContentTypesModal
-                  }
-                }}
-                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
-              >
-                {t('modals.createContent.other', 'See all content types')}
-              </button>
-            </div>
+            {!showSettings ? (
+              // Recommendations view
+              <>
+                <div className="mb-2 text-sm text-gray-600 flex items-center">
+                  <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')}</span>
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                    aria-label="Customize recommendations"
+                    title="Customize"
+                  >
+                    <Settings size={16} />
+                  </button>
+                  { (recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used) && (
+                    <span className="ml-2 text-gray-400">({recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used})</span>
+                  )}
+                </div>
+                <div className="space-y-4">
+                  {recommendedOnly.map(renderTypeButton)}
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={() => {
+                      onClose(); // Close this modal
+                      if (onOpenAllContentTypes) {
+                        onOpenAllContentTypes(); // Open AllContentTypesModal
+                      }
+                    }}
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+                  >
+                    {t('modals.createContent.other', 'See all content types')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              // Settings view
+              <>
+                <div className="mb-2 text-sm text-gray-600 flex items-center">
+                  <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')} — {t('modals.createContent.title')}</span>
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                    aria-label="Back to recommendations"
+                    title="Back"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <p className="text-sm text-gray-600 mb-4">Select which products should be shown as recommended for this lesson.</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { key: 'presentation', label: t('modals.createContent.presentation') },
+                    { key: 'one-pager', label: t('modals.createContent.onePager') },
+                    { key: 'quiz', label: t('modals.createContent.quiz') },
+                    { key: 'video-lesson', label: t('modals.createContent.videoLesson') },
+                  ].map(opt => (
+                    <label key={opt.key} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-indigo-600"
+                        checked={!!selectedPrefs[opt.key]}
+                        onChange={() => handlePrefToggle(opt.key)}
+                      />
+                      <span className="text-sm text-gray-800">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePrefSave}
+                    disabled={!Object.values(selectedPrefs).some(Boolean)}
+                    className={`px-4 py-2 text-sm rounded-lg text-white ${Object.values(selectedPrefs).some(Boolean) ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}`}
+                  >
+                    Save
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
@@ -331,65 +388,14 @@ export const CreateContentTypeModal = ({
         )}
 
         {/* Footer */}
-        <div className="mt-8 pt-6 border-t border-gray-100">
+        <div className="mt-4 pt-6 border-t border-gray-100">
           <p className="text-sm text-black text-center">
             {t('modals.createContent.chooseContentType')}
           </p>
         </div>
       </div>
 
-      {/* All options modal - now handled by parent component */}
 
-      {/* Preferences modal */}
-      {showPrefs && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowPrefs(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl border" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t('modals.createContent.recommended', 'Recommended')} — {t('modals.createContent.title')}</h3>
-              <button onClick={() => setShowPrefs(false)} className="p-2 rounded-full hover:bg-gray-100">
-                <X size={20} />
-              </button>
-            </div>
-
-            <p className="text-sm text-gray-600 mb-4">Select which products should be shown as recommended for this lesson.</p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                { key: 'presentation', label: t('modals.createContent.presentation') },
-                { key: 'one-pager', label: t('modals.createContent.onePager') },
-                { key: 'quiz', label: t('modals.createContent.quiz') },
-                { key: 'video-lesson', label: t('modals.createContent.videoLesson') },
-              ].map(opt => (
-                <label key={opt.key} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 accent-indigo-600"
-                    checked={!!selectedPrefs[opt.key]}
-                    onChange={() => handlePrefToggle(opt.key)}
-                  />
-                  <span className="text-sm text-gray-800">{opt.label}</span>
-                </label>
-              ))}
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setShowPrefs(false)}
-                className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePrefSave}
-                disabled={!Object.values(selectedPrefs).some(Boolean)}
-                className={`px-4 py-2 text-sm rounded-lg text-white ${Object.values(selectedPrefs).some(Boolean) ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}`}
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }; 
