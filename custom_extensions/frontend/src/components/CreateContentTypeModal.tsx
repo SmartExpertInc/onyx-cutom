@@ -172,7 +172,10 @@ export const CreateContentTypeModal = ({
   useEffect(() => {
     const prim = recommendedState?.primary || recommendedContentTypes?.primary || [];
     const next: Record<string, boolean> = {};
-    allKeys.forEach(k => { next[k] = prim.includes(k); });
+    allKeys.forEach(k => { 
+      // Only check options that are actually in the recommended list
+      next[k] = prim.includes(k);
+    });
     setSelectedPrefs(next);
   }, [recommendedState, recommendedContentTypes]);
 
@@ -304,7 +307,7 @@ export const CreateContentTypeModal = ({
               // Recommendations view
               <>
                 <div className="mb-2 text-sm text-gray-600 flex items-center">
-                  <span className="font-medium">{t('modals.createContent.recommended')}</span>
+                  <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')}</span>
                   <button
                     onClick={() => setShowSettings(true)}
                     className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
