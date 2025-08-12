@@ -1080,7 +1080,7 @@ export default function TextPresentationClient() {
                           )}
                         </div>
                         {lesson.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx || editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                             {lesson.content.substring(0, 100)}
                             {lesson.content.length > 100 && '...'}
                           </div>
