@@ -1091,7 +1091,7 @@ export default function QuizClient() {
                           )}
                         </div>
                         {question.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx || (editedTitles[idx] && editedTitles[idx] !== question.title) ? 'filter blur-[2px]' : ''}`}>
                             {question.content}
                           </div>
                         )}
