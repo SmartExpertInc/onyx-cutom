@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import { Check, BookOpen, Zap, Award, Crown, BookText, Video, HelpCircle, FileText } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ProjectSettingsModalProps {
@@ -348,14 +348,17 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                             {advancedEnabled && (
                               <div className="space-y-4">
                                 {[
-                                  { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})) },
-                                  { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})) },
-                                  { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})) },
-                                  { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})) },
+                                  { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-gray-600" /> },
+                                  { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-gray-600" /> },
+                                  { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-gray-600" /> },
+                                  { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-gray-600" /> },
                                 ].map((cfg) => (
                                   <div key={cfg.key}>
                                     <div className="flex items-center justify-between mb-1">
-                                      <span className="text-xs text-gray-700">{cfg.label}: <span className="font-semibold">{cfg.value}{t('modals.folderSettings.hours', 'h')}</span></span>
+                                      <span className="text-xs text-gray-700 flex items-center gap-1">
+                                        {cfg.icon}
+                                        {cfg.label}: <span className="font-semibold">{cfg.value}{t('modals.folderSettings.hours', 'h')}</span>
+                                      </span>
                                     </div>
                                     <input type="range" min={tier.hoursRange.min} max={tier.hoursRange.max} value={cfg.value} onChange={(e)=>cfg.setter(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" />
                                   </div>
