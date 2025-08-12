@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
@@ -218,7 +218,7 @@ export default function TextPresentationClient() {
     return lessons;
   };
 
-  const lessonList = useMemo(() => parseContentIntoLessons(content), [content]);
+  const lessonList = parseContentIntoLessons(content);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
@@ -248,11 +248,14 @@ export default function TextPresentationClient() {
     }
   };
 
-  const handleTitleSave = (lessonIndex: number) => {
+  const handleTitleSave = (lessonIndex: number, finalTitle?: string) => {
     setEditingLessonId(null);
     // Keep the item in edited titles list to maintain permanent blur
     // Only remove if the title is back to original
-    const newTitle = editedTitles[lessonIndex];
+    const newTitle = (finalTitle ?? editedTitles[lessonIndex]);
+    if (!newTitle) {
+      return;
+    }
     const originalTitle = originalTitles[lessonIndex] || lessonList[lessonIndex].title;
     if (newTitle === originalTitle) {
       setEditedTitleIds(prev => {
@@ -262,11 +265,10 @@ export default function TextPresentationClient() {
       });
     }
     // Update the original content with new title
-    updateContentWithNewTitle(lessonIndex);
+    updateContentWithNewTitle(lessonIndex, newTitle);
   };
 
-  const updateContentWithNewTitle = (lessonIndex: number) => {
-    const newTitle = editedTitles[lessonIndex];
+  const updateContentWithNewTitle = (lessonIndex: number, newTitle: string) => {
     if (!newTitle) return;
 
     const lessons = parseContentIntoLessons(content);
@@ -1071,9 +1073,9 @@ export default function TextPresentationClient() {
                               onChange={(e) => handleTitleEdit(idx, e.target.value)}
                               className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
                               autoFocus
-                              onBlur={() => handleTitleSave(idx)}
+                              onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleTitleSave(idx);
+                                if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
                                 if (e.key === 'Escape') handleTitleCancel(idx);
                               }}
                             />

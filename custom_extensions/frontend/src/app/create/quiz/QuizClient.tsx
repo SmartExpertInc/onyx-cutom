@@ -209,7 +209,7 @@ export default function QuizClient() {
     return [];
   };
 
-  const questionList = useMemo(() => parseQuizIntoQuestions(quizData), [quizData]);
+  const questionList = parseQuizIntoQuestions(quizData);
 
   // Handle question title editing
   const handleTitleEdit = (questionIndex: number, newTitle: string) => {
@@ -245,11 +245,14 @@ export default function QuizClient() {
     }
   };
 
-  const handleTitleSave = (questionIndex: number) => {
+  const handleTitleSave = (questionIndex: number, finalTitle?: string) => {
     setEditingQuestionId(null);
     // Keep the item in edited titles list to maintain permanent blur
     // Only remove if the title is back to original
-    const newTitle = editedTitles[questionIndex];
+    const newTitle = (finalTitle ?? editedTitles[questionIndex]);
+    if (!newTitle) {
+      return;
+    }
     const originalTitle = originalTitles[questionIndex] || questionList[questionIndex].title;
     if (newTitle === originalTitle) {
       setEditedTitleIds(prev => {
@@ -259,11 +262,10 @@ export default function QuizClient() {
       });
     }
     // Update the original content with new title
-    updateContentWithNewTitle(questionIndex);
+    updateContentWithNewTitle(questionIndex, newTitle);
   };
 
-  const updateContentWithNewTitle = (questionIndex: number) => {
-    const newTitle = editedTitles[questionIndex];
+  const updateContentWithNewTitle = (questionIndex: number, newTitle: string) => {
     if (!newTitle) return;
 
     const questions = parseQuizIntoQuestions(quizData);
@@ -1125,9 +1127,9 @@ export default function QuizClient() {
                               onChange={(e) => handleTitleEdit(idx, e.target.value)}
                               className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
                               autoFocus
-                              onBlur={() => handleTitleSave(idx)}
+                              onBlur={(e) => handleTitleSave(idx, e.target.value)}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleTitleSave(idx);
+                                if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
                                 if (e.key === 'Escape') handleTitleCancel(idx);
                               }}
                             />
