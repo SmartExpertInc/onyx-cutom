@@ -1492,42 +1492,42 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
                         {'heading': 'Step 4', 'description': 'Final milestone'}
                     ]
             
-             # Fix pyramid template props
-             elif template_id == 'pyramid':
-                 # Ensure 'items' array exists by parsing from common inputs
-                 items = normalized_props.get('items', [])
-                 if not (isinstance(items, list) and items):
-                     import re
-                     text = (normalized_props.get('content') or '').strip()
-                     parsed_items = []
-                     if text:
-                         # Try to extract segments like **Heading**: description ... up to next **Heading**
-                         pattern = re.compile(r"\*\*([^*]+)\*\*\s*:?[\s\-–—]*([^*]+?)(?=\s*\*\*[^*]+\*\*|$)", re.S)
-                         for m in pattern.finditer(text):
-                             heading = m.group(1).strip()
-                             desc = m.group(2).strip().replace('\n', ' ')
-                             if heading and desc:
-                                 parsed_items.append({'heading': heading, 'description': desc})
-                     if not parsed_items and text:
-                         # Fallback: split into up to 3 sentence-like chunks
-                         # First try double newlines, then periods.
-                         chunks = [c.strip() for c in re.split(r"\n\n+", text) if c.strip()]
-                         if not chunks:
-                             chunks = [c.strip() for c in re.split(r"(?<=[.!?])\s+", text) if c.strip()]
-                         for i, ch in enumerate(chunks[:3], start=1):
-                             parsed_items.append({'heading': f'Level {i}', 'description': ch})
-                     # Pad to exactly 3 levels if needed
-                     while len(parsed_items) < 3:
-                         idx = len(parsed_items) + 1
-                         parsed_items.append({'heading': f'Level {idx}', 'description': 'No description available'})
-                     items = parsed_items[:3]
-                     normalized_props['items'] = items
-                 # Clean up: pyramid does not use a long 'content' blob when items are present
-                 if normalized_props.get('items') and 'content' in normalized_props:
-                     pass  # keep content for now as optional; frontend ignores it
-            
-             # Fix bullet-points template props
-             elif template_id in ['bullet-points', 'bullet-points-right']:
+            # Fix pyramid template props
+            elif template_id == 'pyramid':
+                # Ensure 'items' array exists by parsing from common inputs
+                items = normalized_props.get('items', [])
+                if not (isinstance(items, list) and items):
+                    import re
+                    text = (normalized_props.get('content') or '').strip()
+                    parsed_items = []
+                    if text:
+                        # Try to extract segments like **Heading**: description ... up to next **Heading**
+                        pattern = re.compile(r"\*\*([^*]+)\*\*\s*:?[\s\-–—]*([^*]+?)(?=\s*\*\*[^*]+\*\*|$)", re.S)
+                        for m in pattern.finditer(text):
+                            heading = m.group(1).strip()
+                            desc = m.group(2).strip().replace('\n', ' ')
+                            if heading and desc:
+                                parsed_items.append({'heading': heading, 'description': desc})
+                    if not parsed_items and text:
+                        # Fallback: split into up to 3 sentence-like chunks
+                        # First try double newlines, then periods.
+                        chunks = [c.strip() for c in re.split(r"\n\n+", text) if c.strip()]
+                        if not chunks:
+                            chunks = [c.strip() for c in re.split(r"(?<=[.!?])\s+", text) if c.strip()]
+                        for i, ch in enumerate(chunks[:3], start=1):
+                            parsed_items.append({'heading': f'Level {i}', 'description': ch})
+                    # Pad to exactly 3 levels if needed
+                    while len(parsed_items) < 3:
+                        idx = len(parsed_items) + 1
+                        parsed_items.append({'heading': f'Level {idx}', 'description': 'No description available'})
+                    items = parsed_items[:3]
+                    normalized_props['items'] = items
+                # Clean up: pyramid does not use a long 'content' blob when items are present
+                if normalized_props.get('items') and 'content' in normalized_props:
+                    pass  # keep content for now as optional; frontend ignores it
+        
+            # Fix bullet-points template props
+            elif template_id in ['bullet-points', 'bullet-points-right']:
                 bullets = normalized_props.get('bullets', [])
                 if bullets and isinstance(bullets, list):
                     # Ensure bullets are strings and not empty
