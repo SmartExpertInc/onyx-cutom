@@ -79,7 +79,7 @@ const CreditUsagePieChart: React.FC<CreditUsagePieChartProps> = ({ selectedUser 
       <div className="h-80">
         <ResponsivePie
           data={nivoData}
-          margin={{ top: 40, right: 40, bottom: 40, left: 200 }}
+          margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
           innerRadius={0.5}
           padAngle={0.7}
           cornerRadius={3}
@@ -98,23 +98,6 @@ const CreditUsagePieChart: React.FC<CreditUsagePieChartProps> = ({ selectedUser 
             from: 'color',
             modifiers: [['darker', 2]]
           }}
-          legends={[
-            {
-              anchor: 'left',
-              direction: 'column',
-              justify: false,
-              translateX: -180,
-              translateY: 0,
-              itemsSpacing: 8,
-              itemWidth: 160,
-              itemHeight: 20,
-              itemTextColor: '#333',
-              itemDirection: 'left-to-right',
-              itemOpacity: 1,
-              symbolSize: 16,
-              symbolShape: 'circle'
-            }
-          ]}
           tooltip={({ datum }) => (
             <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
               <div className="font-semibold text-gray-900">{datum.label}</div>
