@@ -1078,95 +1078,55 @@ export default function TextPresentationClient() {
                 </div>
               )}
               
-              {/* Parse and display slide titles in course outline format */}
-              {(() => {
-                // Use the existing lessonList parsing logic for compatibility
-                const lessons = lessonList;
-                
-                if (lessons.length === 0) {
-                  // Fallback: try to parse content as slides with **Slide X:** pattern
-                  let slides = [];
-                  if (content.includes('---')) {
-                    slides = content.split(/^---\s*$/m).filter(slide => slide.trim());
-                  } else {
-                    slides = content.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter(slide => slide.trim());
-                  }
-                  
-                  slides = slides.filter(slideContent => {
-                    const hasSlidePattern = /\*\*[^*]+\s+\d+\s*:/.test(slideContent);
-                    return hasSlidePattern;
-                  });
-                  
-                  return slides.map((slideContent, slideIdx) => {
-                    const titleMatch = slideContent.match(/\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/);
-                    let title = '';
-                    
-                    if (titleMatch) {
-                      title = titleMatch[1].trim();
-                    } else {
-                      const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
-                      title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
-                    }
-                    
-                    return (
-                      <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
-                        <div className="w-[60px] bg-[#0066FF] flex items-start justify-center pt-5">
-                          <span className="text-white font-semibold text-base select-none">{slideIdx + 1}</span>
-                        </div>
-                        <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
-                          <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => {
-                              const newTitle = e.target.value;
-                              const slidePattern = titleMatch 
-                                ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
-                                : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
-                              
-                              const updatedContent = content.replace(slidePattern, 
-                                titleMatch ? `$1${newTitle}` : `**${newTitle}**`
-                              );
-                              setContent(updatedContent);
-                            }}
-                            className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                            placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
-                          />
-                        </div>
+                {/* Display content in card format if lessons are available, otherwise show textarea */}
+                {lessonList.length > 0 && (
+                  <div className="flex flex-col gap-4">
+                    {lessonList.map((lesson, idx: number) => (
+                    <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="flex items-center justify-center w-16 bg-[#0066FF] text-white font-semibold text-base select-none flex-shrink-0">
+                        {idx + 1}
                       </div>
-                    );
-                  });
-                }
-                
-                // Use the existing lessonList structure
-                return lessons.map((lesson, slideIdx) => {
-                  const title = getTitleForLesson(lesson, slideIdx);
-                  
-                  return (
-                    <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
-                      {/* Left colored bar with index - matching course outline styling */}
-                      <div className="w-[60px] bg-[#0066FF] flex items-start justify-center pt-5">
-                        <span className="text-white font-semibold text-base select-none">{slideIdx + 1}</span>
-                      </div>
-
-                      {/* Main card - matching course outline styling */}
-                      <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
-                        {/* Slide title */}
-                        <input
-                          type="text"
-                          value={title}
-                          onChange={(e) => {
-                            const newTitle = e.target.value;
-                            // Use the existing title editing logic
-                            handleTitleEdit(slideIdx, newTitle);
-                          }}
-                          className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                          placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
-                        />
+                      <div className="flex-1 p-4">
+                        <div className="mb-2">
+                          {editingLessonId === idx ? (
+                            <input
+                              type="text"
+                              value={editedTitles[idx] || lesson.title}
+                              onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                              className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
+                              autoFocus
+                              onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                if (e.key === 'Escape') handleTitleCancel(idx);
+                              }}
+                            />
+                          ) : (
+                            <h4 
+                              className="text-[#20355D] text-base font-semibold cursor-pointer"
+                              onMouseDown={() => {
+                                // Set the next editing ID before the blur event fires
+                                nextEditingIdRef.current = idx;
+                              }}
+                              onClick={() => {
+                                setEditingLessonId(idx);
+                              }}
+                            >
+                              {getTitleForLesson(lesson, idx)}
+                            </h4>
+                          )}
+                        </div>
+                        {lesson.content && (
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                            {lesson.content.substring(0, 100)}
+                            {lesson.content.length > 100 && '...'}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  );
-                });
-              })()}
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </section>
