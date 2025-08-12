@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { deriveMiniTitlesFromBlocks } from "../../../utils/deriveMiniTitles";
+import type { AnyContentBlock, HeadlineBlock, BulletListBlock, NumberedListBlock, ParagraphBlock } from "../../../types/textPresentation";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -219,6 +221,69 @@ export default function TextPresentationClient() {
   };
 
   const lessonList = parseContentIntoLessons(content);
+
+  // Build minimal content blocks from a single section to derive mini-titles
+  const buildBlocksForMiniTitles = (title: string, body: string): AnyContentBlock[] => {
+    const blocks: AnyContentBlock[] = [];
+    const h2: HeadlineBlock = { type: "headline", level: 2, text: title, iconName: "info" };
+    blocks.push(h2);
+
+    const lines = body.split(/\r?\n/);
+    let currentList: BulletListBlock | NumberedListBlock | null = null;
+    let paragraphBuf: string[] = [];
+
+    const flushParagraph = () => {
+      if (paragraphBuf.length > 0) {
+        const p: ParagraphBlock = { type: "paragraph", text: paragraphBuf.join(" ").trim() };
+        if (p.text) blocks.push(p);
+        paragraphBuf = [];
+      }
+    };
+
+    const flushList = () => {
+      if (currentList && currentList.items.length > 0) {
+        blocks.push(currentList);
+      }
+      currentList = null;
+    };
+
+    const listItemRegex = /^\s*(?:- |\* |\d+\.\s+)/;
+
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) { flushParagraph(); flushList(); continue; }
+
+      if (listItemRegex.test(line)) {
+        flushParagraph();
+        const isNumbered = /^\s*\d+\.\s+/.test(line);
+        if (!currentList) {
+          currentList = isNumbered
+            ? ({ type: "numbered_list", items: [] } as NumberedListBlock)
+            : ({ type: "bullet_list", items: [], iconName: "chevronRight" } as BulletListBlock);
+        }
+        // Normalize item text (drop leading marker)
+        const itemText = line.replace(listItemRegex, "").trim();
+        currentList.items.push(itemText);
+      } else {
+        flushList();
+        // Accumulate paragraph text; keep bold markers as-is
+        paragraphBuf.push(line);
+      }
+    }
+
+    flushParagraph();
+    flushList();
+    return blocks;
+  };
+
+  const derivedMiniTitles: string[] = useMemo(() => {
+    if (lessonList.length === 1) {
+      const only = lessonList[0];
+      const blocks = buildBlocksForMiniTitles(only.title, only.content || "");
+      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6 });
+    }
+    return [];
+  }, [lessonList]);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
@@ -1059,6 +1124,16 @@ export default function TextPresentationClient() {
                 {/* Display content in card format if lessons are available, otherwise show textarea */}
                 {lessonList.length > 0 && (
                   <div className="flex flex-col gap-4">
+                    {derivedMiniTitles.length > 0 && (
+                      <div className="bg-[#EEF5FF] border border-[#CFE0FF] rounded-lg p-3">
+                        <p className="text-xs font-medium text-[#20355D] mb-2">Suggested mini-titles</p>
+                        <div className="flex flex-wrap gap-2">
+                          {derivedMiniTitles.map((t, i) => (
+                            <span key={`${t}-${i}`} className="px-2 py-1 text-xs bg-white border border-[#CFE0FF] rounded-full text-[#20355D]">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {lessonList.map((lesson, idx: number) => (
                     <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                       <div className="flex items-center justify-center w-16 bg-[#0066FF] text-white font-semibold text-base select-none flex-shrink-0">
