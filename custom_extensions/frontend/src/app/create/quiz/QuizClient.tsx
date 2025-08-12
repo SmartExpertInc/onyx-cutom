@@ -1127,8 +1127,8 @@ export default function QuizClient() {
                         </div>
                         {question.content && (
                           <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${(() => {
-                            const shouldBlur = editingQuestionId === idx || editedTitleIds.has(idx);
-                            console.log(`Blur check for index ${idx}: editing=${editingQuestionId === idx}, inList=${editedTitleIds.has(idx)}, shouldBlur=${shouldBlur}`);
+                            const shouldBlur = editedTitleIds.has(idx);
+                          
                             return shouldBlur ? 'filter blur-[2px]' : '';
                           })()}`}>
                             {question.content}
