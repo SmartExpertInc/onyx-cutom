@@ -499,14 +499,17 @@ export default function LessonPresentationClient() {
                   if (pkt.type === "delta") {
                     accumulatedText += pkt.text;
                     setContent(accumulatedText);
+                    console.log(`[RESPONSE_DEBUG] Final buffer text chunk: "${pkt.text}"`);
                   }
                 } catch (e) {
                   // If not JSON, treat as plain text
                   accumulatedText += buffer;
                   setContent(accumulatedText);
+                  console.log(`[RESPONSE_DEBUG] Final buffer plain text: "${buffer}"`);
                 }
               }
               setStreamDone(true);
+              console.log(`[RESPONSE_DEBUG] Stream finished. Final content:`, accumulatedText);
               break;
             }
 
@@ -526,8 +529,11 @@ export default function LessonPresentationClient() {
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
+                  // Log the received text chunk
+                  console.log(`[RESPONSE_DEBUG] Received text chunk: "${pkt.text}"`);
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
+                  console.log(`[RESPONSE_DEBUG] Stream completed. Total content:`, accumulatedText);
                   break;
                 } else if (pkt.type === "error") {
                   throw new Error(pkt.text || "Unknown error");
@@ -536,6 +542,7 @@ export default function LessonPresentationClient() {
                 // If not JSON, treat as plain text
                 accumulatedText += line + '\n';
                 setContent(accumulatedText);
+                console.log(`[RESPONSE_DEBUG] Received plain text: "${line}"`);
               }
             }
 
