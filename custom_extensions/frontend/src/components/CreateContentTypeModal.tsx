@@ -195,6 +195,13 @@ export const CreateContentTypeModal = ({
     setShowSettings(false); // Return to recommendations view
   };
 
+  const handleClose = () => {
+    if (showSettings) {
+      setShowSettings(false);
+    }
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   const colorClasses = {
@@ -267,7 +274,7 @@ export const CreateContentTypeModal = ({
   return (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div 
         className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-gray-100"
@@ -278,7 +285,7 @@ export const CreateContentTypeModal = ({
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-2xl font-bold text-black">{t('modals.createContent.title')}</h2>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="text-black hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
             >
               <X size={24} />
