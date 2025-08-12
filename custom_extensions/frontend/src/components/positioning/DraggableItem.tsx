@@ -107,3 +107,6 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
     </>
   );
 };
+
+// Add default export for backward compatibility
+export default DraggableItem;
