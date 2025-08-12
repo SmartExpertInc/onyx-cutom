@@ -385,14 +385,7 @@ export default function LessonPresentationClient() {
     fetchLessons();
   }, [selectedOutlineId, useExistingOutline]);
 
-  // Effect to sync language state with URL parameter
-  useEffect(() => {
-    const urlLanguage = params?.get("lang");
-    if (urlLanguage && urlLanguage !== language) {
-      console.log(`[LANGUAGE_DEBUG] Syncing language state from URL: ${language} -> ${urlLanguage}`);
-      setLanguage(urlLanguage);
-    }
-  }, [params]); // Remove language from dependencies to prevent conflicts
+
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
@@ -1032,10 +1025,6 @@ export default function LessonPresentationClient() {
                           onChange={(e) => {
                             console.log(`[LANGUAGE_DEBUG] Language dropdown changed from ${language} to ${e.target.value}`);
                             setLanguage(e.target.value);
-                            // Update URL parameter to maintain consistency
-                            const sp = new URLSearchParams(params?.toString() || "");
-                            sp.set("lang", e.target.value);
-                            router.replace(`?${sp.toString()}`, { scroll: false });
                           }}
                           className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
@@ -1072,10 +1061,6 @@ export default function LessonPresentationClient() {
                       onChange={(e) => {
                         console.log(`[LANGUAGE_DEBUG] Standalone language dropdown changed from ${language} to ${e.target.value}`);
                         setLanguage(e.target.value);
-                        // Update URL parameter to maintain consistency
-                        const sp = new URLSearchParams(params?.toString() || "");
-                        sp.set("lang", e.target.value);
-                        router.replace(`?${sp.toString()}`, { scroll: false });
                       }}
                       className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
