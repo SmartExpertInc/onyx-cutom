@@ -3,6 +3,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Moveable from 'react-moveable';
 
+// Debug logging utility
+const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const log = (source: string, event: string, data: any) => {
+  if (DEBUG) {
+    console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+  }
+};
+
 export interface MoveableElement {
   id: string;
   ref: React.RefObject<HTMLElement | null>;
@@ -40,17 +48,28 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
   const [isResizing, setIsResizing] = useState(false);
   const moveableRef = useRef<Moveable>(null);
 
+  log('MoveableManager', 'render', { 
+    slideId, 
+    isEnabled, 
+    elementsCount: elements.length,
+    selectedElementId: selectedElement?.id,
+    isDragging,
+    isResizing
+  });
+
   // Track keyboard state for aspect ratio locking
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Shift') {
         setIsShiftPressed(true);
+        log('MoveableManager', 'shiftKeyDown', { slideId });
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'Shift') {
         setIsShiftPressed(false);
+        log('MoveableManager', 'shiftKeyUp', { slideId });
       }
     };
 
@@ -61,18 +80,40 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [slideId]);
 
   // Initialize element positions and sizes
   useEffect(() => {
+    log('MoveableManager', 'initializeElements', { 
+      slideId, 
+      elementsCount: elements.length,
+      elementIds: elements.map(e => e.id)
+    });
+
     elements.forEach(element => {
       const el = element.ref.current;
-      if (!el) return;
+      if (!el) {
+        log('MoveableManager', 'elementRefNull', { elementId: element.id, slideId });
+        return;
+      }
+
+      log('MoveableManager', 'registerElement', { 
+        elementId: element.id, 
+        refExists: !!el,
+        elementType: element.type,
+        slideId
+      });
 
       // Apply saved position
       const savedPos = savedPositions[element.id] || { x: 0, y: 0 };
       if (savedPos.x !== 0 || savedPos.y !== 0) {
         el.style.transform = `translate(${savedPos.x}px, ${savedPos.y}px)`;
+        log('MoveableManager', 'applySavedPosition', { 
+          elementId: element.id, 
+          x: savedPos.x, 
+          y: savedPos.y,
+          slideId
+        });
       }
 
       // Apply saved size
@@ -80,6 +121,12 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
       if (savedSize) {
         el.style.width = `${savedSize.width}px`;
         el.style.height = `${savedSize.height}px`;
+        log('MoveableManager', 'applySavedSize', { 
+          elementId: element.id, 
+          width: savedSize.width, 
+          height: savedSize.height,
+          slideId
+        });
       }
 
       // Add click handler for selection
@@ -90,16 +137,33 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
             target.isContentEditable || 
             target.tagName === 'INPUT' || 
             target.tagName === 'TEXTAREA') {
+          log('MoveableManager', 'clickIgnored', { 
+            elementId: element.id, 
+            reason: 'editing-controls',
+            slideId
+          });
           return;
         }
 
         // Prevent selection if recently dragged/resized
         if (isDragging || isResizing) {
+          log('MoveableManager', 'clickIgnored', { 
+            elementId: element.id, 
+            reason: 'dragging-or-resizing',
+            isDragging,
+            isResizing,
+            slideId
+          });
           e.preventDefault();
           e.stopPropagation();
           return;
         }
 
+        log('MoveableManager', 'elementSelected', { 
+          elementId: element.id, 
+          elementType: element.type,
+          slideId
+        });
         setSelectedElement(element);
         e.stopPropagation();
       };
@@ -111,6 +175,7 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
       (el as any).__moveableCleanup = () => {
         el.removeEventListener('click', handleClick);
         el.style.cursor = '';
+        log('MoveableManager', 'elementCleanup', { elementId: element.id, slideId });
       };
     });
 
@@ -122,7 +187,7 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         }
       });
     };
-  }, [elements, savedPositions, savedSizes, isDragging, isResizing]);
+  }, [elements, savedPositions, savedSizes, isDragging, isResizing, slideId]);
 
   // Handle drag events
   const handleDrag = useCallback((e: any) => {
@@ -131,17 +196,31 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
     setIsDragging(true);
     const { target, transform } = e;
     
+    log('MoveableManager', 'onDrag', { 
+      elementId: selectedElement.id, 
+      x: transform.x, 
+      y: transform.y,
+      slideId
+    });
+    
     // Update position
     if (onPositionChange) {
       onPositionChange(selectedElement.id, { x: transform.x, y: transform.y });
     }
-  }, [selectedElement, onPositionChange]);
+  }, [selectedElement, onPositionChange, slideId]);
 
   const handleDragEnd = useCallback((e: any) => {
     if (!selectedElement) return;
     
     setIsDragging(false);
     const { transform } = e;
+    
+    log('MoveableManager', 'onDragEnd', { 
+      elementId: selectedElement.id, 
+      x: transform.x, 
+      y: transform.y,
+      slideId
+    });
     
     // Final position update
     if (onTransformEnd) {
@@ -150,7 +229,7 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         size: { width: transform.width, height: transform.height }
       });
     }
-  }, [selectedElement, onTransformEnd]);
+  }, [selectedElement, onTransformEnd, slideId]);
 
   // Handle resize events
   const handleResize = useCallback((e: any) => {
@@ -159,17 +238,31 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
     setIsResizing(true);
     const { target, width, height, drag } = e;
     
+    log('MoveableManager', 'onResize', { 
+      elementId: selectedElement.id, 
+      width, 
+      height,
+      slideId
+    });
+    
     // Update size
     if (onSizeChange) {
       onSizeChange(selectedElement.id, { width, height });
     }
-  }, [selectedElement, onSizeChange]);
+  }, [selectedElement, onSizeChange, slideId]);
 
   const handleResizeEnd = useCallback((e: any) => {
     if (!selectedElement) return;
     
     setIsResizing(false);
     const { width, height, drag } = e;
+    
+    log('MoveableManager', 'onResizeEnd', { 
+      elementId: selectedElement.id, 
+      width, 
+      height,
+      slideId
+    });
     
     // Final size update
     if (onTransformEnd) {
@@ -178,15 +271,21 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         size: { width, height }
       });
     }
-  }, [selectedElement, onTransformEnd]);
+  }, [selectedElement, onTransformEnd, slideId]);
 
   // Handle selection changes
   const handleClickOutside = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
     if (!target.closest('[data-moveable-element]') && !target.closest('.moveable-control-box')) {
-      setSelectedElement(null);
+      if (selectedElement) {
+        log('MoveableManager', 'deselectElement', { 
+          elementId: selectedElement.id,
+          slideId
+        });
+        setSelectedElement(null);
+      }
     }
-  }, []);
+  }, [selectedElement, slideId]);
 
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
@@ -195,10 +294,31 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
     };
   }, [handleClickOutside]);
 
-  if (!isEnabled || !selectedElement) return null;
+  if (!isEnabled) {
+    log('MoveableManager', 'disabled', { slideId });
+    return null;
+  }
+
+  if (!selectedElement) {
+    log('MoveableManager', 'noSelection', { slideId });
+    return null;
+  }
 
   const targetElement = selectedElement.ref.current;
-  if (!targetElement) return null;
+  if (!targetElement) {
+    log('MoveableManager', 'targetElementNull', { 
+      elementId: selectedElement.id,
+      slideId
+    });
+    return null;
+  }
+
+  log('MoveableManager', 'renderingMoveable', { 
+    elementId: selectedElement.id,
+    elementType: selectedElement.type,
+    isShiftPressed,
+    slideId
+  });
 
   return (
     <>

@@ -4,6 +4,14 @@ import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 
+// Debug logging utility
+const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const log = (source: string, event: string, data: any) => {
+  if (DEBUG) {
+    console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+  }
+};
+
 export interface ClickableImagePlaceholderProps {
   imagePath?: string;
   onImageUploaded: (imagePath: string) => void;
@@ -47,6 +55,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Use provided ref or internal ref
   const containerRef = elementRef || internalRef;
 
+  log('ClickableImagePlaceholder', 'render', { 
+    elementId, 
+    imagePath: !!imagePath, 
+    refExists: !!containerRef.current,
+    isEditable 
+  });
+
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
     'MEDIUM': 'h-32 md:h-40', 
@@ -72,11 +87,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleClick = () => {
     if (isEditable) {
+      log('ClickableImagePlaceholder', 'handleClick', { elementId, isEditable });
       setShowUploadModal(true);
     }
   };
 
   const handleImageUploaded = (newImagePath: string) => {
+    log('ClickableImagePlaceholder', 'handleImageUploaded_start', { 
+      elementId, 
+      newImagePath: !!newImagePath,
+      refExists: !!containerRef.current 
+    });
+
     onImageUploaded(newImagePath);
     
     // Load image to get dimensions and calculate optimal size
@@ -84,6 +106,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     tmp.onload = () => {
       const imgW = tmp.naturalWidth || tmp.width;
       const imgH = tmp.naturalHeight || tmp.height;
+      
+      log('ClickableImagePlaceholder', 'imageLoaded', { 
+        elementId, 
+        imgW, 
+        imgH, 
+        refExists: !!containerRef.current 
+      });
       
       if (imgW > 0 && imgH > 0) {
         setImageDimensions({ width: imgW, height: imgH });
@@ -126,6 +155,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             break;
         }
         
+        log('ClickableImagePlaceholder', 'sizeCalculation', { 
+          elementId, 
+          cropMode, 
+          targetWidth, 
+          targetHeight,
+          containerWidth,
+          containerHeight,
+          imageRatio,
+          containerRatio
+        });
+        
         // Update size via callback
         onSizeTransformChange?.({
           widthPx: Math.round(targetWidth),
@@ -134,12 +174,30 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           imageScale: 1,
           imageOffset: { x: 0, y: 0 }
         });
+
+        log('ClickableImagePlaceholder', 'handleImageUploaded_complete', { 
+          elementId, 
+          newImagePath: !!newImagePath,
+          refExists: !!containerRef.current,
+          targetWidth,
+          targetHeight
+        });
       }
+    };
+    tmp.onerror = () => {
+      log('ClickableImagePlaceholder', 'imageLoadError', { elementId, newImagePath });
     };
     tmp.src = newImagePath;
   };
 
   const handleCropModeChange = (newMode: 'cover' | 'contain' | 'fill') => {
+    log('ClickableImagePlaceholder', 'handleCropModeChange', { 
+      elementId, 
+      oldMode: cropMode, 
+      newMode,
+      hasDimensions: !!imageDimensions 
+    });
+
     onCropModeChange?.(newMode);
     
     // Recalculate size if we have image dimensions
@@ -191,6 +249,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // If we have an image, display it with replace overlay and crop controls
   if (imagePath) {
+    log('ClickableImagePlaceholder', 'renderingImage', { 
+      elementId, 
+      imagePath: !!imagePath,
+      refExists: !!containerRef.current,
+      cropMode 
+    });
+
     return (
       <>
         <div
@@ -217,13 +282,19 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: cropMode,
-                transform: 'none',
+                 objectFit: cropMode,
+                 transform: 'none',
                 transformOrigin: 'center center',
                 maxWidth: 'none',
                 maxHeight: 'none'
               }}
               draggable={false}
+              onLoad={() => {
+                log('ClickableImagePlaceholder', 'imgOnLoad', { elementId, imagePath: !!imagePath });
+              }}
+              onError={() => {
+                log('ClickableImagePlaceholder', 'imgOnError', { elementId, imagePath });
+              }}
             />
             
             {/* Replace overlay */}
@@ -245,7 +316,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             {isEditable && (
               <div className="absolute top-2 right-2 z-20">
                 <button
-                  onClick={() => setShowCropOptions(!showCropOptions)}
+                  onClick={() => {
+                    log('ClickableImagePlaceholder', 'cropButtonClick', { elementId });
+                    setShowCropOptions(!showCropOptions);
+                  }}
                   className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 px-2 py-1 rounded text-xs font-medium shadow-sm transition-all duration-200"
                   title="Crop options"
                 >
@@ -282,7 +356,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
         <PresentationImageUpload
           isOpen={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
+          onClose={() => {
+            log('ClickableImagePlaceholder', 'uploadModalClose', { elementId });
+            setShowUploadModal(false);
+          }}
           onImageUploaded={handleImageUploaded}
           title="Upload Presentation Image"
         />
@@ -291,6 +368,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }
 
   // Otherwise show placeholder
+  log('ClickableImagePlaceholder', 'renderingPlaceholder', { 
+    elementId, 
+    refExists: !!containerRef.current,
+    isEditable 
+  });
+
   return (
     <>
       <div
@@ -334,7 +417,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
       <PresentationImageUpload
         isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
+        onClose={() => {
+          log('ClickableImagePlaceholder', 'uploadModalClose', { elementId });
+          setShowUploadModal(false);
+        }}
         onImageUploaded={handleImageUploaded}
         title="Upload Presentation Image"
       />
