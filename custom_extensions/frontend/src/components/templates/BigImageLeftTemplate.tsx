@@ -304,13 +304,13 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
         <ClickableImagePlaceholder
           imagePath={imagePath}
           onImageUploaded={handleImageUploaded}
+          onSizeTransformChange={handleSizeTransformChange}
           size="LARGE"
           position="CENTER"
           description="Click to upload image"
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
-          onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
         />
       </div>
