@@ -134,7 +134,7 @@ export default function TextPresentationClient() {
   // State for editing lesson titles
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
-  const [editedLessonIds, setEditedLessonIds] = useState<Set<number>>(new Set());
+  const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -226,15 +226,14 @@ export default function TextPresentationClient() {
       [lessonIndex]: newTitle
     }));
     
-    // Check if title is different from original and add to edited list
+    // Add to edited titles list if title is different from original
     const lessons = parseContentIntoLessons(content);
     if (lessonIndex < lessons.length) {
       const originalTitle = lessons[lessonIndex].title;
       if (newTitle !== originalTitle) {
-        setEditedLessonIds((prev: Set<number>) => new Set([...prev, lessonIndex]));
+        setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
       } else {
-        // If title is back to original, remove from edited list
-        setEditedLessonIds((prev: Set<number>) => {
+        setEditedTitleIds(prev => {
           const newSet = new Set(prev);
           newSet.delete(lessonIndex);
           return newSet;
@@ -245,8 +244,12 @@ export default function TextPresentationClient() {
 
   const handleTitleSave = (lessonIndex: number) => {
     setEditingLessonId(null);
-    // Add to edited lessons set to keep blur effect permanent
-    setEditedLessonIds((prev: Set<number>) => new Set([...prev, lessonIndex]));
+    // Remove from edited titles list since it's now saved
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(lessonIndex);
+      return newSet;
+    });
     // Update the original content with new title
     updateContentWithNewTitle(lessonIndex);
   };
@@ -301,8 +304,8 @@ export default function TextPresentationClient() {
       return newTitles;
     });
     setEditingLessonId(null);
-    // Remove from edited list when canceling
-    setEditedLessonIds((prev: Set<number>) => {
+    // Remove from edited titles list since changes are canceled
+    setEditedTitleIds(prev => {
       const newSet = new Set(prev);
       newSet.delete(lessonIndex);
       return newSet;
@@ -1073,7 +1076,7 @@ export default function TextPresentationClient() {
                           )}
                         </div>
                         {lesson.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx || editedLessonIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx || editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                             {lesson.content.substring(0, 100)}
                             {lesson.content.length > 100 && '...'}
                           </div>

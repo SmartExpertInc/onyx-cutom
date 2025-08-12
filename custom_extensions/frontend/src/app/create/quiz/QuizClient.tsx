@@ -114,7 +114,7 @@ export default function QuizClient() {
   // State for editing quiz question titles
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
-  const [editedQuestionIds, setEditedQuestionIds] = useState<Set<number>>(new Set());
+  const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
   
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -217,15 +217,14 @@ export default function QuizClient() {
       [questionIndex]: newTitle
     }));
     
-    // Check if title is different from original and add to edited list
+    // Add to edited titles list if title is different from original
     const questions = parseQuizIntoQuestions(quizData);
     if (questionIndex < questions.length) {
       const originalTitle = questions[questionIndex].title;
       if (newTitle !== originalTitle) {
-        setEditedQuestionIds((prev: Set<number>) => new Set([...prev, questionIndex]));
+        setEditedTitleIds(prev => new Set([...prev, questionIndex]));
       } else {
-        // If title is back to original, remove from edited list
-        setEditedQuestionIds((prev: Set<number>) => {
+        setEditedTitleIds(prev => {
           const newSet = new Set(prev);
           newSet.delete(questionIndex);
           return newSet;
@@ -236,8 +235,12 @@ export default function QuizClient() {
 
   const handleTitleSave = (questionIndex: number) => {
     setEditingQuestionId(null);
-    // Add to edited questions set to keep blur effect permanent
-    setEditedQuestionIds((prev: Set<number>) => new Set([...prev, questionIndex]));
+    // Remove from edited titles list since it's now saved
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(questionIndex);
+      return newSet;
+    });
     // Update the original content with new title
     updateContentWithNewTitle(questionIndex);
   };
@@ -288,8 +291,8 @@ export default function QuizClient() {
       return newTitles;
     });
     setEditingQuestionId(null);
-    // Remove from edited list when canceling
-    setEditedQuestionIds((prev: Set<number>) => {
+    // Remove from edited titles list since changes are canceled
+    setEditedTitleIds(prev => {
       const newSet = new Set(prev);
       newSet.delete(questionIndex);
       return newSet;
@@ -1113,7 +1116,7 @@ export default function QuizClient() {
                           )}
                         </div>
                         {question.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx || editedQuestionIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx || editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                             {question.content}
                           </div>
                         )}
