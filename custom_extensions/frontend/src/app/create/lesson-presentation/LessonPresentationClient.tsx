@@ -252,6 +252,8 @@ export default function LessonPresentationClient() {
   const [streamDone, setStreamDone] = useState(false);
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
+  // Auto-restart guard for malformed previews (no slides parsed)
+  const [formatRetryCounter, setFormatRetryCounter] = useState(0);
   
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -557,7 +559,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -574,6 +576,33 @@ export default function LessonPresentationClient() {
       setFirstLineRemoved(true);
     }
   }, [streamDone, firstLineRemoved, content]);
+
+  // If the stream completed but no slides were parsed (preview empty), automatically restart generation
+  useEffect(() => {
+    if (!streamDone) return;
+    // Replicate slide parsing logic used in the UI to count slides
+    const countParsedSlides = (text: string): number => {
+      if (!text || !text.trim()) return 0;
+      let slides: string[] = [];
+      if (text.includes('---')) {
+        slides = text.split(/^---\s*$/m).filter((s) => s.trim());
+      } else {
+        slides = text.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter((s) => s.trim());
+      }
+      slides = slides.filter((slideContent) => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
+      return slides.length;
+    };
+
+    const slideCount = countParsedSlides(content);
+    if (slideCount === 0) {
+      if (formatRetryCounter < 2) {
+        setError(null);
+        setFormatRetryCounter((c) => c + 1);
+      } else {
+        setError("Preview was empty. Please adjust your prompt and try again.");
+      }
+    }
+  }, [streamDone]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
