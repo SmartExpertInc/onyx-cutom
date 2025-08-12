@@ -18,6 +18,7 @@ import {
 } from '@/types/positioning';
 
 import { TemplateExtractor } from '@/lib/positioning/TemplateExtractor';
+import DragEnhancer from '@/components/positioning/DragEnhancer';
 import { SlideTheme } from '@/types/slideThemes';
 
 interface HybridTemplateProps extends BaseTemplateProps {
@@ -205,7 +206,13 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       {/* Render the original template with full styling and interactivity */}
       {children}
       
-      {/* Drag and drop functionality is now handled by individual components using official react-moveable patterns */}
+      {/* Add drag-and-drop functionality */}
+      <DragEnhancer
+        isEnabled={isEditable}
+        slideId={slideId}
+        savedPositions={slide?.metadata?.elementPositions}
+        onPositionChange={handlePositionChange}
+      />
     </div>
   );
 };

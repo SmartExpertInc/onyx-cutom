@@ -1,0 +1,10 @@
+[33m98abc86c4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdragndrop[m[33m, [m[1;31morigin/dragndrop[m[33m)[m fixed empty placeholder size change and renewed update marker
+[33mc838932ce[m updated update mark
+[33m588fadbc8[m deleted legacy code that overrided the default sizes of placeholders
+[33m3c696e3cb[m updated update mark
+[33mdb2a9ebd5[m rewrited again
+[33m92de6fc8d[m deleted legacy files
+[33m6734d2e9f[m updated update mark
+[33m2bd170e30[m rewrited again
+[33m2531d584b[m fixed compilation error
+[33m21a201ef2[m fixed compilation error

@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import MoveableManager from '../positioning/MoveableManager';
+import { useMoveableManager } from '@/hooks/useMoveableManager';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -197,8 +199,70 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     subtitleRefExists: !!subtitleRef.current
   });
   
-  // Simple refs for elements (no complex MoveableManager needed)
-  // The ClickableImagePlaceholder now handles its own drag/resize with official react-moveable patterns
+  // Initialize MoveableManager with debounced updates
+  const moveableManager = useMoveableManager({
+    slideId,
+    isEditable,
+    onUpdate: handleUpdate
+  });
+  
+  // Create moveable elements only when refs are available
+  const moveableElements = React.useMemo(() => {
+    const elements = [];
+    
+    if (imageRef.current) {
+      elements.push(
+        moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
+          cropMode: moveableManager.getCropMode(`${slideId}-image`)
+        })
+      );
+    }
+    
+    if (titleRef.current) {
+      elements.push(
+        moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text')
+      );
+    }
+    
+    if (subtitleRef.current) {
+      elements.push(
+        moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
+      );
+    }
+    
+    log('BigImageLeftTemplate', 'moveableElementsMemoized', { 
+      slideId, 
+      elementsCount: elements.length,
+      elementIds: elements.map(e => e.id),
+      refsAvailable: {
+        image: !!imageRef.current,
+        title: !!titleRef.current,
+        subtitle: !!subtitleRef.current
+      }
+    });
+    
+    return elements;
+  }, [slideId, moveableManager, imageRef.current, titleRef.current, subtitleRef.current]);
+
+  // Runtime assertions for debugging
+  if (DEBUG) {
+    if (!imageRef.current) {
+      console.warn(`[BigImageLeftTemplate] imageRef not available for ${slideId}-image`);
+    }
+    if (!titleRef.current) {
+      console.warn(`[BigImageLeftTemplate] titleRef not available for ${slideId}-title`);
+    }
+    if (!subtitleRef.current) {
+      console.warn(`[BigImageLeftTemplate] subtitleRef not available for ${slideId}-subtitle`);
+    }
+  }
+
+  log('BigImageLeftTemplate', 'moveableElementsCreated', { 
+    slideId, 
+    elementsCount: moveableElements.length,
+    elementIds: moveableElements.map(e => e.id),
+    isEnabled: moveableManager.moveableManagerProps.isEnabled
+  });
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -331,7 +395,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       mode,
       imageRefExists: !!imageRef.current
     });
-    // Crop mode is now handled directly by ClickableImagePlaceholder
+
+    moveableManager.handleCropModeChange(`${slideId}-image`, mode);
   };
 
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
@@ -340,11 +405,17 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   log('BigImageLeftTemplate', 'rendering', { 
     slideId, 
     isEditable,
-    hasImagePath: !!imagePath
+    hasImagePath: !!imagePath,
+    moveableElementsCount: moveableElements.length
   });
 
   return (
     <div style={slideStyles}>
+      {/* MoveableManager for drag/resize functionality */}
+      <MoveableManager
+        {...moveableManager.moveableManagerProps}
+        elements={moveableElements}
+      />
       
       {/* Left side - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
@@ -360,7 +431,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode="contain"
+          cropMode={moveableManager.getCropMode(`${slideId}-image`)}
           onCropModeChange={handleCropModeChange}
         />
       </div>
