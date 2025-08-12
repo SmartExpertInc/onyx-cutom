@@ -3,7 +3,6 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
-import Moveable from 'react-moveable';
 
 export interface ClickableImagePlaceholderProps {
   imagePath?: string;
@@ -134,10 +133,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             ...(style || {}),
             width: defaultPixelSize.w,
             height: defaultPixelSize.h,
-            maxWidth: "auto",
-            maxHeight: "auto",
-            minWidth: "auto",
-            minHeight: "auto",
           }}
           onClick={handleClick}
         >
@@ -226,29 +221,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           </div>
         </div>
 
-        {/* Official react-moveable implementation for image */}
-        {isEditable && containerRef.current && (
-          <Moveable
-            target={containerRef.current}
-            draggable={true}
-            throttleDrag={1}
-            edgeDraggable={false}
-            startDragRotate={0}
-            throttleDragRotate={0}
-            onDrag={e => {
-              e.target.style.transform = e.transform;
-            }}
-            resizable={true}
-            keepRatio={false}
-            throttleResize={1}
-            renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-            onResize={e => {
-              e.target.style.width = `${e.width}px`;
-              e.target.style.height = `${e.height}px`;
-              e.target.style.transform = e.drag.transform;
-            }}
-          />
-        )}
+        {/* Moveable functionality handled by MoveableManager in parent template */}
 
         <PresentationImageUpload
           isOpen={showUploadModal}
@@ -276,15 +249,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
           ${className}
         `}
-        style={{
-          ...(style || {}),
-          width: defaultPixelSize.w,
-          height: defaultPixelSize.h,
-          maxWidth: "auto",
-          maxHeight: "auto",
-          minWidth: "auto",
-          minHeight: "auto",
-        }}
+                  style={{
+            ...(style || {}),
+            width: defaultPixelSize.w,
+            height: defaultPixelSize.h,
+          }}
         onClick={handleClick}
       >
         <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
@@ -304,29 +273,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
       </div>
 
-      {/* Official react-moveable implementation for placeholder */}
-      {isEditable && containerRef.current && (
-        <Moveable
-          target={containerRef.current}
-          draggable={true}
-          throttleDrag={1}
-          edgeDraggable={false}
-          startDragRotate={0}
-          throttleDragRotate={0}
-          onDrag={e => {
-            e.target.style.transform = e.transform;
-          }}
-          resizable={true}
-          keepRatio={false}
-          throttleResize={1}
-          renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-          onResize={e => {
-            e.target.style.width = `${e.width}px`;
-            e.target.style.height = `${e.height}px`;
-            e.target.style.transform = e.drag.transform;
-          }}
-        />
-      )}
+      {/* Moveable functionality handled by MoveableManager in parent template */}
 
       <PresentationImageUpload
         isOpen={showUploadModal}
