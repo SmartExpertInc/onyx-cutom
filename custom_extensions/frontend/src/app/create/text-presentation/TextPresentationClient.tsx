@@ -136,6 +136,7 @@ export default function TextPresentationClient() {
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
   const [originalTitles, setOriginalTitles] = useState<{[key: number]: string}>({});
+  const [isSwitchingTitles, setIsSwitchingTitles] = useState(false);
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -257,6 +258,11 @@ export default function TextPresentationClient() {
   };
 
   const handleTitleSave = (lessonIndex: number, finalTitle?: string) => {
+    // Don't save if we're in the process of switching titles
+    if (isSwitchingTitles) {
+      return;
+    }
+    
     setEditingLessonId(null);
     // Keep the item in edited titles list to maintain permanent blur
     // Only remove if the title is back to original
@@ -1091,10 +1097,12 @@ export default function TextPresentationClient() {
                           ) : (
                             <h4 
                               className="text-[#20355D] text-base font-semibold cursor-pointer"
-                              onMouseDown={(e) => {
-                                // Prevent blur event from firing when clicking on another title
-                                e.preventDefault();
+                              onClick={() => {
+                                // Set flag to prevent blur save during title switch
+                                setIsSwitchingTitles(true);
                                 setEditingLessonId(idx);
+                                // Clear flag after a short delay
+                                setTimeout(() => setIsSwitchingTitles(false), 100);
                               }}
                             >
                               {getTitleForLesson(lesson, idx)}
