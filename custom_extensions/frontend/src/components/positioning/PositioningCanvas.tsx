@@ -332,9 +332,7 @@ export const PositioningCanvas: React.FC<PositioningCanvasProps> = ({
           {items.map(item => (
             <DraggableItem
               key={item.id}
-              id={item.id}
-              position={item.position}
-              constraints={item.constraints}
+              item={item}
               isSelected={selectedItemIds.includes(item.id)}
               isEditable={isEditable}
               onPositionChange={updateItemPosition}
@@ -343,6 +341,8 @@ export const PositioningCanvas: React.FC<PositioningCanvasProps> = ({
                 // Handle double click for editing
                 console.log('Double clicked item:', itemId);
               }}
+              showGrid={false}
+              gridSize={0}
             >
               <ItemRenderer
                 item={item}

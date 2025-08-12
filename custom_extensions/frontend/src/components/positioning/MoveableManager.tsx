@@ -44,12 +44,19 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
 }) => {
   const [selectedElement, setSelectedElement] = useState<MoveableElement | null>(null);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [lastTransform, setLastTransform] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const moveableRef = useRef<Moveable>(null);
 
   log('MoveableManager', 'render', { 
     slideId, 
     isEnabled, 
     elementsCount: elements.length,
-    selectedElementId: selectedElement?.id
+    selectedElementId: selectedElement?.id,
+    isDragging,
+    isResizing,
+    hasLastTransform: !!lastTransform
   });
 
   // Track keyboard state for aspect ratio locking
@@ -140,6 +147,20 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
           return;
         }
 
+        // Prevent selection if recently dragged/resized
+        if (isDragging || isResizing) {
+          log('MoveableManager', 'clickIgnored', { 
+            elementId: element.id, 
+            reason: 'dragging-or-resizing',
+            isDragging,
+            isResizing,
+            slideId
+          });
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+
         log('MoveableManager', 'elementSelected', { 
           elementId: element.id, 
           elementType: element.type,
@@ -168,7 +189,195 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         }
       });
     };
-  }, [elements, savedPositions, savedSizes, slideId]);
+  }, [elements, savedPositions, savedSizes, isDragging, isResizing, slideId]);
+
+  // Handle drag events
+  const handleDrag = useCallback((e: any) => {
+    if (!selectedElement) return;
+    
+    try {
+      setIsDragging(true);
+      const { target, transform } = e;
+      
+      // Validate transform object
+      if (!transform || typeof transform.x !== 'number' || typeof transform.y !== 'number') {
+        log('MoveableManager', 'handleDrag_invalidTransform', { 
+          elementId: selectedElement.id, 
+          transform,
+          slideId
+        });
+        return;
+      }
+      
+      // Check if transform has actually changed to prevent unnecessary updates
+      const currentTransform = { x: transform.x, y: transform.y, width: transform.width || 0, height: transform.height || 0 };
+      if (lastTransform && 
+          Math.abs(lastTransform.x - currentTransform.x) < 1 && 
+          Math.abs(lastTransform.y - currentTransform.y) < 1) {
+        return; // Skip update if change is minimal
+      }
+      
+      setLastTransform(currentTransform);
+      
+      log('MoveableManager', 'onDrag', { 
+        elementId: selectedElement.id, 
+        x: transform.x, 
+        y: transform.y,
+        slideId
+      });
+      
+      // Update position
+      if (onPositionChange) {
+        onPositionChange(selectedElement.id, { x: transform.x, y: transform.y });
+      }
+    } catch (error) {
+      log('MoveableManager', 'handleDrag_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
+      });
+    }
+  }, [selectedElement, onPositionChange, slideId, lastTransform]);
+
+  const handleDragEnd = useCallback((e: any) => {
+    if (!selectedElement) return;
+    
+    try {
+      setIsDragging(false);
+      const { transform } = e;
+      
+      // Validate transform object
+      if (!transform || typeof transform.x !== 'number' || typeof transform.y !== 'number') {
+        log('MoveableManager', 'handleDragEnd_invalidTransform', { 
+          elementId: selectedElement.id, 
+          transform,
+          slideId
+        });
+        return;
+      }
+      
+      log('MoveableManager', 'onDragEnd', { 
+        elementId: selectedElement.id, 
+        x: transform.x, 
+        y: transform.y,
+        slideId
+      });
+      
+      // Final position update
+      if (onTransformEnd) {
+        onTransformEnd(selectedElement.id, {
+          position: { x: transform.x, y: transform.y },
+          size: { width: transform.width || 0, height: transform.height || 0 }
+        });
+      }
+      
+      // Reset last transform after a delay to allow for final updates
+      setTimeout(() => {
+        setLastTransform(null);
+      }, 100);
+    } catch (error) {
+      log('MoveableManager', 'handleDragEnd_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
+      });
+    }
+  }, [selectedElement, onTransformEnd, slideId]);
+
+  // Handle resize events
+  const handleResize = useCallback((e: any) => {
+    if (!selectedElement) return;
+    
+    try {
+      setIsResizing(true);
+      const { target, width, height, drag } = e;
+      
+      // Validate size values
+      if (typeof width !== 'number' || typeof height !== 'number') {
+        log('MoveableManager', 'handleResize_invalidSize', { 
+          elementId: selectedElement.id, 
+          width,
+          height,
+          slideId
+        });
+        return;
+      }
+      
+      // Check if size has actually changed to prevent unnecessary updates
+      const currentTransform = { x: drag?.x || 0, y: drag?.y || 0, width, height };
+      if (lastTransform && 
+          Math.abs(lastTransform.width - currentTransform.width) < 1 && 
+          Math.abs(lastTransform.height - currentTransform.height) < 1) {
+        return; // Skip update if change is minimal
+      }
+      
+      setLastTransform(currentTransform);
+      
+      log('MoveableManager', 'onResize', { 
+        elementId: selectedElement.id, 
+        width, 
+        height,
+        slideId
+      });
+      
+      // Update size
+      if (onSizeChange) {
+        onSizeChange(selectedElement.id, { width, height });
+      }
+    } catch (error) {
+      log('MoveableManager', 'handleResize_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
+      });
+    }
+  }, [selectedElement, onSizeChange, slideId, lastTransform]);
+
+  const handleResizeEnd = useCallback((e: any) => {
+    if (!selectedElement) return;
+    
+    try {
+      setIsResizing(false);
+      const { width, height, drag } = e;
+      
+      // Validate values
+      if (typeof width !== 'number' || typeof height !== 'number') {
+        log('MoveableManager', 'handleResizeEnd_invalidSize', { 
+          elementId: selectedElement.id, 
+          width,
+          height,
+          slideId
+        });
+        return;
+      }
+      
+      log('MoveableManager', 'onResizeEnd', { 
+        elementId: selectedElement.id, 
+        width, 
+        height,
+        slideId
+      });
+      
+      // Final size update
+      if (onTransformEnd) {
+        onTransformEnd(selectedElement.id, {
+          position: { x: drag?.x || 0, y: drag?.y || 0 },
+          size: { width, height }
+        });
+      }
+      
+      // Reset last transform after a delay to allow for final updates
+      setTimeout(() => {
+        setLastTransform(null);
+      }, 100);
+    } catch (error) {
+      log('MoveableManager', 'handleResizeEnd_error', { 
+        elementId: selectedElement.id, 
+        error: error instanceof Error ? error.message : String(error),
+        slideId
+      });
+    }
+  }, [selectedElement, onTransformEnd, slideId]);
 
   // Handle selection changes
   const handleClickOutside = useCallback((e: MouseEvent) => {
@@ -220,22 +429,34 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
   return (
     <>
       <Moveable
+        ref={moveableRef}
         target={targetElement}
         draggable={true}
         resizable={true}
         keepRatio={isShiftPressed}
         throttleResize={1}
         throttleDrag={1}
-        renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-        onDrag={e => {
-          e.target.style.transform = e.transform;
-        }}
-        onResize={e => {
-          e.target.style.width = `${e.width}px`;
-          e.target.style.height = `${e.height}px`;
-          e.target.style.transform = e.drag.transform;
-        }}
+        renderDirections={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
+        onResize={handleResize}
+        onResizeEnd={handleResizeEnd}
+        // Prevent conflicts with inline editing
+        preventDefault={true}
+        // Custom styling for handles
+        className="moveable-control-box"
       />
+      {/* Custom styles for moveable controls */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .moveable-control-box {
+            --moveable-color: #3b82f6 !important;
+            --moveable-line-color: #3b82f6 !important;
+            --moveable-point-color: #3b82f6 !important;
+            --moveable-handle-color: #3b82f6 !important;
+          }
+        `
+      }} />
     </>
   );
 };
