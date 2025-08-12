@@ -276,14 +276,31 @@ export default function TextPresentationClient() {
     return blocks;
   };
 
+  const guessTitleFromContent = (): string | null => {
+    const lines = content.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    for (const l of lines) {
+      if (l.startsWith("## ")) return l.replace(/^##\s*/, '').trim();
+      if (l.startsWith("# ")) return l.replace(/^#\s*/, '').trim();
+    }
+    return null;
+  };
+
   const derivedMiniTitles: string[] = useMemo(() => {
+    if (!content.trim()) return [];
+    // Case 1: exactly one parsed section
     if (lessonList.length === 1) {
       const only = lessonList[0];
       const blocks = buildBlocksForMiniTitles(only.title, only.content || "");
-      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6 });
+      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6, allowParagraphFallback: true });
+    }
+    // Case 2: no sections parsed — attempt to derive using a guessed title and full content
+    if (lessonList.length === 0) {
+      const title = guessTitleFromContent() || selectedLesson || (prompt ? prompt.slice(0, 80) : 'Document');
+      const blocks = buildBlocksForMiniTitles(title, content);
+      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6, allowParagraphFallback: true });
     }
     return [];
-  }, [lessonList]);
+  }, [content, lessonList, selectedLesson, prompt]);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
@@ -1122,18 +1139,19 @@ export default function TextPresentationClient() {
                   </div>
                 )}
                 {/* Display content in card format if lessons are available, otherwise show textarea */}
+                {/* Suggested mini-titles (shown when detected), independent of lesson parsing */}
+                {derivedMiniTitles.length > 0 && (
+                  <div className="bg-[#EEF5FF] border border-[#CFE0FF] rounded-lg p-3">
+                    <p className="text-xs font-medium text-[#20355D] mb-2">Suggested mini-titles</p>
+                    <div className="flex flex-wrap gap-2">
+                      {derivedMiniTitles.map((t, i) => (
+                        <span key={`${t}-${i}`} className="px-2 py-1 text-xs bg-white border border-[#CFE0FF] rounded-full text-[#20355D]">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {lessonList.length > 0 && (
                   <div className="flex flex-col gap-4">
-                    {derivedMiniTitles.length > 0 && (
-                      <div className="bg-[#EEF5FF] border border-[#CFE0FF] rounded-lg p-3">
-                        <p className="text-xs font-medium text-[#20355D] mb-2">Suggested mini-titles</p>
-                        <div className="flex flex-wrap gap-2">
-                          {derivedMiniTitles.map((t, i) => (
-                            <span key={`${t}-${i}`} className="px-2 py-1 text-xs bg-white border border-[#CFE0FF] rounded-full text-[#20355D]">{t}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                     {lessonList.map((lesson, idx: number) => (
                     <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                       <div className="flex items-center justify-center w-16 bg-[#0066FF] text-white font-semibold text-base select-none flex-shrink-0">
