@@ -273,6 +273,28 @@ export const es = {
       title: "Generando PDF",
       subtitle: "Creando exportación PDF para carpeta",
       description: "Esto puede tomar unos momentos dependiendo del número de archivos..."
+    },
+    lessonSettings: {
+      title: 'Configuración de la lección',
+      subtitle: 'Configurar calidad de producción para',
+      tier: 'Nivel',
+      contentExamples: 'Ejemplos de contenido',
+      hoursRange: 'Rango de horas',
+      example: 'Ejemplo',
+      lessonQualityTier: 'Nivel de calidad de la lección establecido en',
+      perCompletionHour: 'h por hora de finalización',
+      cancel: 'Cancelar',
+      saveChanges: 'Guardar cambios',
+      saving: 'Guardando...',
+      failedToSave: 'No se pudo guardar la configuración del nivel de la lección',
+      lessonTitle: 'Título de la lección',
+      advanced: 'Avanzado'
+    },
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video'
     }
   },
   projects: {
@@ -901,22 +923,7 @@ export const es = {
         saving: 'Guardando...',
         failedToSave: 'No se pudo guardar la configuración del nivel del módulo'
       },
-      lessonSettings: {
-        title: 'Configuración de la lección',
-        subtitle: 'Configurar calidad de producción para',
-        tier: 'Nivel',
-        contentExamples: 'Ejemplos de contenido',
-        hoursRange: 'Rango de horas',
-        example: 'Ejemplo',
-        lessonQualityTier: 'Nivel de calidad de la lección establecido en',
-        perCompletionHour: 'h por hora de finalización',
-        cancel: 'Cancelar',
-        saveChanges: 'Guardar cambios',
-        saving: 'Guardando...',
-        failedToSave: 'No se pudo guardar la configuración del nivel de la lección',
-        lessonTitle: 'Título de la lección',
-        advanced: 'Avanzado'
-      },
+
       rates: {
         presentation: 'Tarifa de presentación',
         onePager: 'Tarifa de una página',

@@ -273,6 +273,28 @@ export const uk = {
       title: "Створення PDF",
       subtitle: "Створення PDF експорту для папки",
       description: "Це може зайняти кілька хвилин залежно від кількості файлів..."
+    },
+    lessonSettings: {
+      title: 'Налаштування уроку',
+      subtitle: 'Налаштуйте якість виробництва для',
+      tier: 'Рівень',
+      contentExamples: 'Приклади контенту',
+      hoursRange: 'Діапазон годин',
+      example: 'Приклад',
+      lessonQualityTier: 'Рівень якості уроку встановлено на',
+      perCompletionHour: 'год за годину завершення',
+      cancel: 'Скасувати',
+      saveChanges: 'Зберегти зміни',
+      saving: 'Збереження...',
+      failedToSave: 'Не вдалося зберегти налаштування рівня уроку',
+      lessonTitle: 'Назва уроку',
+      advanced: 'Розширений'
+    },
+    rates: {
+      presentation: 'Ставка презентації',
+      onePager: 'Ставка односторінки',
+      quiz: 'Ставка тесту',
+      videoLesson: 'Ставка відео-уроку'
     }
   },
   projects: {
@@ -894,22 +916,7 @@ export const uk = {
         saving: 'Збереження...',
         failedToSave: 'Не вдалося зберегти налаштування рівня модуля'
       },
-      lessonSettings: {
-        title: 'Налаштування уроку',
-        subtitle: 'Налаштуйте якість виробництва для',
-        tier: 'Рівень',
-        contentExamples: 'Приклади контенту',
-        hoursRange: 'Діапазон годин',
-        example: 'Приклад',
-        lessonQualityTier: 'Рівень якості уроку встановлено на',
-        perCompletionHour: 'год за годину завершення',
-        cancel: 'Скасувати',
-        saveChanges: 'Зберегти зміни',
-        saving: 'Збереження...',
-        failedToSave: 'Не вдалося зберегти налаштування рівня уроку',
-        lessonTitle: 'Назва уроку',
-        advanced: 'Розширений'
-      },
+
       rates: {
         presentation: 'Ставка презентації',
         onePager: 'Ставка односторінки',
