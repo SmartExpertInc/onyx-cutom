@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import MoveableManager from '../positioning/MoveableManager';
+import MoveableManager from '@/components/positioning/MoveableManager';
 import { useMoveableManager } from '@/hooks/useMoveableManager';
 
 // Debug logging utility
@@ -209,15 +209,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   // Create moveable elements only when refs are available
   const moveableElements = React.useMemo(() => {
     const elements = [];
-    
-    if (imageRef.current) {
-      elements.push(
-        moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
-          cropMode: moveableManager.getCropMode(`${slideId}-image`)
-        })
-      );
-    }
-    
+    // Exclude image placeholder from shared manager to avoid conflicts; it manages its own Moveable
     if (titleRef.current) {
       elements.push(
         moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text')
@@ -431,8 +423,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode={moveableManager.getCropMode(`${slideId}-image`)}
-          onCropModeChange={handleCropModeChange}
+          // Image placeholder handles its own Moveable
         />
       </div>
 

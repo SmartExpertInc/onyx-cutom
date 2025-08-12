@@ -52,10 +52,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
   const [isHovered, setIsHovered] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [shiftPressed, setShiftPressed] = useState(false);
-  const [positionPx, setPositionPx] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  // Transform/size state to reflect live Moveable updates
+  const [transformCss, setTransformCss] = useState<string>("");
   const [sizePx, setSizePx] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -108,36 +106,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [imagePath]);
 
-  // Track Shift key for proportional resizing
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') {
-        setShiftPressed(true);
-        moveableRef.current?.updateRect();
-        log('ClickableImagePlaceholder', 'shiftKeyDown', { elementId });
-      }
-    };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') {
-        setShiftPressed(false);
-        moveableRef.current?.updateRect();
-        log('ClickableImagePlaceholder', 'shiftKeyUp', { elementId });
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [elementId]);
+  // No shift-to-lock: follow official examples exactly
 
   const handleClick = () => {
     if (!isEditable) return;
-    if (isDragging || isResizing) {
-      log('ClickableImagePlaceholder', 'clickIgnoredWhileTransforming', { elementId, isDragging, isResizing });
-      return;
-    }
+    // Follow provided logic: click opens upload when editable (not part of drag/resize)
     log('ClickableImagePlaceholder', 'handleClick', { elementId, isEditable });
     setShowUploadModal(true);
   };
@@ -321,10 +294,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             position: 'relative',
             width: sizePx.width || defaultPixelSize.w,
             height: sizePx.height || defaultPixelSize.h,
-            left: positionPx.x,
-            top: positionPx.y,
-            minWidth: 120,
-            minHeight: 120,
+            transform: transformCss,
+            // Match example target style constraints
+            maxWidth: 'auto',
+            maxHeight: 'auto',
+            minWidth: 'auto',
+            minHeight: 'auto',
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -411,69 +386,31 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           </div>
         </div>
 
-        {/* Moveable controls for drag/resize */}
+        {/* Moveable controls for drag/resize (official examples) */}
         {isEditable && (
           <Moveable
             ref={moveableRef as any}
-            target={containerRef.current as any}
+            target={containerRef}
             draggable={true}
+            throttleDrag={1}
+            edgeDraggable={false}
+            startDragRotate={0}
+            throttleDragRotate={0}
+            onDrag={e => {
+              (e.target as HTMLElement).style.transform = e.transform;
+              setTransformCss(e.transform);
+            }}
             resizable={true}
-            keepRatio={shiftPressed}
-            // Drag
-            onDrag={({ target, left, top }) => {
-              setIsDragging(true);
-              (target as HTMLElement).style.left = `${left}px`;
-              (target as HTMLElement).style.top = `${top}px`;
-              log('ClickableImagePlaceholder', 'onDrag', { elementId, left, top });
+            keepRatio={false}
+            throttleResize={1}
+            renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+            onResize={e => {
+              (e.target as HTMLElement).style.width = `${e.width}px`;
+              (e.target as HTMLElement).style.height = `${e.height}px`;
+              (e.target as HTMLElement).style.transform = e.drag.transform;
+              setSizePx({ width: Math.round(e.width), height: Math.round(e.height) });
+              setTransformCss(e.drag.transform);
             }}
-            onDragEnd={({ target }) => {
-              const rect = (target as HTMLElement).getBoundingClientRect();
-              const parentRect = (target as HTMLElement).parentElement?.getBoundingClientRect();
-              const x = parentRect ? rect.left - parentRect.left : rect.left;
-              const y = parentRect ? rect.top - parentRect.top : rect.top;
-              setPositionPx({ x, y });
-              setIsDragging(false);
-              log('ClickableImagePlaceholder', 'onDragEnd', { elementId, x, y });
-              // Save only at end
-              onSizeTransformChange?.({ position: { x, y } });
-            }}
-            // Resize
-            onResize={({ target, width, height, drag }) => {
-              setIsResizing(true);
-              const el = target as HTMLElement;
-              el.style.width = `${Math.max(50, Math.round(width))}px`;
-              el.style.height = `${Math.max(50, Math.round(height))}px`;
-              const left = drag?.left ?? el.offsetLeft;
-              const top = drag?.top ?? el.offsetTop;
-              el.style.left = `${left}px`;
-              el.style.top = `${top}px`;
-              log('ClickableImagePlaceholder', 'onResize', { elementId, width, height, left, top });
-            }}
-            onResizeEnd={({ target }) => {
-              const el = target as HTMLElement;
-              const rect = el.getBoundingClientRect();
-              const parentRect = el.parentElement?.getBoundingClientRect();
-              const newSize = { width: Math.round(rect.width), height: Math.round(rect.height) };
-              const newPos = {
-                x: parentRect ? Math.round(rect.left - parentRect.left) : Math.round(rect.left),
-                y: parentRect ? Math.round(rect.top - parentRect.top) : Math.round(rect.top)
-              };
-              setSizePx(newSize);
-              setPositionPx(newPos);
-              setIsResizing(false);
-              log('ClickableImagePlaceholder', 'onResizeEnd', { elementId, ...newSize, ...newPos });
-              onSizeTransformChange?.({ widthPx: newSize.width, heightPx: newSize.height, position: newPos });
-            }}
-            throttleDrag={0}
-            throttleResize={0}
-            renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
-            className="moveable-control"
-            hideDefaultLines={!isHovered}
-            edge={false}
-            zoom={1}
-            origin={false}
-            minWidth={50}
-            minHeight={50}
           />
         )}
 
@@ -517,10 +454,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           position: 'relative',
           width: sizePx.width || defaultPixelSize.w,
           height: sizePx.height || defaultPixelSize.h,
-          left: positionPx.x,
-          top: positionPx.y,
-          minWidth: 120,
-          minHeight: 120,
+          transform: transformCss,
+          maxWidth: 'auto',
+          maxHeight: 'auto',
+          minWidth: 'auto',
+          minHeight: 'auto',
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -543,66 +481,31 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
       </div>
 
-      {/* Moveable controls for drag/resize when empty */}
+      {/* Moveable controls for drag/resize when empty (official examples) */}
       {isEditable && (
         <Moveable
           ref={moveableRef as any}
-          target={containerRef.current as any}
+          target={containerRef}
           draggable={true}
+          throttleDrag={1}
+          edgeDraggable={false}
+          startDragRotate={0}
+          throttleDragRotate={0}
+          onDrag={e => {
+            (e.target as HTMLElement).style.transform = e.transform;
+            setTransformCss(e.transform);
+          }}
           resizable={true}
-          keepRatio={shiftPressed}
-          onDrag={({ target, left, top }) => {
-            setIsDragging(true);
-            (target as HTMLElement).style.left = `${left}px`;
-            (target as HTMLElement).style.top = `${top}px`;
-            log('ClickableImagePlaceholder', 'onDrag', { elementId, left, top });
+          keepRatio={false}
+          throttleResize={1}
+          renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+          onResize={e => {
+            (e.target as HTMLElement).style.width = `${e.width}px`;
+            (e.target as HTMLElement).style.height = `${e.height}px`;
+            (e.target as HTMLElement).style.transform = e.drag.transform;
+            setSizePx({ width: Math.round(e.width), height: Math.round(e.height) });
+            setTransformCss(e.drag.transform);
           }}
-          onDragEnd={({ target }) => {
-            const rect = (target as HTMLElement).getBoundingClientRect();
-            const parentRect = (target as HTMLElement).parentElement?.getBoundingClientRect();
-            const x = parentRect ? rect.left - parentRect.left : rect.left;
-            const y = parentRect ? rect.top - parentRect.top : rect.top;
-            setPositionPx({ x, y });
-            setIsDragging(false);
-            log('ClickableImagePlaceholder', 'onDragEnd', { elementId, x, y });
-            onSizeTransformChange?.({ position: { x, y } });
-          }}
-          onResize={({ target, width, height, drag }) => {
-            setIsResizing(true);
-            const el = target as HTMLElement;
-            el.style.width = `${Math.max(50, Math.round(width))}px`;
-            el.style.height = `${Math.max(50, Math.round(height))}px`;
-            const left = drag?.left ?? el.offsetLeft;
-            const top = drag?.top ?? el.offsetTop;
-            el.style.left = `${left}px`;
-            el.style.top = `${top}px`;
-            log('ClickableImagePlaceholder', 'onResize', { elementId, width, height, left, top });
-          }}
-          onResizeEnd={({ target }) => {
-            const el = target as HTMLElement;
-            const rect = el.getBoundingClientRect();
-            const parentRect = el.parentElement?.getBoundingClientRect();
-            const newSize = { width: Math.round(rect.width), height: Math.round(rect.height) };
-            const newPos = {
-              x: parentRect ? Math.round(rect.left - parentRect.left) : Math.round(rect.left),
-              y: parentRect ? Math.round(rect.top - parentRect.top) : Math.round(rect.top)
-            };
-            setSizePx(newSize);
-            setPositionPx(newPos);
-            setIsResizing(false);
-            log('ClickableImagePlaceholder', 'onResizeEnd', { elementId, ...newSize, ...newPos });
-            onSizeTransformChange?.({ widthPx: newSize.width, heightPx: newSize.height, position: newPos });
-          }}
-          throttleDrag={0}
-          throttleResize={0}
-          renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
-          className="moveable-control"
-          hideDefaultLines={!isHovered}
-          edge={false}
-          zoom={1}
-          origin={false}
-          minWidth={50}
-          minHeight={50}
         />
       )}
 

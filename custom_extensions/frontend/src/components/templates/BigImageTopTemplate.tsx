@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import MoveableManager from '../positioning/MoveableManager';
+import MoveableManager from '@/components/positioning/MoveableManager';
 import { useMoveableManager } from '@/hooks/useMoveableManager';
 
 // Debug logging utility
@@ -188,11 +188,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     onUpdate
   });
   
-  // Create moveable elements
+  // Create moveable elements (exclude image placeholder; it manages its own Moveable)
   const moveableElements = [
-    moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
-      cropMode: moveableManager.getCropMode(`${slideId}-image`)
-    }),
     moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text'),
     moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
   ];
@@ -202,7 +199,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     console.assert(!!imageRef.current, `[BigImageTopTemplate] Missing imageRef for ${slideId}-image`);
     console.assert(!!titleRef.current, `[BigImageTopTemplate] Missing titleRef for ${slideId}-title`);
     console.assert(!!subtitleRef.current, `[BigImageTopTemplate] Missing subtitleRef for ${slideId}-subtitle`);
-    console.assert(moveableElements.length === 3, `[BigImageTopTemplate] Expected 3 moveable elements, got ${moveableElements.length}`);
+    console.assert(moveableElements.length === 2, `[BigImageTopTemplate] Expected 2 moveable elements, got ${moveableElements.length}`);
   }
 
   log('BigImageTopTemplate', 'moveableElementsCreated', { 
@@ -380,8 +377,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode={moveableManager.getCropMode(`${slideId}-image`)}
-          onCropModeChange={handleCropModeChange}
+          // Image placeholder handles its own Moveable
         />
       </div>
 
