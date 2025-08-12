@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
+import { AllContentTypesModal } from './AllContentTypesModal';
 
 interface RecommendedContentTypes {
   primary: string[];
@@ -34,6 +35,7 @@ interface CreateContentTypeModalProps {
   recommendedContentTypes?: RecommendedContentTypes;
   existingContent?: ExistingContentFlags;
   onUpdateRecommendations?: (newPrimary: string[]) => void; // NEW
+  onOpenAllContentTypes?: () => void; // NEW: callback to open AllContentTypesModal
 }
 
 export const CreateContentTypeModal = ({ 
@@ -50,7 +52,8 @@ export const CreateContentTypeModal = ({
   parentProjectName,
   recommendedContentTypes,
   existingContent,
-  onUpdateRecommendations
+  onUpdateRecommendations,
+  onOpenAllContentTypes
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
   const { t } = useLanguage();
@@ -307,16 +310,17 @@ export const CreateContentTypeModal = ({
             <div className="space-y-4">
               {recommendedOnly.map(renderTypeButton)}
             </div>
-            { (recommendedState?.reasoning || recommendedContentTypes?.reasoning) && (
-              <p className="mt-3 text-xs text-gray-500">{recommendedState?.reasoning || recommendedContentTypes?.reasoning}</p>
-            )}
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex justify-center">
               <button
-                onClick={() => setShowAllOptions(true)}
-                className="inline-flex items-center text-sm px-3 py-2 border rounded-lg hover:bg-gray-50"
+                onClick={() => {
+                  onClose(); // Close this modal
+                  if (onOpenAllContentTypes) {
+                    onOpenAllContentTypes(); // Open AllContentTypesModal
+                  }
+                }}
+                className="text-sm px-3 py-2 border rounded-lg hover:bg-gray-50"
               >
-                <span className="mr-2">{t('modals.createContent.other', 'Other')}</span>
-                <ChevronRight size={16} />
+                {t('modals.createContent.other', 'See all content types')}
               </button>
             </div>
           </div>
@@ -334,22 +338,7 @@ export const CreateContentTypeModal = ({
         </div>
       </div>
 
-      {/* All options modal */}
-      {showAllOptions && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowAllOptions(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-xl shadow-2xl border" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t('modals.createContent.allOptions', 'All content types')}</h3>
-              <button onClick={() => setShowAllOptions(false)} className="p-2 rounded-full hover:bg-gray-100">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="space-y-4 max-h-[70vh] overflow-auto">
-              {updatedContentTypes.map(renderTypeButton)}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* All options modal - now handled by parent component */}
 
       {/* Preferences modal */}
       {showPrefs && (

@@ -5,12 +5,13 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
 import { CreateContentTypeModal } from './CreateContentTypeModal';
+import { AllContentTypesModal } from './AllContentTypesModal';
 import OpenOrCreateModal from './OpenOrCreateModal';
 import OpenContentModal from './OpenContentModal';
 import LessonSettingsModal from '../app/projects/LessonSettingsModal';
 import ModuleSettingsModal from '../app/projects/ModuleSettingsModal';
-import { useSearchParams } from 'next/navigation';
-import { Settings, Edit3 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Settings, Edit3, BookText, FileText, HelpCircle, Video } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // --- Custom SVG Icons ---
@@ -289,6 +290,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   projectAdvancedRates,
   columnVisibility,
 }) => {
+  const router = useRouter();
+  
   // Inline editing state management
   const [editingField, setEditingField] = useState<{
     type: 'mainTitle' | 'sectionId' | 'sectionTitle' | 'lessonTitle' | 'source' | 'hours' | 'completionTime' | 'check' | 'contentAvailable';
@@ -349,6 +352,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   }, [onAutoSave]);
 
   const [contentModalState, setContentModalState] = useState<{
+    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number; recommended?: any;
+  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
+
+  const [allContentTypesModalState, setAllContentTypesModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number; recommended?: any;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
 
@@ -950,7 +957,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       const effectiveTier = String(getEffectiveLessonTier(section, lesson));
       const persisted = extractPersistedRecommendations(lesson, effectiveTier);
       const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
-      setContentModalState({ 
+      
+      // Show all content types modal instead of recommended modal
+      setAllContentTypesModalState({ 
         isOpen: true, 
         lessonTitle, 
         moduleName, 
@@ -1082,6 +1091,26 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     });
     
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false });
+  };
+
+  const handleOpenAllContentTypesModal = (lessonTitle: string, moduleName: string, lessonNumber: number, recommended?: any) => {
+    setAllContentTypesModalState({
+      isOpen: true,
+      lessonTitle,
+      moduleName,
+      lessonNumber,
+      recommended
+    });
+  };
+
+  const handleOpenCreateContentTypeModal = (lessonTitle: string, moduleName: string, lessonNumber: number, recommended?: any) => {
+    setContentModalState({
+      isOpen: true,
+      lessonTitle,
+      moduleName,
+      lessonNumber,
+      recommended
+    });
   };
 
   // Handle opening lesson settings modal
@@ -1545,6 +1574,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           hasOnePager: !!findExistingOnePager(contentModalState.lessonTitle),
           hasVideoLesson: false
         }}
+        onOpenAllContentTypes={() => handleOpenAllContentTypesModal(
+          contentModalState.lessonTitle,
+          contentModalState.moduleName,
+          contentModalState.lessonNumber,
+          contentModalState.recommended
+        )}
         onUpdateRecommendations={(newPrimary) => {
           const sectionIdx = sections?.findIndex(s => s.title === contentModalState.moduleName) ?? -1;
           if (sectionIdx >= 0) {
@@ -1608,6 +1643,91 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               }
             }
           }
+        }}
+      />
+      <AllContentTypesModal
+        isOpen={allContentTypesModalState.isOpen}
+        onClose={() => setAllContentTypesModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 })}
+        onBackToRecommended={() => handleOpenCreateContentTypeModal(
+          allContentTypesModalState.lessonTitle,
+          allContentTypesModalState.moduleName,
+          allContentTypesModalState.lessonNumber,
+          allContentTypesModalState.recommended
+        )}
+        contentTypes={[
+          { 
+            name: "lessonPresentation", 
+            key: "presentation",
+            icon: <BookText className="w-6 h-6" />, 
+            label: t('modals.createContent.presentation'),
+            description: t('modals.createContent.presentationDescription'),
+            color: "blue",
+            disabled: false 
+          },
+          { 
+            name: "textPresentation", 
+            key: "one-pager",
+            icon: <FileText className="w-6 h-6" />, 
+            label: t('modals.createContent.onePager'),
+            description: t('modals.createContent.onePagerDescription'),
+            color: "purple",
+            disabled: false 
+          },
+          { 
+            name: "multiple-choice", 
+            key: "quiz",
+            icon: <HelpCircle className="w-6 h-6" />, 
+            label: t('modals.createContent.quiz'),
+            description: t('modals.createContent.quizDescription'),
+            color: "green",
+            disabled: false 
+          },
+          { 
+            name: "videoLesson", 
+            key: "video-lesson",
+            icon: <Video className="w-6 h-6" />, 
+            label: t('modals.createContent.videoLesson'),
+            description: t('modals.createContent.videoLessonDescription'),
+            color: "orange",
+            disabled: true,
+            soon: true
+          },
+        ]}
+        onContentCreate={(contentType) => {
+          let product = '';
+          let lessonType = '';
+          
+          switch (contentType) {
+            case 'lessonPresentation':
+              product = 'lesson';
+              lessonType = contentType;
+              break;
+            case 'textPresentation':
+              product = 'text-presentation';
+              lessonType = contentType;
+              break;
+            case 'multiple-choice':
+              product = 'quiz';
+              lessonType = contentType;
+              break;
+            case 'videoLesson':
+              product = 'video-lesson';
+              lessonType = contentType;
+              break;
+          }
+
+          const params = new URLSearchParams({
+            product: product,
+            lessonType: lessonType,
+            lessonTitle: allContentTypesModalState.lessonTitle,
+            moduleName: allContentTypesModalState.moduleName,
+            lessonNumber: String(allContentTypesModalState.lessonNumber)
+          });
+          if (parentProjectName) {
+            params.set('courseName', parentProjectName);
+          }
+          router.push(`/create?${params.toString()}`);
+          setAllContentTypesModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
         }}
       />
       <OpenOrCreateModal
