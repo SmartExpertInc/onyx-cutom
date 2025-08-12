@@ -331,7 +331,7 @@ export const CreateContentTypeModal = ({
                         onOpenAllContentTypes(); // Open AllContentTypesModal
                       }
                     }}
-                    className="px-4 py-2 text-sm rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+                    className="px-6 py-2 rounded-lg font-semibold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
                   >
                     {t('modals.createContent.seeAllContentTypes', 'See all content types')}
                   </button>
@@ -384,17 +384,21 @@ export const CreateContentTypeModal = ({
                   })}
                 </div>
 
-                <div className="mt-6 flex justify-center gap-3">
+                <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-200 flex-shrink-0">
                   <button
                     onClick={() => setShowSettings(false)}
-                    className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-50"
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
                   >
                     {t('actions.cancel')}
                   </button>
                   <button
                     onClick={handlePrefSave}
                     disabled={!Object.values(selectedPrefs).some(Boolean)}
-                    className={`px-4 py-2 text-sm rounded-lg text-white ${Object.values(selectedPrefs).some(Boolean) ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}`}
+                    className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
+                      !Object.values(selectedPrefs).some(Boolean)
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                    }`}
                   >
                     {t('actions.save')}
                   </button>
