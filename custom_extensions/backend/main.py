@@ -4920,6 +4920,28 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
             logger.info("'user_credits' table ensured.")
 
+            # NEW: Ensure credit transactions table for analytics/timeline
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS credit_transactions (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    user_credits_id INTEGER REFERENCES user_credits(id) ON DELETE CASCADE,
+                    type TEXT NOT NULL CHECK (type IN ('purchase','product_generation')),
+                    title TEXT,
+                    product_type TEXT,
+                    credits INTEGER NOT NULL CHECK (credits >= 0),
+                    delta INTEGER NOT NULL,
+                    reason TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_tx_user ON credit_transactions(onyx_user_id, created_at DESC);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_tx_type ON credit_transactions(type);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_tx_product ON credit_transactions(product_type);")
+            logger.info("'credit_transactions' table ensured.")
+
             # Migration: Populate user_credits table with existing Onyx users
             try:
                 migrated_count = await migrate_onyx_users_to_credits_table()
@@ -5264,6 +5286,29 @@ class CreditTransactionResponse(BaseModel):
     message: str
     new_balance: int
     user_credits: UserCredits
+
+# NEW: Analytics/timeline models
+class ProductUsage(BaseModel):
+    product_type: str
+    credits_used: int
+
+class CreditUsageAnalyticsResponse(BaseModel):
+    usage_by_product: List[ProductUsage]
+    total_credits_used: int
+
+class TimelineActivity(BaseModel):
+    id: str
+    type: Literal['purchase', 'product_generation']
+    title: str
+    credits: int
+    timestamp: datetime
+    product_type: Optional[str] = None
+
+class UserTransactionHistoryResponse(BaseModel):
+    user_id: int
+    user_email: str
+    user_name: str
+    transactions: List[TimelineActivity]
 
 class LessonDetail(BaseModel):
     title: str
@@ -6230,7 +6275,14 @@ def calculate_product_credits(product_type: str, content_data: dict = None) -> i
     else:
         return 0  # Unknown product type, no cost
 
-async def deduct_credits(onyx_user_id: str, amount: int, pool: asyncpg.Pool, reason: str = "Product creation") -> UserCredits:
+async def deduct_credits(
+    onyx_user_id: str,
+    amount: int,
+    pool: asyncpg.Pool,
+    reason: str = "Product creation",
+    product_type: Optional[str] = None,
+    title: Optional[str] = None,
+) -> UserCredits:
     """Deduct credits from user balance with transaction safety"""
     async with pool.acquire() as conn:
         async with conn.transaction():
@@ -6258,6 +6310,20 @@ async def deduct_credits(onyx_user_id: str, amount: int, pool: asyncpg.Pool, rea
                 WHERE onyx_user_id = $2
                 RETURNING *
             """, amount, onyx_user_id)
+
+            # Log product_generation transaction
+            user_row = await conn.fetchrow("SELECT id FROM user_credits WHERE onyx_user_id = $1", onyx_user_id)
+            await log_credit_transaction(
+                conn,
+                onyx_user_id=onyx_user_id,
+                user_credits_id=int(user_row["id"]) if user_row else None,
+                type_='product_generation',
+                amount=amount,
+                delta=-abs(amount),
+                title=title or reason,
+                product_type=product_type or infer_product_type_from_reason(reason),
+                reason=reason,
+            )
             
             return UserCredits(**dict(updated_row))
 
@@ -6279,6 +6345,19 @@ async def modify_user_credits_by_email(user_email: str, amount: int, action: str
                         updated_at = NOW()
                     RETURNING *
                 """, user_email, user_email.split('@')[0], amount, amount)
+
+                # Log purchase
+                await log_credit_transaction(
+                    conn,
+                    onyx_user_id=credits_row["onyx_user_id"],
+                    user_credits_id=int(credits_row["id"]),
+                    type_='purchase',
+                    amount=amount,
+                    delta=abs(amount),
+                    title="Credits purchase",
+                    product_type=None,
+                    reason=reason or "Credits purchase",
+                )
                 
             elif action == "remove":
                 # Remove credits (must exist)
@@ -6292,6 +6371,19 @@ async def modify_user_credits_by_email(user_email: str, amount: int, action: str
                 
                 if not credits_row:
                     raise HTTPException(status_code=404, detail="User not found")
+
+                # Log admin removal as negative 'purchase'
+                await log_credit_transaction(
+                    conn,
+                    onyx_user_id=credits_row["onyx_user_id"],
+                    user_credits_id=int(credits_row["id"]),
+                    type_='purchase',
+                    amount=amount,
+                    delta=-abs(amount),
+                    title="Admin adjustment",
+                    product_type=None,
+                    reason=reason or "Admin adjustment",
+                )
             
             else:
                 raise HTTPException(status_code=400, detail="Invalid action. Must be 'add' or 'remove'")
@@ -16434,6 +16526,32 @@ async def list_all_user_credits(
         logger.error(f"Error listing user credits: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
 
+# NEW: Usage analytics across all users
+@app.get("/api/custom/admin/credits/usage-analytics", response_model=CreditUsageAnalyticsResponse)
+async def get_usage_analytics(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT COALESCE(product_type, 'Unknown') as product_type,
+                       COALESCE(SUM(credits), 0) AS credits_used
+                FROM credit_transactions
+                WHERE type = 'product_generation'
+                GROUP BY COALESCE(product_type, 'Unknown')
+                ORDER BY credits_used DESC
+                """
+            )
+            usage_by_product = [ProductUsage(product_type=row["product_type"], credits_used=int(row["credits_used"] or 0)) for row in rows]
+            total_credits = sum(u.credits_used for u in usage_by_product)
+            return CreditUsageAnalyticsResponse(usage_by_product=usage_by_product, total_credits_used=total_credits)
+    except Exception as e:
+        logger.error(f"Error fetching usage analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+
 @app.post("/api/custom/admin/credits/migrate-users")
 async def migrate_onyx_users_to_credits(
     request: Request,
@@ -16521,6 +16639,54 @@ async def get_user_credits_by_email(
     except Exception as e:
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+
+# NEW: User transaction history (purchases + product generations)
+@app.get("/api/custom/admin/credits/user/{user_id}/transactions", response_model=UserTransactionHistoryResponse)
+async def get_user_transactions(
+    user_id: str,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    async with pool.acquire() as conn:
+        # Resolve user by numeric id or email
+        if user_id.isdigit():
+            user_row = await conn.fetchrow("SELECT * FROM user_credits WHERE id = $1", int(user_id))
+        else:
+            user_row = await conn.fetchrow("SELECT * FROM user_credits WHERE onyx_user_id = $1", user_id)
+
+        if not user_row:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        tx_rows = await conn.fetch(
+            """
+            SELECT id, type, title, credits, created_at, product_type
+            FROM credit_transactions
+            WHERE onyx_user_id = $1
+            ORDER BY created_at DESC
+            LIMIT 200
+            """,
+            user_row["onyx_user_id"]
+        )
+
+        activities = [
+            TimelineActivity(
+                id=str(r["id"]),
+                type=r["type"],
+                title=r["title"] or (r["type"].replace('_',' ').title()),
+                credits=int(r["credits"] or 0),
+                timestamp=r["created_at"],
+                product_type=r["product_type"]
+            )
+            for r in tx_rows
+        ]
+
+        return UserTransactionHistoryResponse(
+            user_id=int(user_row["id"]),
+            user_email=user_row["onyx_user_id"],
+            user_name=user_row["name"],
+            transactions=activities
+        )
         
 
 @app.post("/api/custom/projects/duplicate/{project_id}", response_model=ProjectDuplicationResponse)
