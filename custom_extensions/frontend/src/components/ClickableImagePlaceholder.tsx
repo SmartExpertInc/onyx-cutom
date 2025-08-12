@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { ImageIcon } from 'lucide-react';
-import Moveable from 'react-moveable';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
+import Moveable from 'react-moveable';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -15,17 +15,18 @@ const log = (source: string, event: string, data: any) => {
 
 export interface ClickableImagePlaceholderProps {
   imagePath?: string;
-  onImageUploaded?: (imagePath: string) => void;
-  onSizeTransformChange?: (payload: any) => void;
+  onImageUploaded: (imagePath: string) => void;
   size?: 'SMALL' | 'MEDIUM' | 'LARGE';
-  position?: 'TOP' | 'CENTER' | 'BACKGROUND';
+  position?: 'LEFT' | 'RIGHT' | 'CENTER' | 'BACKGROUND';
   description?: string;
   prompt?: string;
   isEditable?: boolean;
-  style?: React.CSSProperties;
   className?: string;
+  style?: React.CSSProperties;
+  onSizeTransformChange?: (payload: any) => void;
+  // New props for MoveableManager integration
   elementId?: string;
-  elementRef?: React.RefObject<HTMLDivElement>;
+  elementRef?: React.RefObject<HTMLDivElement | null>;
   cropMode?: 'cover' | 'contain' | 'fill';
   onCropModeChange?: (mode: 'cover' | 'contain' | 'fill') => void;
 }
@@ -33,393 +34,578 @@ export interface ClickableImagePlaceholderProps {
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   imagePath,
   onImageUploaded,
-  onSizeTransformChange,
-  size = 'LARGE',
+  size = 'MEDIUM',
   position = 'CENTER',
   description = 'Click to upload image',
   prompt,
   isEditable = false,
-  style = {},
   className = '',
-  elementId = 'image-placeholder',
+  style = {},
+  onSizeTransformChange,
+  elementId,
   elementRef,
   cropMode = 'contain',
   onCropModeChange
 }) => {
-  // State management
-  const [isHovered, setIsHovered] = useState(false);
-  const [shiftPressed, setShiftPressed] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [showCropOptions, setShowCropOptions] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [shiftPressed, setShiftPressed] = useState(false);
+  const [positionPx, setPositionPx] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [sizePx, setSizePx] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+  const internalRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const moveableRef = useRef<Moveable | null>(null);
   
-  // Refs
-  const targetRef = useRef<HTMLDivElement>(null);
-  const moveableRef = useRef<Moveable>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Use provided ref or internal ref
+  const containerRef = elementRef || internalRef;
 
   log('ClickableImagePlaceholder', 'render', { 
     elementId, 
-    hasImagePath: !!imagePath,
-    hasProcessedImage: !!processedImage,
-    isEditable,
-    cropMode
+    imagePath: !!imagePath, 
+    refExists: !!containerRef.current,
+    isEditable 
   });
 
-  // Size configurations
-  const sizeConfigs = {
-    SMALL: { width: 200, height: 150 },
-    MEDIUM: { width: 300, height: 200 },
-    LARGE: { width: 400, height: 300 }
+  const sizeClasses = {
+    'LARGE': 'h-48 md:h-64',
+    'MEDIUM': 'h-32 md:h-40', 
+    'SMALL': 'h-24 md:h-32'
   };
 
-  const defaultSize = sizeConfigs[size];
-
-  // Position classes
   const positionClasses = {
-    TOP: 'self-start',
-    CENTER: 'self-center',
-    BACKGROUND: 'absolute inset-0'
+    'LEFT': 'float-left mr-6 mb-4',
+    'RIGHT': 'float-right ml-6 mb-4',
+    'CENTER': 'mx-auto mb-6',
+    'BACKGROUND': 'absolute inset-0 z-0'
   };
 
-  // Track shift key for proportional resizing
+  // Derived sizes for default size classes when explicit width/height not provided
+  const defaultPixelSize = useMemo(() => {
+    switch (size) {
+      case 'LARGE': return { w: 512, h: 384 };
+      case 'MEDIUM': return { w: 384, h: 256 };
+      case 'SMALL': return { w: 256, h: 192 };
+      default: return { w: 384, h: 256 };
+    }
+  }, [size]);
+
+  // Initialize local size from defaults once
+  useEffect(() => {
+    if (sizePx.width === 0 || sizePx.height === 0) {
+      setSizePx({ width: defaultPixelSize.w, height: defaultPixelSize.h });
+    }
+  }, [defaultPixelSize, sizePx.width, sizePx.height]);
+
+  // Keep local displayed image in sync with prop when it changes
+  useEffect(() => {
+    if (imagePath) {
+      setDisplayedImage(imagePath);
+    }
+  }, [imagePath]);
+
+  // Track Shift key for proportional resizing
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Shift') {
         setShiftPressed(true);
+        moveableRef.current?.updateRect();
         log('ClickableImagePlaceholder', 'shiftKeyDown', { elementId });
-        // Update moveable keepRatio in real-time
-        if (moveableRef.current) {
-          moveableRef.current.updateRect();
-        }
       }
     };
-    
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'Shift') {
         setShiftPressed(false);
+        moveableRef.current?.updateRect();
         log('ClickableImagePlaceholder', 'shiftKeyUp', { elementId });
-        if (moveableRef.current) {
-          moveableRef.current.updateRect();
-        }
       }
     };
-    
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
-    
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
   }, [elementId]);
 
-  // Process image when imagePath changes
-  useEffect(() => {
-    if (imagePath) {
-      log('ClickableImagePlaceholder', 'imagePathChanged', { 
-        elementId, 
-        imagePath: !!imagePath 
-      });
-      setProcessedImage(imagePath);
-    } else {
-      setProcessedImage(null);
+  const handleClick = () => {
+    if (!isEditable) return;
+    if (isDragging || isResizing) {
+      log('ClickableImagePlaceholder', 'clickIgnoredWhileTransforming', { elementId, isDragging, isResizing });
+      return;
     }
-  }, [imagePath, elementId]);
+    log('ClickableImagePlaceholder', 'handleClick', { elementId, isEditable });
+    setShowUploadModal(true);
+  };
 
-  // Image processing function
-  const processImage = useCallback((imageData: string, shouldCrop: boolean = true) => {
-    const img = new window.Image();
-    img.onload = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const rect = targetRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      
-      if (shouldCrop) {
-        // Crop to fit - maintain aspect ratio, fill entire placeholder
-        const scale = Math.max(rect.width / img.width, rect.height / img.height);
-        const scaledWidth = img.width * scale;
-        const scaledHeight = img.height * scale;
-        const offsetX = (rect.width - scaledWidth) / 2;
-        const offsetY = (rect.height - scaledHeight) / 2;
-        ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
-      } else {
-        // Stretch to fit exact dimensions
-        ctx.drawImage(img, 0, 0, rect.width, rect.height);
-      }
-      
-      const processedDataUrl = canvas.toDataURL();
-      setProcessedImage(processedDataUrl);
-      
-      log('ClickableImagePlaceholder', 'imageProcessed', { 
-        elementId, 
-        shouldCrop,
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height
-      });
-    };
-    img.src = imageData;
-  }, [elementId]);
-
-  // Handle image upload
-  const handleImageUploaded = useCallback((newImagePath: string) => {
+  const handleImageUploaded = (newImagePath: string) => {
     log('ClickableImagePlaceholder', 'handleImageUploaded_start', { 
       elementId, 
       newImagePath: !!newImagePath,
-      refExists: !!targetRef.current
+      refExists: !!containerRef.current 
     });
 
-    if (onImageUploaded) {
-      onImageUploaded(newImagePath);
-    }
-  }, [elementId, onImageUploaded]);
-
-  // Click handler for image upload
-  const handlePlaceholderClick = useCallback((e: React.MouseEvent) => {
-    if (!isEditable) return;
+    onImageUploaded(newImagePath);
+    setDisplayedImage(newImagePath);
     
-    log('ClickableImagePlaceholder', 'handleClick', { 
-      elementId, 
-      isEditable,
-      target: e.target,
-      isTargetRef: e.target === targetRef.current
-    });
-
-    // Only trigger file input if not currently being manipulated by Moveable
-    if (e.target === targetRef.current || (e.target as HTMLElement).closest('.image-content')) {
-      setShowUploadModal(true);
-    }
-  }, [elementId, isEditable]);
-
-  // Moveable event handlers
-  const handleDrag = useCallback(({ target, left, top }: any) => {
-    if (target) {
-      target.style.left = `${left}px`;
-      target.style.top = `${top}px`;
-    }
-    
-    log('ClickableImagePlaceholder', 'handleDrag', { 
-      elementId, 
-      left, 
-      top 
-    });
-  }, [elementId]);
-
-  const handleDragEnd = useCallback(({ target }: any) => {
-    if (target) {
-      const rect = target.getBoundingClientRect();
-      const parentRect = target.parentElement?.getBoundingClientRect();
+    // Load image to get dimensions and calculate optimal size
+    const tmp = new window.Image();
+    tmp.onload = () => {
+      const imgW = tmp.naturalWidth || tmp.width;
+      const imgH = tmp.naturalHeight || tmp.height;
       
-      if (parentRect) {
-        const position = {
-          x: rect.left - parentRect.left,
-          y: rect.top - parentRect.top
-        };
+      log('ClickableImagePlaceholder', 'imageLoaded', { 
+        elementId, 
+        imgW, 
+        imgH, 
+        refExists: !!containerRef.current 
+      });
+      
+      if (imgW > 0 && imgH > 0) {
+        setImageDimensions({ width: imgW, height: imgH });
         
-        log('ClickableImagePlaceholder', 'handleDragEnd', { 
+        // Calculate optimal size based on crop mode
+        const containerWidth = defaultPixelSize.w;
+        const containerHeight = defaultPixelSize.h;
+        const containerRatio = containerWidth / containerHeight;
+        const imageRatio = imgW / imgH;
+        
+        let targetWidth: number;
+        let targetHeight: number;
+        
+        switch (cropMode) {
+          case 'cover':
+            // Scale to cover container, maintaining aspect ratio
+            if (imageRatio > containerRatio) {
+              targetHeight = containerHeight;
+              targetWidth = containerHeight * imageRatio;
+            } else {
+              targetWidth = containerWidth;
+              targetHeight = containerWidth / imageRatio;
+            }
+            break;
+          case 'fill':
+            // Stretch to fit container exactly
+            targetWidth = containerWidth;
+            targetHeight = containerHeight;
+            break;
+          case 'contain':
+          default:
+            // Scale to fit within container, maintaining aspect ratio
+            if (imageRatio > containerRatio) {
+              targetWidth = containerWidth;
+              targetHeight = containerWidth / imageRatio;
+            } else {
+              targetHeight = containerHeight;
+              targetWidth = containerHeight * imageRatio;
+            }
+            break;
+        }
+        
+        log('ClickableImagePlaceholder', 'sizeCalculation', { 
           elementId, 
-          position 
+          cropMode, 
+          targetWidth, 
+          targetHeight,
+          containerWidth,
+          containerHeight,
+          imageRatio,
+          containerRatio
         });
         
-        if (onSizeTransformChange) {
-          onSizeTransformChange({
-            moveablePositions: {
-              [elementId]: position
-            }
-          });
-        }
-      }
-    }
-  }, [elementId, onSizeTransformChange]);
-
-  const handleResize = useCallback(({ target, width, height, left, top }: any) => {
-    if (target) {
-      target.style.width = `${width}px`;
-      target.style.height = `${height}px`;
-      target.style.left = `${left}px`;
-      target.style.top = `${top}px`;
-    }
-    
-    log('ClickableImagePlaceholder', 'handleResize', { 
-      elementId, 
-      width, 
-      height 
-    });
-  }, [elementId]);
-
-  const handleResizeEnd = useCallback(({ target }: any) => {
-    if (target) {
-      const rect = target.getBoundingClientRect();
-      const parentRect = target.parentElement?.getBoundingClientRect();
-      
-      if (parentRect) {
-        const size = {
-          width: rect.width,
-          height: rect.height
-        };
-        
-        const position = {
-          x: rect.left - parentRect.left,
-          y: rect.top - parentRect.top
-        };
-        
-        log('ClickableImagePlaceholder', 'handleResizeEnd', { 
-          elementId, 
-          size, 
-          position 
+        // Update size via callback
+        onSizeTransformChange?.({
+          widthPx: Math.round(targetWidth),
+          heightPx: Math.round(targetHeight),
+          objectFit: cropMode,
+          imageScale: 1,
+          imageOffset: { x: 0, y: 0 }
         });
-        
-        if (onSizeTransformChange) {
-          onSizeTransformChange({
-            moveableSizes: {
-              [elementId]: size
-            },
-            moveablePositions: {
-              [elementId]: position
-            }
-          });
-        }
-        
-        // Reprocess image if it exists to fit new dimensions
-        if (imagePath) {
-          processImage(imagePath, cropMode === 'cover');
-        }
-      }
-    }
-  }, [elementId, onSizeTransformChange, imagePath, processImage, cropMode]);
 
-  // Handle crop mode change
-  const handleCropModeChange = useCallback((mode: 'cover' | 'contain' | 'fill') => {
+        log('ClickableImagePlaceholder', 'handleImageUploaded_complete', { 
+          elementId, 
+          newImagePath: !!newImagePath,
+          refExists: !!containerRef.current,
+          targetWidth,
+          targetHeight
+        });
+      }
+    };
+    tmp.onerror = () => {
+      log('ClickableImagePlaceholder', 'imageLoadError', { elementId, newImagePath });
+    };
+    tmp.src = newImagePath;
+  };
+
+  const handleCropModeChange = (newMode: 'cover' | 'contain' | 'fill') => {
     log('ClickableImagePlaceholder', 'handleCropModeChange', { 
       elementId, 
       oldMode: cropMode, 
-      newMode: mode,
-      hasImagePath: !!imagePath
+      newMode,
+      hasDimensions: !!imageDimensions 
     });
 
-    if (onCropModeChange) {
-      onCropModeChange(mode);
-    }
+    onCropModeChange?.(newMode);
     
-    // Reprocess image if it exists
-    if (imagePath) {
-      processImage(imagePath, mode === 'cover');
+    // Recalculate size if we have image dimensions
+    if (imageDimensions && onSizeTransformChange) {
+      const { width: imgW, height: imgH } = imageDimensions;
+      const containerWidth = defaultPixelSize.w;
+      const containerHeight = defaultPixelSize.h;
+      const containerRatio = containerWidth / containerHeight;
+      const imageRatio = imgW / imgH;
+      
+      let targetWidth: number;
+      let targetHeight: number;
+      
+      switch (newMode) {
+        case 'cover':
+          if (imageRatio > containerRatio) {
+            targetHeight = containerHeight;
+            targetWidth = containerHeight * imageRatio;
+          } else {
+            targetWidth = containerWidth;
+            targetHeight = containerWidth / imageRatio;
+          }
+          break;
+        case 'fill':
+          targetWidth = containerWidth;
+          targetHeight = containerHeight;
+          break;
+        case 'contain':
+        default:
+          if (imageRatio > containerRatio) {
+            targetWidth = containerWidth;
+            targetHeight = containerWidth / imageRatio;
+          } else {
+            targetHeight = containerHeight;
+            targetWidth = containerHeight * imageRatio;
+          }
+          break;
+      }
+      
+      onSizeTransformChange({
+        widthPx: Math.round(targetWidth),
+        heightPx: Math.round(targetHeight),
+        objectFit: newMode,
+        imageScale: 1,
+        imageOffset: { x: 0, y: 0 }
+      });
     }
-  }, [elementId, cropMode, onCropModeChange, imagePath, processImage]);
+  };
 
-  log('ClickableImagePlaceholder', 'renderingImage', { 
+  // If we have an image, display it with replace overlay and crop controls
+  if (displayedImage) {
+    log('ClickableImagePlaceholder', 'renderingImage', { 
+      elementId, 
+      imagePath: !!displayedImage,
+      refExists: !!containerRef.current,
+      cropMode 
+    });
+
+    return (
+      <>
+        <div
+          ref={containerRef}
+          data-moveable-element={elementId}
+          className={`
+            ${positionClasses[position]} 
+            rounded-lg overflow-hidden relative ${className}
+          `}
+          style={{
+            ...(style || {}),
+            position: 'relative',
+            width: sizePx.width || defaultPixelSize.w,
+            height: sizePx.height || defaultPixelSize.h,
+            left: positionPx.x,
+            top: positionPx.y,
+            minWidth: 120,
+            minHeight: 120,
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={handleClick}
+        >
+          <div className="w-full h-full relative">
+            <img
+              ref={imgRef}
+              src={displayedImage}
+              alt={description}
+              className="absolute inset-0"
+              style={{
+                width: '100%',
+                height: '100%',
+                 objectFit: cropMode,
+                 transform: 'none',
+                transformOrigin: 'center center',
+                maxWidth: 'none',
+                maxHeight: 'none'
+              }}
+              draggable={false}
+              onLoad={() => {
+                log('ClickableImagePlaceholder', 'imgOnLoad', { elementId, imagePath: !!displayedImage });
+              }}
+              onError={() => {
+                log('ClickableImagePlaceholder', 'imgOnError', { elementId, imagePath: displayedImage });
+              }}
+            />
+            
+            {/* Replace overlay */}
+            {isEditable && (
+              <div 
+                className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
+                onClick={handleClick}
+                title="Click to replace image"
+                style={{ pointerEvents: 'auto', zIndex: 10 }}
+              >
+                <div className="text-center text-white">
+                  <Replace className="w-6 h-6 mx-auto mb-1" />
+                  <div className="text-xs font-medium">Replace</div>
+                </div>
+              </div>
+            )}
+            
+            {/* Crop mode controls */}
+            {isEditable && (
+              <div className="absolute top-2 right-2 z-20">
+                <button
+                  onClick={() => {
+                    log('ClickableImagePlaceholder', 'cropButtonClick', { elementId });
+                    setShowCropOptions(!showCropOptions);
+                  }}
+                  className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 px-2 py-1 rounded text-xs font-medium shadow-sm transition-all duration-200"
+                  title="Crop options"
+                >
+                  Crop
+                </button>
+                
+                {showCropOptions && (
+                  <div className="absolute top-full right-0 mt-1 bg-white rounded shadow-lg border border-gray-200 p-2 min-w-32">
+                    <div className="text-xs font-medium text-gray-700 mb-2">Image Fit:</div>
+                    <button
+                      onClick={() => handleCropModeChange('contain')}
+                      className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'contain' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      Fit (contain)
+                    </button>
+                    <button
+                      onClick={() => handleCropModeChange('cover')}
+                      className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'cover' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      Fill (cover)
+                    </button>
+                    <button
+                      onClick={() => handleCropModeChange('fill')}
+                      className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'fill' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      Stretch (fill)
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Moveable controls for drag/resize */}
+        {isEditable && (
+          <Moveable
+            ref={moveableRef as any}
+            target={containerRef.current as any}
+            draggable={true}
+            resizable={true}
+            keepRatio={shiftPressed}
+            // Drag
+            onDrag={({ target, left, top }) => {
+              setIsDragging(true);
+              (target as HTMLElement).style.left = `${left}px`;
+              (target as HTMLElement).style.top = `${top}px`;
+              log('ClickableImagePlaceholder', 'onDrag', { elementId, left, top });
+            }}
+            onDragEnd={({ target }) => {
+              const rect = (target as HTMLElement).getBoundingClientRect();
+              const parentRect = (target as HTMLElement).parentElement?.getBoundingClientRect();
+              const x = parentRect ? rect.left - parentRect.left : rect.left;
+              const y = parentRect ? rect.top - parentRect.top : rect.top;
+              setPositionPx({ x, y });
+              setIsDragging(false);
+              log('ClickableImagePlaceholder', 'onDragEnd', { elementId, x, y });
+              // Save only at end
+              onSizeTransformChange?.({ position: { x, y } });
+            }}
+            // Resize
+            onResize={({ target, width, height, drag }) => {
+              setIsResizing(true);
+              const el = target as HTMLElement;
+              el.style.width = `${Math.max(50, Math.round(width))}px`;
+              el.style.height = `${Math.max(50, Math.round(height))}px`;
+              const left = drag?.left ?? el.offsetLeft;
+              const top = drag?.top ?? el.offsetTop;
+              el.style.left = `${left}px`;
+              el.style.top = `${top}px`;
+              log('ClickableImagePlaceholder', 'onResize', { elementId, width, height, left, top });
+            }}
+            onResizeEnd={({ target }) => {
+              const el = target as HTMLElement;
+              const rect = el.getBoundingClientRect();
+              const parentRect = el.parentElement?.getBoundingClientRect();
+              const newSize = { width: Math.round(rect.width), height: Math.round(rect.height) };
+              const newPos = {
+                x: parentRect ? Math.round(rect.left - parentRect.left) : Math.round(rect.left),
+                y: parentRect ? Math.round(rect.top - parentRect.top) : Math.round(rect.top)
+              };
+              setSizePx(newSize);
+              setPositionPx(newPos);
+              setIsResizing(false);
+              log('ClickableImagePlaceholder', 'onResizeEnd', { elementId, ...newSize, ...newPos });
+              onSizeTransformChange?.({ widthPx: newSize.width, heightPx: newSize.height, position: newPos });
+            }}
+            throttleDrag={0}
+            throttleResize={0}
+            renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
+            className="moveable-control"
+            hideDefaultLines={!isHovered}
+            edge={false}
+            zoom={1}
+            origin={false}
+            minWidth={50}
+            minHeight={50}
+          />
+        )}
+
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => {
+            log('ClickableImagePlaceholder', 'uploadModalClose', { elementId });
+            setShowUploadModal(false);
+          }}
+          onImageUploaded={handleImageUploaded}
+          title="Upload Presentation Image"
+        />
+      </>
+    );
+  }
+
+  // Otherwise show placeholder
+  log('ClickableImagePlaceholder', 'renderingPlaceholder', { 
     elementId, 
-    hasImagePath: !!imagePath,
-    hasProcessedImage: !!processedImage,
-    refExists: !!targetRef.current,
-    cropMode
+    refExists: !!containerRef.current,
+    isEditable 
   });
 
   return (
     <>
-      {/* Main draggable/resizable element */}
       <div
-        ref={targetRef}
+        ref={containerRef}
         data-moveable-element={elementId}
         className={`
           ${positionClasses[position]} 
-          relative border-2 border-dashed border-gray-300 
-          bg-gradient-to-br from-blue-100 to-purple-100
-          shadow-lg cursor-pointer transition-colors
-          ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50' : ''}
+          bg-gradient-to-br from-blue-100 to-purple-100 
+          border-2 border-dashed border-gray-300 
+          rounded-lg flex items-center justify-center 
+          text-gray-500 text-sm
+          ${position === 'BACKGROUND' ? 'opacity-20' : ''}
+          ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
           ${className}
         `}
         style={{
-          ...style,
-          width: defaultSize.width,
-          height: defaultSize.height,
+          ...(style || {}),
+          position: 'relative',
+          width: sizePx.width || defaultPixelSize.w,
+          height: sizePx.height || defaultPixelSize.h,
+          left: positionPx.x,
+          top: positionPx.y,
           minWidth: 120,
           minHeight: 120,
         }}
-        onClick={handlePlaceholderClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={handleClick}
       >
-        {/* Image content */}
-        <div className="image-content w-full h-full relative overflow-hidden pointer-events-none">
-          {processedImage ? (
-            <img
-              src={processedImage}
-              alt="Uploaded content"
-              className="w-full h-full object-cover"
-              draggable={false}
-              onLoad={() => {
-                log('ClickableImagePlaceholder', 'imgOnLoad', { elementId });
-              }}
-              onError={() => {
-                log('ClickableImagePlaceholder', 'imgOnError', { elementId });
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 p-4">
-              <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <div className="font-medium">{size} Image</div>
-              <div className="text-xs mt-1 opacity-75">{description}</div>
-              {prompt && (
-                <div className="text-xs mt-1 opacity-60 italic">
-                  "{prompt}"
-                </div>
-              )}
-              {isEditable && (
-                <div className="text-xs mt-2 text-blue-600 font-medium">
-                  Click to upload
-                </div>
-              )}
+        <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+          <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <div className="font-medium">{size} Image</div>
+          <div className="text-xs mt-1 opacity-75">{description}</div>
+          {prompt && (
+            <div className="text-xs mt-1 opacity-60 italic">
+              "{prompt}"
+            </div>
+          )}
+          {isEditable && (
+            <div className="text-xs mt-2 text-blue-600 font-medium">
+              Click to upload
             </div>
           )}
         </div>
       </div>
 
-      {/* React Moveable Component - only show when image is uploaded and editable */}
-      {isEditable && processedImage && (
+      {/* Moveable controls for drag/resize when empty */}
+      {isEditable && (
         <Moveable
-          ref={moveableRef}
-          target={targetRef.current}
+          ref={moveableRef as any}
+          target={containerRef.current as any}
           draggable={true}
           resizable={true}
           keepRatio={shiftPressed}
-          
-          // Drag events
-          onDrag={handleDrag}
-          onDragEnd={handleDragEnd}
-          
-          // Resize events
-          onResize={handleResize}
-          onResizeEnd={handleResizeEnd}
-          
-          // Visual configuration
+          onDrag={({ target, left, top }) => {
+            setIsDragging(true);
+            (target as HTMLElement).style.left = `${left}px`;
+            (target as HTMLElement).style.top = `${top}px`;
+            log('ClickableImagePlaceholder', 'onDrag', { elementId, left, top });
+          }}
+          onDragEnd={({ target }) => {
+            const rect = (target as HTMLElement).getBoundingClientRect();
+            const parentRect = (target as HTMLElement).parentElement?.getBoundingClientRect();
+            const x = parentRect ? rect.left - parentRect.left : rect.left;
+            const y = parentRect ? rect.top - parentRect.top : rect.top;
+            setPositionPx({ x, y });
+            setIsDragging(false);
+            log('ClickableImagePlaceholder', 'onDragEnd', { elementId, x, y });
+            onSizeTransformChange?.({ position: { x, y } });
+          }}
+          onResize={({ target, width, height, drag }) => {
+            setIsResizing(true);
+            const el = target as HTMLElement;
+            el.style.width = `${Math.max(50, Math.round(width))}px`;
+            el.style.height = `${Math.max(50, Math.round(height))}px`;
+            const left = drag?.left ?? el.offsetLeft;
+            const top = drag?.top ?? el.offsetTop;
+            el.style.left = `${left}px`;
+            el.style.top = `${top}px`;
+            log('ClickableImagePlaceholder', 'onResize', { elementId, width, height, left, top });
+          }}
+          onResizeEnd={({ target }) => {
+            const el = target as HTMLElement;
+            const rect = el.getBoundingClientRect();
+            const parentRect = el.parentElement?.getBoundingClientRect();
+            const newSize = { width: Math.round(rect.width), height: Math.round(rect.height) };
+            const newPos = {
+              x: parentRect ? Math.round(rect.left - parentRect.left) : Math.round(rect.left),
+              y: parentRect ? Math.round(rect.top - parentRect.top) : Math.round(rect.top)
+            };
+            setSizePx(newSize);
+            setPositionPx(newPos);
+            setIsResizing(false);
+            log('ClickableImagePlaceholder', 'onResizeEnd', { elementId, ...newSize, ...newPos });
+            onSizeTransformChange?.({ widthPx: newSize.width, heightPx: newSize.height, position: newPos });
+          }}
           throttleDrag={0}
           throttleResize={0}
-          
-          // Resize handle configuration
           renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
-          
-          // Custom styling
           className="moveable-control"
-          
-          // Only show controls on hover
           hideDefaultLines={!isHovered}
-          
-          // Edge and handle styling
           edge={false}
           zoom={1}
           origin={false}
+          minWidth={50}
+          minHeight={50}
         />
       )}
 
-      {/* Upload Modal */}
       <PresentationImageUpload
         isOpen={showUploadModal}
         onClose={() => {
@@ -429,33 +615,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onImageUploaded={handleImageUploaded}
         title="Upload Presentation Image"
       />
-
-      {/* Hidden canvas for image processing */}
-      <canvas ref={canvasRef} className="hidden" />
-
-      {/* Custom CSS for Moveable styling */}
-      <style jsx>{`
-        .moveable-control .moveable-line {
-          background: #3b82f6;
-        }
-        
-        .moveable-control .moveable-control-box {
-          border-color: #3b82f6;
-        }
-        
-        .moveable-control .moveable-direction {
-          background: #3b82f6;
-          border: 2px solid white;
-          border-radius: 2px;
-          width: 8px;
-          height: 8px;
-        }
-        
-        .moveable-control .moveable-direction:hover {
-          background: #2563eb;
-          transform: scale(1.2);
-        }
-      `}</style>
     </>
   );
 };
