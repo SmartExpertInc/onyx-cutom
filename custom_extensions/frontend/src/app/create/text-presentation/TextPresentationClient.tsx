@@ -868,6 +868,54 @@ export default function TextPresentationClient() {
     { value: "long", label: t('interface.generate.long', 'Long') },
   ];
 
+  // Theme configuration for outline colors (matching CourseOutlineClient)
+  const themeConfig = {
+    cherry: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    lunaria: {
+      headerBg: "bg-[#85749E]",
+      numberColor: "text-white",
+      accentBg: "bg-[#85749E]",
+      accentBgHover: "hover:bg-[#6b5d7a]",
+      accentText: "text-[#85749E]",
+    },
+    wine: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    vanilla: {
+      headerBg: "bg-[#C4B5D6]",
+      numberColor: "text-white",
+      accentBg: "bg-[#8776A0]",
+      accentBgHover: "hover:bg-[#7a6b92]",
+      accentText: "text-[#8776A0]",
+    },
+    terracotta: {
+      headerBg: "bg-[#C4D6B5]",
+      numberColor: "text-white",
+      accentBg: "bg-[#2D7C21]",
+      accentBgHover: "hover:bg-[#26701e]",
+      accentText: "text-[#2D7C21]",
+    },
+    zephyr: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+  };
+
+  const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
+
   return (
     <>
     <main
@@ -1138,7 +1186,7 @@ export default function TextPresentationClient() {
           {/* Main content display - Custom slide titles display matching course outline format */}
           {textareaVisible && (
             <div
-              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
+              className="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
               {loadingEdit && (
@@ -1153,8 +1201,8 @@ export default function TextPresentationClient() {
                   {lessonList.map((lesson, idx: number) => (
                     <div key={idx} className="flex rounded-xl shadow-sm overflow-hidden">
                       {/* Left colored bar with index - matching course outline styling */}
-                      <div className="w-[60px] bg-[#0066FF] flex items-start justify-center pt-5">
-                        <span className="text-white font-semibold text-base select-none">{idx + 1}</span>
+                      <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
+                        <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{idx + 1}</span>
                       </div>
 
                       {/* Main card - matching course outline styling */}
@@ -1236,7 +1284,7 @@ export default function TextPresentationClient() {
                     type="button"
                     disabled={loadingEdit || !editPrompt.trim()}
                     onClick={handleApplyEdit}
-                    className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                    className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
                   >
                     {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
                   </button>
@@ -1257,90 +1305,93 @@ export default function TextPresentationClient() {
         )}
 
         {streamDone && content && (
-          <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <h2 className="text-xl font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
-                <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
+            <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
+                  <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                </div>
+                <button
+                  type="button"
+                  className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
+                >
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                  <span>{t('interface.generate.viewMore', 'View more')}</span>
+                </button>
               </div>
-              <button
-                type="button"
-                className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
-              >
-                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-                <span>{t('interface.generate.viewMore', 'View more')}</span>
-              </button>
-            </div>
-            
-            <div className="flex flex-col gap-5">
-              {/* Themes grid */}
-              <div className="grid grid-cols-3 gap-5 justify-items-center">
-                {themeOptions.map((theme) => {
-                  const isSelected = selectedTheme === theme.id;
-                  
-                  return (
-                    <button
-                      key={theme.id}
-                      type="button"
-                      onClick={() => setSelectedTheme(theme.id)}
-                      className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${
-                        isSelected 
-                          ? 'bg-[#cee2fd]' 
-                          : ''
-                      }`}
-                    >
-                      <div className="w-[214px] h-[116px] flex items-center justify-center">
-                        {(() => {
-                          const Svg = ThemeSvgs[theme.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                          return <Svg />;
-                        })()}
-                      </div>
-                      <div className="flex items-center gap-1 px-2">
-                        <span className={`w-4 text-[#20355D] ${isSelected ? '' : 'opacity-0'}`}>
-                          ✔
-                        </span>
-                        <span className="text-sm text-[#20355D] font-medium select-none">
-                          {theme.label}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Content section */}
-              <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
-                <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
-                <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
-
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
-                  <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
-                    {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
-                      <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
-                        {opt.icon} {opt.label}
+              
+              <div className="flex flex-col gap-5">
+                {/* Themes grid */}
+                <div className="grid grid-cols-3 gap-5 justify-items-center">
+                  {themeOptions.map((theme) => {
+                    const isSelected = selectedTheme === theme.id;
+                    
+                    return (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        onClick={() => setSelectedTheme(theme.id)}
+                        className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${
+                          isSelected 
+                            ? 'bg-[#cee2fd]' 
+                            : ''
+                        }`}
+                      >
+                        <div className="w-[214px] h-[116px] flex items-center justify-center">
+                          {(() => {
+                            const Svg = ThemeSvgs[theme.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                            return <Svg />;
+                          })()}
+                        </div>
+                        <div className="flex items-center gap-1 px-2">
+                          <span className={`w-4 ${currentTheme.accentText} ${isSelected ? '' : 'opacity-0'}`}>
+                            ✔
+                          </span>
+                          <span className="text-sm text-[#20355D] font-medium select-none">
+                            {theme.label}
+                          </span>
+                        </div>
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
-                  <div className="relative w-full">
-                    <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                      <option value="ai">{t('interface.generate.aiImages', 'AI images')}</option><option value="stock">{t('interface.generate.stockImages', 'Stock images')}</option><option value="none">{t('interface.generate.noImages', 'No images')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
-                </div>
+                {/* Content section */}
+                <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
+                  <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
+                  <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
 
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
-                  <div className="relative w-full">
-                    <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                      <option value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
+                    <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
+                      {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
+                        <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
+                          {opt.icon} {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                    <div className="relative w-full">
+                      <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                        <option value="ai">{t('interface.generate.aiImages', 'AI images')}</option><option value="stock">{t('interface.generate.stockImages', 'Stock images')}</option><option value="none">{t('interface.generate.noImages', 'No images')}</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
+                    <div className="relative w-full">
+                      <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                        <option value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1363,7 +1414,7 @@ export default function TextPresentationClient() {
               <button
                 type="button"
                 onClick={handleFinalize}
-                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
                 disabled={loading || isGenerating || isCreatingFinal}
               >
                 <Sparkles size={18} />
