@@ -5,7 +5,7 @@ import Moveable from 'react-moveable';
 
 export interface MoveableElement {
   id: string;
-  ref: React.RefObject<HTMLElement>;
+  ref: React.RefObject<HTMLElement | null>;
   type: 'image' | 'text' | 'placeholder';
   initialSize?: { width: number; height: number };
   initialPosition?: { x: number; y: number };

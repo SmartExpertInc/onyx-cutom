@@ -337,6 +337,7 @@ export const MyTemplate: React.FC<MyTemplateProps> = ({
 2. **Resize handles not visible**: Check that `isEnabled={true}` and element is selected
 3. **Crop controls not showing**: Verify `isEditable={true}` and image is uploaded
 4. **Transform not saving**: Ensure `onUpdate` callback is properly connected
+5. **TypeScript errors with refs**: Make sure refs are typed as `React.RefObject<HTMLElement | null>`
 
 ### Debug Tips
 
@@ -344,6 +345,26 @@ export const MyTemplate: React.FC<MyTemplateProps> = ({
 - Verify refs are properly connected to DOM elements
 - Ensure element IDs are unique within the slide
 - Test with `console.log` in callback functions
+
+### TypeScript Issues
+
+**Error: `Type 'RefObject<HTMLElement | null>' is not assignable to type 'RefObject<HTMLElement>'`**
+
+This error occurs when the MoveableElement interface expects a non-null ref but receives a nullable ref. The fix is to update the interface:
+
+```typescript
+// Before (causes error)
+export interface MoveableElement {
+  ref: React.RefObject<HTMLElement>; // ❌ Doesn't allow null
+}
+
+// After (fixed)
+export interface MoveableElement {
+  ref: React.RefObject<HTMLElement | null>; // ✅ Allows null
+}
+```
+
+**Solution**: The MoveableManager component now properly handles nullable refs and checks for null values before using them.
 
 ## Performance Considerations
 
