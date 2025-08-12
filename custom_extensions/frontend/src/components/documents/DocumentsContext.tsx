@@ -83,6 +83,7 @@ export interface DocumentsContextType {
   uploadFile: (formData: FormData, folderId: number | null) => Promise<FileResponse[]>;
   handleUpload: (files: File[]) => Promise<void>;
   getFilesIndexingStatus: (fileIds: number[]) => Promise<Record<number, boolean>>;
+  createFileFromLink: (url: string, folderId: number | null) => Promise<FileResponse[]>;
 }
 
 // Optimized documents service
@@ -158,6 +159,19 @@ class DocumentsService {
 
     const data = await response.json();
     return data;
+  }
+
+  async createFileFromLink(url: string, folderId: number | null): Promise<FileResponse[]> {
+    const response = await fetch("/api/user/file/create-from-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, folder_id: folderId }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to create file from link");
+    }
+    return response.json();
   }
 
   async getFilesIndexingStatus(fileIds: number[]): Promise<Record<number, boolean>> {
@@ -415,6 +429,24 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     setSelectedFolders([]);
   }, []);
 
+  const createFileFromLink = useCallback(
+    async (url: string, folderId: number | null): Promise<FileResponse[]> => {
+      try {
+        const data = await new DocumentsService().createFileFromLink(url, folderId);
+        await refreshFolders();
+        const targetFolderId = folderId ?? (folderDetails?.id || currentFolder);
+        if (targetFolderId) {
+          await getFolderDetails(targetFolderId);
+        }
+        return data;
+      } catch (error) {
+        console.error("Failed to create file from link:", error);
+        throw error;
+      }
+    },
+    [refreshFolders, folderDetails, currentFolder, getFolderDetails]
+  );
+
   return (
     <DocumentsContext.Provider
       value={{
@@ -450,6 +482,7 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
         uploadFile,
         handleUpload,
         getFilesIndexingStatus: async (fileIds: number[]) => await new DocumentsService().getFilesIndexingStatus(fileIds),
+        createFileFromLink,
       }}
     >
       {children}
