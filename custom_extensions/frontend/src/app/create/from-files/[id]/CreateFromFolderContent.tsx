@@ -506,8 +506,9 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
 
       {/* Content */}
       <div className="flex-1 px-6 pb-6" style={{ paddingBottom: selectedFileIds.length > 0 ? '100px' : '24px' }}>
-        {/* Add Website Section */}
-        <div className="mb-8">
+        {/* Add Website + File Upload Side-by-Side */}
+        <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Add Website Section */}
           <div className="rounded-lg p-6 border bg-white">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
@@ -555,55 +556,55 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
               </div>
             </div>
           </div>
-        </div>
 
-        {/* File Upload Section */}
-        <div className="mb-8">
-          <div 
-            className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-              isDragging 
-                ? 'border-blue-500 bg-blue-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          >
-            {uploadProgress ? (
-              <UploadProgressDisplay 
-                fileCount={uploadProgress.fileCount}
-                completedCount={uploadProgress.completedCount}
-                currentFileName={uploadProgress.currentFileName}
-                percentage={uploadProgress.percentage}
-              />
-            ) : (
-              <>
-                <Upload className="h-10 w-10 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('actions.uploadDocuments', 'Upload Documents')}</h3>
-                <p className="text-gray-600 mb-4">
-                  {t('actions.dragAndDropFiles', 'Drag and drop files here, or click to select files')}
-                </p>
-                <p className="text-xs text-gray-500 mb-4">
-                  {t('actions.filesWillBeProcessed', 'Files will be automatically processed and indexed for content creation')}
-                </p>
-                <button
-                  onClick={handleFileSelect}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  <Plus className="h-4 w-4" />
-                  {t('actions.selectFiles', 'Select Files')}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept={ALLOWED_FILE_TYPES.join(',')}
+          {/* File Upload Section */}
+          <div>
+            <div 
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
+                isDragging 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              {uploadProgress ? (
+                <UploadProgressDisplay 
+                  fileCount={uploadProgress.fileCount}
+                  completedCount={uploadProgress.completedCount}
+                  currentFileName={uploadProgress.currentFileName}
+                  percentage={uploadProgress.percentage}
                 />
-              </>
-            )}
+              ) : (
+                <>
+                  <Upload className="h-10 w-10 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('actions.uploadDocuments', 'Upload Documents')}</h3>
+                  <p className="text-gray-600 mb-4">
+                    {t('actions.dragAndDropFiles', 'Drag and drop files here, or click to select files')}
+                  </p>
+                  <p className="text-xs text-gray-500 mb-4">
+                    {t('actions.filesWillBeProcessed', 'Files will be automatically processed and indexed for content creation')}
+                  </p>
+                  <button
+                    onClick={handleFileSelect}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {t('actions.selectFiles', 'Select Files')}
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileChange}
+                    accept={ALLOWED_FILE_TYPES.join(',')}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </div>
 
