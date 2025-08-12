@@ -266,7 +266,7 @@ export default function TextPresentationClient() {
     // Update the original content with new title
     updateContentWithNewTitle(lessonIndex, newTitle);
     
-    // Clear editing state
+    // Clear editing state after content is updated
     setEditingLessonId(null);
   };
 
@@ -300,22 +300,8 @@ export default function TextPresentationClient() {
 
     setContent(updatedContent);
     
-    // Clear all editing state for this lesson
+    // Clear the edited title since it's now part of the main content
     setEditedTitles(prev => {
-      const newTitles = { ...prev };
-      delete newTitles[lessonIndex];
-      return newTitles;
-    });
-    
-    // Remove from edited titles list since it's now saved
-    setEditedTitleIds(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(lessonIndex);
-      return newSet;
-    });
-    
-    // Clear original title since it's no longer needed
-    setOriginalTitles(prev => {
       const newTitles = { ...prev };
       delete newTitles[lessonIndex];
       return newTitles;
