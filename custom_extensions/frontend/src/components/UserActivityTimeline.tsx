@@ -91,12 +91,6 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
     return '#EF4444'; // red-500
   };
 
-  const getActivityIcon = (type: string) => {
-    if (type === 'purchase') return '💰';
-    if (type === 'product_generation') return '⚡';
-    return '❓';
-  };
-
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', {
@@ -170,19 +164,18 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                     p: 2,
                     border: '1px solid #E2E8F0'
                   }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <span style={{ fontSize: '16px' }}>{getActivityIcon(activity.type)}</span>
-                      <Typography 
-                        variant="body2" 
-                        component="span" 
-                        sx={{ 
-                          fontWeight: 600,
-                          color: '#1F2937'
-                        }}
-                      >
-                        {activity.title}
-                      </Typography>
-                    </Box>
+                    <Typography 
+                      variant="body2" 
+                      component="span" 
+                      sx={{ 
+                        fontWeight: 600,
+                        color: '#1F2937',
+                        mb: 1,
+                        display: 'block'
+                      }}
+                    >
+                      {activity.title}
+                    </Typography>
                     <Typography 
                       variant="body2" 
                       sx={{ 
@@ -210,14 +203,11 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                   <TimelineDot sx={{ 
                     backgroundColor: getActivityColor(activity.type),
                     color: 'white',
-                    width: 32,
-                    height: 32,
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    border: '3px solid white',
+                    width: 12,
+                    height: 12,
+                    border: '2px solid white',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                   }}>
-                    {getActivityIcon(activity.type)}
                   </TimelineDot>
                   {index < sortedActivities.length - 1 && (
                     <TimelineConnector sx={{ 
@@ -234,7 +224,49 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                     display: 'none'
                   }
                 }}>
-                  {/* Empty content for alternating layout */}
+                  <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: 0.5,
+                    backgroundColor: '#F8FAFC',
+                    borderRadius: 2,
+                    p: 2,
+                    border: '1px solid #E2E8F0',
+                    textAlign: 'center'
+                  }}>
+                    <Typography 
+                      variant="body2" 
+                      component="span" 
+                      sx={{ 
+                        fontWeight: 600,
+                        color: '#1F2937',
+                        mb: 1,
+                        display: 'block'
+                      }}
+                    >
+                      {activity.title}
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: activity.type === 'purchase' ? '#059669' : '#DC2626',
+                        fontWeight: 600,
+                        fontSize: '14px'
+                      }}
+                    >
+                      {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
+                    </Typography>
+                    <Typography 
+                      variant="caption" 
+                      sx={{ 
+                        color: '#6B7280',
+                        fontSize: '12px',
+                        mt: 0.5
+                      }}
+                    >
+                      {formatTimestamp(activity.timestamp)}
+                    </Typography>
+                  </Box>
                 </TimelineContent>
               </TimelineItem>
             ))}
