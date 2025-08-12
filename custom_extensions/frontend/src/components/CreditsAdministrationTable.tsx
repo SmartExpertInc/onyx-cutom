@@ -27,7 +27,7 @@ interface UserCredits {
   subscription_tier: string;
   created_at: string;
   updated_at: string;
-}
+} 
 
 type Order = 'asc' | 'desc';
 
@@ -94,7 +94,7 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser,
   };
 
   return (
-    <Paper className="shadow rounded-lg overflow-hidden">
+    <Paper className="shadow-lg rounded-lg overflow-hidden" sx={{ borderRadius: '0.5rem' }}>
       <TableContainer>
         <Table>
           <TableHead>

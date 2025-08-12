@@ -86,9 +86,15 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
   }, [activities]);
 
   const getActivityColor = (type: string) => {
-    if (type === 'purchase') return '#4CAF50';
-    if (type === 'product_generation') return '#2563eb';
-    return '#FF6B6B';
+    if (type === 'purchase') return '#10B981'; // green-500
+    if (type === 'product_generation') return '#3B82F6'; // blue-500
+    return '#EF4444'; // red-500
+  };
+
+  const getActivityIcon = (type: string) => {
+    if (type === 'purchase') return '💰';
+    if (type === 'product_generation') return '⚡';
+    return '❓';
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -133,47 +139,107 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
           </div>
         </div>
       ) : (
-        <Timeline position="alternate" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
-          {sortedActivities.map((activity, index) => (
-            <TimelineItem key={activity.id}>
-              <TimelineContent sx={{ py: '20px', px: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography variant="body2" component="span" fontWeight="medium">
-                    {activity.title}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      color: activity.type === 'purchase' ? '#4CAF50' : '#F44336',
-                      fontWeight: 'medium'
-                    }}
-                  >
-                    {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
-                  </Typography>
-                </Box>
-              </TimelineContent>
-
-              <TimelineSeparator>
-                <TimelineDot sx={{ 
-                  backgroundColor: getActivityColor(activity.type),
-                  color: 'white',
-                  width: 24,
-                  height: 24
+        <div className="h-80 overflow-y-auto">
+          <Timeline position="alternate" sx={{ 
+            '& .MuiTimelineItem-root': {
+              minHeight: 'auto',
+              '&:before': {
+                display: 'none'
+              }
+            },
+            '& .MuiTimelineContent-root': {
+              py: 1,
+              px: 2
+            }
+          }}>
+            {sortedActivities.map((activity, index) => (
+              <TimelineItem key={activity.id}>
+                <TimelineContent sx={{ 
+                  py: 1, 
+                  px: 2,
+                  '&:before': {
+                    display: 'none'
+                  }
                 }}>
-                </TimelineDot>
-                {index < sortedActivities.length - 1 && <TimelineConnector />}
-              </TimelineSeparator>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: 0.5,
+                    backgroundColor: '#F8FAFC',
+                    borderRadius: 2,
+                    p: 2,
+                    border: '1px solid #E2E8F0'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <span style={{ fontSize: '16px' }}>{getActivityIcon(activity.type)}</span>
+                      <Typography 
+                        variant="body2" 
+                        component="span" 
+                        sx={{ 
+                          fontWeight: 600,
+                          color: '#1F2937'
+                        }}
+                      >
+                        {activity.title}
+                      </Typography>
+                    </Box>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: activity.type === 'purchase' ? '#059669' : '#DC2626',
+                        fontWeight: 600,
+                        fontSize: '14px'
+                      }}
+                    >
+                      {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
+                    </Typography>
+                    <Typography 
+                      variant="caption" 
+                      sx={{ 
+                        color: '#6B7280',
+                        fontSize: '12px',
+                        mt: 0.5
+                      }}
+                    >
+                      {formatTimestamp(activity.timestamp)}
+                    </Typography>
+                  </Box>
+                </TimelineContent>
 
-              <TimelineContent sx={{ py: '20px', px: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
-                    {formatTimestamp(activity.timestamp)}
-                  </Typography>
-                </Box>
-              </TimelineContent>
-            </TimelineItem>
-          ))}
-        </Timeline>
+                <TimelineSeparator>
+                  <TimelineDot sx={{ 
+                    backgroundColor: getActivityColor(activity.type),
+                    color: 'white',
+                    width: 32,
+                    height: 32,
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    border: '3px solid white',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}>
+                    {getActivityIcon(activity.type)}
+                  </TimelineDot>
+                  {index < sortedActivities.length - 1 && (
+                    <TimelineConnector sx={{ 
+                      backgroundColor: '#E5E7EB',
+                      width: '2px'
+                    }} />
+                  )}
+                </TimelineSeparator>
+
+                <TimelineContent sx={{ 
+                  py: 1, 
+                  px: 2,
+                  '&:before': {
+                    display: 'none'
+                  }
+                }}>
+                  {/* Empty content for alternating layout */}
+                </TimelineContent>
+              </TimelineItem>
+            ))}
+          </Timeline>
+        </div>
       )}
     </div>
   );
