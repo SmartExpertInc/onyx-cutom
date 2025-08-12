@@ -16,30 +16,27 @@ interface UserCredits {
   updated_at: string;
 }
 
-// Constants to avoid redundancy
-const PRODUCT_COLORS = {
-  'Course Outline': '#FF6B6B',
-  'Video Lesson': '#4ECDC4',
-  'Quiz': '#45B7D1',
-  'Presentation': '#96CEB4',
-  'One-Pager': '#FFEAA7'
-} as const;
-
-const PRODUCT_NAMES = Object.keys(PRODUCT_COLORS);
+// Product names for the chart
+const PRODUCT_NAMES = [
+  'Course Outline',
+  'Video Lesson', 
+  'Quiz',
+  'Presentation',
+  'One-Pager'
+];
 
 // Helper function to create product data
 const createProductData = (credits: number[]) => 
   PRODUCT_NAMES.map((name, index) => ({
     name,
-    credits: credits[index],
-    color: PRODUCT_COLORS[name as keyof typeof PRODUCT_COLORS]
+    credits: credits[index]
   }));
 
 // Mock data for credit usage by product type (all users)
 const mockCreditUsageData = createProductData([125, 210, 180, 320, 165]);
 
 // Mock data for individual user credit usage
-const mockUserCreditUsageData: Record<string, Array<{ name: string; credits: number; color: string }>> = {
+const mockUserCreditUsageData: Record<string, Array<{ name: string; credits: number }>> = {
   'user1@example.com': createProductData([25, 45, 30, 60, 35]),
   'user2@example.com': createProductData([15, 80, 50, 40, 25]),
   'user3@example.com': createProductData([35, 25, 40, 70, 30])
@@ -61,8 +58,7 @@ const CreditUsagePieChart: React.FC<CreditUsagePieChartProps> = ({ selectedUser 
   const nivoData = chartData.map(item => ({
     id: item.name,
     label: item.name,
-    value: item.credits,
-    color: item.color
+    value: item.credits
   }));
 
   const chartTitle = selectedUser 
@@ -74,7 +70,7 @@ const CreditUsagePieChart: React.FC<CreditUsagePieChartProps> = ({ selectedUser 
     : "Total Credits Used";
 
   return (
-    <div className="bg-white shadow rounded-lg p-6 mb-6">
+    <div className="bg-white shadow rounded-lg p-6 mb-6 h-[480px]">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">{chartTitle}</h3>
       <div className="h-80">
         <ResponsivePie

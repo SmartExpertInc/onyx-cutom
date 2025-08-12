@@ -321,14 +321,16 @@ const AdminCreditsPage: React.FC = () => {
         {/* Credit Usage and Timeline Section */}
         <div className="flex gap-6 mb-6">
           {/* Credit Usage NIVO Pie Chart */}
-          <div className="w-1/2">
+          <div className={selectedUser ? "w-1/2" : "w-full"}>
             <CreditUsagePieChart selectedUser={selectedUser} />
           </div>
           
-          {/* User Activity Timeline */}
-          <div className="w-1/2">
-            <UserActivityTimeline selectedUser={selectedUser} />
-          </div>
+          {/* User Activity Timeline - Only show when user is selected */}
+          {selectedUser && (
+            <div className="w-1/2">
+              <UserActivityTimeline selectedUser={selectedUser} />
+            </div>
+          )}
         </div>
 
         {/* MUI Table */}

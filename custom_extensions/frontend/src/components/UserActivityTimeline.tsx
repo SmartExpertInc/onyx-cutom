@@ -28,7 +28,6 @@ interface TimelineActivity {
   id: string;
   type: 'purchase' | 'product_generation';
   title: string;
-  description?: string;
   credits: number;
   timestamp: string;
   productType?: string;
@@ -86,17 +85,17 @@ interface UserActivityTimelineProps {
 
 const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUser }) => {
   if (!selectedUser) {
-    return (
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">User Activity Timeline</h3>
-        <div className="h-64 flex items-center justify-center">
-          <div className="text-center text-gray-500">
-            <div className="text-lg mb-2">Select a user from the table</div>
-            <div className="text-sm">to view their activity timeline</div>
-          </div>
+      return (
+    <div className="bg-white shadow rounded-lg p-6 mb-6 h-[480px]">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">User Activity Timeline</h3>
+      <div className="h-64 flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <div className="text-lg mb-2">Select a user from the table</div>
+          <div className="text-sm">to view their activity timeline</div>
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   const activities = mockUserTimelineData[selectedUser.onyx_user_id] || [];
@@ -109,8 +108,9 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
       return '#4CAF50'; // Green for purchases
     }
     
-    if (productType && productType in PRODUCT_TYPES) {
-      return PRODUCT_TYPES[productType as keyof typeof PRODUCT_TYPES].color;
+    // All product generation activities use blue (like the "add user" button)
+    if (type === 'product_generation') {
+      return '#2563eb'; // Blue color matching the "add user" button
     }
     
     return '#FF6B6B'; // Default red
@@ -127,7 +127,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
   };
 
   return (
-    <div className="bg-white shadow rounded-lg p-6 mb-6">
+    <div className="bg-white shadow rounded-lg p-6 mb-6 h-[480px]">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Activity Timeline for {selectedUser.name}
       </h3>
@@ -140,20 +140,9 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
           </div>
         </div>
       ) : (
-        <Timeline position="right" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <Timeline position="alternate" sx={{ maxHeight: '400px', overflowY: 'auto' }}>
           {sortedActivities.map((activity, index) => (
             <TimelineItem key={activity.id}>
-              <TimelineSeparator>
-                <TimelineDot sx={{ 
-                  backgroundColor: getActivityColor(activity.type, activity.productType),
-                  color: 'white',
-                  width: 24,
-                  height: 24
-                }}>
-                </TimelineDot>
-                {index < sortedActivities.length - 1 && <TimelineConnector />}
-              </TimelineSeparator>
-              
               <TimelineContent sx={{ py: '20px', px: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   {/* Row 1: Activity Title */}
@@ -171,8 +160,23 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                   >
                     {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
                   </Typography>
-                  
-                  {/* Row 3: Date and time */}
+                </Box>
+              </TimelineContent>
+              
+              <TimelineSeparator>
+                <TimelineDot sx={{ 
+                  backgroundColor: getActivityColor(activity.type, activity.productType),
+                  color: 'white',
+                  width: 24,
+                  height: 24
+                }}>
+                </TimelineDot>
+                {index < sortedActivities.length - 1 && <TimelineConnector />}
+              </TimelineSeparator>
+              
+              <TimelineContent sx={{ py: '20px', px: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  {/* Date and time on the right side */}
                   <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
                     {formatTimestamp(activity.timestamp)}
                   </Typography>
