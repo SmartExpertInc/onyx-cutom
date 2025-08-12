@@ -117,6 +117,10 @@ export default function QuizClient() {
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
   const [originalTitles, setOriginalTitles] = useState<{[key: number]: string}>({});
   
+  // NEW: Track user edits like in Course Outline
+  const [hasUserEdits, setHasUserEdits] = useState(false);
+  const [originalQuizData, setOriginalQuizData] = useState<string>("");
+  
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -235,6 +239,9 @@ export default function QuizClient() {
         console.log(`Added to edited list: ${questionIndex}, Current list:`, Array.from(newSet));
         return newSet;
       });
+      
+      // NEW: Mark that user has made edits
+      setHasUserEdits(true);
     } else {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
@@ -290,6 +297,11 @@ export default function QuizClient() {
 
     setQuizData(updatedContent);
     
+    // NEW: Mark that user has made edits if content changed
+    if (updatedContent !== quizData) {
+      setHasUserEdits(true);
+    }
+    
     // Clear the edited title since it's now part of the main content
     setEditedTitles(prev => {
       const newTitles = { ...prev };
@@ -309,6 +321,54 @@ export default function QuizClient() {
   // Helper function to escape special regex characters
   const escapeRegExp = (string: string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
+  // NEW: Function to create clean questions without options and answers
+  const createCleanQuestionsContent = (content: string) => {
+    if (!content.trim()) return "";
+    
+    const questions: string[] = [];
+    const lines = content.split('\n');
+    let currentQuestion = "";
+    let inQuestion = false;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // Check if this is a question start (numbered question with **title**)
+      const questionMatch = trimmedLine.match(/^\s*\d+\.\s*\*\*(.*?)\*\*/);
+      
+      if (questionMatch) {
+        // Save previous question if exists
+        if (currentQuestion.trim()) {
+          questions.push(currentQuestion.trim());
+        }
+        
+        // Start new question
+        currentQuestion = `${trimmedLine}`;
+        inQuestion = true;
+      } else if (inQuestion && trimmedLine) {
+        // Check if we hit options (lines starting with - A), - B), etc.)
+        if (trimmedLine.match(/^\s*-\s*[A-D]\)/)) {
+          // Stop here - we've reached options
+          inQuestion = false;
+        } else if (trimmedLine.includes('**Correct Answer:**') || 
+                   trimmedLine.includes('**Explanation:**')) {
+          // Stop here - we've reached answer/explanation
+          inQuestion = false;
+        } else {
+          // Continue adding to current question
+          currentQuestion += `\n${line}`;
+        }
+      }
+    }
+    
+    // Add the last question
+    if (currentQuestion.trim()) {
+      questions.push(currentQuestion.trim());
+    }
+    
+    return questions.join('\n\n');
   };
 
   const handleTitleCancel = (questionIndex: number) => {
@@ -610,6 +670,9 @@ export default function QuizClient() {
         // Remove leading blank lines (one or more) at the very start
         trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setQuizData(trimmed);
+        
+        // NEW: Save original content for change detection
+        setOriginalQuizData(trimmed);
       }
       setFirstLineRemoved(true);
     }
@@ -637,13 +700,24 @@ export default function QuizClient() {
 
     setIsCreatingFinal(true);
     try {
+      // NEW: Prepare content based on whether user made edits
+      let contentToSend = quizData;
+      let isCleanContent = false;
+      
+      if (hasUserEdits && editedTitleIds.size > 0) {
+        // User edited question titles - send clean questions for regeneration
+        contentToSend = createCleanQuestionsContent(quizData);
+        isCleanContent = true;
+        console.log("Sending clean questions for regeneration:", contentToSend);
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: quizData,
+          aiResponse: contentToSend,
           prompt: prompt,
           outlineId: selectedOutlineId,
           lesson: selectedLesson,
@@ -657,6 +731,11 @@ export default function QuizClient() {
           textMode: textMode,
           questionCount: selectedQuestionCount,
           folderId: folderContext?.folderId || undefined,
+          // NEW: Send information about user edits
+          hasUserEdits: hasUserEdits,
+          originalContent: originalQuizData,
+          // NEW: Indicate if content is clean (questions only)
+          isCleanContent: isCleanContent,
         }),
       });
 
@@ -689,13 +768,24 @@ export default function QuizClient() {
     setLoadingEdit(true);
     setError(null);
     try {
+      // NEW: Prepare content based on whether user made edits
+      let contentToSend = quizData;
+      let isCleanContent = false;
+      
+      if (hasUserEdits && editedTitleIds.size > 0) {
+        // User edited question titles - send clean questions for regeneration
+        contentToSend = createCleanQuestionsContent(quizData);
+        isCleanContent = true;
+        console.log("Sending clean questions for edit:", contentToSend);
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          currentContent: quizData,
+          currentContent: contentToSend,
           editPrompt: editPrompt,
           outlineId: selectedOutlineId,
           lesson: selectedLesson,
@@ -708,6 +798,8 @@ export default function QuizClient() {
           fileIds: memoizedFileIds.join(','),
           textMode: textMode,
           questionCount: selectedQuestionCount,
+          // NEW: Indicate if content is clean (questions only)
+          isCleanContent: isCleanContent,
         }),
       });
 
@@ -771,6 +863,9 @@ export default function QuizClient() {
           }
         }
       }
+
+      // NEW: Mark that user has made edits after AI editing
+      setHasUserEdits(true);
 
       setEditPrompt("");
       setSelectedExamples([]);
@@ -1273,6 +1368,14 @@ export default function QuizClient() {
               {/* Quiz creation costs 5 credits */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span>5 {t('interface.credits', 'credits')}</span>
+              
+              {/* NEW: Show user edits indicator */}
+              {hasUserEdits && (
+                <div className="flex items-center gap-1 text-sm text-orange-600">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                  <span>{t('interface.generate.userEdits', 'User edits detected')}</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">

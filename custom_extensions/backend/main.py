@@ -12836,6 +12836,26 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             logger.warning(f"Error during change detection (assuming changes made): {e}")
             return True
 
+    # Helper: check whether the user made ANY changes to quiz content
+    def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
+        """Compare original and edited quiz content to detect changes"""
+        try:
+            # Normalize content for comparison
+            original_normalized = original_content.strip()
+            edited_normalized = edited_content.strip()
+            
+            # Simple text comparison
+            if original_normalized != edited_normalized:
+                logger.info(f"Quiz content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+                return True
+            
+            logger.info("No quiz changes detected - content is identical")
+            return False
+        except Exception as e:
+            # On any parsing issue assume changes were made so we use AI
+            logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
+            return True
+
     # ---------- 1) Decide strategy ----------
     raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
     
@@ -13274,6 +13294,7 @@ async def init_course_outline_chat(request: Request):
 
 # === Wizard Outline helpers & cache ===
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
+QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
     """Return a markdown outline that reflects the *structure* provided in
@@ -16139,6 +16160,11 @@ class QuizWizardFinalize(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: user edits tracking (like in Course Outline)
+    hasUserEdits: Optional[bool] = False
+    originalContent: Optional[str] = None
+    # NEW: indicate if content is clean (questions only, no options/answers)
+    isCleanContent: Optional[bool] = False
 
 class QuizEditRequest(BaseModel):
     currentContent: str
@@ -16155,6 +16181,8 @@ class QuizEditRequest(BaseModel):
     textMode: Optional[str] = None
     questionCount: int = 10
     chatSessionId: Optional[str] = None
+    # NEW: indicate if content is clean (questions only, no options/answers)
+    isCleanContent: Optional[bool] = False
 
 async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
     """Ensure quiz design template exists, return template ID"""
@@ -16450,7 +16478,8 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         "prompt": payload.editPrompt,
         "language": payload.language,
         "originalContent": payload.currentContent,
-        "editMode": True
+        "editMode": True,
+        "isCleanContent": payload.isCleanContent
     }
 
     # Add context if provided
@@ -16519,6 +16548,12 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
             return
 
         logger.info(f"[QUIZ_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        
+        # NEW: Cache the quiz content for later finalization
+        if chat_id:
+            QUIZ_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[QUIZ_PREVIEW_CACHE] Cached quiz content for chat_id={chat_id}, length={len(assistant_reply)}")
+        
         yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
 
     return StreamingResponse(
@@ -16579,6 +16614,30 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_CLEANUP] Cleaned up stale quiz key: {stale_key}")
     
     try:
+        # NEW: Check for user edits and decide strategy (like in Course Outline)
+        use_direct_parser = False
+        use_ai_parser = True
+        
+        if payload.hasUserEdits and payload.originalContent:
+            # User has made edits - check if they're significant
+            any_changes = _any_quiz_changes_made(payload.originalContent, payload.aiResponse)
+            
+            if not any_changes:
+                # NO CHANGES: Use direct parser path (fastest)
+                use_direct_parser = True
+                use_ai_parser = False
+                logger.info("No quiz changes detected - using direct parser path")
+            else:
+                # CHANGES DETECTED: Use AI parser
+                use_direct_parser = False
+                use_ai_parser = True
+                logger.info("Quiz changes detected - using AI parser path")
+        else:
+            # No edit information available - use AI parser
+            use_direct_parser = False
+            use_ai_parser = True
+            logger.info("No edit information available - using AI parser path")
+        
         # Ensure quiz template exists
         template_id = await _ensure_quiz_template(pool)
         
@@ -16612,52 +16671,142 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         
-        # Parse the quiz data using LLM - only call once with consistent project name
-        parsed_quiz = await parse_ai_response_with_llm(
-            ai_response=payload.aiResponse,
-            project_name=project_name,  # Use consistent project name
-            target_model=QuizData,
-            default_error_model_instance=QuizData(
-                quizTitle=project_name,
-                questions=[],
-                detectedLanguage=payload.language
-            ),
-            dynamic_instructions=f"""
-            CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
-
-            The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
-
-            REQUIREMENTS:
-            1. Extract the quiz title from the content:
-               - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
-               - Extract ONLY the quiz title part (the last part after the last "**")
-               - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
-               - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
-               - Do NOT include the course name or "Quiz" label in the title
-               - If no clear pattern is found, use the first meaningful title or heading
+        # NEW: Choose parsing strategy based on user edits
+        if use_direct_parser:
+            # DIRECT PARSER PATH: Use cached content directly since no changes were made
+            logger.info("Using direct parser path for quiz finalization")
             
-            2. For each question in the content, create a structured question object with:
-               - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
-               - "question_text": The actual question text
-               - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
-               - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
-               - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
-               - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
-               - For open-answer: "acceptable_answers": ["answer1", "answer2"]
-               - "explanation": Explanation for the answer
+            # Use the original content for parsing since no changes were made
+            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            
+            parsed_quiz = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,
+                target_model=QuizData,
+                default_error_model_instance=QuizData(
+                    quizTitle=project_name,
+                    questions=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
 
-            CRITICAL RULES:
-            - Output ONLY the JSON object, no other text
-            - Every question MUST have "question_type" field
-            - Use exact field names as shown in the example
-            - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
-            - If content is unclear, infer question types based on structure
-            - Language: {payload.language}
-            - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
-            """,
-            target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
-        )
+                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content:
+                   - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+                   - Extract ONLY the quiz title part (the last part after the last "**")
+                   - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+                   - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+                   - Do NOT include the course name or "Quiz" label in the title
+                   - If no clear pattern is found, use the first meaningful title or heading
+                
+                2. For each question in the content, create a structured question object with:
+                   - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+                   - "question_text": The actual question text
+                   - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
+                   - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+                   - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
+                   - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+                   - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+                   - "explanation": Explanation for the answer
+
+                CRITICAL RULES:
+                - Output ONLY the JSON object, no other text
+                - Every question MUST have "question_type" field
+                - Use exact field names as shown in the example
+                - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+                - If content is unclear, infer question types based on structure
+                - Language: {payload.language}
+                - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
+                """,
+                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+            )
+            logger.info("Direct parser path completed successfully")
+        else:
+            # AI PARSER PATH: Use AI for parsing (original behavior)
+            logger.info("Using AI parser path for quiz finalization")
+            
+            # NEW: Handle clean content (questions only) differently
+            if payload.isCleanContent:
+                logger.info("Processing clean content (questions only) - will generate options and answers")
+                # For clean content, we need to generate complete quiz with options and answers
+                dynamic_instructions = f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains ONLY quiz questions without options or answers. You need to generate a complete quiz with:
+                1. Multiple choice options (A, B, C, D) for each question
+                2. Correct answers
+                3. Explanations for each answer
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content or use the lesson name
+                2. For each question, generate:
+                   - "question_type": "multiple-choice" (default)
+                   - "question_text": The question text
+                   - "options": Array with {{"id": "A", "text": "option text"}} for 4 options
+                   - "correct_option_id": "A" (or appropriate letter)
+                   - "explanation": Detailed explanation for the correct answer
+
+                CRITICAL RULES:
+                - Generate realistic and relevant options for each question
+                - Make sure only one option is correct
+                - Provide detailed explanations
+                - Language: {payload.language}
+                - Question types: {payload.questionTypes}
+                """
+            else:
+                # Regular content with options and answers
+                dynamic_instructions = f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content:
+                   - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+                   - Extract ONLY the quiz title part (the last part after the last "**")
+                   - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+                   - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+                   - Do NOT include the course name or "Quiz" label in the title
+                   - If no clear pattern is found, use the first meaningful title or heading
+                
+                2. For each question in the content, create a structured question object with:
+                   - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+                   - "question_text": The actual question text
+                   - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
+                   - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+                   - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
+                   - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+                   - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+                   - "explanation": Explanation for the answer
+
+                CRITICAL RULES:
+                - Output ONLY the JSON object, no other text
+                - Every question MUST have "question_type" field
+                - Use exact field names as shown in the example
+                - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+                - If content is unclear, infer question types based on structure
+                - Language: {payload.language}
+                - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
+                """
+            
+                        # Parse the quiz data using LLM - only call once with consistent project name
+            parsed_quiz = await parse_ai_response_with_llm(
+                ai_response=payload.aiResponse,
+                project_name=project_name,  # Use consistent project name
+                target_model=QuizData,
+                default_error_model_instance=QuizData(
+                    quizTitle=project_name,
+                    questions=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=dynamic_instructions,
+                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+            )
         
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
