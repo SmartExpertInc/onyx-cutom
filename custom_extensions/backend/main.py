@@ -6275,6 +6275,44 @@ def calculate_product_credits(product_type: str, content_data: dict = None) -> i
     else:
         return 0  # Unknown product type, no cost
 
+# Helper: reason -> product type fallback
+def infer_product_type_from_reason(reason: str) -> str:
+    r = (reason or "").lower()
+    if "course outline" in r:
+        return "Course Outline"
+    if "lesson presentation" in r or "text presentation" in r or "presentation" in r:
+        return "Presentation"
+    if "quiz" in r:
+        return "Quiz"
+    if "one-pager" in r or "one pager" in r:
+        return "One-Pager"
+    if "video" in r:
+        return "Video Lesson"
+    return "Unknown"
+
+# Helper: write a credit transaction row
+async def log_credit_transaction(
+    conn,
+    *,
+    onyx_user_id: str,
+    user_credits_id: Optional[int],
+    type_: Literal['purchase','product_generation'],
+    amount: int,
+    delta: int,
+    title: Optional[str] = None,
+    product_type: Optional[str] = None,
+    reason: Optional[str] = None,
+) -> None:
+    tx_id = str(uuid.uuid4())
+    await conn.execute(
+        """
+        INSERT INTO credit_transactions
+            (id, onyx_user_id, user_credits_id, type, title, product_type, credits, delta, reason, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+        """,
+        tx_id, onyx_user_id, user_credits_id, type_, title, product_type, abs(amount), delta, reason
+    )
+
 async def deduct_credits(
     onyx_user_id: str,
     amount: int,
