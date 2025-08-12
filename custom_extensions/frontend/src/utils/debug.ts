@@ -199,3 +199,119 @@ export const runSystemTest = () => {
   console.log('[Debug] System test completed');
   console.groupEnd();
 };
+
+// Test BigImageLeftTemplate specifically
+export const testBigImageLeftTemplate = () => {
+  if (typeof window === 'undefined') return;
+  
+  console.group('[Debug] BigImageLeftTemplate Test');
+  
+  // Enable debug mode
+  enableMoveableDebug();
+  
+  // Look for BigImageLeftTemplate elements
+  const bigImageLeftElements = document.querySelectorAll('[data-moveable-element*="big-image-left"]');
+  console.log('BigImageLeft elements found:', bigImageLeftElements.length);
+  
+  // Look for image placeholders specifically
+  const imagePlaceholders = document.querySelectorAll('[data-moveable-element*="-image"]');
+  console.log('Image placeholders found:', imagePlaceholders.length);
+  
+  imagePlaceholders.forEach((el, index) => {
+    const elementId = el.getAttribute('data-moveable-element');
+    const styles = window.getComputedStyle(el);
+    
+    console.log(`Image placeholder ${index + 1}:`, {
+      id: elementId,
+      tagName: el.tagName,
+      position: styles.position,
+      transform: styles.transform,
+      pointerEvents: styles.pointerEvents,
+      zIndex: styles.zIndex,
+      width: styles.width,
+      height: styles.height
+    });
+  });
+  
+  // Test clicking on first image placeholder
+  if (imagePlaceholders.length > 0) {
+    const firstPlaceholder = imagePlaceholders[0] as HTMLElement;
+    console.log('Testing click on first image placeholder:', firstPlaceholder.getAttribute('data-moveable-element'));
+    
+    // Simulate click
+    firstPlaceholder.click();
+    
+    // Check for moveable controls after a short delay
+    setTimeout(() => {
+      const controls = document.querySelectorAll('.moveable-control-box');
+      console.log('Moveable controls after click:', controls.length);
+      
+      if (controls.length === 0) {
+        console.warn('No moveable controls found - possible issue with MoveableManager');
+        
+        // Check if element is selected
+        const selectedElements = document.querySelectorAll('[data-moveable-element].selected');
+        console.log('Selected elements:', selectedElements.length);
+      } else {
+        console.log('Moveable controls found - system working correctly');
+      }
+    }, 200);
+  }
+  
+  // Check for any JavaScript errors
+  const originalError = console.error;
+  console.error = function(...args) {
+    console.log('[Error]', ...args);
+    originalError.apply(console, args);
+  };
+  
+  console.groupEnd();
+};
+
+// Test image upload flow specifically
+export const testImageUploadFlow = () => {
+  if (typeof window === 'undefined') return;
+  
+  console.group('[Debug] Image Upload Flow Test');
+  
+  // Enable debug mode
+  enableMoveableDebug();
+  
+  // Look for image placeholders
+  const imagePlaceholders = document.querySelectorAll('[data-moveable-element*="-image"]');
+  console.log('Image placeholders found:', imagePlaceholders.length);
+  
+  if (imagePlaceholders.length > 0) {
+    const firstPlaceholder = imagePlaceholders[0] as HTMLElement;
+    console.log('Testing image upload on:', firstPlaceholder.getAttribute('data-moveable-element'));
+    
+    // Check if placeholder has click handler
+    const hasClickHandler = firstPlaceholder.onclick !== null;
+    console.log('Has click handler:', hasClickHandler);
+    
+    // Check if placeholder is editable
+    const isEditable = firstPlaceholder.closest('[data-moveable-element]')?.getAttribute('data-editable') === 'true';
+    console.log('Is editable:', isEditable);
+    
+    // Simulate click to open upload modal
+    firstPlaceholder.click();
+    
+    // Check for upload modal after a short delay
+    setTimeout(() => {
+      const modals = document.querySelectorAll('[class*="fixed inset-0"]');
+      console.log('Upload modals found:', modals.length);
+      
+      if (modals.length === 0) {
+        console.warn('No upload modal found - possible issue with ClickableImagePlaceholder');
+        
+        // Check for any clickable elements
+        const clickableElements = firstPlaceholder.querySelectorAll('[onclick], [data-clickable]');
+        console.log('Clickable elements found:', clickableElements.length);
+      } else {
+        console.log('Upload modal found - system working correctly');
+      }
+    }, 200);
+  }
+  
+  console.groupEnd();
+};

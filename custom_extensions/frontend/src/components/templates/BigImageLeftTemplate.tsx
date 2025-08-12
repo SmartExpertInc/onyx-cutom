@@ -170,6 +170,26 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const titleRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
   
+  // Debounced update function to prevent infinite autosaves
+  const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
+  const handleUpdate = (updates: any) => {
+    if (debouncedUpdate.current) {
+      clearTimeout(debouncedUpdate.current);
+    }
+    
+    debouncedUpdate.current = setTimeout(() => {
+      log('BigImageLeftTemplate', 'debouncedUpdate', { 
+        slideId, 
+        updates,
+        hasOnUpdate: !!onUpdate
+      });
+      
+      if (onUpdate) {
+        onUpdate(updates);
+      }
+    }, 300); // 300ms debounce
+  };
+  
   log('BigImageLeftTemplate', 'render', { 
     slideId, 
     isEditable, 
@@ -179,28 +199,62 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     subtitleRefExists: !!subtitleRef.current
   });
   
-  // Initialize MoveableManager
+  // Initialize MoveableManager with debounced updates
   const moveableManager = useMoveableManager({
     slideId,
     isEditable,
-    onUpdate
+    onUpdate: handleUpdate
   });
   
-  // Create moveable elements
-  const moveableElements = [
-    moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
-      cropMode: moveableManager.getCropMode(`${slideId}-image`)
-    }),
-    moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text'),
-    moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
-  ];
+  // Create moveable elements only when refs are available
+  const moveableElements = React.useMemo(() => {
+    const elements = [];
+    
+    if (imageRef.current) {
+      elements.push(
+        moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
+          cropMode: moveableManager.getCropMode(`${slideId}-image`)
+        })
+      );
+    }
+    
+    if (titleRef.current) {
+      elements.push(
+        moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text')
+      );
+    }
+    
+    if (subtitleRef.current) {
+      elements.push(
+        moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
+      );
+    }
+    
+    log('BigImageLeftTemplate', 'moveableElementsMemoized', { 
+      slideId, 
+      elementsCount: elements.length,
+      elementIds: elements.map(e => e.id),
+      refsAvailable: {
+        image: !!imageRef.current,
+        title: !!titleRef.current,
+        subtitle: !!subtitleRef.current
+      }
+    });
+    
+    return elements;
+  }, [slideId, moveableManager, imageRef.current, titleRef.current, subtitleRef.current]);
 
   // Runtime assertions for debugging
   if (DEBUG) {
-    console.assert(!!imageRef.current, `[BigImageLeftTemplate] Missing imageRef for ${slideId}-image`);
-    console.assert(!!titleRef.current, `[BigImageLeftTemplate] Missing titleRef for ${slideId}-title`);
-    console.assert(!!subtitleRef.current, `[BigImageLeftTemplate] Missing subtitleRef for ${slideId}-subtitle`);
-    console.assert(moveableElements.length === 3, `[BigImageLeftTemplate] Expected 3 moveable elements, got ${moveableElements.length}`);
+    if (!imageRef.current) {
+      console.warn(`[BigImageLeftTemplate] imageRef not available for ${slideId}-image`);
+    }
+    if (!titleRef.current) {
+      console.warn(`[BigImageLeftTemplate] titleRef not available for ${slideId}-title`);
+    }
+    if (!subtitleRef.current) {
+      console.warn(`[BigImageLeftTemplate] subtitleRef not available for ${slideId}-subtitle`);
+    }
   }
 
   log('BigImageLeftTemplate', 'moveableElementsCreated', { 
@@ -215,6 +269,9 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     return () => {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
+      }
+      if (debouncedUpdate.current) {
+        clearTimeout(debouncedUpdate.current);
       }
     };
   }, []);
@@ -314,6 +371,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       imageRefExists: !!imageRef.current
     });
 
+    // Use immediate update for image upload to prevent delays
     if (onUpdate) {
       onUpdate({ imagePath: newImagePath });
     }
@@ -326,9 +384,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       imageRefExists: !!imageRef.current
     });
 
-    if (onUpdate) {
-      onUpdate(payload);
-    }
+    // Use debounced update for size/transform changes
+    handleUpdate(payload);
   };
 
   // Handle crop mode change

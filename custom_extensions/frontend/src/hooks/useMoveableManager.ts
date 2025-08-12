@@ -66,24 +66,44 @@ export const useMoveableManager = ({ slideId, isEditable, onUpdate }: UseMoveabl
     log('useMoveableManager', 'handlePositionChange', { 
       elementId, 
       position,
-      slideId
+      slideId,
+      currentPositions: Object.keys(moveableState.positions).length
     });
 
-    setMoveableState(prev => ({
-      ...prev,
-      positions: {
-        ...prev.positions,
-        [elementId]: position
-      }
-    }));
-
-    // Notify parent component
-    onUpdate?.({
-      moveablePositions: {
-        ...moveableState.positions,
-        [elementId]: position
-      }
+    setMoveableState(prev => {
+      const newState = {
+        ...prev,
+        positions: {
+          ...prev.positions,
+          [elementId]: position
+        }
+      };
+      
+      log('useMoveableManager', 'positionStateUpdated', { 
+        elementId, 
+        position,
+        totalPositions: Object.keys(newState.positions).length,
+        slideId
+      });
+      
+      return newState;
     });
+
+    // Notify parent component with debounced update
+    if (onUpdate) {
+      log('useMoveableManager', 'callingOnUpdate_position', { 
+        elementId, 
+        position,
+        slideId
+      });
+      
+      onUpdate({
+        moveablePositions: {
+          ...moveableState.positions,
+          [elementId]: position
+        }
+      });
+    }
   }, [moveableState.positions, onUpdate, slideId]);
 
   // Handle size changes
@@ -91,24 +111,44 @@ export const useMoveableManager = ({ slideId, isEditable, onUpdate }: UseMoveabl
     log('useMoveableManager', 'handleSizeChange', { 
       elementId, 
       size,
-      slideId
+      slideId,
+      currentSizes: Object.keys(moveableState.sizes).length
     });
 
-    setMoveableState(prev => ({
-      ...prev,
-      sizes: {
-        ...prev.sizes,
-        [elementId]: size
-      }
-    }));
-
-    // Notify parent component
-    onUpdate?.({
-      moveableSizes: {
-        ...moveableState.sizes,
-        [elementId]: size
-      }
+    setMoveableState(prev => {
+      const newState = {
+        ...prev,
+        sizes: {
+          ...prev.sizes,
+          [elementId]: size
+        }
+      };
+      
+      log('useMoveableManager', 'sizeStateUpdated', { 
+        elementId, 
+        size,
+        totalSizes: Object.keys(newState.sizes).length,
+        slideId
+      });
+      
+      return newState;
     });
+
+    // Notify parent component with debounced update
+    if (onUpdate) {
+      log('useMoveableManager', 'callingOnUpdate_size', { 
+        elementId, 
+        size,
+        slideId
+      });
+      
+      onUpdate({
+        moveableSizes: {
+          ...moveableState.sizes,
+          [elementId]: size
+        }
+      });
+    }
   }, [moveableState.sizes, onUpdate, slideId]);
 
   // Handle transform end (both position and size)
@@ -122,29 +162,49 @@ export const useMoveableManager = ({ slideId, isEditable, onUpdate }: UseMoveabl
       slideId
     });
 
-    setMoveableState(prev => ({
-      ...prev,
-      positions: {
-        ...prev.positions,
-        [elementId]: transform.position
-      },
-      sizes: {
-        ...prev.sizes,
-        [elementId]: transform.size
-      }
-    }));
+    setMoveableState(prev => {
+      const newState = {
+        ...prev,
+        positions: {
+          ...prev.positions,
+          [elementId]: transform.position
+        },
+        sizes: {
+          ...prev.sizes,
+          [elementId]: transform.size
+        }
+      };
+      
+      log('useMoveableManager', 'transformStateUpdated', { 
+        elementId, 
+        transform,
+        totalPositions: Object.keys(newState.positions).length,
+        totalSizes: Object.keys(newState.sizes).length,
+        slideId
+      });
+      
+      return newState;
+    });
 
     // Notify parent component with final state
-    onUpdate?.({
-      moveablePositions: {
-        ...moveableState.positions,
-        [elementId]: transform.position
-      },
-      moveableSizes: {
-        ...moveableState.sizes,
-        [elementId]: transform.size
-      }
-    });
+    if (onUpdate) {
+      log('useMoveableManager', 'callingOnUpdate_transform', { 
+        elementId, 
+        transform,
+        slideId
+      });
+      
+      onUpdate({
+        moveablePositions: {
+          ...moveableState.positions,
+          [elementId]: transform.position
+        },
+        moveableSizes: {
+          ...moveableState.sizes,
+          [elementId]: transform.size
+        }
+      });
+    }
   }, [moveableState.positions, moveableState.sizes, onUpdate, slideId]);
 
   // Handle crop mode changes

@@ -46,6 +46,7 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
   const [isShiftPressed, setIsShiftPressed] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [lastTransform, setLastTransform] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const moveableRef = useRef<Moveable>(null);
 
   log('MoveableManager', 'render', { 
@@ -54,7 +55,8 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
     elementsCount: elements.length,
     selectedElementId: selectedElement?.id,
     isDragging,
-    isResizing
+    isResizing,
+    hasLastTransform: !!lastTransform
   });
 
   // Track keyboard state for aspect ratio locking
@@ -207,6 +209,16 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         return;
       }
       
+      // Check if transform has actually changed to prevent unnecessary updates
+      const currentTransform = { x: transform.x, y: transform.y, width: transform.width || 0, height: transform.height || 0 };
+      if (lastTransform && 
+          Math.abs(lastTransform.x - currentTransform.x) < 1 && 
+          Math.abs(lastTransform.y - currentTransform.y) < 1) {
+        return; // Skip update if change is minimal
+      }
+      
+      setLastTransform(currentTransform);
+      
       log('MoveableManager', 'onDrag', { 
         elementId: selectedElement.id, 
         x: transform.x, 
@@ -225,7 +237,7 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         slideId
       });
     }
-  }, [selectedElement, onPositionChange, slideId]);
+  }, [selectedElement, onPositionChange, slideId, lastTransform]);
 
   const handleDragEnd = useCallback((e: any) => {
     if (!selectedElement) return;
@@ -258,6 +270,11 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
           size: { width: transform.width || 0, height: transform.height || 0 }
         });
       }
+      
+      // Reset last transform after a delay to allow for final updates
+      setTimeout(() => {
+        setLastTransform(null);
+      }, 100);
     } catch (error) {
       log('MoveableManager', 'handleDragEnd_error', { 
         elementId: selectedElement.id, 
@@ -286,6 +303,16 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         return;
       }
       
+      // Check if size has actually changed to prevent unnecessary updates
+      const currentTransform = { x: drag?.x || 0, y: drag?.y || 0, width, height };
+      if (lastTransform && 
+          Math.abs(lastTransform.width - currentTransform.width) < 1 && 
+          Math.abs(lastTransform.height - currentTransform.height) < 1) {
+        return; // Skip update if change is minimal
+      }
+      
+      setLastTransform(currentTransform);
+      
       log('MoveableManager', 'onResize', { 
         elementId: selectedElement.id, 
         width, 
@@ -304,7 +331,7 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
         slideId
       });
     }
-  }, [selectedElement, onSizeChange, slideId]);
+  }, [selectedElement, onSizeChange, slideId, lastTransform]);
 
   const handleResizeEnd = useCallback((e: any) => {
     if (!selectedElement) return;
@@ -338,6 +365,11 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
           size: { width, height }
         });
       }
+      
+      // Reset last transform after a delay to allow for final updates
+      setTimeout(() => {
+        setLastTransform(null);
+      }, 100);
     } catch (error) {
       log('MoveableManager', 'handleResizeEnd_error', { 
         elementId: selectedElement.id, 
