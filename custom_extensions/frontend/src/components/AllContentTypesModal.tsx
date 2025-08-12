@@ -122,7 +122,7 @@ export const AllContentTypesModal = ({
         <div className="mt-4 flex justify-center">
           <button
             onClick={handleBackToRecommended}
-            className="px-4 py-2 text-sm rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+            className="px-6 py-2 rounded-lg font-semibold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
           >
             {t('modals.createContent.backToRecommended', 'Back to recommended')}
           </button>
