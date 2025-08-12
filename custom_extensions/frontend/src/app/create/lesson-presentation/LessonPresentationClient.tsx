@@ -386,7 +386,6 @@ export default function LessonPresentationClient() {
   }, [selectedOutlineId, useExistingOutline]);
 
 
-
   // Effect to trigger streaming preview generation
   useEffect(() => {
     
@@ -405,11 +404,6 @@ export default function LessonPresentationClient() {
       setLoading(false);
       return;
     }
-
-    // Debug logging for language regeneration
-    console.log(`[LANGUAGE_DEBUG] Language changed to: ${language}`);
-    console.log(`[LANGUAGE_DEBUG] Selected lesson: ${selectedLesson}`);
-    console.log(`[LANGUAGE_DEBUG] Prompt query: ${promptQuery}`);
 
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
@@ -448,10 +442,6 @@ export default function LessonPresentationClient() {
             // Include selected theme
             theme: selectedTheme,
           };
-
-          // Debug logging for request body
-          console.log(`[LANGUAGE_DEBUG] Request body language: ${requestBody.language}`);
-          console.log(`[LANGUAGE_DEBUG] Full request body:`, requestBody);
 
           // Add file context if creating from files
           if (isFromFiles) {
@@ -499,17 +489,14 @@ export default function LessonPresentationClient() {
                   if (pkt.type === "delta") {
                     accumulatedText += pkt.text;
                     setContent(accumulatedText);
-                    console.log(`[RESPONSE_DEBUG] Final buffer text chunk: "${pkt.text}"`);
                   }
                 } catch (e) {
                   // If not JSON, treat as plain text
                   accumulatedText += buffer;
                   setContent(accumulatedText);
-                  console.log(`[RESPONSE_DEBUG] Final buffer plain text: "${buffer}"`);
                 }
               }
               setStreamDone(true);
-              console.log(`[RESPONSE_DEBUG] Stream finished. Final content:`, accumulatedText);
               break;
             }
 
@@ -529,11 +516,8 @@ export default function LessonPresentationClient() {
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
-                  // Log the received text chunk
-                  console.log(`[RESPONSE_DEBUG] Received text chunk: "${pkt.text}"`);
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
-                  console.log(`[RESPONSE_DEBUG] Stream completed. Total content:`, accumulatedText);
                   break;
                 } else if (pkt.type === "error") {
                   throw new Error(pkt.text || "Unknown error");
@@ -542,7 +526,6 @@ export default function LessonPresentationClient() {
                 // If not JSON, treat as plain text
                 accumulatedText += line + '\n';
                 setContent(accumulatedText);
-                console.log(`[RESPONSE_DEBUG] Received plain text: "${line}"`);
               }
             }
 
@@ -596,7 +579,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, params]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -1029,10 +1012,7 @@ export default function LessonPresentationClient() {
                       <div className="relative">
                         <select
                           value={language}
-                          onChange={(e) => {
-                            console.log(`[LANGUAGE_DEBUG] Language dropdown changed from ${language} to ${e.target.value}`);
-                            setLanguage(e.target.value);
-                          }}
+                          onChange={(e) => setLanguage(e.target.value)}
                           className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
                           <option value="en">{t('interface.english', 'English')}</option>
@@ -1065,10 +1045,7 @@ export default function LessonPresentationClient() {
                   <div className="relative">
                     <select
                       value={language}
-                      onChange={(e) => {
-                        console.log(`[LANGUAGE_DEBUG] Standalone language dropdown changed from ${language} to ${e.target.value}`);
-                        setLanguage(e.target.value);
-                      }}
+                      onChange={(e) => setLanguage(e.target.value)}
                       className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
                       <option value="en">{t('interface.english', 'English')}</option>
