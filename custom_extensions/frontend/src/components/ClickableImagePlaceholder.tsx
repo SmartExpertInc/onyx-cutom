@@ -62,15 +62,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     'BACKGROUND': 'absolute inset-0 z-0'
   };
 
-  // Derived sizes for default size classes when explicit width/height not provided
-  const defaultPixelSize = useMemo(() => {
-    switch (size) {
-      case 'LARGE': return { w: 512, h: 384 };
-      case 'MEDIUM': return { w: 384, h: 256 };
-      case 'SMALL': return { w: 256, h: 192 };
-      default: return { w: 384, h: 256 };
-    }
-  }, [size]);
+
 
   // Keep local displayed image in sync with prop when it changes
   useEffect(() => {
@@ -97,10 +89,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       if (imgW > 0 && imgH > 0) {
         setImageDimensions({ width: imgW, height: imgH });
         
-        // Notify parent of image load with default size
+        // Notify parent of image load
         onSizeTransformChange?.({
-          widthPx: defaultPixelSize.w,
-          heightPx: defaultPixelSize.h,
           objectFit: cropMode,
           imageScale: 1,
           imageOffset: { x: 0, y: 0 }
@@ -132,8 +122,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           `}
           style={{
             ...(style || {}),
-            width: defaultPixelSize.w,
-            height: defaultPixelSize.h,
             maxWidth: "auto",
             maxHeight: "auto",
             minWidth: "auto",
@@ -278,8 +266,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         `}
         style={{
           ...(style || {}),
-          width: defaultPixelSize.w,
-          height: defaultPixelSize.h,
           maxWidth: "auto",
           maxHeight: "auto",
           minWidth: "auto",
