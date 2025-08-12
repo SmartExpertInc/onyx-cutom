@@ -15075,11 +15075,19 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
     try:
         db_microproduct_name_to_store = project_update_data.microProductName
         current_component_name = None
+        # Fetch current component_name, project_name and content to detect renames/diffs
+        old_project_name: Optional[str] = None
+        old_microproduct_content: Optional[dict] = None
         async with pool.acquire() as conn:
-            project_row = await conn.fetchrow("SELECT dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2", project_id, onyx_user_id)
+            project_row = await conn.fetchrow("SELECT p.project_name, p.microproduct_content, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2", project_id, onyx_user_id)
             if not project_row:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or not owned by user.")
             current_component_name = project_row["component_name"]
+            old_project_name = project_row["project_name"]
+            try:
+                old_microproduct_content = dict(project_row["microproduct_content"]) if project_row["microproduct_content"] else None
+            except Exception:
+                old_microproduct_content = project_row["microproduct_content"] if isinstance(project_row["microproduct_content"], dict) else None
 
         if (not db_microproduct_name_to_store or not db_microproduct_name_to_store.strip()) and project_update_data.design_template_id:
             async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
@@ -15132,6 +15140,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                         update_clauses.append(f"project_name = ${arg_idx}")
                         update_values.append(main_title.strip())
                         arg_idx += 1
+                        project_name_updated = True
                 except Exception as e:
                     logger.warning(f"Could not sync mainTitle to project_name for project {project_id}: {e}")
 
@@ -15163,6 +15172,116 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
+
+        # --- Propagate outline/lesson renames to connected products (best-effort) ---
+        try:
+            # Only for Training Plans
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                new_project_name = row["project_name"]
+                # 1) If outline name changed, update prefix for all connected products
+                if project_name_updated and old_project_name and new_project_name and old_project_name.strip() != new_project_name.strip():
+                    old_prefix = f"{old_project_name.strip()}: "
+                    new_prefix = f"{new_project_name.strip()}: "
+                    async with pool.acquire() as conn:
+                        children = await conn.fetch(
+                            "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND is_standalone = FALSE AND project_name LIKE $2",
+                            onyx_user_id, old_prefix + "%"
+                        )
+                        for child in children:
+                            child_id = child["id"]
+                            child_pn = child["project_name"] or ""
+                            child_mpname = child["microproduct_name"]
+                            # Compute new names
+                            if ": " in child_pn:
+                                suffix = child_pn.split(": ", 1)[1]
+                                updated_project_name = new_prefix + suffix
+                            else:
+                                updated_project_name = child_pn  # unexpected, skip
+                            # Update microproduct_name if it matches the old full or is None
+                            updated_micro_name = child_mpname
+                            if isinstance(child_mpname, str):
+                                if child_mpname == child_pn:
+                                    updated_micro_name = updated_project_name
+                            elif child_mpname is None:
+                                updated_micro_name = updated_project_name
+                            await conn.execute(
+                                "UPDATE projects SET project_name = $1, microproduct_name = COALESCE($2, microproduct_name) WHERE id = $3 AND onyx_user_id = $4",
+                                updated_project_name, updated_micro_name, child_id, onyx_user_id
+                            )
+                
+                # 2) If lesson titles changed inside outline content, rename exact-matching children
+                # Compute simple diff by position (module, lesson index)
+                def extract_titles(content: Optional[dict]) -> list[list[str]]:
+                    titles: list[list[str]] = []
+                    if not content or not isinstance(content, dict):
+                        return titles
+                    sections = content.get("sections") or []
+                    for sec in sections:
+                        sec_titles: list[str] = []
+                        lessons = sec.get("lessons") if isinstance(sec, dict) else []
+                        for les in lessons:
+                            if isinstance(les, dict):
+                                title = str(les.get("title") or les.get("name") or "").strip()
+                            else:
+                                title = str(les).strip()
+                            sec_titles.append(title)
+                        titles.append(sec_titles)
+                    return titles
+                old_titles_by_section = extract_titles(old_microproduct_content)
+                new_titles_by_section = extract_titles(content_to_store_for_db if project_update_data.microProductContent is not None else old_microproduct_content)
+                rename_pairs: list[tuple[str, str]] = []
+                if old_titles_by_section and new_titles_by_section and len(old_titles_by_section) == len(new_titles_by_section):
+                    for sec_idx in range(len(old_titles_by_section)):
+                        old_ls = old_titles_by_section[sec_idx]
+                        new_ls = new_titles_by_section[sec_idx]
+                        for li in range(min(len(old_ls), len(new_ls))):
+                            old_t = (old_ls[li] or "").strip()
+                            new_t = (new_ls[li] or "").strip()
+                            if old_t and new_t and old_t != new_t:
+                                rename_pairs.append((old_t, new_t))
+                if rename_pairs:
+                    async with pool.acquire() as conn:
+                        for (old_title, new_title) in rename_pairs:
+                            old_full = f"{(row['project_name'] or new_project_name).strip()}: {old_title}"
+                            new_full = f"{(row['project_name'] or new_project_name).strip()}: {new_title}"
+                            children = await conn.fetch(
+                                "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2",
+                                onyx_user_id, old_full
+                            )
+                            for child in children:
+                                child_id = child["id"]
+                                child_mpname = child["microproduct_name"]
+                                child_content = child["microproduct_content"]
+                                # Update microproduct_name smartly: replace exact matches or lesson-only
+                                updated_micro_name = child_mpname
+                                if isinstance(child_mpname, str):
+                                    if child_mpname == old_full:
+                                        updated_micro_name = new_full
+                                    elif child_mpname == old_title:
+                                        updated_micro_name = new_title
+                                elif child_mpname is None:
+                                    updated_micro_name = new_full
+                                # Update content titles if present
+                                updated_content = child_content
+                                try:
+                                    if isinstance(child_content, dict):
+                                        # Quiz
+                                        if 'quizTitle' in child_content and isinstance(child_content['quizTitle'], str):
+                                            if child_content['quizTitle'].strip() in (old_title, old_full):
+                                                child_content['quizTitle'] = new_title
+                                        # Text Presentation
+                                        if 'textTitle' in child_content and isinstance(child_content['textTitle'], str):
+                                            if child_content['textTitle'].strip() in (old_title, old_full):
+                                                child_content['textTitle'] = new_title
+                                        updated_content = child_content
+                                except Exception as e:
+                                    logger.warning(f"[RENAME_PROPAGATION] Failed to update content titles for child {child_id}: {e}")
+                                await conn.execute(
+                                    "UPDATE projects SET project_name = $1, microproduct_name = COALESCE($2, microproduct_name), microproduct_content = COALESCE($3, microproduct_content) WHERE id = $4 AND onyx_user_id = $5",
+                                    new_full, updated_micro_name, updated_content, child_id, onyx_user_id
+                                )
+        except Exception as e:
+            logger.error(f"[RENAME_PROPAGATION] Error during rename propagation for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
 
         db_content = row["microproduct_content"]
         
