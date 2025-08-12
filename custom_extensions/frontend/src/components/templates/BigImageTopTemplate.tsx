@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import MoveableManager from '../positioning/MoveableManager';
+import { useMoveableManager } from '@/hooks/useMoveableManager';
 
 export interface BigImageTopProps extends BigImageLeftProps {
   // Можна додати додаткові пропси, якщо потрібно
@@ -157,6 +159,27 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for MoveableManager integration
+  const imageRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize MoveableManager
+  const moveableManager = useMoveableManager({
+    slideId,
+    isEditable,
+    onUpdate
+  });
+  
+  // Create moveable elements
+  const moveableElements = [
+    moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
+      cropMode: moveableManager.getCropMode(`${slideId}-image`)
+    }),
+    moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text'),
+    moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
+  ];
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -174,8 +197,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     flexDirection: 'column',
     alignItems: 'stretch',
     justifyContent: 'space-between',
-    paddingBottom: '50px'
-    // Removed overflow: 'hidden' to allow natural content expansion
+    paddingBottom: '50px',
+    position: 'relative'
   };
 
   const getImageDimensions = () => {
@@ -270,11 +293,22 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     }
   };
 
+  // Handle crop mode change
+  const handleCropModeChange = (mode: 'cover' | 'contain' | 'fill') => {
+    moveableManager.handleCropModeChange(`${slideId}-image`, mode);
+  };
+
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
   const displayPrompt = imagePrompt || imageAlt || "man sitting on a chair";
 
   return (
     <div style={slideStyles}>
+      {/* MoveableManager for drag/resize functionality */}
+      <MoveableManager
+        {...moveableManager.moveableManagerProps}
+        elements={moveableElements}
+      />
+      
       {/* Top - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
         <ClickableImagePlaceholder
@@ -287,13 +321,22 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           isEditable={isEditable}
           style={placeholderStyles}
           onSizeTransformChange={handleSizeTransformChange}
+          elementId={`${slideId}-image`}
+          elementRef={imageRef}
+          cropMode={moveableManager.getCropMode(`${slideId}-image`)}
+          onCropModeChange={handleCropModeChange}
         />
       </div>
 
       {/* Bottom - Content */}
       <div style={contentContainerStyles}>
         {/* Title - wrapped */}
-        <div data-draggable="true" style={{ display: 'inline-block' }}>
+        <div 
+          ref={titleRef}
+          data-moveable-element={`${slideId}-title`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={title || ''}
@@ -339,7 +382,12 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
         </div>
 
         {/* Subtitle - wrapped */}
-        <div data-draggable="true" style={{ display: 'inline-block' }}>
+        <div 
+          ref={subtitleRef}
+          data-moveable-element={`${slideId}-subtitle`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
           {isEditable && editingSubtitle ? (
             <InlineEditor
               initialValue={subtitle || ''}

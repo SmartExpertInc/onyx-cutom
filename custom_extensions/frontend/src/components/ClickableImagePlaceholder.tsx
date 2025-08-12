@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
-import { Image as ImageIcon, Upload, Replace } from 'lucide-react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
+import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
-import ResizablePlaceholder from './ResizablePlaceholder';
 
-interface ClickableImagePlaceholderProps {
+export interface ClickableImagePlaceholderProps {
   imagePath?: string;
   onImageUploaded: (imagePath: string) => void;
   size?: 'SMALL' | 'MEDIUM' | 'LARGE';
@@ -15,19 +14,12 @@ interface ClickableImagePlaceholderProps {
   isEditable?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  // New optional sizing/transform props
-  widthPx?: number;
-  heightPx?: number;
-  objectFit?: 'contain' | 'cover' | 'fill';
-  imageScale?: number; // 1.0 = natural fit
-  imageOffset?: { x: number; y: number };
-  onSizeTransformChange?: (payload: {
-    widthPx?: number;
-    heightPx?: number;
-    objectFit?: 'contain' | 'cover' | 'fill';
-    imageScale?: number;
-    imageOffset?: { x: number; y: number };
-  }) => void;
+  onSizeTransformChange?: (payload: any) => void;
+  // New props for MoveableManager integration
+  elementId?: string;
+  elementRef?: React.RefObject<HTMLDivElement | null>;
+  cropMode?: 'cover' | 'contain' | 'fill';
+  onCropModeChange?: (mode: 'cover' | 'contain' | 'fill') => void;
 }
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
@@ -36,21 +28,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   size = 'MEDIUM',
   position = 'CENTER',
   description = 'Click to upload image',
-  prompt = 'relevant illustration',
-  isEditable = true,
+  prompt,
+  isEditable = false,
   className = '',
   style = {},
-  widthPx,
-  heightPx,
-  objectFit,
-  imageScale,
-  imageOffset,
-  onSizeTransformChange
+  onSizeTransformChange,
+  elementId,
+  elementRef,
+  cropMode = 'contain',
+  onCropModeChange
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
-  // Always contain
-  const objectFitMode: 'contain' = 'contain';
-  const imgWrapperRef = useRef<HTMLDivElement>(null);
+  const [showCropOptions, setShowCropOptions] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
+  const internalRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  
+  // Use provided ref or internal ref
+  const containerRef = elementRef || internalRef;
 
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
@@ -65,32 +60,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     'BACKGROUND': 'absolute inset-0 z-0'
   };
 
-  const handleClick = () => {
-    if (isEditable) {
-      setShowUploadModal(true);
-    }
-  };
-
-  const handleImageUploaded = (newImagePath: string) => {
-    onImageUploaded(newImagePath);
-    // After upload: adjust placeholder to image aspect ratio and fit within current default box
-    const tmp = new window.Image();
-    tmp.onload = () => {
-      const imgW = tmp.naturalWidth || tmp.width;
-      const imgH = tmp.naturalHeight || tmp.height;
-      const wrapperEl = imgWrapperRef.current?.parentElement as HTMLElement | null;
-      const rect = wrapperEl?.getBoundingClientRect();
-      if (!imgW || !imgH || !rect) return;
-
-      const scale = Math.min((rect.width || imgW) / imgW, (rect.height || imgH) / imgH) || 1;
-      const targetW = Math.max(1, Math.round(imgW * scale));
-      const targetH = Math.max(1, Math.round(imgH * scale));
-
-      onSizeTransformChange?.({ widthPx: targetW, heightPx: targetH, objectFit: 'contain', imageScale: 1, imageOffset: { x: 0, y: 0 } });
-    };
-    tmp.src = newImagePath;
-  };
-
   // Derived sizes for default size classes when explicit width/height not provided
   const defaultPixelSize = useMemo(() => {
     switch (size) {
@@ -101,57 +70,163 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [size]);
 
-  const handleResize = (s: { widthPx: number; heightPx: number }) => {
-    onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
+  const handleClick = () => {
+    if (isEditable) {
+      setShowUploadModal(true);
+    }
   };
 
-  const handleResizeCommit = (s: { widthPx: number; heightPx: number }) => {
-    onSizeTransformChange?.({ widthPx: s.widthPx, heightPx: s.heightPx });
+  const handleImageUploaded = (newImagePath: string) => {
+    onImageUploaded(newImagePath);
+    
+    // Load image to get dimensions and calculate optimal size
+    const tmp = new window.Image();
+    tmp.onload = () => {
+      const imgW = tmp.naturalWidth || tmp.width;
+      const imgH = tmp.naturalHeight || tmp.height;
+      
+      if (imgW > 0 && imgH > 0) {
+        setImageDimensions({ width: imgW, height: imgH });
+        
+        // Calculate optimal size based on crop mode
+        const containerWidth = defaultPixelSize.w;
+        const containerHeight = defaultPixelSize.h;
+        const containerRatio = containerWidth / containerHeight;
+        const imageRatio = imgW / imgH;
+        
+        let targetWidth: number;
+        let targetHeight: number;
+        
+        switch (cropMode) {
+          case 'cover':
+            // Scale to cover container, maintaining aspect ratio
+            if (imageRatio > containerRatio) {
+              targetHeight = containerHeight;
+              targetWidth = containerHeight * imageRatio;
+            } else {
+              targetWidth = containerWidth;
+              targetHeight = containerWidth / imageRatio;
+            }
+            break;
+          case 'fill':
+            // Stretch to fit container exactly
+            targetWidth = containerWidth;
+            targetHeight = containerHeight;
+            break;
+          case 'contain':
+          default:
+            // Scale to fit within container, maintaining aspect ratio
+            if (imageRatio > containerRatio) {
+              targetWidth = containerWidth;
+              targetHeight = containerWidth / imageRatio;
+            } else {
+              targetHeight = containerHeight;
+              targetWidth = containerHeight * imageRatio;
+            }
+            break;
+        }
+        
+        // Update size via callback
+        onSizeTransformChange?.({
+          widthPx: Math.round(targetWidth),
+          heightPx: Math.round(targetHeight),
+          objectFit: cropMode,
+          imageScale: 1,
+          imageOffset: { x: 0, y: 0 }
+        });
+      }
+    };
+    tmp.src = newImagePath;
   };
 
-  // Panning disabled in contain mode
+  const handleCropModeChange = (newMode: 'cover' | 'contain' | 'fill') => {
+    onCropModeChange?.(newMode);
+    
+    // Recalculate size if we have image dimensions
+    if (imageDimensions && onSizeTransformChange) {
+      const { width: imgW, height: imgH } = imageDimensions;
+      const containerWidth = defaultPixelSize.w;
+      const containerHeight = defaultPixelSize.h;
+      const containerRatio = containerWidth / containerHeight;
+      const imageRatio = imgW / imgH;
+      
+      let targetWidth: number;
+      let targetHeight: number;
+      
+      switch (newMode) {
+        case 'cover':
+          if (imageRatio > containerRatio) {
+            targetHeight = containerHeight;
+            targetWidth = containerHeight * imageRatio;
+          } else {
+            targetWidth = containerWidth;
+            targetHeight = containerWidth / imageRatio;
+          }
+          break;
+        case 'fill':
+          targetWidth = containerWidth;
+          targetHeight = containerHeight;
+          break;
+        case 'contain':
+        default:
+          if (imageRatio > containerRatio) {
+            targetWidth = containerWidth;
+            targetHeight = containerWidth / imageRatio;
+          } else {
+            targetHeight = containerHeight;
+            targetWidth = containerHeight * imageRatio;
+          }
+          break;
+      }
+      
+      onSizeTransformChange({
+        widthPx: Math.round(targetWidth),
+        heightPx: Math.round(targetHeight),
+        objectFit: newMode,
+        imageScale: 1,
+        imageOffset: { x: 0, y: 0 }
+      });
+    }
+  };
 
-  // If we have an image, display it with replace overlay and image controls
+  // If we have an image, display it with replace overlay and crop controls
   if (imagePath) {
     return (
       <>
-        <ResizablePlaceholder
-          isEditable={isEditable}
+        <div
+          ref={containerRef}
+          data-moveable-element={elementId}
           className={`
             ${positionClasses[position]} 
             rounded-lg overflow-hidden relative ${className}
           `}
           style={{
             ...(style || {}),
-            // Let component control size via widthPx/heightPx props
+            width: defaultPixelSize.w,
+            height: defaultPixelSize.h,
+            minWidth: 120,
+            minHeight: 120,
           }}
-          // Use provided sizes or fall back to default sizes based on size prop
-          widthPx={widthPx || defaultPixelSize.w}
-          heightPx={heightPx || defaultPixelSize.h}
-          minWidthPx={120}
-          minHeightPx={120}
-          onResize={handleResize}
-          onResizeCommit={handleResizeCommit}
-          ariaLabel="Resizable image placeholder"
         >
-          <div ref={imgWrapperRef} className="w-full h-full relative">
+          <div className="w-full h-full relative">
             <img
+              ref={imgRef}
               src={imagePath}
               alt={description}
               className="absolute inset-0"
               style={{
                 width: '100%',
                 height: '100%',
-                 objectFit: 'contain',
-                 transform: 'none',
+                objectFit: cropMode,
+                transform: 'none',
                 transformOrigin: 'center center',
                 maxWidth: 'none',
                 maxHeight: 'none'
               }}
               draggable={false}
-              
             />
-            {/* No fit toggle; always contain */}
+            
+            {/* Replace overlay */}
             {isEditable && (
               <div 
                 className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
@@ -165,8 +240,45 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                 </div>
               </div>
             )}
+            
+            {/* Crop mode controls */}
+            {isEditable && (
+              <div className="absolute top-2 right-2 z-20">
+                <button
+                  onClick={() => setShowCropOptions(!showCropOptions)}
+                  className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 px-2 py-1 rounded text-xs font-medium shadow-sm transition-all duration-200"
+                  title="Crop options"
+                >
+                  Crop
+                </button>
+                
+                {showCropOptions && (
+                  <div className="absolute top-full right-0 mt-1 bg-white rounded shadow-lg border border-gray-200 p-2 min-w-32">
+                    <div className="text-xs font-medium text-gray-700 mb-2">Image Fit:</div>
+                    <button
+                      onClick={() => handleCropModeChange('contain')}
+                      className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'contain' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      Fit (contain)
+                    </button>
+                    <button
+                      onClick={() => handleCropModeChange('cover')}
+                      className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'cover' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      Fill (cover)
+                    </button>
+                    <button
+                      onClick={() => handleCropModeChange('fill')}
+                      className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'fill' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      Stretch (fill)
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </ResizablePlaceholder>
+        </div>
 
         <PresentationImageUpload
           isOpen={showUploadModal}
@@ -181,8 +293,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Otherwise show placeholder
   return (
     <>
-      <ResizablePlaceholder
-        isEditable={isEditable}
+      <div
+        ref={containerRef}
+        data-moveable-element={elementId}
         className={`
           ${positionClasses[position]} 
           bg-gradient-to-br from-blue-100 to-purple-100 
@@ -193,17 +306,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
           ${className}
         `}
-        style={style}
-        // Provide default sizes based on size prop to prevent tiny placeholders
-        widthPx={widthPx || defaultPixelSize.w}
-        heightPx={heightPx || defaultPixelSize.h}
-        minWidthPx={120}
-        minHeightPx={120}
-        onResize={(s) => onSizeTransformChange?.(s)}
-        onResizeCommit={(s) => onSizeTransformChange?.(s)}
-        ariaLabel="Resizable image placeholder"
+        style={{
+          ...(style || {}),
+          width: defaultPixelSize.w,
+          height: defaultPixelSize.h,
+          minWidth: 120,
+          minHeight: 120,
+        }}
+        onClick={handleClick}
       >
-        <div className="text-center p-4" onClick={handleClick} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+        <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
           <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <div className="font-medium">{size} Image</div>
           <div className="text-xs mt-1 opacity-75">{description}</div>
@@ -218,7 +330,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             </div>
           )}
         </div>
-      </ResizablePlaceholder>
+      </div>
 
       <PresentationImageUpload
         isOpen={showUploadModal}

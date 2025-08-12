@@ -516,6 +516,11 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   // Inline editing state for title only
   const [editingTitle, setEditingTitle] = useState(false);
   
+  // Refs for MoveableManager integration
+  const imageRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const bulletsRef = useRef<HTMLDivElement>(null);
+  
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
@@ -604,7 +609,12 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   return (
     <div className="bullet-points-template" style={slideStyles}>
       {/* Title */}
-      <div data-draggable="true" style={{ display: 'inline-block' }}>
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block' }}
+      >
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title || ''}
@@ -663,11 +673,18 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             isEditable={isEditable}
             style={placeholderStyles}
             onSizeTransformChange={handleSizeTransformChange}
+            elementId={`${slideId}-image`}
+            elementRef={imageRef}
           />
         </div>
         
         {/* Right: Unified bullet points editor */}
-        <div style={bulletsContainerStyles} data-draggable="true">
+        <div 
+          ref={bulletsRef}
+          data-moveable-element={`${slideId}-bullets`}
+          style={bulletsContainerStyles} 
+          data-draggable="true"
+        >
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle={bulletStyle}
