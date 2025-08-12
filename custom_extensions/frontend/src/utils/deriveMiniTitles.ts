@@ -13,8 +13,6 @@ import {
 export interface DeriveMiniTitlesOptions {
   maxTitles?: number;
   minChars?: number;
-  // If false, do not fall back to using paragraphs when no headlines/lists found
-  allowParagraphFallback?: boolean;
 }
 
 function cleanCandidateTitle(raw: string): string {
@@ -72,7 +70,7 @@ export function deriveMiniTitlesFromBlocks(
   blocks: AnyContentBlock[],
   options: DeriveMiniTitlesOptions = {}
 ): string[] {
-  const { maxTitles = 5, minChars = 3, allowParagraphFallback = true } = options;
+  const { maxTitles = 5, minChars = 3 } = options;
   if (!Array.isArray(blocks) || blocks.length === 0) return [];
 
   // Only trigger when the document has exactly one H2 headline
@@ -123,7 +121,7 @@ export function deriveMiniTitlesFromBlocks(
   }
 
   // 3) As a last resort, use first sentences from paragraphs
-  if (allowParagraphFallback && candidates.length < maxTitles) {
+  if (candidates.length < maxTitles) {
     for (let i = firstH2Index + 1; i < endIndexExclusive; i++) {
       const blk = blocks[i];
       if (blk.type === "paragraph") {

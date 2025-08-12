@@ -276,31 +276,57 @@ export default function TextPresentationClient() {
     return blocks;
   };
 
-  const guessTitleFromContent = (): string | null => {
-    const lines = content.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    for (const l of lines) {
-      if (l.startsWith("## ")) return l.replace(/^##\s*/, '').trim();
-      if (l.startsWith("# ")) return l.replace(/^#\s*/, '').trim();
-    }
-    return null;
-  };
-
   const derivedMiniTitles: string[] = useMemo(() => {
-    if (!content.trim()) return [];
-    // Case 1: exactly one parsed section
     if (lessonList.length === 1) {
       const only = lessonList[0];
       const blocks = buildBlocksForMiniTitles(only.title, only.content || "");
-      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6, allowParagraphFallback: true });
-    }
-    // Case 2: no sections parsed — attempt to derive using a guessed title and full content
-    if (lessonList.length === 0) {
-      const title = guessTitleFromContent() || selectedLesson || (prompt ? prompt.slice(0, 80) : 'Document');
-      const blocks = buildBlocksForMiniTitles(title, content);
-      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6, allowParagraphFallback: true });
+      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6 });
     }
     return [];
-  }, [content, lessonList, selectedLesson, prompt]);
+  }, [lessonList]);
+
+  // Inject derived mini-titles as ### subheadings into the raw content (one-time per preview)
+  const didInjectMiniTitlesRef = useRef(false);
+  useEffect(() => {
+    if (didInjectMiniTitlesRef.current) return;
+    if (!textareaVisible || !streamDone) return;
+    if (lessonList.length !== 1) return;
+    if (derivedMiniTitles.length === 0) return;
+
+    const single = lessonList[0];
+    const titlesQueue = [...derivedMiniTitles];
+    const listMarkerRegex = /^(\s*)(?:- |\* |\d+\.\s+)(.+)$/;
+    let seenFirstH2 = false;
+    let consumed = 0;
+
+    const updated = content
+      .split(/\r?\n/)
+      .map((line) => {
+        if (/^#{1,3}\s+/.test(line)) {
+          seenFirstH2 = true;
+          return line; // keep original H2
+        }
+        if (!seenFirstH2) return line;
+
+        const m = line.match(listMarkerRegex);
+        if (m && titlesQueue.length > 0) {
+          const indent = m[1] || "";
+          const itemText = (m[2] || "").trim();
+          const nextTitle = titlesQueue.shift() as string;
+          consumed++;
+          // Create a subheading and keep the original item as paragraph below it
+          const paragraph = itemText;
+          return `${indent}### ${nextTitle}\n${indent}${paragraph}`;
+        }
+        return line;
+      })
+      .join("\n");
+
+    if (consumed > 0) {
+      didInjectMiniTitlesRef.current = true;
+      setContent(updated);
+    }
+  }, [textareaVisible, streamDone, lessonList, derivedMiniTitles, content]);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
@@ -1139,17 +1165,6 @@ export default function TextPresentationClient() {
                   </div>
                 )}
                 {/* Display content in card format if lessons are available, otherwise show textarea */}
-                {/* Suggested mini-titles (shown when detected), independent of lesson parsing */}
-                {derivedMiniTitles.length > 0 && (
-                  <div className="bg-[#EEF5FF] border border-[#CFE0FF] rounded-lg p-3">
-                    <p className="text-xs font-medium text-[#20355D] mb-2">Suggested mini-titles</p>
-                    <div className="flex flex-wrap gap-2">
-                      {derivedMiniTitles.map((t, i) => (
-                        <span key={`${t}-${i}`} className="px-2 py-1 text-xs bg-white border border-[#CFE0FF] rounded-full text-[#20355D]">{t}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
                 {lessonList.length > 0 && (
                   <div className="flex flex-col gap-4">
                     {lessonList.map((lesson, idx: number) => (
