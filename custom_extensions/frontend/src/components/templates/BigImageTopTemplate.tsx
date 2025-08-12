@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import MoveableManager from '../positioning/MoveableManager';
-import { useMoveableManager } from '@/hooks/useMoveableManager';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -167,49 +165,10 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Refs for MoveableManager integration
-  const imageRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const subtitleRef = useRef<HTMLDivElement>(null);
-  
   log('BigImageTopTemplate', 'render', { 
     slideId, 
     isEditable, 
-    hasImagePath: !!imagePath,
-    imageRefExists: !!imageRef.current,
-    titleRefExists: !!titleRef.current,
-    subtitleRefExists: !!subtitleRef.current
-  });
-  
-  // Initialize MoveableManager
-  const moveableManager = useMoveableManager({
-    slideId,
-    isEditable,
-    onUpdate
-  });
-  
-  // Create moveable elements
-  const moveableElements = [
-    moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
-      cropMode: moveableManager.getCropMode(`${slideId}-image`)
-    }),
-    moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text'),
-    moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
-  ];
-
-  // Runtime assertions for debugging
-  if (DEBUG) {
-    console.assert(!!imageRef.current, `[BigImageTopTemplate] Missing imageRef for ${slideId}-image`);
-    console.assert(!!titleRef.current, `[BigImageTopTemplate] Missing titleRef for ${slideId}-title`);
-    console.assert(!!subtitleRef.current, `[BigImageTopTemplate] Missing subtitleRef for ${slideId}-subtitle`);
-    console.assert(moveableElements.length === 3, `[BigImageTopTemplate] Expected 3 moveable elements, got ${moveableElements.length}`);
-  }
-
-  log('BigImageTopTemplate', 'moveableElementsCreated', { 
-    slideId, 
-    elementsCount: moveableElements.length,
-    elementIds: moveableElements.map(e => e.id),
-    isEnabled: moveableManager.moveableManagerProps.isEnabled
+    hasImagePath: !!imagePath
   });
   
   // Cleanup timeouts on unmount
@@ -316,8 +275,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const handleImageUploaded = (newImagePath: string) => {
     log('BigImageTopTemplate', 'handleImageUploaded', { 
       slideId, 
-      newImagePath: !!newImagePath,
-      imageRefExists: !!imageRef.current
+      newImagePath: !!newImagePath
     });
 
     if (onUpdate) {
@@ -328,24 +286,12 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const handleSizeTransformChange = (payload: any) => {
     log('BigImageTopTemplate', 'handleSizeTransformChange', { 
       slideId, 
-      payload,
-      imageRefExists: !!imageRef.current
+      payload
     });
 
     if (onUpdate) {
       onUpdate(payload);
     }
-  };
-
-  // Handle crop mode change
-  const handleCropModeChange = (mode: 'cover' | 'contain' | 'fill') => {
-    log('BigImageTopTemplate', 'handleCropModeChange', { 
-      slideId, 
-      mode,
-      imageRefExists: !!imageRef.current
-    });
-
-    moveableManager.handleCropModeChange(`${slideId}-image`, mode);
   };
 
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
@@ -354,18 +300,11 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   log('BigImageTopTemplate', 'rendering', { 
     slideId, 
     isEditable,
-    hasImagePath: !!imagePath,
-    moveableElementsCount: moveableElements.length
+    hasImagePath: !!imagePath
   });
 
   return (
     <div style={slideStyles}>
-      {/* MoveableManager for drag/resize functionality */}
-      <MoveableManager
-        {...moveableManager.moveableManagerProps}
-        elements={moveableElements}
-      />
-      
       {/* Top - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
         <ClickableImagePlaceholder
@@ -379,21 +318,13 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           style={placeholderStyles}
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
-          elementRef={imageRef}
-          cropMode={moveableManager.getCropMode(`${slideId}-image`)}
-          onCropModeChange={handleCropModeChange}
         />
       </div>
 
       {/* Bottom - Content */}
       <div style={contentContainerStyles}>
-        {/* Title - wrapped */}
-        <div 
-          ref={titleRef}
-          data-moveable-element={`${slideId}-title`}
-          data-draggable="true" 
-          style={{ display: 'inline-block' }}
-        >
+        {/* Title */}
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={title || ''}
@@ -438,13 +369,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           )}
         </div>
 
-        {/* Subtitle - wrapped */}
-        <div 
-          ref={subtitleRef}
-          data-moveable-element={`${slideId}-subtitle`}
-          data-draggable="true" 
-          style={{ display: 'inline-block' }}
-        >
+        {/* Subtitle */}
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
           {isEditable && editingSubtitle ? (
             <InlineEditor
               initialValue={subtitle || ''}

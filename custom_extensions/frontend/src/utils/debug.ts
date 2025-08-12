@@ -25,7 +25,7 @@ export const isMoveableDebugEnabled = () => {
 };
 
 // Debug logging utility
-export const debugLog = (source: string, event: string, data: any) => {
+export const debugLog = (source: string, event: string, data: Record<string, unknown>) => {
   if (isMoveableDebugEnabled()) {
     console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
   }
