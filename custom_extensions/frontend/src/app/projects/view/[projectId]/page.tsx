@@ -778,6 +778,31 @@ export default function ProjectInstanceViewPage() {
         const responseData = await response.json();
         console.log('🔍 Auto-save response data:', JSON.stringify(responseData, null, 2));
         
+        // NEW: Refresh products list to update names after rename propagation
+        try {
+          const listRes = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store', headers: saveOperationHeaders });
+          if (listRes.ok) {
+            const listData: ProjectListItem[] = await listRes.json();
+            setAllUserMicroproducts(listData);
+            const currentFromList = listData.find(mp => mp.id === projectInstanceData.project_id);
+            if (currentFromList?.projectName) {
+              setParentProjectNameForCurrentView(currentFromList.projectName);
+            } else if (responseData?.project_name || responseData?.microproduct_content?.mainTitle) {
+              setParentProjectNameForCurrentView(responseData.project_name || responseData.microproduct_content.mainTitle);
+            }
+          } else {
+            console.warn('Could not refresh projects list after auto-save');
+            if (responseData?.project_name || responseData?.microproduct_content?.mainTitle) {
+              setParentProjectNameForCurrentView(responseData.project_name || responseData.microproduct_content.mainTitle);
+            }
+          }
+        } catch (e) {
+          console.warn('Error refreshing projects list after auto-save', e);
+          if (responseData?.project_name || responseData?.microproduct_content?.mainTitle) {
+            setParentProjectNameForCurrentView(responseData.project_name || responseData.microproduct_content.mainTitle);
+          }
+        }
+        
         // Check if the response data matches what we sent
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           const trainingPlanData = editableData as TrainingPlanData;

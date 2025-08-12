@@ -367,6 +367,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     currentCustomRate?: number; currentQualityTier?: string;
   }>({ isOpen: false, moduleTitle: '', sectionIndex: -1 });
 
+  const [rematchTick, setRematchTick] = useState<number>(0);
+
   // Helper function to start editing a field
   const startEditing = (type: 'mainTitle' | 'sectionId' | 'sectionTitle' | 'lessonTitle' | 'source' | 'hours' | 'completionTime' | 'check' | 'contentAvailable', sectionIndex?: number, lessonIndex?: number, path?: (string | number)[]) => {
     setEditingField({
@@ -1141,7 +1143,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     }
     if (onAutoSave) {
       console.log('Auto-save triggered on blur'); // Debug log
+      const wasEditingLessonTitle = editingField?.type === 'lessonTitle';
       onAutoSave();
+      if (wasEditingLessonTitle) {
+        // Slight delay to allow parent to refresh product list, then trigger re-match
+        setTimeout(() => {
+          setRematchTick(prev => prev + 1);
+          console.log('🔁 [REMATCH] Triggered re-match after lesson title rename. Tick bumped');
+        }, 300);
+      }
     }
   };
 
