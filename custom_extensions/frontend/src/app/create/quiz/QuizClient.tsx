@@ -209,7 +209,7 @@ export default function QuizClient() {
     return [];
   };
 
-  const questionList = parseQuizIntoQuestions(quizData);
+  const questionList = useMemo(() => parseQuizIntoQuestions(quizData), [quizData]);
 
   // Handle question title editing
   const handleTitleEdit = (questionIndex: number, newTitle: string) => {

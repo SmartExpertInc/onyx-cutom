@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
@@ -218,7 +218,7 @@ export default function TextPresentationClient() {
     return lessons;
   };
 
-  const lessonList = parseContentIntoLessons(content);
+  const lessonList = useMemo(() => parseContentIntoLessons(content), [content]);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
