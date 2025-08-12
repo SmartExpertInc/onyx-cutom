@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { deriveMiniTitlesFromBlocks } from "../../../utils/deriveMiniTitles";
-import type { AnyContentBlock, HeadlineBlock, BulletListBlock, NumberedListBlock, ParagraphBlock } from "../../../types/textPresentation";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -148,12 +146,13 @@ export default function TextPresentationClient() {
 
     
     // Original parsing logic for regular content
-    const sections = content.split(/(?:^|\n)(?:#{1,3}\s+.*|---\s*$)/m);
-    const headers = content.match(/(?:^|\n)(#{1,3}\s+.*)/gm) || [];
+    // Updated to include smaller headers (#### to ######) as independent sections
+    const sections = content.split(/(?:^|\n)(?:#{1,6}\s+.*|---\s*$)/m);
+    const headers = content.match(/(?:^|\n)(#{1,6}\s+.*)/gm) || [];
     
     // Clean up headers and remove emoji/icon headers
     const cleanHeaders = headers
-      .map(h => h.replace(/^[\n]*#{1,3}\s*/, '').trim())
+      .map(h => h.replace(/^[\n]*#{1,6}\s*/, '').trim())
       .filter(h => h && !h.match(/^[📚🛠️💡🚀📞]/) && h !== 'Introduction to AI Tools for High School Teachers');
     
     for (let i = 0; i < cleanHeaders.length; i++) {
@@ -222,112 +221,6 @@ export default function TextPresentationClient() {
 
   const lessonList = parseContentIntoLessons(content);
 
-  // Build minimal content blocks from a single section to derive mini-titles
-  const buildBlocksForMiniTitles = (title: string, body: string): AnyContentBlock[] => {
-    const blocks: AnyContentBlock[] = [];
-    const h2: HeadlineBlock = { type: "headline", level: 2, text: title, iconName: "info" };
-    blocks.push(h2);
-
-    const lines = body.split(/\r?\n/);
-    let currentList: BulletListBlock | NumberedListBlock | null = null;
-    let paragraphBuf: string[] = [];
-
-    const flushParagraph = () => {
-      if (paragraphBuf.length > 0) {
-        const p: ParagraphBlock = { type: "paragraph", text: paragraphBuf.join(" ").trim() };
-        if (p.text) blocks.push(p);
-        paragraphBuf = [];
-      }
-    };
-
-    const flushList = () => {
-      if (currentList && currentList.items.length > 0) {
-        blocks.push(currentList);
-      }
-      currentList = null;
-    };
-
-    const listItemRegex = /^\s*(?:- |\* |\d+\.\s+)/;
-
-    for (const raw of lines) {
-      const line = raw.trim();
-      if (!line) { flushParagraph(); flushList(); continue; }
-
-      if (listItemRegex.test(line)) {
-        flushParagraph();
-        const isNumbered = /^\s*\d+\.\s+/.test(line);
-        if (!currentList) {
-          currentList = isNumbered
-            ? ({ type: "numbered_list", items: [] } as NumberedListBlock)
-            : ({ type: "bullet_list", items: [], iconName: "chevronRight" } as BulletListBlock);
-        }
-        // Normalize item text (drop leading marker)
-        const itemText = line.replace(listItemRegex, "").trim();
-        currentList.items.push(itemText);
-      } else {
-        flushList();
-        // Accumulate paragraph text; keep bold markers as-is
-        paragraphBuf.push(line);
-      }
-    }
-
-    flushParagraph();
-    flushList();
-    return blocks;
-  };
-
-  const derivedMiniTitles: string[] = useMemo(() => {
-    if (lessonList.length === 1) {
-      const only = lessonList[0];
-      const blocks = buildBlocksForMiniTitles(only.title, only.content || "");
-      return deriveMiniTitlesFromBlocks(blocks, { maxTitles: 6 });
-    }
-    return [];
-  }, [lessonList]);
-
-  // Inject derived mini-titles as ### subheadings into the raw content (one-time per preview)
-  const didInjectMiniTitlesRef = useRef(false);
-  useEffect(() => {
-    if (didInjectMiniTitlesRef.current) return;
-    if (!textareaVisible || !streamDone) return;
-    if (lessonList.length !== 1) return;
-    if (derivedMiniTitles.length === 0) return;
-
-    const single = lessonList[0];
-    const titlesQueue = [...derivedMiniTitles];
-    const listMarkerRegex = /^(\s*)(?:- |\* |\d+\.\s+)(.+)$/;
-    let seenFirstH2 = false;
-    let consumed = 0;
-
-    const updated = content
-      .split(/\r?\n/)
-      .map((line) => {
-        if (/^#{1,3}\s+/.test(line)) {
-          seenFirstH2 = true;
-          return line; // keep original H2
-        }
-        if (!seenFirstH2) return line;
-
-        const m = line.match(listMarkerRegex);
-        if (m && titlesQueue.length > 0) {
-          const indent = m[1] || "";
-          const itemText = (m[2] || "").trim();
-          const nextTitle = titlesQueue.shift() as string;
-          consumed++;
-          // Create a subheading and keep the original item as paragraph below it
-          const paragraph = itemText;
-          return `${indent}### ${nextTitle}\n${indent}${paragraph}`;
-        }
-        return line;
-      })
-      .join("\n");
-
-    if (consumed > 0) {
-      didInjectMiniTitlesRef.current = true;
-      setContent(updated);
-    }
-  }, [textareaVisible, streamDone, lessonList, derivedMiniTitles, content]);
-
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
     setEditedTitles(prev => ({
@@ -387,7 +280,8 @@ export default function TextPresentationClient() {
     // Find and replace the old title with new title in content
     // Look for markdown headers (## or ###) or plain text titles
     const patterns = [
-      new RegExp(`^(#{1,3}\\s*)${escapeRegExp(oldTitle)}`, 'gm'),
+      // Support H1-H6 headers
+      new RegExp(`^(#{1,6}\\s*)${escapeRegExp(oldTitle)}`, 'gm'),
       new RegExp(`^${escapeRegExp(oldTitle)}$`, 'gm')
     ];
 
@@ -396,7 +290,7 @@ export default function TextPresentationClient() {
       if (pattern.test(updatedContent)) {
         updatedContent = updatedContent.replace(pattern, (match) => {
           // Preserve markdown formatting if it exists
-          const headerMatch = match.match(/^(#{1,3}\s*)/);
+          const headerMatch = match.match(/^(#{1,6}\s*)/);
           return headerMatch ? headerMatch[1] + newTitle : newTitle;
         });
         break;
