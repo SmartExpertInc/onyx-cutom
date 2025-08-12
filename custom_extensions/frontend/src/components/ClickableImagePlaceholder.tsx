@@ -1,17 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
-import { SimplePlaceholder } from './SimplePlaceholder';
-
-// Debug logging utility
-const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
-const log = (source: string, event: string, data: any) => {
-  if (DEBUG) {
-    console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
-  }
-};
+import Moveable from 'react-moveable';
 
 export interface ClickableImagePlaceholderProps {
   imagePath?: string;
@@ -51,25 +43,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [showCropOptions, setShowCropOptions] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [shiftPressed, setShiftPressed] = useState(false);
-  const [positionPx, setPositionPx] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [sizePx, setSizePx] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const moveableRef = useRef<Moveable | null>(null);
   
   // Use provided ref or internal ref
   const containerRef = elementRef || internalRef;
-
-  log('ClickableImagePlaceholder', 'render', { 
-    elementId, 
-    imagePath: !!imagePath, 
-    refExists: !!containerRef.current,
-    isEditable 
-  });
 
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
@@ -94,13 +72,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [size]);
 
-  // Initialize local size from defaults once
-  useEffect(() => {
-    if (sizePx.width === 0 || sizePx.height === 0) {
-      setSizePx({ width: defaultPixelSize.w, height: defaultPixelSize.h });
-    }
-  }, [defaultPixelSize, sizePx.width, sizePx.height]);
-
   // Keep local displayed image in sync with prop when it changes
   useEffect(() => {
     if (imagePath) {
@@ -108,205 +79,48 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [imagePath]);
 
-  // Track Shift key for proportional resizing
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') {
-        setShiftPressed(true);
-        moveableRef.current?.updateRect();
-        log('ClickableImagePlaceholder', 'shiftKeyDown', { elementId });
-      }
-    };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') {
-        setShiftPressed(false);
-        moveableRef.current?.updateRect();
-        log('ClickableImagePlaceholder', 'shiftKeyUp', { elementId });
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [elementId]);
-
   const handleClick = () => {
     if (!isEditable) return;
-    if (isDragging || isResizing) {
-      log('ClickableImagePlaceholder', 'clickIgnoredWhileTransforming', { elementId, isDragging, isResizing });
-      return;
-    }
-    log('ClickableImagePlaceholder', 'handleClick', { elementId, isEditable });
     setShowUploadModal(true);
   };
 
   const handleImageUploaded = (newImagePath: string) => {
-    log('ClickableImagePlaceholder', 'handleImageUploaded_start', { 
-      elementId, 
-      newImagePath: !!newImagePath,
-      refExists: !!containerRef.current 
-    });
-
     onImageUploaded(newImagePath);
     setDisplayedImage(newImagePath);
     
-    // Load image to get dimensions and calculate optimal size
+    // Load image to get dimensions
     const tmp = new window.Image();
     tmp.onload = () => {
       const imgW = tmp.naturalWidth || tmp.width;
       const imgH = tmp.naturalHeight || tmp.height;
       
-      log('ClickableImagePlaceholder', 'imageLoaded', { 
-        elementId, 
-        imgW, 
-        imgH, 
-        refExists: !!containerRef.current 
-      });
-      
       if (imgW > 0 && imgH > 0) {
         setImageDimensions({ width: imgW, height: imgH });
         
-        // Calculate optimal size based on crop mode
-        const containerWidth = defaultPixelSize.w;
-        const containerHeight = defaultPixelSize.h;
-        const containerRatio = containerWidth / containerHeight;
-        const imageRatio = imgW / imgH;
-        
-        let targetWidth: number;
-        let targetHeight: number;
-        
-        switch (cropMode) {
-          case 'cover':
-            // Scale to cover container, maintaining aspect ratio
-            if (imageRatio > containerRatio) {
-              targetHeight = containerHeight;
-              targetWidth = containerHeight * imageRatio;
-            } else {
-              targetWidth = containerWidth;
-              targetHeight = containerWidth / imageRatio;
-            }
-            break;
-          case 'fill':
-            // Stretch to fit container exactly
-            targetWidth = containerWidth;
-            targetHeight = containerHeight;
-            break;
-          case 'contain':
-          default:
-            // Scale to fit within container, maintaining aspect ratio
-            if (imageRatio > containerRatio) {
-              targetWidth = containerWidth;
-              targetHeight = containerWidth / imageRatio;
-            } else {
-              targetHeight = containerHeight;
-              targetWidth = containerHeight * imageRatio;
-            }
-            break;
-        }
-        
-        log('ClickableImagePlaceholder', 'sizeCalculation', { 
-          elementId, 
-          cropMode, 
-          targetWidth, 
-          targetHeight,
-          containerWidth,
-          containerHeight,
-          imageRatio,
-          containerRatio
-        });
-        
-        // Update size via callback
+        // Notify parent of image load with default size
         onSizeTransformChange?.({
-          widthPx: Math.round(targetWidth),
-          heightPx: Math.round(targetHeight),
+          widthPx: defaultPixelSize.w,
+          heightPx: defaultPixelSize.h,
           objectFit: cropMode,
           imageScale: 1,
           imageOffset: { x: 0, y: 0 }
         });
-
-        log('ClickableImagePlaceholder', 'handleImageUploaded_complete', { 
-          elementId, 
-          newImagePath: !!newImagePath,
-          refExists: !!containerRef.current,
-          targetWidth,
-          targetHeight
-        });
       }
-    };
-    tmp.onerror = () => {
-      log('ClickableImagePlaceholder', 'imageLoadError', { elementId, newImagePath });
     };
     tmp.src = newImagePath;
   };
 
   const handleCropModeChange = (newMode: 'cover' | 'contain' | 'fill') => {
-    log('ClickableImagePlaceholder', 'handleCropModeChange', { 
-      elementId, 
-      oldMode: cropMode, 
-      newMode,
-      hasDimensions: !!imageDimensions 
-    });
-
     onCropModeChange?.(newMode);
     
-    // Recalculate size if we have image dimensions
-    if (imageDimensions && onSizeTransformChange) {
-      const { width: imgW, height: imgH } = imageDimensions;
-      const containerWidth = defaultPixelSize.w;
-      const containerHeight = defaultPixelSize.h;
-      const containerRatio = containerWidth / containerHeight;
-      const imageRatio = imgW / imgH;
-      
-      let targetWidth: number;
-      let targetHeight: number;
-      
-      switch (newMode) {
-        case 'cover':
-          if (imageRatio > containerRatio) {
-            targetHeight = containerHeight;
-            targetWidth = containerHeight * imageRatio;
-          } else {
-            targetWidth = containerWidth;
-            targetHeight = containerWidth / imageRatio;
-          }
-          break;
-        case 'fill':
-          targetWidth = containerWidth;
-          targetHeight = containerHeight;
-          break;
-        case 'contain':
-        default:
-          if (imageRatio > containerRatio) {
-            targetWidth = containerWidth;
-            targetHeight = containerWidth / imageRatio;
-          } else {
-            targetHeight = containerHeight;
-            targetWidth = containerHeight * imageRatio;
-          }
-          break;
-      }
-      
-      onSizeTransformChange({
-        widthPx: Math.round(targetWidth),
-        heightPx: Math.round(targetHeight),
-        objectFit: newMode,
-        imageScale: 1,
-        imageOffset: { x: 0, y: 0 }
-      });
-    }
+    // Just notify the parent component about the crop mode change
+    onSizeTransformChange?.({
+      objectFit: newMode,
+    });
   };
 
   // If we have an image, display it with replace overlay and crop controls
   if (displayedImage) {
-    log('ClickableImagePlaceholder', 'renderingImage', { 
-      elementId, 
-      imagePath: !!displayedImage,
-      refExists: !!containerRef.current,
-      cropMode 
-    });
-
     return (
       <>
         <div
@@ -318,16 +132,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           `}
           style={{
             ...(style || {}),
-            position: 'relative',
-            width: sizePx.width || defaultPixelSize.w,
-            height: sizePx.height || defaultPixelSize.h,
-            left: positionPx.x,
-            top: positionPx.y,
-            minWidth: 120,
-            minHeight: 120,
+            width: defaultPixelSize.w,
+            height: defaultPixelSize.h,
+            maxWidth: "auto",
+            maxHeight: "auto",
+            minWidth: "auto",
+            minHeight: "auto",
           }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
           onClick={handleClick}
         >
           <div className="w-full h-full relative">
@@ -339,19 +150,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               style={{
                 width: '100%',
                 height: '100%',
-                 objectFit: cropMode,
-                 transform: 'none',
-                transformOrigin: 'center center',
+                objectFit: cropMode,
                 maxWidth: 'none',
                 maxHeight: 'none'
               }}
               draggable={false}
-              onLoad={() => {
-                log('ClickableImagePlaceholder', 'imgOnLoad', { elementId, imagePath: !!displayedImage });
-              }}
-              onError={() => {
-                log('ClickableImagePlaceholder', 'imgOnError', { elementId, imagePath: displayedImage });
-              }}
             />
             
             {/* Replace overlay */}
@@ -373,8 +176,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             {isEditable && (
               <div className="absolute top-2 right-2 z-20">
                 <button
-                  onClick={() => {
-                    log('ClickableImagePlaceholder', 'cropButtonClick', { elementId });
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setShowCropOptions(!showCropOptions);
                   }}
                   className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 px-2 py-1 rounded text-xs font-medium shadow-sm transition-all duration-200"
@@ -387,19 +190,31 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   <div className="absolute top-full right-0 mt-1 bg-white rounded shadow-lg border border-gray-200 p-2 min-w-32">
                     <div className="text-xs font-medium text-gray-700 mb-2">Image Fit:</div>
                     <button
-                      onClick={() => handleCropModeChange('contain')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCropModeChange('contain');
+                        setShowCropOptions(false);
+                      }}
                       className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'contain' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                       Fit (contain)
                     </button>
                     <button
-                      onClick={() => handleCropModeChange('cover')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCropModeChange('cover');
+                        setShowCropOptions(false);
+                      }}
                       className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'cover' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                       Fill (cover)
                     </button>
                     <button
-                      onClick={() => handleCropModeChange('fill')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCropModeChange('fill');
+                        setShowCropOptions(false);
+                      }}
                       className={`block w-full text-left px-2 py-1 rounded text-xs ${cropMode === 'fill' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                       Stretch (fill)
@@ -411,78 +226,33 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           </div>
         </div>
 
-        {/* Moveable controls for drag/resize */}
-        {isEditable && (
+        {/* Official react-moveable implementation for image */}
+        {isEditable && containerRef.current && (
           <Moveable
-            ref={moveableRef as any}
-            target={containerRef.current as any}
+            target={containerRef.current}
             draggable={true}
+            throttleDrag={1}
+            edgeDraggable={false}
+            startDragRotate={0}
+            throttleDragRotate={0}
+            onDrag={e => {
+              e.target.style.transform = e.transform;
+            }}
             resizable={true}
-            keepRatio={shiftPressed}
-            // Drag
-            onDrag={({ target, left, top }) => {
-              setIsDragging(true);
-              (target as HTMLElement).style.left = `${left}px`;
-              (target as HTMLElement).style.top = `${top}px`;
-              log('ClickableImagePlaceholder', 'onDrag', { elementId, left, top });
+            keepRatio={false}
+            throttleResize={1}
+            renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+            onResize={e => {
+              e.target.style.width = `${e.width}px`;
+              e.target.style.height = `${e.height}px`;
+              e.target.style.transform = e.drag.transform;
             }}
-            onDragEnd={({ target }) => {
-              const rect = (target as HTMLElement).getBoundingClientRect();
-              const parentRect = (target as HTMLElement).parentElement?.getBoundingClientRect();
-              const x = parentRect ? rect.left - parentRect.left : rect.left;
-              const y = parentRect ? rect.top - parentRect.top : rect.top;
-              setPositionPx({ x, y });
-              setIsDragging(false);
-              log('ClickableImagePlaceholder', 'onDragEnd', { elementId, x, y });
-              // Save only at end
-              onSizeTransformChange?.({ position: { x, y } });
-            }}
-            // Resize
-            onResize={({ target, width, height, drag }) => {
-              setIsResizing(true);
-              const el = target as HTMLElement;
-              el.style.width = `${Math.max(50, Math.round(width))}px`;
-              el.style.height = `${Math.max(50, Math.round(height))}px`;
-              const left = drag?.left ?? el.offsetLeft;
-              const top = drag?.top ?? el.offsetTop;
-              el.style.left = `${left}px`;
-              el.style.top = `${top}px`;
-              log('ClickableImagePlaceholder', 'onResize', { elementId, width, height, left, top });
-            }}
-            onResizeEnd={({ target }) => {
-              const el = target as HTMLElement;
-              const rect = el.getBoundingClientRect();
-              const parentRect = el.parentElement?.getBoundingClientRect();
-              const newSize = { width: Math.round(rect.width), height: Math.round(rect.height) };
-              const newPos = {
-                x: parentRect ? Math.round(rect.left - parentRect.left) : Math.round(rect.left),
-                y: parentRect ? Math.round(rect.top - parentRect.top) : Math.round(rect.top)
-              };
-              setSizePx(newSize);
-              setPositionPx(newPos);
-              setIsResizing(false);
-              log('ClickableImagePlaceholder', 'onResizeEnd', { elementId, ...newSize, ...newPos });
-              onSizeTransformChange?.({ widthPx: newSize.width, heightPx: newSize.height, position: newPos });
-            }}
-            throttleDrag={0}
-            throttleResize={0}
-            renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
-            className="moveable-control"
-            hideDefaultLines={!isHovered}
-            edge={false}
-            zoom={1}
-            origin={false}
-            minWidth={50}
-            minHeight={50}
           />
         )}
 
         <PresentationImageUpload
           isOpen={showUploadModal}
-          onClose={() => {
-            log('ClickableImagePlaceholder', 'uploadModalClose', { elementId });
-            setShowUploadModal(false);
-          }}
+          onClose={() => setShowUploadModal(false)}
           onImageUploaded={handleImageUploaded}
           title="Upload Presentation Image"
         />
@@ -491,12 +261,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }
 
   // Otherwise show placeholder
-  log('ClickableImagePlaceholder', 'renderingPlaceholder', { 
-    elementId, 
-    refExists: !!containerRef.current,
-    isEditable 
-  });
-
   return (
     <>
       <div
@@ -514,16 +278,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         `}
         style={{
           ...(style || {}),
-          position: 'relative',
-          width: sizePx.width || defaultPixelSize.w,
-          height: sizePx.height || defaultPixelSize.h,
-          left: positionPx.x,
-          top: positionPx.y,
-          minWidth: 120,
-          minHeight: 120,
+          width: defaultPixelSize.w,
+          height: defaultPixelSize.h,
+          maxWidth: "auto",
+          maxHeight: "auto",
+          minWidth: "auto",
+          minHeight: "auto",
         }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}
       >
         <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
@@ -543,75 +304,33 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
       </div>
 
-      {/* Moveable controls for drag/resize when empty */}
-      {isEditable && (
+      {/* Official react-moveable implementation for placeholder */}
+      {isEditable && containerRef.current && (
         <Moveable
-          ref={moveableRef as any}
-          target={containerRef.current as any}
+          target={containerRef.current}
           draggable={true}
+          throttleDrag={1}
+          edgeDraggable={false}
+          startDragRotate={0}
+          throttleDragRotate={0}
+          onDrag={e => {
+            e.target.style.transform = e.transform;
+          }}
           resizable={true}
-          keepRatio={shiftPressed}
-          onDrag={({ target, left, top }) => {
-            setIsDragging(true);
-            (target as HTMLElement).style.left = `${left}px`;
-            (target as HTMLElement).style.top = `${top}px`;
-            log('ClickableImagePlaceholder', 'onDrag', { elementId, left, top });
+          keepRatio={false}
+          throttleResize={1}
+          renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+          onResize={e => {
+            e.target.style.width = `${e.width}px`;
+            e.target.style.height = `${e.height}px`;
+            e.target.style.transform = e.drag.transform;
           }}
-          onDragEnd={({ target }) => {
-            const rect = (target as HTMLElement).getBoundingClientRect();
-            const parentRect = (target as HTMLElement).parentElement?.getBoundingClientRect();
-            const x = parentRect ? rect.left - parentRect.left : rect.left;
-            const y = parentRect ? rect.top - parentRect.top : rect.top;
-            setPositionPx({ x, y });
-            setIsDragging(false);
-            log('ClickableImagePlaceholder', 'onDragEnd', { elementId, x, y });
-            onSizeTransformChange?.({ position: { x, y } });
-          }}
-          onResize={({ target, width, height, drag }) => {
-            setIsResizing(true);
-            const el = target as HTMLElement;
-            el.style.width = `${Math.max(50, Math.round(width))}px`;
-            el.style.height = `${Math.max(50, Math.round(height))}px`;
-            const left = drag?.left ?? el.offsetLeft;
-            const top = drag?.top ?? el.offsetTop;
-            el.style.left = `${left}px`;
-            el.style.top = `${top}px`;
-            log('ClickableImagePlaceholder', 'onResize', { elementId, width, height, left, top });
-          }}
-          onResizeEnd={({ target }) => {
-            const el = target as HTMLElement;
-            const rect = el.getBoundingClientRect();
-            const parentRect = el.parentElement?.getBoundingClientRect();
-            const newSize = { width: Math.round(rect.width), height: Math.round(rect.height) };
-            const newPos = {
-              x: parentRect ? Math.round(rect.left - parentRect.left) : Math.round(rect.left),
-              y: parentRect ? Math.round(rect.top - parentRect.top) : Math.round(rect.top)
-            };
-            setSizePx(newSize);
-            setPositionPx(newPos);
-            setIsResizing(false);
-            log('ClickableImagePlaceholder', 'onResizeEnd', { elementId, ...newSize, ...newPos });
-            onSizeTransformChange?.({ widthPx: newSize.width, heightPx: newSize.height, position: newPos });
-          }}
-          throttleDrag={0}
-          throttleResize={0}
-          renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
-          className="moveable-control"
-          hideDefaultLines={!isHovered}
-          edge={false}
-          zoom={1}
-          origin={false}
-          minWidth={50}
-          minHeight={50}
         />
       )}
 
       <PresentationImageUpload
         isOpen={showUploadModal}
-        onClose={() => {
-          log('ClickableImagePlaceholder', 'uploadModalClose', { elementId });
-          setShowUploadModal(false);
-        }}
+        onClose={() => setShowUploadModal(false)}
         onImageUploaded={handleImageUploaded}
         title="Upload Presentation Image"
       />
