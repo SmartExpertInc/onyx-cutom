@@ -340,7 +340,7 @@ export const CreateContentTypeModal = ({
             ) : (
               // Settings view
               <>
-                <p className="text-sm text-gray-600 mb-4">{t('modals.createContent.selectRecommendedProducts')}</p>
+                <p className="text-sm text-gray-600 mb-4">{t('modals.createContent.selectRecommendedProducts', 'Select which products should be shown as recommended for this lesson.')}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[

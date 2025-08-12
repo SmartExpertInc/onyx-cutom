@@ -168,6 +168,7 @@ export const uk = {
       soon: "Незабаром",
       alreadyCreated: "Вже створено",
       recommended: "Рекомендовані",
+      selectRecommendedProducts: "Виберіть, які продукти повинні відображатися як рекомендовані для цього уроку.",
       allOptions: "Всі типи контенту",
       seeAllContentTypes: "Переглянути всі типи контенту",
       backToRecommended: "Повернутися до рекомендованих"
