@@ -385,6 +385,14 @@ export default function LessonPresentationClient() {
     fetchLessons();
   }, [selectedOutlineId, useExistingOutline]);
 
+  // Effect to sync language state with URL parameter
+  useEffect(() => {
+    const urlLanguage = params?.get("lang");
+    if (urlLanguage && urlLanguage !== language) {
+      console.log(`[LANGUAGE_DEBUG] Syncing language state from URL: ${language} -> ${urlLanguage}`);
+      setLanguage(urlLanguage);
+    }
+  }, [params, language]);
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
@@ -404,6 +412,11 @@ export default function LessonPresentationClient() {
       setLoading(false);
       return;
     }
+
+    // Debug logging for language regeneration
+    console.log(`[LANGUAGE_DEBUG] Language changed to: ${language}`);
+    console.log(`[LANGUAGE_DEBUG] Selected lesson: ${selectedLesson}`);
+    console.log(`[LANGUAGE_DEBUG] Prompt query: ${promptQuery}`);
 
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
@@ -442,6 +455,10 @@ export default function LessonPresentationClient() {
             // Include selected theme
             theme: selectedTheme,
           };
+
+          // Debug logging for request body
+          console.log(`[LANGUAGE_DEBUG] Request body language: ${requestBody.language}`);
+          console.log(`[LANGUAGE_DEBUG] Full request body:`, requestBody);
 
           // Add file context if creating from files
           if (isFromFiles) {
@@ -579,7 +596,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, params]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -1012,7 +1029,14 @@ export default function LessonPresentationClient() {
                       <div className="relative">
                         <select
                           value={language}
-                          onChange={(e) => setLanguage(e.target.value)}
+                          onChange={(e) => {
+                            console.log(`[LANGUAGE_DEBUG] Language dropdown changed from ${language} to ${e.target.value}`);
+                            setLanguage(e.target.value);
+                            // Update URL parameter to maintain consistency
+                            const sp = new URLSearchParams(params?.toString() || "");
+                            sp.set("lang", e.target.value);
+                            router.replace(`?${sp.toString()}`, { scroll: false });
+                          }}
                           className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
                           <option value="en">{t('interface.english', 'English')}</option>
@@ -1045,7 +1069,14 @@ export default function LessonPresentationClient() {
                   <div className="relative">
                     <select
                       value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
+                      onChange={(e) => {
+                        console.log(`[LANGUAGE_DEBUG] Standalone language dropdown changed from ${language} to ${e.target.value}`);
+                        setLanguage(e.target.value);
+                        // Update URL parameter to maintain consistency
+                        const sp = new URLSearchParams(params?.toString() || "");
+                        sp.set("lang", e.target.value);
+                        router.replace(`?${sp.toString()}`, { scroll: false });
+                      }}
                       className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
                       <option value="en">{t('interface.english', 'English')}</option>
