@@ -3,125 +3,62 @@
 
 'use client';
 
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useRef } from 'react';
+import { motion } from 'framer-motion';
 import Moveable from 'react-moveable';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  PositionableItem, 
-  Position, 
-  Point 
-} from '@/types/positioning';
 
-interface DraggableItemProps {
-  item: PositionableItem;
-  isSelected: boolean;
-  isEditable: boolean;
-  onPositionChange: (itemId: string, position: Position) => void;
-  onSelect: (itemId: string, multiSelect?: boolean) => void;
-  onDoubleClick?: (itemId: string) => void;
-  showGrid?: boolean;
-  gridSize?: number;
+export interface DraggableItemPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  zIndex?: number;
+}
+
+export interface DraggableItemConstraints {
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number;
+  maxHeight?: number;
+  maintainAspectRatio?: boolean;
+}
+
+export interface DraggableItemProps {
+  id: string;
+  position: DraggableItemPosition;
+  constraints?: DraggableItemConstraints;
+  isEditable?: boolean;
+  isSelected?: boolean;
+  onPositionChange: (id: string, position: DraggableItemPosition) => void;
+  onSelect?: (id: string) => void;
+  onDoubleClick?: (id: string) => void;
   children: React.ReactNode;
 }
 
 export const DraggableItem: React.FC<DraggableItemProps> = ({
-  item,
-  isSelected,
-  isEditable,
+  id,
+  position,
+  constraints,
+  isEditable = false,
+  isSelected = false,
   onPositionChange,
   onSelect,
   onDoubleClick,
-  showGrid = false,
-  gridSize = 20,
   children
 }) => {
   const itemRef = useRef<HTMLDivElement>(null);
-  const moveableRef = useRef<Moveable>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
 
-  // Handle selection
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelect(item.id, e.ctrlKey || e.metaKey);
-  }, [item.id, onSelect]);
+  const handleClick = useCallback(() => {
+    onSelect?.(id);
+  }, [id, onSelect]);
 
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onDoubleClick) {
-      onDoubleClick(item.id);
-    }
-  }, [item.id, onDoubleClick]);
-
-  // Apply grid snapping
-  const snapToGrid = useCallback((value: number): number => {
-    if (!showGrid || gridSize <= 0) return value;
-    return Math.round(value / gridSize) * gridSize;
-  }, [showGrid, gridSize]);
-
-  // Handle drag
-  const handleDrag = useCallback(({ target, left, top }: any) => {
-    if (!isEditable) return;
-    
-    const newPosition = {
-      ...item.position,
-      x: snapToGrid(left),
-      y: snapToGrid(top)
-    };
-
-    // Update the DOM element immediately for smooth interaction
-    target.style.left = `${newPosition.x}px`;
-    target.style.top = `${newPosition.y}px`;
-
-    onPositionChange(item.id, newPosition);
-  }, [item.id, item.position, isEditable, snapToGrid, onPositionChange]);
-
-  // Handle resize
-  const handleResize = useCallback(({ target, width, height, left, top }: any) => {
-    if (!isEditable) return;
-
-    const newPosition = {
-      ...item.position,
-      x: snapToGrid(left),
-      y: snapToGrid(top),
-      width: Math.max(item.constraints?.minWidth || 50, snapToGrid(width)),
-      height: Math.max(item.constraints?.minHeight || 30, snapToGrid(height))
-    };
-
-    // Apply aspect ratio constraint if needed
-    if (item.constraints?.maintainAspectRatio) {
-      const aspectRatio = item.position.width / item.position.height;
-      newPosition.height = newPosition.width / aspectRatio;
-    }
-
-    // Update the DOM element immediately
-    target.style.left = `${newPosition.x}px`;
-    target.style.top = `${newPosition.y}px`;
-    target.style.width = `${newPosition.width}px`;
-    target.style.height = `${newPosition.height}px`;
-
-    onPositionChange(item.id, newPosition);
-  }, [item.id, item.position, item.constraints, isEditable, snapToGrid, onPositionChange]);
-
-  // Handle rotation
-  const handleRotate = useCallback(({ target, transform }: any) => {
-    if (!isEditable) return;
-
-    // Extract rotation from transform
-    const rotateMatch = transform.match(/rotate\(([^)]+)\)/);
-    const rotation = rotateMatch ? parseFloat(rotateMatch[1]) : 0;
-
-    const newPosition = {
-      ...item.position,
-      rotation
-    };
-
-    target.style.transform = transform;
-    onPositionChange(item.id, newPosition);
-  }, [item.id, item.position, isEditable, onPositionChange]);
+  const handleDoubleClick = useCallback(() => {
+    onDoubleClick?.(id);
+  }, [id, onDoubleClick]);
 
   // Compute transform string
-  const transform = `translate(${item.position.x}px, ${item.position.y}px) rotate(${item.position.rotation || 0}deg)`;
+  const transform = `translate(${position.x}px, ${position.y}px) rotate(${position.rotation || 0}deg)`;
 
   return (
     <>
@@ -130,13 +67,17 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
         ref={itemRef}
         className="absolute cursor-move"
         style={{
-          left: item.position.x,
-          top: item.position.y,
-          width: item.position.width,
-          height: item.position.height,
-          transform: `rotate(${item.position.rotation || 0}deg)`,
-          zIndex: item.position.zIndex || 1,
-          transformOrigin: 'center center'
+          left: position.x,
+          top: position.y,
+          width: position.width,
+          height: position.height,
+          transform: `rotate(${position.rotation || 0}deg)`,
+          zIndex: position.zIndex || 1,
+          transformOrigin: 'center center',
+          maxWidth: "auto",
+          maxHeight: "auto",
+          minWidth: "auto",
+          minHeight: "auto",
         }}
         onClick={handleClick}
         onDoubleClick={handleDoubleClick}
@@ -149,40 +90,20 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
         <div className="w-full h-full overflow-hidden">
           {children}
         </div>
-
-
       </motion.div>
 
-      {/* Simple drag functionality */}
+      {/* Moveable controls - EXACT PATTERN FROM OFFICIAL EXAMPLES */}
       {isEditable && itemRef.current && (
         <Moveable
-          ref={moveableRef}
           target={itemRef.current}
           draggable={true}
           resizable={false}
-          rotatable={false}
-          throttleDrag={0}
-          
-          // Drag settings
-          onDrag={handleDrag}
-          
-          // Visual settings - minimal
-          renderDirections={[]}
-          edge={false}
-          zoom={1}
-          origin={false}
-          
-          // Bounds constraint
-          bounds={{
-            left: 0,
-            top: 0,
-            right: 1200, // Canvas width
-            bottom: 675  // Canvas height
+          throttleDrag={1}
+          onDrag={e => {
+            e.target.style.transform = e.transform;
           }}
         />
       )}
     </>
   );
 };
-
-export default DraggableItem;
