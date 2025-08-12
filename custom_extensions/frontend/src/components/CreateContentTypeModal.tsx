@@ -356,14 +356,14 @@ export const CreateContentTypeModal = ({
                     onClick={() => setShowSettings(false)}
                     className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-50"
                   >
-                    {t('common.cancel')}
+                    {t('actions.cancel')}
                   </button>
                   <button
                     onClick={handlePrefSave}
                     disabled={!Object.values(selectedPrefs).some(Boolean)}
                     className={`px-4 py-2 text-sm rounded-lg text-white ${Object.values(selectedPrefs).some(Boolean) ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}`}
                   >
-                    {t('common.save')}
+                    {t('actions.save')}
                   </button>
                 </div>
               </>
