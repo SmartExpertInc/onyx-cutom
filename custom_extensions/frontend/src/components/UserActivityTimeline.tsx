@@ -142,14 +142,14 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
               }
             },
             '& .MuiTimelineContent-root': {
-              py: 1,
+              py: 2,
               px: 2
             }
           }}>
             {sortedActivities.map((activity, index) => (
               <TimelineItem key={activity.id}>
                 <TimelineContent sx={{ 
-                  py: 1, 
+                  py: 2, 
                   px: 2,
                   '&:before': {
                     display: 'none'
@@ -161,8 +161,10 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                     gap: 0.5,
                     backgroundColor: '#F8FAFC',
                     borderRadius: 2,
-                    p: 2,
-                    border: '1px solid #E2E8F0'
+                    p: 3,
+                    border: '1px solid #E2E8F0',
+                    textAlign: 'center',
+                    minWidth: '120px'
                   }}>
                     <Typography 
                       variant="body2" 
@@ -170,28 +172,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                       sx={{ 
                         fontWeight: 600,
                         color: '#1F2937',
-                        mb: 1,
-                        display: 'block'
-                      }}
-                    >
-                      {activity.title}
-                    </Typography>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: activity.type === 'purchase' ? '#059669' : '#DC2626',
-                        fontWeight: 600,
                         fontSize: '14px'
-                      }}
-                    >
-                      {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
-                    </Typography>
-                    <Typography 
-                      variant="caption" 
-                      sx={{ 
-                        color: '#6B7280',
-                        fontSize: '12px',
-                        mt: 0.5
                       }}
                     >
                       {formatTimestamp(activity.timestamp)}
@@ -212,13 +193,14 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                   {index < sortedActivities.length - 1 && (
                     <TimelineConnector sx={{ 
                       backgroundColor: '#E5E7EB',
-                      width: '2px'
+                      width: '2px',
+                      minHeight: '60px'
                     }} />
                   )}
                 </TimelineSeparator>
 
                 <TimelineContent sx={{ 
-                  py: 1, 
+                  py: 2, 
                   px: 2,
                   '&:before': {
                     display: 'none'
@@ -227,12 +209,12 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                   <Box sx={{ 
                     display: 'flex', 
                     flexDirection: 'column', 
-                    gap: 0.5,
+                    gap: 1,
                     backgroundColor: '#F8FAFC',
                     borderRadius: 2,
-                    p: 2,
+                    p: 3,
                     border: '1px solid #E2E8F0',
-                    textAlign: 'center'
+                    minWidth: '200px'
                   }}>
                     <Typography 
                       variant="body2" 
@@ -240,8 +222,8 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                       sx={{ 
                         fontWeight: 600,
                         color: '#1F2937',
-                        mb: 1,
-                        display: 'block'
+                        fontSize: '14px',
+                        mb: 1
                       }}
                     >
                       {activity.title}
@@ -255,16 +237,6 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
                       }}
                     >
                       {activity.type === 'purchase' ? '+' : '-'}{activity.credits} credits
-                    </Typography>
-                    <Typography 
-                      variant="caption" 
-                      sx={{ 
-                        color: '#6B7280',
-                        fontSize: '12px',
-                        mt: 0.5
-                      }}
-                    >
-                      {formatTimestamp(activity.timestamp)}
                     </Typography>
                   </Box>
                 </TimelineContent>
