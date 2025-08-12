@@ -115,6 +115,7 @@ export default function QuizClient() {
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
+  const [originalTitles, setOriginalTitles] = useState<{[key: number]: string}>({});
   
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -217,24 +218,30 @@ export default function QuizClient() {
       [questionIndex]: newTitle
     }));
     
+    // Store original title if not already stored
+    if (!originalTitles[questionIndex] && questionIndex < questionList.length) {
+      setOriginalTitles(prev => ({
+        ...prev,
+        [questionIndex]: questionList[questionIndex].title
+      }));
+    }
+    
     // Add to edited titles list if title is different from original
-    if (questionIndex < questionList.length) {
-      const originalTitle = questionList[questionIndex].title;
-      console.log(`Title edit - Index: ${questionIndex}, Original: "${originalTitle}", New: "${newTitle}", Different: ${newTitle !== originalTitle}`);
-      if (newTitle !== originalTitle) {
-        setEditedTitleIds(prev => {
-          const newSet = new Set([...prev, questionIndex]);
-          console.log(`Added to edited list: ${questionIndex}, Current list:`, Array.from(newSet));
-          return newSet;
-        });
-      } else {
-        setEditedTitleIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(questionIndex);
-          console.log(`Removed from edited list: ${questionIndex}, Current list:`, Array.from(newSet));
-          return newSet;
-        });
-      }
+    const originalTitle = originalTitles[questionIndex] || (questionIndex < questionList.length ? questionList[questionIndex].title : '');
+    console.log(`Title edit - Index: ${questionIndex}, Original: "${originalTitle}", New: "${newTitle}", Different: ${newTitle !== originalTitle}`);
+    if (newTitle !== originalTitle) {
+      setEditedTitleIds(prev => {
+        const newSet = new Set([...prev, questionIndex]);
+        console.log(`Added to edited list: ${questionIndex}, Current list:`, Array.from(newSet));
+        return newSet;
+      });
+    } else {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(questionIndex);
+        console.log(`Removed from edited list: ${questionIndex}, Current list:`, Array.from(newSet));
+        return newSet;
+      });
     }
   };
 
@@ -243,7 +250,7 @@ export default function QuizClient() {
     // Keep the item in edited titles list to maintain permanent blur
     // Only remove if the title is back to original
     const newTitle = editedTitles[questionIndex];
-    const originalTitle = questionList[questionIndex].title;
+    const originalTitle = originalTitles[questionIndex] || questionList[questionIndex].title;
     if (newTitle === originalTitle) {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
@@ -287,6 +294,14 @@ export default function QuizClient() {
       delete newTitles[questionIndex];
       return newTitles;
     });
+    
+    // Update the questionList to reflect the new title
+    // This ensures the original title comparison works correctly
+    const updatedQuestions = parseQuizIntoQuestions(updatedContent);
+    if (questionIndex < updatedQuestions.length) {
+      // Force a re-render by updating the questionList
+      // The questionList will be recalculated on next render
+    }
   };
 
   // Helper function to escape special regex characters

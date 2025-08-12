@@ -135,6 +135,7 @@ export default function TextPresentationClient() {
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
+  const [originalTitles, setOriginalTitles] = useState<{[key: number]: string}>({});
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -226,18 +227,24 @@ export default function TextPresentationClient() {
       [lessonIndex]: newTitle
     }));
     
+    // Store original title if not already stored
+    if (!originalTitles[lessonIndex] && lessonIndex < lessonList.length) {
+      setOriginalTitles(prev => ({
+        ...prev,
+        [lessonIndex]: lessonList[lessonIndex].title
+      }));
+    }
+    
     // Add to edited titles list if title is different from original
-    if (lessonIndex < lessonList.length) {
-      const originalTitle = lessonList[lessonIndex].title;
-      if (newTitle !== originalTitle) {
-        setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
-      } else {
-        setEditedTitleIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(lessonIndex);
-          return newSet;
-        });
-      }
+    const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
+    if (newTitle !== originalTitle) {
+      setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
+    } else {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(lessonIndex);
+        return newSet;
+      });
     }
   };
 
@@ -246,7 +253,7 @@ export default function TextPresentationClient() {
     // Keep the item in edited titles list to maintain permanent blur
     // Only remove if the title is back to original
     const newTitle = editedTitles[lessonIndex];
-    const originalTitle = lessonList[lessonIndex].title;
+    const originalTitle = originalTitles[lessonIndex] || lessonList[lessonIndex].title;
     if (newTitle === originalTitle) {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
