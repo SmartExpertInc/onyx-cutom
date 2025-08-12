@@ -201,30 +201,37 @@ export const MoveableManager: React.FC<MoveableManagerProps> = ({
   if (!targetElement) return null;
 
   return (
-    <Moveable
-      ref={moveableRef}
-      target={targetElement}
-      draggable={true}
-      resizable={true}
-      keepRatio={isShiftPressed}
-      throttleResize={1}
-      throttleDrag={1}
-      renderDirections={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onResize={handleResize}
-      onResizeEnd={handleResizeEnd}
-      // Prevent conflicts with inline editing
-      preventDefault={true}
-      // Custom styling for handles
-      className="moveable-control-box"
-      style={{
-        '--moveable-color': '#3b82f6',
-        '--moveable-line-color': '#3b82f6',
-        '--moveable-point-color': '#3b82f6',
-        '--moveable-handle-color': '#3b82f6',
-      } as React.CSSProperties}
-    />
+    <>
+      <Moveable
+        ref={moveableRef}
+        target={targetElement}
+        draggable={true}
+        resizable={true}
+        keepRatio={isShiftPressed}
+        throttleResize={1}
+        throttleDrag={1}
+        renderDirections={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
+        onResize={handleResize}
+        onResizeEnd={handleResizeEnd}
+        // Prevent conflicts with inline editing
+        preventDefault={true}
+        // Custom styling for handles
+        className="moveable-control-box"
+      />
+      {/* Custom styles for moveable controls */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .moveable-control-box {
+            --moveable-color: #3b82f6 !important;
+            --moveable-line-color: #3b82f6 !important;
+            --moveable-point-color: #3b82f6 !important;
+            --moveable-handle-color: #3b82f6 !important;
+          }
+        `
+      }} />
+    </>
   );
 };
 
