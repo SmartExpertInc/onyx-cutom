@@ -109,7 +109,7 @@ export const AllContentTypesModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={handleClose}>
-      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl border" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">{t('modals.createContent.allOptions', 'All content types')}</h3>
           <button onClick={handleClose} className="p-2 rounded-full hover:bg-gray-100">

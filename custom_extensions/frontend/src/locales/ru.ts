@@ -168,6 +168,9 @@ export const ru = {
       videoLessonDescription: "Создать видео-урок с озвучкой и визуальными элементами",
       soon: "Скоро",
       alreadyCreated: "Уже создано",
+      recommended: "Рекомендуемые",
+      selectRecommendedProducts: "Выберите, какие продукты должны отображаться как рекомендуемые для этого урока.",
+      allOptions: "Все типы контента",
       seeAllContentTypes: "Посмотреть все типы контента",
       backToRecommended: "Вернуться к рекомендуемым"
     },

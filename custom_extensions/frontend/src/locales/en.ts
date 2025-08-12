@@ -178,6 +178,7 @@ export const en = {
       soon: "Soon",
       alreadyCreated: "Already created",
       recommended: "Recommended",
+      selectRecommendedProducts: "Select which products should be shown as recommended for this lesson.",
       allOptions: "All content types",
       seeAllContentTypes: "See all content types",
       backToRecommended: "Back to recommended"

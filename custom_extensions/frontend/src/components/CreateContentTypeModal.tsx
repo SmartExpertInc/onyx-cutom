@@ -274,20 +274,20 @@ export const CreateContentTypeModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-black mb-2">{t('modals.createContent.title')}</h2>
-            <p className="text-black">
-              {t('modals.openOrCreate.module')}: <span className="font-medium">{moduleName}</span> • {t('modals.openOrCreate.title')} {lessonNumber}
-            </p>
-            <p className="text-lg font-semibold text-black mt-1">{lessonTitle}</p>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-bold text-black">{t('modals.createContent.title')}</h2>
+            <button
+              onClick={onClose}
+              className="text-black hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X size={24} />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-          >
-            <X size={24} />
-          </button>
+          <p className="text-black">
+            {t('modals.openOrCreate.module')}: <span className="font-medium">{moduleName}</span> • {t('modals.openOrCreate.title')} {lessonNumber}
+          </p>
+          <p className="text-lg font-semibold text-black mt-1">{lessonTitle}</p>
         </div>
         
         {/* Recommendations or Settings */}
@@ -297,7 +297,7 @@ export const CreateContentTypeModal = ({
               // Recommendations view
               <>
                 <div className="mb-2 text-sm text-gray-600 flex items-center">
-                  <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')}</span>
+                  <span className="font-medium">{t('modals.createContent.recommended')}</span>
                   <button
                     onClick={() => setShowSettings(true)}
                     className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
@@ -330,7 +330,7 @@ export const CreateContentTypeModal = ({
             ) : (
               // Settings view
               <>
-                <p className="text-sm text-gray-600 mb-4">Select which products should be shown as recommended for this lesson.</p>
+                <p className="text-sm text-gray-600 mb-4">{t('modals.createContent.selectRecommendedProducts')}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
@@ -356,14 +356,14 @@ export const CreateContentTypeModal = ({
                     onClick={() => setShowSettings(false)}
                     className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-50"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={handlePrefSave}
                     disabled={!Object.values(selectedPrefs).some(Boolean)}
                     className={`px-4 py-2 text-sm rounded-lg text-white ${Object.values(selectedPrefs).some(Boolean) ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}`}
                   >
-                    Save
+                    {t('common.save')}
                   </button>
                 </div>
               </>

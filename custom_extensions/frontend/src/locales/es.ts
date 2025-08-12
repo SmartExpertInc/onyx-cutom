@@ -167,6 +167,9 @@ export const es = {
       videoLessonDescription: "Crear una lección de video con narración y elementos visuales",
       soon: "Pronto",
       alreadyCreated: "Ya creado",
+      recommended: "Recomendado",
+      selectRecommendedProducts: "Selecciona qué productos deben mostrarse como recomendados para esta lección.",
+      allOptions: "Todos los tipos de contenido",
       seeAllContentTypes: "Ver todos los tipos de contenido",
       backToRecommended: "Volver a recomendados"
     },
