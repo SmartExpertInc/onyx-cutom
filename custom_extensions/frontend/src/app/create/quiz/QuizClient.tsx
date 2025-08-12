@@ -198,7 +198,7 @@ export default function QuizClient() {
         questions.push({
           title: questionTitle,
           // content: `Options:\n${options.join('\n')}\n\nCorrect Answer: ${correctAnswer}\n\nExplanation: ${explanation}`
-          content: `${options.join('\n')}\n\nExplanation: ${explanation}`
+          content: `Explanation: ${explanation}`
 
         });
       });
