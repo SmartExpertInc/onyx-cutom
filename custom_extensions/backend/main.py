@@ -12836,25 +12836,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             logger.warning(f"Error during change detection (assuming changes made): {e}")
             return True
 
-    # Helper: check whether the user made ANY changes to quiz content
-    def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
-        """Compare original and edited quiz content to detect changes"""
-        try:
-            # Normalize content for comparison
-            original_normalized = original_content.strip()
-            edited_normalized = edited_content.strip()
-            
-            # Simple text comparison
-            if original_normalized != edited_normalized:
-                logger.info(f"Quiz content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
-                return True
-            
-            logger.info("No quiz changes detected - content is identical")
-            return False
-        except Exception as e:
-            # On any parsing issue assume changes were made so we use AI
-            logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
-            return True
+
 
     # ---------- 1) Decide strategy ----------
     raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
@@ -18130,3 +18112,22 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     status_code=500, 
                     detail=f"Failed to duplicate project: {str(e)}"
                 )
+
+def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited quiz content to detect changes"""
+    try:
+        # Normalize content for comparison
+        original_normalized = original_content.strip()
+        edited_normalized = edited_content.strip()
+        
+        # Simple text comparison
+        if original_normalized != edited_normalized:
+            logger.info(f"Quiz content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            return True
+        
+        logger.info("No quiz changes detected - content is identical")
+        return False
+    except Exception as e:
+        # On any parsing issue assume changes were made so we use AI
+        logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
+        return True
