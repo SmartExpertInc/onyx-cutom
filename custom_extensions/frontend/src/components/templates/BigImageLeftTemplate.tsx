@@ -4,8 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import MoveableManager from '../positioning/MoveableManager';
-import { useMoveableManager } from '@/hooks/useMoveableManager';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -165,103 +163,10 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Refs for MoveableManager integration
-  const imageRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const subtitleRef = useRef<HTMLDivElement>(null);
-  
-  // Debounced update function to prevent infinite autosaves
-  const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
-  const handleUpdate = (updates: any) => {
-    if (debouncedUpdate.current) {
-      clearTimeout(debouncedUpdate.current);
-    }
-    
-    debouncedUpdate.current = setTimeout(() => {
-      log('BigImageLeftTemplate', 'debouncedUpdate', { 
-        slideId, 
-        updates,
-        hasOnUpdate: !!onUpdate
-      });
-      
-      if (onUpdate) {
-        onUpdate(updates);
-      }
-    }, 300); // 300ms debounce
-  };
-  
   log('BigImageLeftTemplate', 'render', { 
     slideId, 
     isEditable, 
-    hasImagePath: !!imagePath,
-    imageRefExists: !!imageRef.current,
-    titleRefExists: !!titleRef.current,
-    subtitleRefExists: !!subtitleRef.current
-  });
-  
-  // Initialize MoveableManager with debounced updates
-  const moveableManager = useMoveableManager({
-    slideId,
-    isEditable,
-    onUpdate: handleUpdate
-  });
-  
-  // Create moveable elements only when refs are available
-  const moveableElements = React.useMemo(() => {
-    const elements = [];
-    
-    if (imageRef.current) {
-      elements.push(
-        moveableManager.createMoveableElement(`${slideId}-image`, imageRef, 'image', {
-          cropMode: moveableManager.getCropMode(`${slideId}-image`)
-        })
-      );
-    }
-    
-    if (titleRef.current) {
-      elements.push(
-        moveableManager.createMoveableElement(`${slideId}-title`, titleRef, 'text')
-      );
-    }
-    
-    if (subtitleRef.current) {
-      elements.push(
-        moveableManager.createMoveableElement(`${slideId}-subtitle`, subtitleRef, 'text')
-      );
-    }
-    
-    log('BigImageLeftTemplate', 'moveableElementsMemoized', { 
-      slideId, 
-      elementsCount: elements.length,
-      elementIds: elements.map(e => e.id),
-      refsAvailable: {
-        image: !!imageRef.current,
-        title: !!titleRef.current,
-        subtitle: !!subtitleRef.current
-      }
-    });
-    
-    return elements;
-  }, [slideId, moveableManager, imageRef.current, titleRef.current, subtitleRef.current]);
-
-  // Runtime assertions for debugging
-  if (DEBUG) {
-    if (!imageRef.current) {
-      console.warn(`[BigImageLeftTemplate] imageRef not available for ${slideId}-image`);
-    }
-    if (!titleRef.current) {
-      console.warn(`[BigImageLeftTemplate] titleRef not available for ${slideId}-title`);
-    }
-    if (!subtitleRef.current) {
-      console.warn(`[BigImageLeftTemplate] subtitleRef not available for ${slideId}-subtitle`);
-    }
-  }
-
-  log('BigImageLeftTemplate', 'moveableElementsCreated', { 
-    slideId, 
-    elementsCount: moveableElements.length,
-    elementIds: moveableElements.map(e => e.id),
-    isEnabled: moveableManager.moveableManagerProps.isEnabled
+    hasImagePath: !!imagePath
   });
   
   // Cleanup timeouts on unmount
@@ -269,9 +174,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     return () => {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
-      }
-      if (debouncedUpdate.current) {
-        clearTimeout(debouncedUpdate.current);
       }
     };
   }, []);
@@ -367,11 +269,9 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const handleImageUploaded = (newImagePath: string) => {
     log('BigImageLeftTemplate', 'handleImageUploaded', { 
       slideId, 
-      newImagePath: !!newImagePath,
-      imageRefExists: !!imageRef.current
+      newImagePath: !!newImagePath
     });
 
-    // Use immediate update for image upload to prevent delays
     if (onUpdate) {
       onUpdate({ imagePath: newImagePath });
     }
@@ -380,23 +280,12 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const handleSizeTransformChange = (payload: any) => {
     log('BigImageLeftTemplate', 'handleSizeTransformChange', { 
       slideId, 
-      payload,
-      imageRefExists: !!imageRef.current
+      payload
     });
 
-    // Use debounced update for size/transform changes
-    handleUpdate(payload);
-  };
-
-  // Handle crop mode change
-  const handleCropModeChange = (mode: 'cover' | 'contain' | 'fill') => {
-    log('BigImageLeftTemplate', 'handleCropModeChange', { 
-      slideId, 
-      mode,
-      imageRefExists: !!imageRef.current
-    });
-
-    moveableManager.handleCropModeChange(`${slideId}-image`, mode);
+    if (onUpdate) {
+      onUpdate(payload);
+    }
   };
 
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
@@ -405,18 +294,11 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   log('BigImageLeftTemplate', 'rendering', { 
     slideId, 
     isEditable,
-    hasImagePath: !!imagePath,
-    moveableElementsCount: moveableElements.length
+    hasImagePath: !!imagePath
   });
 
   return (
     <div style={slideStyles}>
-      {/* MoveableManager for drag/resize functionality */}
-      <MoveableManager
-        {...moveableManager.moveableManagerProps}
-        elements={moveableElements}
-      />
-      
       {/* Left side - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
         <ClickableImagePlaceholder
@@ -430,21 +312,13 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           style={placeholderStyles}
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
-          elementRef={imageRef}
-          cropMode={moveableManager.getCropMode(`${slideId}-image`)}
-          onCropModeChange={handleCropModeChange}
         />
       </div>
 
       {/* Right side - Content */}
       <div style={contentContainerStyles}>
-        {/* Title - wrapped */}
-        <div 
-          ref={titleRef}
-          data-moveable-element={`${slideId}-title`}
-          data-draggable="true" 
-          style={{ display: 'inline-block' }}
-        >
+        {/* Title */}
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={title || ''}
@@ -489,13 +363,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           )}
         </div>
 
-        {/* Subtitle - wrapped */}
-        <div 
-          ref={subtitleRef}
-          data-moveable-element={`${slideId}-subtitle`}
-          data-draggable="true" 
-          style={{ display: 'inline-block' }}
-        >
+        {/* Subtitle */}
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
           {isEditable && editingSubtitle ? (
             <InlineEditor
               initialValue={subtitle || ''}
