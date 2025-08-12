@@ -392,7 +392,7 @@ export default function LessonPresentationClient() {
       console.log(`[LANGUAGE_DEBUG] Syncing language state from URL: ${language} -> ${urlLanguage}`);
       setLanguage(urlLanguage);
     }
-  }, [params, language]);
+  }, [params]); // Remove language from dependencies to prevent conflicts
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
