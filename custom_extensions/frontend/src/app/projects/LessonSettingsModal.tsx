@@ -328,7 +328,7 @@ export default function LessonSettingsModal({
         {/* Header - Fixed */}
         <div className="mb-6 text-center flex-shrink-0">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('modals.lessonSettings.title', 'Lesson Settings')}</h2>
-          <p className="text-gray-600">{lessonTitle}</p>
+          <p className="text-gray-600">{t('modals.lessonSettings.lessonTitle', 'Lesson Title')}</p>
         </div>
 
         {/* Loading Overlay */}
@@ -371,7 +371,7 @@ export default function LessonSettingsModal({
                             }));
                           }
                         }} />
-                        {t('modals.advanced', 'Advanced')}
+                        {t('modals.lessonSettings.advanced', 'Advanced')}
                       </label>
                     </h4>
                   </div>

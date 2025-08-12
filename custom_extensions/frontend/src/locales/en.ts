@@ -310,7 +310,15 @@ export const en = {
       cancel: 'Cancel',
       saveChanges: 'Save Changes',
       saving: 'Saving...',
-      failedToSave: 'Failed to save lesson tier setting'
+      failedToSave: 'Failed to save lesson tier setting',
+      lessonTitle: 'Lesson Title',
+      advanced: 'Advanced'
+    },
+    rates: {
+      presentation: 'Presentation rate',
+      onePager: 'One‑pager rate',
+      quiz: 'Quiz rate',
+      videoLesson: 'Video lesson rate'
     }
   },
   projects: {

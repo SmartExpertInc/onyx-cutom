@@ -906,7 +906,15 @@ export const uk = {
         cancel: 'Скасувати',
         saveChanges: 'Зберегти зміни',
         saving: 'Збереження...',
-        failedToSave: 'Не вдалося зберегти налаштування рівня уроку'
+        failedToSave: 'Не вдалося зберегти налаштування рівня уроку',
+        lessonTitle: 'Назва уроку',
+        advanced: 'Розширений'
+      },
+      rates: {
+        presentation: 'Ставка презентації',
+        onePager: 'Ставка односторінки',
+        quiz: 'Ставка тесту',
+        videoLesson: 'Ставка відео-уроку'
       }
     },
 

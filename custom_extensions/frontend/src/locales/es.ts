@@ -913,7 +913,15 @@ export const es = {
         cancel: 'Cancelar',
         saveChanges: 'Guardar cambios',
         saving: 'Guardando...',
-        failedToSave: 'No se pudo guardar la configuración del nivel de la lección'
+        failedToSave: 'No se pudo guardar la configuración del nivel de la lección',
+        lessonTitle: 'Título de la lección',
+        advanced: 'Avanzado'
+      },
+      rates: {
+        presentation: 'Tarifa de presentación',
+        onePager: 'Tarifa de una página',
+        quiz: 'Tarifa de cuestionario',
+        videoLesson: 'Tarifa de lección de video'
       }
     },
 

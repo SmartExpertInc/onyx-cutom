@@ -274,6 +274,42 @@ export const ru = {
       title: "Создание PDF",
       subtitle: "Создание PDF экспорта для папки",
       description: "Это может занять несколько минут в зависимости от количества файлов..."
+    },
+    moduleSettings: {
+      title: 'Настройки модуля',
+      subtitle: 'Настройка качества производства для',
+      tier: 'Уровень',
+      contentExamples: 'Примеры контента',
+      hoursRange: 'Диапазон часов',
+      example: 'Пример',
+      moduleQualityTier: 'Уровень качества модуля установлен в',
+      perCompletionHour: 'ч за час завершения',
+      cancel: 'Отмена',
+      saveChanges: 'Сохранить изменения',
+      saving: 'Сохранение...',
+      failedToSave: 'Не удалось сохранить настройку уровня модуля'
+    },
+    lessonSettings: {
+      title: 'Настройки урока',
+      subtitle: 'Настройка качества производства для',
+      tier: 'Уровень',
+      contentExamples: 'Примеры контента',
+      hoursRange: 'Диапазон часов',
+      example: 'Пример',
+      lessonQualityTier: 'Уровень качества урока установлен в',
+      perCompletionHour: 'ч за час завершения',
+      cancel: 'Отмена',
+      saveChanges: 'Сохранить изменения',
+      saving: 'Сохранение...',
+      failedToSave: 'Не удалось сохранить настройку уровня урока',
+      lessonTitle: 'Название урока',
+      advanced: 'Расширенный'
+    },
+    rates: {
+      presentation: 'Ставка презентации',
+      onePager: 'Ставка одностраничника',
+      quiz: 'Ставка теста',
+      videoLesson: 'Ставка видео-урока'
     }
   },
   projects: {
