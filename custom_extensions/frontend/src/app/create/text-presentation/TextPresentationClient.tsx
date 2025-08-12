@@ -134,6 +134,7 @@ export default function TextPresentationClient() {
   // State for editing lesson titles
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
+  const [editedLessonIds, setEditedLessonIds] = useState<Set<number>>(new Set());
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -228,6 +229,8 @@ export default function TextPresentationClient() {
 
   const handleTitleSave = (lessonIndex: number) => {
     setEditingLessonId(null);
+    // Add to edited lessons set to keep blur effect permanent
+    setEditedLessonIds((prev: Set<number>) => new Set([...prev, lessonIndex]));
     // Update the original content with new title
     updateContentWithNewTitle(lessonIndex);
   };
@@ -1048,7 +1051,7 @@ export default function TextPresentationClient() {
                           )}
                         </div>
                         {lesson.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx || editedLessonIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                             {lesson.content.substring(0, 100)}
                             {lesson.content.length > 100 && '...'}
                           </div>

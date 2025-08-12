@@ -114,6 +114,7 @@ export default function QuizClient() {
   // State for editing quiz question titles
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
   const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
+  const [editedQuestionIds, setEditedQuestionIds] = useState<Set<number>>(new Set());
   
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -219,6 +220,8 @@ export default function QuizClient() {
 
   const handleTitleSave = (questionIndex: number) => {
     setEditingQuestionId(null);
+    // Add to edited questions set to keep blur effect permanent
+    setEditedQuestionIds((prev: Set<number>) => new Set([...prev, questionIndex]));
     // Update the original content with new title
     updateContentWithNewTitle(questionIndex);
   };
@@ -1088,7 +1091,7 @@ export default function QuizClient() {
                           )}
                         </div>
                         {question.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx || editedQuestionIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                             {question.content}
                           </div>
                         )}

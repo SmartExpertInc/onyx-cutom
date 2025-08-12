@@ -231,19 +231,6 @@ export default function LessonPresentationClient() {
   const [selectedLesson, setSelectedLesson] = useState<string>(params?.get("lesson") || "");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
   
-  // Effect to regenerate content when language changes
-  // useEffect(() => {
-  //   if (content && !loading) {
-  //     handleApplyLessonEdit();
-  //   }
-  // }, [language]);
-
-
-
-
-
-
-
 
 
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">(
@@ -271,9 +258,7 @@ export default function LessonPresentationClient() {
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
-  // console.log("content", content);
-  // console.log("loading", loading);
-  // console.log("streamDone", streamDone);
+ 
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
@@ -422,7 +407,10 @@ export default function LessonPresentationClient() {
 
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
-      setTextareaVisible(false);
+      // Only hide textarea if we don't have existing content (first generation)
+      if (!content) {
+        setTextareaVisible(false);
+      }
       setFirstLineRemoved(false);
       // Reset stream completion flag for new preview
       setStreamDone(false);
