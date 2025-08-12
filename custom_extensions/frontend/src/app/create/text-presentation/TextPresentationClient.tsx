@@ -143,21 +143,23 @@ export default function TextPresentationClient() {
     
     const lessons = [];
     
-
+    // Find all headers (H1-H6) with their positions
+    const headerMatches = [];
+    const headerRegex = /(?:^|\n)(#{1,6})\s+(.+?)(?=\n|$)/gm;
+    let match;
+    while ((match = headerRegex.exec(content)) !== null) {
+      headerMatches.push({
+        index: match.index,
+        level: match[1],
+        title: match[2].trim(),
+        fullMatch: match[0]
+      });
+    }
     
-    // Original parsing logic for regular content
-    // Updated to include smaller headers (#### to ######) as independent sections
-    const sections = content.split(/(?:^|\n)(?:#{1,6}\s+.*|---\s*$)/m);
-    const headers = content.match(/(?:^|\n)(#{1,6}\s+.*)/gm) || [];
-    
-    // Clean up headers and remove emoji/icon headers
-    const cleanHeaders = headers
-      .map(h => h.replace(/^[\n]*#{1,6}\s*/, '').trim())
-      .filter(h => h && !h.match(/^[📚🛠️💡🚀📞]/) && h !== 'Introduction to AI Tools for High School Teachers');
-    
-    for (let i = 0; i < cleanHeaders.length; i++) {
-      let title = cleanHeaders[i];
-      const nextSectionIndex = i + 1;
+    // Process each header to extract its content
+    for (let i = 0; i < headerMatches.length; i++) {
+      const currentHeader = headerMatches[i];
+      let title = currentHeader.title;
       
       // Clean title - remove {isImportant} and other unwanted patterns
       title = title
@@ -165,14 +167,19 @@ export default function TextPresentationClient() {
         .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove **bold** formatting
         .replace(/[^\w\s]|[\u{1F600}-\u{1F64F}]/gu, '') // Remove emojis and other non-word chars
         .trim();
-      // Get content between current header and next header
-      let sectionContent = '';
-      if (nextSectionIndex < sections.length) {
-        sectionContent = sections[nextSectionIndex] || '';
+      
+      // Skip emoji/icon headers
+      if (!title || title.match(/^[📚🛠️💡🚀📞]/) || title === 'Introduction to AI Tools for High School Teachers') {
+        continue;
       }
       
+      // Find the end of this section (start of next header or end of content)
+      const nextHeaderIndex = i < headerMatches.length - 1 ? headerMatches[i + 1].index : content.length;
+      const sectionStart = currentHeader.index + currentHeader.fullMatch.length;
+      const sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
+      
       // Clean up the content - remove markdown formatting but keep structure
-      sectionContent = sectionContent
+      const cleanedContent = sectionContent
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/^\s*\n+/g, '') // Remove leading newlines
         .replace(/\n+\s*$/g, '') // Remove trailing newlines
@@ -180,10 +187,10 @@ export default function TextPresentationClient() {
         .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
       
-      if (title && sectionContent) {
+      if (title && cleanedContent) {
         lessons.push({
           title: title,
-          content: sectionContent
+          content: cleanedContent
         });
       }
     }
