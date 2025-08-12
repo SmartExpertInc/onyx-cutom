@@ -225,6 +225,22 @@ export default function TextPresentationClient() {
       ...prev,
       [lessonIndex]: newTitle
     }));
+    
+    // Check if title is different from original and add to edited list
+    const lessons = parseContentIntoLessons(content);
+    if (lessonIndex < lessons.length) {
+      const originalTitle = lessons[lessonIndex].title;
+      if (newTitle !== originalTitle) {
+        setEditedLessonIds((prev: Set<number>) => new Set([...prev, lessonIndex]));
+      } else {
+        // If title is back to original, remove from edited list
+        setEditedLessonIds((prev: Set<number>) => {
+          const newSet = new Set(prev);
+          newSet.delete(lessonIndex);
+          return newSet;
+        });
+      }
+    }
   };
 
   const handleTitleSave = (lessonIndex: number) => {
@@ -285,6 +301,12 @@ export default function TextPresentationClient() {
       return newTitles;
     });
     setEditingLessonId(null);
+    // Remove from edited list when canceling
+    setEditedLessonIds((prev: Set<number>) => {
+      const newSet = new Set(prev);
+      newSet.delete(lessonIndex);
+      return newSet;
+    });
   };
 
   const getTitleForLesson = (lesson: any, index: number) => {
@@ -1051,7 +1073,7 @@ export default function TextPresentationClient() {
                           )}
                         </div>
                         {lesson.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx || (editedTitles[idx] && editedTitles[idx] !== lesson.title) ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingLessonId === idx || editedLessonIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                             {lesson.content.substring(0, 100)}
                             {lesson.content.length > 100 && '...'}
                           </div>

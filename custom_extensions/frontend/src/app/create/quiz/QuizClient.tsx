@@ -216,6 +216,22 @@ export default function QuizClient() {
       ...prev,
       [questionIndex]: newTitle
     }));
+    
+    // Check if title is different from original and add to edited list
+    const questions = parseQuizIntoQuestions(quizData);
+    if (questionIndex < questions.length) {
+      const originalTitle = questions[questionIndex].title;
+      if (newTitle !== originalTitle) {
+        setEditedQuestionIds((prev: Set<number>) => new Set([...prev, questionIndex]));
+      } else {
+        // If title is back to original, remove from edited list
+        setEditedQuestionIds((prev: Set<number>) => {
+          const newSet = new Set(prev);
+          newSet.delete(questionIndex);
+          return newSet;
+        });
+      }
+    }
   };
 
   const handleTitleSave = (questionIndex: number) => {
@@ -272,6 +288,12 @@ export default function QuizClient() {
       return newTitles;
     });
     setEditingQuestionId(null);
+    // Remove from edited list when canceling
+    setEditedQuestionIds((prev: Set<number>) => {
+      const newSet = new Set(prev);
+      newSet.delete(questionIndex);
+      return newSet;
+    });
   };
 
   const getTitleForQuestion = (question: any, index: number) => {
@@ -1091,7 +1113,7 @@ export default function QuizClient() {
                           )}
                         </div>
                         {question.content && (
-                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx || (editedTitles[idx] && editedTitles[idx] !== question.title) ? 'filter blur-[2px]' : ''}`}>
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editingQuestionId === idx || editedQuestionIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                             {question.content}
                           </div>
                         )}
