@@ -257,23 +257,17 @@ export default function TextPresentationClient() {
   };
 
   const handleTitleSave = (lessonIndex: number, finalTitle?: string) => {
-    setEditingLessonId(null);
-    // Keep the item in edited titles list to maintain permanent blur
-    // Only remove if the title is back to original
     const newTitle = (finalTitle ?? editedTitles[lessonIndex]);
     if (!newTitle) {
+      setEditingLessonId(null);
       return;
     }
-    const originalTitle = originalTitles[lessonIndex] || lessonList[lessonIndex].title;
-    if (newTitle === originalTitle) {
-      setEditedTitleIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(lessonIndex);
-        return newSet;
-      });
-    }
+    
     // Update the original content with new title
     updateContentWithNewTitle(lessonIndex, newTitle);
+    
+    // Clear editing state
+    setEditingLessonId(null);
   };
 
   const updateContentWithNewTitle = (lessonIndex: number, newTitle: string) => {
@@ -285,7 +279,7 @@ export default function TextPresentationClient() {
     const oldTitle = lessons[lessonIndex].title;
     
     // Find and replace the old title with new title in content
-    // Look for markdown headers (## or ###) or plain text titles
+    // Look for markdown headers (H1-H6) or plain text titles
     const patterns = [
       // Support H1-H6 headers
       new RegExp(`^(#{1,6}\\s*)${escapeRegExp(oldTitle)}`, 'gm'),
@@ -306,8 +300,22 @@ export default function TextPresentationClient() {
 
     setContent(updatedContent);
     
-    // Clear the edited title since it's now part of the main content
+    // Clear all editing state for this lesson
     setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[lessonIndex];
+      return newTitles;
+    });
+    
+    // Remove from edited titles list since it's now saved
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(lessonIndex);
+      return newSet;
+    });
+    
+    // Clear original title since it's no longer needed
+    setOriginalTitles(prev => {
       const newTitles = { ...prev };
       delete newTitles[lessonIndex];
       return newTitles;
@@ -320,17 +328,27 @@ export default function TextPresentationClient() {
   };
 
   const handleTitleCancel = (lessonIndex: number) => {
+    // Clear all editing state for this lesson
     setEditedTitles(prev => {
       const newTitles = { ...prev };
       delete newTitles[lessonIndex];
       return newTitles;
     });
+    
     setEditingLessonId(null);
+    
     // Remove from edited titles list since changes are canceled
     setEditedTitleIds(prev => {
       const newSet = new Set(prev);
       newSet.delete(lessonIndex);
       return newSet;
+    });
+    
+    // Clear original title since it's no longer needed
+    setOriginalTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[lessonIndex];
+      return newTitles;
     });
   };
 
