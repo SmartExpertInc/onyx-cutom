@@ -1345,37 +1345,41 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
         try:
             # Fix big-numbers template props
             if template_id == 'big-numbers':
-                items = normalized_props.get('items', [])
-                if items and isinstance(items, list):
-                    # Validate and fix each item
-                    fixed_items = []
-                    for item in items:
-                        if isinstance(item, dict):
-                            # Ensure each item has required fields
-                            fixed_item = {
-                                'value': str(item.get('value') or item.get('number') or ''),
-                                'label': str(item.get('label') or item.get('title') or ''),
-                                'description': str(item.get('description') or item.get('desc') or item.get('text') or '')
-                            }
-                            # Only add if at least value and label are not empty
-                            if fixed_item['value'] and fixed_item['label']:
-                                fixed_items.append(fixed_item)
-                    
-                    # Check if we have exactly 3 valid items
-                    if len(fixed_items) == 3:
-                        normalized_props['items'] = fixed_items
+                # Accept both 'items' (preferred) and 'numbers' (alternative) as the source array
+                source_list = normalized_props.get('items')
+                if not (isinstance(source_list, list) and source_list):
+                    alt_list = normalized_props.get('numbers')
+                    if isinstance(alt_list, list) and alt_list:
+                        logger.info(f"Normalizing 'big-numbers' slide {slide_index + 1} from 'numbers' → 'items'")
+                        source_list = alt_list
                     else:
-                        # Pad/trim to exactly 3 items instead of skipping
-                        logger.warning(f"Coercing slide {slide_index + 1} with template 'big-numbers': Expected 3 items, got {len(fixed_items)}")
-                        while len(fixed_items) < 3:
-                            idx = len(fixed_items) + 1
-                            fixed_items.append({'value': '0', 'label': f'Item {idx}', 'description': 'No description available'})
-                        if len(fixed_items) > 3:
-                            fixed_items = fixed_items[:3]
-                        normalized_props['items'] = fixed_items
-                else:
-                    logger.warning(f"Removing slide {slide_index + 1} with template 'big-numbers': Invalid or missing items array")
-                    continue  # Skip this slide
+                        source_list = []
+
+                # Validate and coerce each item
+                fixed_items = []
+                for item in source_list:
+                    if isinstance(item, dict):
+                        fixed_item = {
+                            'value': str(item.get('value') or item.get('number') or '').strip(),
+                            'label': str(item.get('label') or item.get('title') or '').strip(),
+                            'description': str(item.get('description') or item.get('desc') or item.get('text') or '').strip()
+                        }
+                        if fixed_item['value'] and fixed_item['label']:
+                            fixed_items.append(fixed_item)
+
+                # Pad/trim to exactly 3 items to preserve slide instead of skipping
+                if len(fixed_items) != 3:
+                    logger.warning(f"Coercing slide {slide_index + 1} with template 'big-numbers': Expected 3 items, got {len(fixed_items)}")
+                    while len(fixed_items) < 3:
+                        idx = len(fixed_items) + 1
+                        fixed_items.append({'value': '0', 'label': f'Item {idx}', 'description': 'No description available'})
+                    if len(fixed_items) > 3:
+                        fixed_items = fixed_items[:3]
+
+                normalized_props['items'] = fixed_items
+                # Drop legacy key to unify shape
+                if 'numbers' in normalized_props:
+                    normalized_props.pop('numbers', None)
                     
             # Fix four-box-grid template props
             elif template_id == 'four-box-grid':
