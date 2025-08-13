@@ -1397,8 +1397,10 @@
                                     width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
                                     height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
                                     object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                    transform-origin: center center;
+                                    {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
+                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                        transform-origin: center center;
+                                    {% endif %}
                                     border-radius: 8px; margin: 0 auto; max-width: none; max-height: none;
                                  "
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
@@ -1415,7 +1417,7 @@
                         {% endif %}
                     </div>
                     <div class="content-container">
-                        {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        {% if slide.props.title and slide.props.title != 'Click to add title' and slide.props.title != 'Add title' %}
                             <h1 class="slide-title positioned-element"
                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                     {% set titleId = 'draggable-' + slide.slideId + '-0' %}
@@ -1425,7 +1427,7 @@
                                 {% endif %}
                             >{{ slide.props.title }}</h1>
                         {% endif %}
-                        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
+                        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' and slide.props.subtitle != 'Add subtitle' %}
                             <div class="content-text positioned-element"
                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                     {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
@@ -1448,8 +1450,10 @@
                                     width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
                                     height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '240px' }};
                                     object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                    transform-origin: center center;
+                                    {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
+                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                        transform-origin: center center;
+                                    {% endif %}
                                     margin: 0 auto; margin-bottom: 24px !important; border-radius: 8px; max-width: none; max-height: none;
                                  "
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
@@ -1510,8 +1514,11 @@
                                         width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
                                         height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                        transform-origin: center center; border-radius: 8px; margin: 0 auto; aspect-ratio: 1 / 1; max-width: none; max-height: none;
+                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
+                                            transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                            transform-origin: center center;
+                                        {% endif %}
+                                        border-radius: 8px; margin: 0 auto; aspect-ratio: 1 / 1; max-width: none; max-height: none;
                                      "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
@@ -1601,8 +1608,10 @@
                                         width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
                                         height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                        transform-origin: center center;
+                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
+                                            transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                            transform-origin: center center;
+                                        {% endif %}
                                         border-radius: 8px; margin: 0 auto;
                                      "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
@@ -1711,8 +1720,10 @@
                                         max-width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '320px' }};
                                         max-height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else '200px' }};
                                         object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'cover' }};
-                                        transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale if slide.props.leftImageScale else 1 }});
-                                        transform-origin: center center;
+                                        {% if slide.props.leftImageOffset and (slide.props.leftImageOffset.x is defined or slide.props.leftImageOffset.y is defined) and slide.props.leftImageScale and slide.props.leftImageScale != 1 %}
+                                            transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale if slide.props.leftImageScale else 1 }});
+                                            transform-origin: center center;
+                                        {% endif %}
                                         margin: 0; margin-bottom: 24px !important; border-radius: 8px;
                                      "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
@@ -1758,8 +1769,10 @@
                                         max-width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '320px' }};
                                         max-height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else '200px' }};
                                         object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'cover' }};
-                                        transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale if slide.props.rightImageScale else 1 }});
-                                        transform-origin: center center;
+                                        {% if slide.props.rightImageOffset and (slide.props.rightImageOffset.x is defined or slide.props.rightImageOffset.y is defined) and slide.props.rightImageScale and slide.props.rightImageScale != 1 %}
+                                            transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale if slide.props.rightImageScale else 1 }});
+                                            transform-origin: center center;
+                                        {% endif %}
                                         margin: 0; margin-bottom: 24px !important; border-radius: 8px;
                                      "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
