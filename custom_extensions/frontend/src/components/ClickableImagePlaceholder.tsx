@@ -7,7 +7,7 @@ import ImageCropModal, { CropSettings } from './ImageCropModal';
 import Moveable from 'react-moveable';
 
 // Debug logging utility
-const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true); // Enable debug by default for troubleshooting
 const log = (source: string, event: string, data: any) => {
   if (DEBUG) {
     console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });

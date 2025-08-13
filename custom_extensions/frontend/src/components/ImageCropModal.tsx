@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { X, Move, ZoomIn, ZoomOut, Crop, SkipForward } from 'lucide-react';
 
 // Debug logging utility
-const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true); // Enable debug by default for troubleshooting
 const log = (source: string, event: string, data: any) => {
   if (DEBUG) {
     console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
@@ -94,7 +94,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       currentLocalUrl: localImageUrl
     });
 
-    if (imageFile && isOpen) {
+    if (imageFile && isOpen && !localImageUrl) {
       const url = URL.createObjectURL(imageFile);
       setLocalImageUrl(url);
       
@@ -106,21 +106,26 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
         localUrl: url,
         urlLength: url.length
       });
-      
-      // Cleanup URL when component unmounts or image changes
-      return () => {
-        URL.revokeObjectURL(url);
-        log('ImageCropModal', 'revokedLocalUrl', { elementId, url });
-      };
     } else {
       log('ImageCropModal', 'createLocalUrl_skipped', {
         elementId,
-        reason: !imageFile ? 'no_imageFile' : 'modal_not_open',
+        reason: !imageFile ? 'no_imageFile' : (!isOpen ? 'modal_not_open' : 'url_already_exists'),
         isOpen,
-        hasImageFile: !!imageFile
+        hasImageFile: !!imageFile,
+        hasLocalUrl: !!localImageUrl
       });
     }
   }, [imageFile, isOpen, elementId, localImageUrl]);
+
+  // Separate cleanup effect that only runs when the component unmounts or modal closes
+  useEffect(() => {
+    return () => {
+      if (localImageUrl) {
+        URL.revokeObjectURL(localImageUrl);
+        log('ImageCropModal', 'revokedLocalUrl_cleanup', { elementId, url: localImageUrl });
+      }
+    };
+  }, [localImageUrl, elementId]);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -134,6 +139,12 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     });
 
     if (!isOpen) {
+      // Clean up blob URL before resetting
+      if (localImageUrl) {
+        URL.revokeObjectURL(localImageUrl);
+        log('ImageCropModal', 'revokedLocalUrl_modalClose', { elementId, url: localImageUrl });
+      }
+      
       setImageLoaded(false);
       setScale(1);
       setPosition({ x: 0, y: 0 });
@@ -148,7 +159,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
         placeholderDimensions
       });
     }
-  }, [isOpen, elementId, imageLoaded, scale, position, localImageUrl, imageFile, placeholderDimensions]);
+  }, [isOpen, elementId]);
 
   // Handle image load
   const handleImageLoad = useCallback(() => {
