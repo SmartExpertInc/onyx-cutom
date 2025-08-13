@@ -2,6 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { PieChartInfographicsTemplateProps } from '@/types/slideTemplates';
 
+// Extend JSX namespace for SVG elements
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      svg: React.SVGProps<SVGSVGElement>;
+      defs: React.SVGProps<SVGDefsElement>;
+      filter: React.SVGProps<SVGFilterElement>;
+      feDropShadow: React.SVGProps<SVGFEDropShadowElement>;
+      path: React.SVGProps<SVGPathElement>;
+    }
+  }
+}
+
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -271,21 +284,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingPercentage(index);
   };
 
-  // Create conic gradient for pie chart
-  const createConicGradient = () => {
-    const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
-    let cumulativePercentage = 0;
-    
-    const gradientStops = chartData.segments.map((segment, index) => {
-      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
-      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
-      cumulativePercentage += segment.percentage;
-      
-      return `${segment.color} ${startAngle}deg ${endAngle}deg`;
-    });
-    
-    return `conic-gradient(${gradientStops.join(', ')})`;
-  };
+
 
   // Calculate label positions for pie chart segments
   const getLabelPositions = () => {
@@ -293,18 +292,19 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     let cumulativePercentage = 0;
     
     return chartData.segments.map((segment, index) => {
-      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
-      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
+      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 2 * Math.PI;
+      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 2 * Math.PI;
       const centerAngle = (startAngle + endAngle) / 2;
       cumulativePercentage += segment.percentage;
       
       // Convert angle to radians and calculate position
-      const angleRad = (centerAngle - 90) * Math.PI / 180;
+      // Start from -90 degrees (top) and rotate clockwise
+      const angleRad = centerAngle - Math.PI / 2;
       const radius = 98; // Distance from center
       const x = 140 + radius * Math.cos(angleRad);
       const y = 140 + radius * Math.sin(angleRad);
       
-      return { x, y, angle: centerAngle };
+      return { x, y, angle: centerAngle * 180 / Math.PI };
     });
   };
 
@@ -435,14 +435,69 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             <div 
               className="relative w-[280px] h-[280px] rounded-full border-3 border-white shadow-lg"
               style={{
-                background: createConicGradient(),
                 borderColor: '#ffffff',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
+                boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                backgroundColor: 'transparent'
               }}
             >
+              {/* SVG Pie Chart for better PDF compatibility */}
+              <svg
+                width="280"
+                height="280"
+                viewBox="0 0 280 280"
+                className="absolute top-0 left-0"
+              >
+                <defs>
+                  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="rgba(0,0,0,0.3)"/>
+                  </filter>
+                </defs>
+                
+                {/* Pie chart segments */}
+                {(() => {
+                  const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
+                  let cumulativePercentage = 0;
+                  const centerX = 140;
+                  const centerY = 140;
+                  const radius = 120;
+                  
+                  return chartData.segments.map((segment, index) => {
+                    const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 2 * Math.PI;
+                    const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 2 * Math.PI;
+                    cumulativePercentage += segment.percentage;
+                    
+                    // Calculate arc coordinates
+                    const x1 = centerX + radius * Math.cos(startAngle - Math.PI / 2);
+                    const y1 = centerY + radius * Math.sin(startAngle - Math.PI / 2);
+                    const x2 = centerX + radius * Math.cos(endAngle - Math.PI / 2);
+                    const y2 = centerY + radius * Math.sin(endAngle - Math.PI / 2);
+                    
+                    // Create path for pie segment
+                    const largeArcFlag = segment.percentage > 50 ? 1 : 0;
+                    const pathData = [
+                      `M ${centerX} ${centerY}`,
+                      `L ${x1} ${y1}`,
+                      `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                      'Z'
+                    ].join(' ');
+                    
+                    return (
+                      <path
+                        key={index}
+                        d={pathData}
+                        fill={segment.color}
+                        filter="url(#shadow)"
+                        stroke="#ffffff"
+                        strokeWidth="2"
+                      />
+                    );
+                  });
+                })()}
+              </svg>
+              
               {/* Inner circle */}
               <div 
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2"
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2 z-10"
                 style={{
                   backgroundColor: themeBg,
                   borderColor: '#e5e7eb'
@@ -455,7 +510,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 return (
                   <div
                     key={index}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80"
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80 z-20"
                     style={{
                       left: `${position.x}px`,
                       top: `${position.y}px`,
