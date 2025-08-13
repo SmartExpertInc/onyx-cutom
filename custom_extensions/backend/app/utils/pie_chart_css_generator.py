@@ -26,75 +26,47 @@ def generate_css_pie_chart(segments: List[Dict], chart_id: str = "pie-chart") ->
     if total_percentage == 0:
         return {"html": "", "css": ""}
     
-    # Генерируем CSS для сегментов
-    css_segments = []
-    html_segments = []
-    
-    current_angle = 0
-    
-    for i, segment in enumerate(segments):
-        percentage = segment.get('percentage', 0)
-        if percentage <= 0:
-            continue
-            
-        # Вычисляем угол сегмента
-        segment_angle = (percentage / total_percentage) * 360
-        
-        # Генерируем CSS для сегмента
-        css_segment = generate_segment_css(
-            chart_id, i, segment, current_angle, segment_angle
-        )
-        css_segments.append(css_segment)
-        
-        # Генерируем HTML для сегмента
-        html_segment = generate_segment_html(i, segment)
-        html_segments.append(html_segment)
-        
-        current_angle += segment_angle
+    # Генерируем один conic-gradient для всех сегментов
+    conic_gradient = generate_conic_gradient(segments, total_percentage)
     
     # Генерируем позиции для процентов
     percentage_positions = generate_percentage_positions(segments, total_percentage)
     
     # Собираем полный CSS
-    full_css = generate_full_css(chart_id, css_segments, percentage_positions)
+    full_css = generate_full_css(chart_id, conic_gradient, percentage_positions)
     
     # Собираем полный HTML
-    full_html = generate_full_html(chart_id, html_segments, percentage_positions)
+    full_html = generate_full_html(chart_id, percentage_positions)
     
     return {
         "html": full_html,
         "css": full_css
     }
 
-def generate_segment_css(chart_id: str, index: int, segment: Dict, 
-                        start_angle: float, segment_angle: float) -> str:
-    """Генерирует CSS для одного сегмента"""
-    color = segment.get('color', '#0ea5e9')
+def generate_conic_gradient(segments: List[Dict], total_percentage: float) -> str:
+    """Генерирует conic-gradient для всех сегментов с разными цветами"""
+    gradient_parts = []
+    current_angle = 0
     
-    # Вычисляем CSS conic-gradient
-    end_angle = start_angle + segment_angle
+    for segment in segments:
+        percentage = segment.get('percentage', 0)
+        if percentage <= 0:
+            continue
+            
+        color = segment.get('color', '#0ea5e9')
+        segment_angle = (percentage / total_percentage) * 360
+        end_angle = current_angle + segment_angle
+        
+        # Добавляем часть градиента для этого сегмента
+        gradient_parts.append(f"{color} {current_angle}deg {end_angle}deg")
+        
+        current_angle = end_angle
     
-    css = f"""
-    .{chart_id}-segment-{index} {{
-        position: absolute;
-        width: 280px;
-        height: 280px;
-        border-radius: 50%;
-        background: conic-gradient(
-            {color} {start_angle}deg,
-            {color} {end_angle}deg,
-            transparent {end_angle}deg,
-            transparent 360deg
-        );
-        transform: rotate(-90deg);
-    }}
-    """
-    
-    return css
-
-def generate_segment_html(index: int, segment: Dict) -> str:
-    """Генерирует HTML для одного сегмента"""
-    return f'<div class="pie-segment-{index}"></div>'
+    # Создаем полный conic-gradient
+    if gradient_parts:
+        return f"conic-gradient({', '.join(gradient_parts)})"
+    else:
+        return "conic-gradient(transparent 0deg, transparent 360deg)"
 
 def generate_percentage_positions(segments: List[Dict], total_percentage: float) -> List[Dict]:
     """Вычисляет точные позиции для процентов"""
@@ -132,7 +104,7 @@ def generate_percentage_positions(segments: List[Dict], total_percentage: float)
     
     return positions
 
-def generate_full_css(chart_id: str, segment_css: List[str], 
+def generate_full_css(chart_id: str, conic_gradient: str, 
                      percentage_positions: List[Dict]) -> str:
     """Генерирует полный CSS код"""
     
@@ -153,10 +125,7 @@ def generate_full_css(chart_id: str, segment_css: List[str],
         width: 280px;
         height: 280px;
         border-radius: 50%;
-        background: conic-gradient(
-            transparent 0deg,
-            transparent 360deg
-        );
+        background: {conic_gradient};
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     }}
     
@@ -205,12 +174,11 @@ def generate_full_css(chart_id: str, segment_css: List[str],
     """
     
     # Собираем все CSS
-    all_css = container_css + "\n".join(segment_css) + percentage_css
+    all_css = container_css + percentage_css
     
     return all_css
 
-def generate_full_html(chart_id: str, segment_html: List[str], 
-                      percentage_positions: List[Dict]) -> str:
+def generate_full_html(chart_id: str, percentage_positions: List[Dict]) -> str:
     """Генерирует полный HTML код"""
     
     # HTML для контейнера
@@ -220,10 +188,6 @@ def generate_full_html(chart_id: str, segment_html: List[str],
             <div class="{chart_id}-outer-border"></div>
             <div class="{chart_id}-donut-hole"></div>
     """
-    
-    # Добавляем сегменты
-    for i, html in enumerate(segment_html):
-        container_html += f'            <div class="{chart_id}-segment-{i}"></div>\n'
     
     # Добавляем проценты
     for i, pos in enumerate(percentage_positions):
