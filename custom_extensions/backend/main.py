@@ -15236,9 +15236,8 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     # Update the tier name to match the new folder tier
                                     lesson['quality_tier'] = req.quality_tier
 
-                                    # Recompute recommended content types if missing
+                                    # Always update recommendations when tier changes to ensure they match the new tier
                                     try:
-                                        if 'recommended_content_types' not in lesson or not lesson['recommended_content_types']:
                                             lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
                                                 lesson.get('title', ''),
                                                 req.quality_tier,
@@ -15755,17 +15754,17 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                                     lesson['quality_tier'] = req.quality_tier
 
                                     try:
-                                        if 'recommended_content_types' not in lesson or not lesson['recommended_content_types']:
-                                            lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
-                                                lesson.get('title', ''),
-                                                req.quality_tier,
-                                                {
-                                                    'presentation': False,
-                                                    'one-pager': False,
-                                                    'quiz': False,
-                                                    'video-lesson': False,
-                                                }
-                                            )
+                                        # Always update recommendations when tier changes to ensure they match the new tier
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                            lesson.get('title', ''),
+                                            req.quality_tier,
+                                            {
+                                                'presentation': False,
+                                                'one-pager': False,
+                                                'quiz': False,
+                                                'video-lesson': False,
+                                            }
+                                        )
                                             # Also generate completion_breakdown for advanced mode support
                                             try:
                                                 primary = lesson['recommended_content_types'].get('primary', [])

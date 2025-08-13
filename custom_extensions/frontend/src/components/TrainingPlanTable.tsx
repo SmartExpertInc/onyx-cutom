@@ -1144,29 +1144,35 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       // Recalculate hours based on new rate or advanced configuration
       const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex] as any;
       if (lesson) {
-        const completionTime = lesson.completionTime || '5m';
-        const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
+        // Update recommended products to match the new tier
+        const lessonTitle = lesson.title || '';
+        const newRecommendations = computeRecommendations(lessonTitle, qualityTier, {
+          hasLesson: false,
+          hasQuiz: false,
+          hasOnePager: false,
+          hasVideoLesson: false
+        });
+        
+        // Update the recommendations
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'primary'], JSON.stringify(newRecommendations.primary));
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'reasoning'], newRecommendations.reasoning);
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'last_updated'], new Date().toISOString());
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'quality_tier_used'], qualityTier);
+        
+        // Update completion time and breakdown based on new recommendations
+        const agg = computeCompletionAggregate(newRecommendations.primary);
+        const newCT = `${agg.total}m`;
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], newCT);
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], agg.breakdown);
+        
+        const completionTime = newCT; // Use the new completion time
+        const completionTimeMinutes = agg.total || 5;
         let newHours: number;
         if (advancedEnabled) {
-          // Resolve primary recommended products; may be stored as array or JSON string
-          let primary: string[] = [];
-          const primaryRaw = lesson?.recommended_content_types?.primary;
-          if (Array.isArray(primaryRaw)) {
-            primary = primaryRaw as string[];
-          } else if (typeof primaryRaw === 'string') {
-            try { primary = JSON.parse(primaryRaw); } catch { primary = []; }
-          }
+          // Use the new recommendations instead of existing ones
+          const primary: string[] = newRecommendations.primary;
           if (primary.length > 0) {
-            // Ensure we have a breakdown; if missing, build one using deterministic midpoints
-            let breakdown: Record<string, number> = (lesson.completion_breakdown || {}) as Record<string, number>;
-            if (!breakdown || Object.keys(breakdown).length === 0) {
-              const midpoint = (p: string) => (p === 'one-pager' ? 3 : p === 'presentation' ? 8 : p === 'quiz' ? 6 : p === 'video-lesson' ? 4 : 0);
-              breakdown = {};
-              primary.forEach(p => { breakdown[p] = midpoint(p); });
-              onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
-              const total = primary.reduce((sum, p) => sum + (breakdown[p] || 0), 0);
-              if (total > 0) onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], `${total}m`);
-            }
+            const breakdown = agg.breakdown;
             const rates = {
               presentation: advancedRates?.presentation ?? customRate,
               one_pager: advancedRates?.onePager ?? customRate,
@@ -1240,32 +1246,52 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         let totalSectionHours = 0;
         section.lessons.forEach((lesson: any, lessonIndex: number) => {
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
-          const completionTime = lesson.completionTime || '5m';
-          const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
+          
+          // Update recommended products to match the new tier
+          const lessonTitle = lesson.title || '';
+          const newRecommendations = computeRecommendations(lessonTitle, qualityTier, {
+            hasLesson: false,
+            hasQuiz: false,
+            hasOnePager: false,
+            hasVideoLesson: false
+          });
+          
+          // Update the recommendations
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'primary'], JSON.stringify(newRecommendations.primary));
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'reasoning'], newRecommendations.reasoning);
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'last_updated'], new Date().toISOString());
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'quality_tier_used'], qualityTier);
+          
+          // Update completion time and breakdown based on new recommendations
+          const agg = computeCompletionAggregate(newRecommendations.primary);
+          const newCT = `${agg.total}m`;
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], newCT);
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], agg.breakdown);
+          
+          const completionTime = newCT; // Use the new completion time
+          const completionTimeMinutes = agg.total || 5;
           let newHours: number;
-          if (advancedEnabled && Array.isArray(lesson?.recommended_content_types?.primary)) {
-            const primary: string[] = lesson.recommended_content_types.primary;
-            const breakdown = (lesson.completion_breakdown || {}) as Record<string, number>;
-            const rates = {
-              presentation: advancedRates?.presentation ?? customRate,
-              one_pager: advancedRates?.onePager ?? customRate,
-              quiz: advancedRates?.quiz ?? customRate,
-              video_lesson: advancedRates?.videoLesson ?? customRate,
-            } as any;
-            let total = 0;
-            if (Object.keys(breakdown).length > 0) {
-              total = primary.reduce((sum, p) => {
+          if (advancedEnabled) {
+            // Use the new recommendations instead of existing ones
+            const primary: string[] = newRecommendations.primary;
+            if (primary.length > 0) {
+              const breakdown = agg.breakdown;
+              const rates = {
+                presentation: advancedRates?.presentation ?? customRate,
+                one_pager: advancedRates?.onePager ?? customRate,
+                quiz: advancedRates?.quiz ?? customRate,
+                video_lesson: advancedRates?.videoLesson ?? customRate,
+              } as any;
+              const total = primary.reduce((sum, p) => {
                 const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
-                return sum + (Number(breakdown[p] || 0) / 60.0) * Number(rates[key] ?? customRate);
+                const minutes = breakdown[p] || 0;
+                const rate = rates[key] ?? customRate;
+                return sum + (Number(minutes) / 60.0) * Number(rate);
               }, 0);
+              newHours = Math.round(total);
             } else {
-              const per = Math.max(1, Math.round(completionTimeMinutes / Math.max(1, primary.length)));
-              total = primary.reduce((sum, p) => {
-                const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
-                return sum + (per / 60.0) * Number(rates[key] ?? customRate);
-              }, 0);
+              newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
             }
-            newHours = Math.round(total);
           } else {
             newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
           }
