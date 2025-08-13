@@ -409,49 +409,43 @@
                                         <span class="dash">-</span>
                                     </div>
                                 </td>
-                                {% if column_visibility.numberOfLessons %}
-                                    <td class="data-cell bold lesson-cell">
-                                        {% if folder.total_lessons > 0 %}
-                                            <svg class="lesson-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <g clip-path="url(#clip0_lesson_icon)">
-                                                <path d="M11.0692 -0.160721H1.09155C0.489946 -0.157213 0.00351725 0.32921 0 0.930825V10.9084C0.00350797 11.51 0.489931 11.9965 1.09155 12H11.0692C11.6708 11.9965 12.1572 11.5101 12.1607 10.9084V0.930825C12.1572 0.329225 11.6708 -0.157204 11.0692 -0.160721ZM9.66601 3.42493C9.66601 3.68335 9.45671 3.89265 9.19829 3.89265C8.94045 3.89265 8.73057 3.68335 8.73057 3.42493V3.26941H6.54808V8.57043L7.32741 8.56985C7.58583 8.56985 7.79513 8.77973 7.79513 9.03757C7.79513 9.29599 7.58583 9.50529 7.32741 9.50529H4.8333C4.57488 9.50529 4.36558 9.29599 4.36558 9.03757C4.36558 8.77973 4.57488 8.56985 4.8333 8.56985H5.61264V3.26942H3.43014V3.42495C3.43014 3.68337 3.22026 3.89266 2.96242 3.89266C2.704 3.89266 2.4947 3.68337 2.4947 3.42495V2.8017C2.49763 2.54445 2.70517 2.3369 2.96242 2.33398H9.19829C9.45554 2.33691 9.66309 2.54445 9.66601 2.8017V3.42493Z" fill="currentColor"/>
-                                                </g>
-                                                <defs><clipPath id="clip0_lesson_icon"><rect width="12" height="12" rx="1.71429" fill="white"/></clipPath></defs>
-                                            </svg>
-                                            {{ folder.total_lessons }}
-                                        {% else %}
-                                            <span class="dash">-</span>
-                                        {% endif %}
-                                    </td>
-                                {% endif %}
-                                {% if column_visibility.estCreationTime %}
-                                    <td class="data-cell bold creation-cell">
-                                        {% if folder.total_hours > 0 %}
-                                            <svg class="creation-icon" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                                <polyline points="14,2 14,8 20,8"/>
-                                                <line x1="16" y1="13" x2="8" y2="13"/>
-                                                <line x1="16" y1="17" x2="8" y2="17"/>
-                                                <polyline points="10,9 9,9 8,9"/>
-                                            </svg>
-                                            {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
-                                        {% else %}<span class="dash">-</span>{% endif %}
-                                    </td>
-                                {% endif %}
-                                {% if column_visibility.estCompletionTime %}
-                                    <td class="data-cell bold timer-cell">
-                                        {% if folder.total_completion_time > 0 %}
-                                            <svg class="timer-icon" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <polyline points="12 6 12 12 16 14"/>
-                                            </svg>
-                                            {% set h = folder.total_completion_time // 60 %}
-                                            {% set m = folder.total_completion_time % 60 %}
-                                            {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                            {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                        {% else %}<span class="dash">-</span>{% endif %}
-                                    </td>
-                                {% endif %}
+                                <td class="data-cell bold lesson-cell">
+                                    {% if folder.total_lessons > 0 %}
+                                        <svg class="lesson-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <g clip-path="url(#clip0_lesson_icon)">
+                                            <path d="M11.0692 -0.160721H1.09155C0.489946 -0.157213 0.00351725 0.32921 0 0.930825V10.9084C0.00350797 11.51 0.489931 11.9965 1.09155 12H11.0692C11.6708 11.9965 12.1572 11.5101 12.1607 10.9084V0.930825C12.1572 0.329225 11.6708 -0.157204 11.0692 -0.160721ZM9.66601 3.42493C9.66601 3.68335 9.45671 3.89265 9.19829 3.89265C8.94045 3.89265 8.73057 3.68335 8.73057 3.42493V3.26941H6.54808V8.57043L7.32741 8.56985C7.58583 8.56985 7.79513 8.77973 7.79513 9.03757C7.79513 9.29599 7.58583 9.50529 7.32741 9.50529H4.8333C4.57488 9.50529 4.36558 9.29599 4.36558 9.03757C4.36558 8.77973 4.57488 8.56985 4.8333 8.56985H5.61264V3.26942H3.43014V3.42495C3.43014 3.68337 3.22026 3.89266 2.96242 3.89266C2.704 3.89266 2.4947 3.68337 2.4947 3.42495V2.8017C2.49763 2.54445 2.70517 2.3369 2.96242 2.33398H9.19829C9.45554 2.33691 9.66309 2.54445 9.66601 2.8017V3.42493Z" fill="currentColor"/>
+                                            </g>
+                                            <defs><clipPath id="clip0_lesson_icon"><rect width="12" height="12" rx="1.71429" fill="white"/></clipPath></defs>
+                                        </svg>
+                                        {{ folder.total_lessons }}
+                                    {% else %}
+                                        <span class="dash">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="data-cell bold creation-cell">
+                                    {% if folder.total_hours > 0 %}
+                                        <svg class="creation-icon" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10,9 9,9 8,9"/>
+                                        </svg>
+                                        {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
+                                    {% else %}<span class="dash">-</span>{% endif %}
+                                </td>
+                                <td class="data-cell bold timer-cell">
+                                    {% if folder.total_completion_time > 0 %}
+                                        <svg class="timer-icon" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12 6 12 12 16 14"/>
+                                        </svg>
+                                        {% set h = folder.total_completion_time // 60 %}
+                                        {% set m = folder.total_completion_time % 60 %}
+                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                                    {% else %}<span class="dash">-</span>{% endif %}
+                                </td>
                             </tr>
                             
                             <!-- Projects in this folder -->
