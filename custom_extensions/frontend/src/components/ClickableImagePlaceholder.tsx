@@ -231,99 +231,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [containerRef]);
 
-  // Generate and finalize cropped image
-  const confirmEdit = useCallback(async () => {
-    if (!editState.imageFile || !editState.imageDimensions || !containerRef.current) return;
-
-    setIsProcessing(true);
-    
-    try {
-      const canvas = cropCanvasRef.current;
-      if (!canvas) throw new Error('Canvas not available');
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Canvas context not available');
-
-      const containerRect = containerRef.current.getBoundingClientRect();
-      
-      // Set canvas to placeholder dimensions for high quality
-      canvas.width = containerRect.width;
-      canvas.height = containerRect.height;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Parse transform
-      const transformMatch = editState.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
-      if (!transformMatch) throw new Error('Invalid transform');
-      
-      const [, translate, scaleStr] = transformMatch;
-      const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-      const currentScale = parseFloat(scaleStr);
-      
-      // Load image for drawing
-      const img = new Image();
-      img.onload = async () => {
-        // Calculate visible area
-        const { width: imgWidth, height: imgHeight } = editState.imageDimensions!;
-        const scaledWidth = imgWidth * currentScale;
-        const scaledHeight = imgHeight * currentScale;
-        
-        const visibleLeft = Math.max(0, -x);
-        const visibleTop = Math.max(0, -y);
-        const visibleRight = Math.min(scaledWidth, containerRect.width - x);
-        const visibleBottom = Math.min(scaledHeight, containerRect.height - y);
-        
-        const visibleWidth = visibleRight - visibleLeft;
-        const visibleHeight = visibleBottom - visibleTop;
-        
-        if (visibleWidth > 0 && visibleHeight > 0) {
-          // Map back to original image coordinates
-          const sourceX = visibleLeft / currentScale;
-          const sourceY = visibleTop / currentScale;
-          const sourceWidth = visibleWidth / currentScale;
-          const sourceHeight = visibleHeight / currentScale;
-          
-          // Draw to canvas
-          const destX = Math.max(0, x) + visibleLeft;
-          const destY = Math.max(0, y) + visibleTop;
-          
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          
-          ctx.drawImage(
-            img,
-            sourceX, sourceY, sourceWidth, sourceHeight,
-            destX, destY, visibleWidth, visibleHeight
-          );
-        }
-        
-        // Convert to blob and upload
-        canvas.toBlob(async (blob) => {
-          if (!blob) throw new Error('Failed to create blob');
-          
-          const croppedFile = new File([blob], 'cropped-image.png', { type: 'image/png' });
-          
-          // Upload the cropped file
-          const { uploadPresentationImage } = await import('../lib/designTemplateApi');
-          const result = await uploadPresentationImage(croppedFile);
-          
-          if (result.file_path) {
-            await finalizeImageUpload(result.file_path);
-            cancelEdit();
-          }
-          
-          setIsProcessing(false);
-        }, 'image/png');
-      };
-      
-      img.src = editState.imageUrl;
-      
-    } catch (error) {
-      console.error('Error processing cropped image:', error);
-      setIsProcessing(false);
-    }
-  }, [editState, containerRef]);
-
   // Cancel editing mode
   const cancelEdit = useCallback(() => {
     if (editState.imageUrl) {
@@ -366,6 +273,136 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     };
     tmp.src = imagePath;
   }, [onImageUploaded, onSizeTransformChange, cropMode]);
+
+  // Generate and finalize cropped image
+  const confirmEdit = useCallback(async () => {
+    if (!editState.imageFile || !editState.imageDimensions || !containerRef.current) {
+      console.error('Missing required data for confirmation:', {
+        hasImageFile: !!editState.imageFile,
+        hasImageDimensions: !!editState.imageDimensions,
+        hasContainerRef: !!containerRef.current
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      const canvas = cropCanvasRef.current;
+      if (!canvas) throw new Error('Canvas not available');
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context not available');
+
+      const containerRect = containerRef.current.getBoundingClientRect();
+      
+      // Set canvas to placeholder dimensions for high quality
+      canvas.width = containerRect.width;
+      canvas.height = containerRect.height;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Parse transform - handle both translate(x, y) scale(z) and matrix formats
+      let x = 0, y = 0, currentScale = 1;
+      
+      if (editState.transform.includes('translate')) {
+        const transformMatch = editState.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
+        if (transformMatch) {
+          const [, translate, scaleStr] = transformMatch;
+          [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
+          currentScale = parseFloat(scaleStr);
+        }
+      } else if (editState.transform.includes('matrix')) {
+        // Handle matrix transform format
+        const matrixMatch = editState.transform.match(/matrix\(([^)]+)\)/);
+        if (matrixMatch) {
+          const values = matrixMatch[1].split(',').map(v => parseFloat(v.trim()));
+          currentScale = values[0]; // scaleX
+          x = values[4]; // translateX
+          y = values[5]; // translateY
+        }
+      }
+      
+      // Load image for drawing
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = async () => {
+        try {
+          const { width: imgWidth, height: imgHeight } = editState.imageDimensions!;
+          const scaledWidth = imgWidth * currentScale;
+          const scaledHeight = imgHeight * currentScale;
+          
+          // Calculate what's visible in the placeholder
+          const visibleLeft = Math.max(0, -x);
+          const visibleTop = Math.max(0, -y);
+          const visibleRight = Math.min(scaledWidth, containerRect.width - x);
+          const visibleBottom = Math.min(scaledHeight, containerRect.height - y);
+          
+          const visibleWidth = visibleRight - visibleLeft;
+          const visibleHeight = visibleBottom - visibleTop;
+          
+          if (visibleWidth > 0 && visibleHeight > 0) {
+            // Map back to original image coordinates
+            const sourceX = visibleLeft / currentScale;
+            const sourceY = visibleTop / currentScale;
+            const sourceWidth = visibleWidth / currentScale;
+            const sourceHeight = visibleHeight / currentScale;
+            
+            // Draw to canvas
+            const destX = Math.max(0, x) + visibleLeft;
+            const destY = Math.max(0, y) + visibleTop;
+            
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            ctx.drawImage(
+              img,
+              sourceX, sourceY, sourceWidth, sourceHeight,
+              destX, destY, visibleWidth, visibleHeight
+            );
+          }
+          
+          // Convert to blob and upload
+          canvas.toBlob(async (blob) => {
+            if (!blob) {
+              throw new Error('Failed to create blob from canvas');
+            }
+            
+            const croppedFile = new File([blob], 'cropped-image.png', { type: 'image/png' });
+            
+            // Upload the cropped file
+            const { uploadPresentationImage } = await import('../lib/designTemplateApi');
+            const result = await uploadPresentationImage(croppedFile);
+            
+            if (result.file_path) {
+              await finalizeImageUpload(result.file_path);
+              cancelEdit();
+            } else {
+              throw new Error('Upload failed - no file path returned');
+            }
+            
+            setIsProcessing(false);
+          }, 'image/png', 1.0);
+          
+        } catch (error) {
+          console.error('Error in image processing:', error);
+          setIsProcessing(false);
+        }
+      };
+      
+      img.onerror = (error) => {
+        console.error('Error loading image for processing:', error);
+        setIsProcessing(false);
+      };
+      
+      img.src = editState.imageUrl;
+      
+    } catch (error) {
+      console.error('Error in confirmEdit:', error);
+      setIsProcessing(false);
+    }
+  }, [editState, containerRef, finalizeImageUpload, cancelEdit]);
 
   // If we're in editing mode, render the overlay
   if (editState.isEditing) {
@@ -412,7 +449,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   transformOrigin: '0 0',
                   userSelect: 'none',
                   maxWidth: 'none',
-                  maxHeight: 'none'
+                  maxHeight: 'none',
+                  pointerEvents: 'auto',
+                  cursor: 'move'
                 }}
                 onLoad={handleEditImageLoad}
                 draggable={false}
@@ -428,16 +467,28 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   throttleDrag={0}
                   throttleScale={0}
                   onDrag={({ transform }) => {
+                    log('Moveable', 'onDrag', { transform });
                     setEditState(prev => ({ ...prev, transform }));
                   }}
                   onScale={({ transform, scale }) => {
+                    log('Moveable', 'onScale', { transform, scale });
                     setEditState(prev => ({ 
                       ...prev, 
                       transform,
                       scale: scale[0]
                     }));
                   }}
+                  onDragStart={({ target }) => {
+                    log('Moveable', 'onDragStart', { target });
+                  }}
+                  onScaleStart={({ target }) => {
+                    log('Moveable', 'onScaleStart', { target });
+                  }}
                   renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+                  snappable={false}
+                  isDisplaySnapDigit={false}
+                  snapDist={0}
+                  snapThreshold={0}
                 />
               )}
             </>
@@ -514,7 +565,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           </button>
           
           <button
-            onClick={confirmEdit}
+            onClick={() => {
+              console.log('Confirm button clicked, editState:', editState);
+              confirmEdit();
+            }}
             disabled={isProcessing}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
