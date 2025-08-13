@@ -383,77 +383,65 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                             {advancedEnabled && (
                               <div className="space-y-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 {/* Two Column Layout: Creation Rates | Completion Times */}
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-3 gap-6">
                                   
-                                  {/* Left Column: Creation Rates */}
-                                  <div className="space-y-4">
-                                    <div className="flex items-center gap-2 border-b border-blue-200 pb-2">
-                                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                      <h4 className="text-sm font-bold text-blue-800 flex items-center gap-2">
-                                        <Clock size={14} />
-                                        {t('modals.rates.title', 'Creation Rates')}
-                                      </h4>
-                                      <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                                        Hours per completion hour
-                                      </span>
+                                  {/* Left Column: Creation Rates (2/3 width) */}
+                                  <div className="col-span-2 space-y-3">
+                                    <div className="flex items-center gap-2 pb-2">
+                                      <Clock size={16} className="text-blue-600" />
+                                      <h4 className="text-sm font-semibold text-blue-800">Creation Rates</h4>
+                                      <span className="text-xs text-blue-500">(hours per completion hour)</span>
                                     </div>
                                     {[
-                                      { key: 'presentation', label: t('modals.rates.presentation', 'Presentation'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={16} className="text-blue-600" /> },
-                                      { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={16} className="text-blue-600" /> },
-                                      { key: 'quiz', label: t('modals.rates.quiz', 'Quiz'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={16} className="text-blue-600" /> },
-                                      { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={16} className="text-blue-600" /> },
+                                      { key: 'presentation', label: t('modals.rates.presentation', 'Presentation'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-blue-600" /> },
+                                      { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-blue-600" /> },
+                                      { key: 'quiz', label: t('modals.rates.quiz', 'Quiz'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-blue-600" /> },
+                                      { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-blue-600" /> },
                                     ].map((cfg) => (
-                                      <div key={cfg.key} className="bg-white rounded-lg p-3 border border-blue-100">
-                                        <div className="flex items-center justify-between mb-3">
-                                          <span className="text-sm font-medium text-gray-800 flex items-center gap-2">
+                                      <div key={cfg.key} className="bg-white rounded-md p-3 border border-blue-100 h-20 flex flex-col justify-between">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-gray-700 flex items-center gap-2">
                                             {cfg.icon}
                                             {cfg.label}
                                           </span>
-                                          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">
-                                            {cfg.value}{t('modals.folderSettings.hours', 'h')}
+                                          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">
+                                            {cfg.value}h
                                           </span>
                                         </div>
-                                        <input
-                                          type="range"
-                                          min={tier.hoursRange.min}
-                                          max={tier.hoursRange.max}
-                                          value={cfg.value}
-                                          onChange={(e)=>cfg.setter(parseInt(e.target.value))}
-                                          className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                                          style={{
-                                            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
-                                          }}
-                                        />
-                                        <div className="flex justify-between text-xs text-gray-500 mt-2">
-                                          <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.min}h</span>
-                                          <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.max}h</span>
+                                        <div className="mt-2">
+                                          <input
+                                            type="range"
+                                            min={tier.hoursRange.min}
+                                            max={tier.hoursRange.max}
+                                            value={cfg.value}
+                                            onChange={(e)=>cfg.setter(parseInt(e.target.value))}
+                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                            style={{
+                                              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                            }}
+                                          />
                                         </div>
                                       </div>
                                     ))}
                                   </div>
 
-                                  {/* Right Column: Completion Times */}
-                                  <div className="space-y-4">
-                                    <div className="flex items-center gap-2 border-b border-green-200 pb-2">
-                                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                      <h4 className="text-sm font-bold text-green-800 flex items-center gap-2">
-                                        <Calculator size={14} />
-                                        {t('modals.completionTimes.title', 'Completion Times')}
-                                      </h4>
-                                      <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                                        How long to complete
-                                      </span>
+                                  {/* Right Column: Completion Times (1/3 width) */}
+                                  <div className="space-y-3">
+                                    <div className="flex items-center gap-2 pb-2">
+                                      <Calculator size={16} className="text-green-600" />
+                                      <h4 className="text-sm font-semibold text-green-800">Completion</h4>
+                                      <span className="text-xs text-green-500">(minutes)</span>
                                     </div>
                                     {[
-                                      { key: 'presentation', label: t('modals.completionTimes.presentation', 'Presentation'), value: perProductCompletionTimes.presentation, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, presentation:v})), icon: <BookText size={16} className="text-green-600" /> },
-                                      { key: 'onePager', label: t('modals.completionTimes.onePager', 'One‑pager'), value: perProductCompletionTimes.onePager, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, onePager:v})), icon: <FileText size={16} className="text-green-600" /> },
-                                      { key: 'quiz', label: t('modals.completionTimes.quiz', 'Quiz'), value: perProductCompletionTimes.quiz, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, quiz:v})), icon: <HelpCircle size={16} className="text-green-600" /> },
-                                      { key: 'videoLesson', label: t('modals.completionTimes.videoLesson', 'Video lesson'), value: perProductCompletionTimes.videoLesson, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, videoLesson:v})), icon: <Video size={16} className="text-green-600" /> },
+                                      { key: 'presentation', label: t('modals.completionTimes.presentation', 'Presentation'), value: perProductCompletionTimes.presentation, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-green-600" /> },
+                                      { key: 'onePager', label: t('modals.completionTimes.onePager', 'One‑pager'), value: perProductCompletionTimes.onePager, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-green-600" /> },
+                                      { key: 'quiz', label: t('modals.completionTimes.quiz', 'Quiz'), value: perProductCompletionTimes.quiz, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-green-600" /> },
+                                      { key: 'videoLesson', label: t('modals.completionTimes.videoLesson', 'Video lesson'), value: perProductCompletionTimes.videoLesson, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-green-600" /> },
                                     ].map((cfg)=> (
-                                      <div key={cfg.key} className="bg-white rounded-lg p-3 border border-green-100 hover:shadow-sm transition-shadow">
+                                      <div key={cfg.key} className="bg-white rounded-md p-3 border border-green-100 h-20 flex flex-col justify-center">
                                         <div className="flex items-center gap-2 mb-2">
                                           {cfg.icon}
-                                          <span className="text-xs font-medium text-gray-700 truncate">{cfg.label}</span>
+                                          <span className="text-xs text-gray-600 truncate">{cfg.label}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                           <input
@@ -462,9 +450,9 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                                             max="60"
                                             value={cfg.value}
                                             onChange={(e)=>cfg.setter(parseInt(e.target.value) || 1)}
-                                            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-center font-bold text-black"
+                                            className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-center font-medium text-black"
                                           />
-                                          <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">min</span>
+                                          <span className="text-xs text-gray-500">min</span>
                                         </div>
                                       </div>
                                     ))}
