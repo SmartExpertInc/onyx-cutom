@@ -89,7 +89,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleClick = () => {
     if (!isEditable) return;
-    setShowUploadModal(true);
+      setShowUploadModal(true);
   };
 
   const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
@@ -271,7 +271,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   if (displayedImage) {
     return (
       <>
-        <div
+        <div 
           ref={containerRef}
           data-moveable-element={elementId}
           className={`
@@ -284,10 +284,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onClick={handleClick}
         >
           <div className="w-full h-full relative">
-            <img
+          <img 
               ref={imgRef}
               src={displayedImage}
-              alt={description}
+            alt={description}
               className="absolute inset-0"
               style={{
                 width: '100%',
@@ -300,19 +300,19 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             />
             
             {/* Replace overlay */}
-            {isEditable && (
-              <div 
-                className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
-                onClick={handleClick}
-                title="Click to replace image"
+          {isEditable && (
+            <div 
+              className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
+              onClick={handleClick}
+              title="Click to replace image"
                 style={{ pointerEvents: 'auto', zIndex: 10 }}
-              >
-                <div className="text-center text-white">
-                  <Replace className="w-6 h-6 mx-auto mb-1" />
-                  <div className="text-xs font-medium">Replace</div>
-                </div>
+            >
+              <div className="text-center text-white">
+                <Replace className="w-6 h-6 mx-auto mb-1" />
+                <div className="text-xs font-medium">Replace</div>
               </div>
-            )}
+            </div>
+          )}
             
             {/* Crop mode controls */}
             {isEditable && (
@@ -392,12 +392,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           />
         )}
 
-              <PresentationImageUpload
-        isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
-        onImageUploaded={handleImageUploaded}
-        title="Upload Presentation Image"
-      />
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={handleImageUploaded}
+          title="Upload Presentation Image"
+        />
 
       {/* Image Crop Modal */}
       <ImageCropModal
@@ -414,14 +414,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         elementId={elementId}
         isCropping={isCropping}
       />
-    </>
-  );
+      </>
+    );
   }
 
   // Otherwise show placeholder
   return (
     <>
-      <div
+      <div 
         ref={containerRef}
         data-moveable-element={elementId}
         className={`

@@ -3,9 +3,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Move, ZoomIn, ZoomOut, Crop, SkipForward } from 'lucide-react';
+import Moveable from 'react-moveable';
 
 // Debug logging utility
-const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true); // Enable debug by default for troubleshooting
+const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true);
 const log = (source: string, event: string, data: any) => {
   if (DEBUG) {
     console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
@@ -49,30 +50,65 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
   const [localImageUrl, setLocalImageUrl] = useState<string>('');
   
-  // Crop controls
+  // Crop controls with better initial values
   const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0, startX: 0, startY: 0 });
+  const [imageTransform, setImageTransform] = useState('translate(0px, 0px) scale(1)');
   
   // Refs
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const cropCanvasRef = useRef<HTMLCanvasElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   
+  // Calculate proper preview dimensions based on actual placeholder
+  const getPreviewDimensions = useCallback(() => {
+    const { width: targetWidth, height: targetHeight } = placeholderDimensions;
+    const validWidth = typeof targetWidth === 'number' && targetWidth > 0 ? targetWidth : 384;
+    const validHeight = typeof targetHeight === 'number' && targetHeight > 0 ? targetHeight : 256;
+    
+    // Maximum preview size for UI
+    const maxPreviewWidth = 600;
+    const maxPreviewHeight = 400;
+    
+    // Calculate scale to fit in preview area while maintaining aspect ratio
+    const scaleX = maxPreviewWidth / validWidth;
+    const scaleY = maxPreviewHeight / validHeight;
+    const previewScale = Math.min(scaleX, scaleY, 1); // Don't scale up
+    
+    const previewWidth = validWidth * previewScale;
+    const previewHeight = validHeight * previewScale;
+    
+    log('ImageCropModal', 'previewDimensionsCalculated', {
+      elementId,
+      targetWidth,
+      targetHeight,
+      validWidth,
+      validHeight,
+      previewScale,
+      previewWidth,
+      previewHeight
+    });
+    
+    return {
+      width: previewWidth,
+      height: previewHeight,
+      targetWidth: validWidth,
+      targetHeight: validHeight,
+      scale: previewScale
+    };
+  }, [placeholderDimensions, elementId]);
+
+  const previewDimensions = getPreviewDimensions();
+
   log('ImageCropModal', 'render', {
     isOpen,
     elementId,
     hasImageFile: !!imageFile,
-    imageFileName: imageFile?.name,
-    imageFileSize: imageFile?.size,
     imageLoaded,
     placeholderDimensions,
+    previewDimensions,
     scale,
-    position,
-    hasLocalUrl: !!localImageUrl,
-    localUrlLength: localImageUrl?.length,
-    imageDimensions
+    imageTransform
   });
 
   // Create portal container
@@ -84,16 +120,6 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   // Create local URL from File for preview
   useEffect(() => {
-    log('ImageCropModal', 'createLocalUrl_effect', {
-      elementId,
-      isOpen,
-      hasImageFile: !!imageFile,
-      imageFileName: imageFile?.name,
-      imageFileSize: imageFile?.size,
-      imageFileType: imageFile?.type,
-      currentLocalUrl: localImageUrl
-    });
-
     if (imageFile && isOpen) {
       // Always create a new URL when modal opens with a new file
       if (localImageUrl) {
@@ -106,25 +132,15 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       
       log('ImageCropModal', 'createdLocalUrl', { 
         elementId, 
-        hasImageFile: !!imageFile,
         imageFileName: imageFile.name,
         imageFileSize: imageFile.size,
         imageFileType: imageFile.type,
-        localUrl: url,
-        urlLength: url.length
-      });
-    } else {
-      log('ImageCropModal', 'createLocalUrl_skipped', {
-        elementId,
-        reason: !imageFile ? 'no_imageFile' : (!isOpen ? 'modal_not_open' : 'unknown'),
-        isOpen,
-        hasImageFile: !!imageFile,
-        hasLocalUrl: !!localImageUrl
+        localUrl: url
       });
     }
   }, [imageFile, isOpen, elementId]);
 
-  // Separate cleanup effect that only runs when the component unmounts or modal closes
+  // Cleanup blob URL
   useEffect(() => {
     return () => {
       if (localImageUrl) {
@@ -136,17 +152,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   // Reset state when modal opens/closes
   useEffect(() => {
-    log('ImageCropModal', 'modalStateChange', {
-      elementId,
-      isOpen,
-      currentImageLoaded: imageLoaded,
-      currentScale: scale,
-      currentPosition: position,
-      currentLocalUrl: localImageUrl
-    });
-
     if (!isOpen) {
-      // Clean up blob URL before resetting
       if (localImageUrl) {
         URL.revokeObjectURL(localImageUrl);
         log('ImageCropModal', 'revokedLocalUrl_modalClose', { elementId, url: localImageUrl });
@@ -154,401 +160,193 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       
       setImageLoaded(false);
       setScale(1);
-      setPosition({ x: 0, y: 0 });
-      setIsDragging(false);
+      setImageTransform('translate(0px, 0px) scale(1)');
       setLocalImageUrl('');
       log('ImageCropModal', 'modalClosed_resetState', { elementId });
-    } else {
-      log('ImageCropModal', 'modalOpened', {
-        elementId,
-        hasImageFile: !!imageFile,
-        hasLocalUrl: !!localImageUrl,
-        placeholderDimensions
-      });
     }
   }, [isOpen, elementId]);
 
-  // Handle image load
+  // Handle image load and auto-fit
   const handleImageLoad = useCallback(() => {
-    log('ImageCropModal', 'handleImageLoad_start', {
-      elementId,
-      hasImageRef: !!imageRef.current,
-      imageSrc: imageRef.current?.src,
-      imageComplete: imageRef.current?.complete,
-      imageNaturalWidth: imageRef.current?.naturalWidth,
-      imageNaturalHeight: imageRef.current?.naturalHeight
-    });
-
     const img = imageRef.current;
-    if (!img) {
-      log('ImageCropModal', 'handleImageLoad_noImageRef', { elementId });
-      return;
-    }
+    if (!img) return;
     
     const { naturalWidth, naturalHeight } = img;
-    log('ImageCropModal', 'handleImageLoad_dimensions', {
-      elementId,
-      naturalWidth,
-      naturalHeight,
-      isValid: naturalWidth > 0 && naturalHeight > 0
-    });
-
-    if (naturalWidth <= 0 || naturalHeight <= 0) {
-      log('ImageCropModal', 'handleImageLoad_invalidDimensions', {
-        elementId,
-        naturalWidth,
-        naturalHeight
-      });
-      return;
-    }
+    if (naturalWidth <= 0 || naturalHeight <= 0) return;
 
     setImageDimensions({ width: naturalWidth, height: naturalHeight });
     setImageLoaded(true);
     
-    // Calculate initial scale to fit image in crop frame
-    const { width: frameWidth, height: frameHeight } = placeholderDimensions;
+    // Calculate initial scale to fit image nicely in crop frame
+    const { width: frameWidth, height: frameHeight, targetWidth, targetHeight } = previewDimensions;
     
-    // Ensure we have valid numeric dimensions
-    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
-    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
-    
-    const scaleX = validFrameWidth / naturalWidth;
-    const scaleY = validFrameHeight / naturalHeight;
-    const initialScale = Math.max(scaleX, scaleY, 0.1); // Ensure minimum scale
-    
-    log('ImageCropModal', 'handleImageLoad_scaleCalculation', {
-      elementId,
-      frameWidth,
-      frameHeight,
-      validFrameWidth,
-      validFrameHeight,
-      naturalWidth,
-      naturalHeight,
-      scaleX,
-      scaleY,
-      initialScale,
-      isScaleValid: !isNaN(initialScale) && isFinite(initialScale)
-    });
-
-    if (isNaN(initialScale) || !isFinite(initialScale)) {
-      log('ImageCropModal', 'handleImageLoad_invalidScale', {
-        elementId,
-        initialScale,
-        scaleX,
-        scaleY,
-        frameWidth,
-        frameHeight,
-        naturalWidth,
-        naturalHeight
-      });
-      return;
-    }
-    
-    setScale(initialScale);
+    // Scale to cover the crop area (ensure no empty space)
+    const scaleX = targetWidth / naturalWidth;
+    const scaleY = targetHeight / naturalHeight;
+    const initialScale = Math.max(scaleX, scaleY, 0.1);
     
     // Center the image
     const scaledWidth = naturalWidth * initialScale;
     const scaledHeight = naturalHeight * initialScale;
-    const centerX = (validFrameWidth - scaledWidth) / 2;
-    const centerY = (validFrameHeight - scaledHeight) / 2;
+    const centerX = (targetWidth - scaledWidth) / 2;
+    const centerY = (targetHeight - scaledHeight) / 2;
     
-    log('ImageCropModal', 'handleImageLoad_positionCalculation', {
-      elementId,
-      scaledWidth,
-      scaledHeight,
-      centerX,
-      centerY,
-      isCenterXValid: !isNaN(centerX) && isFinite(centerX),
-      isCenterYValid: !isNaN(centerY) && isFinite(centerY)
-    });
-
-    setPosition({ x: centerX, y: centerY });
+    const initialTransform = `translate(${centerX}px, ${centerY}px) scale(${initialScale})`;
     
-    log('ImageCropModal', 'imageLoaded_success', {
+    setScale(initialScale);
+    setImageTransform(initialTransform);
+    
+    log('ImageCropModal', 'imageLoaded_autoFit', {
       elementId,
       naturalWidth,
       naturalHeight,
       frameWidth,
       frameHeight,
+      targetWidth,
+      targetHeight,
       initialScale,
       centerX,
       centerY,
-      scaledWidth,
-      scaledHeight
+      initialTransform
     });
-  }, [placeholderDimensions, elementId]);
+  }, [previewDimensions, elementId]);
 
-  // Handle zoom
+  // Handle zoom with proper centering
   const handleZoom = useCallback((delta: number) => {
     const newScale = Math.max(0.1, Math.min(5, scale + delta));
-    const { width: frameWidth, height: frameHeight } = placeholderDimensions;
-    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
-    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
     
-    // Adjust position to zoom from center
-    const centerX = validFrameWidth / 2;
-    const centerY = validFrameHeight / 2;
-    const scaleRatio = newScale / scale;
-    
-    const newX = centerX - (centerX - position.x) * scaleRatio;
-    const newY = centerY - (centerY - position.y) * scaleRatio;
-    
-    setScale(newScale);
-    setPosition({ x: newX, y: newY });
-    
-    log('ImageCropModal', 'zoom', {
-      elementId,
-      oldScale: scale,
-      newScale,
-      newPosition: { x: newX, y: newY },
-      validFrameWidth,
-      validFrameHeight
-    });
-  }, [scale, position, placeholderDimensions, elementId]);
-
-  // Handle drag start
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX,
-      y: e.clientY,
-      startX: position.x,
-      startY: position.y
-    });
-    
-    log('ImageCropModal', 'dragStart', {
-      elementId,
-      startPosition: position,
-      mousePosition: { x: e.clientX, y: e.clientY }
-    });
-  }, [position, elementId]);
-
-  // Handle drag move
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging) return;
-    
-    e.preventDefault();
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
-    
-    const newX = dragStart.startX + deltaX;
-    const newY = dragStart.startY + deltaY;
-    
-    // Apply constraints to keep image within bounds
-    const { width: frameWidth, height: frameHeight } = placeholderDimensions;
-    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
-    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
-    
-    const { width: imgWidth, height: imgHeight } = imageDimensions;
-    const scaledWidth = imgWidth * scale;
-    const scaledHeight = imgHeight * scale;
-    
-    const minX = validFrameWidth - scaledWidth;
-    const maxX = 0;
-    const minY = validFrameHeight - scaledHeight;
-    const maxY = 0;
-    
-    const constrainedX = Math.max(minX, Math.min(maxX, newX));
-    const constrainedY = Math.max(minY, Math.min(maxY, newY));
-    
-    setPosition({ x: constrainedX, y: constrainedY });
-  }, [isDragging, dragStart, scale, imageDimensions, placeholderDimensions]);
-
-  // Handle drag end
-  const handleMouseUp = useCallback(() => {
-    if (!isDragging) return;
-    
-    setIsDragging(false);
-    log('ImageCropModal', 'dragEnd', {
-      elementId,
-      finalPosition: position
-    });
-  }, [isDragging, position, elementId]);
-
-  // Global mouse events
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+    // Extract current translation and scale from transform
+    const transformMatch = imageTransform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
+    if (transformMatch) {
+      const [, translate, currentScale] = transformMatch;
+      const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
       
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
+      // Zoom towards center of crop area
+      const { targetWidth, targetHeight } = previewDimensions;
+      const centerX = targetWidth / 2;
+      const centerY = targetHeight / 2;
+      const scaleRatio = newScale / parseFloat(currentScale);
+      
+      const newX = centerX - (centerX - x) * scaleRatio;
+      const newY = centerY - (centerY - y) * scaleRatio;
+      
+      const newTransform = `translate(${newX}px, ${newY}px) scale(${newScale})`;
+      setScale(newScale);
+      setImageTransform(newTransform);
+      
+      log('ImageCropModal', 'zoom', {
+        elementId,
+        oldScale: parseFloat(currentScale),
+        newScale,
+        newTransform
+      });
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [scale, imageTransform, previewDimensions, elementId]);
 
-  // Generate cropped image
+  // Generate high-quality cropped image
   const generateCroppedImage = useCallback(() => {
-    log('ImageCropModal', 'generateCroppedImage_start', {
-      elementId,
-      hasCanvas: !!cropCanvasRef.current,
-      hasImage: !!imageRef.current,
-      imageLoaded,
-      currentScale: scale,
-      currentPosition: position,
-      imageDimensions,
-      placeholderDimensions
-    });
-
     const canvas = cropCanvasRef.current;
     const img = imageRef.current;
-    if (!canvas || !img || !imageLoaded) {
-      log('ImageCropModal', 'generateCroppedImage_missingRequirements', {
-        elementId,
-        hasCanvas: !!canvas,
-        hasImage: !!img,
-        imageLoaded
-      });
-      return null;
-    }
+    if (!canvas || !img || !imageLoaded) return null;
     
     const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      log('ImageCropModal', 'generateCroppedImage_noContext', { elementId });
-      return null;
-    }
+    if (!ctx) return null;
     
-    const { width: frameWidth, height: frameHeight } = placeholderDimensions;
+    const { targetWidth, targetHeight } = previewDimensions;
     
-    // Ensure we have valid numeric dimensions
-    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
-    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
-    
-    // Set canvas size to placeholder dimensions
-    canvas.width = validFrameWidth;
-    canvas.height = validFrameHeight;
+    // Set canvas to target dimensions (full resolution)
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
     
     // Clear canvas
-    ctx.clearRect(0, 0, validFrameWidth, validFrameHeight);
+    ctx.clearRect(0, 0, targetWidth, targetHeight);
     
-    // Calculate source rectangle (visible area of image)
+    // Parse current transform
+    const transformMatch = imageTransform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
+    if (!transformMatch) return null;
+    
+    const [, translate, scaleStr] = transformMatch;
+    const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
+    const currentScale = parseFloat(scaleStr);
+    
+    // Calculate the area of the original image that's visible in the crop frame
     const { width: imgWidth, height: imgHeight } = imageDimensions;
-    const scaledWidth = imgWidth * scale;
-    const scaledHeight = imgHeight * scale;
+    const scaledWidth = imgWidth * currentScale;
+    const scaledHeight = imgHeight * currentScale;
     
-    log('ImageCropModal', 'generateCroppedImage_calculations', {
-      elementId,
-      imgWidth,
-      imgHeight,
-      scale,
-      scaledWidth,
-      scaledHeight,
-      frameWidth,
-      frameHeight,
-      validFrameWidth,
-      validFrameHeight,
-      position
-    });
-    
-    // Calculate which part of the image is visible in the crop frame
-    const visibleLeft = Math.max(0, -position.x);
-    const visibleTop = Math.max(0, -position.y);
-    const visibleRight = Math.min(scaledWidth, validFrameWidth - position.x);
-    const visibleBottom = Math.min(scaledHeight, validFrameHeight - position.y);
+    // Map crop area back to original image coordinates
+    const visibleLeft = Math.max(0, -x);
+    const visibleTop = Math.max(0, -y);
+    const visibleRight = Math.min(scaledWidth, targetWidth - x);
+    const visibleBottom = Math.min(scaledHeight, targetHeight - y);
     
     const visibleWidth = visibleRight - visibleLeft;
     const visibleHeight = visibleBottom - visibleTop;
     
-    log('ImageCropModal', 'generateCroppedImage_visibleArea', {
-      elementId,
-      visibleLeft,
-      visibleTop,
-      visibleRight,
-      visibleBottom,
-      visibleWidth,
-      visibleHeight,
-      isValid: visibleWidth > 0 && visibleHeight > 0
-    });
-    
-    if (visibleWidth <= 0 || visibleHeight <= 0) {
-      log('ImageCropModal', 'generateCroppedImage_invalidVisibleArea', {
-        elementId,
-        visibleWidth,
-        visibleHeight
-      });
-      return null;
-    }
+    if (visibleWidth <= 0 || visibleHeight <= 0) return null;
     
     // Convert back to original image coordinates
-    const sourceX = visibleLeft / scale;
-    const sourceY = visibleTop / scale;
-    const sourceWidth = visibleWidth / scale;
-    const sourceHeight = visibleHeight / scale;
+    const sourceX = visibleLeft / currentScale;
+    const sourceY = visibleTop / currentScale;
+    const sourceWidth = visibleWidth / currentScale;
+    const sourceHeight = visibleHeight / currentScale;
     
     // Calculate destination coordinates
-    const destX = Math.max(0, position.x) + visibleLeft;
-    const destY = Math.max(0, position.y) + visibleTop;
+    const destX = Math.max(0, x) + visibleLeft;
+    const destY = Math.max(0, y) + visibleTop;
     
-    log('ImageCropModal', 'generateCroppedImage_drawParams', {
+    log('ImageCropModal', 'generateCroppedImage', {
       elementId,
+      targetSize: { width: targetWidth, height: targetHeight },
       sourceRect: { x: sourceX, y: sourceY, width: sourceWidth, height: sourceHeight },
-      destRect: { x: destX, y: destY, width: visibleWidth, height: visibleHeight }
+      destRect: { x: destX, y: destY, width: visibleWidth, height: visibleHeight },
+      currentScale,
+      transform: imageTransform
     });
     
-    // Draw the cropped portion
+    // Use high-quality settings
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    
+    // Draw the cropped portion at full resolution
     ctx.drawImage(
       img,
       sourceX, sourceY, sourceWidth, sourceHeight,
       destX, destY, visibleWidth, visibleHeight
     );
     
-    const croppedImageData = canvas.toDataURL('image/png');
-    
-    log('ImageCropModal', 'generateCroppedImage_success', {
-      elementId,
-      frameSize: { width: frameWidth, height: frameHeight },
-      validFrameSize: { width: validFrameWidth, height: validFrameHeight },
-      sourceRect: { x: sourceX, y: sourceY, width: sourceWidth, height: sourceHeight },
-      destRect: { x: destX, y: destY, width: visibleWidth, height: visibleHeight },
-      scale,
-      position,
-      croppedDataLength: croppedImageData.length,
-      croppedDataPrefix: croppedImageData.substring(0, 50) + '...'
-    });
-    
-    return croppedImageData;
-  }, [imageLoaded, placeholderDimensions, imageDimensions, scale, position, elementId]);
+    return canvas.toDataURL('image/png');
+  }, [imageLoaded, previewDimensions, imageDimensions, imageTransform, elementId]);
 
   // Handle crop confirm
   const handleCropConfirm = useCallback(() => {
-    log('ImageCropModal', 'handleCropConfirm_start', {
-      elementId,
-      currentScale: scale,
-      currentPosition: position,
-      imageLoaded,
-      hasImageRef: !!imageRef.current,
-      hasCanvasRef: !!cropCanvasRef.current
-    });
-
     const croppedImageData = generateCroppedImage();
-    if (!croppedImageData) {
-      log('ImageCropModal', 'handleCropConfirm_noCroppedData', { elementId });
-      return;
-    }
+    if (!croppedImageData) return;
     
-    const validFrameWidth = typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384;
-    const validFrameHeight = typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256;
+    const { targetWidth, targetHeight } = previewDimensions;
+    
+    // Parse transform for crop settings
+    const transformMatch = imageTransform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
+    const [, translate, scaleStr] = transformMatch || ['', '0px, 0px', '1'];
+    const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
+    const currentScale = parseFloat(scaleStr);
     
     const cropSettings: CropSettings = {
-      x: position.x,
-      y: position.y,
-      width: validFrameWidth,
-      height: validFrameHeight,
-      scale
+      x,
+      y,
+      width: targetWidth,
+      height: targetHeight,
+      scale: currentScale
     };
     
-    log('ImageCropModal', 'cropConfirm_success', {
+    log('ImageCropModal', 'cropConfirm', {
       elementId,
       cropSettings,
-      hascroppedImageData: !!croppedImageData,
-      croppedDataLength: croppedImageData.length,
-      croppedDataPrefix: croppedImageData.substring(0, 50) + '...'
+      hascroppedImageData: !!croppedImageData
     });
     
     onCropConfirm(croppedImageData, cropSettings);
-  }, [generateCroppedImage, position, placeholderDimensions, scale, onCropConfirm, elementId, imageLoaded]);
+  }, [generateCroppedImage, previewDimensions, imageTransform, onCropConfirm, elementId]);
 
   // Handle skip crop
   const handleSkipCrop = useCallback(() => {
@@ -562,7 +360,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   const modalContent = (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center backdrop-blur-sm bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 p-6 max-h-[90vh] overflow-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full mx-4 p-6 max-h-[95vh] overflow-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Crop Image</h3>
@@ -578,9 +376,9 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Crop area */}
           <div className="flex-1">
-            <div className="text-sm text-gray-600 mb-2">
+            <div className="text-sm text-gray-600 mb-4">
               <div className="font-medium text-blue-600 mb-1">
-                📐 Crop Preview Area ({typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384}×{typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256}px)
+                📐 Crop Preview Area ({previewDimensions.targetWidth}×{previewDimensions.targetHeight}px)
               </div>
               <div className="text-xs text-gray-500">
                 The blue border shows exactly what will appear in your slide
@@ -593,69 +391,95 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
               )}
             </div>
             
-            <div
-              ref={containerRef}
-              className="relative border-4 border-blue-500 bg-gray-100 overflow-hidden cursor-move"
-              style={{
-                width: typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384,
-                height: typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256,
-                maxWidth: '100%',
-                maxHeight: '400px',
-                boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(59, 130, 246, 0.2)'
-              }}
-              onMouseDown={handleMouseDown}
-            >
-              {localImageUrl && (
-                <>
-                  {log('ImageCropModal', 'renderingImage', {
-                    elementId,
-                    localImageUrl,
-                    position,
-                    scale,
-                    isScaleValid: !isNaN(scale) && isFinite(scale)
-                  })}
-                  <img
-                    ref={imageRef}
-                    src={localImageUrl}
-                    alt="Crop preview"
-                    className="absolute"
-                    style={{
-                      transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                      transformOrigin: '0 0',
-                      userSelect: 'none',
-                      maxWidth: 'none',
-                      maxHeight: 'none'
-                    }}
-                    onLoad={handleImageLoad}
-                    onError={(e) => {
-                      log('ImageCropModal', 'imageLoadError', {
-                        elementId,
-                        src: e.currentTarget.src
-                      });
-                    }}
-                    draggable={false}
-                  />
-                </>
-              )}
-              {!localImageUrl && (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-                  <div className="text-center">
-                    <div className="text-lg mb-2">📷</div>
-                    <div>No image loaded</div>
-                    <div className="text-xs mt-1">Check console for debug info</div>
+            <div className="flex justify-center">
+              <div
+                ref={containerRef}
+                className="relative border-4 border-blue-500 bg-gray-100 overflow-hidden"
+                style={{
+                  width: previewDimensions.width,
+                  height: previewDimensions.height,
+                  boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(59, 130, 246, 0.2)'
+                }}
+              >
+                {localImageUrl && imageLoaded && (
+                  <>
+                    <img
+                      ref={imageRef}
+                      src={localImageUrl}
+                      alt="Crop preview"
+                      className="absolute pointer-events-none"
+                      style={{
+                        transform: imageTransform,
+                        transformOrigin: '0 0',
+                        userSelect: 'none',
+                        maxWidth: 'none',
+                        maxHeight: 'none'
+                      }}
+                      onLoad={handleImageLoad}
+                      onError={(e) => {
+                        log('ImageCropModal', 'imageLoadError', {
+                          elementId,
+                          src: e.currentTarget.src
+                        });
+                      }}
+                      draggable={false}
+                    />
+                    
+                    {/* React-moveable for smooth interaction */}
+                    <Moveable
+                      target={imageRef.current}
+                      draggable={true}
+                      scalable={true}
+                      keepRatio={false}
+                      throttleDrag={0}
+                      throttleScale={0}
+                      onDrag={({ target, transform }) => {
+                        setImageTransform(transform);
+                        log('ImageCropModal', 'moveable_drag', {
+                          elementId,
+                          transform
+                        });
+                      }}
+                      onScale={({ target, transform, scale }) => {
+                        setImageTransform(transform);
+                        setScale(scale[0]); // Assuming uniform scaling
+                        log('ImageCropModal', 'moveable_scale', {
+                          elementId,
+                          transform,
+                          scale: scale[0]
+                        });
+                      }}
+                      renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+                    />
+                  </>
+                )}
+                
+                {localImageUrl && !imageLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                      <div>Loading image...</div>
+                    </div>
                   </div>
+                )}
+                
+                {!localImageUrl && (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+                    <div className="text-center">
+                      <div className="text-lg mb-2">📷</div>
+                      <div>No image loaded</div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Corner indicators for crop area */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-0 border-2 border-white shadow-lg"></div>
+                  <div className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-blue-600"></div>
+                  <div className="absolute top-0 right-0 w-3 h-3 border-r-2 border-t-2 border-blue-600"></div>
+                  <div className="absolute bottom-0 left-0 w-3 h-3 border-l-2 border-b-2 border-blue-600"></div>
+                  <div className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-blue-600"></div>
                 </div>
-              )}
-              
-              {/* Crop frame overlay - shows the exact boundaries */}
-              <div className="absolute inset-0 pointer-events-none">
-                {/* Inner border to show crop area */}
-                <div className="absolute inset-0 border-2 border-white shadow-lg"></div>
-                {/* Corner indicators */}
-                <div className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-blue-600"></div>
-                <div className="absolute top-0 right-0 w-3 h-3 border-r-2 border-t-2 border-blue-600"></div>
-                <div className="absolute bottom-0 left-0 w-3 h-3 border-l-2 border-b-2 border-blue-600"></div>
-                <div className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-blue-600"></div>
               </div>
             </div>
           </div>
@@ -681,7 +505,16 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
                   max="5"
                   step="0.1"
                   value={scale}
-                  onChange={(e) => setScale(parseFloat(e.target.value))}
+                  onChange={(e) => {
+                    const newScale = parseFloat(e.target.value);
+                    const transformMatch = imageTransform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
+                    if (transformMatch) {
+                      const [, translate] = transformMatch;
+                      const newTransform = `translate(${translate}) scale(${newScale})`;
+                      setScale(newScale);
+                      setImageTransform(newTransform);
+                    }
+                  }}
                   className="flex-1"
                 />
                 <button
@@ -700,15 +533,15 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
                   <Move className="w-4 h-4 text-blue-600" />
-                  <span>Click and drag to reposition image</span>
+                  <span>Drag the image to reposition</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <ZoomIn className="w-4 h-4 text-blue-600" />
-                  <span>Use zoom controls to resize image</span>
+                  <span>Drag corners to resize</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 border-2 border-blue-600 rounded-sm"></div>
-                  <span>Blue border shows final crop area</span>
+                  <span>Blue border = final crop area</span>
                 </div>
               </div>
             </div>
@@ -723,7 +556,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
                 {isCropping ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Uploading...</span>
+                    <span>Processing...</span>
                   </>
                 ) : (
                   <>
@@ -738,27 +571,25 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
                 className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
               >
                 <SkipForward className="w-4 h-4" />
-                <span>Use Original (Stretch)</span>
+                <span>Use Original</span>
               </button>
             </div>
             
             {/* Preview info */}
             {imageLoaded && (
-              <div className="text-xs text-gray-500 space-y-1">
+              <div className="text-xs text-gray-500 space-y-1 p-2 bg-gray-50 rounded">
                 <div>Original: {imageDimensions.width}×{imageDimensions.height}</div>
-                <div>Target: {
-                  typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384
-                }×{
-                  typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256
-                }</div>
+                <div>Target: {previewDimensions.targetWidth}×{previewDimensions.targetHeight}</div>
+                <div>Preview: {previewDimensions.width}×{previewDimensions.height}</div>
                 <div>Scale: {(scale * 100).toFixed(0)}%</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Hidden canvas for cropping */}
+        {/* Hidden canvases for processing */}
         <canvas ref={cropCanvasRef} className="hidden" />
+        <canvas ref={previewCanvasRef} className="hidden" />
       </div>
     </div>
   );

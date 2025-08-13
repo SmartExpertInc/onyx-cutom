@@ -1530,18 +1530,18 @@
                             <ul class="bullet-list">
                                 {% for bullet in slide.props.bullets %}
                                     {% if bullet and bullet != 'Click to add bullet point' %}
-                                        <li class="bullet-item">
-                                            <span class="bullet-icon">
-                                                {% if slide.props.bulletStyle == 'arrow' %}→
-                                                {% elif slide.props.bulletStyle == 'check' %}✓
-                                                {% elif slide.props.bulletStyle == 'star' %}★
-                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                                {% else %}•
-                                                {% endif %}
-                                            </span>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">
+                                            {% if slide.props.bulletStyle == 'arrow' %}→
+                                            {% elif slide.props.bulletStyle == 'check' %}✓
+                                            {% elif slide.props.bulletStyle == 'star' %}★
+                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                            {% else %}•
+                                            {% endif %}
+                                        </span>
                                             <span class="bullet-text">{{ bullet }}</span>
-                                        </li>
-                                    {% endif %}
+                                    </li>
+                                {% endif %}
                                 {% endfor %}
                             </ul>
                         </div>
@@ -1574,22 +1574,22 @@
                                         {% endif %}
                                     {% endif %}
                                 >{{ slide.props.subtitle }}</div>
-                            {% endif %}
+                    {% endif %}
                             <ul class="bullet-list">
                                 {% for bullet in slide.props.bullets %}
                                     {% if bullet and bullet != 'Click to add bullet point' %}
-                                        <li class="bullet-item">
-                                            <span class="bullet-icon">
-                                                {% if slide.props.bulletStyle == 'arrow' %}→
-                                                {% elif slide.props.bulletStyle == 'check' %}✓
-                                                {% elif slide.props.bulletStyle == 'star' %}★
-                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                                {% else %}•
-                                                {% endif %}
-                                            </span>
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">
+                                            {% if slide.props.bulletStyle == 'arrow' %}→
+                                            {% elif slide.props.bulletStyle == 'check' %}✓
+                                            {% elif slide.props.bulletStyle == 'star' %}★
+                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                            {% else %}•
+                                            {% endif %}
+                                        </span>
                                             <span class="bullet-text">{{ bullet }}</span>
-                                        </li>
-                                    {% endif %}
+                                    </li>
+                                {% endif %}
                                 {% endfor %}
                             </ul>
                         </div>
@@ -1624,10 +1624,10 @@
                         {% for step in slide.props.steps %}
                             {% set stepText = step.description if step.description else (step if step is string else '') %}
                             {% if stepText and stepText != 'Click to add step description' %}
-                                <div class="process-step">
-                                    <div class="step-number">{{ loop.index }}</div>
+                            <div class="process-step">
+                                <div class="step-number">{{ loop.index }}</div>
                                     <p class="step-description">{{ stepText }}</p>
-                                </div>
+                            </div>
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -1791,7 +1791,7 @@
                             <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
                             {% for item in slide.props.items %}
                                 {% if (item.value and item.value != 'Click to add value') or (item.label and item.label != 'Click to add label') or (item.description and item.description != 'Click to add description') %}
-                                    <div class="number-item">
+                                <div class="number-item">
                                         {% if item.value and item.value != 'Click to add value' %}
                                             <div class="number-value">{{ item.value }}</div>
                                         {% endif %}
@@ -1801,7 +1801,7 @@
                                         {% if item.description and item.description != 'Click to add description' %}
                                             <div class="number-description">{{ item.description }}</div>
                                         {% endif %}
-                                    </div>
+                                </div>
                                 {% endif %}
                             {% endfor %}
                         {% else %}
@@ -1842,14 +1842,14 @@
                     <div class="grid-container">
                         {% for box in slide.props.boxes %}
                             {% if (box.heading and box.heading != 'Click to add heading') or (box.text and box.text != 'Click to add text') %}
-                                <div class="box-item">
+                            <div class="box-item">
                                     {% if box.heading and box.heading != 'Click to add heading' %}
                                         <div class="box-heading">{{ box.heading }}</div>
                                     {% endif %}
                                     {% if box.text and box.text != 'Click to add text' %}
                                         <div class="box-text">{{ box.text }}</div>
                                     {% endif %}
-                                </div>
+                            </div>
                             {% endif %}
                         {% endfor %}
                         {% if not slide.props.boxes or slide.props.boxes is not iterable or slide.props.boxes is callable or slide.props.boxes|length == 0 %}
@@ -1891,22 +1891,22 @@
                         <div class="timeline-line"></div>
                         {% for step in slide.props.steps %}
                             {% if (step.heading and step.heading != 'Click to add heading') or (step.description and step.description != 'Click to add description') %}
-                                <div class="step-wrapper">
-                                    <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
-                                        <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
+                            <div class="step-wrapper">
+                                <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
+                                    <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
                                             {% if step.heading and step.heading != 'Click to add heading' %}
                                                 <div class="step-heading">{{ step.heading }}</div>
                                             {% endif %}
                                             {% if step.description and step.description != 'Click to add description' %}
-                                                <div class="step-description">{{ step.description }}</div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="vertical-line" style="order: 2;"></div>
-                                        <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
-                                            {{ loop.index }}
-                                        </div>
+                                            <div class="step-description">{{ step.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="vertical-line" style="order: 2;"></div>
+                                    <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
+                                        {{ loop.index }}
                                     </div>
                                 </div>
+                            </div>
                             {% endif %}
                         {% endfor %}
                         {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
@@ -1995,8 +1995,8 @@
                 ">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element" style="
-                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
+                        text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
+                        text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
                             {% if slide.metadata and slide.metadata.elementPositions %}
                                 {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
@@ -2007,8 +2007,8 @@
                     {% endif %}
                     {% if slide.props.content and slide.props.content != 'Click to add content' %}
                         <div class="content-text positioned-element" style="
-                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
+                        text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
+                        text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
                             {% if slide.metadata and slide.metadata.elementPositions %}
                                 {% set contentId = 'draggable-' + slide.slideId + '-1' %}
                                 {% if slide.metadata.elementPositions[contentId] %}
@@ -2032,8 +2032,8 @@
                     ">
                         {% if slide.props.title and slide.props.title != 'Click to add hero title' %}
                             <h1 class="slide-title positioned-element" style="
-                                text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
-                                text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
+                            text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
+                            text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                     {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                     {% if slide.metadata.elementPositions[titleId] %}
@@ -2044,8 +2044,8 @@
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add subtitle' %}
                             <div class="slide-subtitle positioned-element" style="
-                                text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
-                                text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
+                            text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
+                            text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                     {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
                                     {% if slide.metadata.elementPositions[subtitleId] %}
