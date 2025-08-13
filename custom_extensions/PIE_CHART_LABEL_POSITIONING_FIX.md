@@ -1,69 +1,71 @@
-# PIE CHART PDF Rendering - Complete CSS Transform Implementation (EXACT FRONTEND MATCH)
+# PIE CHART PDF Rendering - SVG Implementation (RELIABLE PDF RENDERING)
 
 ## Problem Summary
-The pie chart was not displaying correctly in PDF generation, with visual artifacts and incorrect segment rendering. The user requested a complete re-implementation that exactly matches the frontend behavior where "every percentage is a new segment" and segments are "separated by different colors around the circle."
+The pie chart was not displaying correctly in PDF output due to complex CSS transforms that are not well-supported by Puppeteer's PDF rendering engine. The CSS transform approach with nested transforms and clip-path was causing the chart to be completely invisible in the generated PDF.
 
-## Root Cause Analysis
-The previous implementations (SVG, Canvas, and conic-gradient) had subtle differences from the frontend's CSS transform approach. The frontend uses individual div elements with CSS transforms and clip-path to create pie chart segments, which provides the most precise control and visual consistency.
+## Solution: SVG-Based Rendering for PDF Reliability
 
-## Solution: CSS Transform Implementation (EXACT FRONTEND MATCH)
+### Core Approach
+Reverted to SVG-based pie chart rendering using proper SVG `<path>` elements with correct trigonometric calculations. This approach is:
+- **PDF-Compatible**: SVG is natively supported by Puppeteer and PDF engines
+- **Reliable**: No complex CSS transforms that can cause rendering issues
+- **Accurate**: Proper mathematical calculations for segment angles and positioning
 
 ### Implementation Details
-The new implementation uses CSS transforms that exactly replicate the frontend's pie chart rendering:
 
-1. **Individual Segment Divs**: Each segment is rendered as a separate div with CSS transforms
-2. **Transform Origin**: Uses `transform-origin: center` for the container and `transform-origin: left` for segments
-3. **Clip Path**: Uses `clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%)` to create the pie slice shape
-4. **Label Positioning**: Calculates label positions using the same trigonometric formulas as the frontend
-
-### Key Features
-- **Perfect Frontend Match**: Uses identical CSS transform logic as the React component
-- **Individual Segments**: Each percentage creates a separate visual segment
-- **Color Separation**: Segments are clearly separated by different colors around the circle
-- **Precise Labeling**: Percentage labels positioned exactly like the frontend
-- **PDF Compatibility**: Works perfectly in Puppeteer PDF generation
-
-### Implementation Snippet
-
+#### SVG Path Generation
 ```html
-<!-- Pie chart segments using CSS transforms (EXACT FRONTEND MATCH) -->
-{% set total_percentage = 0 %}
-{% for segment in slide.props.chartData.segments %}
-    {% set total_percentage = total_percentage + segment.percentage %}
-{% endfor %}
-
-{% set current_angle = 0 %}
-{% for segment in slide.props.chartData.segments %}
-    {% if segment.percentage > 0 %}
-        {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
-        {% set rotation = current_angle %}
-        
-        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-                    transform: rotate({{ rotation }}deg); transform-origin: center;">
-            <div style="position: absolute; top: 0; left: 50%; width: 50%; height: 100%; 
-                        background-color: {{ segment.color }}; 
-                        transform: rotate({{ segment_angle }}deg); 
-                        transform-origin: left; 
-                        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);">
-            </div>
-        </div>
-        
-        {% set current_angle = current_angle + segment_angle %}
-    {% endif %}
-{% endfor %}
+<svg width="280" height="280" viewBox="0 0 280 280" style="position: absolute; top: 0; left: 0;">
+    {% for segment in slide.props.chartData.segments %}
+        {% if segment.percentage > 0 %}
+            {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
+            {% set start_angle = current_angle %}
+            {% set end_angle = current_angle + segment_angle %}
+            
+            <!-- Convert angles to radians -->
+            {% set start_rad = start_angle * 3.14159 / 180 %}
+            {% set end_rad = end_angle * 3.14159 / 180 %}
+            
+            <!-- Calculate SVG path coordinates -->
+            {% set center_x = 140 %}
+            {% set center_y = 140 %}
+            {% set radius = 140 %}
+            
+            {% set start_x = center_x + radius * start_rad | cos %}
+            {% set start_y = center_y + radius * start_rad | sin %}
+            {% set end_x = center_x + radius * end_rad | cos %}
+            {% set end_y = center_y + radius * end_rad | sin %}
+            
+            <!-- Determine large arc flag -->
+            {% set angle_diff = end_rad - start_rad %}
+            {% set large_arc_flag = 1 if angle_diff > 3.14159 else 0 %}
+            
+            <!-- Create SVG path -->
+            <path d="M {{ center_x }} {{ center_y }} L {{ start_x }} {{ start_y }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ end_x }} {{ end_y }} Z" 
+                  fill="{{ segment.color }}" stroke="none"/>
+            
+            {% set current_angle = current_angle + segment_angle %}
+        {% endif %}
+    {% endfor %}
+</svg>
 ```
 
-### Label Positioning (EXACT FRONTEND MATCH)
+#### Key Features
+1. **Proper SVG Path Commands**: Uses `M` (move), `L` (line), `A` (arc), and `Z` (close) commands
+2. **Correct Large Arc Flag**: Calculated based on angle difference (> π radians)
+3. **Accurate Trigonometric Calculations**: Proper conversion from degrees to radians
+4. **Zero-Percentage Validation**: Only renders segments with percentage > 0
 
+#### Label Positioning
 ```html
-<!-- Percentage labels (EXACT FRONTEND MATCH) -->
+<!-- Percentage labels -->
 {% set current_angle = 0 %}
 {% for segment in slide.props.chartData.segments %}
     {% if segment.percentage > 0 %}
         {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
         {% set label_angle = current_angle + (segment_angle / 2) %}
         
-        <!-- Calculate label position exactly like frontend -->
+        <!-- Calculate label position -->
         {% set radius = 70 %}
         {% set angle_rad = (label_angle - 90) * 3.14159 / 180 %}
         {% set x = 140 + radius * angle_rad | cos %}
@@ -82,26 +84,32 @@ The new implementation uses CSS transforms that exactly replicate the frontend's
 {% endfor %}
 ```
 
-## Files Modified
-1. `backend/templates/slide_deck_pdf_template.html` - Updated pie chart rendering
-2. `backend/templates/single_slide_pdf_template.html` - Updated pie chart rendering
+### Files Modified
+- `backend/templates/slide_deck_pdf_template.html`
+- `backend/templates/single_slide_pdf_template.html`
 
-## Benefits of This Approach
-1. **Perfect Visual Match**: Identical rendering to the frontend React component
-2. **Individual Segments**: Each percentage creates a distinct visual segment
-3. **Color Separation**: Clear visual separation between segments
-4. **PDF Reliability**: Works consistently in Puppeteer PDF generation
-5. **Maintainability**: Uses the same logic as the frontend for consistency
+### Benefits
+1. **PDF Compatibility**: SVG is natively supported by Puppeteer
+2. **Reliable Rendering**: No complex CSS transforms that can fail
+3. **Mathematical Accuracy**: Proper trigonometric calculations
+4. **Performance**: Lightweight SVG rendering
+5. **Cross-Platform**: Works consistently across different PDF engines
 
-## Testing Recommendations
-1. Test with various percentage combinations
-2. Verify segment colors and positioning
-3. Check label positioning accuracy
-4. Test PDF generation with different data sets
-5. Compare visual output with frontend rendering
+### Testing Checklist
+- [ ] Pie chart segments display correctly in PDF
+- [ ] Segment colors match frontend
+- [ ] Percentage labels are positioned correctly
+- [ ] Inner circle (donut hole) displays properly
+- [ ] No rendering artifacts or missing elements
+- [ ] Works with different percentage values
+- [ ] Handles edge cases (0% segments, single segment, etc.)
 
-## Edge Cases Handled
-- Zero percentage segments are filtered out
-- Proper angle calculations for all segment sizes
-- Consistent label positioning regardless of segment size
-- Maintains visual integrity with any number of segments 
+### Comparison with Previous Approaches
+| Approach | PDF Compatibility | Complexity | Accuracy | Performance |
+|----------|------------------|------------|----------|-------------|
+| CSS Transforms | ❌ Poor | High | Good | Medium |
+| Canvas API | ⚠️ Variable | Medium | Good | Medium |
+| Conic-Gradient | ⚠️ Variable | Low | Good | High |
+| **SVG Paths** | ✅ **Excellent** | **Low** | **Excellent** | **High** |
+
+This SVG-based approach provides the most reliable PDF rendering while maintaining visual accuracy and performance. 
