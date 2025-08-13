@@ -12918,6 +12918,24 @@ async def generate_and_finalize_course_outline_for_position(
                                     # Update completionTime from recommendations
                                     try:
                                         lesson["completionTime"] = compute_completion_time_from_recommendations(recommendations.get("primary", []))
+                                        # Also generate completion_breakdown for advanced mode support
+                                        primary = recommendations.get("primary", [])
+                                        ranges = {
+                                            'one-pager': (2,3),
+                                            'presentation': (5,10),
+                                            'quiz': (5,7),
+                                            'video-lesson': (2,5),
+                                        }
+                                        breakdown = {}
+                                        total_m = 0
+                                        for p in primary:
+                                            r = ranges.get(p)
+                                            if r:
+                                                mid = int(round((r[0]+r[1])/2))
+                                                breakdown[p] = mid
+                                                total_m += mid
+                                        if total_m > 0:
+                                            lesson['completion_breakdown'] = breakdown
                                     except Exception:
                                         lesson.setdefault("completionTime", "5m")
                                 except Exception:
@@ -15411,6 +15429,28 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                                     lesson.get('quality_tier') or section.get('quality_tier') or content_to_store_for_db.get('quality_tier'),
                                     {'presentation': False, 'one-pager': False, 'quiz': False, 'video-lesson': False}
                                 )
+                                # Also generate completion_breakdown for advanced mode support
+                                try:
+                                    primary = lesson['recommended_content_types'].get('primary', [])
+                                    ranges = {
+                                        'one-pager': (2,3),
+                                        'presentation': (5,10),
+                                        'quiz': (5,7),
+                                        'video-lesson': (2,5),
+                                    }
+                                    breakdown = {}
+                                    total_m = 0
+                                    for p in primary:
+                                        r = ranges.get(p)
+                                        if r:
+                                            mid = int(round((r[0]+r[1])/2))
+                                            breakdown[p] = mid
+                                            total_m += mid
+                                    if total_m > 0:
+                                        lesson['completion_breakdown'] = breakdown
+                                        lesson['completionTime'] = f"{total_m}m"
+                                except Exception:
+                                    pass
                 except Exception:
                     pass
             
@@ -15726,6 +15766,28 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                                                     'video-lesson': False,
                                                 }
                                             )
+                                            # Also generate completion_breakdown for advanced mode support
+                                            try:
+                                                primary = lesson['recommended_content_types'].get('primary', [])
+                                                ranges = {
+                                                    'one-pager': (2,3),
+                                                    'presentation': (5,10),
+                                                    'quiz': (5,7),
+                                                    'video-lesson': (2,5),
+                                                }
+                                                breakdown = {}
+                                                total_m = 0
+                                                for p in primary:
+                                                    r = ranges.get(p)
+                                                    if r:
+                                                        mid = int(round((r[0]+r[1])/2))
+                                                        breakdown[p] = mid
+                                                        total_m += mid
+                                                if total_m > 0:
+                                                    lesson['completion_breakdown'] = breakdown
+                                                    lesson['completionTime'] = f"{total_m}m"
+                                            except Exception:
+                                                pass
                                     except Exception:
                                         pass
                                     
