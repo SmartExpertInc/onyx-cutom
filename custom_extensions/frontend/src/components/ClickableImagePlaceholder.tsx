@@ -73,6 +73,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Drag state to prevent hover changes during active dragging
   const [isDragging, setIsDragging] = useState(false);
   
+  // Debounce timer for drag end callbacks
+  const dragEndTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
 
 
   const internalRef = useRef<HTMLDivElement>(null);
@@ -167,6 +170,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       }
     };
   }, [isDragging, elementId]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (dragEndTimeoutRef.current) {
+        clearTimeout(dragEndTimeoutRef.current);
+      }
+    };
+  }, []);
 
 
 
@@ -400,28 +412,36 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               });
             }}
             onDragEnd={e => {
-              // Final position update after drag ends
-              const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-              if (transformMatch) {
-                const [, translate] = transformMatch;
-                const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
-                
-                log('ClickableImagePlaceholder', 'dragEnd', { 
-                  elementId, 
-                  hasImage: !!displayedImage,
-                  isDragging: false,
-                  finalPosition: { x, y }
-                });
-                
-                // Only call callback on drag end - this prevents the performance bottleneck
-                onSizeTransformChange?.({
-                  imagePosition: { x, y },
-                  elementId: elementId,
-                  final: true
-                });
+              // Clear any existing timeout
+              if (dragEndTimeoutRef.current) {
+                clearTimeout(dragEndTimeoutRef.current);
               }
               
-              // Reset drag state
+              // Debounce the callback to prevent rapid successive saves
+              dragEndTimeoutRef.current = setTimeout(() => {
+                // Final position update after drag ends
+                const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+                if (transformMatch) {
+                  const [, translate] = transformMatch;
+                  const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
+                  
+                  log('ClickableImagePlaceholder', 'dragEnd', { 
+                    elementId, 
+                    hasImage: !!displayedImage,
+                    isDragging: false,
+                    finalPosition: { x, y }
+                  });
+                  
+                  // Only call callback on drag end - this prevents the performance bottleneck
+                  onSizeTransformChange?.({
+                    imagePosition: { x, y },
+                    elementId: elementId,
+                    final: true
+                  });
+                }
+              }, 100); // 100ms debounce
+              
+              // Reset drag state immediately
               setIsDragging(false);
             }}
             onResizeEnd={e => {
@@ -561,28 +581,36 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             });
           }}
           onDragEnd={e => {
-            // Final position update after drag ends
-            const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-            if (transformMatch) {
-              const [, translate] = transformMatch;
-              const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
-              
-              log('ClickableImagePlaceholder', 'dragEnd', { 
-                elementId, 
-                hasImage: !!displayedImage,
-                isDragging: false,
-                finalPosition: { x, y }
-              });
-              
-              // Only call callback on drag end - this prevents the performance bottleneck
-              onSizeTransformChange?.({
-                imagePosition: { x, y },
-                elementId: elementId,
-                final: true
-              });
+            // Clear any existing timeout
+            if (dragEndTimeoutRef.current) {
+              clearTimeout(dragEndTimeoutRef.current);
             }
             
-            // Reset drag state
+            // Debounce the callback to prevent rapid successive saves
+            dragEndTimeoutRef.current = setTimeout(() => {
+              // Final position update after drag ends
+              const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+              if (transformMatch) {
+                const [, translate] = transformMatch;
+                const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
+                
+                log('ClickableImagePlaceholder', 'dragEnd', { 
+                  elementId, 
+                  hasImage: !!displayedImage,
+                  isDragging: false,
+                  finalPosition: { x, y }
+                });
+                
+                // Only call callback on drag end - this prevents the performance bottleneck
+                onSizeTransformChange?.({
+                  imagePosition: { x, y },
+                  elementId: elementId,
+                  final: true
+                });
+              }
+            }, 100); // 100ms debounce
+            
+            // Reset drag state immediately
             setIsDragging(false);
           }}
           onResizeEnd={e => {

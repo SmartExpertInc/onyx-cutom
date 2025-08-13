@@ -1,503 +1,30 @@
 🎨 Font styles applied to Chudo and Forta themes
-page-561e5dd50de22708.js:1 📥 [FETCH DATA] Received from backend: Object
-page-561e5dd50de22708.js:1 🎨 Theme system initialized: Object
-page-561e5dd50de22708.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-561e5dd50de22708.js:1 📄 Slide 1 (big-image-left): Object
-page-561e5dd50de22708.js:1 📄 Slide 2 (bullet-points): Object
-page-561e5dd50de22708.js:1 📄 Slide 3 (big-image-left): Object
-page-561e5dd50de22708.js:1 ✅ Component-based slides loaded with theme: Object
-page-561e5dd50de22708.js:1 🎨 Theme system initialized: Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | initializeMoveableForImage Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | initializeMoveableForImage Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | mouseEnter Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | mouseLeave Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | mouseEnter Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | dragStart Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_raw Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_processed Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | onDrag_callback Object
-page-561e5dd50de22708.js:1 🔍 page.tsx: Received updated deck: Object
-page-561e5dd50de22708.js:1 🔍 page.tsx: Triggering auto-save with updated data
-page-561e5dd50de22708.js:1 🔍 page.tsx: Sending updated deck to backend: {
+page-510303b067960452.js:1 📥 [FETCH DATA] Received from backend: Object
+page-510303b067960452.js:1 🎨 Theme system initialized: Object
+page-510303b067960452.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-510303b067960452.js:1 📄 Slide 1 (big-image-left): Object
+page-510303b067960452.js:1 📄 Slide 2 (bullet-points): Object
+page-510303b067960452.js:1 📄 Slide 3 (big-image-left): Object
+page-510303b067960452.js:1 ✅ Component-based slides loaded with theme: Object
+page-510303b067960452.js:1 🎨 Theme system initialized: Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | initializeMoveableForImage Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | initializeMoveableForImage Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | mouseEnter Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | dragStart Object
+layout-515e7592ff9d9c60.js:1 ✅ Mont bold font preloaded successfully
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | dragEnd Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | cleanup_resetDrag Object
+page-510303b067960452.js:1 🔍 page.tsx: Received updated deck: Object
+page-510303b067960452.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-510303b067960452.js:1 🔍 page.tsx: Sending updated deck to backend: {
   "microProductContent": {
     "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
     "slides": [
@@ -519,14 +46,14 @@ page-561e5dd50de22708.js:1 🔍 page.tsx: Sending updated deck to backend: {
           "objectFit": "contain",
           "imageScale": 1,
           "imageOffset": {
-            "x": -1,
-            "y": 18
+            "x": 796,
+            "y": -60
           },
           "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
         },
         "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
         "metadata": {
-          "updatedAt": "2025-08-13T16:27:10.303Z",
+          "updatedAt": "2025-08-13T16:42:43.539Z",
           "elementPositions": {
             "draggable-slide_1_intro-0": {
               "x": 33,
@@ -601,43 +128,153 @@ page-561e5dd50de22708.js:1 🔍 page.tsx: Sending updated deck to backend: {
     "theme": "dark-purple"
   }
 }
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-561e5dd50de22708.js:1 📄 Slide 1 (big-image-left): Object
-page-561e5dd50de22708.js:1 📄 Slide 2 (bullet-points): Object
-page-561e5dd50de22708.js:1 📄 Slide 3 (big-image-left): Object
-page-561e5dd50de22708.js:1 ✅ Component-based slides loaded with theme: Object
-page-561e5dd50de22708.js:1 🎨 Theme system initialized: Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-8Failed to decode downloaded font: <URL>Understand this warning
-8OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-1684-851eb52b939bcfce.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
-window.console.error @ 1684-851eb52b939bcfce.js:1Understand this error
-1684-851eb52b939bcfce.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont bold font
-    at a.onerror (layout-515e7592ff9d9c60.js:1:739)
-window.console.error @ 1684-851eb52b939bcfce.js:1Understand this error
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-510303b067960452.js:1 📄 Slide 1 (big-image-left): Object
+page-510303b067960452.js:1 📄 Slide 2 (bullet-points): Object
+page-510303b067960452.js:1 📄 Slide 3 (big-image-left): Object
+page-510303b067960452.js:1 ✅ Component-based slides loaded with theme: Object
+page-510303b067960452.js:1 🎨 Theme system initialized: Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-510303b067960452.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 16,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "Junior AI/ML Engineer Training",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Slide Deck",
+  "microproduct_content": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "widthPx": 397,
+          "heightPx": 490,
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imagePath": "/static_design_images/presentation_89abe9d4-ac50-4b12-abc9-e56188591671.png",
+          "imageSize": "large",
+          "isCropped": true,
+          "objectFit": "contain",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 796,
+            "y": -60
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T16:42:43.539Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 33,
+              "y": 257
+            },
+            "draggable-slide_1_intro-1": {
+              "x": 27,
+              "y": -64
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      },
+      {
+        "slideId": "slide-1755097025382-8ltjc5ecr",
+        "slideNumber": 3,
+        "slideTitle": "Add title",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Add title",
+          "content": "Add your content here...",
+          "widthPx": 472,
+          "heightPx": 620,
+          "imageAlt": "Add image description",
+          "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
+          "subtitle": "Add subtitle",
+          "imagePath": "/static_design_images/presentation_dfb49ffe-fba1-44b3-85d8-c363b151c8e2.jpg",
+          "imageSize": "large",
+          "titleColor": "#ffffff",
+          "imageOffset": {
+            "x": -19,
+            "y": -9
+          },
+          "imagePrompt": "man sitting on a chair",
+          "contentColor": "#d9e1ff",
+          "backgroundColor": "#261c4e"
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-08-13T14:57:05.382Z",
+          "updatedAt": "2025-08-13T15:16:32.544Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-08-12T20:56:59.837338Z",
+  "custom_rate": null,
+  "quality_tier": null
+}
+layout-515e7592ff9d9c60.js:1 ✅ Mont thin font preloaded successfully
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | dragStart Object
+layout-515e7592ff9d9c60.js:1 ✅ Mont regular font preloaded successfully
+layout-515e7592ff9d9c60.js:1 🎉 All Mont fonts preloaded successfully
 layout-515e7592ff9d9c60.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | dragEnd Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | dragEnd_callback Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | cleanup_resetDrag Object
-page-561e5dd50de22708.js:1 🔍 page.tsx: Auto-save successful with updated data
-page-561e5dd50de22708.js:1 🔍 page.tsx: Received updated deck: Object
-page-561e5dd50de22708.js:1 🔍 page.tsx: Triggering auto-save with updated data
-page-561e5dd50de22708.js:1 🔍 page.tsx: Sending updated deck to backend: {
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | dragEnd Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | cleanup_resetDrag Object
+page-510303b067960452.js:1 🔍 page.tsx: Received updated deck: Object
+page-510303b067960452.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-510303b067960452.js:1 🔍 page.tsx: Sending updated deck to backend: {
   "microProductContent": {
     "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
     "slides": [
@@ -659,14 +296,14 @@ page-561e5dd50de22708.js:1 🔍 page.tsx: Sending updated deck to backend: {
           "objectFit": "contain",
           "imageScale": 1,
           "imageOffset": {
-            "x": -1,
-            "y": 18
+            "x": 94,
+            "y": 6
           },
           "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
         },
         "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
         "metadata": {
-          "updatedAt": "2025-08-13T16:27:10.721Z",
+          "updatedAt": "2025-08-13T16:42:45.560Z",
           "elementPositions": {
             "draggable-slide_1_intro-0": {
               "x": 33,
@@ -741,30 +378,30 @@ page-561e5dd50de22708.js:1 🔍 page.tsx: Sending updated deck to backend: {
     "theme": "dark-purple"
   }
 }
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-561e5dd50de22708.js:1 📄 Slide 1 (big-image-left): Object
-page-561e5dd50de22708.js:1 📄 Slide 2 (bullet-points): Object
-page-561e5dd50de22708.js:1 📄 Slide 3 (big-image-left): Object
-page-561e5dd50de22708.js:1 ✅ Component-based slides loaded with theme: Object
-page-561e5dd50de22708.js:1 🎨 Theme system initialized: Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
-page-561e5dd50de22708.js:1 🔍 page.tsx: Auto-save successful with updated data
-page-561e5dd50de22708.js:1 🔍 page.tsx: Auto-save response: {
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-510303b067960452.js:1 📄 Slide 1 (big-image-left): Object
+page-510303b067960452.js:1 📄 Slide 2 (bullet-points): Object
+page-510303b067960452.js:1 📄 Slide 3 (big-image-left): Object
+page-510303b067960452.js:1 ✅ Component-based slides loaded with theme: Object
+page-510303b067960452.js:1 🎨 Theme system initialized: Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_start Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedPosition Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedSize Object
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | applySavedState_complete Object
+page-510303b067960452.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-510303b067960452.js:1 🔍 page.tsx: Auto-save response: {
   "id": 16,
   "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
   "project_name": "Junior AI/ML Engineer Training",
@@ -792,14 +429,14 @@ page-561e5dd50de22708.js:1 🔍 page.tsx: Auto-save response: {
           "objectFit": "contain",
           "imageScale": 1,
           "imageOffset": {
-            "x": -1,
-            "y": 18
+            "x": 94,
+            "y": 6
           },
           "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
         },
         "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
         "metadata": {
-          "updatedAt": "2025-08-13T16:27:10.721Z",
+          "updatedAt": "2025-08-13T16:42:45.560Z",
           "elementPositions": {
             "draggable-slide_1_intro-0": {
               "x": 33,
@@ -878,121 +515,4 @@ page-561e5dd50de22708.js:1 🔍 page.tsx: Auto-save response: {
   "custom_rate": null,
   "quality_tier": null
 }
-page-561e5dd50de22708.js:1 🔍 page.tsx: Auto-save response: {
-  "id": 16,
-  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
-  "project_name": "Junior AI/ML Engineer Training",
-  "product_type": "Slide Deck",
-  "microproduct_type": "Slide Deck",
-  "microproduct_name": "Slide Deck",
-  "microproduct_content": {
-    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
-    "slides": [
-      {
-        "slideId": "slide_1_intro",
-        "slideNumber": 1,
-        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
-        "templateId": "big-image-left",
-        "props": {
-          "title": "Welcome to Your Journey in AI/ML Engineering",
-          "widthPx": 397,
-          "heightPx": 490,
-          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
-          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
-          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
-          "imagePath": "/static_design_images/presentation_89abe9d4-ac50-4b12-abc9-e56188591671.png",
-          "imageSize": "large",
-          "isCropped": true,
-          "objectFit": "contain",
-          "imageScale": 1,
-          "imageOffset": {
-            "x": -1,
-            "y": 18
-          },
-          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
-        },
-        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
-        "metadata": {
-          "updatedAt": "2025-08-13T16:27:10.303Z",
-          "elementPositions": {
-            "draggable-slide_1_intro-0": {
-              "x": 33,
-              "y": 257
-            },
-            "draggable-slide_1_intro-1": {
-              "x": 27,
-              "y": -64
-            }
-          }
-        }
-      },
-      {
-        "slideId": "slide_2_objectives",
-        "slideNumber": 2,
-        "slideTitle": "Key Learning Objectives",
-        "templateId": "bullet-points",
-        "props": {
-          "title": "What You Will Learn",
-          "bullets": [
-            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
-            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
-            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
-            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
-            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
-          ],
-          "imageAlt": "Visual representation of learning objectives and outcomes",
-          "maxColumns": 2,
-          "bulletStyle": "dot",
-          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
-        },
-        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
-        "metadata": {
-          "updatedAt": "2025-08-12T22:03:13.628Z"
-        }
-      },
-      {
-        "slideId": "slide-1755097025382-8ltjc5ecr",
-        "slideNumber": 3,
-        "slideTitle": "Add title",
-        "templateId": "big-image-left",
-        "props": {
-          "title": "Add title",
-          "content": "Add your content here...",
-          "widthPx": 472,
-          "heightPx": 620,
-          "imageAlt": "Add image description",
-          "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-          "subtitle": "Add subtitle",
-          "imagePath": "/static_design_images/presentation_dfb49ffe-fba1-44b3-85d8-c363b151c8e2.jpg",
-          "imageSize": "large",
-          "titleColor": "#ffffff",
-          "imageOffset": {
-            "x": -19,
-            "y": -9
-          },
-          "imagePrompt": "man sitting on a chair",
-          "contentColor": "#d9e1ff",
-          "backgroundColor": "#261c4e"
-        },
-        "voiceoverText": null,
-        "metadata": {
-          "createdAt": "2025-08-13T14:57:05.382Z",
-          "updatedAt": "2025-08-13T15:16:32.544Z"
-        }
-      }
-    ],
-    "currentSlideId": "slide_1_intro",
-    "lessonNumber": null,
-    "detectedLanguage": "en",
-    "hasVoiceover": null,
-    "theme": "dark-purple"
-  },
-  "design_template_id": 1,
-  "created_at": "2025-08-12T20:56:59.837338Z",
-  "custom_rate": null,
-  "quality_tier": null
-}
-page-561e5dd50de22708.js:1 [ImageEdit] ClickableImagePlaceholder | mouseLeave Object
-1684-851eb52b939bcfce.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
-window.console.error @ 1684-851eb52b939bcfce.js:1Understand this error
-1684-851eb52b939bcfce.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+page-510303b067960452.js:1 [ImageEdit] ClickableImagePlaceholder | mouseLeave Object
