@@ -326,7 +326,7 @@
     <div class="pdf-container">
         <!-- Header -->
         <div class="pdf-header">
-            <h1>{{ client_name if client_name else 'Projects Overview' }}</h1>
+            <h1>{{ client_name if client_name else 'Production Time Estimate' }}</h1>
         </div>
         
         <!-- Main Table Container -->
@@ -388,7 +388,7 @@
                             {% if folder.id in folder_projects %}
                                 {% for project in folder_projects[folder.id] %}
                                     <tr class="product-row">
-                                        <td class="product-title indent-{{level+1}}">
+                                        <td class="product-title indent-{{level+2}}">
                                             <div class="product-number">{{ product_counter.value }}</div>
                                             {{ project.title }}
                                         </td>
@@ -443,7 +443,7 @@
                                 <svg class="folder-icon folder-svg" viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                Unassigned Projects ({{ unassigned_projects|length }} item{{ 's' if unassigned_projects|length != 1 else '' }})
+                                Others
                             </td>
                             <td class="quality-tier-cell">
                                 <div class="quality-tier-container">
@@ -480,7 +480,7 @@
                         <!-- Unassigned Projects -->
                         {% for project in unassigned_projects %}
                             <tr class="product-row">
-                                <td class="product-title indent-1">
+                                <td class="product-title indent-2">
                                     <div class="product-number">{{ product_counter.value }}</div>
                                     {{ project.title }}
                                 </td>
