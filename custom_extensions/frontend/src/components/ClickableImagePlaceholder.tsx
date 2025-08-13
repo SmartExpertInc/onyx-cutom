@@ -5,7 +5,6 @@ import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import ImageCropModal, { CropSettings } from './ImageCropModal';
 import Moveable from 'react-moveable';
-import { uploadBase64Image } from '../lib/designTemplateApi';
 
 export interface ClickableImagePlaceholderProps {
   imagePath?: string;
@@ -80,15 +79,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [imagePath]);
 
-  // Cleanup object URLs on unmount
-  useEffect(() => {
-    return () => {
-      if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(pendingImageUrl);
-      }
-    };
-  }, [pendingImageUrl]);
-
   const handleClick = () => {
     if (!isEditable) return;
     setShowUploadModal(true);
@@ -98,9 +88,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // If we have a file, show crop modal first
     if (imageFile) {
       setPendingImageFile(imageFile);
-      // Create a proper URL for the image preview
-      const imageUrl = URL.createObjectURL(imageFile);
-      setPendingImageUrl(imageUrl);
+      setPendingImageUrl(newImagePath); // Keep server URL for later use
       setShowUploadModal(false);
       setShowCropModal(true);
       return;
@@ -132,51 +120,48 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // Handle crop modal actions
   const handleCropConfirm = async (croppedImageData: string, settings: CropSettings) => {
-    setCropSettings(settings);
     setIsCropping(true);
+    setCropSettings(settings);
     
     try {
-      // Upload the cropped image to get a file path
-      const result = await uploadBase64Image(croppedImageData, 'cropped-image.png');
-      const uploadedImagePath = result.file_path;
+      // Convert base64 to blob and upload it
+      const response = await fetch(croppedImageData);
+      const blob = await response.blob();
       
-      // Use the uploaded file path instead of base64 data
-      onImageUploaded(uploadedImagePath);
-      setDisplayedImage(uploadedImagePath);
+      // Create a file from the blob
+      const croppedFile = new File([blob], 'cropped-image.png', { type: 'image/png' });
+      
+      // Upload the cropped file
+      const { uploadPresentationImage } = await import('../lib/designTemplateApi');
+      const result = await uploadPresentationImage(croppedFile);
+      
+      // Use the uploaded file path
+      onImageUploaded(result.file_path);
+      setDisplayedImage(result.file_path);
+      setShowCropModal(false);
+      setPendingImageFile(null);
+      setPendingImageUrl('');
+      
+      // Notify parent with crop settings
+      onSizeTransformChange?.({
+        objectFit: 'fill', // Cropped images should fill the placeholder
+        imageScale: settings.scale,
+        imageOffset: { x: settings.x, y: settings.y },
+        isCropped: true
+      });
     } catch (error) {
       console.error('Failed to upload cropped image:', error);
-      // Fallback to using base64 data directly
-      onImageUploaded(croppedImageData);
-      setDisplayedImage(croppedImageData);
+      // Fallback to original image
+      handleSkipCrop(pendingImageUrl);
     } finally {
       setIsCropping(false);
     }
-    
-    setShowCropModal(false);
-    // Clean up the object URL to prevent memory leaks
-    if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(pendingImageUrl);
-    }
-    setPendingImageFile(null);
-    setPendingImageUrl('');
-    
-    // Notify parent with crop settings
-    onSizeTransformChange?.({
-      objectFit: 'fill', // Cropped images should fill the placeholder
-      imageScale: settings.scale,
-      imageOffset: { x: settings.x, y: settings.y },
-      isCropped: true
-    });
   };
 
   const handleSkipCrop = (originalImageData: string) => {
     onImageUploaded(originalImageData);
     setDisplayedImage(originalImageData);
     setShowCropModal(false);
-    // Clean up the object URL to prevent memory leaks
-    if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(pendingImageUrl);
-    }
     setPendingImageFile(null);
     setPendingImageUrl('');
     
@@ -191,10 +176,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleCropCancel = () => {
     setShowCropModal(false);
-    // Clean up the object URL to prevent memory leaks
-    if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(pendingImageUrl);
-    }
     setPendingImageFile(null);
     setPendingImageUrl('');
   };

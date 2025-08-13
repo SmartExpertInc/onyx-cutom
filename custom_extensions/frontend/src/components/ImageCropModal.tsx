@@ -47,6 +47,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+  const [localImageUrl, setLocalImageUrl] = useState<string>('');
   
   // Crop controls
   const [scale, setScale] = useState(1);
@@ -76,6 +77,26 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     }
   }, []);
 
+  // Create local URL from File for preview
+  useEffect(() => {
+    if (imageFile && isOpen) {
+      const url = URL.createObjectURL(imageFile);
+      setLocalImageUrl(url);
+      
+      log('ImageCropModal', 'createdLocalUrl', { 
+        elementId, 
+        hasImageFile: !!imageFile,
+        localUrl: url
+      });
+      
+      // Cleanup URL when component unmounts or image changes
+      return () => {
+        URL.revokeObjectURL(url);
+        log('ImageCropModal', 'revokedLocalUrl', { elementId, url });
+      };
+    }
+  }, [imageFile, isOpen, elementId]);
+
   // Reset state when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
@@ -83,6 +104,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       setScale(1);
       setPosition({ x: 0, y: 0 });
       setIsDragging(false);
+      setLocalImageUrl('');
       log('ImageCropModal', 'modalClosed_resetState', { elementId });
     }
   }, [isOpen, elementId]);
@@ -334,6 +356,12 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
           <div className="flex-1">
             <div className="text-sm text-gray-600 mb-2">
               Preview crop area ({placeholderDimensions.width}×{placeholderDimensions.height}px)
+              {!imageLoaded && localImageUrl && (
+                <span className="ml-2 text-blue-600">Loading image...</span>
+              )}
+              {!localImageUrl && (
+                <span className="ml-2 text-red-600">No image URL available</span>
+              )}
             </div>
             
             <div
@@ -347,10 +375,10 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
               }}
               onMouseDown={handleMouseDown}
             >
-              {imageUrl && (
+              {localImageUrl && (
                 <img
                   ref={imageRef}
-                  src={imageUrl}
+                  src={localImageUrl}
                   alt="Crop preview"
                   className="absolute pointer-events-none"
                   style={{
@@ -421,8 +449,17 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
                 disabled={!imageLoaded || isCropping}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Crop className="w-4 h-4" />
-                <span>{isCropping ? 'Uploading...' : 'Crop Image'}</span>
+                {isCropping ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Uploading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Crop className="w-4 h-4" />
+                    <span>Crop Image</span>
+                  </>
+                )}
               </button>
               
               <button
