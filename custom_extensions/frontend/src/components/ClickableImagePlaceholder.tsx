@@ -73,9 +73,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Drag state to prevent hover changes during active dragging
   const [isDragging, setIsDragging] = useState(false);
   
-  // Debug state for tracking drag performance
-  const [dragEventCount, setDragEventCount] = useState(0);
-  const [lastDragTime, setLastDragTime] = useState(0);
+
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -357,85 +355,19 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             throttleDrag={0}
             edgeDraggable={false}
             onDragStart={e => {
-              const startTime = performance.now();
               setIsDragging(true);
-              
               log('ClickableImagePlaceholder', 'dragStart', { 
                 elementId, 
                 hasImage: !!displayedImage,
-                isDragging: true,
-                timestamp: startTime,
-                targetElement: e.target.tagName,
-                targetClasses: e.target.className,
-                initialTransform: e.target.style.transform
+                isDragging: true
               });
             }}
             onDrag={e => {
-              const startTime = performance.now();
-              const newEventCount = dragEventCount + 1;
-              const timeSinceLastDrag = startTime - lastDragTime;
-              
-              setDragEventCount(newEventCount);
-              setLastDragTime(startTime);
-              
-              // Log the raw event data
-              log('ClickableImagePlaceholder', 'onDrag_raw', {
-                elementId,
-                hasImage: !!displayedImage,
-                eventType: 'onDrag',
-                transform: e.transform,
-                delta: e.delta,
-                beforeTransform: e.target.style.transform,
-                timestamp: startTime,
-                eventCount: newEventCount,
-                timeSinceLastDrag: timeSinceLastDrag,
-                fps: timeSinceLastDrag > 0 ? Math.round(1000 / timeSinceLastDrag) : 0
-              });
-              
-              // Apply the transform
+              // Apply the transform immediately for smooth visual feedback
               e.target.style.transform = e.transform;
               
-              // Extract position from transform
-              const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
-              if (transformMatch) {
-                const [, translate] = transformMatch;
-                const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-                
-                const afterTime = performance.now();
-                
-                log('ClickableImagePlaceholder', 'onDrag_processed', {
-                  elementId,
-                  hasImage: !!displayedImage,
-                  transform: e.transform,
-                  parsedPosition: { x, y },
-                  appliedTransform: e.target.style.transform,
-                  processingTime: afterTime - startTime,
-                  timestamp: afterTime
-                });
-                
-                // Call onSizeTransformChange with position update
-                const callbackStart = performance.now();
-                onSizeTransformChange?.({
-                  imagePosition: { x, y },
-                  elementId: elementId
-                });
-                const callbackEnd = performance.now();
-                
-                log('ClickableImagePlaceholder', 'onDrag_callback', {
-                  elementId,
-                  hasImage: !!displayedImage,
-                  callbackTime: callbackEnd - callbackStart,
-                  totalTime: callbackEnd - startTime,
-                  timestamp: callbackEnd
-                });
-              } else {
-                log('ClickableImagePlaceholder', 'onDrag_parseError', {
-                  elementId,
-                  transform: e.transform,
-                  hasImage: !!displayedImage,
-                  timestamp: performance.now()
-                });
-              }
+              // Don't call callbacks during drag - only on drag end
+              // This prevents the performance bottleneck from excessive parent updates
             }}
             resizable={true}
             keepRatio={false}
@@ -468,8 +400,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               });
             }}
             onDragEnd={e => {
-              const endTime = performance.now();
-              
               // Final position update after drag ends
               const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
               if (transformMatch) {
@@ -480,27 +410,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   elementId, 
                   hasImage: !!displayedImage,
                   isDragging: false,
-                  finalTransform: e.target.style.transform,
-                  finalPosition: { x, y },
-                  timestamp: endTime,
-                  targetElement: e.target.tagName,
-                  targetClasses: e.target.className
+                  finalPosition: { x, y }
                 });
                 
-                const callbackStart = performance.now();
+                // Only call callback on drag end - this prevents the performance bottleneck
                 onSizeTransformChange?.({
                   imagePosition: { x, y },
                   elementId: elementId,
                   final: true
-                });
-                const callbackEnd = performance.now();
-                
-                log('ClickableImagePlaceholder', 'dragEnd_callback', {
-                  elementId,
-                  hasImage: !!displayedImage,
-                  callbackTime: callbackEnd - callbackStart,
-                  totalEndTime: callbackEnd - endTime,
-                  timestamp: callbackEnd
                 });
               }
               
@@ -608,85 +525,19 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           throttleDrag={0}
           edgeDraggable={false}
           onDragStart={e => {
-            const startTime = performance.now();
             setIsDragging(true);
-            
             log('ClickableImagePlaceholder', 'dragStart', { 
               elementId, 
               hasImage: !!displayedImage,
-              isDragging: true,
-              timestamp: startTime,
-              targetElement: e.target.tagName,
-              targetClasses: e.target.className,
-              initialTransform: e.target.style.transform
+              isDragging: true
             });
           }}
           onDrag={e => {
-            const startTime = performance.now();
-            const newEventCount = dragEventCount + 1;
-            const timeSinceLastDrag = startTime - lastDragTime;
-            
-            setDragEventCount(newEventCount);
-            setLastDragTime(startTime);
-            
-            // Log the raw event data
-            log('ClickableImagePlaceholder', 'onDrag_raw', {
-              elementId,
-              hasImage: !!displayedImage,
-              eventType: 'onDrag_placeholder',
-              transform: e.transform,
-              delta: e.delta,
-              beforeTransform: e.target.style.transform,
-              timestamp: startTime,
-              eventCount: newEventCount,
-              timeSinceLastDrag: timeSinceLastDrag,
-              fps: timeSinceLastDrag > 0 ? Math.round(1000 / timeSinceLastDrag) : 0
-            });
-            
-            // Apply the transform
+            // Apply the transform immediately for smooth visual feedback
             e.target.style.transform = e.transform;
             
-            // Extract position from transform
-            const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
-            if (transformMatch) {
-              const [, translate] = transformMatch;
-              const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-              
-              const afterTime = performance.now();
-              
-              log('ClickableImagePlaceholder', 'onDrag_processed', {
-                elementId,
-                hasImage: !!displayedImage,
-                transform: e.transform,
-                parsedPosition: { x, y },
-                appliedTransform: e.target.style.transform,
-                processingTime: afterTime - startTime,
-                timestamp: afterTime
-              });
-              
-              // Call onSizeTransformChange with position update
-              const callbackStart = performance.now();
-              onSizeTransformChange?.({
-                imagePosition: { x, y },
-                elementId: elementId
-              });
-              const callbackEnd = performance.now();
-              
-              log('ClickableImagePlaceholder', 'onDrag_callback', {
-                elementId,
-                hasImage: !!displayedImage,
-                callbackTime: callbackEnd - callbackStart,
-                totalTime: callbackEnd - startTime,
-                timestamp: callbackEnd
-              });
-            } else {
-              log('ClickableImagePlaceholder', 'onDrag_parseError', {
-                elementId,
-                transform: e.transform,
-                hasImage: !!displayedImage,
-                timestamp: performance.now()
-              });
-            }
+            // Don't call callbacks during drag - only on drag end
+            // This prevents the performance bottleneck from excessive parent updates
           }}
           resizable={true}
           keepRatio={false}
@@ -710,8 +561,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             });
           }}
           onDragEnd={e => {
-            const endTime = performance.now();
-            
             // Final position update after drag ends
             const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
             if (transformMatch) {
@@ -722,27 +571,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                 elementId, 
                 hasImage: !!displayedImage,
                 isDragging: false,
-                finalTransform: e.target.style.transform,
-                finalPosition: { x, y },
-                timestamp: endTime,
-                targetElement: e.target.tagName,
-                targetClasses: e.target.className
+                finalPosition: { x, y }
               });
               
-              const callbackStart = performance.now();
+              // Only call callback on drag end - this prevents the performance bottleneck
               onSizeTransformChange?.({
                 imagePosition: { x, y },
                 elementId: elementId,
                 final: true
-              });
-              const callbackEnd = performance.now();
-              
-              log('ClickableImagePlaceholder', 'dragEnd_callback', {
-                elementId,
-                hasImage: !!displayedImage,
-                callbackTime: callbackEnd - callbackStart,
-                totalEndTime: callbackEnd - endTime,
-                timestamp: callbackEnd
               });
             }
             
