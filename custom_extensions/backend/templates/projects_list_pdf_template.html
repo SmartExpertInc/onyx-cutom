@@ -392,11 +392,7 @@
                                 </td>
                                 <td class="quality-tier-cell">
                                     <div class="quality-tier-container">
-                                        {% if folder.quality_tier %}
-                                            <span class="tier-badge tier-{{ folder.quality_tier }}">{{ folder.quality_tier }}</span>
-                                        {% else %}
-                                            <span class="dash">-</span>
-                                        {% endif %}
+                                        <span class="dash">-</span>
                                     </div>
                                 </td>
                                 {% if column_visibility.numberOfLessons %}
@@ -449,11 +445,8 @@
                                         </td>
                                         <td class="quality-tier-cell">
                                             <div class="quality-tier-container">
-                                                {% if project.quality_tier and project.quality_tier != 'None' and project.quality_tier.strip() != '' %}
-                                                    <span class="tier-badge tier-{{ project.quality_tier }}">{{ project.quality_tier }}</span>
-                                                {% else %}
-                                                    <span class="dash">-</span>
-                                                {% endif %}
+                                                {% set project_tier = project.get('quality_tier', 'interactive') %}
+                                                <span class="tier-badge tier-{{ project_tier }}">{{ project_tier }}</span>
                                             </div>
                                         </td>
                                         {% if column_visibility.numberOfLessons %}
@@ -560,11 +553,8 @@
                                 </td>
                                 <td class="quality-tier-cell">
                                     <div class="quality-tier-container">
-                                        {% if project.quality_tier and project.quality_tier != 'None' and project.quality_tier.strip() != '' %}
-                                            <span class="tier-badge tier-{{ project.quality_tier }}">{{ project.quality_tier }}</span>
-                                        {% else %}
-                                            <span class="dash">-</span>
-                                        {% endif %}
+                                        {% set project_tier = project.get('quality_tier', 'interactive') %}
+                                        <span class="tier-badge tier-{{ project_tier }}">{{ project_tier }}</span>
                                     </div>
                                 </td>
                                 {% if column_visibility.numberOfLessons %}

@@ -16325,7 +16325,6 @@ async def download_projects_list_pdf(
                 'folder_id': row_dict.get('folder_id'),
                 'order': row_dict.get('order', 0),
                 'microproduct_content': row_dict.get('microproduct_content'),
-                'quality_tier': row_dict.get('quality_tier'),
                 'total_lessons': total_lessons,
                 'total_hours': round(total_hours),
                 'total_completion_time': total_completion_time
