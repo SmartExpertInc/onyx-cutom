@@ -69,6 +69,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   
   // Hover state for anchor visibility
   const [isHovered, setIsHovered] = useState(false);
+  
+  // Drag state to prevent hover changes during drag
+  const [isDragging, setIsDragging] = useState(false);
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -96,9 +99,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [imagePath]);
 
-  // Ensure hover state is reset when image changes
+  // Ensure hover and drag state are reset when image changes
   useEffect(() => {
     setIsHovered(false);
+    setIsDragging(false);
   }, [displayedImage]);
 
   // Apply saved position and size when component mounts or saved values change
@@ -160,22 +164,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // Hover handlers for anchor visibility
   const handleMouseEnter = () => {
-    if (isEditable) {
+    if (isEditable && !isDragging) {
       log('ClickableImagePlaceholder', 'handleMouseEnter', {
         elementId,
         hasImage: !!displayedImage,
-        isEditable
+        isEditable,
+        isDragging
       });
       setIsHovered(true);
     }
   };
 
   const handleMouseLeave = () => {
-    if (isEditable) {
+    if (isEditable && !isDragging) {
       log('ClickableImagePlaceholder', 'handleMouseLeave', {
         elementId,
         hasImage: !!displayedImage,
-        isEditable
+        isEditable,
+        isDragging
       });
       setIsHovered(false);
     }
@@ -322,20 +328,29 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
 
         {/* React-moveable for the image container */}
-        {isEditable && containerRef.current && isHovered && (
+        {isEditable && containerRef.current && (isHovered || isDragging) && (
           (() => {
             log('ClickableImagePlaceholder', 'renderMoveable', {
               elementId,
               hasImage: !!displayedImage,
               isHovered,
+              isDragging,
               isEditable
             });
             return (
               <Moveable
                 target={containerRef.current}
-            draggable={true}
-            throttleDrag={1}
-            edgeDraggable={false}
+                draggable={true}
+                throttleDrag={1}
+                edgeDraggable={false}
+                onDragStart={e => {
+                  log('ClickableImagePlaceholder', 'onDragStart', {
+                    elementId,
+                    hasImage: !!displayedImage,
+                    isDragging: true
+                  });
+                  setIsDragging(true);
+                }}
             onDrag={e => {
               e.target.style.transform = e.transform;
               
@@ -395,6 +410,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   final: true
                 });
               }
+              
+              // Reset drag state
+              log('ClickableImagePlaceholder', 'onDragEnd', {
+                elementId,
+                hasImage: !!displayedImage,
+                isDragging: false
+              });
+              setIsDragging(false);
             }}
             onResizeEnd={e => {
               // Final size update after resize ends
@@ -491,20 +514,29 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       </div>
 
       {/* React-moveable for placeholder */}
-      {isEditable && containerRef.current && isHovered && (
+      {isEditable && containerRef.current && (isHovered || isDragging) && (
         (() => {
           log('ClickableImagePlaceholder', 'renderMoveable_empty', {
             elementId,
             hasImage: !!displayedImage,
             isHovered,
+            isDragging,
             isEditable
           });
           return (
             <Moveable
-          target={containerRef.current}
-          draggable={true}
-          throttleDrag={1}
-          edgeDraggable={false}
+              target={containerRef.current}
+              draggable={true}
+              throttleDrag={1}
+              edgeDraggable={false}
+              onDragStart={e => {
+                log('ClickableImagePlaceholder', 'onDragStart_empty', {
+                  elementId,
+                  hasImage: !!displayedImage,
+                  isDragging: true
+                });
+                setIsDragging(true);
+              }}
           onDrag={e => {
             e.target.style.transform = e.transform;
           }}
@@ -516,6 +548,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               e.target.style.width = `${e.width}px`;
               e.target.style.height = `${e.height}px`;
               e.target.style.transform = e.drag.transform;
+            }}
+            onDragEnd={e => {
+              // Reset drag state
+              log('ClickableImagePlaceholder', 'onDragEnd_empty', {
+                elementId,
+                hasImage: !!displayedImage,
+                isDragging: false
+              });
+              setIsDragging(false);
             }}
           />
             );
