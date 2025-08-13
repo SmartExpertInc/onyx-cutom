@@ -271,107 +271,44 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingPercentage(index);
   };
 
-  // NEW: Simple pie chart using CSS transforms
-  const renderPieChart = () => {
+  // Create conic gradient for pie chart
+  const createConicGradient = () => {
     const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
-    let currentAngle = 0;
-
-    return (
-      <div className="relative w-[280px] h-[280px]">
-        {/* Pie chart segments using CSS transforms */}
-        {chartData.segments.map((segment, index) => {
-          const segmentAngle = (segment.percentage / totalPercentage) * 360;
-          const rotation = currentAngle;
-          currentAngle += segmentAngle;
-
-          return (
-            <div
-              key={index}
-              className="absolute top-0 left-0 w-full h-full"
-              style={{
-                transform: `rotate(${rotation}deg)`,
-                transformOrigin: 'center'
-              }}
-            >
-              <div
-                className="absolute top-0 left-1/2 w-1/2 h-full origin-left"
-                style={{
-                  backgroundColor: segment.color,
-                  transform: `rotate(${segmentAngle}deg)`,
-                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
-                }}
-              />
-            </div>
-          );
-        })}
-
-        {/* Inner circle (donut hole) */}
-        <div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2"
-          style={{
-            backgroundColor: themeBg,
-            borderColor: '#e5e7eb'
-          }}
-        />
-
-        {/* Percentage labels */}
-        {chartData.segments.map((segment, index) => {
-          const segmentAngle = (segment.percentage / totalPercentage) * 360;
-          const labelAngle = currentAngle - segmentAngle / 2;
-          currentAngle -= segmentAngle;
-
-          // Calculate label position
-          const radius = 70; // Distance from center
-          const angleRad = (labelAngle - 90) * Math.PI / 180;
-          const x = 140 + radius * Math.cos(angleRad);
-          const y = 140 + radius * Math.sin(angleRad);
-
-          return (
-            <div
-              key={`label-${index}`}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80"
-              style={{
-                left: `${x}px`,
-                top: `${y}px`,
-                color: '#ffffff',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                fontFamily: 'Arial, Helvetica, sans-serif',
-                textShadow: '1px 1px 2px #000000',
-                userSelect: 'none',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                background: 'rgba(0,0,0,0.3)',
-                zIndex: 20
-              }}
-              onClick={() => isEditable && startEditingPercentage(index)}
-            >
-              {editingPercentage === index && isEditable ? (
-                <InlineEditor
-                  initialValue={segment.percentage.toString()}
-                  onSave={(value) => handlePercentageSave(index, value)}
-                  onCancel={() => handlePercentageCancel(index)}
-                  style={{
-                    color: '#ffffff',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    background: 'rgba(0,0,0,0.5)',
-                    borderRadius: '4px',
-                    padding: '2px 4px',
-                    border: '1px solid #ffffff',
-                    minWidth: '40px'
-                  }}
-                />
-              ) : (
-                segment.label
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
+    let cumulativePercentage = 0;
+    
+    const gradientStops = chartData.segments.map((segment, index) => {
+      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
+      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
+      cumulativePercentage += segment.percentage;
+      
+      return `${segment.color} ${startAngle}deg ${endAngle}deg`;
+    });
+    
+    return `conic-gradient(${gradientStops.join(', ')})`;
   };
+
+  // Calculate label positions for pie chart segments
+  const getLabelPositions = () => {
+    const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
+    let cumulativePercentage = 0;
+    
+    return chartData.segments.map((segment, index) => {
+      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
+      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
+      const centerAngle = (startAngle + endAngle) / 2;
+      cumulativePercentage += segment.percentage;
+      
+      // Convert angle to radians and calculate position
+      const angleRad = (centerAngle - 90) * Math.PI / 180;
+      const radius = 98; // Distance from center
+      const x = 140 + radius * Math.cos(angleRad);
+      const y = 140 + radius * Math.sin(angleRad);
+      
+      return { x, y, angle: centerAngle };
+    });
+  };
+
+  const labelPositions = getLabelPositions();
 
   return (
     <div 
@@ -496,12 +433,64 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Center - Pie Chart */}
           <div className="flex flex-col items-center">
             <div 
-              className="relative w-[280px] h-[280px] rounded-full shadow-lg overflow-hidden"
+              className="relative w-[280px] h-[280px] rounded-full border-3 border-white shadow-lg"
               style={{
+                background: createConicGradient(),
+                borderColor: '#ffffff',
                 boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
               }}
             >
-              {renderPieChart()}
+              {/* Inner circle */}
+              <div 
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2"
+                style={{
+                  backgroundColor: themeBg,
+                  borderColor: '#e5e7eb'
+                }}
+              />
+              
+              {/* Percentage labels */}
+              {chartData.segments.map((segment, index) => {
+                const position = labelPositions[index];
+                return (
+                  <div
+                    key={index}
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80"
+                    style={{
+                      left: `${position.x}px`,
+                      top: `${position.y}px`,
+                      color: '#ffffff',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      fontFamily: 'Arial, Helvetica, sans-serif',
+                      textShadow: '1px 1px 2px #000000',
+                      userSelect: 'none'
+                    }}
+                    onClick={() => isEditable && startEditingPercentage(index)}
+                  >
+                    {editingPercentage === index && isEditable ? (
+                      <InlineEditor
+                        initialValue={segment.percentage.toString()}
+                        onSave={(value) => handlePercentageSave(index, value)}
+                        onCancel={() => handlePercentageCancel(index)}
+                        style={{
+                          color: '#ffffff',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                          background: 'rgba(0,0,0,0.5)',
+                          borderRadius: '4px',
+                          padding: '2px 4px',
+                          border: '1px solid #ffffff',
+                          minWidth: '40px'
+                        }}
+                      />
+                    ) : (
+                      segment.label
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
