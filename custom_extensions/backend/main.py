@@ -10828,7 +10828,7 @@ async def download_project_instance_pdf(
                             # Update locale strings if language detection changed
                             current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
                     except Exception: pass
-                        data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
+                    data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
             else:
                 logger.warning(f"Project {project_id} PDF Gen (PDF LESSON): content_json is not a valid dict or is None. Using fallback structure.")
                 data_for_template_render = {
@@ -10920,7 +10920,7 @@ async def download_project_instance_pdf(
                             # Update locale strings if language detection changed
                             current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
                     except Exception: pass 
-                        data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
+                    data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
                 else: # If language IS in content_json, ensure locale strings match
                     detected_lang_for_pdf = data_for_template_render.get('detectedLanguage', detected_lang_for_pdf)
                     current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
