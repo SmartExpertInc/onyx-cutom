@@ -5,6 +5,7 @@ import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import ImageCropModal, { CropSettings } from './ImageCropModal';
 import Moveable from 'react-moveable';
+import { uploadBase64Image } from '../lib/designTemplateApi';
 
 export interface ClickableImagePlaceholderProps {
   imagePath?: string;
@@ -48,6 +49,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
   const [pendingImageUrl, setPendingImageUrl] = useState<string>('');
   const [cropSettings, setCropSettings] = useState<CropSettings | null>(null);
+  const [isCropping, setIsCropping] = useState(false);
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   
@@ -78,6 +80,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [imagePath]);
 
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(pendingImageUrl);
+      }
+    };
+  }, [pendingImageUrl]);
+
   const handleClick = () => {
     if (!isEditable) return;
     setShowUploadModal(true);
@@ -87,7 +98,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // If we have a file, show crop modal first
     if (imageFile) {
       setPendingImageFile(imageFile);
-      setPendingImageUrl(newImagePath);
+      // Create a proper URL for the image preview
+      const imageUrl = URL.createObjectURL(imageFile);
+      setPendingImageUrl(imageUrl);
       setShowUploadModal(false);
       setShowCropModal(true);
       return;
@@ -118,11 +131,32 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   };
 
   // Handle crop modal actions
-  const handleCropConfirm = (croppedImageData: string, settings: CropSettings) => {
+  const handleCropConfirm = async (croppedImageData: string, settings: CropSettings) => {
     setCropSettings(settings);
-    onImageUploaded(croppedImageData);
-    setDisplayedImage(croppedImageData);
+    setIsCropping(true);
+    
+    try {
+      // Upload the cropped image to get a file path
+      const result = await uploadBase64Image(croppedImageData, 'cropped-image.png');
+      const uploadedImagePath = result.file_path;
+      
+      // Use the uploaded file path instead of base64 data
+      onImageUploaded(uploadedImagePath);
+      setDisplayedImage(uploadedImagePath);
+    } catch (error) {
+      console.error('Failed to upload cropped image:', error);
+      // Fallback to using base64 data directly
+      onImageUploaded(croppedImageData);
+      setDisplayedImage(croppedImageData);
+    } finally {
+      setIsCropping(false);
+    }
+    
     setShowCropModal(false);
+    // Clean up the object URL to prevent memory leaks
+    if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(pendingImageUrl);
+    }
     setPendingImageFile(null);
     setPendingImageUrl('');
     
@@ -139,6 +173,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onImageUploaded(originalImageData);
     setDisplayedImage(originalImageData);
     setShowCropModal(false);
+    // Clean up the object URL to prevent memory leaks
+    if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(pendingImageUrl);
+    }
     setPendingImageFile(null);
     setPendingImageUrl('');
     
@@ -153,6 +191,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleCropCancel = () => {
     setShowCropModal(false);
+    // Clean up the object URL to prevent memory leaks
+    if (pendingImageUrl && pendingImageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(pendingImageUrl);
+    }
     setPendingImageFile(null);
     setPendingImageUrl('');
   };
@@ -311,6 +353,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onCropConfirm={handleCropConfirm}
         onSkipCrop={handleSkipCrop}
         elementId={elementId}
+        isCropping={isCropping}
       />
     </>
   );
@@ -398,6 +441,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onCropConfirm={handleCropConfirm}
         onSkipCrop={handleSkipCrop}
         elementId={elementId}
+        isCropping={isCropping}
       />
     </>
   );

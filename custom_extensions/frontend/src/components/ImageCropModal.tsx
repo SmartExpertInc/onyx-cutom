@@ -29,6 +29,7 @@ export interface ImageCropModalProps {
   onCropConfirm: (croppedImageData: string, cropSettings: CropSettings) => void;
   onSkipCrop: (originalImageData: string) => void;
   elementId?: string;
+  isCropping?: boolean;
 }
 
 const ImageCropModal: React.FC<ImageCropModalProps> = ({
@@ -39,7 +40,8 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
   placeholderDimensions,
   onCropConfirm,
   onSkipCrop,
-  elementId
+  elementId,
+  isCropping = false
 }) => {
   // Modal state
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
@@ -416,11 +418,11 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
             <div className="space-y-2">
               <button
                 onClick={handleCropConfirm}
-                disabled={!imageLoaded}
+                disabled={!imageLoaded || isCropping}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Crop className="w-4 h-4" />
-                <span>Crop Image</span>
+                <span>{isCropping ? 'Uploading...' : 'Crop Image'}</span>
               </button>
               
               <button

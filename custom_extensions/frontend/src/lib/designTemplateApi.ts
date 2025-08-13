@@ -81,6 +81,18 @@ export async function uploadPresentationImage(imageFile: File): Promise<ImageUpl
   return response.json();
 }
 
+export async function uploadBase64Image(base64Data: string, filename: string = 'cropped-image.png'): Promise<ImageUploadResponse> {
+  // Convert base64 to blob
+  const base64Response = await fetch(base64Data);
+  const blob = await base64Response.blob();
+  
+  // Create a File object from the blob
+  const file = new File([blob], filename, { type: 'image/png' });
+  
+  // Upload using the existing function
+  return uploadPresentationImage(file);
+}
+
 export async function addDesignTemplate(templateData: DesignTemplateFormData): Promise<DesignTemplate> {
   const response = await fetch(`${API_BASE_URL}/design_templates/add`, {
     method: 'POST',
