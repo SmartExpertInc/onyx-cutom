@@ -143,9 +143,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [containerRef, savedImagePosition, savedImageSize, elementId]);
 
-  // ✅ ОСНОВНІ ЗМІНИ: Hover handlers з перевіркою стану операцій
+  // ✅ ВИПРАВЛЕННЯ: Hover handlers з таймером та перевіркою стану операцій
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleMouseEnter = useCallback(() => {
-    if (isEditable && containerRef.current && !isDragging && !isResizing && !isRotating) {
+    // Очищаємо таймер приховування
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+
+    if (isEditable && containerRef.current) {
       setMoveTarget(containerRef.current);
       log('ClickableImagePlaceholder', 'showMoveable', {
         elementId,
@@ -157,20 +165,37 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [isEditable, containerRef, isDragging, isResizing, isRotating, elementId]);
 
   const handleMouseLeave = useCallback(() => {
-    // Не ховаємо anchors під час активних операцій
+    // Ховаємо anchors тільки якщо НЕ відбуваються активні операції
+    // і додаємо невелику затримку щоб уникнути блимання
     if (!isDragging && !isResizing && !isRotating) {
-      setMoveTarget(null);
-      log('ClickableImagePlaceholder', 'hideMoveable', {
-        elementId,
-        isDragging,
-        isResizing,
-        isRotating
-      });
+      hideTimeoutRef.current = setTimeout(() => {
+        setMoveTarget(null);
+        log('ClickableImagePlaceholder', 'hideMoveable', {
+          elementId,
+          isDragging,
+          isResizing,
+          isRotating
+        });
+      }, 150); // 150ms затримка
     }
   }, [isDragging, isResizing, isRotating, elementId]);
 
-  // ✅ ОСНОВНІ ЗМІНИ: Callbacks для відстеження стану операцій
+  // Очищення таймера при unmount
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // ✅ ВИПРАВЛЕННЯ: Callbacks для відстеження стану операцій з очищенням таймера
   const handleDragStart = useCallback(() => {
+    // Очищаємо таймер приховування при початку операції
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     setIsDragging(true);
     log('ClickableImagePlaceholder', 'dragStart', { elementId });
   }, [elementId]);
@@ -194,6 +219,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [onSizeTransformChange, elementId]);
 
   const handleResizeStart = useCallback(() => {
+    // Очищаємо таймер приховування при початку операції
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     setIsResizing(true);
     log('ClickableImagePlaceholder', 'resizeStart', { elementId });
   }, [elementId]);
@@ -230,6 +260,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [onSizeTransformChange, elementId]);
 
   const handleRotateStart = useCallback(() => {
+    // Очищаємо таймер приховування при початку операції
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     setIsRotating(true);
     log('ClickableImagePlaceholder', 'rotateStart', { elementId });
   }, [elementId]);
@@ -422,42 +457,51 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   if (displayedImage) {
     return (
       <>
-        <div 
-          ref={containerRef}
-          data-moveable-element={elementId}
-          className={`
-            ${positionClasses[position]} 
-            relative overflow-hidden rounded-lg
-            ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
-            ${className}
-          `}
+        {/* ✅ АЛЬТЕРНАТИВНЕ РІШЕННЯ: Батьківський контейнер для hover */}
+        <div
+          className="moveable-hover-area"
           style={{
-            ...(style || {}),
+            position: 'relative',
+            padding: '20px', // Додаткова область для hover
+            margin: '-20px' // Компенсуємо padding
           }}
-          onClick={handleClick}
-          // ✅ ОСНОВНІ ЗМІНИ: Додаємо hover handlers
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <img 
-            ref={imgRef}
-            src={displayedImage}
-            alt="Uploaded content"
-            className="w-full h-full object-cover"
+          <div 
+            ref={containerRef}
+            data-moveable-element={elementId}
+            className={`
+              ${positionClasses[position]} 
+              relative overflow-hidden rounded-lg
+              ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
+              ${className}
+            `}
             style={{
-              objectFit: cropMode
+              ...(style || {}),
             }}
-          />
-          
-          {/* Replace overlay on hover */}
-          {isEditable && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <div className="text-white text-center">
-                <Replace className="w-6 h-6 mx-auto mb-2" />
-                <div className="text-sm font-medium">Replace Image</div>
+            onClick={handleClick}
+          >
+            <img 
+              ref={imgRef}
+              src={displayedImage}
+              alt="Uploaded content"
+              className="w-full h-full object-cover"
+              style={{
+                objectFit: cropMode
+              }}
+            />
+            
+            {/* Replace overlay on hover */}
+            {isEditable && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="text-white text-center">
+                  <Replace className="w-6 h-6 mx-auto mb-2" />
+                  <div className="text-sm font-medium">Replace Image</div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ✅ ОСНОВНІ ЗМІНИ: Единий Moveable компонент */}
@@ -487,41 +531,50 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Placeholder when no image
   return (
     <>
-      <div 
-        ref={containerRef}
-        data-moveable-element={elementId}
-        className={`
-          ${positionClasses[position]} 
-          bg-gradient-to-br from-blue-100 to-purple-100 
-          border-2 border-dashed border-gray-300 
-          rounded-lg flex items-center justify-center 
-          text-gray-500 text-sm
-          ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-          ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
-          ${className}
-        `}
+      {/* ✅ АЛЬТЕРНАТИВНЕ РІШЕННЯ: Батьківський контейнер для hover */}
+      <div
+        className="moveable-hover-area"
         style={{
-          ...(style || {}),
+          position: 'relative',
+          padding: '20px', // Додаткова область для hover
+          margin: '-20px' // Компенсуємо padding
         }}
-        onClick={handleClick}
-        // ✅ ОСНОВНІ ЗМІНИ: Додаємо hover handlers і для placeholder
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
-          <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-          <div className="font-medium">{size} Image</div>
-          <div className="text-xs mt-1 opacity-75">{description}</div>
-          {prompt && (
-            <div className="text-xs mt-1 opacity-60 italic">
-              "{prompt}"
-            </div>
-          )}
-          {isEditable && (
-            <div className="text-xs mt-2 text-blue-600 font-medium">
-              Click to upload
-            </div>
-          )}
+        <div 
+          ref={containerRef}
+          data-moveable-element={elementId}
+          className={`
+            ${positionClasses[position]} 
+            bg-gradient-to-br from-blue-100 to-purple-100 
+            border-2 border-dashed border-gray-300 
+            rounded-lg flex items-center justify-center 
+            text-gray-500 text-sm
+            ${position === 'BACKGROUND' ? 'opacity-20' : ''}
+            ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
+            ${className}
+          `}
+          style={{
+            ...(style || {}),
+          }}
+          onClick={handleClick}
+        >
+          <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <div className="font-medium">{size} Image</div>
+            <div className="text-xs mt-1 opacity-75">{description}</div>
+            {prompt && (
+              <div className="text-xs mt-1 opacity-60 italic">
+                "{prompt}"
+              </div>
+            )}
+            {isEditable && (
+              <div className="text-xs mt-2 text-blue-600 font-medium">
+                Click to upload
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
