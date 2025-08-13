@@ -427,31 +427,34 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
     <div className="fixed inset-0 z-[99999] bg-black bg-opacity-75 flex items-center justify-center p-4">
       <div 
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-        style={{ minHeight: '600px' }}
+        className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden border border-gray-200"
+        style={{ 
+          minHeight: '500px',
+          transform: 'translateY(-10%)' // Position slightly higher than center
+        }}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Edit Image</h2>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-lg font-semibold text-gray-900">Edit Image</h2>
           <button
             onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-200"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-4">
           {/* Image Editing Area */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <div 
-              className="relative overflow-hidden border-4 border-blue-500 bg-gray-100"
+              className="relative overflow-hidden border-2 border-blue-500 bg-gray-100 rounded-lg"
               style={{
-                width: placeholderDimensions.width,
-                height: placeholderDimensions.height,
+                width: Math.min(placeholderDimensions.width, 400),
+                height: Math.min(placeholderDimensions.height, 300),
                 maxWidth: '100%',
-                maxHeight: '60vh'
+                maxHeight: '50vh'
               }}
             >
               {editState.imageUrl && (
@@ -532,23 +535,23 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
               )}
               
               {/* Corner indicators */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-blue-600"></div>
-              <div className="absolute top-0 right-0 w-3 h-3 border-r-2 border-t-2 border-blue-600"></div>
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-l-2 border-b-2 border-blue-600"></div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-blue-600"></div>
+              <div className="absolute top-0 left-0 w-2 h-2 border-l-2 border-t-2 border-blue-600"></div>
+              <div className="absolute top-0 right-0 w-2 h-2 border-r-2 border-t-2 border-blue-600"></div>
+              <div className="absolute bottom-0 left-0 w-2 h-2 border-l-2 border-b-2 border-blue-600"></div>
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-r-2 border-b-2 border-blue-600"></div>
             </div>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-center space-x-4 mb-6">
+          <div className="flex items-center justify-center space-x-3 mb-4">
             {/* Zoom controls */}
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => handleZoom(-0.1)}
-                className="p-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
+                className="p-1.5 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                 disabled={editState.scale <= 0.1}
               >
-                <ZoomOut className="w-4 h-4" />
+                <ZoomOut className="w-3.5 h-3.5" />
               </button>
               <input
                 type="range"
@@ -578,28 +581,28 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
                     });
                   }
                 }}
-                className="w-32"
+                className="w-24"
               />
               <button
                 onClick={() => handleZoom(0.1)}
-                className="p-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
+                className="p-1.5 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                 disabled={editState.scale >= 5}
               >
-                <ZoomIn className="w-4 h-4" />
+                <ZoomIn className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 font-medium">
               {(editState.scale * 100).toFixed(0)}%
             </div>
           </div>
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-center space-x-4 p-6 border-t border-gray-200">
+        <div className="flex items-center justify-center space-x-3 p-4 border-t border-gray-200 bg-gray-50">
           <button
             onClick={handleCancel}
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
           >
             <X className="w-4 h-4" />
             <span>Cancel</span>
@@ -608,11 +611,11 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
           <button
             onClick={handleDoNotCrop}
             disabled={isProcessing}
-            className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
           >
             {isProcessing ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
                 <span>Processing...</span>
               </>
             ) : (
@@ -626,7 +629,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
           <button
             onClick={confirmEdit}
             disabled={isProcessing}
-            className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 hover:border-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm"
           >
             {isProcessing ? (
               <>
