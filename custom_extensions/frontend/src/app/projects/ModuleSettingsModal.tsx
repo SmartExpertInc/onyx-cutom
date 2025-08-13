@@ -319,34 +319,12 @@ export default function ModuleSettingsModal({
                   <div className="col-span-3">
                     <h4 className="font-semibold text-gray-700 text-sm text-left flex items-center gap-2">
                       {t('modals.moduleSettings.hoursRange', 'Hours Range')}
-                      <label className="flex items-center gap-2 ml-2 text-xs group cursor-pointer">
-                        <div className="relative">
-                          <input
-                            type="checkbox"
-                            checked={advancedEnabled}
-                            onChange={()=>{
-                              const next = !advancedEnabled; setAdvancedEnabled(next);
-                              if (next) setPerProductRates({ presentation: customRate, onePager: customRate, quiz: customRate, videoLesson: customRate });
-                            }}
-                            className="sr-only"
-                          />
-                          <div className={`w-4 h-4 rounded border-2 transition-all duration-200 flex items-center justify-center ${
-                            advancedEnabled
-                              ? 'bg-blue-500 border-blue-500 shadow-sm'
-                              : 'bg-white border-gray-300 group-hover:border-blue-400'
-                          }`}>
-                            {advancedEnabled && (
-                              <svg className="w-3 h-3 text-white animate-in fade-in zoom-in duration-200" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </div>
-                        </div>
-                        <span className={`transition-colors duration-200 select-none ${
-                          advancedEnabled ? 'text-blue-600 font-medium' : 'text-gray-600 group-hover:text-blue-600'
-                        }`}>
-                          {t('modals.advanced', 'Advanced')}
-                        </span>
+                      <label className="flex items-center gap-2 ml-2 text-xs">
+                        <input type="checkbox" checked={advancedEnabled} onChange={()=>{
+                          const next = !advancedEnabled; setAdvancedEnabled(next);
+                          if (next) setPerProductRates({ presentation: customRate, onePager: customRate, quiz: customRate, videoLesson: customRate });
+                        }} />
+                        {t('modals.advanced', 'Advanced')}
                       </label>
                     </h4>
                   </div>
@@ -430,64 +408,23 @@ export default function ModuleSettingsModal({
                               </div>
                             )}
                             {advancedEnabled && (
-                              <div className="space-y-4 animate-in slide-in-from-top-2 fade-in duration-300">
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                                  <div className="flex items-center gap-2 text-xs text-blue-700">
-                                    <Settings size={12} />
-                                    <span className="font-medium">Per-content rates</span>
-                                  </div>
-                                </div>
+                              <div className="space-y-4">
                                 {[
-                                  { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-blue-600" />, color: 'blue' },
-                                  { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-purple-600" />, color: 'purple' },
-                                  { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-green-600" />, color: 'green' },
-                                  { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-orange-600" />, color: 'orange' },
-                                ].map((cfg, index)=> {
-                                  const colorClasses = {
-                                    blue: { bg: 'bg-blue-50', border: 'border-blue-200', slider: '#3b82f6' },
-                                    purple: { bg: 'bg-purple-50', border: 'border-purple-200', slider: '#8b5cf6' },
-                                    green: { bg: 'bg-green-50', border: 'border-green-200', slider: '#10b981' },
-                                    orange: { bg: 'bg-orange-50', border: 'border-orange-200', slider: '#f59e0b' }
-                                  };
-                                  const colors = colorClasses[cfg.color as keyof typeof colorClasses];
-
-                                  return (
-                                    <div
-                                      key={cfg.key}
-                                      className={`p-3 rounded-lg border transition-all duration-200 hover:shadow-sm ${colors.bg} ${colors.border}`}
-                                      style={{ animationDelay: `${index * 50}ms` }}
-                                    >
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs text-gray-700 flex items-center gap-2 font-medium">
-                                          <div className="p-1 bg-white rounded">
-                                            {cfg.icon}
-                                          </div>
-                                          {cfg.label}
-                                        </span>
-                                        <span className="text-sm font-bold text-gray-900 bg-white px-2 py-1 rounded shadow-sm">
-                                          {cfg.value}{t('modals.folderSettings.hours', 'h')}
-                                        </span>
-                                      </div>
-                                      <div className="relative group">
-                                        <input
-                                          type="range"
-                                          min={tier.hoursRange.min}
-                                          max={tier.hoursRange.max}
-                                          value={cfg.value}
-                                          onChange={(e)=>cfg.setter(parseInt(e.target.value))}
-                                          className="w-full h-3 bg-white/50 rounded-lg appearance-none cursor-pointer transition-all duration-200 hover:h-4 custom-slider"
-                                          style={{
-                                            background: `linear-gradient(to right, ${colors.slider} 0%, ${colors.slider} ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, rgba(255,255,255,0.5) ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, rgba(255,255,255,0.5) 100%)`
-                                          }}
-                                        />
-                                        <div className="flex justify-between text-xs text-gray-500 mt-1 px-1">
-                                          <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
-                                          <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
-                                        </div>
-                                      </div>
+                                  { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-gray-600" /> },
+                                  { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-gray-600" /> },
+                                  { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-gray-600" /> },
+                                  { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-gray-600" /> },
+                                ].map((cfg)=> (
+                                  <div key={cfg.key}>
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-xs text-gray-700 flex items-center gap-1">
+                                        {cfg.icon}
+                                        {cfg.label}: <span className="font-semibold">{cfg.value}{t('modals.folderSettings.hours', 'h')}</span>
+                                      </span>
                                     </div>
-                                  );
-                                })}
+                                    <input type="range" min={tier.hoursRange.min} max={tier.hoursRange.max} value={cfg.value} onChange={(e)=>cfg.setter(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" />
+                                  </div>
+                                ))}
                               </div>
                             )}
                             
@@ -570,74 +507,13 @@ export default function ModuleSettingsModal({
           border: 2px solid white;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .custom-slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 18px;
-          width: 18px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          border: 3px solid currentColor;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-          transition: all 0.2s ease;
-        }
-        .custom-slider::-webkit-slider-thumb:hover {
-          height: 22px;
-          width: 22px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        }
-        .custom-slider::-moz-range-thumb {
-          height: 18px;
-          width: 18px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          border: 3px solid currentColor;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-          transition: all 0.2s ease;
-        }
-        .custom-slider::-moz-range-thumb:hover {
-          height: 22px;
-          width: 22px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        }
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes zoom-in {
-          from { transform: scale(0); }
-          to { transform: scale(1); }
-        }
-        @keyframes slide-in-from-top-2 {
-          from { transform: translateY(-8px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        .animate-in {
-          animation-fill-mode: both;
-        }
-        .fade-in {
-          animation-name: fade-in;
-        }
-        .zoom-in {
-          animation-name: zoom-in;
-        }
-        .slide-in-from-top-2 {
-          animation-name: slide-in-from-top-2;
-        }
-        .duration-200 {
-          animation-duration: 200ms;
-        }
-        .duration-300 {
-          animation-duration: 300ms;
-        }
       `}</style>
     </div>
   );
-}
+} 
