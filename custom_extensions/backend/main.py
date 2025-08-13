@@ -17561,17 +17561,61 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             logger.info("Using AI parser path for text presentation finalization")
             content_to_parse = payload.aiResponse
         
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=content_to_parse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
-                detectedLanguage=payload.language
-            ),
-            dynamic_instructions=f"""
+        # NEW: Handle clean content (titles only) differently
+        if getattr(payload, 'isCleanContent', False):
+            logger.info("Processing clean content (titles only) - will generate complete content for each title")
+            # For clean content, we need to generate complete content for each title
+            dynamic_instructions = f"""
+            You are an expert content generation assistant for 'Text Presentation' content.
+            The AI response contains ONLY section titles without content. You need to generate complete content for each title.
+
+            **Overall Goal:** Generate comprehensive content for each section title to create a complete text presentation.
+
+            **Global Fields:**
+            1.  `textTitle` (string): Main title for the document. Use the first meaningful title or create one based on the content.
+            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the presentation.
+            3.  `detectedLanguage` (string): e.g., "en", "ru".
+
+            **Content Generation Instructions:**
+            For each section title in the input, generate appropriate content including:
+            1. **Headlines** (`type: "headline"`): Use the provided titles as level 2 headlines with `iconName: "info"`
+            2. **Paragraphs** (`type: "paragraph"`): Generate 2-3 paragraphs of relevant content for each section
+            3. **Bullet Lists** (`type: "bullet_list"`): Add bullet points where appropriate
+            4. **Numbered Lists** (`type: "numbered_list"`): Add numbered steps or procedures where relevant
+            5. **Alerts** (`type: "alert"`): Add important notes or warnings where needed
+
+            **Content Block Types:**
+            1.  **`type: "headline"`**
+                * `level` (integer): Use 2 for section headers
+                * `text` (string): The section title
+                * `iconName` (string): Use "info" for section headers
+
+            2.  **`type: "paragraph"`**
+                * `text` (string): Full paragraph text explaining the section content
+
+            3.  **`type: "bullet_list"`**
+                * `items` (array of strings): Key points or features
+                * `iconName` (string): Use "chevronRight"
+
+            4.  **`type: "numbered_list"`**
+                * `items` (array of strings): Steps, procedures, or ordered points
+
+            5.  **`type: "alert"`**
+                * `alertType` (string): "info", "success", "warning", or "danger"
+                * `title` (string): Alert title
+                * `text` (string): Alert content
+
+            **Generation Rules:**
+            - Generate comprehensive, educational content for each section
+            - Make content relevant to the section title
+            - Use appropriate content types (paragraphs, lists, alerts) based on the topic
+            - Maintain consistent language: {payload.language}
+            - Create engaging, informative content that would be useful for learners
+            - Ensure logical flow between sections
+            """
+        else:
+            # Regular content parsing instructions
+            dynamic_instructions = f"""
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
@@ -17648,9 +17692,19 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
               • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
               • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
               • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
-
-            Return ONLY the JSON object.
-            """,
+            """
+        
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
+            ai_response=content_to_parse,
+            project_name=project_name,  # Use consistent project name
+            target_model=TextPresentationDetails,
+            default_error_model_instance=TextPresentationDetails(
+                textTitle=project_name,
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            ),
+            dynamic_instructions=dynamic_instructions,
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
         

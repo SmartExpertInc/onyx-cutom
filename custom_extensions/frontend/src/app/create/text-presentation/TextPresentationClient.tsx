@@ -193,10 +193,10 @@ export default function TextPresentationClient() {
         .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
       
-      if (title) {
+      if (title && cleanedContent) {
         lessons.push({
           title: title,
-          content: cleanedContent || ""
+          content: cleanedContent
         });
       }
     }
@@ -251,14 +251,20 @@ export default function TextPresentationClient() {
     
     // Add to edited titles list if title is different from original
     const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
+    console.log(`Title edit - Index: ${lessonIndex}, Original: "${originalTitle}", New: "${newTitle}", Different: ${newTitle !== originalTitle}`);
     if (newTitle !== originalTitle) {
-      setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
+      setEditedTitleIds(prev => {
+        const newSet = new Set([...prev, lessonIndex]);
+        console.log(`Added to edited list: ${lessonIndex}, Current list:`, Array.from(newSet));
+        return newSet;
+      });
       setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
       setHasUserEdits(true); // NEW: Mark that user has made edits
     } else {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(lessonIndex);
+        console.log(`Removed from edited list: ${lessonIndex}, Current list:`, Array.from(newSet));
         return newSet;
       });
     }
@@ -328,16 +334,8 @@ export default function TextPresentationClient() {
       return newTitles;
     });
     
-    // Keep the title in editedTitleIds for regeneration purposes
-    // Only remove if the title is back to original
-    const originalTitle = originalTitles[lessonIndex] || oldTitle;
-    if (newTitle === originalTitle) {
-      setEditedTitleIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(lessonIndex);
-        return newSet;
-      });
-    }
+    // Keep in editedTitleIds for finalization - don't remove since we need to track edited titles
+    // This ensures that when finalizing, we know which titles were edited
     
     // NEW: Mark that content has been updated
     if (updatedContent !== content) {
@@ -389,16 +387,13 @@ export default function TextPresentationClient() {
         // For edited titles, send only the title without context
         // This allows AI to focus on the title change and regenerate appropriate content
         cleanContent += `## ${lesson.title}\n\n`;
-        console.log(`Clean content: Adding edited title "${lesson.title}" without content`);
       } else {
         // For unedited titles, send with full context
         // This preserves the original content structure and context
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
-        console.log(`Clean content: Adding unedited title "${lesson.title}" with ${lesson.content.length} chars of content`);
       }
     });
     
-    console.log("Final clean content:", cleanContent);
     return cleanContent.trim();
   };
 
@@ -482,30 +477,20 @@ export default function TextPresentationClient() {
       // NEW: Prepare content based on whether user made edits
       let contentToSend = content;
       let isCleanContent = false;
-      let enhancedEditPrompt = editPrompt;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
         // User edited lesson titles - send clean content for regeneration
         contentToSend = createCleanContentForRegeneration(content);
         isCleanContent = true;
         console.log("Sending clean content for edit:", contentToSend);
-        console.log("Edited title indices:", Array.from(editedTitleIds));
-        
-        // Debug the original content structure
-        const originalLessons = parseContentIntoLessons(content);
-        console.log("Original lessons before sending:", originalLessons.map((l, i) => `${i}: "${l.title}" (${l.content.length} chars) - edited: ${editedTitleIds.has(i)}`));
-        
-        // Enhance the edit prompt to be more explicit about regenerating content for edited titles
-        enhancedEditPrompt = `${editPrompt}\n\nIMPORTANT: The content contains some section titles without their content. For these titles (marked with ##), please generate appropriate content that matches the title and fits the overall presentation structure.`;
       }
 
       const payload: any = {
         content: contentToSend,
-        editPrompt: enhancedEditPrompt,
+        editPrompt,
         // NEW: Indicate if content is clean (titles only)
         isCleanContent: isCleanContent,
       };
-      console.log("Sending edit payload:", { contentLength: contentToSend.length, isCleanContent, editPrompt: enhancedEditPrompt });
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -570,22 +555,8 @@ export default function TextPresentationClient() {
         }
       }
 
-      console.log("Edit completed. Final content length:", accumulatedText.length);
-      console.log("Final content preview:", accumulatedText.substring(0, 200) + "...");
-      
-      // NEW: Debug the lesson list after regeneration
-      const updatedLessons = parseContentIntoLessons(accumulatedText);
-      console.log("Updated lessons after regeneration:", updatedLessons.map((l, i) => `${i}: "${l.title}" (${l.content.length} chars)`));
-
       // NEW: Mark that user has made edits after AI editing
       setHasUserEdits(true);
-
-      // NEW: Reset edited titles tracking after AI regeneration
-      // This ensures that the newly generated content is treated as the new baseline
-      setEditedTitleIds(new Set());
-      setOriginallyEditedTitles(new Set());
-      setEditedTitles({});
-      setOriginalTitles({});
 
       setEditPrompt("");
       setSelectedExamples([]);
@@ -835,10 +806,19 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
       
-      if (hasUserEdits && originallyEditedTitles.size > 0) {
+      console.log("Finalization debug:", {
+        hasUserEdits,
+        editedTitleIdsSize: editedTitleIds.size,
+        editedTitleIds: Array.from(editedTitleIds),
+        originallyEditedTitlesSize: originallyEditedTitles.size,
+        originallyEditedTitles: Array.from(originallyEditedTitles)
+      });
+      
+      if (hasUserEdits && editedTitleIds.size > 0) {
         // If titles were changed, send only titles without context
         contentToSend = createCleanContentForRegeneration(content);
         isCleanContent = true;
+        console.log("Sending clean content for finalization:", contentToSend);
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;
