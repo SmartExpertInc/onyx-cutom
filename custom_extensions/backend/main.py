@@ -17389,8 +17389,8 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         "language": "en",  # Default to English for edits
         "originalContent": payload.content,
         "editMode": True,
-        # NEW: smart change handling (ignored for text presentation)
-        "isCleanContent": False  # Always false for text presentation
+        # NEW: smart change handling
+        "isCleanContent": payload.isCleanContent
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
@@ -17531,7 +17531,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] hasUserEdits: {payload.hasUserEdits}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent} (ignored for text presentation)")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         
         # NEW: Smart change handling logic
         use_direct_parser = False
@@ -17623,7 +17623,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
             
             **CRITICAL: Smart Change Handling**
-            {"Parse the full content as provided, maintaining all existing structure and details. For text presentations, always preserve the original content structure even when titles have been updated."}
+            {f"If the content contains only section titles without full content (clean content mode), generate comprehensive content for each section while maintaining the original structure and titles. Focus on creating relevant content that matches the updated section titles." if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
 
             **Global Fields:**
             1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
