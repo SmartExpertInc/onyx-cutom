@@ -355,15 +355,14 @@ export default function TextPresentationClient() {
     let cleanContent = "";
     
     lessons.forEach((lesson, index) => {
-      // Get the current title (edited or original)
-      const currentTitle = editedTitles[index] || lesson.title;
-      
+      // For originally edited titles, send only the title without context
+      // For unedited titles, send with full context
       if (originallyEditedTitles.has(index)) {
         // For originally edited titles, send only the title without context
-        cleanContent += `## ${currentTitle}\n\n`;
+        cleanContent += `## ${lesson.title}\n\n`;
       } else {
         // For unedited titles, send with full context
-        cleanContent += `## ${currentTitle}\n\n${lesson.content}\n\n`;
+        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
       }
     });
     return cleanContent.trim();
