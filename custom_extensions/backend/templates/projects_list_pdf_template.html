@@ -392,7 +392,11 @@
                                 </td>
                                 <td class="quality-tier-cell">
                                     <div class="quality-tier-container">
-                                        <span class="dash">-</span>
+                                        {% if folder.quality_tier %}
+                                            <span class="tier-badge tier-{{ folder.quality_tier }}">{{ folder.quality_tier }}</span>
+                                        {% else %}
+                                            <span class="dash">-</span>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 {% if column_visibility.numberOfLessons %}
