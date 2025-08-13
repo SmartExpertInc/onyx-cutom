@@ -167,41 +167,59 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const handleMouseLeave = useCallback(() => {
     // Ховаємо anchors тільки якщо НЕ відбуваються активні операції
     // і додаємо невелику затримку щоб уникнути блимання
-    if (!isDragging && !isResizing && !isRotating) {
+    if (!isDraggingRef.current && !isResizing && !isRotating) {
       hideTimeoutRef.current = setTimeout(() => {
         setMoveTarget(null);
         log('ClickableImagePlaceholder', 'hideMoveable', {
           elementId,
-          isDragging,
+          isDragging: isDraggingRef.current,
           isResizing,
           isRotating
         });
       }, 150); // 150ms затримка
     }
-  }, [isDragging, isResizing, isRotating, elementId]);
+  }, [isResizing, isRotating, elementId]);
 
-  // Очищення таймера при unmount
+  // Очищення таймерів при unmount
   useEffect(() => {
     return () => {
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
       }
+      if (dragStartTimeoutRef.current) {
+        clearTimeout(dragStartTimeoutRef.current);
+      }
     };
   }, []);
 
   // ✅ ВИПРАВЛЕННЯ: Callbacks для відстеження стану операцій з очищенням таймера
+  const dragStartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isDraggingRef = useRef(false);
+
   const handleDragStart = useCallback(() => {
     // Очищаємо таймер приховування при початку операції
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
     }
-    setIsDragging(true);
-    log('ClickableImagePlaceholder', 'dragStart', { elementId });
+    
+    // Add a small delay to distinguish between click and drag
+    dragStartTimeoutRef.current = setTimeout(() => {
+      setIsDragging(true);
+      isDraggingRef.current = true;
+      log('ClickableImagePlaceholder', 'dragStart', { elementId });
+    }, 150); // 150ms delay to allow click to be processed first
   }, [elementId]);
 
   const handleDragEnd = useCallback((e: any) => {
+    // Clear the drag start timeout if it exists
+    if (dragStartTimeoutRef.current) {
+      clearTimeout(dragStartTimeoutRef.current);
+      dragStartTimeoutRef.current = null;
+    }
+    
     setIsDragging(false);
+    isDraggingRef.current = false;
     log('ClickableImagePlaceholder', 'dragEnd', { elementId });
     
     // Final position update after drag ends
@@ -275,6 +293,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [elementId]);
 
   const handleClick = () => {
+    // Clear any pending drag start timeout to prevent drag from starting
+    if (dragStartTimeoutRef.current) {
+      clearTimeout(dragStartTimeoutRef.current);
+      dragStartTimeoutRef.current = null;
+    }
+    
     if (!isEditable || isDragging || isResizing || isRotating) return;
     if (displayedImage) {
       // If image exists, show upload modal for replacement
@@ -474,7 +498,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             className={`
               ${positionClasses[position]} 
               relative overflow-hidden rounded-lg
-              ${isEditable && !isDragging && !isResizing && !isRotating ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
+              ${isEditable && !isDraggingRef.current && !isResizing && !isRotating ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
               ${className}
             `}
             style={{
@@ -493,7 +517,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             />
             
             {/* Replace overlay on hover - disabled during drag/resize */}
-            {isEditable && !isDragging && !isResizing && !isRotating && (
+            {isEditable && !isDraggingRef.current && !isResizing && !isRotating && (
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="text-white text-center">
                   <Replace className="w-6 h-6 mx-auto mb-2" />
@@ -552,7 +576,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               rounded-lg flex items-center justify-center 
               text-gray-500 text-sm
               ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-              ${isEditable && !isDragging && !isResizing && !isRotating ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
+              ${isEditable && !isDraggingRef.current && !isResizing && !isRotating ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
               ${className}
             `}
           style={{
@@ -560,7 +584,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           }}
           onClick={handleClick}
         >
-          <div className="text-center p-4" style={{ cursor: (isEditable && !isDragging && !isResizing && !isRotating) ? 'pointer' : 'default' }}>
+          <div className="text-center p-4" style={{ cursor: (isEditable && !isDraggingRef.current && !isResizing && !isRotating) ? 'pointer' : 'default' }}>
             <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <div className="font-medium">{size} Image</div>
             <div className="text-xs mt-1 opacity-75">{description}</div>
