@@ -187,6 +187,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       transform: initialTransform
     }));
 
+    // Apply the transform directly to the image element
+    if (img) {
+      img.style.transform = initialTransform;
+    }
+
     log('ClickableImagePlaceholder', 'editImageAutoFit', {
       elementId,
       naturalWidth,
@@ -194,7 +199,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       containerRect: { width: containerRect.width, height: containerRect.height },
       initialScale,
       centerX,
-      centerY
+      centerY,
+      initialTransform
     });
   }, [elementId, containerRef]);
 
@@ -220,6 +226,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         
         const newTransform = `translate(${newX}px, ${newY}px) scale(${newScale})`;
         
+        // Apply transform directly to image
+        if (editImageRef.current) {
+          editImageRef.current.style.transform = newTransform;
+        }
+        
+        log('ClickableImagePlaceholder', 'buttonZoom', {
+          elementId,
+          delta,
+          newScale,
+          newTransform
+        });
+        
         return {
           ...prev,
           scale: newScale,
@@ -229,7 +247,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       
       return prev;
     });
-  }, [containerRef]);
+  }, [containerRef, elementId]);
 
   // Cancel editing mode
   const cancelEdit = useCallback(() => {
@@ -277,10 +295,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Generate and finalize cropped image
   const confirmEdit = useCallback(async () => {
     if (!editState.imageFile || !editState.imageDimensions || !containerRef.current) {
-      console.error('Missing required data for confirmation:', {
+      log('ClickableImagePlaceholder', 'confirmEdit_missingRequirements', {
+        elementId,
         hasImageFile: !!editState.imageFile,
         hasImageDimensions: !!editState.imageDimensions,
-        hasContainerRef: !!containerRef.current
+        hasContainer: !!containerRef.current
       });
       return;
     }
@@ -300,109 +319,123 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       canvas.width = containerRect.width;
       canvas.height = containerRect.height;
       
+      log('ClickableImagePlaceholder', 'confirmEdit_setup', {
+        elementId,
+        canvasSize: { width: canvas.width, height: canvas.height },
+        containerRect: { width: containerRect.width, height: containerRect.height },
+        transform: editState.transform
+      });
+      
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Parse transform - handle both translate(x, y) scale(z) and matrix formats
-      let x = 0, y = 0, currentScale = 1;
+      // Parse transform
+      const transformMatch = editState.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
+      if (!transformMatch) throw new Error('Invalid transform');
       
-      if (editState.transform.includes('translate')) {
-        const transformMatch = editState.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
-        if (transformMatch) {
-          const [, translate, scaleStr] = transformMatch;
-          [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-          currentScale = parseFloat(scaleStr);
-        }
-      } else if (editState.transform.includes('matrix')) {
-        // Handle matrix transform format
-        const matrixMatch = editState.transform.match(/matrix\(([^)]+)\)/);
-        if (matrixMatch) {
-          const values = matrixMatch[1].split(',').map(v => parseFloat(v.trim()));
-          currentScale = values[0]; // scaleX
-          x = values[4]; // translateX
-          y = values[5]; // translateY
-        }
-      }
+      const [, translate, scaleStr] = transformMatch;
+      const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
+      const currentScale = parseFloat(scaleStr);
       
-      // Load image for drawing
+      // Create image for drawing
       const img = new Image();
       img.crossOrigin = 'anonymous';
       
       img.onload = async () => {
-        try {
-          const { width: imgWidth, height: imgHeight } = editState.imageDimensions!;
-          const scaledWidth = imgWidth * currentScale;
-          const scaledHeight = imgHeight * currentScale;
-          
-          // Calculate what's visible in the placeholder
-          const visibleLeft = Math.max(0, -x);
-          const visibleTop = Math.max(0, -y);
-          const visibleRight = Math.min(scaledWidth, containerRect.width - x);
-          const visibleBottom = Math.min(scaledHeight, containerRect.height - y);
-          
-          const visibleWidth = visibleRight - visibleLeft;
-          const visibleHeight = visibleBottom - visibleTop;
-          
-          if (visibleWidth > 0 && visibleHeight > 0) {
-            // Map back to original image coordinates
-            const sourceX = visibleLeft / currentScale;
-            const sourceY = visibleTop / currentScale;
-            const sourceWidth = visibleWidth / currentScale;
-            const sourceHeight = visibleHeight / currentScale;
-            
-            // Draw to canvas
-            const destX = Math.max(0, x) + visibleLeft;
-            const destY = Math.max(0, y) + visibleTop;
-            
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            
-            ctx.drawImage(
-              img,
-              sourceX, sourceY, sourceWidth, sourceHeight,
-              destX, destY, visibleWidth, visibleHeight
-            );
+        log('ClickableImagePlaceholder', 'confirmEdit_imageLoaded', {
+          elementId,
+          imageSize: { width: img.width, height: img.height },
+          transform: { x, y, scale: currentScale }
+        });
+        
+        // Use high-quality settings
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // Fill background with transparent
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Calculate the area of the image that's visible in the crop frame
+        const { width: imgWidth, height: imgHeight } = editState.imageDimensions!;
+        const scaledWidth = imgWidth * currentScale;
+        const scaledHeight = imgHeight * currentScale;
+        
+        // For simplicity, let's just draw the entire scaled image at the current position
+        // and let the placeholder boundaries act as the natural crop
+        ctx.drawImage(
+          img,
+          x, y, scaledWidth, scaledHeight
+        );
+        
+        log('ClickableImagePlaceholder', 'confirmEdit_imageDrawn', {
+          elementId,
+          drawParams: { x, y, width: scaledWidth, height: scaledHeight }
+        });
+        
+        // Convert to blob and upload
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            log('ClickableImagePlaceholder', 'confirmEdit_noBlobCreated', { elementId });
+            setIsProcessing(false);
+            return;
           }
           
-          // Convert to blob and upload
-          canvas.toBlob(async (blob) => {
-            if (!blob) {
-              throw new Error('Failed to create blob from canvas');
-            }
-            
+          log('ClickableImagePlaceholder', 'confirmEdit_blobCreated', {
+            elementId,
+            blobSize: blob.size
+          });
+          
+          try {
             const croppedFile = new File([blob], 'cropped-image.png', { type: 'image/png' });
             
             // Upload the cropped file
             const { uploadPresentationImage } = await import('../lib/designTemplateApi');
             const result = await uploadPresentationImage(croppedFile);
             
+            log('ClickableImagePlaceholder', 'confirmEdit_uploadResult', {
+              elementId,
+              success: !!result.file_path,
+              filePath: result.file_path
+            });
+            
             if (result.file_path) {
               await finalizeImageUpload(result.file_path);
               cancelEdit();
             } else {
-              throw new Error('Upload failed - no file path returned');
+              throw new Error('No file path returned from upload');
             }
             
+          } catch (uploadError) {
+            log('ClickableImagePlaceholder', 'confirmEdit_uploadError', {
+              elementId,
+              error: uploadError
+            });
+            console.error('Upload error:', uploadError);
+          } finally {
             setIsProcessing(false);
-          }, 'image/png', 1.0);
-          
-        } catch (error) {
-          console.error('Error in image processing:', error);
-          setIsProcessing(false);
-        }
+          }
+        }, 'image/png');
       };
       
       img.onerror = (error) => {
-        console.error('Error loading image for processing:', error);
+        log('ClickableImagePlaceholder', 'confirmEdit_imageLoadError', {
+          elementId,
+          error
+        });
+        console.error('Image load error:', error);
         setIsProcessing(false);
       };
       
       img.src = editState.imageUrl;
       
     } catch (error) {
-      console.error('Error in confirmEdit:', error);
+      log('ClickableImagePlaceholder', 'confirmEdit_error', {
+        elementId,
+        error
+      });
+      console.error('Error processing cropped image:', error);
       setIsProcessing(false);
     }
-  }, [editState, containerRef, finalizeImageUpload, cancelEdit]);
+  }, [editState, containerRef, elementId, finalizeImageUpload, cancelEdit]);
 
   // If we're in editing mode, render the overlay
   if (editState.isEditing) {
@@ -449,16 +482,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   transformOrigin: '0 0',
                   userSelect: 'none',
                   maxWidth: 'none',
-                  maxHeight: 'none',
-                  pointerEvents: 'auto',
-                  cursor: 'move'
+                  maxHeight: 'none'
                 }}
                 onLoad={handleEditImageLoad}
                 draggable={false}
               />
               
               {/* React-moveable for smooth interaction */}
-              {editState.imageDimensions && (
+              {editState.imageDimensions && editImageRef.current && (
                 <Moveable
                   target={editImageRef.current}
                   draggable={true}
@@ -466,29 +497,28 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   keepRatio={false}
                   throttleDrag={0}
                   throttleScale={0}
-                  onDrag={({ transform }) => {
-                    log('Moveable', 'onDrag', { transform });
+                  onDrag={({ target, transform }) => {
+                    target.style.transform = transform;
                     setEditState(prev => ({ ...prev, transform }));
+                    log('ClickableImagePlaceholder', 'moveable_onDrag', {
+                      elementId,
+                      transform
+                    });
                   }}
-                  onScale={({ transform, scale }) => {
-                    log('Moveable', 'onScale', { transform, scale });
+                  onScale={({ target, transform, scale }) => {
+                    target.style.transform = transform;
                     setEditState(prev => ({ 
                       ...prev, 
                       transform,
                       scale: scale[0]
                     }));
-                  }}
-                  onDragStart={({ target }) => {
-                    log('Moveable', 'onDragStart', { target });
-                  }}
-                  onScaleStart={({ target }) => {
-                    log('Moveable', 'onScaleStart', { target });
+                    log('ClickableImagePlaceholder', 'moveable_onScale', {
+                      elementId,
+                      transform,
+                      scale: scale[0]
+                    });
                   }}
                   renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-                  snappable={false}
-                  isDisplaySnapDigit={false}
-                  snapDist={0}
-                  snapThreshold={0}
                 />
               )}
             </>
@@ -532,10 +562,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               onChange={(e) => {
                 const newScale = parseFloat(e.target.value);
                 const transformMatch = editState.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
-                if (transformMatch) {
+                if (transformMatch && editImageRef.current) {
                   const [, translate] = transformMatch;
                   const newTransform = `translate(${translate}) scale(${newScale})`;
                   setEditState(prev => ({ ...prev, scale: newScale, transform: newTransform }));
+                  // Apply transform directly to image
+                  editImageRef.current.style.transform = newTransform;
+                  
+                  log('ClickableImagePlaceholder', 'sliderZoom', {
+                    elementId,
+                    newScale,
+                    newTransform
+                  });
                 }
               }}
               className="w-32"
@@ -565,10 +603,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           </button>
           
           <button
-            onClick={() => {
-              console.log('Confirm button clicked, editState:', editState);
-              confirmEdit();
-            }}
+            onClick={confirmEdit}
             disabled={isProcessing}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
@@ -596,11 +631,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   if (displayedImage) {
     return (
       <>
-        <div
+        <div 
           ref={containerRef}
           data-moveable-element={elementId}
           className={`
-            ${positionClasses[position]}
+            ${positionClasses[position]} 
             relative overflow-hidden rounded-lg
             ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
             ${className}
@@ -610,7 +645,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           }}
           onClick={handleClick}
         >
-          <img
+          <img 
             ref={imgRef}
             src={displayedImage}
             alt="Uploaded content"
@@ -666,7 +701,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Placeholder when no image
   return (
     <>
-      <div
+      <div 
         ref={containerRef}
         data-moveable-element={elementId}
         className={`
@@ -733,4 +768,4 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   );
 };
 
-export default ClickableImagePlaceholder;
+export default ClickableImagePlaceholder; 
