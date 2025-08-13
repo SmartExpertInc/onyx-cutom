@@ -141,6 +141,7 @@ export default function TextPresentationClient() {
   // Smart change handling states (similar to QuizClient)
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalContent, setOriginalContent] = useState<string>("");
+  const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -252,6 +253,7 @@ export default function TextPresentationClient() {
     const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
     if (newTitle !== originalTitle) {
       setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
+      setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
       setHasUserEdits(true); // NEW: Mark that user has made edits
     } else {
       setEditedTitleIds(prev => {
@@ -326,6 +328,14 @@ export default function TextPresentationClient() {
       return newTitles;
     });
     
+    // Remove from editedTitleIds since the title is now part of the main content
+    // But keep it in originallyEditedTitles to track that it was edited
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(lessonIndex);
+      return newSet;
+    });
+    
     // NEW: Mark that content has been updated
     if (updatedContent !== content) {
       setHasUserEdits(true);
@@ -345,15 +355,17 @@ export default function TextPresentationClient() {
     let cleanContent = "";
     
     lessons.forEach((lesson, index) => {
-      if (editedTitleIds.has(index)) {
-        // For edited titles, send only the title without context
-        cleanContent += `## ${lesson.title}\n\n`;
+      // Get the current title (edited or original)
+      const currentTitle = editedTitles[index] || lesson.title;
+      
+      if (originallyEditedTitles.has(index)) {
+        // For originally edited titles, send only the title without context
+        cleanContent += `## ${currentTitle}\n\n`;
       } else {
         // For unedited titles, send with full context
-        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+        cleanContent += `## ${currentTitle}\n\n${lesson.content}\n\n`;
       }
     });
-    
     return cleanContent.trim();
   };
 
@@ -750,7 +762,7 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
       
-      if (hasUserEdits && editedTitleIds.size > 0) {
+      if (hasUserEdits && originallyEditedTitles.size > 0) {
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
