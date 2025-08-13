@@ -423,7 +423,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
   }, [isOpen, handleCancel]);
 
   // Calculate optimal modal position with scroll-aware positioning
-  const getModalPosition = useCallback(() => {
+  const getModalPosition = useCallback((): React.CSSProperties => {
     if (typeof window === 'undefined') return { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
 
     const viewportHeight = window.innerHeight;
@@ -431,7 +431,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
     
     // Use fixed positioning relative to viewport, not document
     return {
-      position: 'fixed' as const,
+      position: 'fixed',
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)'
