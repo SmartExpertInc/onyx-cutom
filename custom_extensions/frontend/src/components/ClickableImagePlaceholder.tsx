@@ -107,6 +107,26 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [imagePath]);
 
+  // Ensure image dimensions are set when editing starts
+  useEffect(() => {
+    if (editState.isEditing && editState.imageUrl && !editState.imageDimensions && editImageRef.current) {
+      const img = editImageRef.current;
+      
+      // If image is already loaded, set dimensions immediately
+      if (img.complete && img.naturalWidth && img.naturalHeight) {
+        log('ClickableImagePlaceholder', 'useEffect_setImageDimensions', {
+          elementId,
+          naturalSize: { width: img.naturalWidth, height: img.naturalHeight }
+        });
+        
+        setEditState(prev => ({
+          ...prev,
+          imageDimensions: { width: img.naturalWidth, height: img.naturalHeight }
+        }));
+      }
+    }
+  }, [editState.isEditing, editState.imageUrl, editState.imageDimensions, elementId]);
+
   const handleClick = () => {
     if (!isEditable) return;
     if (displayedImage) {
@@ -162,13 +182,21 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // Handle image load in edit mode
   const handleEditImageLoad = useCallback(() => {
+    log('ClickableImagePlaceholder', 'handleEditImageLoad_start', {
+      elementId,
+      hasImg: !!editImageRef.current,
+      hasContainer: !!containerRef.current,
+      imageUrl: editState.imageUrl
+    });
+
     const img = editImageRef.current;
-    if (!img || !containerRef.current) {
-      log('ClickableImagePlaceholder', 'handleEditImageLoad_missingRefs', {
-        elementId,
-        hasImg: !!img,
-        hasContainer: !!containerRef.current
-      });
+    if (!img) {
+      log('ClickableImagePlaceholder', 'handleEditImageLoad_missingImgRef', { elementId });
+      return;
+    }
+
+    if (!containerRef.current) {
+      log('ClickableImagePlaceholder', 'handleEditImageLoad_missingContainerRef', { elementId });
       return;
     }
 
@@ -181,6 +209,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       containerSize: { width: containerRect.width, height: containerRect.height }
     });
     
+    // Set image dimensions immediately
     setEditState(prev => ({
       ...prev,
       imageDimensions: { width: naturalWidth, height: naturalHeight }
@@ -206,18 +235,23 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       initialTransform
     });
 
-    // Apply initial transform
-    if (editImageRef.current) {
-      editImageRef.current.style.transform = initialTransform;
-    }
+    // Apply initial transform to the image element
+    img.style.transform = initialTransform;
     
+    // Update state with initial transform
     setEditState(prev => ({
       ...prev,
       scale: initialScale,
       transform: initialTransform,
       imageDimensions: { width: naturalWidth, height: naturalHeight }
     }));
-  }, [elementId, containerRef]);
+
+    log('ClickableImagePlaceholder', 'handleEditImageLoad_complete', {
+      elementId,
+      finalTransform: initialTransform,
+      finalScale: initialScale
+    });
+  }, [elementId, containerRef, editState.imageUrl]);
 
   // Handle zoom in edit mode
   const handleZoom = useCallback((delta: number) => {
@@ -333,14 +367,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       hasImageDimensions: !!editState.imageDimensions,
       hasContainer: !!containerRef.current,
       isProcessing,
-      transform: editState.transform
+      transform: editState.transform,
+      imageDimensions: editState.imageDimensions
     });
 
-    if (!editState.imageFile || !editState.imageDimensions || !containerRef.current) {
+    if (!editState.imageFile || !containerRef.current) {
       log('ClickableImagePlaceholder', 'confirmEdit_missingRequirements', {
         elementId,
         hasImageFile: !!editState.imageFile,
-        hasImageDimensions: !!editState.imageDimensions,
         hasContainer: !!containerRef.current
       });
       return;
@@ -348,6 +382,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
     if (isProcessing) {
       log('ClickableImagePlaceholder', 'confirmEdit_alreadyProcessing', { elementId });
+      return;
+    }
+
+    // Try to get image dimensions if missing
+    let imageDimensions = editState.imageDimensions;
+    if (!imageDimensions && editImageRef.current) {
+      const img = editImageRef.current;
+      if (img.naturalWidth && img.naturalHeight) {
+        imageDimensions = { width: img.naturalWidth, height: img.naturalHeight };
+        log('ClickableImagePlaceholder', 'confirmEdit_fallbackDimensions', {
+          elementId,
+          fallbackDimensions: imageDimensions
+        });
+      }
+    }
+
+    if (!imageDimensions) {
+      log('ClickableImagePlaceholder', 'confirmEdit_noImageDimensions', { elementId });
       return;
     }
 
@@ -410,7 +462,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Calculate the area of the image that's visible in the crop frame
-        const { width: imgWidth, height: imgHeight } = editState.imageDimensions!;
+        const { width: imgWidth, height: imgHeight } = imageDimensions!;
         const scaledWidth = imgWidth * currentScale;
         const scaledHeight = imgHeight * currentScale;
         
@@ -504,7 +556,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       hasImageUrl: !!editState.imageUrl,
       hasImageDimensions: !!editState.imageDimensions,
       transform: editState.transform,
-      scale: editState.scale
+      scale: editState.scale,
+      hasEditImageRef: !!editImageRef.current
     });
 
     return (
@@ -527,11 +580,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
         {/* Image editing container - positioned over the actual placeholder */}
         <div
+          ref={containerRef}
           className="relative overflow-hidden"
           style={{
             ...style,
             zIndex: 99999,
-            position: 'relative'
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
           }}
         >
           {editState.imageUrl && (
@@ -549,14 +607,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   maxWidth: 'none',
                   maxHeight: 'none',
                   willChange: 'transform',
-                  touchAction: 'none'
+                  touchAction: 'none',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0
                 }}
                 onLoad={handleEditImageLoad}
                 draggable={false}
               />
               
-              {/* React-moveable for smooth interaction */}
-              {editState.imageDimensions && editImageRef.current && (
+              {/* React-moveable for smooth interaction - ALWAYS render when editing */}
+              {editImageRef.current && (
                 <Moveable
                   target={editImageRef.current}
                   draggable={true}
