@@ -67,11 +67,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [showImageEditModal, setShowImageEditModal] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
-  // ✅ ОСНОВНІ ЗМІНИ: Hover state management для Moveable anchors
+  // ✅ FIXED: Improved state management for drag/resize operations
   const [moveTarget, setMoveTarget] = useState<HTMLElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
+  
+  // ✅ NEW: Track if a drag operation has actually started (mouse moved)
+  const [hasActuallyDragged, setHasActuallyDragged] = useState(false);
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -143,17 +146,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [containerRef, savedImagePosition, savedImageSize, elementId]);
 
-  // ✅ ВИПРАВЛЕННЯ: Hover handlers з таймером та перевіркою стану операцій
+  // ✅ FIXED: Improved hover handlers with better state checking
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = useCallback(() => {
-    // Очищаємо таймер приховування
+    // Clear any pending hide timeout
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
     }
 
-    if (isEditable && containerRef.current) {
+    if (isEditable && containerRef.current && !isDragging && !isResizing && !isRotating) {
       setMoveTarget(containerRef.current);
       log('ClickableImagePlaceholder', 'showMoveable', {
         elementId,
@@ -165,79 +168,93 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [isEditable, containerRef, isDragging, isResizing, isRotating, elementId]);
 
   const handleMouseLeave = useCallback(() => {
-    // Ховаємо anchors тільки якщо НЕ відбуваються активні операції
-    // і додаємо невелику затримку щоб уникнути блимання
-    if (!isDraggingRef.current && !isResizing && !isRotating) {
+    // Hide anchors only if no active operations and add delay to avoid flickering
+    if (!isDragging && !isResizing && !isRotating) {
       hideTimeoutRef.current = setTimeout(() => {
         setMoveTarget(null);
         log('ClickableImagePlaceholder', 'hideMoveable', {
           elementId,
-          isDragging: isDraggingRef.current,
+          isDragging,
           isResizing,
           isRotating
         });
-      }, 150); // 150ms затримка
+      }, 150);
     }
-  }, [isResizing, isRotating, elementId]);
+  }, [isDragging, isResizing, isRotating, elementId]);
 
-  // Очищення таймерів при unmount
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
       }
-      if (dragStartTimeoutRef.current) {
-        clearTimeout(dragStartTimeoutRef.current);
-      }
     };
   }, []);
 
-  // ✅ ВИПРАВЛЕННЯ: Callbacks для відстеження стану операцій з очищенням таймера
-  const dragStartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isDraggingRef = useRef(false);
-
+  // ✅ FIXED: Simplified drag/resize callbacks without timeout conflicts
   const handleDragStart = useCallback(() => {
-    // Очищаємо таймер приховування при початку операції
+    // Clear hide timeout when starting drag
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
     }
     
-    // Add a small delay to distinguish between click and drag
-    dragStartTimeoutRef.current = setTimeout(() => {
-      setIsDragging(true);
-      isDraggingRef.current = true;
-      log('ClickableImagePlaceholder', 'dragStart', { elementId });
-    }, 150); // 150ms delay to allow click to be processed first
+    setIsDragging(true);
+    setHasActuallyDragged(false); // Reset the actual drag flag
+    log('ClickableImagePlaceholder', 'dragStart', { elementId });
   }, [elementId]);
 
-  const handleDragEnd = useCallback((e: any) => {
-    // Clear the drag start timeout if it exists
-    if (dragStartTimeoutRef.current) {
-      clearTimeout(dragStartTimeoutRef.current);
-      dragStartTimeoutRef.current = null;
+  const handleDrag = useCallback((e: any) => {
+    // Mark that we've actually dragged (not just started)
+    if (!hasActuallyDragged) {
+      setHasActuallyDragged(true);
     }
+
+    e.target.style.transform = e.transform;
     
-    setIsDragging(false);
-    isDraggingRef.current = false;
-    log('ClickableImagePlaceholder', 'dragEnd', { elementId });
-    
-    // Final position update after drag ends
-    const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+    // Extract position from transform
+    const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
     if (transformMatch) {
       const [, translate] = transformMatch;
       const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
       
+      // Call onSizeTransformChange with position update
       onSizeTransformChange?.({
         imagePosition: { x, y },
-        elementId: elementId,
-        final: true
+        elementId: elementId
       });
     }
-  }, [onSizeTransformChange, elementId]);
+  }, [hasActuallyDragged, onSizeTransformChange, elementId]);
+
+  const handleDragEnd = useCallback((e: any) => {
+    const actuallyDragged = hasActuallyDragged;
+    
+    setIsDragging(false);
+    setHasActuallyDragged(false);
+    
+    log('ClickableImagePlaceholder', 'dragEnd', { 
+      elementId, 
+      actuallyDragged 
+    });
+    
+    // Only update position if we actually dragged
+    if (actuallyDragged) {
+      const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+      if (transformMatch) {
+        const [, translate] = transformMatch;
+        const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
+        
+        onSizeTransformChange?.({
+          imagePosition: { x, y },
+          elementId: elementId,
+          final: true
+        });
+      }
+    }
+  }, [hasActuallyDragged, onSizeTransformChange, elementId]);
 
   const handleResizeStart = useCallback(() => {
-    // Очищаємо таймер приховування при початку операції
+    // Clear hide timeout when starting resize
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
@@ -278,7 +295,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [onSizeTransformChange, elementId]);
 
   const handleRotateStart = useCallback(() => {
-    // Очищаємо таймер приховування при початку операції
+    // Clear hide timeout when starting rotate
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
@@ -292,14 +309,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     log('ClickableImagePlaceholder', 'rotateEnd', { elementId });
   }, [elementId]);
 
-  const handleClick = () => {
-    // Clear any pending drag start timeout to prevent drag from starting
-    if (dragStartTimeoutRef.current) {
-      clearTimeout(dragStartTimeoutRef.current);
-      dragStartTimeoutRef.current = null;
+  // ✅ FIXED: Improved click handler that properly distinguishes from drag
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    // Prevent click if we're in the middle of operations or just finished dragging
+    if (isDragging || isResizing || isRotating || hasActuallyDragged) {
+      log('ClickableImagePlaceholder', 'clickBlocked', {
+        elementId,
+        isDragging,
+        isResizing,
+        isRotating,
+        hasActuallyDragged
+      });
+      return;
     }
-    
-    if (!isEditable || isDragging || isResizing || isRotating) return;
+
+    if (!isEditable) return;
+
+    log('ClickableImagePlaceholder', 'clickAllowed', { elementId });
+
     if (displayedImage) {
       // If image exists, show upload modal for replacement
       setShowUploadModal(true);
@@ -307,7 +334,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       // If no image, show upload modal
       setShowUploadModal(true);
     }
-  };
+  }, [isDragging, isResizing, isRotating, hasActuallyDragged, isEditable, displayedImage, elementId]);
 
   // Handle image upload and open edit modal
   const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
@@ -407,7 +434,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     tmp.src = imagePath;
   }, [onImageUploaded, onSizeTransformChange, cropMode, elementId]);
 
-  // ✅ ОСНОВНІ ЗМІНИ: Единий Moveable компонент для обох станів
+  // ✅ FIXED: Updated Moveable component with improved callbacks
   const renderMoveable = () => {
     if (!isEditable || !containerRef.current) return null;
 
@@ -418,22 +445,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         throttleDrag={1}
         edgeDraggable={false}
         onDragStart={handleDragStart}
-        onDrag={e => {
-          e.target.style.transform = e.transform;
-          
-          // Extract position from transform
-          const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
-          if (transformMatch) {
-            const [, translate] = transformMatch;
-            const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-            
-            // Call onSizeTransformChange with position update
-            onSizeTransformChange?.({
-              imagePosition: { x, y },
-              elementId: elementId
-            });
-          }
-        }}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         resizable={true}
         keepRatio={false}
@@ -481,13 +493,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   if (displayedImage) {
     return (
       <>
-        {/* ✅ АЛЬТЕРНАТИВНЕ РІШЕННЯ: Батьківський контейнер для hover */}
         <div
           className="moveable-hover-area"
           style={{
             position: 'relative',
-            padding: '20px', // Додаткова область для hover
-            margin: '-20px' // Компенсуємо padding
+            padding: '20px',
+            margin: '-20px'
           }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -498,7 +509,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             className={`
               ${positionClasses[position]} 
               relative overflow-hidden rounded-lg
-              ${isEditable && !isDraggingRef.current && !isResizing && !isRotating ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
+              ${isEditable && !isDragging && !isResizing && !isRotating ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
               ${className}
             `}
             style={{
@@ -516,8 +527,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               }}
             />
             
-            {/* Replace overlay on hover - disabled during drag/resize */}
-            {isEditable && !isDraggingRef.current && !isResizing && !isRotating && (
+            {/* ✅ FIXED: Updated overlay condition */}
+            {isEditable && !isDragging && !isResizing && !isRotating && !hasActuallyDragged && (
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="text-white text-center">
                   <Replace className="w-6 h-6 mx-auto mb-2" />
@@ -528,7 +539,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           </div>
         </div>
 
-        {/* ✅ ОСНОВНІ ЗМІНИ: Единий Moveable компонент */}
         {renderMoveable()}
 
         <PresentationImageUpload
@@ -538,7 +548,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           title="Replace Image"
         />
 
-        {/* Image Edit Modal */}
         <ImageEditModal
           isOpen={showImageEditModal}
           onClose={() => setShowImageEditModal(false)}
@@ -555,13 +564,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Placeholder when no image
   return (
     <>
-      {/* ✅ АЛЬТЕРНАТИВНЕ РІШЕННЯ: Батьківський контейнер для hover */}
       <div
         className="moveable-hover-area"
         style={{
           position: 'relative',
-          padding: '20px', // Додаткова область для hover
-          margin: '-20px' // Компенсуємо padding
+          padding: '20px',
+          margin: '-20px'
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -569,22 +577,22 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <div 
           ref={containerRef}
           data-moveable-element={elementId}
-                      className={`
-              ${positionClasses[position]} 
-              bg-gradient-to-br from-blue-100 to-purple-100 
-              border-2 border-dashed border-gray-300 
-              rounded-lg flex items-center justify-center 
-              text-gray-500 text-sm
-              ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-              ${isEditable && !isDraggingRef.current && !isResizing && !isRotating ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
-              ${className}
-            `}
+          className={`
+            ${positionClasses[position]} 
+            bg-gradient-to-br from-blue-100 to-purple-100 
+            border-2 border-dashed border-gray-300 
+            rounded-lg flex items-center justify-center 
+            text-gray-500 text-sm
+            ${position === 'BACKGROUND' ? 'opacity-20' : ''}
+            ${isEditable && !isDragging && !isResizing && !isRotating ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
+            ${className}
+          `}
           style={{
             ...(style || {}),
           }}
           onClick={handleClick}
         >
-          <div className="text-center p-4" style={{ cursor: (isEditable && !isDraggingRef.current && !isResizing && !isRotating) ? 'pointer' : 'default' }}>
+          <div className="text-center p-4" style={{ cursor: (isEditable && !isDragging && !isResizing && !isRotating) ? 'pointer' : 'default' }}>
             <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <div className="font-medium">{size} Image</div>
             <div className="text-xs mt-1 opacity-75">{description}</div>
@@ -602,7 +610,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
       </div>
 
-      {/* ✅ ОСНОВНІ ЗМІНИ: Единий Moveable компонент і для placeholder */}
       {renderMoveable()}
 
       <PresentationImageUpload
@@ -612,7 +619,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         title="Upload Image"
       />
 
-      {/* Image Edit Modal */}
       <ImageEditModal
         isOpen={showImageEditModal}
         onClose={() => setShowImageEditModal(false)}
