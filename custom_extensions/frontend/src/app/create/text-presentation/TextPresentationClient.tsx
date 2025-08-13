@@ -733,7 +733,7 @@ export default function TextPresentationClient() {
   useEffect(() => {
     if (streamDone && firstLineRemoved && content && !originalContent) {
       setOriginalContent(content);
-      logger.info("Saved original content for smart change handling");
+      console.log("Saved original content for smart change handling");
     }
   }, [streamDone, firstLineRemoved, content, originalContent]);
 
