@@ -4927,7 +4927,7 @@ async def startup_event():
                     id TEXT PRIMARY KEY,
                     onyx_user_id TEXT NOT NULL,
                     user_credits_id INTEGER REFERENCES user_credits(id) ON DELETE CASCADE,
-                    type TEXT NOT NULL CHECK (type IN ('purchase','product_generation')),
+                    type TEXT NOT NULL CHECK (type IN ('purchase','product_generation','admin_removal')),
                     title TEXT,
                     product_type TEXT,
                     credits INTEGER NOT NULL CHECK (credits >= 0),
@@ -4940,6 +4940,22 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_tx_user ON credit_transactions(onyx_user_id, created_at DESC);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_tx_type ON credit_transactions(type);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_tx_product ON credit_transactions(product_type);")
+            
+            # Migration: Update credit_transactions table to support admin_removal type
+            try:
+                await connection.execute("""
+                    ALTER TABLE credit_transactions 
+                    DROP CONSTRAINT IF EXISTS credit_transactions_type_check;
+                """)
+                await connection.execute("""
+                    ALTER TABLE credit_transactions 
+                    ADD CONSTRAINT credit_transactions_type_check 
+                    CHECK (type IN ('purchase','product_generation','admin_removal'));
+                """)
+                logger.info("Updated credit_transactions table to support admin_removal type")
+            except Exception as e:
+                logger.warning(f"Could not update credit_transactions constraint: {e}")
+            
             logger.info("'credit_transactions' table ensured.")
 
             # Migration: Populate user_credits table with existing Onyx users
@@ -5298,7 +5314,7 @@ class CreditUsageAnalyticsResponse(BaseModel):
 
 class TimelineActivity(BaseModel):
     id: str
-    type: Literal['purchase', 'product_generation']
+    type: Literal['purchase', 'product_generation', 'admin_removal']
     title: str
     credits: int
     timestamp: datetime
@@ -6296,7 +6312,7 @@ async def log_credit_transaction(
     *,
     onyx_user_id: str,
     user_credits_id: Optional[int],
-    type_: Literal['purchase','product_generation'],
+    type_: Literal['purchase','product_generation','admin_removal'],
     amount: int,
     delta: int,
     title: Optional[str] = None,
@@ -6410,12 +6426,12 @@ async def modify_user_credits_by_email(user_email: str, amount: int, action: str
                 if not credits_row:
                     raise HTTPException(status_code=404, detail="User not found")
 
-                # Log admin removal as negative 'purchase'
+                # Log admin removal as 'admin_removal'
                 await log_credit_transaction(
                     conn,
                     onyx_user_id=credits_row["onyx_user_id"],
                     user_credits_id=int(credits_row["id"]),
-                    type_='purchase',
+                    type_='admin_removal',
                     amount=amount,
                     delta=-abs(amount),
                     title="Admin adjustment",

@@ -108,6 +108,17 @@ const AdminCreditsPage: React.FC = () => {
       return;
     }
 
+    // Add confirmation for remove operations
+    if (transaction.action === 'remove') {
+      const confirmMessage = selectedUser 
+        ? `Are you sure you want to remove ${transaction.amount} credits from ${selectedUser.name}? Current balance: ${selectedUser.credits_balance} credits.`
+        : `Are you sure you want to remove ${transaction.amount} credits from ${transaction.user_email}?`;
+      
+      if (!confirm(confirmMessage)) {
+        return;
+      }
+    }
+
     try {
       setTransactionLoading(true);
       const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/credits/modify`, {
@@ -320,6 +331,11 @@ const AdminCreditsPage: React.FC = () => {
                 {selectedUser && (
                   <p className="text-sm text-black mt-1">
                     Current balance: {selectedUser.credits_balance} credits
+                    {transaction.action === 'remove' && transaction.amount > selectedUser.credits_balance && (
+                      <span className="block text-red-600 mt-1">
+                        Warning: Removing {transaction.amount} credits will reduce balance to 0
+                      </span>
+                    )}
                   </p>
                 )}
               </div>
