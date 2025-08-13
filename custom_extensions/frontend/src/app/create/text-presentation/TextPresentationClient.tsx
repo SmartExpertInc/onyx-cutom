@@ -326,13 +326,6 @@ export default function TextPresentationClient() {
       delete newTitles[lessonIndex];
       return newTitles;
     });
-    
-    // Remove from edited titles list since changes are now saved to content
-    setEditedTitleIds(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(lessonIndex);
-      return newSet;
-    });
   };
 
   // Helper function to escape special regex characters
@@ -366,10 +359,11 @@ export default function TextPresentationClient() {
     
     lessons.forEach((lesson, index) => {
       if (editedTitleIds.has(index)) {
-        // For edited lessons, include only the title (clean content) - AI will regenerate content
+        // For edited lessons, include only the new title (clean content)
+        // AI will generate new content for these titles
         cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n`;
       } else {
-        // For unedited lessons, include the full content (title + content)
+        // For unedited lessons, include the full content
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
       }
     });
