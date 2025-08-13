@@ -318,6 +318,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           `}
           style={{
             ...(style || {}),
+            transformOrigin: '0 0',
           }}
           onClick={handleClick}
           onMouseEnter={handleMouseEnter}
@@ -349,14 +350,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           <Moveable
             target={containerRef.current}
             draggable={true}
-            throttleDrag={1}
+            throttleDrag={0}
             edgeDraggable={false}
             onDragStart={e => {
               setIsDragging(true);
               log('ClickableImagePlaceholder', 'dragStart', { 
                 elementId, 
                 hasImage: !!displayedImage,
-                isDragging: true 
+                isDragging: true
               });
             }}
             onDrag={e => {
@@ -368,10 +369,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                 const [, translate] = transformMatch;
                 const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
                 
+                log('ClickableImagePlaceholder', 'onDrag', {
+                  elementId,
+                  transform: e.transform,
+                  position: { x, y },
+                  hasImage: !!displayedImage,
+                  appliedTransform: e.target.style.transform
+                });
+                
                 // Call onSizeTransformChange with position update
                 onSizeTransformChange?.({
                   imagePosition: { x, y },
                   elementId: elementId
+                });
+              } else {
+                log('ClickableImagePlaceholder', 'onDrag_parseError', {
+                  elementId,
+                  transform: e.transform,
+                  hasImage: !!displayedImage
                 });
               }
             }}
@@ -412,6 +427,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                 const [, translate] = transformMatch;
                 const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
                 
+                log('ClickableImagePlaceholder', 'dragEnd', { 
+                  elementId, 
+                  hasImage: !!displayedImage,
+                  isDragging: false,
+                  finalTransform: e.target.style.transform,
+                  finalPosition: { x, y }
+                });
+                
                 onSizeTransformChange?.({
                   imagePosition: { x, y },
                   elementId: elementId,
@@ -421,11 +444,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               
               // Reset drag state
               setIsDragging(false);
-              log('ClickableImagePlaceholder', 'dragEnd', { 
-                elementId, 
-                hasImage: !!displayedImage,
-                isDragging: false 
-              });
             }}
             onResizeEnd={e => {
               // Final size update after resize ends
@@ -497,6 +515,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         `}
         style={{
           ...(style || {}),
+          transformOrigin: '0 0',
         }}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
@@ -524,7 +543,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <Moveable
           target={containerRef.current}
           draggable={true}
-          throttleDrag={1}
+          throttleDrag={0}
           edgeDraggable={false}
           onDragStart={e => {
             setIsDragging(true);
@@ -543,10 +562,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               const [, translate] = transformMatch;
               const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
               
+              log('ClickableImagePlaceholder', 'onDrag', {
+                elementId,
+                transform: e.transform,
+                position: { x, y },
+                hasImage: !!displayedImage,
+                appliedTransform: e.target.style.transform
+              });
+              
               // Call onSizeTransformChange with position update
               onSizeTransformChange?.({
                 imagePosition: { x, y },
                 elementId: elementId
+              });
+            } else {
+              log('ClickableImagePlaceholder', 'onDrag_parseError', {
+                elementId,
+                transform: e.transform,
+                hasImage: !!displayedImage
               });
             }
           }}
@@ -578,6 +611,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               const [, translate] = transformMatch;
               const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
               
+              log('ClickableImagePlaceholder', 'dragEnd', { 
+                elementId, 
+                hasImage: !!displayedImage,
+                isDragging: false,
+                finalTransform: e.target.style.transform,
+                finalPosition: { x, y }
+              });
+              
               onSizeTransformChange?.({
                 imagePosition: { x, y },
                 elementId: elementId,
@@ -587,11 +628,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             
             // Reset drag state
             setIsDragging(false);
-            log('ClickableImagePlaceholder', 'dragEnd', { 
-              elementId, 
-              hasImage: !!displayedImage,
-              isDragging: false 
-            });
           }}
           onResizeEnd={e => {
             // Final size update after resize ends
