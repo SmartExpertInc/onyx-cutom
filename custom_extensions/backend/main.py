@@ -15256,28 +15256,28 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                                     'video-lesson': False,
                                                 }
                                             )
-                                            # Also record a deterministic completion_breakdown and completionTime
-                                            try:
-                                                primary = lesson['recommended_content_types'].get('primary', [])
-                                                ranges = {
-                                                    'one-pager': (2,3),
-                                                    'presentation': (5,10),
-                                                    'quiz': (5,7),
-                                                    'video-lesson': (2,5),
-                                                }
-                                                breakdown = {}
-                                                total_m = 0
-                                                for p in primary:
-                                                    r = ranges.get(p)
-                                                    if r:
-                                                        mid = int(round((r[0]+r[1])/2))
-                                                        breakdown[p] = mid
-                                                        total_m += mid
-                                                if total_m > 0:
-                                                    lesson['completion_breakdown'] = breakdown
-                                                    lesson['completionTime'] = f"{total_m}m"
-                                            except Exception:
-                                                pass
+                                        # Also record a deterministic completion_breakdown and completionTime
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
                                     except Exception:
                                         pass
                                     
@@ -15763,16 +15763,16 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
 
                                     try:
                                         # Always update recommendations when tier changes to ensure they match the new tier
-                                            lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
-                                                lesson.get('title', ''),
-                                                req.quality_tier,
-                                                {
-                                                    'presentation': False,
-                                                    'one-pager': False,
-                                                    'quiz': False,
-                                                    'video-lesson': False,
-                                                }
-                                            )
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                            lesson.get('title', ''),
+                                            req.quality_tier,
+                                            {
+                                                'presentation': False,
+                                                'one-pager': False,
+                                                'quiz': False,
+                                                'video-lesson': False,
+                                            }
+                                        )
                                         # Also generate completion_breakdown for advanced mode support
                                         try:
                                             primary = lesson['recommended_content_types'].get('primary', [])
