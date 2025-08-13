@@ -1,0 +1,791 @@
+without crop shows correctly:
+🎨 Font styles applied to Chudo and Forta themes
+page-84ba1e049956ac4c.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Slide Deck",\n  "slug": "slide-deck",\n…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "Introduction to Junior AI/ML E… "hasVoiceover": null,\n  "theme": "dark-purple"\n}', componentName: 'SlideDeckDisplay', …}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: undefined, hasSlideDeck: false}
+page-84ba1e049956ac4c.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-84ba1e049956ac4c.js:1 📄 Slide 1 (big-image-left): {slideId: 'slide_1_intro', templateId: 'big-image-left', props: {…}}
+page-84ba1e049956ac4c.js:1 📄 Slide 2 (bullet-points): {slideId: 'slide_2_objectives', templateId: 'bullet-points', props: {…}}
+page-84ba1e049956ac4c.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048763522, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048763525, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048763537, elementId: 'slide_1_intro-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048763538, elementId: 'slide_1_intro-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048763538, elementId: 'slide_1_intro-image', isOpen: false, currentImageLoaded: false, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalClosed_resetState {ts: 1755048763539, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048763540, elementId: 'slide_2_objectives-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048763540, elementId: 'slide_2_objectives-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048763540, elementId: 'slide_2_objectives-image', isOpen: false, currentImageLoaded: false, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalClosed_resetState {ts: 1755048763541, elementId: 'slide_2_objectives-image'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048763543, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048763544, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+layout-515e7592ff9d9c60.js:1 ✅ Mont bold font preloaded successfully
+window.__MOVEABLE_DEBUG__ = true;
+true
+layout-515e7592ff9d9c60.js:1 ✅ Mont thin font preloaded successfully
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048771643, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+layout-515e7592ff9d9c60.js:1 ✅ Mont regular font preloaded successfully
+layout-515e7592ff9d9c60.js:1 🎉 All Mont fonts preloaded successfully
+layout-515e7592ff9d9c60.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] handleImageUploaded {ts: 1755048775565, elementId: 'slide_1_intro-image', newImagePath: '/static_design_images/presentation_a75c89b5-7551-44d0-b749-39cbdf50aa81.jpg', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] showingCropModal {ts: 1755048775566, elementId: 'slide_1_intro-image', imageFileName: 'photo_2025-08-01_09-41-16.jpg', serverPath: '/static_design_images/presentation_a75c89b5-7551-44d0-b749-39cbdf50aa81.jpg'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048775569, isOpen: true, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048775582, elementId: 'slide_1_intro-image', isOpen: true, hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createdLocalUrl {ts: 1755048775583, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', imageFileSize: 18933, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048775584, elementId: 'slide_1_intro-image', isOpen: true, currentImageLoaded: false, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalOpened {ts: 1755048775585, elementId: 'slide_1_intro-image', hasImageFile: true, hasLocalUrl: false, placeholderDimensions: {…}}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048775588, isOpen: true, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] renderingImage {ts: 1755048775589, elementId: 'slide_1_intro-image', localImageUrl: 'blob:https://dev4.contentbuilder.ai/f7f4263c-9019-48a9-bb8f-5d2a4f44e650', position: {…}, scale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048775643, elementId: 'slide_1_intro-image', isOpen: true, hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048775645, elementId: 'slide_1_intro-image', reason: 'url_already_exists', isOpen: true, hasImageFile: true, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_start {ts: 1755048775657, elementId: 'slide_1_intro-image', hasImageRef: true, imageSrc: 'blob:https://dev4.contentbuilder.ai/f7f4263c-9019-48a9-bb8f-5d2a4f44e650', imageComplete: true, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_dimensions {ts: 1755048775659, elementId: 'slide_1_intro-image', naturalWidth: 500, naturalHeight: 500, isValid: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_scaleCalculation {ts: 1755048775662, elementId: 'slide_1_intro-image', frameWidth: '100%', frameHeight: '100%', naturalWidth: 500, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_invalidScale {ts: 1755048775663, elementId: 'slide_1_intro-image', initialScale: NaN, scaleX: NaN, scaleY: NaN, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048775689, isOpen: true, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] renderingImage {ts: 1755048775690, elementId: 'slide_1_intro-image', localImageUrl: 'blob:https://dev4.contentbuilder.ai/f7f4263c-9019-48a9-bb8f-5d2a4f44e650', position: {…}, scale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] skipCrop {ts: 1755048776721, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] handleSkipCrop {ts: 1755048776721, elementId: 'slide_1_intro-image', originalImageData: '/static_design_images/presentation_a75c89b5-7551-44d0-b749-39cbdf50aa81.jpg', hasData: true}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Received updated deck: {lessonTitle: 'Introduction to Junior AI/ML Engineer Training', slides: Array(2), currentSlideId: 'slide_1_intro', lessonNumber: null, detectedLanguage: 'en', …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Sending updated deck to backend: {
+  "microProductContent": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imageSize": "large",
+          "isCropped": true,
+          "objectFit": "fill",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering",
+          "imagePath": "/static_design_images/presentation_a75c89b5-7551-44d0-b749-39cbdf50aa81.jpg"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:56.721Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  }
+}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] handleSkipCrop_success {ts: 1755048776723, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048776725, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048776726, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048776738, elementId: 'slide_1_intro-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048776739, elementId: 'slide_1_intro-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048776739, elementId: 'slide_1_intro-image', isOpen: false, currentImageLoaded: true, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] revokedLocalUrl_modalClose {ts: 1755048776739, elementId: 'slide_1_intro-image', url: 'blob:https://dev4.contentbuilder.ai/f7f4263c-9019-48a9-bb8f-5d2a4f44e650'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalClosed_resetState {ts: 1755048776740, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-84ba1e049956ac4c.js:1 📄 Slide 1 (big-image-left): {slideId: 'slide_1_intro', templateId: 'big-image-left', props: {…}}
+page-84ba1e049956ac4c.js:1 📄 Slide 2 (bullet-points): {slideId: 'slide_2_objectives', templateId: 'bullet-points', props: {…}}
+page-84ba1e049956ac4c.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048776744, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048776744, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] revokedLocalUrl_cleanup {ts: 1755048776746, elementId: 'slide_1_intro-image', url: 'blob:https://dev4.contentbuilder.ai/f7f4263c-9019-48a9-bb8f-5d2a4f44e650'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048776747, elementId: 'slide_1_intro-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048776748, elementId: 'slide_1_intro-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 16,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "Junior AI/ML Engineer Training",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Slide Deck",
+  "microproduct_content": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imagePath": "/static_design_images/presentation_a75c89b5-7551-44d0-b749-39cbdf50aa81.jpg",
+          "imageSize": "large",
+          "isCropped": true,
+          "objectFit": "fill",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:56.721Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-08-12T20:56:59.837338Z",
+  "custom_rate": null,
+  "quality_tier": null
+}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Received updated deck: {lessonTitle: 'Introduction to Junior AI/ML Engineer Training', slides: Array(2), currentSlideId: 'slide_1_intro', lessonNumber: null, detectedLanguage: 'en', …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Sending updated deck to backend: {
+  "microProductContent": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imageSize": "large",
+          "isCropped": false,
+          "objectFit": "contain",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:57.023Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  }
+}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048777031, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048777034, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-84ba1e049956ac4c.js:1 📄 Slide 1 (big-image-left): {slideId: 'slide_1_intro', templateId: 'big-image-left', props: {…}}
+page-84ba1e049956ac4c.js:1 📄 Slide 2 (bullet-points): {slideId: 'slide_2_objectives', templateId: 'bullet-points', props: {…}}
+page-84ba1e049956ac4c.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048777040, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048777041, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 16,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "Junior AI/ML Engineer Training",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Slide Deck",
+  "microproduct_content": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imageSize": "large",
+          "isCropped": false,
+          "objectFit": "contain",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:57.023Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-08-12T20:56:59.837338Z",
+  "custom_rate": null,
+  "quality_tier": null
+}
+
+
+
+
+with crop, doest appear on slide and in modal window:
+📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Slide Deck",\n  "slug": "slide-deck",\n…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "Introduction to Junior AI/ML E… "hasVoiceover": null,\n  "theme": "dark-purple"\n}', componentName: 'SlideDeckDisplay', …}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: undefined, hasSlideDeck: false}
+page-84ba1e049956ac4c.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-84ba1e049956ac4c.js:1 📄 Slide 1 (big-image-left): {slideId: 'slide_1_intro', templateId: 'big-image-left', props: {…}}
+page-84ba1e049956ac4c.js:1 📄 Slide 2 (bullet-points): {slideId: 'slide_2_objectives', templateId: 'bullet-points', props: {…}}
+page-84ba1e049956ac4c.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048707401, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048707405, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048707452, elementId: 'slide_1_intro-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048707453, elementId: 'slide_1_intro-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048707454, elementId: 'slide_1_intro-image', isOpen: false, currentImageLoaded: false, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalClosed_resetState {ts: 1755048707455, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048707458, elementId: 'slide_2_objectives-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048707460, elementId: 'slide_2_objectives-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048707461, elementId: 'slide_2_objectives-image', isOpen: false, currentImageLoaded: false, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalClosed_resetState {ts: 1755048707534, elementId: 'slide_2_objectives-image'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048707543, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048707544, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+layout-515e7592ff9d9c60.js:1 ✅ Mont regular font preloaded successfully
+layout-515e7592ff9d9c60.js:1 ✅ Mont bold font preloaded successfully
+window.__MOVEABLE_DEBUG__ = true;
+true
+layout-515e7592ff9d9c60.js:1 ✅ Mont thin font preloaded successfully
+layout-515e7592ff9d9c60.js:1 🎉 All Mont fonts preloaded successfully
+layout-515e7592ff9d9c60.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048714902, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+6The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] handleImageUploaded {ts: 1755048720798, elementId: 'slide_1_intro-image', newImagePath: '/static_design_images/presentation_57a5a507-9480-43b9-a344-cf4ff4a9470f.jpg', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] showingCropModal {ts: 1755048720798, elementId: 'slide_1_intro-image', imageFileName: 'photo_2025-08-01_09-41-16.jpg', serverPath: '/static_design_images/presentation_57a5a507-9480-43b9-a344-cf4ff4a9470f.jpg'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048720800, isOpen: true, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048720832, elementId: 'slide_1_intro-image', isOpen: true, hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createdLocalUrl {ts: 1755048720833, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', imageFileSize: 18933, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048720834, elementId: 'slide_1_intro-image', isOpen: true, currentImageLoaded: false, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalOpened {ts: 1755048720835, elementId: 'slide_1_intro-image', hasImageFile: true, hasLocalUrl: false, placeholderDimensions: {…}}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048720840, isOpen: true, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] renderingImage {ts: 1755048720840, elementId: 'slide_1_intro-image', localImageUrl: 'blob:https://dev4.contentbuilder.ai/a18167f5-d3ce-48fe-8522-7b3a8b362663', position: {…}, scale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048720846, elementId: 'slide_1_intro-image', isOpen: true, hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048720847, elementId: 'slide_1_intro-image', reason: 'url_already_exists', isOpen: true, hasImageFile: true, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_start {ts: 1755048720853, elementId: 'slide_1_intro-image', hasImageRef: true, imageSrc: 'blob:https://dev4.contentbuilder.ai/a18167f5-d3ce-48fe-8522-7b3a8b362663', imageComplete: true, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_dimensions {ts: 1755048720854, elementId: 'slide_1_intro-image', naturalWidth: 500, naturalHeight: 500, isValid: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_scaleCalculation {ts: 1755048720854, elementId: 'slide_1_intro-image', frameWidth: '100%', frameHeight: '100%', naturalWidth: 500, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleImageLoad_invalidScale {ts: 1755048720855, elementId: 'slide_1_intro-image', initialScale: NaN, scaleX: NaN, scaleY: NaN, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048720858, isOpen: true, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] renderingImage {ts: 1755048720861, elementId: 'slide_1_intro-image', localImageUrl: 'blob:https://dev4.contentbuilder.ai/a18167f5-d3ce-48fe-8522-7b3a8b362663', position: {…}, scale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] handleCropConfirm_start {ts: 1755048722569, elementId: 'slide_1_intro-image', currentScale: 1, currentPosition: {…}, imageLoaded: true, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] generateCroppedImage_start {ts: 1755048722569, elementId: 'slide_1_intro-image', hasCanvas: true, hasImage: true, imageLoaded: true, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] generateCroppedImage_calculations {ts: 1755048722569, elementId: 'slide_1_intro-image', imgWidth: 500, imgHeight: 500, scale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] generateCroppedImage_visibleArea {ts: 1755048722569, elementId: 'slide_1_intro-image', visibleLeft: 0, visibleTop: 0, visibleRight: NaN, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] generateCroppedImage_drawParams {ts: 1755048722569, elementId: 'slide_1_intro-image', sourceRect: {…}, destRect: {…}}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] generateCroppedImage_success {ts: 1755048722570, elementId: 'slide_1_intro-image', frameSize: {…}, sourceRect: {…}, destRect: {…}, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] cropConfirm_success {ts: 1755048722570, elementId: 'slide_1_intro-image', cropSettings: {…}, hascroppedImageData: true, croppedDataLength: 6, …}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] handleCropConfirm_start {ts: 1755048722570, elementId: 'slide_1_intro-image', settings: {…}, hasCroppedData: true, croppedDataLength: 6}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] convertingBase64ToBlob {ts: 1755048722570, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048722571, isOpen: true, elementId: 'slide_1_intro-image', hasImageFile: true, imageFileName: 'photo_2025-08-01_09-41-16.jpg', …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] renderingImage {ts: 1755048722571, elementId: 'slide_1_intro-image', localImageUrl: 'blob:https://dev4.contentbuilder.ai/a18167f5-d3ce-48fe-8522-7b3a8b362663', position: {…}, scale: 1, …}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] blobCreated {ts: 1755048722580, elementId: 'slide_1_intro-image', blobSize: 0, blobType: 'text/plain'}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] fileCreated {ts: 1755048722581, elementId: 'slide_1_intro-image', fileName: 'cropped-image.png', fileSize: 0, fileType: 'image/png'}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] uploadingCroppedFile {ts: 1755048722582, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] uploadSuccess {ts: 1755048722857, elementId: 'slide_1_intro-image', result: {…}, filePath: '/static_design_images/presentation_5393511d-6a0c-458c-acf2-08e63e6c2ecb.png'}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Received updated deck: {lessonTitle: 'Introduction to Junior AI/ML Engineer Training', slides: Array(2), currentSlideId: 'slide_1_intro', lessonNumber: null, detectedLanguage: 'en', …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Sending updated deck to backend: {
+  "microProductContent": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imageSize": "large",
+          "isCropped": true,
+          "objectFit": "fill",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering",
+          "imagePath": "/static_design_images/presentation_5393511d-6a0c-458c-acf2-08e63e6c2ecb.png"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:02.859Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  }
+}
+page-84ba1e049956ac4c.js:1 [ClickableImagePlaceholder] handleCropConfirm_success {ts: 1755048722862, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048722865, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048722868, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048722898, elementId: 'slide_1_intro-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048722901, elementId: 'slide_1_intro-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalStateChange {ts: 1755048722902, elementId: 'slide_1_intro-image', isOpen: false, currentImageLoaded: true, currentScale: 1, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] revokedLocalUrl_modalClose {ts: 1755048722904, elementId: 'slide_1_intro-image', url: 'blob:https://dev4.contentbuilder.ai/a18167f5-d3ce-48fe-8522-7b3a8b362663'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] modalClosed_resetState {ts: 1755048722905, elementId: 'slide_1_intro-image'}
+page-84ba1e049956ac4c.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-84ba1e049956ac4c.js:1 📄 Slide 1 (big-image-left): {slideId: 'slide_1_intro', templateId: 'big-image-left', props: {…}}
+page-84ba1e049956ac4c.js:1 📄 Slide 2 (bullet-points): {slideId: 'slide_2_objectives', templateId: 'bullet-points', props: {…}}
+page-84ba1e049956ac4c.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048722911, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048722914, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] revokedLocalUrl_cleanup {ts: 1755048722918, elementId: 'slide_1_intro-image', url: 'blob:https://dev4.contentbuilder.ai/a18167f5-d3ce-48fe-8522-7b3a8b362663'}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_effect {ts: 1755048722919, elementId: 'slide_1_intro-image', isOpen: false, hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] createLocalUrl_skipped {ts: 1755048722920, elementId: 'slide_1_intro-image', reason: 'no_imageFile', isOpen: false, hasImageFile: false, …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Received updated deck: {lessonTitle: 'Introduction to Junior AI/ML Engineer Training', slides: Array(2), currentSlideId: 'slide_1_intro', lessonNumber: null, detectedLanguage: 'en', …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Sending updated deck to backend: {
+  "microProductContent": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imageSize": "large",
+          "isCropped": true,
+          "objectFit": "fill",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:03.163Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  }
+}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048723172, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048723174, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-84ba1e049956ac4c.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-84ba1e049956ac4c.js:1 📄 Slide 1 (big-image-left): {slideId: 'slide_1_intro', templateId: 'big-image-left', props: {…}}
+page-84ba1e049956ac4c.js:1 📄 Slide 2 (bullet-points): {slideId: 'slide_2_objectives', templateId: 'bullet-points', props: {…}}
+page-84ba1e049956ac4c.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-84ba1e049956ac4c.js:1 🎨 Theme system initialized: {projectId: '16', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048723190, isOpen: false, elementId: 'slide_1_intro-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 [ImageCropModal] render {ts: 1755048723192, isOpen: false, elementId: 'slide_2_objectives-image', hasImageFile: false, imageFileName: undefined, …}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 16,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "Junior AI/ML Engineer Training",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Slide Deck",
+  "microproduct_content": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imagePath": "/static_design_images/presentation_5393511d-6a0c-458c-acf2-08e63e6c2ecb.png",
+          "imageSize": "large",
+          "isCropped": true,
+          "objectFit": "fill",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:02.859Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-08-12T20:56:59.837338Z",
+  "custom_rate": null,
+  "quality_tier": null
+}
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-84ba1e049956ac4c.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 16,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "Junior AI/ML Engineer Training",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Slide Deck",
+  "microproduct_content": {
+    "lessonTitle": "Introduction to Junior AI/ML Engineer Training",
+    "slides": [
+      {
+        "slideId": "slide_1_intro",
+        "slideNumber": 1,
+        "slideTitle": "Introduction to Junior AI/ML Engineer Training",
+        "templateId": "big-image-left",
+        "props": {
+          "title": "Welcome to Your Journey in AI/ML Engineering",
+          "imageAlt": "Engaging visual representing AI/ML concepts and technologies",
+          "imageUrl": "[IMAGE_PLACEHOLDER: LARGE | LEFT | Engaging visual representing AI/ML concepts and technologies]",
+          "subtitle": "This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer. Throughout this course, you will learn about key concepts, tools, and techniques that are essential in the field of artificial intelligence and machine learning.",
+          "imageSize": "large",
+          "isCropped": true,
+          "objectFit": "fill",
+          "imageScale": 1,
+          "imageOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "imagePrompt": "A high-quality illustration that visually represents the journey in AI/ML engineering"
+        },
+        "voiceoverText": "Welcome to your journey in AI and ML engineering. This training program is designed to equip you with the foundational skills and knowledge necessary to excel as a Junior AI/ML Engineer.",
+        "metadata": {
+          "updatedAt": "2025-08-13T01:32:03.163Z",
+          "elementPositions": {
+            "draggable-slide_1_intro-0": {
+              "x": 54,
+              "y": -138
+            },
+            "draggable-slide_1_intro-1": {
+              "x": -19,
+              "y": -9
+            }
+          }
+        }
+      },
+      {
+        "slideId": "slide_2_objectives",
+        "slideNumber": 2,
+        "slideTitle": "Key Learning Objectives",
+        "templateId": "bullet-points",
+        "props": {
+          "title": "What You Will Learn",
+          "bullets": [
+            "Understanding AI and ML: Gain insights into the fundamental principles of artificial intelligence and machine learning, including their applications and impact on various industries.",
+            "Data Handling Skills: Learn how to collect, clean, and preprocess data, which is crucial for building effective machine learning models.",
+            "Model Development: Discover the process of developing, training, and evaluating machine learning models using popular frameworks and libraries.",
+            "Real-World Applications: Explore case studies and practical examples of AI/ML implementations in real-world scenarios.",
+            "Career Pathways: Understand the various career opportunities available in the AI/ML field and how to position yourself for success."
+          ],
+          "imageAlt": "Visual representation of learning objectives and outcomes",
+          "maxColumns": 2,
+          "bulletStyle": "dot",
+          "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Visual representation of learning objectives and outcomes'"
+        },
+        "voiceoverText": "In this slide, we will cover the key learning objectives of the training program, including understanding AI and ML, data handling skills, model development, real-world applications, and career pathways.",
+        "metadata": {
+          "updatedAt": "2025-08-12T22:03:13.628Z"
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_intro",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-08-12T20:56:59.837338Z",
+  "custom_rate": null,
+  "quality_tier": null
+}

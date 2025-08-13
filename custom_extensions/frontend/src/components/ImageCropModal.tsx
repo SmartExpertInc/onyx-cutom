@@ -200,14 +200,21 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     
     // Calculate initial scale to fit image in crop frame
     const { width: frameWidth, height: frameHeight } = placeholderDimensions;
-    const scaleX = frameWidth / naturalWidth;
-    const scaleY = frameHeight / naturalHeight;
+    
+    // Ensure we have valid numeric dimensions
+    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
+    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
+    
+    const scaleX = validFrameWidth / naturalWidth;
+    const scaleY = validFrameHeight / naturalHeight;
     const initialScale = Math.max(scaleX, scaleY, 0.1); // Ensure minimum scale
     
     log('ImageCropModal', 'handleImageLoad_scaleCalculation', {
       elementId,
       frameWidth,
       frameHeight,
+      validFrameWidth,
+      validFrameHeight,
       naturalWidth,
       naturalHeight,
       scaleX,
@@ -235,8 +242,8 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     // Center the image
     const scaledWidth = naturalWidth * initialScale;
     const scaledHeight = naturalHeight * initialScale;
-    const centerX = (frameWidth - scaledWidth) / 2;
-    const centerY = (frameHeight - scaledHeight) / 2;
+    const centerX = (validFrameWidth - scaledWidth) / 2;
+    const centerY = (validFrameHeight - scaledHeight) / 2;
     
     log('ImageCropModal', 'handleImageLoad_positionCalculation', {
       elementId,
@@ -268,10 +275,12 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
   const handleZoom = useCallback((delta: number) => {
     const newScale = Math.max(0.1, Math.min(5, scale + delta));
     const { width: frameWidth, height: frameHeight } = placeholderDimensions;
+    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
+    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
     
     // Adjust position to zoom from center
-    const centerX = frameWidth / 2;
-    const centerY = frameHeight / 2;
+    const centerX = validFrameWidth / 2;
+    const centerY = validFrameHeight / 2;
     const scaleRatio = newScale / scale;
     
     const newX = centerX - (centerX - position.x) * scaleRatio;
@@ -284,7 +293,9 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       elementId,
       oldScale: scale,
       newScale,
-      newPosition: { x: newX, y: newY }
+      newPosition: { x: newX, y: newY },
+      validFrameWidth,
+      validFrameHeight
     });
   }, [scale, position, placeholderDimensions, elementId]);
 
@@ -319,13 +330,16 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     
     // Apply constraints to keep image within bounds
     const { width: frameWidth, height: frameHeight } = placeholderDimensions;
+    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
+    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
+    
     const { width: imgWidth, height: imgHeight } = imageDimensions;
     const scaledWidth = imgWidth * scale;
     const scaledHeight = imgHeight * scale;
     
-    const minX = frameWidth - scaledWidth;
+    const minX = validFrameWidth - scaledWidth;
     const maxX = 0;
-    const minY = frameHeight - scaledHeight;
+    const minY = validFrameHeight - scaledHeight;
     const maxY = 0;
     
     const constrainedX = Math.max(minX, Math.min(maxX, newX));
@@ -391,12 +405,16 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     
     const { width: frameWidth, height: frameHeight } = placeholderDimensions;
     
+    // Ensure we have valid numeric dimensions
+    const validFrameWidth = typeof frameWidth === 'number' && frameWidth > 0 ? frameWidth : 384;
+    const validFrameHeight = typeof frameHeight === 'number' && frameHeight > 0 ? frameHeight : 256;
+    
     // Set canvas size to placeholder dimensions
-    canvas.width = frameWidth;
-    canvas.height = frameHeight;
+    canvas.width = validFrameWidth;
+    canvas.height = validFrameHeight;
     
     // Clear canvas
-    ctx.clearRect(0, 0, frameWidth, frameHeight);
+    ctx.clearRect(0, 0, validFrameWidth, validFrameHeight);
     
     // Calculate source rectangle (visible area of image)
     const { width: imgWidth, height: imgHeight } = imageDimensions;
@@ -412,14 +430,16 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       scaledHeight,
       frameWidth,
       frameHeight,
+      validFrameWidth,
+      validFrameHeight,
       position
     });
     
     // Calculate which part of the image is visible in the crop frame
     const visibleLeft = Math.max(0, -position.x);
     const visibleTop = Math.max(0, -position.y);
-    const visibleRight = Math.min(scaledWidth, frameWidth - position.x);
-    const visibleBottom = Math.min(scaledHeight, frameHeight - position.y);
+    const visibleRight = Math.min(scaledWidth, validFrameWidth - position.x);
+    const visibleBottom = Math.min(scaledHeight, validFrameHeight - position.y);
     
     const visibleWidth = visibleRight - visibleLeft;
     const visibleHeight = visibleBottom - visibleTop;
@@ -472,6 +492,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     log('ImageCropModal', 'generateCroppedImage_success', {
       elementId,
       frameSize: { width: frameWidth, height: frameHeight },
+      validFrameSize: { width: validFrameWidth, height: validFrameHeight },
       sourceRect: { x: sourceX, y: sourceY, width: sourceWidth, height: sourceHeight },
       destRect: { x: destX, y: destY, width: visibleWidth, height: visibleHeight },
       scale,
@@ -500,11 +521,14 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       return;
     }
     
+    const validFrameWidth = typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384;
+    const validFrameHeight = typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256;
+    
     const cropSettings: CropSettings = {
       x: position.x,
       y: position.y,
-      width: placeholderDimensions.width,
-      height: placeholderDimensions.height,
+      width: validFrameWidth,
+      height: validFrameHeight,
       scale
     };
     
@@ -548,7 +572,11 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
           {/* Crop area */}
           <div className="flex-1">
             <div className="text-sm text-gray-600 mb-2">
-              Preview crop area ({placeholderDimensions.width}×{placeholderDimensions.height}px)
+              Preview crop area ({
+                typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384
+              }×{
+                typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256
+              }px)
               {!imageLoaded && localImageUrl && (
                 <span className="ml-2 text-blue-600">Loading image...</span>
               )}
@@ -561,8 +589,8 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
               ref={containerRef}
               className="relative border-2 border-gray-300 bg-gray-100 overflow-hidden cursor-move"
               style={{
-                width: placeholderDimensions.width,
-                height: placeholderDimensions.height,
+                width: typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384,
+                height: typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256,
                 maxWidth: '100%',
                 maxHeight: '400px'
               }}
@@ -677,7 +705,11 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
             {imageLoaded && (
               <div className="text-xs text-gray-500 space-y-1">
                 <div>Original: {imageDimensions.width}×{imageDimensions.height}</div>
-                <div>Target: {placeholderDimensions.width}×{placeholderDimensions.height}</div>
+                <div>Target: {
+                  typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384
+                }×{
+                  typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256
+                }</div>
                 <div>Scale: {(scale * 100).toFixed(0)}%</div>
               </div>
             )}

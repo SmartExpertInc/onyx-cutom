@@ -406,8 +406,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         imageFile={pendingImageFile}
         imageUrl={pendingImageUrl}
         placeholderDimensions={{
-          width: (style?.width as number) || 384,
-          height: (style?.height as number) || 256
+          width: typeof style?.width === 'string' ? parseInt(style.width.replace('px', '')) || 384 : (style?.width as number) || 384,
+          height: typeof style?.height === 'string' ? parseInt(style.height.replace('px', '')) || 384 : (style?.height as number) || 256
         }}
         onCropConfirm={handleCropConfirm}
         onSkipCrop={handleSkipCrop}
@@ -494,8 +494,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         imageFile={pendingImageFile}
         imageUrl={pendingImageUrl}
         placeholderDimensions={{
-          width: (style?.width as number) || 384,
-          height: (style?.height as number) || 256
+          width: typeof style?.width === 'string' ? parseInt(style.width.replace('px', '')) || 384 : (style?.width as number) || 384,
+          height: typeof style?.height === 'string' ? parseInt(style.height.replace('px', '')) || 384 : (style?.height as number) || 256
         }}
         onCropConfirm={handleCropConfirm}
         onSkipCrop={handleSkipCrop}
