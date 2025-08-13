@@ -386,10 +386,10 @@ export default function LessonSettingsModal({
                   <div className="col-span-3">
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.tier', 'Tier')}</h4>
                   </div>
-                  <div className="col-span-6">
+                  <div className="col-span-3">
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
-                  <div className="col-span-3">
+                  <div className="col-span-6">
                     <h4 className="font-semibold text-gray-700 text-sm text-left flex items-center gap-2">
                       {t('modals.folderSettings.hoursRange', 'Hours Range')}
                       <label className="flex items-center gap-2 ml-3 text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer">
@@ -445,7 +445,7 @@ export default function LessonSettingsModal({
                       </div>
 
                       {/* Content Examples Column */}
-                      <div className="col-span-6">
+                      <div className="col-span-3">
                         <div className="flex flex-wrap gap-1">
                           {tier.features.map((feature, index) => (
                             <span
@@ -463,7 +463,7 @@ export default function LessonSettingsModal({
                       </div>
 
                       {/* Hours Range Column */}
-                      <div className="col-span-3">
+                      <div className="col-span-6">
                         {qualityTier === tier.id ? (
                           <div className="space-y-3">
                             {!advancedEnabled && (
