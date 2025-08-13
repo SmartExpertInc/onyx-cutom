@@ -182,7 +182,7 @@
         
         .data-cell.bold {
             font-weight: 700;
-            color: #2D7C21;
+            color: #1e293b;
         }
         
         /* Product row data cells - black text */
@@ -399,9 +399,9 @@
                                 {% if column_visibility.estCreationTime %}
                                     <td class="data-cell bold">
                                         {% if folder.total_hours > 0 %}
-                                            <svg class="timer-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                                <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                                <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                             {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
                                         {% else %}<span class="dash">-</span>{% endif %}
@@ -410,9 +410,9 @@
                                 {% if column_visibility.estCompletionTime %}
                                     <td class="data-cell bold">
                                         {% if folder.total_completion_time > 0 %}
-                                            <svg class="timer-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                                <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                                <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                             {% set h = folder.total_completion_time // 60 %}
                                             {% set m = folder.total_completion_time % 60 %}
@@ -507,9 +507,9 @@
                                 <td class="data-cell bold">
                                     {% set total_hours = unassigned_projects | sum(attribute='total_hours') %}
                                     {% if total_hours > 0 %}
-                                        <svg class="timer-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                            <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                            <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                         {% if total_hours == total_hours|int %}{{ total_hours|int }}h{% else %}{{ total_hours }}h{% endif %}
                                     {% else %}<span class="dash">-</span>{% endif %}
@@ -519,9 +519,9 @@
                                 <td class="data-cell bold">
                                     {% set total_completion_time = unassigned_projects | sum(attribute='total_completion_time') %}
                                     {% if total_completion_time > 0 %}
-                                        <svg class="timer-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                            <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                            <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                         {% set h = total_completion_time // 60 %}
                                         {% set m = total_completion_time % 60 %}
