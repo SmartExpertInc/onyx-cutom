@@ -94,7 +94,13 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       currentLocalUrl: localImageUrl
     });
 
-    if (imageFile && isOpen && !localImageUrl) {
+    if (imageFile && isOpen) {
+      // Always create a new URL when modal opens with a new file
+      if (localImageUrl) {
+        URL.revokeObjectURL(localImageUrl);
+        log('ImageCropModal', 'revokedLocalUrl_forNewFile', { elementId, oldUrl: localImageUrl });
+      }
+      
       const url = URL.createObjectURL(imageFile);
       setLocalImageUrl(url);
       
@@ -103,19 +109,20 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
         hasImageFile: !!imageFile,
         imageFileName: imageFile.name,
         imageFileSize: imageFile.size,
+        imageFileType: imageFile.type,
         localUrl: url,
         urlLength: url.length
       });
     } else {
       log('ImageCropModal', 'createLocalUrl_skipped', {
         elementId,
-        reason: !imageFile ? 'no_imageFile' : (!isOpen ? 'modal_not_open' : 'url_already_exists'),
+        reason: !imageFile ? 'no_imageFile' : (!isOpen ? 'modal_not_open' : 'unknown'),
         isOpen,
         hasImageFile: !!imageFile,
         hasLocalUrl: !!localImageUrl
       });
     }
-  }, [imageFile, isOpen, elementId, localImageUrl]);
+  }, [imageFile, isOpen, elementId]);
 
   // Separate cleanup effect that only runs when the component unmounts or modal closes
   useEffect(() => {
@@ -572,27 +579,29 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
           {/* Crop area */}
           <div className="flex-1">
             <div className="text-sm text-gray-600 mb-2">
-              Preview crop area ({
-                typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384
-              }×{
-                typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256
-              }px)
+              <div className="font-medium text-blue-600 mb-1">
+                📐 Crop Preview Area ({typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384}×{typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256}px)
+              </div>
+              <div className="text-xs text-gray-500">
+                The blue border shows exactly what will appear in your slide
+              </div>
               {!imageLoaded && localImageUrl && (
-                <span className="ml-2 text-blue-600">Loading image...</span>
+                <span className="ml-2 text-blue-600">🔄 Loading image...</span>
               )}
               {!localImageUrl && (
-                <span className="ml-2 text-red-600">No image URL available</span>
+                <span className="ml-2 text-red-600">❌ No image URL available</span>
               )}
             </div>
             
             <div
               ref={containerRef}
-              className="relative border-2 border-gray-300 bg-gray-100 overflow-hidden cursor-move"
+              className="relative border-4 border-blue-500 bg-gray-100 overflow-hidden cursor-move"
               style={{
                 width: typeof placeholderDimensions.width === 'number' && placeholderDimensions.width > 0 ? placeholderDimensions.width : 384,
                 height: typeof placeholderDimensions.height === 'number' && placeholderDimensions.height > 0 ? placeholderDimensions.height : 256,
                 maxWidth: '100%',
-                maxHeight: '400px'
+                maxHeight: '400px',
+                boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(59, 130, 246, 0.2)'
               }}
               onMouseDown={handleMouseDown}
             >
@@ -609,21 +618,44 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
                     ref={imageRef}
                     src={localImageUrl}
                     alt="Crop preview"
-                    className="absolute pointer-events-none"
+                    className="absolute"
                     style={{
                       transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                       transformOrigin: '0 0',
-                      userSelect: 'none'
+                      userSelect: 'none',
+                      maxWidth: 'none',
+                      maxHeight: 'none'
                     }}
                     onLoad={handleImageLoad}
+                    onError={(e) => {
+                      log('ImageCropModal', 'imageLoadError', {
+                        elementId,
+                        src: e.currentTarget.src
+                      });
+                    }}
                     draggable={false}
                   />
                 </>
               )}
+              {!localImageUrl && (
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+                  <div className="text-center">
+                    <div className="text-lg mb-2">📷</div>
+                    <div>No image loaded</div>
+                    <div className="text-xs mt-1">Check console for debug info</div>
+                  </div>
+                </div>
+              )}
               
-              {/* Crop frame overlay */}
-              <div className="absolute inset-0 border-2 border-blue-500 pointer-events-none">
-                <div className="absolute inset-0 bg-blue-500 bg-opacity-10"></div>
+              {/* Crop frame overlay - shows the exact boundaries */}
+              <div className="absolute inset-0 pointer-events-none">
+                {/* Inner border to show crop area */}
+                <div className="absolute inset-0 border-2 border-white shadow-lg"></div>
+                {/* Corner indicators */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-blue-600"></div>
+                <div className="absolute top-0 right-0 w-3 h-3 border-r-2 border-t-2 border-blue-600"></div>
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-l-2 border-b-2 border-blue-600"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-blue-600"></div>
               </div>
             </div>
           </div>
@@ -663,13 +695,22 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
             </div>
 
             {/* Instructions */}
-            <div className="text-sm text-gray-600 space-y-1">
-              <div className="flex items-center space-x-2">
-                <Move className="w-4 h-4" />
-                <span>Click and drag to reposition</span>
+            <div className="text-sm text-gray-600 space-y-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="font-medium text-blue-800">How to crop:</div>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <Move className="w-4 h-4 text-blue-600" />
+                  <span>Click and drag to reposition image</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <ZoomIn className="w-4 h-4 text-blue-600" />
+                  <span>Use zoom controls to resize image</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-blue-600 rounded-sm"></div>
+                  <span>Blue border shows final crop area</span>
+                </div>
               </div>
-              <div>• Use zoom controls to resize</div>
-              <div>• Blue area shows final crop</div>
             </div>
 
             {/* Action buttons */}
