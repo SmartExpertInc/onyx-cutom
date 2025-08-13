@@ -449,8 +449,11 @@
                                         </td>
                                         <td class="quality-tier-cell">
                                             <div class="quality-tier-container">
-                                                {% set project_tier = project.get('quality_tier', 'interactive') %}
-                                                <span class="tier-badge tier-{{ project_tier }}">{{ project_tier }}</span>
+                                                {% if project.quality_tier and project.quality_tier != 'None' and project.quality_tier.strip() != '' %}
+                                                    <span class="tier-badge tier-{{ project.quality_tier }}">{{ project.quality_tier }}</span>
+                                                {% else %}
+                                                    <span class="dash">-</span>
+                                                {% endif %}
                                             </div>
                                         </td>
                                         {% if column_visibility.numberOfLessons %}
@@ -557,8 +560,11 @@
                                 </td>
                                 <td class="quality-tier-cell">
                                     <div class="quality-tier-container">
-                                        {% set project_tier = project.get('quality_tier', 'interactive') %}
-                                        <span class="tier-badge tier-{{ project_tier }}">{{ project_tier }}</span>
+                                        {% if project.quality_tier and project.quality_tier != 'None' and project.quality_tier.strip() != '' %}
+                                            <span class="tier-badge tier-{{ project.quality_tier }}">{{ project.quality_tier }}</span>
+                                        {% else %}
+                                            <span class="dash">-</span>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 {% if column_visibility.numberOfLessons %}
