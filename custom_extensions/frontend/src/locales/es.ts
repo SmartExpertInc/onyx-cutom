@@ -168,6 +168,9 @@ export const es = {
       soon: "Pronto",
       alreadyCreated: "Ya creado",
       recommended: "Recomendado",
+      recommendedDescription: "Tipos de contenido sugeridos por IA perfectos para esta lección",
+      orExploreMore: "o explorar más opciones",
+      customizeRecommendations: "Personalizar Recomendaciones",
       selectRecommendedProducts: "Selecciona qué productos deben mostrarse como recomendados para esta lección.",
       allOptions: "Todos los tipos de contenido",
       seeAllContentTypes: "Ver todos los tipos de contenido",
@@ -684,7 +687,7 @@ export const es = {
       enterNewProjectName: 'Ingrese el nombre para el nuevo proyecto',
       advancedOptions: 'Opciones avanzadas',
       instanceName: 'Nombre de la instancia (opcional):',
-      instanceNamePlaceholder: 'Por defecto "{name}" o título de respuesta de IA',
+      instanceNamePlaceholder: 'Por defecto "{name}" o t��tulo de respuesta de IA',
       instanceNameHelp: 'Si se deja en blanco, se usará el nombre del producto (o título de IA).',
       createProductInstance: 'Crear instancia de producto',
       creating: 'Creando...',
@@ -940,4 +943,4 @@ export const es = {
       footerInfo: "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF."
     }
   }
-}; 
+};

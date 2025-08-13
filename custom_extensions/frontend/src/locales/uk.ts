@@ -156,7 +156,7 @@ export const uk = {
       lessonTypes: "Типи уроків",
       assessmentTypes: "Типи оцінювання",
       createNewLesson: "Створити новий урок",
-      chooseContentType: "Виберіть тип контенту, який ви хочете створити для цього уроку",
+      chooseContentType: "Виберіть тип контенту, який ви хочете ств��рити для цього уроку",
       presentation: "Презентація",
       presentationDescription: "Створити презентацію на основі слайдів з інтерактивним контентом",
       onePager: "Односторінка",
@@ -168,6 +168,9 @@ export const uk = {
       soon: "Незабаром",
       alreadyCreated: "Вже створено",
       recommended: "Рекомендовані",
+      recommendedDescription: "Типи контенту, запропоновані ШІ, ідеально підходять для цього уроку",
+      orExploreMore: "або дослідити більше варіантів",
+      customizeRecommendations: "Налаштувати рекомендації",
       selectRecommendedProducts: "Виберіть, які продукти повинні відображатися як рекомендовані для цього уроку.",
       allOptions: "Всі типи контенту",
       seeAllContentTypes: "Переглянути всі типи контенту",
@@ -223,7 +226,7 @@ export const uk = {
       hoursRange: "Діапазон годин",
       customRate: "Користувацька ставка",
       example: "Приклад",
-      tier: "Рівень",
+      tier: "Рівен��",
       contentExamples: "Приклади контенту",
       cancel: "Скасувати",
       // Content features
@@ -429,7 +432,7 @@ export const uk = {
       inlineLeft: "Вбудоване (зображення ліворуч, текст обтікає)",
       inlineRight: "Вбудоване (зображення праворуч, текст обтікає)",
       layoutModeDescription: "Поруч: Зображення та контент однакової висоти. Вбудоване: Текст обтікає зображення.",
-      layoutPartner: "Партнер по макету",
+      layoutPartner: "Па��тнер по макету",
       layoutPartnerHelp: "Виберіть, який блок контенту пов'язати з цим зображенням",
       layoutProportion: "Пропорції макета",
       layoutProportionHelp: "Скільки місця займає зображення в макеті",
@@ -560,7 +563,7 @@ export const uk = {
       fastest: 'Найшвидший',
       average: 'Середній',
       slowest: 'Найповільніший',
-      aiModelUsage: 'Використання AI моделі',
+      aiModelUsage: 'Викорис��ання AI моделі',
       totalAiRequests: 'Всього запитів',
       avgTokens: 'Середнє токенів',
       totalTokens: 'Всього токенів',
@@ -588,7 +591,7 @@ export const uk = {
       openProducts: "Відкрити продукти",
       downloadPdf: "Завантажити PDF",
       smartEdit: "Розумне редагування",
-      editContent: "Редагувати контент",
+      editContent: "Редагувати конте��т",
       saveContent: "Зберегти контент",
       saving: "Збереження...",
       columns: "Стовпці",
@@ -694,7 +697,7 @@ export const uk = {
       howToUseText: "Як ви хочете використовувати цей текст?",
       useAsContext: "Використовувати як контекст",
       useAsContextDescription: "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту. Найкраще підходить для нотаток, досліджень або довідкової інформації.",
-      useAsBase: "Використовувати як основу",
+      useAsBase: "Викор��стовувати як основу",
       useAsBaseDescription: "ШІ покращить та відформатує вашу існуючу текстову структуру, зберігаючи ваш контент та перетворюючи його на належний навчальний продукт. Найкраще підходить для чернеток або існуючих планів.",
       continueToGenerate: "Продовжити до генерації"
     },
@@ -756,7 +759,7 @@ export const uk = {
       brief: "Короткий",
       medium: "Середній",
       detailed: "Детальний",
-      imageSource: "Джерело зображень",
+      imageSource: "Джере��о зображень",
       aiImages: "ШІ зображення",
       stockImages: "Стокові зображення",
       noImages: "Без зображень",
@@ -780,7 +783,7 @@ export const uk = {
       foldersSelectedPlural: "папки вибрані",
       filesSelected: "файл вибраний",
       filesSelectedPlural: "файлів вибрано",
-      aiWillUseDocuments: "ШІ буде використовувати ваші вибрані документи як вихідний матеріал для створення навчального контенту.",
+      aiWillUseDocuments: "ШІ буде використовувати в��ші вибрані документи як вихідний матеріал для створення навчального контенту.",
       modeUsingAsContext: "Режим: Використання як контекст",
       modeUsingAsBaseStructure: "Режим: Використання як базова структура",
       // Additional keys for themes and content sections
@@ -933,4 +936,4 @@ export const uk = {
       footerInfo: "Зміни теми автоматично зберігаються та будуть застосовані до ваших PDF завантажень."
     }
   }
-}; 
+};

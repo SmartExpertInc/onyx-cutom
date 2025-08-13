@@ -157,7 +157,7 @@ export const ru = {
       lessonTypes: "Типы уроков",
       assessmentTypes: "Типы оценивания",
       createNewLesson: "Создать новый урок",
-      chooseContentType: "Выберите тип контента, который вы хотите создать для этого урока",
+      chooseContentType: "Выберите т��п контента, который вы хотите создать для этого урока",
       presentation: "Презентация",
       presentationDescription: "Создать презентацию на основе слайдов с интерактивным контентом",
       onePager: "Одностраничник",
@@ -169,6 +169,9 @@ export const ru = {
       soon: "Скоро",
       alreadyCreated: "Уже создано",
       recommended: "Рекомендуемые",
+      recommendedDescription: "Типы контента, предложенные ИИ, идеально подходящие для этого урока",
+      orExploreMore: "или изучить больше вариантов",
+      customizeRecommendations: "Настроить рекомендации",
       selectRecommendedProducts: "Выберите, какие продукты должны отображаться как рекомендуемые для этого урока.",
       allOptions: "Все типы контента",
       seeAllContentTypes: "Посмотреть все типы контента",
@@ -250,7 +253,7 @@ export const ru = {
       hours: "ч",
       saveChanges: "Сохранить изменения",
       saving: "Сохранение...",
-      failedToSave: "Не удалось сохранить настройки папки"
+      failedToSave: "Не удалось сохранить настройк�� папки"
     },
     projectSettings: {
       title: "Настройки курса",
@@ -301,7 +304,7 @@ export const ru = {
       cancel: 'Отмена',
       saveChanges: 'Сохранить изменения',
       saving: 'Сохранение...',
-      failedToSave: 'Не удалось сохранить настройку уровня урока',
+      failedToSave: 'Не удалось со��ранить настройку уровня урока',
       lessonTitle: 'Название урока',
       advanced: 'Расширенный'
     },
@@ -668,7 +671,7 @@ export const ru = {
       actions: 'Действия',
       editProduct: 'Редактировать продукт',
       deleteProduct: 'Удалить продукт',
-      deleteConfirmation: 'Вы уверены, что хотите удалить продукт "{name}"? Это действие нельзя отменить.',
+      deleteConfirmation: 'Вы уверены, что хотите удалить продукт "{name}"? Это действие нельзя от��енить.',
       productDeleted: 'Продукт успешно удален!',
       failedToDelete: 'Не удалось удалить продукт.',
       loadingProductsPage: 'Загрузка страницы продуктов...'
@@ -687,7 +690,7 @@ export const ru = {
       newProjectName: 'Название нового проекта:',
       enterNewProjectName: 'Введите название для нового проекта',
       advancedOptions: 'Дополнительные опции',
-      instanceName: 'Название экземпляра (необязательно):',
+      instanceName: 'Название экземпляра (необязатель��о):',
       instanceNamePlaceholder: 'По умолчанию "{name}" или заголовок ответа AI',
       instanceNameHelp: 'Если оставить пустым, будет использоваться название продукта (или заголовок AI).',
       createProductInstance: 'Создать экземпляр продукта',
@@ -734,7 +737,7 @@ export const ru = {
       description: "Описание (необязательно)",
       enterFolderDescription: "Введите описание папки",
       cancel: "Отмена",
-      creating: "Создание...",
+      creating: "С��здание...",
       createFolder: "Создать папку",
       select: "Выбрать",
       selected: "Выбрано",
@@ -754,7 +757,7 @@ export const ru = {
       regenerate: "Перегенерировать",
       modulesAndLessons: "Модули и уроки",
       editsProtected: "Редактирование защищено",
-      moduleTitle: "Название модуля",
+      moduleTitle: "Название мод��ля",
       title: "название",
       lessonTitle: "Урок",
       addModule: "Добавить модуль",
@@ -879,7 +882,7 @@ export const ru = {
       quizQuestion: "Хотите ли вы создать тест из существующего плана курса?",
       yesContentForQuiz: "Да, контент для теста из плана",
       noStandaloneQuiz: "Нет, я хочу отдельный тест",
-      onePagerQuestion: "Хотите ли вы создать одностраничник из существующего плана курса?",
+      onePagerQuestion: "Хотите ли вы создать однос��раничник из существующего плана курса?",
       yesContentForOnePager: "Да, контент для одностраничника из плана",
             noStandaloneOnePager: "Нет, я хочу отдельный одностраничник",
       backButton: "← Назад",
@@ -896,7 +899,7 @@ export const ru = {
       themes: "Темы",
       themesDescription: "Используйте одну из наших популярных тем или просмотрите другие",
       viewMore: "Показать больше",
-      contentDescription: "Настройте стили текста и изображений для вашего урока",
+      contentDescription: "Настр��йте стили текста и изображений для вашего урока",
       amountOfTextPerCard: "Количество текста на карточку",
       generatingQuiz: "Генерация теста...",
       retryGeneration: "Повторить генерацию",
@@ -917,4 +920,4 @@ export const ru = {
       footerInfo: "Изменения темы автоматически сохраняются и будут применены к вашим PDF загрузкам."
     }
   }
-}; 
+};

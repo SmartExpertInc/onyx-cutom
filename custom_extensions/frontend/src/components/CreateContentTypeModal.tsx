@@ -232,40 +232,40 @@ export const CreateContentTypeModal = ({
         key={type.name}
         onClick={() => !isDisabled && handleContentCreate(type.name)}
         disabled={isDisabled}
-        className={`w-full flex items-center p-6 border-2 rounded-xl transition-all duration-200 text-left ${
+        className={`group w-full flex items-center p-6 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${
           isDisabled
             ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-            : `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-md cursor-pointer`
+            : `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
         }`}
       >
         <div className="flex items-center space-x-4 flex-1">
-          <div className={`p-3 rounded-lg ${
+          <div className={`p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${
             isDisabled ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
           }`}>
-            {React.cloneElement(type.icon, { 
-              className: `w-6 h-6 ${isDisabled ? 'text-gray-400' : ''}` 
+            {React.cloneElement(type.icon, {
+              className: `w-6 h-6 transition-all duration-200 ${isDisabled ? 'text-gray-400' : ''}`
             })}
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <h3 className="text-lg font-semibold text-black">{type.label}</h3>
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-gray-800">{type.label}</h3>
               {type.soon && (
-                <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
+                <span className="text-xs bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 px-3 py-1 rounded-full font-medium border border-orange-200">
                   {t('modals.createContent.soon')}
                 </span>
               )}
               {isAlreadyCreated && (
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                  {t('modals.createContent.alreadyCreated')}
+                <span className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 px-3 py-1 rounded-full font-medium border border-green-200">
+                  ✓ {t('modals.createContent.alreadyCreated')}
                 </span>
               )}
             </div>
-            <p className="text-sm text-black">{type.description}</p>
+            <p className="text-sm text-gray-600 leading-relaxed">{type.description}</p>
           </div>
         </div>
         {!isDisabled && (
-          <div className="text-gray-400 group-hover:text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-gray-400 group-hover:text-gray-600 transition-all duration-200 group-hover:translate-x-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
@@ -284,20 +284,38 @@ export const CreateContentTypeModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-2xl font-bold text-black">{t('modals.createContent.title')}</h2>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">{t('modals.createContent.title')}</h2>
+            </div>
             <button
               onClick={handleClose}
-              className="text-black hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+              className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 hover:bg-gray-100 rounded-full group"
             >
-              <X size={24} />
+              <X size={24} className="group-hover:rotate-90 transition-transform duration-200" />
             </button>
           </div>
-          <p className="text-black">
-            {t('modals.openOrCreate.module')}: <span className="font-medium">{moduleName}</span> • {t('modals.openOrCreate.title')} {lessonNumber}
-          </p>
-          <p className="text-lg font-semibold text-black mt-1">{lessonTitle}</p>
+
+          {/* Lesson Context Card */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {t('modals.openOrCreate.module')}
+              </span>
+              <span className="text-xs text-gray-400">•</span>
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {t('modals.openOrCreate.title')} {lessonNumber}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">{moduleName}</p>
+            <p className="text-lg font-bold text-gray-900">{lessonTitle}</p>
+          </div>
         </div>
         
         {/* Recommendations or Settings */}
@@ -306,21 +324,55 @@ export const CreateContentTypeModal = ({
             {!showSettings ? (
               // Recommendations view
               <>
-                <div className="mb-2 text-sm text-gray-600 flex items-center">
-                  <span className="font-medium">{t('modals.createContent.recommended', 'Recommended')}</span>
-                  <button
-                    onClick={() => setShowSettings(true)}
-                    className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-                    aria-label="Customize recommendations"
-                    title="Customize"
-                  >
-                    <Settings size={16} />
-                  </button>
+                <div className="mb-6">
+                  {/* Prominent Recommended Section Header */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014.846 21H9.154a3.374 3.374 0 00-2.329-1.253l-.548-.547z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-blue-900">
+                            {t('modals.createContent.recommended', 'Recommended')}
+                          </h3>
+                          <p className="text-sm text-blue-700 mt-1">
+                            {t('modals.createContent.recommendedDescription', 'AI-suggested content types perfect for this lesson')}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowSettings(true)}
+                        className="p-2 rounded-lg hover:bg-blue-100 text-blue-600 hover:text-blue-800 transition-all duration-200 group"
+                        aria-label="Customize recommendations"
+                        title="Customize recommendations"
+                      >
+                        <Settings size={18} className="group-hover:rotate-90 transition-transform duration-200" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Recommended Content Cards */}
+                  <div className="space-y-3">
+                    {recommendedOnly.map(renderTypeButton)}
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {recommendedOnly.map(renderTypeButton)}
+
+                {/* Divider and See All Button */}
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-gray-500">
+                      {t('modals.createContent.orExploreMore', 'or explore more options')}
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-4 flex justify-center">
+
+                <div className="flex justify-center">
                   <button
                     onClick={() => {
                       onClose(); // Close this modal
@@ -328,76 +380,105 @@ export const CreateContentTypeModal = ({
                         onOpenAllContentTypes(); // Open AllContentTypesModal
                       }
                     }}
-                    className="px-6 py-2 rounded-lg font-semibold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
+                    className="px-8 py-3 rounded-xl font-semibold transition-all duration-200 bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 active:scale-95 flex items-center space-x-2"
                   >
-                    {t('modals.createContent.seeAllContentTypes', 'See all content types')}
+                    <span>{t('modals.createContent.seeAllContentTypes', 'See all content types')}</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
                 </div>
               </>
             ) : (
               // Settings view
               <>
-                <p className="text-sm text-gray-600 mb-4">{t('modals.createContent.selectRecommendedProducts', 'Select which products should be shown as recommended for this lesson.')}</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Settings size={16} className="text-blue-600" />
+                    </div>
+                    <h3 className="text-lg font-bold text-blue-900">
+                      {t('modals.createContent.customizeRecommendations', 'Customize Recommendations')}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    {t('modals.createContent.selectRecommendedProducts', 'Select which products should be shown as recommended for this lesson.')}
+                  </p>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
-                    { key: 'presentation', label: t('modals.createContent.presentation'), color: 'blue' },
-                    { key: 'one-pager', label: t('modals.createContent.onePager'), color: 'purple' },
-                    { key: 'quiz', label: t('modals.createContent.quiz'), color: 'green' },
-                    { key: 'video-lesson', label: t('modals.createContent.videoLesson'), color: 'gray' },
+                    { key: 'presentation', label: t('modals.createContent.presentation'), color: 'blue', icon: <BookText className="w-5 h-5" /> },
+                    { key: 'one-pager', label: t('modals.createContent.onePager'), color: 'purple', icon: <FileText className="w-5 h-5" /> },
+                    { key: 'quiz', label: t('modals.createContent.quiz'), color: 'green', icon: <HelpCircle className="w-5 h-5" /> },
+                    { key: 'video-lesson', label: t('modals.createContent.videoLesson'), color: 'gray', icon: <Video className="w-5 h-5" /> },
                   ].map(opt => {
+                    const isSelected = !!selectedPrefs[opt.key];
                     const colorClasses = {
-                      blue: 'border-blue-200 hover:border-blue-300 bg-blue-50 hover:bg-blue-100',
-                      green: 'border-green-200 hover:border-green-300 bg-green-50 hover:bg-green-100',
-                      purple: 'border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100',
-                      gray: 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-gray-100'
+                      blue: isSelected ? 'border-blue-300 bg-blue-100 shadow-md' : 'border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50',
+                      green: isSelected ? 'border-green-300 bg-green-100 shadow-md' : 'border-gray-200 bg-white hover:border-green-200 hover:bg-green-50',
+                      purple: isSelected ? 'border-purple-300 bg-purple-100 shadow-md' : 'border-gray-200 bg-white hover:border-purple-200 hover:bg-purple-50',
+                      gray: isSelected ? 'border-gray-300 bg-gray-100 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                     };
-                    
-                    const defaultColorClasses = {
-                      blue: 'border-blue-100 hover:border-blue-200 bg-blue-25 hover:bg-blue-50',
-                      green: 'border-green-100 hover:border-green-200 bg-green-25 hover:bg-green-50',
-                      purple: 'border-purple-100 hover:border-purple-200 bg-purple-25 hover:bg-purple-50',
-                      gray: 'border-gray-100 hover:border-gray-200 bg-gray-25 hover:bg-gray-50'
-                    };
-                    
+
                     return (
-                      <label 
-                        key={opt.key} 
-                        className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                          selectedPrefs[opt.key] 
-                            ? colorClasses[opt.color as keyof typeof colorClasses]
-                            : defaultColorClasses[opt.color as keyof typeof defaultColorClasses]
+                      <label
+                        key={opt.key}
+                        className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
+                          colorClasses[opt.color as keyof typeof colorClasses]
                         }`}
                       >
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 accent-indigo-600"
-                          checked={!!selectedPrefs[opt.key]}
-                          onChange={() => handlePrefToggle(opt.key)}
-                        />
-                        <span className="text-sm text-gray-800">{opt.label}</span>
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            className="w-5 h-5 accent-blue-600 rounded"
+                            checked={isSelected}
+                            onChange={() => handlePrefToggle(opt.key)}
+                          />
+                          {isSelected && (
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-600 rounded-full flex items-center justify-center">
+                              <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                        <div className={`p-2 rounded-lg ${isSelected ? 'bg-white' : 'bg-gray-100'}`}>
+                          {React.cloneElement(opt.icon, {
+                            className: `w-5 h-5 ${isSelected ? 'text-gray-700' : 'text-gray-500'}`
+                          })}
+                        </div>
+                        <span className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>
+                          {opt.label}
+                        </span>
                       </label>
                     );
                   })}
                 </div>
 
-                <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-200 flex-shrink-0">
+                <div className="mt-8 flex justify-between items-center pt-6 border-t border-gray-200">
                   <button
                     onClick={() => setShowSettings(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-all duration-200 flex items-center space-x-2 hover:bg-gray-100 rounded-lg"
                   >
-                    {t('actions.cancel')}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>{t('actions.cancel')}</span>
                   </button>
                   <button
                     onClick={handlePrefSave}
                     disabled={!Object.values(selectedPrefs).some(Boolean)}
-                    className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
+                    className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${
                       !Object.values(selectedPrefs).some(Boolean)
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                        : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
                     }`}
                   >
-                    {t('actions.save')}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{t('actions.save')}</span>
                   </button>
                 </div>
               </>
@@ -411,10 +492,13 @@ export const CreateContentTypeModal = ({
 
         {/* Footer */}
         {!showSettings && (
-          <div className="mt-4 pt-6 border-t border-gray-100">
-            <p className="text-sm text-black text-center">
-              {t('modals.createContent.chooseContentType')}
-            </p>
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p>{t('modals.createContent.chooseContentType')}</p>
+            </div>
           </div>
         )}
       </div>
@@ -422,4 +506,4 @@ export const CreateContentTypeModal = ({
 
     </div>
   );
-}; 
+};

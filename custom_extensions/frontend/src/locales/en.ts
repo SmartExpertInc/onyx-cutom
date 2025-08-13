@@ -178,6 +178,9 @@ export const en = {
       soon: "Soon",
       alreadyCreated: "Already created",
       recommended: "Recommended",
+      recommendedDescription: "AI-suggested content types perfect for this lesson",
+      orExploreMore: "or explore more options",
+      customizeRecommendations: "Customize Recommendations",
       selectRecommendedProducts: "Select which products should be shown as recommended for this lesson.",
       allOptions: "All content types",
       seeAllContentTypes: "See all content types",
@@ -787,4 +790,4 @@ export const en = {
       moveToTrashTooltip: "Move this product to Trash"
     }
   }
-}; 
+};
