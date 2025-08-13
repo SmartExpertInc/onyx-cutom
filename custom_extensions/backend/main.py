@@ -16664,50 +16664,50 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             # Use the original content for parsing since no changes were made
             content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
             
-            parsed_quiz = await parse_ai_response_with_llm(
+        parsed_quiz = await parse_ai_response_with_llm(
                 ai_response=content_to_parse,
                 project_name=project_name,
-                target_model=QuizData,
-                default_error_model_instance=QuizData(
-                    quizTitle=project_name,
-                    questions=[],
-                    detectedLanguage=payload.language
-                ),
-                dynamic_instructions=f"""
-                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+            target_model=QuizData,
+            default_error_model_instance=QuizData(
+                quizTitle=project_name,
+                questions=[],
+                detectedLanguage=payload.language
+            ),
+            dynamic_instructions=f"""
+            CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
 
-                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+            The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
 
-                REQUIREMENTS:
-                1. Extract the quiz title from the content:
-                   - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
-                   - Extract ONLY the quiz title part (the last part after the last "**")
-                   - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
-                   - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
-                   - Do NOT include the course name or "Quiz" label in the title
-                   - If no clear pattern is found, use the first meaningful title or heading
-                
-                2. For each question in the content, create a structured question object with:
-                   - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
-                   - "question_text": The actual question text
-                   - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
-                   - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
-                   - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
-                   - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
-                   - For open-answer: "acceptable_answers": ["answer1", "answer2"]
-                   - "explanation": Explanation for the answer
+            REQUIREMENTS:
+            1. Extract the quiz title from the content:
+               - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+               - Extract ONLY the quiz title part (the last part after the last "**")
+               - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+               - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+               - Do NOT include the course name or "Quiz" label in the title
+               - If no clear pattern is found, use the first meaningful title or heading
+            
+            2. For each question in the content, create a structured question object with:
+               - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+               - "question_text": The actual question text
+               - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
+               - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+               - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
+               - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+               - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+               - "explanation": Explanation for the answer
 
-                CRITICAL RULES:
-                - Output ONLY the JSON object, no other text
-                - Every question MUST have "question_type" field
-                - Use exact field names as shown in the example
-                - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
-                - If content is unclear, infer question types based on structure
-                - Language: {payload.language}
-                - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
-                """,
-                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
-            )
+            CRITICAL RULES:
+            - Output ONLY the JSON object, no other text
+            - Every question MUST have "question_type" field
+            - Use exact field names as shown in the example
+            - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+            - If content is unclear, infer question types based on structure
+            - Language: {payload.language}
+            - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
+            """,
+            target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+        )
             logger.info("Direct parser path completed successfully")
         else:
             # AI PARSER PATH: Use AI for parsing (original behavior)
@@ -17395,7 +17395,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         # NEW: smart change handling
         "isCleanContent": payload.isCleanContent,
         # NEW: Enhanced instructions for clean content mode
-        "cleanContentInstructions": payload.isCleanContent and "CLEAN CONTENT MODE: The content contains section titles without full content. You MUST generate comprehensive, detailed content for each section title provided. IMPORTANT RULES: 1. For each section title (## Title), create 2-4 content blocks including: - A headline block (level 2) with the section title - 1-2 paragraph blocks with detailed explanations - Optional bullet_list or numbered_list with key points - Optional alert block with important information 2. Generate content that is directly relevant to the section title 3. Make content comprehensive and educational 4. Maintain professional tone and structure 5. Each section should have substantial content (not just the title) Example for section '## AI Tools for some Teachers': - Create detailed content about AI tools specifically for teachers - Include practical examples and benefits - Add relevant bullet points or numbered lists - Make it comprehensive and useful"
+        "cleanContentInstructions": payload.isCleanContent and "CLEAN CONTENT MODE: The content contains section titles without full content. You MUST generate comprehensive, detailed content for each section title provided. IMPORTANT RULES: 1. For each section title (## Title), create 2-4 content blocks including: - A headline block (level 2) with the section title - 1-2 paragraph blocks with detailed explanations - Optional bullet_list or numbered_list with key points - Optional alert block with important information 2. Generate content that is directly relevant to the section title 3. Make content comprehensive and educational 4. Maintain professional tone and structure 5. Each section should have substantial content (not just the title) Example for section '## AI Tools for some Teachers': - Create detailed content about AI tools specifically for teachers - Include practical examples and benefits - Add relevant bullet points or numbered lists - Make it comprehensive and useful" or "TITLE UPDATE MODE: The content contains updated section titles with original content. You MUST regenerate content for sections with updated titles to match the new title while keeping the original content for unchanged sections. IMPORTANT: For sections with updated titles, create new content that is relevant to the new title while maintaining the same structure and depth as the original content."
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
@@ -17610,8 +17610,8 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # ---------- 2) AI PARSER PATH: Changes detected or direct parser failed ----------
         if use_ai_parser:
-            # Parse the text presentation data using LLM - only call once with consistent project name
-            parsed_text_presentation = await parse_ai_response_with_llm(
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
             ai_response=payload.aiResponse,
             project_name=project_name,  # Use consistent project name
             target_model=TextPresentationDetails,
@@ -17628,7 +17628,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
             
             **CRITICAL: Smart Change Handling**
-            {f"CLEAN CONTENT MODE: The input contains section titles without full content. You MUST generate comprehensive, detailed content for each section title provided. IMPORTANT RULES FOR CLEAN CONTENT MODE: 1. For each section title (## Title), create 2-4 content blocks including: - A headline block (level 2) with the section title - 1-2 paragraph blocks with detailed explanations - Optional bullet_list or numbered_list with key points - Optional alert block with important information 2. Generate content that is directly relevant to the section title 3. Make content comprehensive and educational 4. Maintain professional tone and structure 5. Each section should have substantial content (not just the title) Example for section '## AI Tools for some Teachers': - Create detailed content about AI tools specifically for teachers - Include practical examples and benefits - Add relevant bullet points or numbered lists - Make it comprehensive and useful" if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
+            {f"CLEAN CONTENT MODE: The input contains section titles without full content. You MUST generate comprehensive, detailed content for each section title provided. IMPORTANT RULES FOR CLEAN CONTENT MODE: 1. For each section title (## Title), create 2-4 content blocks including: - A headline block (level 2) with the section title - 1-2 paragraph blocks with detailed explanations - Optional bullet_list or numbered_list with key points - Optional alert block with important information 2. Generate content that is directly relevant to the section title 3. Make content comprehensive and educational 4. Maintain professional tone and structure 5. Each section should have substantial content (not just the title) Example for section '## AI Tools for some Teachers': - Create detailed content about AI tools specifically for teachers - Include practical examples and benefits - Add relevant bullet points or numbered lists - Make it comprehensive and useful" if payload.isCleanContent else "TITLE UPDATE MODE: The content contains updated section titles with original content. You MUST regenerate content for sections with updated titles to match the new title while keeping the original content for unchanged sections. IMPORTANT: For sections with updated titles, create new content that is relevant to the new title while maintaining the same structure and depth as the original content."}
 
             **Global Fields:**
             1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.

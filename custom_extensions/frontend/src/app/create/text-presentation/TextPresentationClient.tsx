@@ -359,8 +359,9 @@ export default function TextPresentationClient() {
     
     lessons.forEach((lesson, index) => {
       if (editedTitleIds.has(index)) {
-        // For edited lessons, include only the new title (clean content)
-        cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n`;
+        // For edited lessons, include the new title with original content
+        // This allows AI to understand the context and regenerate content for the new title
+        cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n${lesson.content}\n\n`;
       } else {
         // For unedited lessons, include the full content
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
@@ -433,10 +434,10 @@ export default function TextPresentationClient() {
       let isCleanContent = false;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
-        // For text presentation, send clean content (only titles) for edited sections
-        // This allows AI to generate new content for the updated titles
+        // For text presentation, send content with updated titles and original content
+        // This allows AI to understand context and regenerate content for the new titles
         contentToSend = createCleanContent(content);
-        isCleanContent = true; // Enable clean content mode for text presentation
+        isCleanContent = false; // Send full content with updated titles
       }
       
       const payload: any = {
@@ -765,10 +766,10 @@ export default function TextPresentationClient() {
       let isCleanContent = false;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
-        // For text presentation, send clean content (only titles) for edited sections
-        // This allows AI to generate new content for the updated titles
+        // For text presentation, send content with updated titles and original content
+        // This allows AI to understand context and regenerate content for the new titles
         contentToSend = createCleanContent(content);
-        isCleanContent = true; // Enable clean content mode for text presentation
+        isCleanContent = false; // Send full content with updated titles
       }
       
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
