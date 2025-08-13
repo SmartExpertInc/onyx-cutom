@@ -485,12 +485,12 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
           <div className="flex justify-center mb-6">
             <div 
               className="relative overflow-hidden border-2 border-blue-500 bg-gray-100 rounded-lg"
-              style={{
-                width: Math.min(placeholderDimensions.width, 400),
-                height: Math.min(placeholderDimensions.height, 300),
-                maxWidth: '100%',
-                maxHeight: '50vh'
-              }}
+                      style={{
+          width: placeholderDimensions.width,
+          height: placeholderDimensions.height,
+          maxWidth: '100%',
+          maxHeight: '60vh'
+        }}
             >
               {editState.imageUrl && (
                 <>
