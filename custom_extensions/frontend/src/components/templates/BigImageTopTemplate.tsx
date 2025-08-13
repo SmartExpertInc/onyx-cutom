@@ -169,6 +169,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const imageRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
   
   log('BigImageTopTemplate', 'render', { 
     slideId, 
@@ -327,7 +328,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   });
 
   return (
-    <div style={slideStyles}>
+    <div ref={slideContainerRef} style={slideStyles}>
       
       {/* Top - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
@@ -345,6 +346,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           elementRef={imageRef}
           cropMode="contain"
           onCropModeChange={handleCropModeChange}
+          slideContainerRef={slideContainerRef}
         />
       </div>
 

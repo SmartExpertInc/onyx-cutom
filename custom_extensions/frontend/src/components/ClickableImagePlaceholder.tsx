@@ -29,6 +29,8 @@ export interface ClickableImagePlaceholderProps {
   elementRef?: React.RefObject<HTMLDivElement | null>;
   cropMode?: 'cover' | 'contain' | 'fill';
   onCropModeChange?: (mode: 'cover' | 'contain' | 'fill') => void;
+  // New prop for slide context
+  slideContainerRef?: React.RefObject<HTMLElement | null>;
 }
 
 interface ImageEditState {
@@ -54,7 +56,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   elementId,
   elementRef,
   cropMode = 'contain',
-  onCropModeChange
+  onCropModeChange,
+  slideContainerRef
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
@@ -368,13 +371,25 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   if (editState.isEditing) {
     return (
       <>
-        {/* Dark overlay covering everything except the placeholder */}
-        <div className="fixed inset-0 z-[99998] bg-black bg-opacity-75 flex items-center justify-center">
-          <div className="text-white text-center">
-            <h3 className="text-xl font-semibold mb-4">Position Your Image</h3>
-            <p className="text-sm opacity-75">Drag and scale the image to fit perfectly in your placeholder</p>
+        {/* Dark overlay covering only the slide */}
+        {slideContainerRef?.current && (
+          <div 
+            className="absolute inset-0 z-[99998] bg-black bg-opacity-75 flex items-center justify-center"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 99998
+            }}
+          >
+            <div className="text-white text-center">
+              <h3 className="text-xl font-semibold mb-4">Position Your Image</h3>
+              <p className="text-sm opacity-75">Drag and scale the image to fit perfectly in your placeholder</p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Image editing container - positioned over the actual placeholder */}
         <div
@@ -391,7 +406,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                 ref={editImageRef}
                 src={editState.imageUrl}
                 alt="Editing"
-                className="absolute pointer-events-none"
+                className="absolute"
                 style={{
                   transform: editState.transform,
                   transformOrigin: '0 0',
@@ -439,8 +454,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           </div>
         </div>
 
-        {/* Floating controls */}
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[99999] bg-white rounded-lg shadow-xl p-4 flex items-center space-x-4">
+        {/* Floating controls positioned relative to slide */}
+        <div 
+          className="absolute z-[99999] bg-white rounded-lg shadow-xl p-4 flex items-center space-x-4"
+          style={{
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)'
+          }}
+        >
           {/* Zoom controls */}
           <div className="flex items-center space-x-2">
             <button

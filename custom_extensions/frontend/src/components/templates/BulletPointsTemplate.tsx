@@ -520,6 +520,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   const imageRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const bulletsRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
   
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -607,7 +608,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   return (
-    <div className="bullet-points-template" style={slideStyles}>
+    <div ref={slideContainerRef} className="bullet-points-template" style={slideStyles}>
       {/* Title */}
       <div 
         ref={titleRef}
@@ -675,6 +676,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             onSizeTransformChange={handleSizeTransformChange}
             elementId={`${slideId}-image`}
             elementRef={imageRef}
+            slideContainerRef={slideContainerRef}
           />
         </div>
         

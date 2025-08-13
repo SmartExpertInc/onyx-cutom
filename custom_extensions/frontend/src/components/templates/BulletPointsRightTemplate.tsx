@@ -527,6 +527,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   // Inline editing state for title and subtitle only
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -634,7 +635,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   };
 
   return (
-    <div className="bullet-points-right-template" style={slideStyles}>
+    <div ref={slideContainerRef} className="bullet-points-right-template" style={slideStyles}>
       {/* Title */}
       {isEditable && editingTitle ? (
         <InlineEditor
@@ -751,6 +752,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
               prompt={displayPrompt}
               isEditable={isEditable}
               style={placeholderStyles}
+              slideContainerRef={slideContainerRef}
             />
         </div>
       </div>

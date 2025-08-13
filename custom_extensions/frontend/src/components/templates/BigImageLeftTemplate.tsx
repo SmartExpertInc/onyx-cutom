@@ -167,6 +167,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const imageRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
   
   // Debounced update function to prevent infinite autosaves
   const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
@@ -344,7 +345,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   });
 
   return (
-    <div style={slideStyles}>
+    <div ref={slideContainerRef} style={slideStyles}>
       
       {/* Left side - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
@@ -362,6 +363,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           elementRef={imageRef}
           cropMode="contain"
           onCropModeChange={handleCropModeChange}
+          slideContainerRef={slideContainerRef}
         />
       </div>
 

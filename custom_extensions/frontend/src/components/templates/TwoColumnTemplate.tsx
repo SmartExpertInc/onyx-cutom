@@ -161,6 +161,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   const [editingRightTitle, setEditingRightTitle] = useState(false);
   const [editingRightContent, setEditingRightContent] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -288,6 +289,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
 
   return (
     <div
+      ref={slideContainerRef}
       style={{
         padding: '40px',
         minHeight: '600px',
@@ -357,8 +359,9 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               description="Click to upload image"
               prompt={leftDisplayPrompt}
               isEditable={isEditable}
-            style={placeholderStyles}
-          />
+              style={placeholderStyles}
+              slideContainerRef={slideContainerRef}
+            />
           {/* Left Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
             {isEditable && editingLeftTitle ? (
@@ -461,6 +464,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               prompt={rightDisplayPrompt}
               isEditable={isEditable}
               style={placeholderStyles}
+              slideContainerRef={slideContainerRef}
             />
           {/* Right Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
