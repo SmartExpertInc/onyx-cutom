@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ImageIcon, Replace, ZoomIn, ZoomOut, Check, X } from 'lucide-react';
+import { ImageIcon, Replace, ZoomIn, ZoomOut, Check, X, Image } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
 
@@ -330,6 +330,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     document.body.style.overflow = '';
   }, [editState.imageUrl, elementId]);
 
+
+
   // Finalize image upload
   const finalizeImageUpload = useCallback(async (imagePath: string) => {
     log('ClickableImagePlaceholder', 'finalizeImageUpload', {
@@ -358,6 +360,72 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     };
     tmp.src = imagePath;
   }, [onImageUploaded, onSizeTransformChange, cropMode, elementId]);
+
+  // Handle "Do Not Crop" - upload original image without transforms
+  const handleDoNotCrop = useCallback(async () => {
+    log('ClickableImagePlaceholder', 'handleDoNotCrop_start', {
+      elementId,
+      hasImageFile: !!editState.imageFile
+    });
+
+    if (!editState.imageFile) {
+      log('ClickableImagePlaceholder', 'handleDoNotCrop_noImageFile', { elementId });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Upload the original file without any cropping or transforms
+      const { uploadPresentationImage } = await import('../lib/designTemplateApi');
+      const result = await uploadPresentationImage(editState.imageFile);
+      
+      log('ClickableImagePlaceholder', 'handleDoNotCrop_uploadResult', {
+        elementId,
+        success: !!result.file_path,
+        filePath: result.file_path
+      });
+
+      if (result.file_path) {
+        // Finalize the upload and exit edit mode
+        await finalizeImageUpload(result.file_path);
+        
+        // Clean up edit state
+        if (editState.imageUrl) {
+          URL.revokeObjectURL(editState.imageUrl);
+        }
+        
+        setEditState({
+          isEditing: false,
+          imageFile: null,
+          imageUrl: '',
+          scale: 1,
+          transform: 'translate(0px, 0px) scale(1)',
+          imageDimensions: null,
+          hasChanges: false
+        });
+
+        // Restore body scroll
+        document.body.style.overflow = '';
+
+        log('ClickableImagePlaceholder', 'handleDoNotCrop_success', {
+          elementId,
+          finalImagePath: result.file_path
+        });
+      } else {
+        throw new Error('No file path returned from upload');
+      }
+      
+    } catch (error) {
+      log('ClickableImagePlaceholder', 'handleDoNotCrop_error', {
+        elementId,
+        error
+      });
+      console.error('Do Not Crop upload error:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [editState.imageFile, editState.imageUrl, elementId, finalizeImageUpload]);
 
   // Generate and finalize cropped image
   const confirmEdit = useCallback(async () => {
@@ -756,6 +824,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           >
             <X className="w-4 h-4" />
             <span>Cancel</span>
+          </button>
+          
+          <button
+            onClick={handleDoNotCrop}
+            disabled={isProcessing}
+            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+          >
+            {isProcessing ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <Image className="w-4 h-4" />
+                <span>Do Not Crop</span>
+              </>
+            )}
           </button>
           
           <button
