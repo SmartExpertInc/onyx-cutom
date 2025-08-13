@@ -66,6 +66,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Modal state
   const [showImageEditModal, setShowImageEditModal] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  
+  // Hover state for anchor visibility
+  const [isHovered, setIsHovered] = useState(false);
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -92,6 +95,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       setDisplayedImage(imagePath);
     }
   }, [imagePath]);
+
+  // Ensure hover state is reset when image changes
+  useEffect(() => {
+    setIsHovered(false);
+  }, [displayedImage]);
 
   // Apply saved position and size when component mounts or saved values change
   useEffect(() => {
@@ -147,6 +155,29 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     } else {
       // If no image, show upload modal
       setShowUploadModal(true);
+    }
+  };
+
+  // Hover handlers for anchor visibility
+  const handleMouseEnter = () => {
+    if (isEditable) {
+      log('ClickableImagePlaceholder', 'handleMouseEnter', {
+        elementId,
+        hasImage: !!displayedImage,
+        isEditable
+      });
+      setIsHovered(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isEditable) {
+      log('ClickableImagePlaceholder', 'handleMouseLeave', {
+        elementId,
+        hasImage: !!displayedImage,
+        isEditable
+      });
+      setIsHovered(false);
     }
   };
 
@@ -258,13 +289,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           className={`
             ${positionClasses[position]} 
             relative overflow-hidden rounded-lg
-            ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
+            ${isEditable ? 'group cursor-pointer transition-all duration-200' : ''}
+            ${isEditable && isHovered ? 'ring-2 ring-blue-400 shadow-lg' : ''}
             ${className}
           `}
           style={{
             ...(style || {}),
           }}
           onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           <img 
             ref={imgRef}
@@ -288,9 +322,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
 
         {/* React-moveable for the image container */}
-        {isEditable && containerRef.current && (
-          <Moveable
-            target={containerRef.current}
+        {isEditable && containerRef.current && isHovered && (
+          (() => {
+            log('ClickableImagePlaceholder', 'renderMoveable', {
+              elementId,
+              hasImage: !!displayedImage,
+              isHovered,
+              isEditable
+            });
+            return (
+              <Moveable
+                target={containerRef.current}
             draggable={true}
             throttleDrag={1}
             edgeDraggable={false}
@@ -382,6 +424,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               });
             }}
           />
+            );
+          })()
         )}
 
         <PresentationImageUpload
@@ -418,13 +462,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           rounded-lg flex items-center justify-center 
           text-gray-500 text-sm
           ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-          ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
+          ${isEditable ? 'transition-all duration-200' : ''}
+          ${isEditable && isHovered ? 'border-blue-400 bg-blue-50 ring-2 ring-blue-400 shadow-lg' : ''}
           ${className}
         `}
         style={{
           ...(style || {}),
         }}
         onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
           <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -444,8 +491,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       </div>
 
       {/* React-moveable for placeholder */}
-      {isEditable && containerRef.current && (
-        <Moveable
+      {isEditable && containerRef.current && isHovered && (
+        (() => {
+          log('ClickableImagePlaceholder', 'renderMoveable_empty', {
+            elementId,
+            hasImage: !!displayedImage,
+            isHovered,
+            isEditable
+          });
+          return (
+            <Moveable
           target={containerRef.current}
           draggable={true}
           throttleDrag={1}
@@ -457,13 +512,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           keepRatio={false}
           throttleResize={1}
           renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-          onResize={e => {
-            e.target.style.width = `${e.width}px`;
-            e.target.style.height = `${e.height}px`;
-            e.target.style.transform = e.drag.transform;
-          }}
-        />
-      )}
+                      onResize={e => {
+              e.target.style.width = `${e.width}px`;
+              e.target.style.height = `${e.height}px`;
+              e.target.style.transform = e.drag.transform;
+            }}
+          />
+            );
+          })()
+        )}
 
       <PresentationImageUpload
         isOpen={showUploadModal}
