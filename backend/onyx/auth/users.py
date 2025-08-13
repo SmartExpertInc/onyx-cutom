@@ -722,6 +722,7 @@ cookie_transport = CookieTransport(
     cookie_max_age=SESSION_EXPIRE_TIME_SECONDS,
     cookie_secure=WEB_DOMAIN.startswith("https"),
     cookie_name=FASTAPI_USERS_AUTH_COOKIE_NAME,
+    cookie_samesite="none",
 )
 
 

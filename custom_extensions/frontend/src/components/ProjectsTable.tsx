@@ -44,7 +44,7 @@ import {
   Video,
   HelpCircle,
   FileText,
-  BookOpen,
+  ClipboardCheck,
 } from "lucide-react";
 import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
@@ -56,7 +56,7 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
 
   switch (type) {
     case "Training Plan":
-      return <BookOpen size={iconSize} />;
+      return <ClipboardCheck size={iconSize} />;
     case "Quiz":
       return <HelpCircle size={iconSize} />;
     case "Slide Deck":
