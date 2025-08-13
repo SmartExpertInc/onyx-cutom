@@ -519,7 +519,11 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   imageAlt,
   theme,
   isEditable = false,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -624,14 +628,32 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     }
   };
 
+  // Handle size and transform changes for the placeholder
+  const handleSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      // Convert the payload to the expected format for the backend
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.imageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.widthPx = payload.imageSize.width;
+        updateData.heightPx = payload.imageSize.height;
+      }
+      
+      onUpdate(updateData);
+    }
+  };
+
   // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    margin: '0 auto',
-    height: '100%',
-    aspectRatio: '1/1'
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
+    margin: '0 auto'
   };
 
   return (
@@ -752,7 +774,11 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
               prompt={displayPrompt}
               isEditable={isEditable}
               style={placeholderStyles}
+              onSizeTransformChange={handleSizeTransformChange}
+              elementId={`${slideId}-image`}
               slideContainerRef={slideContainerRef}
+              savedImagePosition={imageOffset}
+              savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
             />
         </div>
       </div>

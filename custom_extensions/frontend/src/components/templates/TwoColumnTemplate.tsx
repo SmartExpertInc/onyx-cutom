@@ -141,11 +141,19 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   leftImageAlt,
   leftImagePrompt,
   leftImagePath,
+  leftWidthPx,
+  leftHeightPx,
+  leftImageScale,
+  leftImageOffset,
   rightTitle,
   rightContent,
   rightImageAlt,
   rightImagePrompt,
   rightImagePath,
+  rightWidthPx,
+  rightHeightPx,
+  rightImageScale,
+  rightImageOffset,
   columnRatio,
   theme,
   onUpdate,
@@ -246,14 +254,56 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     }
   };
 
+  // Handle left placeholder size and transform changes
+  const handleLeftSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.leftImageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.leftWidthPx = payload.imageSize.width;
+        updateData.leftHeightPx = payload.imageSize.height;
+      }
+      
+      onUpdate(updateData);
+    }
+  };
+
+  // Handle right placeholder size and transform changes
+  const handleRightSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.rightImageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.rightWidthPx = payload.imageSize.width;
+        updateData.rightHeightPx = payload.imageSize.height;
+      }
+      
+      onUpdate(updateData);
+    }
+  };
+
   // AI prompt logic
   const leftDisplayPrompt = leftImagePrompt || leftImageAlt || 'relevant illustration for the left column';
   const rightDisplayPrompt = rightImagePrompt || rightImageAlt || 'relevant illustration for the right column';
 
-  const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    maxWidth: '320px',
-    maxHeight: '200px',
+  const leftPlaceholderStyles: React.CSSProperties = {
+    // Only apply default dimensions if no saved size exists
+    ...(leftWidthPx && leftHeightPx ? {} : { width: '100%', maxWidth: '320px', maxHeight: '200px' }),
+    margin: '0',
+    marginBottom: '24px'
+  };
+
+  const rightPlaceholderStyles: React.CSSProperties = {
+    // Only apply default dimensions if no saved size exists
+    ...(rightWidthPx && rightHeightPx ? {} : { width: '100%', maxWidth: '320px', maxHeight: '200px' }),
     margin: '0',
     marginBottom: '24px'
   };
@@ -359,8 +409,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               description="Click to upload image"
               prompt={leftDisplayPrompt}
               isEditable={isEditable}
-              style={placeholderStyles}
+              style={leftPlaceholderStyles}
+              onSizeTransformChange={handleLeftSizeTransformChange}
+              elementId="left-image"
               slideContainerRef={slideContainerRef}
+              savedImagePosition={leftImageOffset}
+              savedImageSize={leftWidthPx && leftHeightPx ? { width: leftWidthPx, height: leftHeightPx } : undefined}
             />
           {/* Left Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
@@ -463,8 +517,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               description="Click to upload image"
               prompt={rightDisplayPrompt}
               isEditable={isEditable}
-              style={placeholderStyles}
+              style={rightPlaceholderStyles}
+              onSizeTransformChange={handleRightSizeTransformChange}
+              elementId="right-image"
               slideContainerRef={slideContainerRef}
+              savedImagePosition={rightImageOffset}
+              savedImageSize={rightWidthPx && rightHeightPx ? { width: rightWidthPx, height: rightHeightPx } : undefined}
             />
           {/* Right Mini title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
