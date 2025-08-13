@@ -31,7 +31,7 @@
         
         /* Header */
         .pdf-header {
-            background: #3b82f6;
+            background: #059669;
             color: white;
             padding: 24px 32px;
             margin-bottom: 0;
@@ -122,7 +122,7 @@
         .folder-icon {
             width: 16px;
             height: 16px;
-            color: #3b82f6;
+            color: #059669;
             flex-shrink: 0;
         }
         
@@ -256,12 +256,7 @@
             justify-content: center;
         }
 
-        .quality-tier-text {
-            font-size: 10px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+
 
         /* Quality tier badge styling - matching lesson settings modal */
         .tier-badge {
@@ -269,9 +264,12 @@
             padding: 2px 6px;
             font-size: 9px;
             font-weight: 500;
-            border-radius: 12px;
-            text-transform: uppercase;
+            border-radius: 9999px;
+            -webkit-border-radius: 9999px;
+            -moz-border-radius: 9999px;
             letter-spacing: 0.05em;
+            text-align: center;
+            line-height: 1.2;
         }
         
         /* Quality tier colors - matching lesson settings modal */
@@ -397,7 +395,7 @@
                                         <td class="quality-tier-cell">
                                             <div class="quality-tier-container">
                                                 {% set project_tier = project.get('quality_tier', 'interactive') %}
-                                                <span class="quality-tier-text tier-{{ project_tier }}">{{ project_tier.upper() }}</span>
+                                                <span class="tier-badge tier-{{ project_tier }}">{{ project_tier }}</span>
                                             </div>
                                         </td>
                                         {% if column_visibility.numberOfLessons %}
@@ -489,7 +487,7 @@
                                 <td class="quality-tier-cell">
                                     <div class="quality-tier-container">
                                         {% set project_tier = project.get('quality_tier', 'interactive') %}
-                                        <span class="tier-badge tier-{{ project_tier }}">{{ project_tier.upper() }}</span>
+                                        <span class="tier-badge tier-{{ project_tier }}">{{ project_tier }}</span>
                                     </div>
                                 </td>
                                 {% if column_visibility.numberOfLessons %}
