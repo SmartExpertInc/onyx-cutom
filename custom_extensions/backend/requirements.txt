@@ -12,4 +12,5 @@ python-dotenv # To load .env variables
 python-multipart
 tiktoken
 openai
+Pillow # For pie chart image generation
 

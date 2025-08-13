@@ -17,6 +17,13 @@ import base64
 import mimetypes
 import math
 
+# Import pie chart generator
+try:
+    from .pie_chart_generator import pie_chart_generator
+except ImportError:
+    pie_chart_generator = None
+    logger.warning("Pie chart generator not available")
+
 # Attempt to import settings (as before)
 try:
     from app.core.config import settings
@@ -1058,6 +1065,26 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             'theme': theme,
             'slide_height': slide_height
         }
+        
+        # Generate pie chart image if needed
+        if safe_slide_data.get('templateId') == 'pie-chart-infographics' and pie_chart_generator:
+            try:
+                chart_data = safe_slide_data.get('props', {}).get('chartData', {})
+                segments = chart_data.get('segments', [])
+                
+                if segments:
+                    logger.info(f"Generating pie chart image for {slide_info}{template_info}")
+                    pie_chart_image = pie_chart_generator.generate_pie_chart_image(segments)
+                    context_data['pie_chart_image'] = pie_chart_image
+                    logger.info(f"Pie chart image generated successfully for {slide_info}{template_info}")
+                else:
+                    logger.warning(f"No segments found for pie chart in {slide_info}{template_info}")
+                    context_data['pie_chart_image'] = ""
+            except Exception as e:
+                logger.error(f"Error generating pie chart image for {slide_info}{template_info}: {e}")
+                context_data['pie_chart_image'] = ""
+        else:
+            context_data['pie_chart_image'] = ""
         
         # Process presentation slide images (convert imagePath to base64 data URLs)
         if safe_slide_data.get('props'):
