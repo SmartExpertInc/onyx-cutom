@@ -134,7 +134,7 @@ const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ selectedUse
           </div>
         </div>
       ) : (
-        <div className="h-80 overflow-y-auto">
+        <div className="h-96 overflow-y-auto">
           <Timeline position="alternate" sx={{ 
             '& .MuiTimelineItem-root': {
               minHeight: 'auto',
