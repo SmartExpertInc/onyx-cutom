@@ -15765,28 +15765,28 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                                                 'video-lesson': False,
                                             }
                                         )
-                                            # Also generate completion_breakdown for advanced mode support
-                                            try:
-                                                primary = lesson['recommended_content_types'].get('primary', [])
-                                                ranges = {
-                                                    'one-pager': (2,3),
-                                                    'presentation': (5,10),
-                                                    'quiz': (5,7),
-                                                    'video-lesson': (2,5),
-                                                }
-                                                breakdown = {}
-                                                total_m = 0
-                                                for p in primary:
-                                                    r = ranges.get(p)
-                                                    if r:
-                                                        mid = int(round((r[0]+r[1])/2))
-                                                        breakdown[p] = mid
-                                                        total_m += mid
-                                                if total_m > 0:
-                                                    lesson['completion_breakdown'] = breakdown
-                                                    lesson['completionTime'] = f"{total_m}m"
-                                            except Exception:
-                                                pass
+                                        # Also generate completion_breakdown for advanced mode support
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
                                     except Exception:
                                         pass
                                     
