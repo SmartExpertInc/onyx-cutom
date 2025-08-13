@@ -17107,10 +17107,6 @@ class TextPresentationWizardFinalize(BaseModel):
     chatSessionId: Optional[str] = None
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    # NEW: user edit tracking for smart content processing
-    hasUserEdits: Optional[bool] = False
-    originalContent: Optional[str] = None
-    isCleanContent: Optional[bool] = False
 
 class TextPresentationEditRequest(BaseModel):
     content: str
@@ -17519,38 +17515,18 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] hasUserEdits: {payload.hasUserEdits}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] originalContent length: {len(payload.originalContent) if payload.originalContent else 0}")
         
-        # NEW: Handle clean content (titles only) differently
-        if payload.isCleanContent:
-            logger.info("Processing clean content (titles only) - will generate full content for each title")
-            dynamic_instructions = f"""
-            CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
-
-            The AI response contains ONLY section titles without content. You need to generate a complete text presentation with:
-            1. A main title for the document
-            2. Full content for each section title
-            3. Properly structured content blocks
-
-            REQUIREMENTS:
-            1. Extract or create a main title for the document
-            2. For each section title (## Title), generate:
-               - A headline block with the title
-               - Multiple content blocks (paragraphs, lists, etc.) that provide comprehensive information about that topic
-               - Make the content educational, informative, and well-structured
-
-            CRITICAL RULES:
-            - Generate realistic and comprehensive content for each section
-            - Use appropriate content block types (headlines, paragraphs, bullet lists, etc.)
-            - Provide detailed, educational content
-            - Language: {payload.language}
-            - Make content engaging and informative
-            """
-        else:
-            # Regular content with full text
-            dynamic_instructions = f"""
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
+            ai_response=payload.aiResponse,
+            project_name=project_name,  # Use consistent project name
+            target_model=TextPresentationDetails,
+            default_error_model_instance=TextPresentationDetails(
+                textTitle=project_name,
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            ),
+            dynamic_instructions=f"""
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
@@ -17629,19 +17605,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
               • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
 
             Return ONLY the JSON object.
-            """
-        
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=payload.aiResponse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
-                detectedLanguage=payload.language
-            ),
-            dynamic_instructions=dynamic_instructions,
+            """,
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
         

@@ -348,6 +348,7 @@ export default function TextPresentationClient() {
   };
 
   // NEW: Create clean content - if title changed send only title without context, if not changed send with context
+  // Also handles the case where a large heading gets broken down into subheadings
   const createCleanTitlesContent = (content: string) => {
     const lessons = parseContentIntoLessons(content);
     if (lessons.length === 0) return content;
@@ -355,16 +356,18 @@ export default function TextPresentationClient() {
     let cleanContent = "";
     
     lessons.forEach((lesson, index) => {
-      // For originally edited titles, send only the title without context
-      // For unedited titles, send with full context
+      // Check if this title was originally edited by the user
       if (originallyEditedTitles.has(index)) {
         // For originally edited titles, send only the title without context
+        // This allows AI to focus on the title change and regenerate appropriate content
         cleanContent += `## ${lesson.title}\n\n`;
       } else {
         // For unedited titles, send with full context
+        // This preserves the original content structure and context
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
       }
     });
+    
     return cleanContent.trim();
   };
 
