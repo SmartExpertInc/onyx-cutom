@@ -204,6 +204,20 @@
             justify-content: center;
         }
         
+        /* Timer icon styles */
+        .timer-icon {
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            color: #2D7C21;
+        }
+        
+        .timer-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
 
         
         /* Indentation */
@@ -397,7 +411,7 @@
                                     </td>
                                 {% endif %}
                                 {% if column_visibility.estCreationTime %}
-                                    <td class="data-cell bold">
+                                    <td class="data-cell bold timer-cell">
                                         {% if folder.total_hours > 0 %}
                                             <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
@@ -408,7 +422,7 @@
                                     </td>
                                 {% endif %}
                                 {% if column_visibility.estCompletionTime %}
-                                    <td class="data-cell bold">
+                                    <td class="data-cell bold timer-cell">
                                         {% if folder.total_completion_time > 0 %}
                                             <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
@@ -504,7 +518,7 @@
                                 </td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td class="data-cell bold">
+                                <td class="data-cell bold timer-cell">
                                     {% set total_hours = unassigned_projects | sum(attribute='total_hours') %}
                                     {% if total_hours > 0 %}
                                         <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -516,7 +530,7 @@
                                 </td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
-                                <td class="data-cell bold">
+                                <td class="data-cell bold timer-cell">
                                     {% set total_completion_time = unassigned_projects | sum(attribute='total_completion_time') %}
                                     {% if total_completion_time > 0 %}
                                         <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
