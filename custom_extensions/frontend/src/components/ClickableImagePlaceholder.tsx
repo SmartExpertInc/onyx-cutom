@@ -66,9 +66,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Modal state
   const [showImageEditModal, setShowImageEditModal] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
-  
-  // Hover state for moveable anchors visibility
+
+  // Hover state management for Moveable anchors
   const [isHovered, setIsHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -94,13 +96,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     if (imagePath) {
       setDisplayedImage(imagePath);
     }
-  }, [imagePath]);
-
-  // Reset hover state when image changes or component unmounts
-  useEffect(() => {
-    return () => {
-      setIsHovered(false);
-    };
   }, [imagePath]);
 
   // Apply saved position and size when component mounts or saved values change
@@ -157,6 +152,31 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     } else {
       // If no image, show upload modal
       setShowUploadModal(true);
+    }
+  };
+
+  // Hover event handlers for Moveable anchors
+  const handleMouseEnter = () => {
+    if (!isDragging && !isResizing) {
+      setIsHovered(true);
+      log('ClickableImagePlaceholder', 'mouseEnter', {
+        elementId,
+        isDragging,
+        isResizing,
+        isHovered: true
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isDragging && !isResizing) {
+      setIsHovered(false);
+      log('ClickableImagePlaceholder', 'mouseLeave', {
+        elementId,
+        isDragging,
+        isResizing,
+        isHovered: false
+      });
     }
   };
 
@@ -268,26 +288,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           className={`
             ${positionClasses[position]} 
             relative overflow-hidden rounded-lg
-            ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all duration-200' : ''}
-            ${isEditable && isHovered ? 'ring-2 ring-blue-300 ring-opacity-50' : ''}
+            ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
             ${className}
           `}
           style={{
             ...(style || {}),
           }}
           onClick={handleClick}
-          onMouseEnter={() => {
-            if (isEditable) {
-              setIsHovered(true);
-              log('ClickableImagePlaceholder', 'mouseEnter', { elementId });
-            }
-          }}
-          onMouseLeave={() => {
-            if (isEditable) {
-              setIsHovered(false);
-              log('ClickableImagePlaceholder', 'mouseLeave', { elementId });
-            }
-          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           <img 
             ref={imgRef}
@@ -311,12 +320,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
 
         {/* React-moveable for the image container */}
-        {isEditable && (
+        {isEditable && containerRef.current && isHovered && (
           <Moveable
-            target={isHovered ? containerRef.current : null}
+            target={containerRef.current}
             draggable={true}
             throttleDrag={1}
             edgeDraggable={false}
+            onDragStart={() => {
+              setIsDragging(true);
+              log('ClickableImagePlaceholder', 'dragStart', {
+                elementId,
+                isDragging: true,
+                isResizing
+              });
+            }}
             onDrag={e => {
               e.target.style.transform = e.transform;
               
@@ -337,6 +354,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             keepRatio={false}
             throttleResize={1}
             renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+            onResizeStart={() => {
+              setIsResizing(true);
+              log('ClickableImagePlaceholder', 'resizeStart', {
+                elementId,
+                isDragging,
+                isResizing: true
+              });
+            }}
             onResize={e => {
               e.target.style.width = `${e.width}px`;
               e.target.style.height = `${e.height}px`;
@@ -364,6 +389,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               });
             }}
             onDragEnd={e => {
+              setIsDragging(false);
+              log('ClickableImagePlaceholder', 'dragEnd', {
+                elementId,
+                isDragging: false,
+                isResizing
+              });
               // Final position update after drag ends
               const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
               if (transformMatch) {
@@ -378,6 +409,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               }
             }}
             onResizeEnd={e => {
+              setIsResizing(false);
+              log('ClickableImagePlaceholder', 'resizeEnd', {
+                elementId,
+                isDragging,
+                isResizing: false
+              });
               // Final size update after resize ends
               const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
               const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
@@ -442,25 +479,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           text-gray-500 text-sm
           ${position === 'BACKGROUND' ? 'opacity-20' : ''}
           ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
-          ${isEditable && isHovered ? 'border-blue-400 bg-blue-50 ring-2 ring-blue-300 ring-opacity-50' : ''}
           ${className}
         `}
         style={{
           ...(style || {}),
         }}
         onClick={handleClick}
-        onMouseEnter={() => {
-          if (isEditable) {
-            setIsHovered(true);
-            log('ClickableImagePlaceholder', 'mouseEnter_empty', { elementId });
-          }
-        }}
-        onMouseLeave={() => {
-          if (isEditable) {
-            setIsHovered(false);
-            log('ClickableImagePlaceholder', 'mouseLeave_empty', { elementId });
-          }
-        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
           <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -480,95 +506,54 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       </div>
 
       {/* React-moveable for placeholder */}
-      {isEditable && (
+      {isEditable && containerRef.current && isHovered && (
         <Moveable
-          target={isHovered ? containerRef.current : null}
+          target={containerRef.current}
           draggable={true}
           throttleDrag={1}
           edgeDraggable={false}
+          onDragStart={() => {
+            setIsDragging(true);
+            log('ClickableImagePlaceholder', 'emptyPlaceholder_dragStart', {
+              elementId,
+              isDragging: true,
+              isResizing
+            });
+          }}
           onDrag={e => {
             e.target.style.transform = e.transform;
-            
-            // Extract position from transform
-            const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
-            if (transformMatch) {
-              const [, translate] = transformMatch;
-              const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-              
-              // Call onSizeTransformChange with position update
-              onSizeTransformChange?.({
-                imagePosition: { x, y },
-                elementId: elementId
-              });
-            }
+          }}
+          onDragEnd={() => {
+            setIsDragging(false);
+            log('ClickableImagePlaceholder', 'emptyPlaceholder_dragEnd', {
+              elementId,
+              isDragging: false,
+              isResizing
+            });
           }}
           resizable={true}
           keepRatio={false}
           throttleResize={1}
           renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+          onResizeStart={() => {
+            setIsResizing(true);
+            log('ClickableImagePlaceholder', 'emptyPlaceholder_resizeStart', {
+              elementId,
+              isDragging,
+              isResizing: true
+            });
+          }}
           onResize={e => {
             e.target.style.width = `${e.width}px`;
             e.target.style.height = `${e.height}px`;
             e.target.style.transform = e.drag.transform;
-            
-            // Extract position and size
-            const transformMatch = e.drag.transform.match(/translate\(([^)]+)\)/);
-            const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
-            const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
-            
-            log('ClickableImagePlaceholder', 'onResize_empty', {
-              elementId,
-              width: e.width,
-              height: e.height,
-              position: { x, y }
-            });
-            
-            // Call onSizeTransformChange with both position and size
-            onSizeTransformChange?.({
-              imagePosition: { x, y },
-              imageSize: { width: e.width, height: e.height },
-              elementId: elementId
-            });
           }}
-          onDragEnd={e => {
-            // Final position update after drag ends
-            const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-            if (transformMatch) {
-              const [, translate] = transformMatch;
-              const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
-              
-              onSizeTransformChange?.({
-                imagePosition: { x, y },
-                elementId: elementId,
-                final: true
-              });
-            }
-          }}
-          onResizeEnd={e => {
-            // Final size update after resize ends
-            const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-            const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
-            const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
-            
-            // Get numeric width and height from the resize event
-            const width = parseFloat(e.target.style.width.replace('px', ''));
-            const height = parseFloat(e.target.style.height.replace('px', ''));
-            
-            log('ClickableImagePlaceholder', 'onResizeEnd_empty', {
+          onResizeEnd={() => {
+            setIsResizing(false);
+            log('ClickableImagePlaceholder', 'emptyPlaceholder_resizeEnd', {
               elementId,
-              width,
-              height,
-              position: { x, y },
-              finalWidth: e.target.style.width,
-              finalHeight: e.target.style.height,
-              isFinal: true
-            });
-            
-            onSizeTransformChange?.({
-              imagePosition: { x, y },
-              imageSize: { width, height },
-              elementId: elementId,
-              final: true
+              isDragging,
+              isResizing: false
             });
           }}
         />
