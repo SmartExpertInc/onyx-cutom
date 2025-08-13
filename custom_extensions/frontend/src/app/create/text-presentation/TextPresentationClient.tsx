@@ -397,6 +397,25 @@ export default function TextPresentationClient() {
     return cleanContent.trim();
   };
 
+  // NEW: Function to create content with only edited titles for regeneration
+  const createEditedTitlesOnlyContent = (content: string) => {
+    if (!content.trim()) return "";
+    
+    const lessons = parseContentIntoLessons(content);
+    if (lessons.length === 0) return content;
+    
+    let cleanContent = "";
+    
+    lessons.forEach((lesson, index) => {
+      // Only include titles that were edited by the user
+      if (editedTitleIds.has(index)) {
+        cleanContent += `## ${lesson.title}\n\n`;
+      }
+    });
+    
+    return cleanContent.trim();
+  };
+
   const handleTitleCancel = (lessonIndex: number) => {
     setEditedTitles(prev => {
       const newTitles = { ...prev };
@@ -815,10 +834,10 @@ export default function TextPresentationClient() {
       });
       
       if (hasUserEdits && editedTitleIds.size > 0) {
-        // If titles were changed, send only titles without context
-        contentToSend = createCleanContentForRegeneration(content);
+        // If titles were changed, send only the edited titles for regeneration
+        contentToSend = createEditedTitlesOnlyContent(content);
         isCleanContent = true;
-        console.log("Sending clean content for finalization:", contentToSend);
+        console.log("Sending edited titles only for finalization:", contentToSend);
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;

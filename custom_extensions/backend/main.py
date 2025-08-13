@@ -17563,13 +17563,13 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # NEW: Handle clean content (titles only) differently
         if getattr(payload, 'isCleanContent', False):
-            logger.info("Processing clean content (titles only) - will generate complete content for each title")
-            # For clean content, we need to generate complete content for each title
+            logger.info("Processing clean content (edited titles only) - will generate complete content for each edited title")
+            # For clean content, we need to generate complete content for each edited title
             dynamic_instructions = f"""
             You are an expert content generation assistant for 'Text Presentation' content.
-            The AI response contains ONLY section titles without content. You need to generate complete content for each title.
+            The AI response contains ONLY the section titles that were edited by the user. You need to generate complete content for each of these edited titles.
 
-            **Overall Goal:** Generate comprehensive content for each section title to create a complete text presentation.
+            **Overall Goal:** Generate comprehensive content for each edited section title that will be merged with existing content.
 
             **Global Fields:**
             1.  `textTitle` (string): Main title for the document. Use the first meaningful title or create one based on the content.
@@ -17577,7 +17577,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             3.  `detectedLanguage` (string): e.g., "en", "ru".
 
             **Content Generation Instructions:**
-            For each section title in the input, generate appropriate content including:
+            For each edited section title in the input, generate appropriate content including:
             1. **Headlines** (`type: "headline"`): Use the provided titles as level 2 headlines with `iconName: "info"`
             2. **Paragraphs** (`type: "paragraph"`): Generate 2-3 paragraphs of relevant content for each section
             3. **Bullet Lists** (`type: "bullet_list"`): Add bullet points where appropriate
@@ -17606,12 +17606,14 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 * `text` (string): Alert content
 
             **Generation Rules:**
-            - Generate comprehensive, educational content for each section
-            - Make content relevant to the section title
+            - Generate comprehensive, educational content for each edited section
+            - Make content relevant to the edited section title
             - Use appropriate content types (paragraphs, lists, alerts) based on the topic
             - Maintain consistent language: {payload.language}
             - Create engaging, informative content that would be useful for learners
-            - Ensure logical flow between sections
+            - IMPORTANT: These are edited titles, so generate content that fits the new title meaning
+            - For each title, generate at least one paragraph of content to ensure no empty sections
+            - Focus on generating content that makes sense for the specific edited title
             """
         else:
             # Regular content parsing instructions
@@ -17695,18 +17697,106 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             """
         
         # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=content_to_parse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
+        if getattr(payload, 'isCleanContent', False) and getattr(payload, 'originalContent', None):
+            # For edited titles, generate content and merge with original
+            logger.info("Generating content for edited titles and merging with original content")
+            
+            # Generate content for edited titles
+            generated_content = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,
+                target_model=TextPresentationDetails,
+                default_error_model_instance=TextPresentationDetails(
+                    textTitle=project_name,
+                    contentBlocks=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=dynamic_instructions,
+                target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+            )
+            
+            # Parse original content
+            original_parsed = await parse_ai_response_with_llm(
+                ai_response=payload.originalContent,
+                project_name=project_name,
+                target_model=TextPresentationDetails,
+                default_error_model_instance=TextPresentationDetails(
+                    textTitle=project_name,
+                    contentBlocks=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=f"""
+                You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+                Parse the original content to extract the structure and content blocks.
+                """,
+                target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+            )
+            
+            # Merge the content: replace sections with edited titles, keep others unchanged
+            merged_content_blocks = []
+            original_blocks = original_parsed.contentBlocks
+            generated_blocks = generated_content.contentBlocks
+            
+            # Create a map of generated content by title
+            generated_by_title = {}
+            for block in generated_blocks:
+                if block.get("type") == "headline" and block.get("level") == 2:
+                    title = block.get("text", "")
+                    # Find all blocks that belong to this title
+                    title_blocks = [block]
+                    for i, next_block in enumerate(generated_blocks[generated_blocks.index(block)+1:], 1):
+                        if next_block.get("type") == "headline" and next_block.get("level") == 2:
+                            break
+                        title_blocks.append(next_block)
+                    generated_by_title[title] = title_blocks
+            
+            # Merge: use generated content for edited titles, original content for others
+            i = 0
+            while i < len(original_blocks):
+                block = original_blocks[i]
+                if block.get("type") == "headline" and block.get("level") == 2:
+                    title = block.get("text", "")
+                    if title in generated_by_title:
+                        # This title was edited, use generated content
+                        merged_content_blocks.extend(generated_by_title[title])
+                        # Skip original blocks for this title
+                        while i + 1 < len(original_blocks) and original_blocks[i + 1].get("type") != "headline":
+                            i += 1
+                    else:
+                        # This title was not edited, keep original content
+                        merged_content_blocks.append(block)
+                        # Add all blocks until next headline
+                        j = i + 1
+                        while j < len(original_blocks) and original_blocks[j].get("type") != "headline":
+                            merged_content_blocks.append(original_blocks[j])
+                            j += 1
+                        i = j - 1
+                else:
+                    merged_content_blocks.append(block)
+                i += 1
+            
+            # Create merged result
+            parsed_text_presentation = TextPresentationDetails(
+                textTitle=original_parsed.textTitle,
+                contentBlocks=merged_content_blocks,
                 detectedLanguage=payload.language
-            ),
-            dynamic_instructions=dynamic_instructions,
-            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
-        )
+            )
+            
+            logger.info(f"Merged content: {len(merged_content_blocks)} blocks total")
+        else:
+            # Regular parsing for full content
+            parsed_text_presentation = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,  # Use consistent project name
+                target_model=TextPresentationDetails,
+                default_error_model_instance=TextPresentationDetails(
+                    textTitle=project_name,
+                    contentBlocks=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=dynamic_instructions,
+                target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+            )
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
