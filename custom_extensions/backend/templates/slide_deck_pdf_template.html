@@ -1587,21 +1587,24 @@
                                             {% set radius = 120 %}
                                             
                                             {% for segment in slide.props.chartData.segments %}
-                                                {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                                {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                                
-                                                {% set x1 = center_x + radius * (start_angle - 3.14159 / 2) | cos %}
-                                                {% set y1 = center_y + radius * (start_angle - 3.14159 / 2) | sin %}
-                                                {% set x2 = center_x + radius * (end_angle - 3.14159 / 2) | cos %}
-                                                {% set y2 = center_y + radius * (end_angle - 3.14159 / 2) | sin %}
-                                                
-                                                {% set large_arc_flag = 1 if segment.percentage > 50 else 0 %}
-                                                
-                                                <path d="M {{ center_x }} {{ center_y }} L {{ x1 }} {{ y1 }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ x2 }} {{ y2 }} Z" 
-                                                    fill="{{ segment.color }}" 
-                                                    filter="url(#shadow)" 
-                                                    stroke="#ffffff" 
-                                                    stroke-width="2"/>
+                                                {% if segment.percentage > 0 %}
+                                                    {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+                                                    {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+                                                    
+                                                    {% set x1 = center_x + radius * (start_angle - 3.14159 / 2) | cos %}
+                                                    {% set y1 = center_y + radius * (start_angle - 3.14159 / 2) | sin %}
+                                                    {% set x2 = center_x + radius * (end_angle - 3.14159 / 2) | cos %}
+                                                    {% set y2 = center_y + radius * (end_angle - 3.14159 / 2) | sin %}
+                                                    
+                                                    {% set angle_diff = end_angle - start_angle %}
+                                                    {% set large_arc_flag = 1 if angle_diff > 3.14159 else 0 %}
+                                                    
+                                                    <path d="M {{ center_x }} {{ center_y }} L {{ x1 }} {{ y1 }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ x2 }} {{ y2 }} Z" 
+                                                        fill="{{ segment.color }}" 
+                                                        filter="url(#shadow)" 
+                                                        stroke="#ffffff" 
+                                                        stroke-width="2"/>
+                                                {% endif %}
                                                 
                                                 {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                             {% endfor %}
@@ -1613,16 +1616,18 @@
                                         <!-- Percentage labels -->
                                         {% set cumulative_percentage = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
-                                            {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                            {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                            {% set center_angle = (start_angle + end_angle) / 2 %}
-                                            
-                                            {% set angle_rad = center_angle - 3.14159 / 2 %}
-                                            {% set label_radius = 70 %}
-                                            {% set label_x = 140 + label_radius * angle_rad | cos %}
-                                            {% set label_y = 140 + label_radius * angle_rad | sin %}
-                                            
-                                            <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">{{ segment.percentage }}%</div>
+                                            {% if segment.percentage > 0 %}
+                                                {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+                                                {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+                                                {% set center_angle = (start_angle + end_angle) / 2 %}
+                                                
+                                                {% set angle_rad = center_angle - 3.14159 / 2 %}
+                                                {% set label_radius = 70 %}
+                                                {% set label_x = 140 + label_radius * angle_rad | cos %}
+                                                {% set label_y = 140 + label_radius * angle_rad | sin %}
+                                                
+                                                <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">{{ segment.percentage }}%</div>
+                                            {% endif %}
                                             
                                             {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                         {% endfor %}

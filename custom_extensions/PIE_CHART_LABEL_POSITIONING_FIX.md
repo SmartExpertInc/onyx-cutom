@@ -1,86 +1,138 @@
-# Исправление конфликтов слияния Git в шаблонах PDF для круговой диаграммы
+# Pie Chart PDF Rendering Fix
 
-## Проблема
-В файлах шаблонов PDF для круговой диаграммы (`PieChartInfographicsTemplate`) были обнаружены конфликты слияния Git, которые создавали артефакты в коде и мешали корректному отображению диаграммы в PDF.
+## Problem Description
+The pie chart was displaying incorrectly in PDF exports due to multiple issues:
 
-## Симптомы проблемы
-- Артефакты слияния Git в коде: `<<<<<<< HEAD`, `=======`, `>>>>>>> de77170b3`
-- Текстовые наложения на круговой диаграмме
-- Некорректное отображение процентных меток
-- Искажение визуального представления диаграммы
+1. **Git merge conflicts** in the PDF templates causing visual artifacts
+2. **Incorrect large arc flag calculation** in SVG path generation
+3. **Missing validation** for segments with zero or negative percentages
+4. **Inconsistent label content** between frontend and backend
 
-## Причина
-При слиянии веток Git возникли конфликты в коде, отвечающем за позиционирование процентных меток в круговой диаграмме. Эти конфликты не были разрешены и остались в коде, что привело к некорректному рендерингу.
+## Files Affected
+- `backend/templates/slide_deck_pdf_template.html` (lines 1570-1620)
+- `backend/templates/single_slide_pdf_template.html` (lines 2710-2760)
 
-## Исправленные файлы
+## Issues Fixed
 
-### 1. `backend/templates/slide_deck_pdf_template.html`
-**Строки**: 1615-1635
-- Удалены все артефакты слияния Git
-- Оставлен корректный код для позиционирования меток
-- Исправлено отображение процентных значений
+### 1. Git Merge Conflicts
+**Problem**: Git merge conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>>`) were present in the code, causing visual corruption.
 
-### 2. `backend/templates/single_slide_pdf_template.html`
-**Строки**: 2760-2780
-- Удалены все артефакты слияния Git
-- Оставлен корректный код для позиционирования меток
-- Исправлено отображение процентных значений
+**Solution**: Removed all conflict markers and cleaned up the code.
 
-## Технические детали исправления
+### 2. Large Arc Flag Calculation
+**Problem**: The large arc flag was calculated incorrectly using `segment.percentage > 50`, which doesn't account for the actual angle difference.
 
-### Удаленные артефакты:
+**Before**:
 ```html
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    <!-- Старый код позиционирования -->
-=======
->>>>>>> de77170b3 (PieChartInfograficsTemplate fix in PDF)
-    <!-- Новый код позиционирования -->
-<<<<<<< HEAD
-=======
->>>>>>> 205b89fe9facb2fbaf6a009527a2eb45de746398
->>>>>>> de77170b3 (PieChartInfograficsTemplate fix in PDF)
+{% set large_arc_flag = 1 if segment.percentage > 50 else 0 %}
 ```
 
-### Оставленный корректный код:
+**After**:
 ```html
-<!-- Percentage labels -->
+{% set angle_diff = end_angle - start_angle %}
+{% set large_arc_flag = 1 if angle_diff > 3.14159 else 0 %}
+```
+
+### 3. Segment Validation
+**Problem**: Segments with zero or negative percentages could cause rendering issues.
+
+**Solution**: Added validation to only render segments with positive percentages:
+
+```html
+{% if segment.percentage > 0 %}
+    <!-- SVG path generation -->
+{% endif %}
+```
+
+### 4. Label Content Consistency
+**Problem**: Frontend showed `segment.label` but backend showed `segment.percentage`.
+
+**Solution**: Backend now consistently shows `{{ segment.percentage }}%` for all labels.
+
+## Correct Code Implementation
+
+### SVG Path Generation
+```html
+<!-- Pie chart segments -->
+{% set total_percentage = slide.props.chartData.segments | sum(attribute='percentage') %}
 {% set cumulative_percentage = 0 %}
+{% set center_x = 140 %}
+{% set center_y = 140 %}
+{% set radius = 120 %}
+
 {% for segment in slide.props.chartData.segments %}
-    {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-    {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-    {% set center_angle = (start_angle + end_angle) / 2 %}
-    
-    {% set angle_rad = center_angle - 3.14159 / 2 %}
-    {% set label_radius = 70 %}
-    {% set label_x = 140 + label_radius * angle_rad | cos %}
-    {% set label_y = 140 + label_radius * angle_rad | sin %}
-    
-    <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">{{ segment.percentage }}%</div>
+    {% if segment.percentage > 0 %}
+        {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+        {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+        
+        {% set x1 = center_x + radius * (start_angle - 3.14159 / 2) | cos %}
+        {% set y1 = center_y + radius * (start_angle - 3.14159 / 2) | sin %}
+        {% set x2 = center_x + radius * (end_angle - 3.14159 / 2) | cos %}
+        {% set y2 = center_y + radius * (end_angle - 3.14159 / 2) | sin %}
+        
+        {% set angle_diff = end_angle - start_angle %}
+        {% set large_arc_flag = 1 if angle_diff > 3.14159 else 0 %}
+        
+        <path d="M {{ center_x }} {{ center_y }} L {{ x1 }} {{ y1 }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ x2 }} {{ y2 }} Z" 
+            fill="{{ segment.color }}" 
+            filter="url(#shadow)" 
+            stroke="#ffffff" 
+            stroke-width="2"/>
+    {% endif %}
     
     {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
 {% endfor %}
 ```
 
-## Результат исправления
+### Percentage Labels
+```html
+<!-- Percentage labels -->
+{% set cumulative_percentage = 0 %}
+{% for segment in slide.props.chartData.segments %}
+    {% if segment.percentage > 0 %}
+        {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+        {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
+        {% set center_angle = (start_angle + end_angle) / 2 %}
+        
+        {% set angle_rad = center_angle - 3.14159 / 2 %}
+        {% set label_radius = 70 %}
+        {% set label_x = 140 + label_radius * angle_rad | cos %}
+        {% set label_y = 140 + label_radius * angle_rad | sin %}
+        
+        <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">{{ segment.percentage }}%</div>
+    {% endif %}
+    
+    {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
+{% endfor %}
+```
 
-✅ **Удалены все артефакты слияния Git**
-✅ **Круговая диаграмма корректно отображается в PDF**
-✅ **Процентные метки правильно позиционированы**
-✅ **Чистый код без конфликтов**
-✅ **Сохранена функциональность SVG-рендеринга**
+## Result of Fix
+- ✅ Git merge conflicts resolved
+- ✅ Correct SVG path generation with proper large arc flags
+- ✅ Validation for segments with positive percentages only
+- ✅ Consistent percentage label display
+- ✅ Proper pie chart segment rendering in PDF
 
-## Проверка исправления
+## Technical Details
 
-После исправления:
-1. Круговая диаграмма отображается без текстовых артефактов
-2. Процентные метки корректно позиционированы внутри сегментов
-3. SVG-элементы правильно рендерятся в PDF
-4. Код чистый и не содержит конфликтов слияния
+### Large Arc Flag Logic
+The large arc flag in SVG arc commands determines whether to draw the larger or smaller arc between two points. The correct calculation is:
+- `0` if the angle difference is ≤ 180° (π radians)
+- `1` if the angle difference is > 180° (π radians)
 
-## Рекомендации
+### Angle Calculations
+- Start angle: `(cumulative_percentage / total_percentage) * 2π`
+- End angle: `((cumulative_percentage + segment.percentage) / total_percentage) * 2π`
+- Center angle for labels: `(start_angle + end_angle) / 2`
 
-1. **Проверка слияний**: Всегда проверяйте файлы на наличие конфликтов слияния после git merge
-2. **Тестирование PDF**: После изменений в шаблонах обязательно тестируйте генерацию PDF
-3. **Версионный контроль**: Используйте понятные сообщения коммитов для отслеживания изменений 
+### Coordinate System
+- SVG uses a coordinate system where (0,0) is at the top-left
+- The pie chart is centered at (140, 140) with radius 120
+- Labels are positioned at radius 70 from the center
+
+## Recommendations
+1. **Always validate data** before rendering to prevent issues with invalid percentages
+2. **Use proper mathematical calculations** for SVG arc flags rather than percentage-based heuristics
+3. **Test edge cases** such as segments with very small percentages or zero values
+4. **Maintain consistency** between frontend and backend label content
+5. **Regular code reviews** to catch merge conflicts before they reach production 
