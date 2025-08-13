@@ -31,8 +31,8 @@
         
         /* Header */
         .pdf-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%);
+            color: #1e293b;
             padding: 40px 32px;
             margin-bottom: 0;
             border-radius: 0;
@@ -242,10 +242,43 @@
         }
         
         /* Column widths */
-        .column-projects { width: {{ column_widths.get('title', 60) }}%; }
-        .column-lessons { width: {{ column_widths.get('numberOfLessons', 13) }}%; }
-        .column-creation { width: {{ column_widths.get('estCreationTime', 13.5) }}%; }
-        .column-completion { width: {{ column_widths.get('estCompletionTime', 13.5) }}%; }
+        .column-projects { width: {{ column_widths.get('title', 50) }}%; }
+        .column-type { width: 15%; }
+        .column-lessons { width: {{ column_widths.get('numberOfLessons', 11) }}%; }
+        .column-creation { width: {{ column_widths.get('estCreationTime', 12) }}%; }
+        .column-completion { width: {{ column_widths.get('estCompletionTime', 12) }}%; }
+
+        /* Type column styling */
+        .type-cell {
+            text-align: center;
+            padding: 12px 8px;
+        }
+
+        .type-icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .type-icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .type-text {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Icon colors */
+        .icon-training-plan { color: #3b82f6; }  /* blue */
+        .icon-lesson { color: #3b82f6; }         /* blue */
+        .icon-video { color: #ea580c; }          /* orange */
+        .icon-quiz { color: #16a34a; }           /* green */
+        .icon-text { color: #7c3aed; }           /* purple */
         
         /* Icons */
         .folder-svg {
@@ -259,6 +292,15 @@
         .warning-svg {
             fill: currentColor;
         }
+
+        /* Product type icon styles */
+        .product-type-svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     </style>
 </head>
 <body>
@@ -266,7 +308,6 @@
         <!-- Header -->
         <div class="pdf-header">
             <h1>{{ client_name if client_name else 'Projects Overview' }}</h1>
-            <div class="subtitle">Generated on {{ generated_at[:10] if generated_at else 'Today' }}</div>
         </div>
         
         <!-- Main Table Container -->
@@ -276,6 +317,7 @@
                 <thead class="table-header">
                     <tr>
                         <th class="column-projects">PROJECT NAME</th>
+                        <th class="column-type text-center">TYPE</th>
                         {% if column_visibility.numberOfLessons %}<th class="column-lessons text-center">LESSONS</th>{% endif %}
                         {% if column_visibility.estCreationTime %}<th class="column-creation text-center">CREATION TIME</th>{% endif %}
                         {% if column_visibility.estCompletionTime %}<th class="column-completion text-center">COMPLETION TIME</th>{% endif %}
@@ -296,6 +338,7 @@
                                     </svg>
                                     {{ folder.name }}
                                 </td>
+                                <td class="data-cell">—</td>
                                 {% if column_visibility.numberOfLessons %}
                                     <td class="data-cell bold">{{ folder.total_lessons if folder.total_lessons > 0 else '—' }}</td>
                                 {% endif %}
@@ -325,6 +368,52 @@
                                         <td class="product-title indent-{{level+1}}">
                                             <div class="product-number">{{ product_counter.value }}</div>
                                             {{ project.title }}
+                                        </td>
+                                        <td class="type-cell">
+                                            <div class="type-icon-container">
+                                                {% set project_type = project.get('design_microproduct_type', '').lower() %}
+                                                {% if project_type == 'training plan' %}
+                                                    <svg class="type-icon icon-training-plan product-type-svg" viewBox="0 0 24 24">
+                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                                    </svg>
+                                                    <span class="type-text">Plan</span>
+                                                {% elif project_type == 'slide deck' or project_type == 'pdf lesson' %}
+                                                    <svg class="type-icon icon-lesson product-type-svg" viewBox="0 0 24 24">
+                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                                    </svg>
+                                                    <span class="type-text">Lesson</span>
+                                                {% elif project_type == 'video lesson' %}
+                                                    <svg class="type-icon icon-video product-type-svg" viewBox="0 0 24 24">
+                                                        <polygon points="23 7 16 12 23 17 23 7"/>
+                                                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                                    </svg>
+                                                    <span class="type-text">Video</span>
+                                                {% elif project_type == 'quiz' %}
+                                                    <svg class="type-icon icon-quiz product-type-svg" viewBox="0 0 24 24">
+                                                        <circle cx="12" cy="12" r="10"/>
+                                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                                        <path d="M12 17h.01"/>
+                                                    </svg>
+                                                    <span class="type-text">Quiz</span>
+                                                {% elif project_type == 'text presentation' %}
+                                                    <svg class="type-icon icon-text product-type-svg" viewBox="0 0 24 24">
+                                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                                        <polyline points="14,2 14,8 20,8"/>
+                                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                                        <polyline points="10,9 9,9 8,9"/>
+                                                    </svg>
+                                                    <span class="type-text">Text</span>
+                                                {% else %}
+                                                    <svg class="type-icon icon-lesson product-type-svg" viewBox="0 0 24 24">
+                                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                                        <polyline points="14,2 14,8 20,8"/>
+                                                    </svg>
+                                                    <span class="type-text">Other</span>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                         {% if column_visibility.numberOfLessons %}
                                             <td class="data-cell">{{ project.total_lessons if project.total_lessons > 0 else '—' }}</td>
@@ -384,6 +473,52 @@
                             <td class="product-title indent-1">
                                 <div class="product-number">{{ product_counter.value }}</div>
                                 {{ project.title }}
+                            </td>
+                            <td class="type-cell">
+                                <div class="type-icon-container">
+                                    {% set project_type = project.get('design_microproduct_type', '').lower() %}
+                                    {% if project_type == 'training plan' %}
+                                        <svg class="type-icon icon-training-plan product-type-svg" viewBox="0 0 24 24">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                        </svg>
+                                        <span class="type-text">Plan</span>
+                                    {% elif project_type == 'slide deck' or project_type == 'pdf lesson' %}
+                                        <svg class="type-icon icon-lesson product-type-svg" viewBox="0 0 24 24">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                        </svg>
+                                        <span class="type-text">Lesson</span>
+                                    {% elif project_type == 'video lesson' %}
+                                        <svg class="type-icon icon-video product-type-svg" viewBox="0 0 24 24">
+                                            <polygon points="23 7 16 12 23 17 23 7"/>
+                                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                        </svg>
+                                        <span class="type-text">Video</span>
+                                    {% elif project_type == 'quiz' %}
+                                        <svg class="type-icon icon-quiz product-type-svg" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                            <path d="M12 17h.01"/>
+                                        </svg>
+                                        <span class="type-text">Quiz</span>
+                                    {% elif project_type == 'text presentation' %}
+                                        <svg class="type-icon icon-text product-type-svg" viewBox="0 0 24 24">
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10,9 9,9 8,9"/>
+                                        </svg>
+                                        <span class="type-text">Text</span>
+                                    {% else %}
+                                        <svg class="type-icon icon-lesson product-type-svg" viewBox="0 0 24 24">
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                        </svg>
+                                        <span class="type-text">Other</span>
+                                    {% endif %}
+                                </div>
                             </td>
                             {% if column_visibility.numberOfLessons %}
                                 <td class="data-cell">{{ project.total_lessons if project.total_lessons > 0 else '—' }}</td>
