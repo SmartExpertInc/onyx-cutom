@@ -2716,50 +2716,50 @@
                             <div style="display: flex; flex-direction: column; align-items: center;">
                                 <!-- Pie Chart Container -->
                                 <div style="position: relative; width: 280px; height: 280px; margin: 0 auto;">
-                                    <!-- Pie Chart using simple SVG circles -->
-                                    <svg width="280" height="280" viewBox="0 0 280 280" style="position: absolute; top: 0; left: 0;">
-                                        <!-- Calculate total percentage -->
+                                    <!-- Simple Pie Chart using CSS -->
+                                    <div style="position: relative; width: 280px; height: 280px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;">
+                                        <!-- Pie segments using simple divs -->
                                         {% set total_percentage = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
                                             {% set total_percentage = total_percentage + segment.percentage %}
                                         {% endfor %}
                                         
-                                        <!-- Pie chart segments using circle arcs -->
                                         {% set current_angle = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
                                             {% if segment.percentage > 0 %}
                                                 {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
-                                                {% set start_angle = current_angle %}
-                                                {% set end_angle = current_angle + segment_angle %}
-                                                
-                                                <!-- Create circle segment using stroke-dasharray -->
-                                                <circle cx="140" cy="140" r="140" 
-                                                        fill="none" 
-                                                        stroke="{{ segment.color }}" 
-                                                        stroke-width="280"
-                                                        stroke-dasharray="{{ segment_angle * 3.14159 * 280 / 180 }} {{ 360 * 3.14159 * 280 / 180 }}"
-                                                        transform="rotate({{ start_angle - 90 }}, 140, 140)"/>
-                                                
+                                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                                                            background: conic-gradient(from {{ current_angle }}deg, {{ segment.color }} 0deg, {{ segment.color }} {{ segment_angle }}deg, transparent {{ segment_angle }}deg);">
+                                                </div>
                                                 {% set current_angle = current_angle + segment_angle %}
                                             {% endif %}
                                         {% endfor %}
                                         
                                         <!-- Inner circle (donut hole) -->
-                                        <circle cx="140" cy="140" r="67" fill="var(--bg-color)" stroke="#e5e7eb" stroke-width="2"/>
-                                    </svg>
+                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 134px; height: 134px; border-radius: 50%; background-color: var(--bg-color); border: 2px solid #e5e7eb;"></div>
+                                    </div>
 
-                                    <!-- Percentage labels -->
+                                    <!-- Simple percentage labels -->
                                     {% set current_angle = 0 %}
                                     {% for segment in slide.props.chartData.segments %}
                                         {% if segment.percentage > 0 %}
                                             {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
                                             {% set label_angle = current_angle + (segment_angle / 2) %}
                                             
-                                            <!-- Calculate label position exactly like frontend -->
-                                            {% set radius = 98 %}
-                                            {% set angle_rad = (label_angle - 90) * 3.14159 / 180 %}
-                                            {% set x = 140 + radius * (angle_rad | cos) %}
-                                            {% set y = 140 + radius * (angle_rad | sin) %}
+                                            <!-- Simple label positioning -->
+                                            {% if label_angle <= 45 or label_angle > 315 %}
+                                                {% set x = 200 %}
+                                                {% set y = 140 %}
+                                            {% elif label_angle <= 135 %}
+                                                {% set x = 140 %}
+                                                {% set y = 80 %}
+                                            {% elif label_angle <= 225 %}
+                                                {% set x = 80 %}
+                                                {% set y = 140 %}
+                                            {% else %}
+                                                {% set x = 140 %}
+                                                {% set y = 200 %}
+                                            {% endif %}
                                             
                                             <div style="position: absolute; top: {{ y }}px; left: {{ x }}px; 
                                                         transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; 

@@ -10,35 +10,34 @@ Pie Chart не отображался корректно в PDF. Сегмент�
 
 ## Решение
 
-### Новый подход: SVG Circle с stroke-dasharray
-Вместо сложных SVG path элементов, используется простой подход с `stroke-dasharray`:
+### Новый подход: CSS Conic-Gradient
+Используется простой CSS подход с `conic-gradient` без сложных вычислений:
 
 ```html
-<!-- Pie chart segments using circle arcs -->
-{% set current_angle = 0 %}
-{% for segment in slide.props.chartData.segments %}
-    {% if segment.percentage > 0 %}
-        {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
-        {% set start_angle = current_angle %}
-        
-        <!-- Create circle segment using stroke-dasharray -->
-        <circle cx="140" cy="140" r="140" 
-                fill="none" 
-                stroke="{{ segment.color }}" 
-                stroke-width="280"
-                stroke-dasharray="{{ segment_angle * 3.14159 * 280 / 180 }} {{ 360 * 3.14159 * 280 / 180 }}"
-                transform="rotate({{ start_angle - 90 }}, 140, 140)"/>
-        
-        {% set current_angle = current_angle + segment_angle %}
-    {% endif %}
-{% endfor %}
+<!-- Simple Pie Chart using CSS -->
+<div style="position: relative; width: 280px; height: 280px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;">
+    <!-- Pie segments using simple divs -->
+    {% set current_angle = 0 %}
+    {% for segment in slide.props.chartData.segments %}
+        {% if segment.percentage > 0 %}
+            {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                        background: conic-gradient(from {{ current_angle }}deg, {{ segment.color }} 0deg, {{ segment.color }} {{ segment_angle }}deg, transparent {{ segment_angle }}deg);">
+            </div>
+            {% set current_angle = current_angle + segment_angle %}
+        {% endif %}
+    {% endfor %}
+    
+    <!-- Inner circle (donut hole) -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 134px; height: 134px; border-radius: 50%; background-color: var(--bg-color); border: 2px solid #e5e7eb;"></div>
+</div>
 ```
 
 ### Преимущества нового подхода:
-1. ✅ **Простота** - нет сложных тригонометрических вычислений
-2. ✅ **Надежность** - стабильная работа в PDF
-3. ✅ **Точность** - точное соответствие размерам сегментов
-4. ✅ **Совместимость** - работает во всех браузерах и PDF генераторах
+1. ✅ **Максимальная простота** - только базовые CSS свойства
+2. ✅ **Надежность** - нет сложных вычислений или тригонометрических функций
+3. ✅ **Совместимость** - CSS conic-gradient поддерживается всеми современными браузерами
+4. ✅ **Производительность** - быстрый рендеринг без сложных SVG вычислений
 
 ## Измененные файлы
 
@@ -54,20 +53,24 @@ Pie Chart не отображался корректно в PDF. Сегмент�
 ## Технические детали
 
 ### Расчет сегментов
-```javascript
-// Формула для stroke-dasharray
-const segmentLength = (segmentAngle * Math.PI * radius) / 180;
-const totalLength = (360 * Math.PI * radius) / 180;
-const strokeDasharray = `${segmentLength} ${totalLength}`;
+```css
+/* Простой CSS conic-gradient для каждого сегмента */
+background: conic-gradient(from 0deg, #color 0deg, #color 90deg, transparent 90deg);
 ```
 
 ### Позиционирование лейблов
-Лейблы позиционируются точно так же, как в React компоненте:
-```javascript
-const angleRad = (centerAngle - 90) * Math.PI / 180;
-const radius = 98; // Distance from center
-const x = 140 + radius * Math.cos(angleRad);
-const y = 140 + radius * Math.sin(angleRad);
+Упрощенное позиционирование лейблов по квадрантам:
+```html
+<!-- Простое позиционирование без тригонометрии -->
+{% if label_angle <= 45 or label_angle > 315 %}
+    {% set x = 200 %} {% set y = 140 %}  <!-- Право -->
+{% elif label_angle <= 135 %}
+    {% set x = 140 %} {% set y = 80 %}   <!-- Верх -->
+{% elif label_angle <= 225 %}
+    {% set x = 80 %} {% set y = 140 %}   <!-- Лево -->
+{% else %}
+    {% set x = 140 %} {% set y = 200 %}  <!-- Низ -->
+{% endif %}
 ```
 
 ## Результат
