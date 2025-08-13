@@ -357,16 +357,10 @@ export default function TextPresentationClient() {
     const lessons = parseContentIntoLessons(content);
     let cleanContent = "";
     
-    // Add context about the presentation
-    const firstLesson = lessons[0];
-    if (firstLesson) {
-      cleanContent += `# ${firstLesson.title.includes(':') ? firstLesson.title.split(':').pop()?.trim() || firstLesson.title : firstLesson.title}\n\n`;
-    }
-    
     lessons.forEach((lesson, index) => {
       if (editedTitleIds.has(index)) {
-        // For edited lessons, include only the title (clean content)
-        cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n`;
+        // For edited lessons, include the title with updated name but keep the original content
+        cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n${lesson.content}\n\n`;
       } else {
         // For unedited lessons, include the full content
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
@@ -439,8 +433,10 @@ export default function TextPresentationClient() {
       let isCleanContent = false;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
+        // For text presentation, always send full content with updated titles
+        // Don't use clean content mode as it can cause issues with content generation
         contentToSend = createCleanContent(content);
-        isCleanContent = true;
+        isCleanContent = false; // Always false for text presentation
       }
       
       const payload: any = {
@@ -448,15 +444,6 @@ export default function TextPresentationClient() {
         editPrompt,
         isCleanContent: isCleanContent,
       };
-      
-      // NEW: Log what we're sending for debugging
-      console.log("Text presentation edit payload:", {
-        contentLength: contentToSend.length,
-        isCleanContent,
-        editedTitleIds: Array.from(editedTitleIds),
-        contentPreview: contentToSend.substring(0, 200) + "..."
-      });
-      
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -778,18 +765,11 @@ export default function TextPresentationClient() {
       let isCleanContent = false;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
+        // For text presentation, always send full content with updated titles
+        // Don't use clean content mode as it can cause issues with content generation
         contentToSend = createCleanContent(content);
-        isCleanContent = true;
+        isCleanContent = false; // Always false for text presentation
       }
-      
-      // NEW: Log what we're sending for debugging
-      console.log("Text presentation finalize payload:", {
-        contentLength: contentToSend.length,
-        hasUserEdits,
-        isCleanContent,
-        editedTitleIds: Array.from(editedTitleIds),
-        contentPreview: contentToSend.substring(0, 200) + "..."
-      });
       
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
