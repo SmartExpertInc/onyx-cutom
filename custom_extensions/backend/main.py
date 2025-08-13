@@ -17395,28 +17395,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         # NEW: smart change handling
         "isCleanContent": payload.isCleanContent,
         # NEW: Enhanced instructions for clean content mode
-        "cleanContentInstructions": payload.isCleanContent and """
-        CLEAN CONTENT MODE: The content contains section titles without full content. 
-        You MUST generate comprehensive, detailed content for each section title provided.
-        
-        IMPORTANT RULES:
-        1. For each section title (## Title), create 2-4 content blocks including:
-           - A headline block (level 2) with the section title
-           - 1-2 paragraph blocks with detailed explanations
-           - Optional bullet_list or numbered_list with key points
-           - Optional alert block with important information
-        
-        2. Generate content that is directly relevant to the section title
-        3. Make content comprehensive and educational
-        4. Maintain professional tone and structure
-        5. Each section should have substantial content (not just the title)
-        
-        Example for section "## AI Tools for some Teachers":
-        - Create detailed content about AI tools specifically for teachers
-        - Include practical examples and benefits
-        - Add relevant bullet points or numbered lists
-        - Make it comprehensive and useful
-        """
+        "cleanContentInstructions": payload.isCleanContent and "CLEAN CONTENT MODE: The content contains section titles without full content. You MUST generate comprehensive, detailed content for each section title provided. IMPORTANT RULES: 1. For each section title (## Title), create 2-4 content blocks including: - A headline block (level 2) with the section title - 1-2 paragraph blocks with detailed explanations - Optional bullet_list or numbered_list with key points - Optional alert block with important information 2. Generate content that is directly relevant to the section title 3. Make content comprehensive and educational 4. Maintain professional tone and structure 5. Each section should have substantial content (not just the title) Example for section '## AI Tools for some Teachers': - Create detailed content about AI tools specifically for teachers - Include practical examples and benefits - Add relevant bullet points or numbered lists - Make it comprehensive and useful"
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
@@ -17649,25 +17628,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
             
             **CRITICAL: Smart Change Handling**
-            {f"""CLEAN CONTENT MODE: The input contains section titles without full content. You MUST generate comprehensive, detailed content for each section title provided. 
-
-            IMPORTANT RULES FOR CLEAN CONTENT MODE:
-            1. For each section title (## Title), create 2-4 content blocks including:
-               - A headline block (level 2) with the section title
-               - 1-2 paragraph blocks with detailed explanations
-               - Optional bullet_list or numbered_list with key points
-               - Optional alert block with important information
-            
-            2. Generate content that is directly relevant to the section title
-            3. Make content comprehensive and educational
-            4. Maintain professional tone and structure
-            5. Each section should have substantial content (not just the title)
-            
-            Example for section "## AI Tools for some Teachers":
-            - Create detailed content about AI tools specifically for teachers
-            - Include practical examples and benefits
-            - Add relevant bullet points or numbered lists
-            - Make it comprehensive and useful""" if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
+            {f"CLEAN CONTENT MODE: The input contains section titles without full content. You MUST generate comprehensive, detailed content for each section title provided. IMPORTANT RULES FOR CLEAN CONTENT MODE: 1. For each section title (## Title), create 2-4 content blocks including: - A headline block (level 2) with the section title - 1-2 paragraph blocks with detailed explanations - Optional bullet_list or numbered_list with key points - Optional alert block with important information 2. Generate content that is directly relevant to the section title 3. Make content comprehensive and educational 4. Maintain professional tone and structure 5. Each section should have substantial content (not just the title) Example for section '## AI Tools for some Teachers': - Create detailed content about AI tools specifically for teachers - Include practical examples and benefits - Add relevant bullet points or numbered lists - Make it comprehensive and useful" if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
 
             **Global Fields:**
             1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
