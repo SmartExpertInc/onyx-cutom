@@ -67,10 +67,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [showImageEditModal, setShowImageEditModal] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
-  // Hover state management for Moveable anchors
-  const [isHovered, setIsHovered] = useState(false);
+  // ✅ ОСНОВНІ ЗМІНИ: Hover state management для Moveable anchors
+  const [moveTarget, setMoveTarget] = useState<HTMLElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -142,7 +143,101 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [containerRef, savedImagePosition, savedImageSize, elementId]);
 
+  // ✅ ОСНОВНІ ЗМІНИ: Hover handlers з перевіркою стану операцій
+  const handleMouseEnter = useCallback(() => {
+    if (isEditable && containerRef.current && !isDragging && !isResizing && !isRotating) {
+      setMoveTarget(containerRef.current);
+      log('ClickableImagePlaceholder', 'showMoveable', {
+        elementId,
+        isDragging,
+        isResizing,
+        isRotating
+      });
+    }
+  }, [isEditable, containerRef, isDragging, isResizing, isRotating, elementId]);
 
+  const handleMouseLeave = useCallback(() => {
+    // Не ховаємо anchors під час активних операцій
+    if (!isDragging && !isResizing && !isRotating) {
+      setMoveTarget(null);
+      log('ClickableImagePlaceholder', 'hideMoveable', {
+        elementId,
+        isDragging,
+        isResizing,
+        isRotating
+      });
+    }
+  }, [isDragging, isResizing, isRotating, elementId]);
+
+  // ✅ ОСНОВНІ ЗМІНИ: Callbacks для відстеження стану операцій
+  const handleDragStart = useCallback(() => {
+    setIsDragging(true);
+    log('ClickableImagePlaceholder', 'dragStart', { elementId });
+  }, [elementId]);
+
+  const handleDragEnd = useCallback((e: any) => {
+    setIsDragging(false);
+    log('ClickableImagePlaceholder', 'dragEnd', { elementId });
+    
+    // Final position update after drag ends
+    const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+    if (transformMatch) {
+      const [, translate] = transformMatch;
+      const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
+      
+      onSizeTransformChange?.({
+        imagePosition: { x, y },
+        elementId: elementId,
+        final: true
+      });
+    }
+  }, [onSizeTransformChange, elementId]);
+
+  const handleResizeStart = useCallback(() => {
+    setIsResizing(true);
+    log('ClickableImagePlaceholder', 'resizeStart', { elementId });
+  }, [elementId]);
+
+  const handleResizeEnd = useCallback((e: any) => {
+    setIsResizing(false);
+    log('ClickableImagePlaceholder', 'resizeEnd', { elementId });
+    
+    // Final size update after resize ends
+    const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+    const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
+    const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
+    
+    // Get numeric width and height from the resize event
+    const width = parseFloat(e.target.style.width.replace('px', ''));
+    const height = parseFloat(e.target.style.height.replace('px', ''));
+    
+    log('ClickableImagePlaceholder', 'onResizeEnd', {
+      elementId,
+      width,
+      height,
+      position: { x, y },
+      finalWidth: e.target.style.width,
+      finalHeight: e.target.style.height,
+      isFinal: true
+    });
+    
+    onSizeTransformChange?.({
+      imagePosition: { x, y },
+      imageSize: { width, height },
+      elementId: elementId,
+      final: true
+    });
+  }, [onSizeTransformChange, elementId]);
+
+  const handleRotateStart = useCallback(() => {
+    setIsRotating(true);
+    log('ClickableImagePlaceholder', 'rotateStart', { elementId });
+  }, [elementId]);
+
+  const handleRotateEnd = useCallback(() => {
+    setIsRotating(false);
+    log('ClickableImagePlaceholder', 'rotateEnd', { elementId });
+  }, [elementId]);
 
   const handleClick = () => {
     if (!isEditable) return;
@@ -152,31 +247,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     } else {
       // If no image, show upload modal
       setShowUploadModal(true);
-    }
-  };
-
-  // Hover event handlers for Moveable anchors
-  const handleMouseEnter = () => {
-    if (!isDragging && !isResizing) {
-      setIsHovered(true);
-      log('ClickableImagePlaceholder', 'mouseEnter', {
-        elementId,
-        isDragging,
-        isResizing,
-        isHovered: true
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isDragging && !isResizing) {
-      setIsHovered(false);
-      log('ClickableImagePlaceholder', 'mouseLeave', {
-        elementId,
-        isDragging,
-        isResizing,
-        isHovered: false
-      });
     }
   };
 
@@ -278,6 +348,76 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     tmp.src = imagePath;
   }, [onImageUploaded, onSizeTransformChange, cropMode, elementId]);
 
+  // ✅ ОСНОВНІ ЗМІНИ: Единий Moveable компонент для обох станів
+  const renderMoveable = () => {
+    if (!isEditable || !containerRef.current) return null;
+
+    return (
+      <Moveable
+        target={moveTarget}
+        draggable={true}
+        throttleDrag={1}
+        edgeDraggable={false}
+        onDragStart={handleDragStart}
+        onDrag={e => {
+          e.target.style.transform = e.transform;
+          
+          // Extract position from transform
+          const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
+          if (transformMatch) {
+            const [, translate] = transformMatch;
+            const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
+            
+            // Call onSizeTransformChange with position update
+            onSizeTransformChange?.({
+              imagePosition: { x, y },
+              elementId: elementId
+            });
+          }
+        }}
+        onDragEnd={handleDragEnd}
+        resizable={true}
+        keepRatio={false}
+        throttleResize={1}
+        renderDirections={["nw","n","ne","w","e","sw","s","se"]}
+        onResizeStart={handleResizeStart}
+        onResize={e => {
+          e.target.style.width = `${e.width}px`;
+          e.target.style.height = `${e.height}px`;
+          e.target.style.transform = e.drag.transform;
+          
+          // Extract position and size
+          const transformMatch = e.drag.transform.match(/translate\(([^)]+)\)/);
+          const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
+          const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
+          
+          log('ClickableImagePlaceholder', 'onResize', {
+            elementId,
+            width: e.width,
+            height: e.height,
+            position: { x, y },
+            appliedWidth: e.target.style.width,
+            appliedHeight: e.target.style.height
+          });
+          
+          // Call onSizeTransformChange with both position and size
+          onSizeTransformChange?.({
+            imagePosition: { x, y },
+            imageSize: { width: e.width, height: e.height },
+            elementId: elementId
+          });
+        }}
+        onResizeEnd={handleResizeEnd}
+        rotatable={true}
+        onRotateStart={handleRotateStart}
+        onRotate={(e) => {
+          e.target.style.transform = e.drag.transform;
+        }}
+        onRotateEnd={handleRotateEnd}
+      />
+    );
+  };
+
   // Regular image display
   if (displayedImage) {
     return (
@@ -295,6 +435,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             ...(style || {}),
           }}
           onClick={handleClick}
+          // ✅ ОСНОВНІ ЗМІНИ: Додаємо hover handlers
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -319,130 +460,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           )}
         </div>
 
-        {/* React-moveable for the image container */}
-        {isEditable && containerRef.current && isHovered && (
-          <Moveable
-            target={containerRef.current}
-            draggable={true}
-            throttleDrag={1}
-            edgeDraggable={false}
-            onDragStart={() => {
-              setIsDragging(true);
-              log('ClickableImagePlaceholder', 'dragStart', {
-                elementId,
-                isDragging: true,
-                isResizing
-              });
-            }}
-            onDrag={e => {
-              e.target.style.transform = e.transform;
-              
-              // Extract position from transform
-              const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
-              if (transformMatch) {
-                const [, translate] = transformMatch;
-                const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-                
-                // Call onSizeTransformChange with position update
-                onSizeTransformChange?.({
-                  imagePosition: { x, y },
-                  elementId: elementId
-                });
-              }
-            }}
-            resizable={true}
-            keepRatio={false}
-            throttleResize={1}
-            renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-            onResizeStart={() => {
-              setIsResizing(true);
-              log('ClickableImagePlaceholder', 'resizeStart', {
-                elementId,
-                isDragging,
-                isResizing: true
-              });
-            }}
-            onResize={e => {
-              e.target.style.width = `${e.width}px`;
-              e.target.style.height = `${e.height}px`;
-              e.target.style.transform = e.drag.transform;
-              
-              // Extract position and size
-              const transformMatch = e.drag.transform.match(/translate\(([^)]+)\)/);
-              const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
-              const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
-              
-              log('ClickableImagePlaceholder', 'onResize', {
-                elementId,
-                width: e.width,
-                height: e.height,
-                position: { x, y },
-                appliedWidth: e.target.style.width,
-                appliedHeight: e.target.style.height
-              });
-              
-              // Call onSizeTransformChange with both position and size
-              onSizeTransformChange?.({
-                imagePosition: { x, y },
-                imageSize: { width: e.width, height: e.height },
-                elementId: elementId
-              });
-            }}
-            onDragEnd={e => {
-              setIsDragging(false);
-              log('ClickableImagePlaceholder', 'dragEnd', {
-                elementId,
-                isDragging: false,
-                isResizing
-              });
-              // Final position update after drag ends
-              const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-              if (transformMatch) {
-                const [, translate] = transformMatch;
-                const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
-                
-                onSizeTransformChange?.({
-                  imagePosition: { x, y },
-                  elementId: elementId,
-                  final: true
-                });
-              }
-            }}
-            onResizeEnd={e => {
-              setIsResizing(false);
-              log('ClickableImagePlaceholder', 'resizeEnd', {
-                elementId,
-                isDragging,
-                isResizing: false
-              });
-              // Final size update after resize ends
-              const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-              const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
-              const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
-              
-              // Get numeric width and height from the resize event
-              const width = parseFloat(e.target.style.width.replace('px', ''));
-              const height = parseFloat(e.target.style.height.replace('px', ''));
-              
-              log('ClickableImagePlaceholder', 'onResizeEnd', {
-                elementId,
-                width,
-                height,
-                position: { x, y },
-                finalWidth: e.target.style.width,
-                finalHeight: e.target.style.height,
-                isFinal: true
-              });
-              
-              onSizeTransformChange?.({
-                imagePosition: { x, y },
-                imageSize: { width, height },
-                elementId: elementId,
-                final: true
-              });
-            }}
-          />
-        )}
+        {/* ✅ ОСНОВНІ ЗМІНИ: Единий Moveable компонент */}
+        {renderMoveable()}
 
         <PresentationImageUpload
           isOpen={showUploadModal}
@@ -485,6 +504,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           ...(style || {}),
         }}
         onClick={handleClick}
+        // ✅ ОСНОВНІ ЗМІНИ: Додаємо hover handlers і для placeholder
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -505,59 +525,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
       </div>
 
-      {/* React-moveable for placeholder */}
-      {isEditable && containerRef.current && isHovered && (
-        <Moveable
-          target={containerRef.current}
-          draggable={true}
-          throttleDrag={1}
-          edgeDraggable={false}
-          onDragStart={() => {
-            setIsDragging(true);
-            log('ClickableImagePlaceholder', 'emptyPlaceholder_dragStart', {
-              elementId,
-              isDragging: true,
-              isResizing
-            });
-          }}
-          onDrag={e => {
-            e.target.style.transform = e.transform;
-          }}
-          onDragEnd={() => {
-            setIsDragging(false);
-            log('ClickableImagePlaceholder', 'emptyPlaceholder_dragEnd', {
-              elementId,
-              isDragging: false,
-              isResizing
-            });
-          }}
-          resizable={true}
-          keepRatio={false}
-          throttleResize={1}
-          renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-          onResizeStart={() => {
-            setIsResizing(true);
-            log('ClickableImagePlaceholder', 'emptyPlaceholder_resizeStart', {
-              elementId,
-              isDragging,
-              isResizing: true
-            });
-          }}
-          onResize={e => {
-            e.target.style.width = `${e.width}px`;
-            e.target.style.height = `${e.height}px`;
-            e.target.style.transform = e.drag.transform;
-          }}
-          onResizeEnd={() => {
-            setIsResizing(false);
-            log('ClickableImagePlaceholder', 'emptyPlaceholder_resizeEnd', {
-              elementId,
-              isDragging,
-              isResizing: false
-            });
-          }}
-        />
-      )}
+      {/* ✅ ОСНОВНІ ЗМІНИ: Единий Moveable компонент і для placeholder */}
+      {renderMoveable()}
 
       <PresentationImageUpload
         isOpen={showUploadModal}
@@ -580,4 +549,4 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   );
 };
 
-export default ClickableImagePlaceholder; 
+export default ClickableImagePlaceholder;
