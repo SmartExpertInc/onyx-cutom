@@ -448,9 +448,26 @@ export default function TextPresentationClient() {
     setLoadingEdit(true);
     setError(null);
     try {
+      // NEW: Determine what content to send based on user edits
+      let contentToSend = content;
+      let isCleanContent = false;
+      
+      if (hasUserEdits && originallyEditedTitles.size > 0) {
+        // If titles were changed, send only titles without context
+        contentToSend = createCleanTitlesContent(content);
+        isCleanContent = true;
+      } else {
+        // If no titles changed, send full content with context
+        contentToSend = content;
+        isCleanContent = false;
+      }
+
       const payload: any = {
-        content,
+        content: contentToSend,
         editPrompt,
+        hasUserEdits: hasUserEdits,
+        originalContent: originalContent,
+        isCleanContent: isCleanContent,
       };
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
@@ -516,6 +533,9 @@ export default function TextPresentationClient() {
         }
       }
 
+      // NEW: Mark that content has been edited by AI
+      setHasUserEdits(true);
+      
       setEditPrompt("");
       setSelectedExamples([]);
     } catch (error: any) {

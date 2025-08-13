@@ -212,8 +212,6 @@ export default function LessonPresentationClient() {
   
   // Core state for lesson generation
   const [content, setContent] = useState<string>("");
-  const [originalContent, setOriginalContent] = useState<string>(""); // NEW: Track original content
-  const [hasUserEdits, setHasUserEdits] = useState<boolean>(false); // NEW: Track if user made edits
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
@@ -491,10 +489,6 @@ export default function LessonPresentationClient() {
                   if (pkt.type === "delta") {
                     accumulatedText += pkt.text;
                     setContent(accumulatedText);
-                    // NEW: Track original content when first receiving data
-                    if (!originalContent) {
-                      setOriginalContent(accumulatedText);
-                    }
                   }
                 } catch (e) {
                   // If not JSON, treat as plain text
@@ -629,33 +623,21 @@ export default function LessonPresentationClient() {
       const promptQuery = params?.get("prompt")?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
-      const finalizePayload = {
-        outlineProjectId: selectedOutlineId || undefined,
-        lessonTitle: derivedTitle,
-        lengthRange: lengthRangeForOption(lengthOption),
-        aiResponse: content,
-        chatSessionId: chatId || undefined,
-        slidesCount: slidesCount,
-        productType: productType, // Pass product type for video lesson vs regular presentation
-        folderId: folderContext?.folderId || undefined,
-        // Include selected theme
-        theme: selectedTheme,
-        // NEW: Include edit tracking information
-        hasUserEdits: hasUserEdits,
-        originalContent: originalContent,
-        isCleanContent: false, // We always send full content for lesson presentations
-      };
-
-      console.log(`[FRONTEND_FINALIZE] Sending finalize request:`, finalizePayload);
-      console.log(`[FRONTEND_FINALIZE] aiResponse length: ${finalizePayload.aiResponse.length}`);
-      console.log(`[FRONTEND_FINALIZE] aiResponse preview:`, finalizePayload.aiResponse.substring(0, 200));
-      console.log(`[FRONTEND_FINALIZE] originalContent length: ${finalizePayload.originalContent?.length || 0}`);
-      console.log(`[FRONTEND_FINALIZE] hasUserEdits: ${finalizePayload.hasUserEdits}`);
-
       const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalizePayload),
+        body: JSON.stringify({
+          outlineProjectId: selectedOutlineId || undefined,
+          lessonTitle: derivedTitle,
+          lengthRange: lengthRangeForOption(lengthOption),
+          aiResponse: content,
+          chatSessionId: chatId || undefined,
+          slidesCount: slidesCount,
+          productType: productType, // Pass product type for video lesson vs regular presentation
+          folderId: folderContext?.folderId || undefined,
+          // Include selected theme
+          theme: selectedTheme,
+        }),
         signal: abortController.signal
       });
 
@@ -869,130 +851,6 @@ export default function LessonPresentationClient() {
       setLoading(false);
       setLoadingEdit(false);
       setEditPrompt("");
-    }
-  };
-
-  // ===== Handle section-specific regeneration when user edits title =====
-  const handleSectionTitleEdit = async (slideIdx: number, newTitle: string, oldTitle: string) => {
-    if (newTitle === oldTitle) return; // No change
-    
-    console.log(`[FRONTEND_EDIT] Section ${slideIdx + 1} title changed: "${oldTitle}" -> "${newTitle}"`);
-    console.log(`[FRONTEND_EDIT] Current content length: ${content.length}`);
-    console.log(`[FRONTEND_EDIT] Current content preview:`, content.substring(0, 200));
-    
-    // Mark that user has made edits
-    setHasUserEdits(true);
-    
-    // Update the content with new title using language-agnostic pattern
-    const slidePattern = /\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/.test(content)
-      ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
-      : new RegExp(`\\*\\*${oldTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
-    
-    const updatedContent = content.replace(slidePattern, 
-      /\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/.test(content) ? `$1${newTitle}` : `**${newTitle}**`
-    );
-    
-    console.log(`[FRONTEND_EDIT] Updated content length: ${updatedContent.length}`);
-    console.log(`[FRONTEND_EDIT] Updated content preview:`, updatedContent.substring(0, 200));
-    
-    // Update content immediately with new title
-    setContent(updatedContent);
-    
-    // Call the edit endpoint to regenerate content for this section
-    try {
-      const editRequestBody: any = {
-        currentContent: updatedContent, // Use the updated content, not the old one
-        editPrompt: `Update the content for slide ${slideIdx + 1} titled "${newTitle}". The previous title was "${oldTitle}". Please regenerate the content to match the new title while keeping the same educational structure and depth.`,
-        outlineProjectId: selectedOutlineId || undefined,
-        lessonTitle: selectedLesson || "Untitled Lesson",
-        language,
-        chatSessionId: chatId || undefined,
-        slidesCount: slidesCount,
-        theme: selectedTheme,
-        isCleanContent: false, // We want full content regeneration
-      };
-
-      // Add file context if creating from files
-      if (isFromFiles) {
-        editRequestBody.fromFiles = true;
-        if (folderIds.length > 0) editRequestBody.folderIds = folderIds.join(',');
-        if (fileIds.length > 0) editRequestBody.fileIds = fileIds.join(',');
-      }
-
-      // Add text context if creating from text
-      if (isFromText) {
-        editRequestBody.fromText = true;
-        editRequestBody.textMode = textMode;
-        editRequestBody.userText = userText;
-      }
-
-      console.log(`[FRONTEND_EDIT] Sending edit request:`, editRequestBody);
-      console.log(`[FRONTEND_EDIT] Request currentContent length: ${editRequestBody.currentContent.length}`);
-
-      const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/edit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editRequestBody),
-      });
-
-      if (!res.ok || !res.body) throw new Error(`Failed to regenerate section: ${res.status}`);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let accumulatedText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) { 
-          // Process any remaining buffer
-          if (buffer.trim()) {
-            try {
-              const pkt = JSON.parse(buffer.trim());
-              if (pkt.type === "delta") {
-                accumulatedText += pkt.text;
-              }
-            } catch (e) {
-              // If not JSON, treat as plain text
-              accumulatedText += buffer;
-            }
-          }
-          // Update content with regenerated content
-          if (accumulatedText) {
-            console.log(`[FRONTEND_EDIT] Received regenerated content length: ${accumulatedText.length}`);
-            console.log(`[FRONTEND_EDIT] Regenerated content preview:`, accumulatedText.substring(0, 200));
-            setContent(accumulatedText);
-            // Don't update originalContent - it should remain unchanged to track original state
-            // setOriginalContent(accumulatedText);
-          }
-          break; 
-        }
-        
-        buffer += decoder.decode(value, { stream: true });
-        
-        // Split by newlines and process complete chunks
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || ""; // Keep incomplete line in buffer
-        
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          
-          try {
-            const pkt = JSON.parse(line);
-            if (pkt.type === "delta") {
-              accumulatedText += pkt.text;
-            } else if (pkt.type === "error") {
-              throw new Error(pkt.text || "Unknown error");
-            }
-          } catch (e) {
-            // If not JSON, treat as plain text
-            accumulatedText += line;
-          }
-        }
-      }
-    } catch (e: any) {
-      console.error("Failed to regenerate section:", e);
-      // Don't show error to user for title edits, just log it
     }
   };
 
@@ -1355,8 +1213,15 @@ export default function LessonPresentationClient() {
                           value={title}
                           onChange={(e) => {
                             const newTitle = e.target.value;
-                            // Call the section-specific regeneration function
-                            handleSectionTitleEdit(slideIdx, newTitle, title);
+                            // Update the content with new title using language-agnostic pattern
+                            const slidePattern = titleMatch 
+                              ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
+                              : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
+                            
+                            const updatedContent = content.replace(slidePattern, 
+                              titleMatch ? `$1${newTitle}` : `**${newTitle}**`
+                            );
+                            setContent(updatedContent);
                           }}
                           className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
                           placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}

@@ -13277,7 +13277,7 @@ async def init_course_outline_chat(request: Request):
 # === Wizard Outline helpers & cache ===
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
 QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
-LESSON_PRESENTATION_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw lesson presentation content
+TEXT_PRESENTATION_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw text presentation content
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
     """Return a markdown outline that reflects the *structure* provided in
@@ -13480,10 +13480,6 @@ class LessonWizardFinalize(BaseModel):
     theme: Optional[str] = None            # Selected theme for presentation
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    # NEW: fields for tracking user edits (similar to quiz and text presentation)
-    hasUserEdits: Optional[bool] = False
-    originalContent: Optional[str] = None  # Original content before user edits
-    isCleanContent: Optional[bool] = False  # Whether content is clean titles only
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -13711,12 +13707,6 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
 @app.post("/api/custom/lesson-presentation/finalize")
 async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     logger.info(f"Finalizing lesson presentation: {payload.lessonTitle}")
-    logger.info(f"[LESSON_FINALIZE_DETAILS] hasUserEdits: {payload.hasUserEdits}")
-    logger.info(f"[LESSON_FINALIZE_DETAILS] originalContent length: {len(payload.originalContent) if payload.originalContent else 0}")
-    logger.info(f"[LESSON_FINALIZE_DETAILS] aiResponse length: {len(payload.aiResponse)}")
-    logger.info(f"[LESSON_FINALIZE_DETAILS] aiResponse preview: {payload.aiResponse[:300]}...")
-    if payload.originalContent:
-        logger.info(f"[LESSON_FINALIZE_DETAILS] originalContent preview: {payload.originalContent[:300]}...")
     
     # Validate required fields early
     if not payload.lessonTitle or not payload.lessonTitle.strip():
@@ -13756,51 +13746,6 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     try:
-        logger.info(f"Lesson presentation finalize - hasUserEdits: {payload.hasUserEdits}")
-        logger.info(f"Lesson presentation finalize - originalContent length: {len(payload.originalContent) if payload.originalContent else 0}")
-        logger.info(f"Lesson presentation finalize - aiResponse length: {len(payload.aiResponse)}")
-        
-        # NEW: Check for user edits and decide strategy (like in Quiz and Text Presentation)
-        use_direct_parser = False
-        use_ai_parser = True
-        
-        if payload.hasUserEdits and payload.originalContent:
-            # User has made edits - check if they're significant
-            any_changes = _any_lesson_presentation_changes_made(payload.originalContent, payload.aiResponse)
-            
-            if not any_changes:
-                # NO CHANGES: Use direct parser path (fastest)
-                use_direct_parser = True
-                use_ai_parser = False
-                logger.info("No lesson presentation changes detected - using direct parser path")
-            else:
-                # CHANGES DETECTED: Use AI parser
-                use_direct_parser = False
-                use_ai_parser = True
-                logger.info("Lesson presentation changes detected - using AI parser path")
-        else:
-            # No edit information available - use AI parser
-            use_direct_parser = False
-            use_ai_parser = True
-            logger.info("No edit information available - using AI parser path")
-        
-        # NEW: Choose parsing strategy based on user edits
-        if use_direct_parser:
-            # DIRECT PARSER PATH: Use cached content directly since no changes were made
-            logger.info("Using direct parser path for lesson presentation finalization")
-            
-            # Use the original content for parsing since no changes were made
-            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
-            logger.info(f"[LESSON_FINALIZE_CONTENT] Using original content, length: {len(content_to_parse)}")
-        else:
-            # AI PARSER PATH: Use the provided content (which may be clean titles only)
-            logger.info("Using AI parser path for lesson presentation finalization")
-            content_to_parse = payload.aiResponse
-            logger.info(f"[LESSON_FINALIZE_CONTENT] Using AI response content, length: {len(content_to_parse)}")
-        
-        logger.info(f"[LESSON_FINALIZE_CONTENT] Final content_to_parse length: {len(content_to_parse)}")
-        logger.info(f"[LESSON_FINALIZE_CONTENT] Final content_to_parse preview: {content_to_parse[:300]}...")
-        
         # Determine if this is a video lesson presentation
         is_video_lesson = payload.productType == "video_lesson_presentation"
         
@@ -13843,16 +13788,12 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
 
-        logger.info(f"[LESSON_FINALIZE_PROJECT] Creating project with name: {project_name}")
-        logger.info(f"[LESSON_FINALIZE_PROJECT] Project aiResponse length: {len(content_to_parse.strip())}")
-        logger.info(f"[LESSON_FINALIZE_PROJECT] Project aiResponse preview: {content_to_parse.strip()[:300]}...")
-        
         # Create project data
         project_data = ProjectCreateRequest(
             projectName=project_name,
             design_template_id=template_id,
             microProductName=None,
-            aiResponse=content_to_parse.strip(),  # Use the correct content based on parsing strategy
+            aiResponse=payload.aiResponse.strip(),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
@@ -13875,10 +13816,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
 
         logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
-        logger.info(f"Final content used for project creation length: {len(content_to_parse)}")
-        logger.info(f"Content preview: {content_to_parse[:200]}...")
 
-        print(content_to_parse.strip())
+        print(payload.aiResponse.strip())
         
         # Return response in the expected format
         return {
@@ -16228,24 +16167,6 @@ class QuizEditRequest(BaseModel):
     # NEW: indicate if content is clean (questions only, no options/answers)
     isCleanContent: Optional[bool] = False
 
-class LessonPresentationEditRequest(BaseModel):
-    currentContent: str
-    editPrompt: str
-    outlineProjectId: Optional[int] = None
-    lessonTitle: Optional[str] = None
-    language: str = "en"
-    fromFiles: bool = False
-    fromText: bool = False
-    folderIds: Optional[str] = None
-    fileIds: Optional[str] = None
-    textMode: Optional[str] = None
-    userText: Optional[str] = None
-    slidesCount: Optional[int] = 5
-    theme: Optional[str] = None
-    chatSessionId: Optional[str] = None
-    # NEW: indicate if content is clean (titles only, no content)
-    isCleanContent: Optional[bool] = False
-
 async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
     """Ensure quiz design template exists, return template ID"""
     try:
@@ -16615,133 +16536,6 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         if chat_id:
             QUIZ_PREVIEW_CACHE[chat_id] = assistant_reply
             logger.info(f"[QUIZ_PREVIEW_CACHE] Cached quiz content for chat_id={chat_id}, length={len(assistant_reply)}")
-        
-        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-
-    return StreamingResponse(
-        streamer(),
-        media_type="text/plain",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
-
-@app.post("/api/custom/lesson-presentation/edit")
-async def lesson_presentation_edit(payload: LessonPresentationEditRequest, request: Request):
-    """Edit lesson presentation content with streaming response"""
-    logger.info(f"[LESSON_PRESENTATION_EDIT_START] Lesson presentation edit initiated")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] currentContent length: {len(payload.currentContent)}")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] currentContent preview: {payload.currentContent[:200]}...")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] lessonTitle: {payload.lessonTitle}")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] slidesCount: {payload.slidesCount}")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] theme: {payload.theme}")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] isCleanContent: {payload.isCleanContent}")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] chatSessionId: {payload.chatSessionId}")
-    
-    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
-    logger.info(f"[LESSON_PRESENTATION_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
-
-    if payload.chatSessionId:
-        chat_id = payload.chatSessionId
-        logger.info(f"[LESSON_PRESENTATION_EDIT_CHAT] Using existing chat session: {chat_id}")
-    else:
-        logger.info(f"[LESSON_PRESENTATION_EDIT_CHAT] Creating new chat session")
-        try:
-            persona_id = await get_contentbuilder_persona_id(cookies)
-            logger.info(f"[LESSON_PRESENTATION_EDIT_CHAT] Got persona ID: {persona_id}")
-            chat_id = await create_onyx_chat_session(persona_id, cookies)
-            logger.info(f"[LESSON_PRESENTATION_EDIT_CHAT] Created new chat session: {chat_id}")
-        except Exception as e:
-            logger.error(f"[LESSON_PRESENTATION_EDIT_CHAT_ERROR] Failed to create chat session: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
-
-    wiz_payload = {
-        "product": "Lesson Presentation Edit",
-        "prompt": payload.editPrompt,
-        "language": payload.language,
-        "originalContent": payload.currentContent,
-        "editMode": True,
-        "isCleanContent": payload.isCleanContent
-    }
-
-    # Add context if provided
-    if payload.outlineProjectId:
-        wiz_payload["outlineProjectId"] = payload.outlineProjectId
-    if payload.lessonTitle:
-        wiz_payload["lessonTitle"] = payload.lessonTitle
-    if payload.slidesCount:
-        wiz_payload["slidesCount"] = payload.slidesCount
-    if payload.theme:
-        wiz_payload["theme"] = payload.theme
-
-    # Add file context if provided
-    if payload.fromFiles:
-        wiz_payload["fromFiles"] = True
-        if payload.folderIds:
-            wiz_payload["folderIds"] = payload.folderIds
-        if payload.fileIds:
-            wiz_payload["fileIds"] = payload.fileIds
-
-    # Add text context if provided
-    if payload.fromText:
-        wiz_payload["fromText"] = True
-        wiz_payload["textMode"] = payload.textMode
-        wiz_payload["userText"] = payload.userText
-
-    logger.info(f"[LESSON_PRESENTATION_EDIT_WIZARD] Wizard payload keys: {list(wiz_payload.keys())}")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_WIZARD] Wizard prompt: {wiz_payload['prompt']}")
-    logger.info(f"[LESSON_PRESENTATION_EDIT_WIZARD] Wizard originalContent length: {len(wiz_payload['originalContent'])}")
-    
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
-
-    # ---------- StreamingResponse with keep-alive -----------
-    async def streamer():
-        assistant_reply: str = ""
-        last_send = asyncio.get_event_loop().time()
-        chunks_received = 0
-
-        logger.info(f"[LESSON_PRESENTATION_EDIT_STREAM] Starting streamer")
-        logger.info(f"[LESSON_PRESENTATION_EDIT_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
-        
-        # NEW: Use OpenAI directly for lesson presentation editing
-        logger.info(f"[LESSON_PRESENTATION_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for lesson presentation editing")
-        try:
-            async for chunk_data in stream_openai_response(wizard_message):
-                if chunk_data["type"] == "delta":
-                    delta_text = chunk_data["text"]
-                    assistant_reply += delta_text
-                    chunks_received += 1
-                    logger.debug(f"[LESSON_PRESENTATION_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                elif chunk_data["type"] == "error":
-                    logger.error(f"[LESSON_PRESENTATION_EDIT_OPENAI_ERROR] {chunk_data['text']}")
-                    yield (json.dumps(chunk_data) + "\n").encode()
-                    return
-                
-                # Send keep-alive every 8s
-                now = asyncio.get_event_loop().time()
-                if now - last_send > 8:
-                    yield b" "
-                    last_send = now
-                    logger.debug(f"[LESSON_PRESENTATION_EDIT_OPENAI_STREAM] Sent keep-alive")
-            
-            logger.info(f"[LESSON_PRESENTATION_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-            
-        except Exception as e:
-            logger.error(f"[LESSON_PRESENTATION_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
-            return
-
-        logger.info(f"[LESSON_PRESENTATION_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
-        logger.info(f"[LESSON_PRESENTATION_EDIT_COMPLETE] Final assistant reply preview: {assistant_reply[:300]}...")
-        
-        # NEW: Cache the lesson presentation content for later finalization
-        if chat_id:
-            LESSON_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
-            logger.info(f"[LESSON_PRESENTATION_PREVIEW_CACHE] Cached lesson presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
         
         yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
 
@@ -17541,6 +17335,12 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # NEW: Cache the generated content for smart change handling
+                if chat_id:
+                    TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[TEXT_PRESENTATION_CACHE] Cached content for chat_id: {chat_id}")
+                
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
@@ -18403,26 +18203,21 @@ def _any_text_presentation_changes_made(original_content: str, edited_content: s
         logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
 
-def _any_lesson_presentation_changes_made(original_content: str, edited_content: str) -> bool:
-    """Compare original and edited lesson presentation content to detect changes"""
+def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited text presentation content to detect changes"""
     try:
         # Normalize content for comparison
         original_normalized = original_content.strip()
         edited_normalized = edited_content.strip()
         
-        logger.info(f"[CHANGE_DETECTION] Original content length: {len(original_normalized)}")
-        logger.info(f"[CHANGE_DETECTION] Edited content length: {len(edited_normalized)}")
-        logger.info(f"[CHANGE_DETECTION] Original content preview: {original_normalized[:200]}...")
-        logger.info(f"[CHANGE_DETECTION] Edited content preview: {edited_normalized[:200]}...")
-        
         # Simple text comparison
         if original_normalized != edited_normalized:
-            logger.info(f"Lesson presentation content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            logger.info(f"Text presentation content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
             return True
         
-        logger.info("No lesson presentation changes detected - content is identical")
+        logger.info("No text presentation changes detected - content is identical")
         return False
     except Exception as e:
         # On any parsing issue assume changes were made so we use AI
-        logger.warning(f"Error during lesson presentation change detection (assuming changes made): {e}")
+        logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
