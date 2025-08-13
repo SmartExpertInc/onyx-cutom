@@ -20,7 +20,7 @@ interface ImageUploadResponse {
 interface PresentationImageUploadProps {
   isOpen: boolean;
   onClose: () => void;
-  onImageUploaded: (imagePath: string) => void;
+  onImageUploaded: (imagePath: string, imageFile?: File) => void;
   title?: string;
 }
 
@@ -76,10 +76,12 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
 
       log('PresentationImageUpload', 'uploadImage_callingOnImageUploaded', { 
         filePath: result.file_path,
-        onImageUploadedType: typeof onImageUploaded
+        onImageUploadedType: typeof onImageUploaded,
+        hasFile: !!file
       });
 
-      onImageUploaded(result.file_path);
+      // Pass both the file path and the original file to enable cropping
+      onImageUploaded(result.file_path, file);
       
       log('PresentationImageUpload', 'uploadImage_onImageUploadedCalled', { 
         filePath: result.file_path

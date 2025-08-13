@@ -3,6 +3,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
+import ImageCropModal, { CropSettings } from './ImageCropModal';
 import Moveable from 'react-moveable';
 
 export interface ClickableImagePlaceholderProps {
@@ -40,9 +41,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   onCropModeChange
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showCropModal, setShowCropModal] = useState(false);
   const [showCropOptions, setShowCropOptions] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [pendingImageUrl, setPendingImageUrl] = useState<string>('');
+  const [cropSettings, setCropSettings] = useState<CropSettings | null>(null);
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   
@@ -64,6 +69,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
 
 
+
+
   // Keep local displayed image in sync with prop when it changes
   useEffect(() => {
     if (imagePath) {
@@ -76,7 +83,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setShowUploadModal(true);
   };
 
-  const handleImageUploaded = (newImagePath: string) => {
+  const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
+    // If we have a file, show crop modal first
+    if (imageFile) {
+      setPendingImageFile(imageFile);
+      setPendingImageUrl(newImagePath);
+      setShowUploadModal(false);
+      setShowCropModal(true);
+      return;
+    }
+
+    // Otherwise proceed with direct upload (existing behavior)
     onImageUploaded(newImagePath);
     setDisplayedImage(newImagePath);
     
@@ -98,6 +115,46 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       }
     };
     tmp.src = newImagePath;
+  };
+
+  // Handle crop modal actions
+  const handleCropConfirm = (croppedImageData: string, settings: CropSettings) => {
+    setCropSettings(settings);
+    onImageUploaded(croppedImageData);
+    setDisplayedImage(croppedImageData);
+    setShowCropModal(false);
+    setPendingImageFile(null);
+    setPendingImageUrl('');
+    
+    // Notify parent with crop settings
+    onSizeTransformChange?.({
+      objectFit: 'fill', // Cropped images should fill the placeholder
+      imageScale: settings.scale,
+      imageOffset: { x: settings.x, y: settings.y },
+      isCropped: true
+    });
+  };
+
+  const handleSkipCrop = (originalImageData: string) => {
+    onImageUploaded(originalImageData);
+    setDisplayedImage(originalImageData);
+    setShowCropModal(false);
+    setPendingImageFile(null);
+    setPendingImageUrl('');
+    
+    // Use contain mode for uncropped images
+    onSizeTransformChange?.({
+      objectFit: cropMode || 'contain',
+      imageScale: 1,
+      imageOffset: { x: 0, y: 0 },
+      isCropped: false
+    });
+  };
+
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setPendingImageFile(null);
+    setPendingImageUrl('');
   };
 
   const handleCropModeChange = (newMode: 'cover' | 'contain' | 'fill') => {
@@ -122,10 +179,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           `}
           style={{
             ...(style || {}),
-            maxWidth: "auto",
-            maxHeight: "auto",
-            minWidth: "auto",
-            minHeight: "auto",
           }}
           onClick={handleClick}
         >
@@ -238,14 +291,29 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           />
         )}
 
-        <PresentationImageUpload
-          isOpen={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
-          onImageUploaded={handleImageUploaded}
-          title="Upload Presentation Image"
-        />
-      </>
-    );
+              <PresentationImageUpload
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onImageUploaded={handleImageUploaded}
+        title="Upload Presentation Image"
+      />
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={showCropModal}
+        onClose={handleCropCancel}
+        imageFile={pendingImageFile}
+        imageUrl={pendingImageUrl}
+        placeholderDimensions={{
+          width: (style?.width as number) || 384,
+          height: (style?.height as number) || 256
+        }}
+        onCropConfirm={handleCropConfirm}
+        onSkipCrop={handleSkipCrop}
+        elementId={elementId}
+      />
+    </>
+  );
   }
 
   // Otherwise show placeholder
@@ -266,10 +334,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         `}
         style={{
           ...(style || {}),
-          maxWidth: "auto",
-          maxHeight: "auto",
-          minWidth: "auto",
-          minHeight: "auto",
         }}
         onClick={handleClick}
       >
@@ -319,6 +383,21 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onClose={() => setShowUploadModal(false)}
         onImageUploaded={handleImageUploaded}
         title="Upload Presentation Image"
+      />
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={showCropModal}
+        onClose={handleCropCancel}
+        imageFile={pendingImageFile}
+        imageUrl={pendingImageUrl}
+        placeholderDimensions={{
+          width: (style?.width as number) || 384,
+          height: (style?.height as number) || 256
+        }}
+        onCropConfirm={handleCropConfirm}
+        onSkipCrop={handleSkipCrop}
+        elementId={elementId}
       />
     </>
   );
