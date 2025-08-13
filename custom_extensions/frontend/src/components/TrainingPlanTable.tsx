@@ -1678,9 +1678,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                 newHours = Math.round(total);
               } else {
                 const minutes = agg.total || 5;
-                const rate = (lessonObj?.custom_rate as number | undefined)
-                  ?? (section?.custom_rate as number | undefined)
-                  ?? (projectCustomRate as number | undefined)
+              const rate = (lessonObj?.custom_rate as number | undefined)
+                ?? (section?.custom_rate as number | undefined)
+                ?? (projectCustomRate as number | undefined)
                   ?? 200;
                 newHours = Math.round((minutes / 60.0) * rate);
               }

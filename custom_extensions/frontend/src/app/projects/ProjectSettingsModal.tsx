@@ -72,9 +72,24 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
               quiz: typeof ar.quiz === 'number' ? ar.quiz : cr,
               videoLesson: typeof ar.video_lesson === 'number' ? ar.video_lesson : cr,
             });
+            // Load completion times if available
+            const ct = data.completion_times || {};
+            setPerProductCompletionTimes({
+              presentation: typeof ct.presentation === 'number' ? ct.presentation : 8,
+              onePager: typeof ct.one_pager === 'number' ? ct.one_pager : 3,
+              quiz: typeof ct.quiz === 'number' ? ct.quiz : 6,
+              videoLesson: typeof ct.video_lesson === 'number' ? ct.video_lesson : 4,
+            });
           } else {
             setAdvancedEnabled(false);
             setPerProductRates({ presentation: cr, onePager: cr, quiz: cr, videoLesson: cr });
+            // Set default completion times
+            setPerProductCompletionTimes({
+              presentation: 8,
+              onePager: 3,
+              quiz: 6,
+              videoLesson: 4
+            });
           }
           setDataLoaded(true);
         }

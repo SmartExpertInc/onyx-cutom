@@ -228,6 +228,18 @@ export default function LessonSettingsModal({
           console.log('🔍 [LESSON_MODAL] Setting perProductRates to:', JSON.stringify(newRates, null, 2));
           setPerProductRates(newRates);
           
+          // Set completion times if available
+          if (data.completion_times) {
+            const newCompletionTimes = {
+              presentation: data.completion_times.presentation || 8,
+              onePager: data.completion_times.one_pager || 3,
+              quiz: data.completion_times.quiz || 6,
+              videoLesson: data.completion_times.video_lesson || 4
+            };
+            console.log('🔍 [LESSON_MODAL] Setting perProductCompletionTimes to:', JSON.stringify(newCompletionTimes, null, 2));
+            setPerProductCompletionTimes(newCompletionTimes);
+          }
+          
           // Set single rate fallback
           console.log('🔍 [LESSON_MODAL] Setting customRate to:', data.fallback_single_rate);
           setCustomRate(data.fallback_single_rate);
@@ -248,6 +260,13 @@ export default function LessonSettingsModal({
             quiz: currentAdvancedRates?.quiz ?? effectiveRate,
             videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
           });
+          // Set default completion times for fallback
+          setPerProductCompletionTimes({
+            presentation: 8,
+            onePager: 3,
+            quiz: 6,
+            videoLesson: 4
+          });
           setCustomRate(currentCustomRate || 200);
           setDataLoaded(true); // Mark data as loaded even on fallback
         }
@@ -260,6 +279,13 @@ export default function LessonSettingsModal({
           onePager: currentAdvancedRates?.onePager ?? effectiveRate,
           quiz: currentAdvancedRates?.quiz ?? effectiveRate,
           videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+        });
+        // Set default completion times for fallback
+        setPerProductCompletionTimes({
+          presentation: 8,
+          onePager: 3,
+          quiz: 6,
+          videoLesson: 4
         });
         setCustomRate(currentCustomRate || 200);
         setDataLoaded(true); // Mark data as loaded even on fallback
@@ -436,30 +462,30 @@ export default function LessonSettingsModal({
                         {qualityTier === tier.id ? (
                           <div className="space-y-3">
                             {!advancedEnabled && (
-                              <div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-sm font-medium text-gray-700">
-                                    {customRate}{t('modals.folderSettings.hours', 'h')}
-                                  </span>
-                                </div>
-                                <div className="relative">
-                                  <input
-                                    type="range"
-                                    min={tier.hoursRange.min}
-                                    max={tier.hoursRange.max}
-                                    value={customRate}
-                                    onChange={(e) => setCustomRate(parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                                    style={{
-                                      background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
-                                    }}
-                                  />
-                                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                    <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
-                                    <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
-                                  </div>
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-gray-700">
+                                  {customRate}{t('modals.folderSettings.hours', 'h')}
+                                </span>
+                              </div>
+                              <div className="relative">
+                                <input
+                                  type="range"
+                                  min={tier.hoursRange.min}
+                                  max={tier.hoursRange.max}
+                                  value={customRate}
+                                  onChange={(e) => setCustomRate(parseInt(e.target.value))}
+                                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                  style={{
+                                    background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                  }}
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                  <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                  <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
                                 </div>
                               </div>
+                            </div>
                             )}
                             {advancedEnabled && (
                               <div className="space-y-4">

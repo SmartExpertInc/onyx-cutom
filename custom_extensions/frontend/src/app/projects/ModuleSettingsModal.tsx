@@ -125,6 +125,18 @@ export default function ModuleSettingsModal({
           console.log('🔍 [MODULE_MODAL] Setting perProductRates to:', JSON.stringify(newRates, null, 2));
           setPerProductRates(newRates);
           
+          // Set completion times if available
+          if (data.completion_times) {
+            const newCompletionTimes = {
+              presentation: data.completion_times.presentation || 8,
+              onePager: data.completion_times.one_pager || 3,
+              quiz: data.completion_times.quiz || 6,
+              videoLesson: data.completion_times.video_lesson || 4
+            };
+            console.log('🔍 [MODULE_MODAL] Setting perProductCompletionTimes to:', JSON.stringify(newCompletionTimes, null, 2));
+            setPerProductCompletionTimes(newCompletionTimes);
+          }
+          
           // Set single rate fallback
           console.log('🔍 [MODULE_MODAL] Setting customRate to:', data.fallback_single_rate);
           setCustomRate(data.fallback_single_rate);
@@ -139,6 +151,13 @@ export default function ModuleSettingsModal({
             quiz: currentCustomRate || 200,
             videoLesson: currentCustomRate || 200
           });
+          // Set default completion times for fallback
+          setPerProductCompletionTimes({
+            presentation: 8,
+            onePager: 3,
+            quiz: 6,
+            videoLesson: 4
+          });
           setCustomRate(currentCustomRate || 200);
           setDataLoaded(true); // Mark data as loaded even if fetch fails
         }
@@ -150,6 +169,13 @@ export default function ModuleSettingsModal({
           onePager: currentCustomRate || 200,
           quiz: currentCustomRate || 200,
           videoLesson: currentCustomRate || 200
+        });
+        // Set default completion times for fallback
+        setPerProductCompletionTimes({
+          presentation: 8,
+          onePager: 3,
+          quiz: 6,
+          videoLesson: 4
         });
         setCustomRate(currentCustomRate || 200);
         setDataLoaded(true); // Mark data as loaded even on error

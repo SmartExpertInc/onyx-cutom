@@ -6240,8 +6240,9 @@ async def startup_event():
             try:
                 await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
                 await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_times JSONB;")
                 await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_advanced ON projects(is_advanced);")
-                logger.info("Ensured is_advanced and advanced_rates on projects")
+                logger.info("Ensured is_advanced, advanced_rates, and completion_times on projects")
             except Exception as e:
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
                     logger.error(f"Error adding is_advanced/advanced_rates to projects: {e}")
@@ -6714,6 +6715,7 @@ class ProjectDB(BaseModel):
     quality_tier: Optional[str] = None
     is_advanced: Optional[bool] = None
     advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
     model_config = {"from_attributes": True}
 
 class MicroProductApiResponse(BaseModel):
@@ -10826,7 +10828,7 @@ async def download_project_instance_pdf(
                             # Update locale strings if language detection changed
                             current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
                     except Exception: pass
-                    data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
+                        data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
             else:
                 logger.warning(f"Project {project_id} PDF Gen (PDF LESSON): content_json is not a valid dict or is None. Using fallback structure.")
                 data_for_template_render = {
@@ -10918,7 +10920,7 @@ async def download_project_instance_pdf(
                             # Update locale strings if language detection changed
                             current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
                     except Exception: pass 
-                    data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
+                        data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
                 else: # If language IS in content_json, ensure locale strings match
                     detected_lang_for_pdf = data_for_template_render.get('detectedLanguage', detected_lang_for_pdf)
                     current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
@@ -14981,6 +14983,7 @@ class ProjectFolderResponse(BaseModel):
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
     is_advanced: Optional[bool] = False
     advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 class ProjectFolderListResponse(BaseModel):
     id: int
@@ -14992,6 +14995,7 @@ class ProjectFolderListResponse(BaseModel):
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
     is_advanced: Optional[bool] = False
     advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
     project_count: int
     total_lessons: int
     total_hours: int
@@ -15025,6 +15029,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             COALESCE(pf.custom_rate, 200) as custom_rate,
             pf.is_advanced as is_advanced,
             pf.advanced_rates as advanced_rates,
+            pf.completion_times as completion_times,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -15185,8 +15190,8 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
         
         # Update the folder's quality_tier/custom_rate and advanced fields
         updated_folder = await conn.fetchrow(
-            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates) WHERE id = $5 AND onyx_user_id = $6 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates",
-            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, folder_id, onyx_user_id
+            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates, completion_times",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, folder_id, onyx_user_id
         )
         
         # Get all projects in this folder (including subfolders recursively)
@@ -15241,7 +15246,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
 
                                     # Always update recommendations when tier changes to ensure they match the new tier
                                     try:
-                                            lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
                                                 lesson.get('title', ''),
                                                 req.quality_tier,
                                                 {
@@ -15727,8 +15732,8 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
         
         # Update the project's quality_tier, custom_rate, and advanced fields
         updated_project = await conn.fetchrow(
-            "UPDATE projects SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates) WHERE id = $5 AND onyx_user_id = $6 RETURNING *",
-            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, project_id, onyx_user_id
+            "UPDATE projects SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING *",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, project_id, onyx_user_id
         )
         
         # If the project has content, recalculate creation hours
@@ -15758,16 +15763,16 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
 
                                     try:
                                         # Always update recommendations when tier changes to ensure they match the new tier
-                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
-                                            lesson.get('title', ''),
-                                            req.quality_tier,
-                                            {
-                                                'presentation': False,
-                                                'one-pager': False,
-                                                'quiz': False,
-                                                'video-lesson': False,
-                                            }
-                                        )
+                                            lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                                lesson.get('title', ''),
+                                                req.quality_tier,
+                                                {
+                                                    'presentation': False,
+                                                    'one-pager': False,
+                                                    'quiz': False,
+                                                    'video-lesson': False,
+                                                }
+                                            )
                                         # Also generate completion_breakdown for advanced mode support
                                         try:
                                             primary = lesson['recommended_content_types'].get('primary', [])
@@ -15912,7 +15917,7 @@ async def get_effective_rates(
         project_row = await conn.fetchrow(
             """
             SELECT p.*, pf.is_advanced as folder_is_advanced, pf.advanced_rates as folder_advanced_rates, 
-                   pf.custom_rate as folder_custom_rate
+                   pf.custom_rate as folder_custom_rate, pf.completion_times as folder_completion_times
             FROM projects p
             LEFT JOIN project_folders pf ON p.folder_id = pf.id
             WHERE p.id = $1 AND p.onyx_user_id = $2
@@ -16032,6 +16037,12 @@ async def get_effective_rates(
                 "one_pager": rates.get('one_pager', fallback_single_rate),
                 "quiz": rates.get('quiz', fallback_single_rate),
                 "video_lesson": rates.get('video_lesson', fallback_single_rate),
+            },
+            "completion_times": {
+                "presentation": 8,  # Default values for now
+                "one_pager": 3,
+                "quiz": 6,
+                "video_lesson": 4,
             },
             "fallback_single_rate": fallback_single_rate
         }
