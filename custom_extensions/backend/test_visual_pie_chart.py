@@ -19,15 +19,15 @@ except ImportError as e:
 def test_visual_pie_chart():
     """Тестирует визуальное отображение pie chart"""
     
-    # Тестовые данные - точно как во фронтенде
-    test_segments = [
-        {'label': '15%', 'percentage': 15, 'color': '#0ea5e9', 'description': 'Blue segment'},
-        {'label': '20%', 'percentage': 20, 'color': '#06b6d4', 'description': 'Cyan segment'},
-        {'label': '25%', 'percentage': 25, 'color': '#67e8f9', 'description': 'Light blue segment'},
-        {'label': '20%', 'percentage': 20, 'color': '#0891b2', 'description': 'Dark blue segment'},
-        {'label': '12%', 'percentage': 12, 'color': '#f97316', 'description': 'Orange segment'},
-        {'label': '8%', 'percentage': 8, 'color': '#fb923c', 'description': 'Light orange segment'}
-    ]
+               # Тестовые данные - точно как во фронтенде (с правильными label)
+           test_segments = [
+               {'label': '15%', 'percentage': 15, 'color': '#0ea5e9', 'description': 'Blue segment'},
+               {'label': '20%', 'percentage': 20, 'color': '#06b6d4', 'description': 'Cyan segment'},
+               {'label': '25%', 'percentage': 25, 'color': '#67e8f9', 'description': 'Light blue segment'},
+               {'label': '20%', 'percentage': 20, 'color': '#0891b2', 'description': 'Dark blue segment'},
+               {'label': '12%', 'percentage': 12, 'color': '#f97316', 'description': 'Orange segment'},
+               {'label': '8%', 'percentage': 8, 'color': '#fb923c', 'description': 'Light orange segment'}
+           ]
     
     print("🎨 Generating visual pie chart...")
     print(f"Segments: {len(test_segments)}")

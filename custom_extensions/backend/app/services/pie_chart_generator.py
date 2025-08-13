@@ -161,16 +161,31 @@ class PieChartGenerator:
     def _draw_percentage_labels(self, draw: ImageDraw.Draw, segments: List[Dict], total_percentage: float):
         """Рисует процентные метки на сегментах с точным стилем фронтенда"""
         try:
-            # Пытаемся загрузить шрифт, если не получится - используем дефолтный
-            try:
-                # Используем Arial как во фронтенде
-                font = ImageFont.truetype("arial.ttf", 18)
-            except:
+            # Пытаемся загрузить шрифт - точно как во фронтенде (Arial, 18px, bold)
+            font = None
+            font_paths = [
+                "arial.ttf",
+                "Arial.ttf", 
+                "arial.TTF",
+                "Arial.TTF",
+                "/System/Library/Fonts/Arial.ttf",  # macOS
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # Linux
+                "C:/Windows/Fonts/arial.ttf",  # Windows
+                "C:/Windows/Fonts/Arial.ttf"   # Windows
+            ]
+            
+            for font_path in font_paths:
                 try:
-                    # Попробуем найти Arial в системе
-                    font = ImageFont.truetype("Arial", 18)
+                    font = ImageFont.truetype(font_path, 18)
+                    logger.info(f"Successfully loaded font: {font_path}")
+                    break
                 except:
-                    font = ImageFont.load_default()
+                    continue
+            
+            if font is None:
+                # Если не удалось загрузить Arial, используем дефолтный и масштабируем
+                font = ImageFont.load_default()
+                logger.warning("Using default font as fallback")
             
             current_angle = 0
             for segment in segments:
@@ -178,21 +193,23 @@ class PieChartGenerator:
                     segment_angle = (segment['percentage'] / total_percentage) * 360
                     label_angle = current_angle + (segment_angle / 2)
                     
-                    # Вычисляем позицию метки - точно как во фронтенде
+                    # Вычисляем позицию метки - ТОЧНО как во фронтенде
+                    # Фронтенд: const angleRad = (centerAngle - 90) * Math.PI / 180;
+                    # Фронтенд: const radius = 98; const x = 140 + radius * Math.cos(angleRad);
                     rad = math.radians(label_angle - 90)  # -90 для правильной ориентации
                     label_radius = 98  # Расстояние от центра - точно как во фронтенде
                     x = self.center_x + label_radius * math.cos(rad)
                     y = self.center_y + label_radius * math.sin(rad)
                     
-                    # Текст метки
-                    text = f"{segment['percentage']}%"
+                    # Текст метки - используем label из сегмента как во фронтенде
+                    text = segment.get('label', f"{segment['percentage']}%")
                     
                     # Получаем размеры текста
                     bbox = draw.textbbox((0, 0), text, font=font)
                     text_width = bbox[2] - bbox[0]
                     text_height = bbox[3] - bbox[1]
                     
-                    # Позиционируем текст по центру
+                    # Позиционируем текст по центру - точно как во фронтенде
                     text_x = int(x - text_width / 2)
                     text_y = int(y - text_height / 2)
                     
