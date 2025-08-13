@@ -98,12 +98,21 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     if (containerRef.current && (savedImagePosition || savedImageSize)) {
       const element = containerRef.current;
       
+      log('ClickableImagePlaceholder', 'applySavedState_start', {
+        elementId,
+        hasSavedPosition: !!savedImagePosition,
+        hasSavedSize: !!savedImageSize,
+        savedPosition: savedImagePosition,
+        savedSize: savedImageSize
+      });
+      
       // Apply saved position
       if (savedImagePosition && (savedImagePosition.x !== 0 || savedImagePosition.y !== 0)) {
         element.style.transform = `translate(${savedImagePosition.x}px, ${savedImagePosition.y}px)`;
         log('ClickableImagePlaceholder', 'applySavedPosition', {
           elementId,
-          position: savedImagePosition
+          position: savedImagePosition,
+          appliedTransform: element.style.transform
         });
       }
       
@@ -113,9 +122,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         element.style.height = `${savedImageSize.height}px`;
         log('ClickableImagePlaceholder', 'applySavedSize', {
           elementId,
-          size: savedImageSize
+          size: savedImageSize,
+          appliedWidth: element.style.width,
+          appliedHeight: element.style.height
         });
       }
+      
+      log('ClickableImagePlaceholder', 'applySavedState_complete', {
+        elementId,
+        finalWidth: element.style.width,
+        finalHeight: element.style.height,
+        finalTransform: element.style.transform
+      });
     }
   }, [containerRef, savedImagePosition, savedImageSize, elementId]);
 
@@ -306,6 +324,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
               const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
               
+              log('ClickableImagePlaceholder', 'onResize', {
+                elementId,
+                width: e.width,
+                height: e.height,
+                position: { x, y },
+                appliedWidth: e.target.style.width,
+                appliedHeight: e.target.style.height
+              });
+              
               // Call onSizeTransformChange with both position and size
               onSizeTransformChange?.({
                 imagePosition: { x, y },
@@ -333,9 +360,23 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
               const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
               
+              // Get numeric width and height from the resize event
+              const width = parseFloat(e.target.style.width.replace('px', ''));
+              const height = parseFloat(e.target.style.height.replace('px', ''));
+              
+              log('ClickableImagePlaceholder', 'onResizeEnd', {
+                elementId,
+                width,
+                height,
+                position: { x, y },
+                finalWidth: e.target.style.width,
+                finalHeight: e.target.style.height,
+                isFinal: true
+              });
+              
               onSizeTransformChange?.({
                 imagePosition: { x, y },
-                imageSize: { width: e.target.style.width, height: e.target.style.height },
+                imageSize: { width, height },
                 elementId: elementId,
                 final: true
               });

@@ -548,9 +548,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     minWidth: 0
   };
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    aspectRatio: '1 / 1',
-    height: '100%',
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', aspectRatio: '1 / 1', height: '100%' }),
     margin: '0 auto'
   };
 

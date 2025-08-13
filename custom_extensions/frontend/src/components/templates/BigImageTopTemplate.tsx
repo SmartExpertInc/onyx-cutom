@@ -230,8 +230,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    height: '240px',
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '240px' }),
     margin: '0 auto'
   };
 

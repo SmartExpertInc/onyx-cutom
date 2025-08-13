@@ -248,8 +248,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%' }),
     margin: '0 auto'
   };
 
