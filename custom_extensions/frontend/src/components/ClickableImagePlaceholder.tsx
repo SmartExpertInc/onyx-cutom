@@ -275,7 +275,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [elementId]);
 
   const handleClick = () => {
-    if (!isEditable) return;
+    if (!isEditable || isDragging || isResizing || isRotating) return;
     if (displayedImage) {
       // If image exists, show upload modal for replacement
       setShowUploadModal(true);
@@ -474,7 +474,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             className={`
               ${positionClasses[position]} 
               relative overflow-hidden rounded-lg
-              ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
+              ${isEditable && !isDragging && !isResizing && !isRotating ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
               ${className}
             `}
             style={{
@@ -492,8 +492,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               }}
             />
             
-            {/* Replace overlay on hover */}
-            {isEditable && (
+            {/* Replace overlay on hover - disabled during drag/resize */}
+            {isEditable && !isDragging && !isResizing && !isRotating && (
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="text-white text-center">
                   <Replace className="w-6 h-6 mx-auto mb-2" />
@@ -545,22 +545,22 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <div 
           ref={containerRef}
           data-moveable-element={elementId}
-          className={`
-            ${positionClasses[position]} 
-            bg-gradient-to-br from-blue-100 to-purple-100 
-            border-2 border-dashed border-gray-300 
-            rounded-lg flex items-center justify-center 
-            text-gray-500 text-sm
-            ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-            ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
-            ${className}
-          `}
+                      className={`
+              ${positionClasses[position]} 
+              bg-gradient-to-br from-blue-100 to-purple-100 
+              border-2 border-dashed border-gray-300 
+              rounded-lg flex items-center justify-center 
+              text-gray-500 text-sm
+              ${position === 'BACKGROUND' ? 'opacity-20' : ''}
+              ${isEditable && !isDragging && !isResizing && !isRotating ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
+              ${className}
+            `}
           style={{
             ...(style || {}),
           }}
           onClick={handleClick}
         >
-          <div className="text-center p-4" style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+          <div className="text-center p-4" style={{ cursor: (isEditable && !isDragging && !isResizing && !isRotating) ? 'pointer' : 'default' }}>
             <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <div className="font-medium">{size} Image</div>
             <div className="text-xs mt-1 opacity-75">{description}</div>
