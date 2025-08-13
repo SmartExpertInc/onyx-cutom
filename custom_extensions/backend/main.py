@@ -16180,7 +16180,7 @@ async def download_projects_list_pdf(
                 SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                        dt.template_name as design_template_name,
                        dt.microproduct_type as design_microproduct_type,
-                       p.folder_id, p."order", p.microproduct_content
+                       p.folder_id, p."order", p.microproduct_content, p.quality_tier
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.onyx_user_id = $1
