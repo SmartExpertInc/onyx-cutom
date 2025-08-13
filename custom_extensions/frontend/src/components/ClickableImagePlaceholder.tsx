@@ -69,6 +69,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   
   // Hover state for Moveable anchors visibility
   const [isHovered, setIsHovered] = useState(false);
+  
+  // Drag state to prevent hover changes during active dragging
+  const [isDragging, setIsDragging] = useState(false);
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -153,6 +156,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [isEditable, displayedImage, containerRef, elementId]);
 
+  // Safety cleanup: reset drag state on unmount or when editable state changes
+  useEffect(() => {
+    return () => {
+      if (isDragging) {
+        setIsDragging(false);
+        log('ClickableImagePlaceholder', 'cleanup_resetDrag', { elementId });
+      }
+    };
+  }, [isDragging, elementId]);
+
 
 
   const handleClick = () => {
@@ -168,23 +181,25 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // Hover handlers for Moveable anchors visibility
   const handleMouseEnter = () => {
-    if (isEditable) {
+    if (isEditable && !isDragging) {
       setIsHovered(true);
       log('ClickableImagePlaceholder', 'mouseEnter', { 
         elementId, 
         hasImage: !!displayedImage,
-        isHovered: true 
+        isHovered: true,
+        isDragging
       });
     }
   };
 
   const handleMouseLeave = () => {
-    if (isEditable) {
+    if (isEditable && !isDragging) {
       setIsHovered(false);
       log('ClickableImagePlaceholder', 'mouseLeave', { 
         elementId, 
         hasImage: !!displayedImage,
-        isHovered: false 
+        isHovered: false,
+        isDragging
       });
     }
   };
@@ -298,7 +313,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             ${positionClasses[position]} 
             relative overflow-hidden rounded-lg transition-all duration-200
             ${isEditable ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
-            ${isEditable && isHovered ? 'ring-2 ring-blue-400 ring-opacity-50 shadow-lg' : ''}
+            ${isEditable && (isHovered || isDragging) ? 'ring-2 ring-blue-400 ring-opacity-50 shadow-lg' : ''}
             ${className}
           `}
           style={{
@@ -330,12 +345,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         </div>
 
         {/* React-moveable for the image container */}
-        {isEditable && containerRef.current && isHovered && (
+        {isEditable && containerRef.current && (isHovered || isDragging) && (
           <Moveable
             target={containerRef.current}
             draggable={true}
             throttleDrag={1}
             edgeDraggable={false}
+            onDragStart={e => {
+              setIsDragging(true);
+              log('ClickableImagePlaceholder', 'dragStart', { 
+                elementId, 
+                hasImage: !!displayedImage,
+                isDragging: true 
+              });
+            }}
             onDrag={e => {
               e.target.style.transform = e.transform;
               
@@ -395,6 +418,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                   final: true
                 });
               }
+              
+              // Reset drag state
+              setIsDragging(false);
+              log('ClickableImagePlaceholder', 'dragEnd', { 
+                elementId, 
+                hasImage: !!displayedImage,
+                isDragging: false 
+              });
             }}
             onResizeEnd={e => {
               // Final size update after resize ends
@@ -461,7 +492,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           text-gray-500 text-sm transition-all duration-200
           ${position === 'BACKGROUND' ? 'opacity-20' : ''}
           ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50' : ''}
-          ${isEditable && isHovered ? 'border-blue-400 bg-blue-50 shadow-lg' : ''}
+          ${isEditable && (isHovered || isDragging) ? 'border-blue-400 bg-blue-50 shadow-lg' : ''}
           ${className}
         `}
         style={{
@@ -489,12 +520,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       </div>
 
       {/* React-moveable for placeholder */}
-      {isEditable && containerRef.current && isHovered && (
+      {isEditable && containerRef.current && (isHovered || isDragging) && (
         <Moveable
           target={containerRef.current}
           draggable={true}
           throttleDrag={1}
           edgeDraggable={false}
+          onDragStart={e => {
+            setIsDragging(true);
+            log('ClickableImagePlaceholder', 'dragStart', { 
+              elementId, 
+              hasImage: !!displayedImage,
+              isDragging: true 
+            });
+          }}
           onDrag={e => {
             e.target.style.transform = e.transform;
             
@@ -545,6 +584,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                 final: true
               });
             }
+            
+            // Reset drag state
+            setIsDragging(false);
+            log('ClickableImagePlaceholder', 'dragEnd', { 
+              elementId, 
+              hasImage: !!displayedImage,
+              isDragging: false 
+            });
           }}
           onResizeEnd={e => {
             // Final size update after resize ends
