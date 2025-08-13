@@ -251,20 +251,14 @@ export default function TextPresentationClient() {
     
     // Add to edited titles list if title is different from original
     const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
-    console.log(`Title edit - Index: ${lessonIndex}, Original: "${originalTitle}", New: "${newTitle}", Different: ${newTitle !== originalTitle}`);
     if (newTitle !== originalTitle) {
-      setEditedTitleIds(prev => {
-        const newSet = new Set([...prev, lessonIndex]);
-        console.log(`Added to edited list: ${lessonIndex}, Current list:`, Array.from(newSet));
-        return newSet;
-      });
+      setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
       setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
       setHasUserEdits(true); // NEW: Mark that user has made edits
     } else {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(lessonIndex);
-        console.log(`Removed from edited list: ${lessonIndex}, Current list:`, Array.from(newSet));
         return newSet;
       });
     }
@@ -334,8 +328,13 @@ export default function TextPresentationClient() {
       return newTitles;
     });
     
-    // Keep in editedTitleIds for finalization - don't remove since we need to track edited titles
-    // This ensures that when finalizing, we know which titles were edited
+    // Remove from editedTitleIds since the title is now part of the main content
+    // But keep it in originallyEditedTitles to track that it was edited
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(lessonIndex);
+      return newSet;
+    });
     
     // NEW: Mark that content has been updated
     if (updatedContent !== content) {
@@ -348,7 +347,7 @@ export default function TextPresentationClient() {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
 
-  // NEW: Function to create clean titles content - if title changed send only title without context, if not changed send with context
+  // NEW: Create clean content - if title changed send only title without context, if not changed send with context
   // Also handles the case where a large heading gets broken down into subheadings
   const createCleanTitlesContent = (content: string) => {
     const lessons = parseContentIntoLessons(content);
@@ -366,50 +365,6 @@ export default function TextPresentationClient() {
         // For unedited titles, send with full context
         // This preserves the original content structure and context
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
-      }
-    });
-    
-    return cleanContent.trim();
-  };
-
-  // NEW: Function to create clean content for regeneration when titles are changed
-  const createCleanContentForRegeneration = (content: string) => {
-    if (!content.trim()) return "";
-    
-    const lessons = parseContentIntoLessons(content);
-    if (lessons.length === 0) return content;
-    
-    let cleanContent = "";
-    
-    lessons.forEach((lesson, index) => {
-      // Check if this title was edited by the user
-      if (editedTitleIds.has(index)) {
-        // For edited titles, send only the title without context
-        // This allows AI to focus on the title change and regenerate appropriate content
-        cleanContent += `## ${lesson.title}\n\n`;
-      } else {
-        // For unedited titles, send with full context
-        // This preserves the original content structure and context
-        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
-      }
-    });
-    
-    return cleanContent.trim();
-  };
-
-  // NEW: Function to create content with only edited titles for regeneration
-  const createEditedTitlesOnlyContent = (content: string) => {
-    if (!content.trim()) return "";
-    
-    const lessons = parseContentIntoLessons(content);
-    if (lessons.length === 0) return content;
-    
-    let cleanContent = "";
-    
-    lessons.forEach((lesson, index) => {
-      // Only include titles that were edited by the user
-      if (editedTitleIds.has(index)) {
-        cleanContent += `## ${lesson.title}\n\n`;
       }
     });
     
@@ -493,22 +448,9 @@ export default function TextPresentationClient() {
     setLoadingEdit(true);
     setError(null);
     try {
-      // NEW: Prepare content based on whether user made edits
-      let contentToSend = content;
-      let isCleanContent = false;
-      
-      if (hasUserEdits && editedTitleIds.size > 0) {
-        // User edited lesson titles - send clean content for regeneration
-        contentToSend = createCleanContentForRegeneration(content);
-        isCleanContent = true;
-        console.log("Sending clean content for edit:", contentToSend);
-      }
-
       const payload: any = {
-        content: contentToSend,
+        content,
         editPrompt,
-        // NEW: Indicate if content is clean (titles only)
-        isCleanContent: isCleanContent,
       };
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
@@ -573,9 +515,6 @@ export default function TextPresentationClient() {
           }
         }
       }
-
-      // NEW: Mark that user has made edits after AI editing
-      setHasUserEdits(true);
 
       setEditPrompt("");
       setSelectedExamples([]);
@@ -825,19 +764,10 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
       
-      console.log("Finalization debug:", {
-        hasUserEdits,
-        editedTitleIdsSize: editedTitleIds.size,
-        editedTitleIds: Array.from(editedTitleIds),
-        originallyEditedTitlesSize: originallyEditedTitles.size,
-        originallyEditedTitles: Array.from(originallyEditedTitles)
-      });
-      
-      if (hasUserEdits && editedTitleIds.size > 0) {
-        // If titles were changed, send only the edited titles for regeneration
-        contentToSend = createEditedTitlesOnlyContent(content);
+      if (hasUserEdits && originallyEditedTitles.size > 0) {
+        // If titles were changed, send only titles without context
+        contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
-        console.log("Sending edited titles only for finalization:", contentToSend);
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;
@@ -1321,7 +1251,7 @@ export default function TextPresentationClient() {
             <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
             {hasUserEdits && (
               <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                {t('interface.generate.userEdits', 'User edits detected')}
+                User edits detected
               </span>
             )}
           </div>
@@ -1550,14 +1480,6 @@ export default function TextPresentationClient() {
               {/* Credits calculated based on slide count */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               <span>5 {t('interface.generate.credits', 'credits')}</span>
-              
-              {/* NEW: Show user edits indicator */}
-              {hasUserEdits && (
-                <div className="flex items-center gap-1 text-sm text-orange-600">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                  <span>{t('interface.generate.userEdits', 'User edits detected')}</span>
-                </div>
-              )}
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">

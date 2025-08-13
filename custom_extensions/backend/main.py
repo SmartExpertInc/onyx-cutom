@@ -13277,6 +13277,7 @@ async def init_course_outline_chat(request: Request):
 # === Wizard Outline helpers & cache ===
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
 QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
+TEXT_PRESENTATION_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw text presentation content
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
     """Return a markdown outline that reflects the *structure* provided in
@@ -17426,6 +17427,12 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
             return
 
         logger.info(f"[TEXT_PRESENTATION_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        
+        # NEW: Cache the text presentation content for later finalization
+        if chat_id:
+            TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CACHE] Cached text presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
+        
         yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
 
     return StreamingResponse(
@@ -17563,61 +17570,187 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # NEW: Handle clean content (titles only) differently
         if getattr(payload, 'isCleanContent', False):
-            logger.info("Processing clean content (edited titles only) - will generate complete content for each edited title")
-            # For clean content, we need to generate complete content for each edited title
+            logger.info("Processing clean content (titles only) - will regenerate content for edited sections")
+            # For clean content, we need to regenerate content for the edited sections
             dynamic_instructions = f"""
-            You are an expert content generation assistant for 'Text Presentation' content.
-            The AI response contains ONLY the section titles that were edited by the user. You need to generate complete content for each of these edited titles.
+            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+            This product is for general text like introductions, goal descriptions, etc.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
-            **Overall Goal:** Generate comprehensive content for each edited section title that will be merged with existing content.
+            **Overall Goal:** The AI response contains ONLY section titles without content. You need to generate complete content for each section based on the titles.
 
             **Global Fields:**
-            1.  `textTitle` (string): Main title for the document. Use the first meaningful title or create one based on the content.
-            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the presentation.
+            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+               - Extract ONLY the title part (the last part after the last "**")
+               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+               - Do NOT include the course name or "Text Presentation" label in the title
+               - If no clear pattern is found, use the first meaningful title or heading
+            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
             3.  `detectedLanguage` (string): e.g., "en", "ru".
 
-            **Content Generation Instructions:**
-            For each edited section title in the input, generate appropriate content including:
-            1. **Headlines** (`type: "headline"`): Use the provided titles as level 2 headlines with `iconName: "info"`
-            2. **Paragraphs** (`type: "paragraph"`): Generate 2-3 paragraphs of relevant content for each section
-            3. **Bullet Lists** (`type: "bullet_list"`): Add bullet points where appropriate
-            4. **Numbered Lists** (`type: "numbered_list"`): Add numbered steps or procedures where relevant
-            5. **Alerts** (`type: "alert"`): Add important notes or warnings where needed
+            **Content Generation Requirements:**
+            1. For each section title (## Title), generate appropriate content that matches the title
+            2. Create comprehensive, informative content for each section
+            3. Use appropriate content block types (headlines, paragraphs, bullet lists, numbered lists, etc.)
+            4. Ensure content flows logically and provides value
+            5. Language: {payload.language}
 
-            **Content Block Types:**
+            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+
             1.  **`type: "headline"`**
-                * `level` (integer): Use 2 for section headers
-                * `text` (string): The section title
-                * `iconName` (string): Use "info" for section headers
+                * `level` (integer):
+                    * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
+                    * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
+                    * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
+                    * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
+                * `text` (string): Headline text.
+                * `iconName` (string, optional): Based on level and context as described above.
+                * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
 
             2.  **`type: "paragraph"`**
-                * `text` (string): Full paragraph text explaining the section content
+                * `text` (string): Full paragraph text.
+                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
 
             3.  **`type: "bullet_list"`**
-                * `items` (array of strings): Key points or features
-                * `iconName` (string): Use "chevronRight"
+                * `items` (array of `ListItem`): Can be strings or other nested content blocks.
+                * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
 
             4.  **`type: "numbered_list"`**
-                * `items` (array of strings): Steps, procedures, or ordered points
+                * `items` (array of `ListItem`):
+                    * Can be simple strings for basic numbered points.
+                    * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
+                        * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
+                        * The `items` of this *inner* `bullet_list` should then be:
+                            1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
+                            2. A `paragraph` block (for the main descriptive text).
+                            3. Optionally, another `paragraph` block with `isRecommendation: true`.
+                    * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
 
-            5.  **`type: "alert"`**
-                * `alertType` (string): "info", "success", "warning", or "danger"
-                * `title` (string): Alert title
-                * `text` (string): Alert content
+            5.  **`type: "table"`**
+                * `headers` (array of strings): The column headers for the table.
+                * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+                * `caption` (string, optional): A short description or title for the table, if present in the source text.
+                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
 
-            **Generation Rules:**
-            - Generate comprehensive, educational content for each edited section
-            - Make content relevant to the edited section title
-            - Use appropriate content types (paragraphs, lists, alerts) based on the topic
-            - Maintain consistent language: {payload.language}
-            - Create engaging, informative content that would be useful for learners
-            - IMPORTANT: These are edited titles, so generate content that fits the new title meaning
-            - For each title, generate at least one paragraph of content to ensure no empty sections
-            - Focus on generating content that makes sense for the specific edited title
+            6.  **`type: "alert"`**
+                *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
+                *   `title` (string, optional): The title of the alert.
+                *   `text` (string): The body text of the alert.
+                *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
+
+            7.  **`type: "section_break"`**
+                * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
+
+            **General Parsing Rules & Icon Names:**
+            * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
+            * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
+            * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
+            * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
+            * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+            * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
+
+            Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
+              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
+
+            Return ONLY the JSON object.
             """
         else:
-            # Regular content parsing instructions
+            # Regular content with full context
             dynamic_instructions = f"""
+            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+            This product is for general text like introductions, goal descriptions, etc.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
+
+            **Global Fields:**
+            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+               - Extract ONLY the title part (the last part after the last "**")
+               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+               - Do NOT include the course name or "Text Presentation" label in the title
+               - If no clear pattern is found, use the first meaningful title or heading
+            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
+            3.  `detectedLanguage` (string): e.g., "en", "ru".
+
+            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+
+            1.  **`type: "headline"`**
+                * `level` (integer):
+                    * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
+                    * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
+                    * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
+                    * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
+                * `text` (string): Headline text.
+                * `iconName` (string, optional): Based on level and context as described above.
+                * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
+
+            2.  **`type: "paragraph"`**
+                * `text` (string): Full paragraph text.
+                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
+
+            3.  **`type: "bullet_list"`**
+                * `items` (array of `ListItem`): Can be strings or other nested content blocks.
+                * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
+
+            4.  **`type: "numbered_list"`**
+                * `items` (array of `ListItem`):
+                    * Can be simple strings for basic numbered points.
+                    * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
+                        * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
+                        * The `items` of this *inner* `bullet_list` should then be:
+                            1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
+                            2. A `paragraph` block (for the main descriptive text).
+                            3. Optionally, another `paragraph` block with `isRecommendation: true`.
+                    * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
+
+            5.  **`type: "table"`**
+                * `headers` (array of strings): The column headers for the table.
+                * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+                * `caption` (string, optional): A short description or title for the table, if present in the source text.
+                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
+
+            6.  **`type: "alert"`**
+                *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
+                *   `title` (string, optional): The title of the alert.
+                *   `text` (string): The body text of the alert.
+                *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
+
+            7.  **`type: "section_break"`**
+                * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
+
+            **General Parsing Rules & Icon Names:**
+            * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
+            * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
+            * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
+            * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
+            * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+            * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
+
+            Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
+              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
+
+            Return ONLY the JSON object.
+            """
+        
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
+            ai_response=content_to_parse,
+            project_name=project_name,  # Use consistent project name
+            target_model=TextPresentationDetails,
+            default_error_model_instance=TextPresentationDetails(
+                textTitle=project_name,
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            ),
+            dynamic_instructions=f"""
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
@@ -17694,109 +17827,11 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
               • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
               • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
               • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
-            """
-        
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        if getattr(payload, 'isCleanContent', False) and getattr(payload, 'originalContent', None):
-            # For edited titles, generate content and merge with original
-            logger.info("Generating content for edited titles and merging with original content")
-            
-            # Generate content for edited titles
-            generated_content = await parse_ai_response_with_llm(
-                ai_response=content_to_parse,
-                project_name=project_name,
-                target_model=TextPresentationDetails,
-                default_error_model_instance=TextPresentationDetails(
-                    textTitle=project_name,
-                    contentBlocks=[],
-                    detectedLanguage=payload.language
-                ),
-                dynamic_instructions=dynamic_instructions,
-                target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
-            )
-            
-            # Parse original content
-            original_parsed = await parse_ai_response_with_llm(
-                ai_response=payload.originalContent,
-                project_name=project_name,
-                target_model=TextPresentationDetails,
-                default_error_model_instance=TextPresentationDetails(
-                    textTitle=project_name,
-                    contentBlocks=[],
-                    detectedLanguage=payload.language
-                ),
-                dynamic_instructions=f"""
-                You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
-                Parse the original content to extract the structure and content blocks.
-                """,
-                target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
-            )
-            
-            # Merge the content: replace sections with edited titles, keep others unchanged
-            merged_content_blocks = []
-            original_blocks = original_parsed.contentBlocks
-            generated_blocks = generated_content.contentBlocks
-            
-            # Create a map of generated content by title
-            generated_by_title = {}
-            for block in generated_blocks:
-                if block.get("type") == "headline" and block.get("level") == 2:
-                    title = block.get("text", "")
-                    # Find all blocks that belong to this title
-                    title_blocks = [block]
-                    for i, next_block in enumerate(generated_blocks[generated_blocks.index(block)+1:], 1):
-                        if next_block.get("type") == "headline" and next_block.get("level") == 2:
-                            break
-                        title_blocks.append(next_block)
-                    generated_by_title[title] = title_blocks
-            
-            # Merge: use generated content for edited titles, original content for others
-            i = 0
-            while i < len(original_blocks):
-                block = original_blocks[i]
-                if block.get("type") == "headline" and block.get("level") == 2:
-                    title = block.get("text", "")
-                    if title in generated_by_title:
-                        # This title was edited, use generated content
-                        merged_content_blocks.extend(generated_by_title[title])
-                        # Skip original blocks for this title
-                        while i + 1 < len(original_blocks) and original_blocks[i + 1].get("type") != "headline":
-                            i += 1
-                    else:
-                        # This title was not edited, keep original content
-                        merged_content_blocks.append(block)
-                        # Add all blocks until next headline
-                        j = i + 1
-                        while j < len(original_blocks) and original_blocks[j].get("type") != "headline":
-                            merged_content_blocks.append(original_blocks[j])
-                            j += 1
-                        i = j - 1
-                else:
-                    merged_content_blocks.append(block)
-                i += 1
-            
-            # Create merged result
-            parsed_text_presentation = TextPresentationDetails(
-                textTitle=original_parsed.textTitle,
-                contentBlocks=merged_content_blocks,
-                detectedLanguage=payload.language
-            )
-            
-            logger.info(f"Merged content: {len(merged_content_blocks)} blocks total")
-        else:
-            # Regular parsing for full content
-            parsed_text_presentation = await parse_ai_response_with_llm(
-                ai_response=content_to_parse,
-                project_name=project_name,  # Use consistent project name
-                target_model=TextPresentationDetails,
-                default_error_model_instance=TextPresentationDetails(
-                    textTitle=project_name,
-                    contentBlocks=[],
-                    detectedLanguage=payload.language
-                ),
-                dynamic_instructions=dynamic_instructions,
-                target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
-            )
+
+            Return ONLY the JSON object.
+            """,
+            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+        )
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
@@ -17898,6 +17933,12 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         created_project = ProjectDB(**dict(row))
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
+        
+        # Clean up the cache
+        if payload.chatSessionId:
+            TEXT_PRESENTATION_PREVIEW_CACHE.pop(payload.chatSessionId, None)
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CACHE] Cleaned up cache for chat_id={payload.chatSessionId}")
+        
         return {"id": created_project.id, "name": final_project_name}
         
     except Exception as e:
