@@ -17107,11 +17107,16 @@ class TextPresentationWizardFinalize(BaseModel):
     chatSessionId: Optional[str] = None
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: User edits tracking (like in Quiz)
+    hasUserEdits: Optional[bool] = False
+    originalContent: Optional[str] = None
+    isCleanContent: Optional[bool] = False
 
 class TextPresentationEditRequest(BaseModel):
     content: str
     editPrompt: str
     chatSessionId: Optional[str] = None
+    isCleanContent: Optional[bool] = False
 
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
@@ -17352,6 +17357,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
     """Edit text presentation content with streaming response"""
     logger.info(f"[TEXT_PRESENTATION_EDIT_START] Text presentation edit initiated")
     logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
+    logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] isCleanContent: {getattr(payload, 'isCleanContent', False)}")
     
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     logger.info(f"[TEXT_PRESENTATION_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
@@ -17375,7 +17381,8 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         "prompt": payload.editPrompt,
         "language": "en",  # Default to English for edits
         "originalContent": payload.content,
-        "editMode": True
+        "editMode": True,
+        "isCleanContent": getattr(payload, 'isCleanContent', False)
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
@@ -17481,30 +17488,6 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
     
     try:
-        # NEW: Check for user edits and decide strategy (like in Quiz)
-        use_direct_parser = False
-        use_ai_parser = True
-        
-        if payload.hasUserEdits and payload.originalContent:
-            # User has made edits - check if they're significant
-            any_changes = _any_text_presentation_changes_made(payload.originalContent, payload.aiResponse)
-            
-            if not any_changes:
-                # NO CHANGES: Use direct parser path (fastest)
-                use_direct_parser = True
-                use_ai_parser = False
-                logger.info("No text presentation changes detected - using direct parser path")
-            else:
-                # CHANGES DETECTED: Use AI parser
-                use_direct_parser = False
-                use_ai_parser = True
-                logger.info("Text presentation changes detected - using AI parser path")
-        else:
-            # No edit information available - use AI parser
-            use_direct_parser = False
-            use_ai_parser = True
-            logger.info("No edit information available - using AI parser path")
-        
         # Ensure text presentation template exists
         template_id = await _ensure_text_presentation_template(pool)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
@@ -17539,7 +17522,32 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
-        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] hasUserEdits: {getattr(payload, 'hasUserEdits', False)}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {getattr(payload, 'isCleanContent', False)}")
+        
+        # NEW: Check for user edits and decide strategy (like in Quiz)
+        use_direct_parser = False
+        use_ai_parser = True
+        
+        if getattr(payload, 'hasUserEdits', False) and getattr(payload, 'originalContent', None):
+            # User has made edits - check if they're significant
+            any_changes = _any_text_presentation_changes_made(payload.originalContent, payload.aiResponse)
+            
+            if not any_changes:
+                # NO CHANGES: Use direct parser path (fastest)
+                use_direct_parser = True
+                use_ai_parser = False
+                logger.info("No text presentation changes detected - using direct parser path")
+            else:
+                # CHANGES DETECTED: Use AI parser
+                use_direct_parser = False
+                use_ai_parser = True
+                logger.info("Text presentation changes detected - using AI parser path")
+        else:
+            # No edit information available - use AI parser
+            use_direct_parser = False
+            use_ai_parser = True
+            logger.info("No edit information available - using AI parser path")
         
         # NEW: Choose parsing strategy based on user edits
         if use_direct_parser:
@@ -17548,39 +17556,21 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             
             # Use the original content for parsing since no changes were made
             content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
-            
-            parsed_text_presentation = await parse_ai_response_with_llm(
-                ai_response=content_to_parse,
-                project_name=project_name,  # Use consistent project name
-                target_model=TextPresentationDetails,
-                default_error_model_instance=TextPresentationDetails(
-                    textTitle=project_name,
-                    contentBlocks=[],
-                    detectedLanguage=payload.language
-                ),
         else:
-            # AI PARSER PATH: Use AI to parse the content (original behavior)
+            # AI PARSER PATH: Use the provided content (which may be clean titles only)
             logger.info("Using AI parser path for text presentation finalization")
-            
-            # NEW: If clean content is sent (titles only), we need to regenerate content around those titles
-            if payload.isCleanContent:
-                logger.info("Clean content detected - regenerating content around titles")
-                # The frontend sent only titles, so we need to generate content around them
-                # This is the key fix - when titles are changed, we need to regenerate content
-                content_to_parse = payload.aiResponse  # This contains only the titles
-            else:
-                # Regular content parsing
-                content_to_parse = payload.aiResponse
-            
-            parsed_text_presentation = await parse_ai_response_with_llm(
-                ai_response=content_to_parse,
-                project_name=project_name,  # Use consistent project name
-                target_model=TextPresentationDetails,
-                default_error_model_instance=TextPresentationDetails(
-                    textTitle=project_name,
-                    contentBlocks=[],
-                    detectedLanguage=payload.language
-                ),
+            content_to_parse = payload.aiResponse
+        
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
+            ai_response=content_to_parse,
+            project_name=project_name,  # Use consistent project name
+            target_model=TextPresentationDetails,
+            default_error_model_instance=TextPresentationDetails(
+                textTitle=project_name,
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            ),
             dynamic_instructions=f"""
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
