@@ -453,7 +453,7 @@ export default function ModuleSettingsModal({
                                   {/* Left Column: Creation Rates (2/3 width) */}
                                   <div className="col-span-2 space-y-3">
                                     <div className="flex items-center gap-2 pb-2">
-                                      <Clock size={16} className="text-blue-600" />
+                                      <Calculator size={16} className="text-blue-600" />
                                       <h4 className="text-sm font-semibold text-blue-800">Creation Rates</h4>
                                       <span className="text-xs text-blue-500">(hours per completion hour)</span>
                                     </div>
@@ -493,9 +493,8 @@ export default function ModuleSettingsModal({
                                   {/* Right Column: Completion Times (1/3 width) */}
                                   <div className="space-y-3">
                                     <div className="flex items-center gap-2 pb-2">
-                                      <Calculator size={16} className="text-green-600" />
-                                      <h4 className="text-sm font-semibold text-green-800">Completion</h4>
-                                      <span className="text-xs text-green-500">(minutes)</span>
+                                      <Clock size={16} className="text-green-600" />
+                                      <h4 className="text-sm font-semibold text-green-800">Completion Time</h4>
                                     </div>
                                     {[
                                       { key: 'presentation', label: t('modals.completionTimes.presentation', 'Presentation'), value: perProductCompletionTimes.presentation, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-green-600" /> },
