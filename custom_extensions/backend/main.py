@@ -17624,7 +17624,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             
             **CRITICAL: Smart Change Handling**
             {f"""
-            IMPORTANT: The content contains only section titles (markdown headers) without detailed content. 
+            IMPORTANT: The content contains only section titles without detailed content. 
             For each section title you encounter, you MUST generate comprehensive, detailed content that includes:
             - Multiple paragraphs explaining the topic
             - Bullet points or numbered lists with key information
