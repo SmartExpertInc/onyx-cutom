@@ -17623,7 +17623,16 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
             
             **CRITICAL: Smart Change Handling**
-            {f"If the content contains only section titles without full content (clean content mode), generate comprehensive content for each section while maintaining the original structure and titles." if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
+            {f"""
+            IMPORTANT: The content contains only section titles (## Title) without detailed content. 
+            For each section title you encounter, you MUST generate comprehensive, detailed content that includes:
+            - Multiple paragraphs explaining the topic
+            - Bullet points or numbered lists with key information
+            - Examples and practical applications
+            - Clear explanations that would be suitable for educational material
+            
+            Do NOT just repeat the title - create full, educational content for each section.
+            """ if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
 
             **Global Fields:**
             1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
