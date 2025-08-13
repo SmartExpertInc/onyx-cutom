@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { PieChartInfographicsTemplateProps } from '@/types/slideTemplates';
 
+// PieChart Template (Frontend)
+
 declare global {
   namespace JSX {
     interface IntrinsicElements {
