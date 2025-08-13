@@ -178,7 +178,7 @@
             color: #475569;
             font-weight: 400;
             font-size: 13px;
-            padding-left: 6px;
+            padding-left: 16px;
         }
         
         .data-cell.bold {
@@ -203,7 +203,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding-left: 6px;
+            padding-left: 16px;
         }
         
         /* Timer icon styles */
@@ -452,11 +452,25 @@
                                             </div>
                                         </td>
                                         {% if column_visibility.numberOfLessons %}
-                                            <td class="data-cell">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
+                                            <td class="data-cell lesson-cell">
+                                                {% if project.total_lessons > 0 %}
+                                                    <svg class="lesson-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    {{ project.total_lessons }}
+                                                {% else %}
+                                                    <span class="dash">-</span>
+                                                {% endif %}
+                                            </td>
                                         {% endif %}
                                         {% if column_visibility.estCreationTime %}
                                             <td class="data-cell">
                                                 {% if project.total_hours > 0 %}
+                                                    <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                                        <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
                                                     {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
                                                 {% else %}<span class="dash">-</span>{% endif %}
                                             </td>
@@ -464,6 +478,10 @@
                                         {% if column_visibility.estCompletionTime %}
                                             <td class="data-cell">
                                                 {% if project.total_completion_time > 0 %}
+                                                    <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                                        <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
                                                     {% set h = project.total_completion_time // 60 %}
                                                     {% set m = project.total_completion_time % 60 %}
                                                     {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
@@ -560,11 +578,25 @@
                                     </div>
                                 </td>
                                 {% if column_visibility.numberOfLessons %}
-                                    <td class="data-cell">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
+                                    <td class="data-cell lesson-cell">
+                                        {% if project.total_lessons > 0 %}
+                                            <svg class="lesson-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            {{ project.total_lessons }}
+                                        {% else %}
+                                            <span class="dash">-</span>
+                                        {% endif %}
+                                    </td>
                                 {% endif %}
                                 {% if column_visibility.estCreationTime %}
                                     <td class="data-cell">
                                         {% if project.total_hours > 0 %}
+                                            <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                                <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
                                             {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
                                         {% else %}<span class="dash">-</span>{% endif %}
                                     </td>
@@ -572,6 +604,10 @@
                                 {% if column_visibility.estCompletionTime %}
                                     <td class="data-cell">
                                         {% if project.total_completion_time > 0 %}
+                                            <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                                <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
                                             {% set h = project.total_completion_time // 60 %}
                                             {% set m = project.total_completion_time % 60 %}
                                             {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
