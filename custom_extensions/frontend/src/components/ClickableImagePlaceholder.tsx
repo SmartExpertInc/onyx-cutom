@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ImageIcon, Replace, ZoomIn, ZoomOut, Check, X, Image } from 'lucide-react';
+import { ImageIcon, Replace } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
+import ImageEditModal from './ImageEditModal';
 
 // Enhanced debug logging utility
 const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true);
@@ -36,16 +37,6 @@ export interface ClickableImagePlaceholderProps {
   slideContainerRef?: React.RefObject<HTMLElement | null>;
 }
 
-interface ImageEditState {
-  isEditing: boolean;
-  imageFile: File | null;
-  imageUrl: string;
-  scale: number;
-  transform: string;
-  imageDimensions: { width: number; height: number } | null;
-  hasChanges: boolean;
-}
-
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   imagePath,
   onImageUploaded,
@@ -66,23 +57,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   
-  // Enhanced in-slide editing state
-  const [editState, setEditState] = useState<ImageEditState>({
-    isEditing: false,
-    imageFile: null,
-    imageUrl: '',
-    scale: 1,
-    transform: 'translate(0px, 0px) scale(1)',
-    imageDimensions: null,
-    hasChanges: false
-  });
+  // Modal state
+  const [showImageEditModal, setShowImageEditModal] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const editImageRef = useRef<HTMLImageElement>(null);
-  const cropCanvasRef = useRef<HTMLCanvasElement>(null);
   
   // Use provided ref or internal ref
   const containerRef = elementRef || internalRef;
@@ -107,25 +88,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [imagePath]);
 
-  // Ensure image dimensions are set when editing starts
-  useEffect(() => {
-    if (editState.isEditing && editState.imageUrl && !editState.imageDimensions && editImageRef.current) {
-      const img = editImageRef.current;
-      
-      // If image is already loaded, set dimensions immediately
-      if (img.complete && img.naturalWidth && img.naturalHeight) {
-        log('ClickableImagePlaceholder', 'useEffect_setImageDimensions', {
-          elementId,
-          naturalSize: { width: img.naturalWidth, height: img.naturalHeight }
-        });
-        
-        setEditState(prev => ({
-          ...prev,
-          imageDimensions: { width: img.naturalWidth, height: img.naturalHeight }
-        }));
-      }
-    }
-  }, [editState.isEditing, editState.imageUrl, editState.imageDimensions, elementId]);
+
 
   const handleClick = () => {
     if (!isEditable) return;
@@ -138,7 +101,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   };
 
-  // Start in-slide editing when image is uploaded
+  // Handle image upload and open edit modal
   const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
     log('ClickableImagePlaceholder', 'handleImageUploaded', {
       elementId,
@@ -147,8 +110,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
 
     if (imageFile) {
-      // Start in-slide editing immediately
-      startInSlideEditing(imageFile);
+      // Store the file and open the edit modal
+      setPendingImageFile(imageFile);
+      setShowImageEditModal(true);
     } else {
       // Direct upload without file (fallback)
       onImageUploaded(newImagePath);
@@ -156,181 +120,55 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   };
 
-  // Start in-slide editing mode
-  const startInSlideEditing = useCallback((imageFile: File) => {
-    log('ClickableImagePlaceholder', 'startInSlideEditing', {
-      elementId,
-      fileSize: imageFile.size,
-      fileName: imageFile.name
-    });
-
-    const imageUrl = URL.createObjectURL(imageFile);
-    
-    setEditState({
-      isEditing: true,
-      imageFile,
-      imageUrl,
-      scale: 1,
-      transform: 'translate(0px, 0px) scale(1)',
-      imageDimensions: null,
-      hasChanges: false
-    });
-
-    // Prevent body scroll during editing
-    document.body.style.overflow = 'hidden';
-  }, [elementId]);
-
-  // Handle image load in edit mode
-  const handleEditImageLoad = useCallback(() => {
-    log('ClickableImagePlaceholder', 'handleEditImageLoad_start', {
-      elementId,
-      hasImg: !!editImageRef.current,
-      hasContainer: !!containerRef.current,
-      imageUrl: editState.imageUrl
-    });
-
-    const img = editImageRef.current;
-    if (!img) {
-      log('ClickableImagePlaceholder', 'handleEditImageLoad_missingImgRef', { elementId });
-      return;
-    }
-
+  // Get placeholder dimensions for the modal
+  const getPlaceholderDimensions = useCallback(() => {
     if (!containerRef.current) {
-      log('ClickableImagePlaceholder', 'handleEditImageLoad_missingContainerRef', { elementId });
-      return;
+      // Fallback dimensions based on size prop
+      const fallbackDimensions = {
+        'LARGE': { width: 400, height: 300 },
+        'MEDIUM': { width: 300, height: 200 },
+        'SMALL': { width: 200, height: 150 }
+      };
+      return fallbackDimensions[size];
     }
 
-    const { naturalWidth, naturalHeight } = img;
-    const containerRect = containerRef.current.getBoundingClientRect();
-    
-    log('ClickableImagePlaceholder', 'handleEditImageLoad_setup', {
+    const rect = containerRef.current.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }, [containerRef, size]);
+
+  // Handle modal confirm crop
+  const handleConfirmCrop = useCallback((croppedImagePath: string) => {
+    log('ClickableImagePlaceholder', 'handleConfirmCrop', {
       elementId,
-      naturalSize: { width: naturalWidth, height: naturalHeight },
-      containerSize: { width: containerRect.width, height: containerRect.height }
+      croppedImagePath: !!croppedImagePath
     });
-    
-    // Set image dimensions immediately
-    setEditState(prev => ({
-      ...prev,
-      imageDimensions: { width: naturalWidth, height: naturalHeight }
-    }));
 
-    // Auto-fit image to fill the placeholder
-    const scaleX = containerRect.width / naturalWidth;
-    const scaleY = containerRect.height / naturalHeight;
-    const initialScale = Math.max(scaleX, scaleY, 0.1); // Cover the placeholder
-    
-    const scaledWidth = naturalWidth * initialScale;
-    const scaledHeight = naturalHeight * initialScale;
-    const centerX = (containerRect.width - scaledWidth) / 2;
-    const centerY = (containerRect.height - scaledHeight) / 2;
-    
-    const initialTransform = `translate(${centerX}px, ${centerY}px) scale(${initialScale})`;
-    
-    log('ClickableImagePlaceholder', 'handleEditImageLoad_initialTransform', {
+    onImageUploaded(croppedImagePath);
+    setDisplayedImage(croppedImagePath);
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  }, [onImageUploaded, elementId]);
+
+  // Handle modal do not crop
+  const handleDoNotCrop = useCallback((originalImagePath: string) => {
+    log('ClickableImagePlaceholder', 'handleDoNotCrop', {
       elementId,
-      initialScale,
-      centerX,
-      centerY,
-      initialTransform
+      originalImagePath: !!originalImagePath
     });
 
-    // Apply initial transform to the image element
-    img.style.transform = initialTransform;
-    
-    // Update state with initial transform
-    setEditState(prev => ({
-      ...prev,
-      scale: initialScale,
-      transform: initialTransform,
-      imageDimensions: { width: naturalWidth, height: naturalHeight }
-    }));
+    onImageUploaded(originalImagePath);
+    setDisplayedImage(originalImagePath);
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  }, [onImageUploaded, elementId]);
 
-    log('ClickableImagePlaceholder', 'handleEditImageLoad_complete', {
-      elementId,
-      finalTransform: initialTransform,
-      finalScale: initialScale
-    });
-  }, [elementId, containerRef, editState.imageUrl]);
+  // Handle modal cancel
+  const handleModalCancel = useCallback(() => {
+    log('ClickableImagePlaceholder', 'handleModalCancel', { elementId });
 
-  // Handle zoom in edit mode
-  const handleZoom = useCallback((delta: number) => {
-    log('ClickableImagePlaceholder', 'handleZoom_start', {
-      elementId,
-      delta,
-      currentScale: editState.scale
-    });
-
-    setEditState(prev => {
-      const newScale = Math.max(0.1, Math.min(5, prev.scale + delta));
-      
-      // Extract current translation from transform
-      const transformMatch = prev.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
-      if (transformMatch && containerRef.current) {
-        const [, translate] = transformMatch;
-        const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-        
-        // Zoom towards center of placeholder
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const centerX = containerRect.width / 2;
-        const centerY = containerRect.height / 2;
-        const scaleRatio = newScale / prev.scale;
-        
-        const newX = centerX - (centerX - x) * scaleRatio;
-        const newY = centerY - (centerY - y) * scaleRatio;
-        
-        const newTransform = `translate(${newX}px, ${newY}px) scale(${newScale})`;
-        
-        // Apply transform directly to image
-        if (editImageRef.current) {
-          editImageRef.current.style.transform = newTransform;
-        }
-        
-        log('ClickableImagePlaceholder', 'handleZoom_applied', {
-          elementId,
-          newScale,
-          newTransform,
-          hasChanges: true
-        });
-        
-        return {
-          ...prev,
-          scale: newScale,
-          transform: newTransform,
-          hasChanges: true
-        };
-      }
-      
-      return prev;
-    });
-  }, [editState.scale, editState.transform, containerRef, elementId]);
-
-  // Cancel editing mode
-  const cancelEdit = useCallback(() => {
-    log('ClickableImagePlaceholder', 'cancelEdit', {
-      elementId,
-      hasImageUrl: !!editState.imageUrl
-    });
-
-    if (editState.imageUrl) {
-      URL.revokeObjectURL(editState.imageUrl);
-    }
-    
-    setEditState({
-      isEditing: false,
-      imageFile: null,
-      imageUrl: '',
-      scale: 1,
-      transform: 'translate(0px, 0px) scale(1)',
-      imageDimensions: null,
-      hasChanges: false
-    });
-
-    // Restore body scroll
-    document.body.style.overflow = '';
-  }, [editState.imageUrl, elementId]);
-
-
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  }, [elementId]);
 
   // Finalize image upload
   const finalizeImageUpload = useCallback(async (imagePath: string) => {
@@ -360,514 +198,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     };
     tmp.src = imagePath;
   }, [onImageUploaded, onSizeTransformChange, cropMode, elementId]);
-
-  // Handle "Do Not Crop" - upload original image without transforms
-  const handleDoNotCrop = useCallback(async () => {
-    log('ClickableImagePlaceholder', 'handleDoNotCrop_start', {
-      elementId,
-      hasImageFile: !!editState.imageFile
-    });
-
-    if (!editState.imageFile) {
-      log('ClickableImagePlaceholder', 'handleDoNotCrop_noImageFile', { elementId });
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      // Upload the original file without any cropping or transforms
-      const { uploadPresentationImage } = await import('../lib/designTemplateApi');
-      const result = await uploadPresentationImage(editState.imageFile);
-      
-      log('ClickableImagePlaceholder', 'handleDoNotCrop_uploadResult', {
-        elementId,
-        success: !!result.file_path,
-        filePath: result.file_path
-      });
-
-      if (result.file_path) {
-        // Finalize the upload and exit edit mode
-        await finalizeImageUpload(result.file_path);
-        
-        // Clean up edit state
-        if (editState.imageUrl) {
-          URL.revokeObjectURL(editState.imageUrl);
-        }
-        
-        setEditState({
-          isEditing: false,
-          imageFile: null,
-          imageUrl: '',
-          scale: 1,
-          transform: 'translate(0px, 0px) scale(1)',
-          imageDimensions: null,
-          hasChanges: false
-        });
-
-        // Restore body scroll
-        document.body.style.overflow = '';
-
-        log('ClickableImagePlaceholder', 'handleDoNotCrop_success', {
-          elementId,
-          finalImagePath: result.file_path
-        });
-      } else {
-        throw new Error('No file path returned from upload');
-      }
-      
-    } catch (error: unknown) {
-      log('ClickableImagePlaceholder', 'handleDoNotCrop_error', {
-        elementId,
-        error
-      });
-      console.error('Do Not Crop upload error:', error);
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [editState.imageFile, editState.imageUrl, elementId, finalizeImageUpload]);
-
-  // Generate and finalize cropped image
-  const confirmEdit = useCallback(async () => {
-    log('ClickableImagePlaceholder', 'confirmEdit_start', {
-      elementId,
-      hasImageFile: !!editState.imageFile,
-      hasImageDimensions: !!editState.imageDimensions,
-      hasContainer: !!containerRef.current,
-      isProcessing,
-      transform: editState.transform,
-      imageDimensions: editState.imageDimensions
-    });
-
-    if (!editState.imageFile || !containerRef.current) {
-      log('ClickableImagePlaceholder', 'confirmEdit_missingRequirements', {
-        elementId,
-        hasImageFile: !!editState.imageFile,
-        hasContainer: !!containerRef.current
-      });
-      return;
-    }
-
-    if (isProcessing) {
-      log('ClickableImagePlaceholder', 'confirmEdit_alreadyProcessing', { elementId });
-      return;
-    }
-
-    // Try to get image dimensions if missing
-    let imageDimensions = editState.imageDimensions;
-    if (!imageDimensions && editImageRef.current) {
-      const img = editImageRef.current;
-      if (img.naturalWidth && img.naturalHeight) {
-        imageDimensions = { width: img.naturalWidth, height: img.naturalHeight };
-        log('ClickableImagePlaceholder', 'confirmEdit_fallbackDimensions', {
-          elementId,
-          fallbackDimensions: imageDimensions
-        });
-      }
-    }
-
-    if (!imageDimensions) {
-      log('ClickableImagePlaceholder', 'confirmEdit_noImageDimensions', { elementId });
-      return;
-    }
-
-    setIsProcessing(true);
-    
-    try {
-      const canvas = cropCanvasRef.current;
-      if (!canvas) throw new Error('Canvas not available');
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Canvas context not available');
-
-      const containerRect = containerRef.current.getBoundingClientRect();
-      
-      // Set canvas to placeholder dimensions for high quality
-      canvas.width = containerRect.width;
-      canvas.height = containerRect.height;
-      
-      log('ClickableImagePlaceholder', 'confirmEdit_canvasSetup', {
-        elementId,
-        canvasSize: { width: canvas.width, height: canvas.height },
-        containerRect: { width: containerRect.width, height: containerRect.height }
-      });
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Parse transform
-      const transformMatch = editState.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
-      if (!transformMatch) {
-        throw new Error(`Invalid transform format: ${editState.transform}`);
-      }
-      
-      const [, translate, scaleStr] = transformMatch;
-      const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
-      const currentScale = parseFloat(scaleStr);
-      
-      log('ClickableImagePlaceholder', 'confirmEdit_transformParsed', {
-        elementId,
-        translate,
-        scaleStr,
-        parsedTransform: { x, y, scale: currentScale }
-      });
-      
-      // Create image for drawing
-      const img = new window.Image();
-      img.crossOrigin = 'anonymous';
-      
-      img.onload = async () => {
-        log('ClickableImagePlaceholder', 'confirmEdit_imageLoaded', {
-          elementId,
-          imageSize: { width: img.width, height: img.height },
-          transform: { x, y, scale: currentScale }
-        });
-        
-        // Use high-quality settings
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        
-        // Fill background with transparent
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Calculate the area of the image that's visible in the crop frame
-        const { width: imgWidth, height: imgHeight } = imageDimensions!;
-        const scaledWidth = imgWidth * currentScale;
-        const scaledHeight = imgHeight * currentScale;
-        
-        // For simplicity, let's just draw the entire scaled image at the current position
-        // and let the placeholder boundaries act as the natural crop
-        ctx.drawImage(
-          img,
-          x, y, scaledWidth, scaledHeight
-        );
-        
-        log('ClickableImagePlaceholder', 'confirmEdit_imageDrawn', {
-          elementId,
-          drawParams: { x, y, width: scaledWidth, height: scaledHeight }
-        });
-        
-        // Convert to blob and upload
-        canvas.toBlob(async (blob) => {
-          if (!blob) {
-            log('ClickableImagePlaceholder', 'confirmEdit_noBlobCreated', { elementId });
-            setIsProcessing(false);
-            return;
-          }
-          
-          log('ClickableImagePlaceholder', 'confirmEdit_blobCreated', {
-            elementId,
-            blobSize: blob.size
-          });
-          
-          try {
-            const croppedFile = new File([blob], 'cropped-image.png', { type: 'image/png' });
-            
-            // Upload the cropped file
-            const { uploadPresentationImage } = await import('../lib/designTemplateApi');
-            const result = await uploadPresentationImage(croppedFile);
-            
-            log('ClickableImagePlaceholder', 'confirmEdit_uploadResult', {
-              elementId,
-              success: !!result.file_path,
-              filePath: result.file_path
-            });
-            
-            if (result.file_path) {
-              await finalizeImageUpload(result.file_path);
-              cancelEdit();
-              
-              log('ClickableImagePlaceholder', 'confirmEdit_success', {
-                elementId,
-                finalImagePath: result.file_path
-              });
-            } else {
-              throw new Error('No file path returned from upload');
-            }
-            
-          } catch (uploadError) {
-            log('ClickableImagePlaceholder', 'confirmEdit_uploadError', {
-              elementId,
-              error: uploadError
-            });
-            console.error('Upload error:', uploadError);
-          } finally {
-            setIsProcessing(false);
-          }
-        }, 'image/png');
-      };
-      
-      img.onerror = (error: Event | string) => {
-        log('ClickableImagePlaceholder', 'confirmEdit_imageLoadError', {
-          elementId,
-          error
-        });
-        console.error('Image load error:', error);
-        setIsProcessing(false);
-      };
-      
-      img.src = editState.imageUrl;
-      
-    } catch (error: unknown) {
-      log('ClickableImagePlaceholder', 'confirmEdit_error', {
-        elementId,
-        error
-      });
-      console.error('Error processing cropped image:', error);
-      setIsProcessing(false);
-    }
-  }, [editState, containerRef, elementId, finalizeImageUpload, cancelEdit, isProcessing]);
-
-  // If we're in editing mode, render the overlay
-  if (editState.isEditing) {
-    log('ClickableImagePlaceholder', 'render_editMode', {
-      elementId,
-      hasImageUrl: !!editState.imageUrl,
-      hasImageDimensions: !!editState.imageDimensions,
-      transform: editState.transform,
-      scale: editState.scale,
-      hasEditImageRef: !!editImageRef.current
-    });
-
-    return (
-      <>
-        {/* Dark overlay covering only the slide */}
-        {slideContainerRef?.current && (
-          <div 
-            className="absolute inset-0 z-[99998] bg-black bg-opacity-75"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 99998,
-              pointerEvents: 'none' // Allow clicks to pass through to controls
-            }}
-          />
-        )}
-
-        {/* Image editing container - positioned over the actual placeholder */}
-        <div
-          ref={containerRef}
-          className="relative overflow-hidden"
-          style={{
-            ...style,
-            zIndex: 99999,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0
-          }}
-        >
-          {editState.imageUrl && (
-            <>
-              <img
-                ref={editImageRef}
-                src={editState.imageUrl}
-                alt="Editing"
-                className="absolute"
-                data-edit-image="true"
-                style={{
-                  transform: editState.transform,
-                  transformOrigin: '0 0',
-                  userSelect: 'none',
-                  maxWidth: 'none',
-                  maxHeight: 'none',
-                  willChange: 'transform',
-                  touchAction: 'none',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0
-                }}
-                onLoad={handleEditImageLoad}
-                draggable={false}
-              />
-              
-              {/* React-moveable for smooth interaction - ALWAYS render when editing */}
-              {editImageRef.current && (
-                <Moveable
-                  target={editImageRef.current}
-                  draggable={true}
-                  scalable={true}
-                  keepRatio={false}
-                  throttleDrag={0}
-                  throttleScale={0}
-                  onDragStart={({ target }) => {
-                    log('ClickableImagePlaceholder', 'moveable_onDragStart', {
-                      elementId,
-                      target: target.tagName,
-                      currentTransform: target.style.transform
-                    });
-                  }}
-                  onDrag={({ target, transform }) => {
-                    target.style.transform = transform;
-                    setEditState(prev => ({ 
-                      ...prev, 
-                      transform,
-                      hasChanges: true
-                    }));
-                    log('ClickableImagePlaceholder', 'moveable_onDrag', {
-                      elementId,
-                      transform,
-                      hasChanges: true
-                    });
-                  }}
-                  onScaleStart={({ target }) => {
-                    log('ClickableImagePlaceholder', 'moveable_onScaleStart', {
-                      elementId,
-                      target: target.tagName,
-                      currentTransform: target.style.transform
-                    });
-                  }}
-                  onScale={({ target, transform, scale }) => {
-                    target.style.transform = transform;
-                    setEditState(prev => ({ 
-                      ...prev, 
-                      transform,
-                      scale: scale[0],
-                      hasChanges: true
-                    }));
-                    log('ClickableImagePlaceholder', 'moveable_onScale', {
-                      elementId,
-                      transform,
-                      scale: scale[0],
-                      hasChanges: true
-                    });
-                  }}
-                  renderDirections={["nw","n","ne","w","e","sw","s","se"]}
-                />
-              )}
-            </>
-          )}
-          
-          {/* Placeholder border to show crop area */}
-          <div className="absolute inset-0 border-4 border-blue-500 pointer-events-none">
-            <div className="absolute inset-0 border-2 border-white shadow-lg"></div>
-            {/* Corner indicators */}
-            <div className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-blue-600"></div>
-            <div className="absolute top-0 right-0 w-3 h-3 border-r-2 border-t-2 border-blue-600"></div>
-            <div className="absolute bottom-0 left-0 w-3 h-3 border-l-2 border-b-2 border-blue-600"></div>
-            <div className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-blue-600"></div>
-          </div>
-        </div>
-
-        {/* Floating controls positioned relative to slide */}
-        <div 
-          className="absolute z-[99999] bg-white rounded-lg shadow-xl p-4 flex items-center space-x-4"
-          style={{
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            pointerEvents: 'auto' // Ensure controls are clickable
-          }}
-        >
-          {/* Zoom controls */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handleZoom(-0.1)}
-              className="p-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
-              disabled={editState.scale <= 0.1}
-            >
-              <ZoomOut className="w-4 h-4" />
-            </button>
-            <input
-              type="range"
-              min="0.1"
-              max="5"
-              step="0.1"
-              value={editState.scale}
-              onChange={(e) => {
-                const newScale = parseFloat(e.target.value);
-                const transformMatch = editState.transform.match(/translate\(([^)]+)\) scale\(([^)]+)\)/);
-                if (transformMatch && editImageRef.current) {
-                  const [, translate] = transformMatch;
-                  const newTransform = `translate(${translate}) scale(${newScale})`;
-                  setEditState(prev => ({ 
-                    ...prev, 
-                    scale: newScale, 
-                    transform: newTransform,
-                    hasChanges: true
-                  }));
-                  // Apply transform directly to image
-                  editImageRef.current.style.transform = newTransform;
-                  
-                  log('ClickableImagePlaceholder', 'sliderZoom', {
-                    elementId,
-                    newScale,
-                    newTransform,
-                    hasChanges: true
-                  });
-                }
-              }}
-              className="w-32"
-            />
-            <button
-              onClick={() => handleZoom(0.1)}
-              className="p-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
-              disabled={editState.scale >= 5}
-            >
-              <ZoomIn className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="text-sm text-gray-600">
-            {(editState.scale * 100).toFixed(0)}%
-          </div>
-
-          <div className="border-l border-gray-300 h-8"></div>
-
-          {/* Action buttons */}
-          <button
-            onClick={cancelEdit}
-            className="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            <X className="w-4 h-4" />
-            <span>Cancel</span>
-          </button>
-          
-          <button
-            onClick={handleDoNotCrop}
-            disabled={isProcessing}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
-          >
-            {isProcessing ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <Image className="w-4 h-4" />
-                <span>Do Not Crop</span>
-              </>
-            )}
-          </button>
-          
-          <button
-            onClick={confirmEdit}
-            disabled={isProcessing}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isProcessing ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <Check className="w-4 h-4" />
-                <span>Confirm</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Hidden canvas for processing */}
-        <canvas ref={cropCanvasRef} className="hidden" />
-      </>
-    );
-  }
 
   // Regular image display
   if (displayedImage) {
@@ -935,6 +265,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onClose={() => setShowUploadModal(false)}
           onImageUploaded={handleImageUploaded}
           title="Replace Image"
+        />
+
+        {/* Image Edit Modal */}
+        <ImageEditModal
+          isOpen={showImageEditModal}
+          onClose={() => setShowImageEditModal(false)}
+          imageFile={pendingImageFile}
+          placeholderDimensions={getPlaceholderDimensions()}
+          onConfirmCrop={handleConfirmCrop}
+          onDoNotCrop={handleDoNotCrop}
+          onCancel={handleModalCancel}
         />
       </>
     );
@@ -1005,6 +346,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onClose={() => setShowUploadModal(false)}
         onImageUploaded={handleImageUploaded}
         title="Upload Image"
+      />
+
+      {/* Image Edit Modal */}
+      <ImageEditModal
+        isOpen={showImageEditModal}
+        onClose={() => setShowImageEditModal(false)}
+        imageFile={pendingImageFile}
+        placeholderDimensions={getPlaceholderDimensions()}
+        onConfirmCrop={handleConfirmCrop}
+        onDoNotCrop={handleDoNotCrop}
+        onCancel={handleModalCancel}
       />
     </>
   );
