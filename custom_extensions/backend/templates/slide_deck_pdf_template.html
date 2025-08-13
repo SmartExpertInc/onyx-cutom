@@ -1568,11 +1568,16 @@
                                 
                                 <!-- Center - Pie Chart -->
                                 <div style="display: flex; flex-direction: column; align-items: center;">
-                                                    <!-- Pie Chart Container -->
-                <div style="position: relative; width: 312px; height: 312px; margin: 0 auto;">
-                                                        <!-- Generated Pie Chart Image -->
-                <img src="{{ pie_chart_image }}" alt="Pie Chart" style="width: 312px; height: 312px;" />
-                                    </div>
+                                    <!-- CSS Pie Chart Container -->
+                                    {% if pie_chart_css %}
+                                        <style>{{ pie_chart_css | safe }}</style>
+                                        {{ pie_chart_html | safe }}
+                                    {% else %}
+                                        <!-- Fallback to image if CSS not available -->
+                                        <div style="position: relative; width: 312px; height: 312px; margin: 0 auto;">
+                                            <img src="{{ pie_chart_image }}" alt="Pie Chart" style="width: 312px; height: 312px;" />
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 
                                 <!-- Right Column - Months 4-6 -->

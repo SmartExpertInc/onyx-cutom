@@ -17,12 +17,19 @@ import base64
 import mimetypes
 import math
 
-# Import pie chart generator
+# Import pie chart generators
 try:
     from .pie_chart_generator import pie_chart_generator
 except ImportError:
     pie_chart_generator = None
     logger.warning("Pie chart generator not available")
+
+# Import CSS pie chart generator
+try:
+    from ..utils.pie_chart_css_generator import generate_css_pie_chart
+except ImportError:
+    generate_css_pie_chart = None
+    logger.warning("CSS pie chart generator not available")
 
 # Attempt to import settings (as before)
 try:
@@ -1066,24 +1073,33 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             'slide_height': slide_height
         }
         
-        # Generate pie chart image if needed
-        if safe_slide_data.get('templateId') == 'pie-chart-infographics' and pie_chart_generator:
+        # Generate pie chart CSS if needed
+        if safe_slide_data.get('templateId') == 'pie-chart-infographics' and generate_css_pie_chart:
             try:
                 chart_data = safe_slide_data.get('props', {}).get('chartData', {})
                 segments = chart_data.get('segments', [])
                 
                 if segments:
-                    logger.info(f"Generating pie chart image for {slide_info}{template_info}")
-                    pie_chart_image = pie_chart_generator.generate_pie_chart_image(segments)
-                    context_data['pie_chart_image'] = pie_chart_image
-                    logger.info(f"Pie chart image generated successfully for {slide_info}{template_info}")
+                    logger.info(f"Generating CSS pie chart for {slide_info}{template_info}")
+                    chart_id = f"pie-chart-{slide_index}" if slide_index is not None else "pie-chart"
+                    css_pie_chart = generate_css_pie_chart(segments, chart_id)
+                    context_data['pie_chart_html'] = css_pie_chart['html']
+                    context_data['pie_chart_css'] = css_pie_chart['css']
+                    context_data['pie_chart_image'] = ""  # Empty for CSS version
+                    logger.info(f"CSS pie chart generated successfully for {slide_info}{template_info}")
                 else:
                     logger.warning(f"No segments found for pie chart in {slide_info}{template_info}")
+                    context_data['pie_chart_html'] = ""
+                    context_data['pie_chart_css'] = ""
                     context_data['pie_chart_image'] = ""
             except Exception as e:
-                logger.error(f"Error generating pie chart image for {slide_info}{template_info}: {e}")
+                logger.error(f"Error generating CSS pie chart for {slide_info}{template_info}: {e}")
+                context_data['pie_chart_html'] = ""
+                context_data['pie_chart_css'] = ""
                 context_data['pie_chart_image'] = ""
         else:
+            context_data['pie_chart_html'] = ""
+            context_data['pie_chart_css'] = ""
             context_data['pie_chart_image'] = ""
         
         # Process presentation slide images (convert imagePath to base64 data URLs)
