@@ -325,27 +325,27 @@ export const CreateContentTypeModal = ({
               // Recommendations view
               <>
                 <div className="mb-6">
-                  {/* Prominent Recommended Section Header */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+                  {/* Recommended Section Header */}
+                  <div className="border border-gray-200 rounded-xl p-4 mb-4 bg-white">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="p-2 bg-gray-100 rounded-lg">
+                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014.846 21H9.154a3.374 3.374 0 00-2.329-1.253l-.548-.547z" />
                           </svg>
                         </div>
                         <div>
-                          <h3 className="text-lg font-bold text-blue-900">
+                          <h3 className="text-lg font-bold text-gray-900">
                             {t('modals.createContent.recommended', 'Recommended')}
                           </h3>
-                          <p className="text-sm text-blue-700 mt-1">
+                          <p className="text-sm text-gray-600 mt-1">
                             {t('modals.createContent.recommendedDescription', 'AI-suggested content types perfect for this lesson')}
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={() => setShowSettings(true)}
-                        className="p-2 rounded-lg hover:bg-blue-100 text-blue-600 hover:text-blue-800 transition-all duration-200 group"
+                        className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-gray-800 transition-all duration-200 group"
                         aria-label="Customize recommendations"
                         title="Customize recommendations"
                       >
@@ -392,63 +392,46 @@ export const CreateContentTypeModal = ({
             ) : (
               // Settings view
               <>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="border border-gray-200 rounded-lg p-4 mb-6 bg-white">
                   <div className="flex items-center space-x-3 mb-2">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Settings size={16} className="text-blue-600" />
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <Settings size={16} className="text-gray-600" />
                     </div>
-                    <h3 className="text-lg font-bold text-blue-900">
+                    <h3 className="text-lg font-bold text-gray-900">
                       {t('modals.createContent.customizeRecommendations', 'Customize Recommendations')}
                     </h3>
                   </div>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm text-gray-600">
                     {t('modals.createContent.selectRecommendedProducts', 'Select which products should be shown as recommended for this lesson.')}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   {[
-                    { key: 'presentation', label: t('modals.createContent.presentation'), color: 'blue', icon: <BookText className="w-5 h-5" /> },
-                    { key: 'one-pager', label: t('modals.createContent.onePager'), color: 'purple', icon: <FileText className="w-5 h-5" /> },
-                    { key: 'quiz', label: t('modals.createContent.quiz'), color: 'green', icon: <HelpCircle className="w-5 h-5" /> },
-                    { key: 'video-lesson', label: t('modals.createContent.videoLesson'), color: 'gray', icon: <Video className="w-5 h-5" /> },
+                    { key: 'presentation', label: t('modals.createContent.presentation'), icon: <BookText className="w-5 h-5" /> },
+                    { key: 'one-pager', label: t('modals.createContent.onePager'), icon: <FileText className="w-5 h-5" /> },
+                    { key: 'quiz', label: t('modals.createContent.quiz'), icon: <HelpCircle className="w-5 h-5" /> },
+                    { key: 'video-lesson', label: t('modals.createContent.videoLesson'), icon: <Video className="w-5 h-5" /> },
                   ].map(opt => {
                     const isSelected = !!selectedPrefs[opt.key];
-                    const colorClasses = {
-                      blue: isSelected ? 'border-blue-300 bg-blue-100 shadow-md' : 'border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50',
-                      green: isSelected ? 'border-green-300 bg-green-100 shadow-md' : 'border-gray-200 bg-white hover:border-green-200 hover:bg-green-50',
-                      purple: isSelected ? 'border-purple-300 bg-purple-100 shadow-md' : 'border-gray-200 bg-white hover:border-purple-200 hover:bg-purple-50',
-                      gray: isSelected ? 'border-gray-300 bg-gray-100 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
-                    };
 
                     return (
                       <label
                         key={opt.key}
-                        className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
-                          colorClasses[opt.color as keyof typeof colorClasses]
-                        }`}
+                        className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
                       >
-                        <div className="relative">
-                          <input
-                            type="checkbox"
-                            className="w-5 h-5 accent-blue-600 rounded"
-                            checked={isSelected}
-                            onChange={() => handlePrefToggle(opt.key)}
-                          />
-                          {isSelected && (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-600 rounded-full flex items-center justify-center">
-                              <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                        <div className={`p-2 rounded-lg ${isSelected ? 'bg-white' : 'bg-gray-100'}`}>
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          checked={isSelected}
+                          onChange={() => handlePrefToggle(opt.key)}
+                        />
+                        <div className="p-2 bg-gray-100 rounded-lg">
                           {React.cloneElement(opt.icon, {
-                            className: `w-5 h-5 ${isSelected ? 'text-gray-700' : 'text-gray-500'}`
+                            className: "w-5 h-5 text-gray-600"
                           })}
                         </div>
-                        <span className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>
+                        <span className="text-sm font-medium text-gray-900">
                           {opt.label}
                         </span>
                       </label>
