@@ -193,10 +193,10 @@ export default function TextPresentationClient() {
         .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
       
-      if (title && cleanedContent) {
+      if (title) {
         lessons.push({
           title: title,
-          content: cleanedContent
+          content: cleanedContent || ""
         });
       }
     }
@@ -328,13 +328,16 @@ export default function TextPresentationClient() {
       return newTitles;
     });
     
-    // Remove from editedTitleIds since the title is now part of the main content
-    // But keep it in originallyEditedTitles to track that it was edited
-    setEditedTitleIds(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(lessonIndex);
-      return newSet;
-    });
+    // Keep the title in editedTitleIds for regeneration purposes
+    // Only remove if the title is back to original
+    const originalTitle = originalTitles[lessonIndex] || oldTitle;
+    if (newTitle === originalTitle) {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(lessonIndex);
+        return newSet;
+      });
+    }
     
     // NEW: Mark that content has been updated
     if (updatedContent !== content) {
@@ -386,13 +389,16 @@ export default function TextPresentationClient() {
         // For edited titles, send only the title without context
         // This allows AI to focus on the title change and regenerate appropriate content
         cleanContent += `## ${lesson.title}\n\n`;
+        console.log(`Clean content: Adding edited title "${lesson.title}" without content`);
       } else {
         // For unedited titles, send with full context
         // This preserves the original content structure and context
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+        console.log(`Clean content: Adding unedited title "${lesson.title}" with ${lesson.content.length} chars of content`);
       }
     });
     
+    console.log("Final clean content:", cleanContent);
     return cleanContent.trim();
   };
 
@@ -476,20 +482,30 @@ export default function TextPresentationClient() {
       // NEW: Prepare content based on whether user made edits
       let contentToSend = content;
       let isCleanContent = false;
+      let enhancedEditPrompt = editPrompt;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
         // User edited lesson titles - send clean content for regeneration
         contentToSend = createCleanContentForRegeneration(content);
         isCleanContent = true;
         console.log("Sending clean content for edit:", contentToSend);
+        console.log("Edited title indices:", Array.from(editedTitleIds));
+        
+        // Debug the original content structure
+        const originalLessons = parseContentIntoLessons(content);
+        console.log("Original lessons before sending:", originalLessons.map((l, i) => `${i}: "${l.title}" (${l.content.length} chars) - edited: ${editedTitleIds.has(i)}`));
+        
+        // Enhance the edit prompt to be more explicit about regenerating content for edited titles
+        enhancedEditPrompt = `${editPrompt}\n\nIMPORTANT: The content contains some section titles without their content. For these titles (marked with ##), please generate appropriate content that matches the title and fits the overall presentation structure.`;
       }
 
       const payload: any = {
         content: contentToSend,
-        editPrompt,
+        editPrompt: enhancedEditPrompt,
         // NEW: Indicate if content is clean (titles only)
         isCleanContent: isCleanContent,
       };
+      console.log("Sending edit payload:", { contentLength: contentToSend.length, isCleanContent, editPrompt: enhancedEditPrompt });
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -554,8 +570,22 @@ export default function TextPresentationClient() {
         }
       }
 
+      console.log("Edit completed. Final content length:", accumulatedText.length);
+      console.log("Final content preview:", accumulatedText.substring(0, 200) + "...");
+      
+      // NEW: Debug the lesson list after regeneration
+      const updatedLessons = parseContentIntoLessons(accumulatedText);
+      console.log("Updated lessons after regeneration:", updatedLessons.map((l, i) => `${i}: "${l.title}" (${l.content.length} chars)`));
+
       // NEW: Mark that user has made edits after AI editing
       setHasUserEdits(true);
+
+      // NEW: Reset edited titles tracking after AI regeneration
+      // This ensures that the newly generated content is treated as the new baseline
+      setEditedTitleIds(new Set());
+      setOriginallyEditedTitles(new Set());
+      setEditedTitles({});
+      setOriginalTitles({});
 
       setEditPrompt("");
       setSelectedExamples([]);
