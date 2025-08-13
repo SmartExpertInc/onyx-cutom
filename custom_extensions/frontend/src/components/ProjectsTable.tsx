@@ -3268,17 +3268,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     };
 
     // Add these just before the render block
-    const visibleProjects = viewMode === 'list'
-      ? getProjectsForFolder(folderId).filter(p => (p.designMicroproductType || '').toLowerCase() !== 'quiz')
-      : getProjectsForFolder(folderId);
+    const visibleProjects = getProjectsForFolder(folderId);
 
-    const visibleUnassignedProjects = viewMode === 'list'
-      ? getUnassignedProjects().filter(p => (p.designMicroproductType || '').toLowerCase() !== 'quiz')
-      : getUnassignedProjects();
+    const visibleUnassignedProjects = getUnassignedProjects();
 
-    const filteredFolderProjects = viewMode === 'list'
-      ? Object.fromEntries(Object.entries(folderProjects).map(([fid, projs]) => [fid, projs.filter(p => (p.designMicroproductType || '').toLowerCase() !== 'quiz')]))
-      : folderProjects;
+    const filteredFolderProjects = folderProjects;
 
     if (loading) {
         return <div className="text-center p-8">Loading projects...</div>;
