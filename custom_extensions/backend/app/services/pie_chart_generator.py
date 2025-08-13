@@ -110,28 +110,29 @@ class PieChartGenerator:
     
     def _draw_pie_segment(self, draw: ImageDraw.Draw, cx: int, cy: int, radius: int, 
                          start_angle: float, end_angle: float, color: str):
-        """Рисует сегмент pie chart"""
+        """Рисует сегмент pie chart с четкими границами"""
         try:
             # Конвертируем цвета hex в RGB - точно как во фронтенде
             if color.startswith('#'):
                 color = color[1:]
             rgb_color = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
             
-            # Рисуем сегмент как многоугольник
+            # Рисуем сегмент как многоугольник с белой границей для четкого разделения
             points = self._calculate_segment_points(cx, cy, radius, start_angle, end_angle)
             if len(points) > 2:
-                draw.polygon(points, fill=rgb_color)
+                # Сначала рисуем белый контур для четкого разделения сегментов
+                draw.polygon(points, fill=rgb_color, outline=(255, 255, 255, 255), width=2)
                 
         except Exception as e:
             logger.error(f"Error drawing pie segment: {e}")
     
     def _calculate_segment_points(self, cx: int, cy: int, radius: int, 
                                 start_angle: float, end_angle: float) -> List[Tuple[int, int]]:
-        """Вычисляет точки для сегмента pie chart"""
+        """Вычисляет точки для сегмента pie chart с более точным сглаживанием"""
         points = [(cx, cy)]  # Центр
         
-        # Добавляем точки по дуге
-        angle_step = 2  # Шаг в градусах для сглаживания
+        # Добавляем точки по дуге с меньшим шагом для более гладких сегментов
+        angle_step = 1  # Уменьшаем шаг для более гладких сегментов
         current_angle = start_angle
         
         while current_angle <= end_angle:
@@ -179,7 +180,7 @@ class PieChartGenerator:
             
             for font_path in font_paths:
                 try:
-                    font = ImageFont.truetype(font_path, 20)  # Увеличиваем размер до 20px для лучшей видимости
+                    font = ImageFont.truetype(font_path, 24)  # Увеличиваем размер до 24px для лучшей видимости
                     logger.info(f"Successfully loaded font: {font_path}")
                     break
                 except:
@@ -216,10 +217,12 @@ class PieChartGenerator:
                     text_x = int(x - text_width / 2)
                     text_y = int(y - text_height / 2)
                     
-                    # Рисуем тень - точно как во фронтенде (text-shadow: 1px 1px 2px #000000)
-                    # Делаем тень более заметной
-                    draw.text((text_x + 2, text_y + 2), text, fill=(0, 0, 0, 255), font=font)
-                    draw.text((text_x + 1, text_y + 1), text, fill=(0, 0, 0, 180), font=font)
+                    # Рисуем тень - делаем более заметной и четкой
+                    # Множественные слои тени для лучшей видимости
+                    for offset_x in range(3, 0, -1):
+                        for offset_y in range(3, 0, -1):
+                            alpha = 255 if offset_x == 3 and offset_y == 3 else 100
+                            draw.text((text_x + offset_x, text_y + offset_y), text, fill=(0, 0, 0, alpha), font=font)
                     
                     # Рисуем основной текст - белый как во фронтенде
                     draw.text((text_x, text_y), text, fill=(255, 255, 255, 255), font=font)
