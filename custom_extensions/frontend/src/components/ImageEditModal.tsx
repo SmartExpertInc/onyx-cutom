@@ -402,7 +402,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
     onCancel();
   }, [onCancel]);
 
-  // Close modal on escape key
+  // Close modal on escape key and handle scroll behavior
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -412,44 +412,31 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+      // Remove body overflow restriction to allow scrolling
+      // document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
+      // document.body.style.overflow = '';
     };
   }, [isOpen, handleCancel]);
 
-  // Calculate optimal modal position
+  // Calculate optimal modal position with scroll-aware positioning
   const getModalPosition = useCallback(() => {
-    if (typeof window === 'undefined') return { top: '50%', transform: 'translateY(-50%)' };
+    if (typeof window === 'undefined') return { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
 
     const viewportHeight = window.innerHeight;
-    const viewportWidth = window.innerWidth;
     const scrollY = window.scrollY;
     
-    // Estimate modal height (adjust based on content)
-    const estimatedModalHeight = Math.min(600, viewportHeight * 0.8);
-    
-    // Check if there's enough space above the current scroll position
-    const spaceAbove = scrollY;
-    const spaceBelow = viewportHeight - scrollY;
-    
-    // If there's more space above, position modal above current view
-    if (spaceAbove > estimatedModalHeight * 0.6) {
-      return {
-        top: `${Math.max(20, scrollY - estimatedModalHeight - 20)}px`,
-        transform: 'none'
-      };
-    }
-    
-    // Otherwise, center in viewport with some top margin
+    // Use fixed positioning relative to viewport, not document
     return {
-      top: `${Math.max(20, scrollY + 20)}px`,
-      transform: 'none'
+      position: 'fixed' as const,
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)'
     };
-  }, [isOpen]);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -457,12 +444,11 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-[99999] backdrop-blur-sm bg-black/20 flex items-start justify-center p-4"
-      style={{ paddingTop: '20px' }}
+      className="fixed inset-0 z-[99999] backdrop-blur-sm bg-black/20 flex items-center justify-center p-4"
     >
       <div 
         ref={modalRef}
-        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-gray-200"
+        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-200"
         style={{ 
           minHeight: '600px',
           ...modalPosition
