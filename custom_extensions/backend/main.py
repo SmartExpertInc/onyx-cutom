@@ -13750,6 +13750,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         raise HTTPException(status_code=500, detail="Failed to process credits")
 
     try:
+        logger.info(f"Lesson presentation finalize - hasUserEdits: {payload.hasUserEdits}")
+        logger.info(f"Lesson presentation finalize - originalContent length: {len(payload.originalContent) if payload.originalContent else 0}")
+        logger.info(f"Lesson presentation finalize - aiResponse length: {len(payload.aiResponse)}")
+        
         # NEW: Check for user edits and decide strategy (like in Quiz and Text Presentation)
         use_direct_parser = False
         use_ai_parser = True
@@ -13833,7 +13837,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             projectName=project_name,
             design_template_id=template_id,
             microProductName=None,
-            aiResponse=payload.aiResponse.strip(),
+            aiResponse=content_to_parse.strip(),  # Use the correct content based on parsing strategy
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
@@ -13856,8 +13860,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
 
         logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
+        logger.info(f"Final content used for project creation length: {len(content_to_parse)}")
+        logger.info(f"Content preview: {content_to_parse[:200]}...")
 
-        print(payload.aiResponse.strip())
+        print(content_to_parse.strip())
         
         # Return response in the expected format
         return {

@@ -879,12 +879,14 @@ export default function LessonPresentationClient() {
     const updatedContent = content.replace(slidePattern, 
       /\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/.test(content) ? `$1${newTitle}` : `**${newTitle}**`
     );
+    
+    // Update content immediately with new title
     setContent(updatedContent);
     
     // Call the edit endpoint to regenerate content for this section
     try {
       const editRequestBody: any = {
-        currentContent: content,
+        currentContent: updatedContent, // Use the updated content, not the old one
         editPrompt: `Update the content for slide ${slideIdx + 1} titled "${newTitle}". The previous title was "${oldTitle}". Please regenerate the content to match the new title while keeping the same educational structure and depth.`,
         outlineProjectId: selectedOutlineId || undefined,
         lessonTitle: selectedLesson || "Untitled Lesson",
@@ -940,6 +942,8 @@ export default function LessonPresentationClient() {
           // Update content with regenerated content
           if (accumulatedText) {
             setContent(accumulatedText);
+            // Don't update originalContent - it should remain unchanged to track original state
+            // setOriginalContent(accumulatedText);
           }
           break; 
         }
