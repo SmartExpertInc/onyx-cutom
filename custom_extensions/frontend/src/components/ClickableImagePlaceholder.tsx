@@ -35,6 +35,9 @@ export interface ClickableImagePlaceholderProps {
   onCropModeChange?: (mode: 'cover' | 'contain' | 'fill') => void;
   // New prop for slide context
   slideContainerRef?: React.RefObject<HTMLElement | null>;
+  // Saved position and size for persistence
+  savedImagePosition?: { x: number; y: number };
+  savedImageSize?: { width: number; height: number };
 }
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
@@ -52,7 +55,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   elementRef,
   cropMode = 'contain',
   onCropModeChange,
-  slideContainerRef
+  slideContainerRef,
+  savedImagePosition,
+  savedImageSize
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
@@ -87,6 +92,32 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       setDisplayedImage(imagePath);
     }
   }, [imagePath]);
+
+  // Apply saved position and size when component mounts or saved values change
+  useEffect(() => {
+    if (containerRef.current && (savedImagePosition || savedImageSize)) {
+      const element = containerRef.current;
+      
+      // Apply saved position
+      if (savedImagePosition && (savedImagePosition.x !== 0 || savedImagePosition.y !== 0)) {
+        element.style.transform = `translate(${savedImagePosition.x}px, ${savedImagePosition.y}px)`;
+        log('ClickableImagePlaceholder', 'applySavedPosition', {
+          elementId,
+          position: savedImagePosition
+        });
+      }
+      
+      // Apply saved size
+      if (savedImageSize && savedImageSize.width && savedImageSize.height) {
+        element.style.width = `${savedImageSize.width}px`;
+        element.style.height = `${savedImageSize.height}px`;
+        log('ClickableImagePlaceholder', 'applySavedSize', {
+          elementId,
+          size: savedImageSize
+        });
+      }
+    }
+  }, [containerRef, savedImagePosition, savedImageSize, elementId]);
 
 
 
@@ -247,6 +278,19 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             edgeDraggable={false}
             onDrag={e => {
               e.target.style.transform = e.transform;
+              
+              // Extract position from transform
+              const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
+              if (transformMatch) {
+                const [, translate] = transformMatch;
+                const [x, y] = translate.split(',').map(v => parseFloat(v.replace('px', '')));
+                
+                // Call onSizeTransformChange with position update
+                onSizeTransformChange?.({
+                  imagePosition: { x, y },
+                  elementId: elementId
+                });
+              }
             }}
             resizable={true}
             keepRatio={false}
@@ -256,6 +300,45 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               e.target.style.width = `${e.width}px`;
               e.target.style.height = `${e.height}px`;
               e.target.style.transform = e.drag.transform;
+              
+              // Extract position and size
+              const transformMatch = e.drag.transform.match(/translate\(([^)]+)\)/);
+              const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
+              const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
+              
+              // Call onSizeTransformChange with both position and size
+              onSizeTransformChange?.({
+                imagePosition: { x, y },
+                imageSize: { width: e.width, height: e.height },
+                elementId: elementId
+              });
+            }}
+            onDragEnd={e => {
+              // Final position update after drag ends
+              const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+              if (transformMatch) {
+                const [, translate] = transformMatch;
+                const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
+                
+                onSizeTransformChange?.({
+                  imagePosition: { x, y },
+                  elementId: elementId,
+                  final: true
+                });
+              }
+            }}
+            onResizeEnd={e => {
+              // Final size update after resize ends
+              const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+              const x = transformMatch ? parseFloat(transformMatch[1].split(',')[0].replace('px', '')) : 0;
+              const y = transformMatch ? parseFloat(transformMatch[1].split(',')[1].replace('px', '')) : 0;
+              
+              onSizeTransformChange?.({
+                imagePosition: { x, y },
+                imageSize: { width: e.target.style.width, height: e.target.style.height },
+                elementId: elementId,
+                final: true
+              });
             }}
           />
         )}

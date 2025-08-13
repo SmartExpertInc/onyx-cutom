@@ -154,7 +154,11 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   onUpdate,
   theme,
   isEditable = false,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -304,7 +308,19 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     });
 
     if (onUpdate) {
-      onUpdate(payload);
+      // Convert the payload to the expected format for the backend
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.imageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.widthPx = payload.imageSize.width;
+        updateData.heightPx = payload.imageSize.height;
+      }
+      
+      onUpdate(updateData);
     }
   };
 
@@ -347,6 +363,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           cropMode="contain"
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
+          savedImagePosition={imageOffset}
+          savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
         />
       </div>
 

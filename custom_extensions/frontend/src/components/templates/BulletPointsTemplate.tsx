@@ -508,7 +508,11 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   imagePrompt,
   imageAlt,
   theme,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -600,7 +604,19 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
 
   const handleSizeTransformChange = (payload: any) => {
     if (onUpdate) {
-      onUpdate(payload);
+      // Convert the payload to the expected format for the backend
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.imageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.widthPx = payload.imageSize.width;
+        updateData.heightPx = payload.imageSize.height;
+      }
+      
+      onUpdate(updateData);
     }
   };
 
@@ -677,6 +693,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             elementId={`${slideId}-image`}
             elementRef={imageRef}
             slideContainerRef={slideContainerRef}
+            savedImagePosition={imageOffset}
+            savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
           />
         </div>
         

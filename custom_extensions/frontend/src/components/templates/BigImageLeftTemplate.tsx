@@ -152,7 +152,11 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   onUpdate,
   theme,
   isEditable = false,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -321,8 +325,20 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       imageRefExists: !!imageRef.current
     });
 
+    // Convert the payload to the expected format for the backend
+    const updateData: any = {};
+    
+    if (payload.imagePosition) {
+      updateData.imageOffset = payload.imagePosition;
+    }
+    
+    if (payload.imageSize) {
+      updateData.widthPx = payload.imageSize.width;
+      updateData.heightPx = payload.imageSize.height;
+    }
+    
     // Use debounced update for size/transform changes
-    handleUpdate(payload);
+    handleUpdate(updateData);
   };
 
   // Handle crop mode change
@@ -364,6 +380,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           cropMode="contain"
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
+          savedImagePosition={imageOffset}
+          savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
         />
       </div>
 
