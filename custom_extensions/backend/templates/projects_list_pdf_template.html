@@ -451,95 +451,122 @@
         
         <!-- Unassigned Projects Section -->
         {% if unassigned_projects %}
-        <div class="unassigned-section">
-            <div class="unassigned-header">
-                <svg class="icon warning-svg" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
-                <span class="title">Unassigned Projects</span>
-                <span class="subtitle">{{ unassigned_projects|length }} item{{ 's' if unassigned_projects|length != 1 else '' }} not in any folder</span>
-            </div>
+            <!-- Unassigned Projects Header Row -->
+            <tr class="folder-row">
+                <td class="folder-title">
+                    <svg class="folder-icon folder-svg" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    Unassigned Projects ({{ unassigned_projects|length }} item{{ 's' if unassigned_projects|length != 1 else '' }})
+                </td>
+                <td class="type-cell">
+                    <div class="type-icon-container">
+                        <span class="dash">—</span>
+                    </div>
+                </td>
+                {% if column_visibility.numberOfLessons %}
+                    <td class="data-cell bold">
+                        {% set total_lessons = unassigned_projects | sum(attribute='total_lessons') %}
+                        {{ total_lessons if total_lessons > 0 else '<span class="dash">—</span>' | safe }}
+                    </td>
+                {% endif %}
+                {% if column_visibility.estCreationTime %}
+                    <td class="data-cell bold">
+                        {% set total_hours = unassigned_projects | sum(attribute='total_hours') %}
+                        {% if total_hours > 0 %}
+                            {% if total_hours == total_hours|int %}{{ total_hours|int }}h{% else %}{{ total_hours }}h{% endif %}
+                        {% else %}<span class="dash">—</span>{% endif %}
+                    </td>
+                {% endif %}
+                {% if column_visibility.estCompletionTime %}
+                    <td class="data-cell bold">
+                        {% set total_completion_time = unassigned_projects | sum(attribute='total_completion_time') %}
+                        {% if total_completion_time > 0 %}
+                            {% set h = total_completion_time // 60 %}
+                            {% set m = total_completion_time % 60 %}
+                            {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                            {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                        {% else %}<span class="dash">—</span>{% endif %}
+                    </td>
+                {% endif %}
+            </tr>
             
-            <table class="projects-table">
-                <tbody>
-                    {% for project in unassigned_projects %}
-                        <tr class="product-row unassigned">
-                            <td class="product-title indent-1">
-                                <div class="product-number">{{ product_counter.value }}</div>
-                                {{ project.title }}
-                            </td>
-                            <td class="type-cell">
-                                <div class="type-icon-container">
-                                    {% set project_type = project.get('design_microproduct_type', '').lower() %}
-                                    {% if project_type == 'training plan' %}
-                                        <!-- BookText icon for Training Plan -->
-                                        <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
-                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                                        </svg>
-                                    {% elif project_type == 'slide deck' or project_type == 'pdf lesson' or project_type == 'lesson' or project_type == 'presentation' %}
-                                        <!-- BookText icon for Slide Deck/PDF Lesson/Presentation -->
-                                        <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
-                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                                        </svg>
-                                    {% elif project_type == 'video lesson' or project_type == 'video-lesson' %}
-                                        <!-- Video icon for Video Lesson -->
-                                        <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
-                                            <polygon points="23 7 16 12 23 17 23 7"/>
-                                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                                        </svg>
-                                    {% elif project_type == 'quiz' or project_type == 'multiple-choice' %}
-                                        <!-- HelpCircle icon for Quiz -->
-                                        <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
-                                            <circle cx="12" cy="12" r="10"/>
-                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                            <path d="M12 17h.01"/>
-                                        </svg>
-                                    {% elif project_type == 'text presentation' or project_type == 'text-presentation' or project_type == 'one-pager' %}
-                                        <!-- FileText icon for Text Presentation/One Pager -->
-                                        <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
-                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                            <polyline points="14,2 14,8 20,8"/>
-                                            <line x1="16" y1="13" x2="8" y2="13"/>
-                                            <line x1="16" y1="17" x2="8" y2="17"/>
-                                            <polyline points="10,9 9,9 8,9"/>
-                                        </svg>
-                                    {% else %}
-                                        <!-- Default document icon for unknown types -->
-                                        <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
-                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                            <polyline points="14,2 14,8 20,8"/>
-                                        </svg>
-                                    {% endif %}
-                                </div>
-                            </td>
-                            {% if column_visibility.numberOfLessons %}
-                                <td class="data-cell">{{ project.total_lessons if project.total_lessons > 0 else '—' }}</td>
+            <!-- Unassigned Projects -->
+            {% for project in unassigned_projects %}
+                <tr class="product-row">
+                    <td class="product-title indent-1">
+                        <div class="product-number">{{ product_counter.value }}</div>
+                        {{ project.title }}
+                    </td>
+                    <td class="type-cell">
+                        <div class="type-icon-container">
+                            {% set project_type = project.get('design_microproduct_type', '').lower() %}
+                            {% if project_type == 'training plan' %}
+                                <!-- BookText icon for Training Plan -->
+                                <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                            {% elif project_type == 'slide deck' or project_type == 'pdf lesson' or project_type == 'lesson' or project_type == 'presentation' %}
+                                <!-- BookText icon for Slide Deck/PDF Lesson/Presentation -->
+                                <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                            {% elif project_type == 'video lesson' or project_type == 'video-lesson' %}
+                                <!-- Video icon for Video Lesson -->
+                                <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
+                                    <polygon points="23 7 16 12 23 17 23 7"/>
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                </svg>
+                            {% elif project_type == 'quiz' or project_type == 'multiple-choice' %}
+                                <!-- HelpCircle icon for Quiz -->
+                                <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <path d="M12 17h.01"/>
+                                </svg>
+                            {% elif project_type == 'text presentation' or project_type == 'text-presentation' or project_type == 'one-pager' %}
+                                <!-- FileText icon for Text Presentation/One Pager -->
+                                <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10,9 9,9 8,9"/>
+                                </svg>
+                            {% else %}
+                                <!-- Default document icon for unknown types -->
+                                <svg class="type-icon product-type-svg" viewBox="0 0 24 24">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                </svg>
                             {% endif %}
-                            {% if column_visibility.estCreationTime %}
-                                <td class="data-cell">
-                                    {% if project.total_hours > 0 %}
-                                        {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
-                                    {% else %}<span class="dash">—</span>{% endif %}
-                                </td>
-                            {% endif %}
-                            {% if column_visibility.estCompletionTime %}
-                                <td class="data-cell">
-                                    {% if project.total_completion_time > 0 %}
-                                        {% set h = project.total_completion_time // 60 %}
-                                        {% set m = project.total_completion_time % 60 %}
-                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                    {% else %}<span class="dash">—</span>{% endif %}
-                                </td>
-                            {% endif %}
-                        </tr>
-                        {% set product_counter.value = product_counter.value + 1 %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+                    {% if column_visibility.numberOfLessons %}
+                        <td class="data-cell">{{ project.total_lessons if project.total_lessons > 0 else '—' }}</td>
+                    {% endif %}
+                    {% if column_visibility.estCreationTime %}
+                        <td class="data-cell">
+                            {% if project.total_hours > 0 %}
+                                {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
+                            {% else %}<span class="dash">—</span>{% endif %}
+                        </td>
+                    {% endif %}
+                    {% if column_visibility.estCompletionTime %}
+                        <td class="data-cell">
+                            {% if project.total_completion_time > 0 %}
+                                {% set h = project.total_completion_time // 60 %}
+                                {% set m = project.total_completion_time % 60 %}
+                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                            {% else %}<span class="dash">—</span>{% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+                {% set product_counter.value = product_counter.value + 1 %}
+            {% endfor %}
         {% endif %}
         
         <!-- Empty state -->
