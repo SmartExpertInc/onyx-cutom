@@ -37,8 +37,16 @@ def calculate_label_positions(segments: List[Dict], center_x: int = 140, center_
         
         # Convert to radians and calculate position (same as frontend)
         angle_rad = (center_angle - 90) * math.pi / 180
-        x = center_x + radius * math.cos(angle_rad)
-        y = center_y + radius * math.sin(angle_rad)
+        
+        # Адаптивный радиус в зависимости от размера сегмента
+        segment_angle = (percentage / total_percentage) * 360
+        if segment_angle < 30:  # Для маленьких сегментов
+            adaptive_radius = 85  # Ближе к центру
+        else:
+            adaptive_radius = radius
+            
+        x = center_x + adaptive_radius * math.cos(angle_rad)
+        y = center_y + adaptive_radius * math.sin(angle_rad)
         
         label_positions.append({
             'x': round(x, 2),

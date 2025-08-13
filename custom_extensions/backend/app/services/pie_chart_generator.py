@@ -205,6 +205,13 @@ class PieChartGenerator:
                     x = self.center_x + label_radius * math.cos(rad)
                     y = self.center_y + label_radius * math.sin(rad)
                     
+                    # Дополнительная проверка: убеждаемся, что метка находится в правильном сегменте
+                    # Если сегмент слишком маленький, уменьшаем радиус для лучшего позиционирования
+                    if segment_angle < 30:  # Для маленьких сегментов
+                        label_radius = 85  # Ближе к центру
+                        x = self.center_x + label_radius * math.cos(rad)
+                        y = self.center_y + label_radius * math.sin(rad)
+                    
                     # Текст метки - используем label из сегмента как во фронтенде
                     text = segment.get('label', f"{segment['percentage']}%")
                     
