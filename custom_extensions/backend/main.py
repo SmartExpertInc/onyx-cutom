@@ -13711,6 +13711,12 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
 @app.post("/api/custom/lesson-presentation/finalize")
 async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     logger.info(f"Finalizing lesson presentation: {payload.lessonTitle}")
+    logger.info(f"[LESSON_FINALIZE_DETAILS] hasUserEdits: {payload.hasUserEdits}")
+    logger.info(f"[LESSON_FINALIZE_DETAILS] originalContent length: {len(payload.originalContent) if payload.originalContent else 0}")
+    logger.info(f"[LESSON_FINALIZE_DETAILS] aiResponse length: {len(payload.aiResponse)}")
+    logger.info(f"[LESSON_FINALIZE_DETAILS] aiResponse preview: {payload.aiResponse[:300]}...")
+    if payload.originalContent:
+        logger.info(f"[LESSON_FINALIZE_DETAILS] originalContent preview: {payload.originalContent[:300]}...")
     
     # Validate required fields early
     if not payload.lessonTitle or not payload.lessonTitle.strip():
@@ -13785,10 +13791,15 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             
             # Use the original content for parsing since no changes were made
             content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            logger.info(f"[LESSON_FINALIZE_CONTENT] Using original content, length: {len(content_to_parse)}")
         else:
             # AI PARSER PATH: Use the provided content (which may be clean titles only)
             logger.info("Using AI parser path for lesson presentation finalization")
             content_to_parse = payload.aiResponse
+            logger.info(f"[LESSON_FINALIZE_CONTENT] Using AI response content, length: {len(content_to_parse)}")
+        
+        logger.info(f"[LESSON_FINALIZE_CONTENT] Final content_to_parse length: {len(content_to_parse)}")
+        logger.info(f"[LESSON_FINALIZE_CONTENT] Final content_to_parse preview: {content_to_parse[:300]}...")
         
         # Determine if this is a video lesson presentation
         is_video_lesson = payload.productType == "video_lesson_presentation"
@@ -13832,6 +13843,10 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
 
+        logger.info(f"[LESSON_FINALIZE_PROJECT] Creating project with name: {project_name}")
+        logger.info(f"[LESSON_FINALIZE_PROJECT] Project aiResponse length: {len(content_to_parse.strip())}")
+        logger.info(f"[LESSON_FINALIZE_PROJECT] Project aiResponse preview: {content_to_parse.strip()[:300]}...")
+        
         # Create project data
         project_data = ProjectCreateRequest(
             projectName=project_name,
@@ -16618,6 +16633,13 @@ async def lesson_presentation_edit(payload: LessonPresentationEditRequest, reque
     """Edit lesson presentation content with streaming response"""
     logger.info(f"[LESSON_PRESENTATION_EDIT_START] Lesson presentation edit initiated")
     logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] currentContent length: {len(payload.currentContent)}")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] currentContent preview: {payload.currentContent[:200]}...")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] lessonTitle: {payload.lessonTitle}")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] slidesCount: {payload.slidesCount}")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] theme: {payload.theme}")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] isCleanContent: {payload.isCleanContent}")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_PARAMS] chatSessionId: {payload.chatSessionId}")
     
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     logger.info(f"[LESSON_PRESENTATION_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
@@ -16669,6 +16691,10 @@ async def lesson_presentation_edit(payload: LessonPresentationEditRequest, reque
         wiz_payload["textMode"] = payload.textMode
         wiz_payload["userText"] = payload.userText
 
+    logger.info(f"[LESSON_PRESENTATION_EDIT_WIZARD] Wizard payload keys: {list(wiz_payload.keys())}")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_WIZARD] Wizard prompt: {wiz_payload['prompt']}")
+    logger.info(f"[LESSON_PRESENTATION_EDIT_WIZARD] Wizard originalContent length: {len(wiz_payload['originalContent'])}")
+    
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
@@ -16710,6 +16736,7 @@ async def lesson_presentation_edit(payload: LessonPresentationEditRequest, reque
             return
 
         logger.info(f"[LESSON_PRESENTATION_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        logger.info(f"[LESSON_PRESENTATION_EDIT_COMPLETE] Final assistant reply preview: {assistant_reply[:300]}...")
         
         # NEW: Cache the lesson presentation content for later finalization
         if chat_id:
@@ -18382,6 +18409,11 @@ def _any_lesson_presentation_changes_made(original_content: str, edited_content:
         # Normalize content for comparison
         original_normalized = original_content.strip()
         edited_normalized = edited_content.strip()
+        
+        logger.info(f"[CHANGE_DETECTION] Original content length: {len(original_normalized)}")
+        logger.info(f"[CHANGE_DETECTION] Edited content length: {len(edited_normalized)}")
+        logger.info(f"[CHANGE_DETECTION] Original content preview: {original_normalized[:200]}...")
+        logger.info(f"[CHANGE_DETECTION] Edited content preview: {edited_normalized[:200]}...")
         
         # Simple text comparison
         if original_normalized != edited_normalized:

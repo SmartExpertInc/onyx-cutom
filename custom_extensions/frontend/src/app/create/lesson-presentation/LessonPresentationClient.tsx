@@ -629,25 +629,33 @@ export default function LessonPresentationClient() {
       const promptQuery = params?.get("prompt")?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
+      const finalizePayload = {
+        outlineProjectId: selectedOutlineId || undefined,
+        lessonTitle: derivedTitle,
+        lengthRange: lengthRangeForOption(lengthOption),
+        aiResponse: content,
+        chatSessionId: chatId || undefined,
+        slidesCount: slidesCount,
+        productType: productType, // Pass product type for video lesson vs regular presentation
+        folderId: folderContext?.folderId || undefined,
+        // Include selected theme
+        theme: selectedTheme,
+        // NEW: Include edit tracking information
+        hasUserEdits: hasUserEdits,
+        originalContent: originalContent,
+        isCleanContent: false, // We always send full content for lesson presentations
+      };
+
+      console.log(`[FRONTEND_FINALIZE] Sending finalize request:`, finalizePayload);
+      console.log(`[FRONTEND_FINALIZE] aiResponse length: ${finalizePayload.aiResponse.length}`);
+      console.log(`[FRONTEND_FINALIZE] aiResponse preview:`, finalizePayload.aiResponse.substring(0, 200));
+      console.log(`[FRONTEND_FINALIZE] originalContent length: ${finalizePayload.originalContent?.length || 0}`);
+      console.log(`[FRONTEND_FINALIZE] hasUserEdits: ${finalizePayload.hasUserEdits}`);
+
       const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          outlineProjectId: selectedOutlineId || undefined,
-          lessonTitle: derivedTitle,
-          lengthRange: lengthRangeForOption(lengthOption),
-          aiResponse: content,
-          chatSessionId: chatId || undefined,
-          slidesCount: slidesCount,
-          productType: productType, // Pass product type for video lesson vs regular presentation
-          folderId: folderContext?.folderId || undefined,
-          // Include selected theme
-          theme: selectedTheme,
-          // NEW: Include edit tracking information
-          hasUserEdits: hasUserEdits,
-          originalContent: originalContent,
-          isCleanContent: false, // We always send full content for lesson presentations
-        }),
+        body: JSON.stringify(finalizePayload),
         signal: abortController.signal
       });
 
@@ -868,6 +876,10 @@ export default function LessonPresentationClient() {
   const handleSectionTitleEdit = async (slideIdx: number, newTitle: string, oldTitle: string) => {
     if (newTitle === oldTitle) return; // No change
     
+    console.log(`[FRONTEND_EDIT] Section ${slideIdx + 1} title changed: "${oldTitle}" -> "${newTitle}"`);
+    console.log(`[FRONTEND_EDIT] Current content length: ${content.length}`);
+    console.log(`[FRONTEND_EDIT] Current content preview:`, content.substring(0, 200));
+    
     // Mark that user has made edits
     setHasUserEdits(true);
     
@@ -879,6 +891,9 @@ export default function LessonPresentationClient() {
     const updatedContent = content.replace(slidePattern, 
       /\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/.test(content) ? `$1${newTitle}` : `**${newTitle}**`
     );
+    
+    console.log(`[FRONTEND_EDIT] Updated content length: ${updatedContent.length}`);
+    console.log(`[FRONTEND_EDIT] Updated content preview:`, updatedContent.substring(0, 200));
     
     // Update content immediately with new title
     setContent(updatedContent);
@@ -911,6 +926,9 @@ export default function LessonPresentationClient() {
         editRequestBody.userText = userText;
       }
 
+      console.log(`[FRONTEND_EDIT] Sending edit request:`, editRequestBody);
+      console.log(`[FRONTEND_EDIT] Request currentContent length: ${editRequestBody.currentContent.length}`);
+
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -941,6 +959,8 @@ export default function LessonPresentationClient() {
           }
           // Update content with regenerated content
           if (accumulatedText) {
+            console.log(`[FRONTEND_EDIT] Received regenerated content length: ${accumulatedText.length}`);
+            console.log(`[FRONTEND_EDIT] Regenerated content preview:`, accumulatedText.substring(0, 200));
             setContent(accumulatedText);
             // Don't update originalContent - it should remain unchanged to track original state
             // setOriginalContent(accumulatedText);
