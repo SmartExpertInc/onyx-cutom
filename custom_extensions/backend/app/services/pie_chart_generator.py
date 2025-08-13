@@ -161,22 +161,25 @@ class PieChartGenerator:
     def _draw_percentage_labels(self, draw: ImageDraw.Draw, segments: List[Dict], total_percentage: float):
         """Рисует процентные метки на сегментах с точным стилем фронтенда"""
         try:
-            # Пытаемся загрузить шрифт - точно как во фронтенде (Arial, 18px, bold)
+            # Пытаемся загрузить жирный шрифт - точно как во фронтенде (Arial Bold, 18px)
             font = None
             font_paths = [
-                "arial.ttf",
-                "Arial.ttf", 
-                "arial.TTF",
-                "Arial.TTF",
+                "arialbd.ttf",  # Arial Bold
+                "ArialBold.ttf",
+                "arialbd.TTF",
+                "ArialBold.TTF",
+                "/System/Library/Fonts/Arial Bold.ttf",  # macOS
                 "/System/Library/Fonts/Arial.ttf",  # macOS
                 "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # Linux
+                "C:/Windows/Fonts/arialbd.ttf",  # Windows Arial Bold
+                "C:/Windows/Fonts/ArialBold.ttf",  # Windows
                 "C:/Windows/Fonts/arial.ttf",  # Windows
                 "C:/Windows/Fonts/Arial.ttf"   # Windows
             ]
             
             for font_path in font_paths:
                 try:
-                    font = ImageFont.truetype(font_path, 18)
+                    font = ImageFont.truetype(font_path, 20)  # Увеличиваем размер до 20px для лучшей видимости
                     logger.info(f"Successfully loaded font: {font_path}")
                     break
                 except:
@@ -214,7 +217,9 @@ class PieChartGenerator:
                     text_y = int(y - text_height / 2)
                     
                     # Рисуем тень - точно как во фронтенде (text-shadow: 1px 1px 2px #000000)
-                    draw.text((text_x + 1, text_y + 1), text, fill=(0, 0, 0, 255), font=font)
+                    # Делаем тень более заметной
+                    draw.text((text_x + 2, text_y + 2), text, fill=(0, 0, 0, 255), font=font)
+                    draw.text((text_x + 1, text_y + 1), text, fill=(0, 0, 0, 180), font=font)
                     
                     # Рисуем основной текст - белый как во фронтенде
                     draw.text((text_x, text_y), text, fill=(255, 255, 255, 255), font=font)
