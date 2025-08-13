@@ -54,38 +54,38 @@ export const AllContentTypesModal = ({
         key={type.name}
         onClick={() => !isDisabled && onContentCreate(type.name)}
         disabled={isDisabled}
-        className={`w-full flex items-center p-4 border-2 rounded-lg transition-all duration-200 text-left ${
+        className={`group w-full flex items-center p-6 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${
           isDisabled
             ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-            : `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-md cursor-pointer`
+            : `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
         }`}
       >
-                  <div className="flex items-center space-x-3 flex-1">
-          <div className={`p-2 rounded-md ${
+        <div className="flex items-center space-x-4 flex-1">
+          <div className={`p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${
             isDisabled ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
           }`}>
-            {type.icon && React.isValidElement(type.icon) ? 
-              React.cloneElement(type.icon as React.ReactElement<any>, { 
-                className: `w-5 h-5 ${isDisabled ? 'text-gray-400' : ''}` 
-              }) : 
-              <div className="w-5 h-5" />
+            {type.icon && React.isValidElement(type.icon) ?
+              React.cloneElement(type.icon as React.ReactElement<any>, {
+                className: `w-6 h-6 transition-all duration-200 ${isDisabled ? 'text-gray-400' : ''}`
+              }) :
+              <div className="w-6 h-6" />
             }
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-base font-semibold text-black">{type.label}</h3>
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-gray-800">{type.label}</h3>
               {type.soon && (
-                <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
+                <span className="text-xs bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 px-3 py-1 rounded-full font-medium border border-orange-200">
                   {t('modals.createContent.soon')}
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-600">{type.description}</p>
+            <p className="text-sm text-gray-600 leading-relaxed">{type.description}</p>
           </div>
         </div>
         {!isDisabled && (
-          <div className="text-gray-400 group-hover:text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-gray-400 group-hover:text-gray-600 transition-all duration-200 group-hover:translate-x-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
@@ -109,23 +109,38 @@ export const AllContentTypesModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={handleClose}>
-      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">{t('modals.createContent.allOptions', 'All content types')}</h3>
-          <button onClick={handleClose} className="p-2 rounded-full hover:bg-gray-100">
-            <X size={20} />
-          </button>
+      <div className="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-2xl border border-gray-100" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">{t('modals.createContent.allOptions', 'All content types')}</h2>
+            <button
+              onClick={handleClose}
+              className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 hover:bg-gray-100 rounded-full group"
+            >
+              <X size={24} className="group-hover:rotate-90 transition-transform duration-200" />
+            </button>
+          </div>
         </div>
-        <div className="space-y-3 max-h-[70vh] overflow-auto">
+
+        {/* Content Types */}
+        <div className="space-y-4 max-h-[60vh] overflow-auto">
           {contentTypes.map(renderTypeButton)}
         </div>
-        <div className="mt-4 flex justify-center">
-          <button
-            onClick={handleBackToRecommended}
-            className="px-6 py-2 rounded-lg font-semibold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
-          >
-            {t('modals.createContent.backToRecommended', 'Back to recommended')}
-          </button>
+
+        {/* Footer */}
+        <div className="mt-6 pt-6 border-t border-gray-100">
+          <div className="flex justify-center">
+            <button
+              onClick={handleBackToRecommended}
+              className="px-8 py-3 rounded-xl font-semibold transition-all duration-200 bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 active:scale-95 flex items-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>{t('modals.createContent.backToRecommended', 'Back to recommended')}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -284,37 +284,15 @@ export const CreateContentTypeModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">{t('modals.createContent.title')}</h2>
-            </div>
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">{t('modals.createContent.title')}</h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 hover:bg-gray-100 rounded-full group"
             >
               <X size={24} className="group-hover:rotate-90 transition-transform duration-200" />
             </button>
-          </div>
-
-          {/* Lesson Context Card */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                {t('modals.openOrCreate.module')}
-              </span>
-              <span className="text-xs text-gray-400">•</span>
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                {t('modals.openOrCreate.title')} {lessonNumber}
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 mb-1">{moduleName}</p>
-            <p className="text-lg font-bold text-gray-900">{lessonTitle}</p>
           </div>
         </div>
         
@@ -408,17 +386,46 @@ export const CreateContentTypeModal = ({
 
                 <div className="space-y-3">
                   {[
-                    { key: 'presentation', label: t('modals.createContent.presentation'), icon: <BookText className="w-5 h-5" /> },
-                    { key: 'one-pager', label: t('modals.createContent.onePager'), icon: <FileText className="w-5 h-5" /> },
-                    { key: 'quiz', label: t('modals.createContent.quiz'), icon: <HelpCircle className="w-5 h-5" /> },
-                    { key: 'video-lesson', label: t('modals.createContent.videoLesson'), icon: <Video className="w-5 h-5" /> },
+                    { key: 'presentation', label: t('modals.createContent.presentation'), icon: <BookText className="w-5 h-5" />, color: 'blue' },
+                    { key: 'one-pager', label: t('modals.createContent.onePager'), icon: <FileText className="w-5 h-5" />, color: 'purple' },
+                    { key: 'quiz', label: t('modals.createContent.quiz'), icon: <HelpCircle className="w-5 h-5" />, color: 'green' },
+                    { key: 'video-lesson', label: t('modals.createContent.videoLesson'), icon: <Video className="w-5 h-5" />, color: 'orange' },
                   ].map(opt => {
                     const isSelected = !!selectedPrefs[opt.key];
+
+                    const colorClasses = {
+                      blue: {
+                        border: isSelected ? 'border-blue-300' : 'border-gray-200 hover:border-blue-200',
+                        bg: isSelected ? 'bg-blue-50' : 'bg-white hover:bg-blue-50',
+                        iconBg: 'bg-blue-100',
+                        iconColor: 'text-blue-600'
+                      },
+                      purple: {
+                        border: isSelected ? 'border-purple-300' : 'border-gray-200 hover:border-purple-200',
+                        bg: isSelected ? 'bg-purple-50' : 'bg-white hover:bg-purple-50',
+                        iconBg: 'bg-purple-100',
+                        iconColor: 'text-purple-600'
+                      },
+                      green: {
+                        border: isSelected ? 'border-green-300' : 'border-gray-200 hover:border-green-200',
+                        bg: isSelected ? 'bg-green-50' : 'bg-white hover:bg-green-50',
+                        iconBg: 'bg-green-100',
+                        iconColor: 'text-green-600'
+                      },
+                      orange: {
+                        border: isSelected ? 'border-orange-300' : 'border-gray-200 hover:border-orange-200',
+                        bg: isSelected ? 'bg-orange-50' : 'bg-white hover:bg-orange-50',
+                        iconBg: 'bg-orange-100',
+                        iconColor: 'text-orange-600'
+                      }
+                    };
+
+                    const colors = colorClasses[opt.color as keyof typeof colorClasses];
 
                     return (
                       <label
                         key={opt.key}
-                        className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                        className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors duration-200 ${colors.border} ${colors.bg}`}
                       >
                         <input
                           type="checkbox"
@@ -426,9 +433,9 @@ export const CreateContentTypeModal = ({
                           checked={isSelected}
                           onChange={() => handlePrefToggle(opt.key)}
                         />
-                        <div className="p-2 bg-gray-100 rounded-lg">
+                        <div className={`p-2 rounded-lg ${colors.iconBg}`}>
                           {React.cloneElement(opt.icon, {
-                            className: "w-5 h-5 text-gray-600"
+                            className: `w-5 h-5 ${colors.iconColor}`
                           })}
                         </div>
                         <span className="text-sm font-medium text-gray-900">
