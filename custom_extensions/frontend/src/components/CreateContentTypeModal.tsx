@@ -316,9 +316,6 @@ export const CreateContentTypeModal = ({
                   >
                     <Settings size={16} />
                   </button>
-                  { (recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used) && (
-                    <span className="ml-2 text-gray-400">({recommendedState?.quality_tier_used || recommendedContentTypes?.quality_tier_used})</span>
-                  )}
                 </div>
                 <div className="space-y-4">
                   {recommendedOnly.map(renderTypeButton)}
