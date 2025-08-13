@@ -1613,6 +1613,39 @@
                                         <!-- Percentage labels -->
                                         {% set cumulative_percentage = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                                            {% set center_angle = (cumulative_percentage + segment.percentage / 2) / (total_percentage if total_percentage > 0 else 1) * 360 %}
+                                            {% set radius = 98 %}
+                                            {% if center_angle >= 0 and center_angle < 45 %}
+                                                {% set label_x = 140 + radius %}
+                                                {% set label_y = 140 - radius * (center_angle / 45) %}
+                                            {% elif center_angle >= 45 and center_angle < 90 %}
+                                                {% set label_x = 140 + radius * ((90 - center_angle) / 45) %}
+                                                {% set label_y = 140 - radius %}
+                                            {% elif center_angle >= 90 and center_angle < 135 %}
+                                                {% set label_x = 140 %}
+                                                {% set label_y = 140 - radius * ((135 - center_angle) / 45) %}
+                                            {% elif center_angle >= 135 and center_angle < 180 %}
+                                                {% set label_x = 140 - radius * ((180 - center_angle) / 45) %}
+                                                {% set label_y = 140 - radius %}
+                                            {% elif center_angle >= 180 and center_angle < 225 %}
+                                                {% set label_x = 140 - radius %}
+                                                {% set label_y = 140 - radius * ((center_angle - 180) / 45) %}
+                                            {% elif center_angle >= 225 and center_angle < 270 %}
+                                                {% set label_x = 140 - radius * ((270 - center_angle) / 45) %}
+                                                {% set label_y = 140 %}
+                                            {% elif center_angle >= 270 and center_angle < 315 %}
+                                                {% set label_x = 140 %}
+                                                {% set label_y = 140 + radius * ((center_angle - 270) / 45) %}
+                                            {% else %}
+                                                {% set label_x = 140 + radius * ((360 - center_angle) / 45) %}
+                                                {% set label_y = 140 + radius %}
+                                            {% endif %}
+                                            <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif;">{{ segment.label }}</div>
+=======
+>>>>>>> de77170b3 (PieChartInfograficsTemplate fix in PDF)
                                             {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
                                             {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
                                             {% set center_angle = (start_angle + end_angle) / 2 %}
@@ -1624,6 +1657,10 @@
                                             
                                             <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">{{ segment.label }}</div>
                                             
+<<<<<<< HEAD
+=======
+>>>>>>> 205b89fe9facb2fbaf6a009527a2eb45de746398
+>>>>>>> de77170b3 (PieChartInfograficsTemplate fix in PDF)
                                             {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                         {% endfor %}
                                     </div>
