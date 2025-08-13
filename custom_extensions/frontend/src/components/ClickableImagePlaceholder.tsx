@@ -343,7 +343,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setDisplayedImage(imagePath);
     
     // Load image to get dimensions
-    const tmp = new Image();
+    const tmp = new window.Image();
     tmp.onload = () => {
       const imgW = tmp.naturalWidth || tmp.width;
       const imgH = tmp.naturalHeight || tmp.height;
@@ -416,7 +416,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         throw new Error('No file path returned from upload');
       }
       
-    } catch (error) {
+    } catch (error: unknown) {
       log('ClickableImagePlaceholder', 'handleDoNotCrop_error', {
         elementId,
         error
@@ -512,7 +512,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       });
       
       // Create image for drawing
-      const img = new Image();
+      const img = new window.Image();
       img.crossOrigin = 'anonymous';
       
       img.onload = async () => {
@@ -596,7 +596,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         }, 'image/png');
       };
       
-      img.onerror = (error) => {
+      img.onerror = (error: Event | string) => {
         log('ClickableImagePlaceholder', 'confirmEdit_imageLoadError', {
           elementId,
           error
@@ -607,7 +607,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       
       img.src = editState.imageUrl;
       
-    } catch (error) {
+    } catch (error: unknown) {
       log('ClickableImagePlaceholder', 'confirmEdit_error', {
         elementId,
         error
