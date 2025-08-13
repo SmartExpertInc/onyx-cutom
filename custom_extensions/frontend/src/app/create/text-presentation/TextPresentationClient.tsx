@@ -137,6 +137,10 @@ export default function TextPresentationClient() {
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
   const [originalTitles, setOriginalTitles] = useState<{[key: number]: string}>({});
   const nextEditingIdRef = useRef<number | null>(null);
+  
+  // NEW: Smart change handling states
+  const [hasUserEdits, setHasUserEdits] = useState(false);
+  const [originalContent, setOriginalContent] = useState<string>("");
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -248,6 +252,7 @@ export default function TextPresentationClient() {
     const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
     if (newTitle !== originalTitle) {
       setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
+      setHasUserEdits(true); // NEW: Mark that user has made edits
     } else {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
@@ -313,6 +318,7 @@ export default function TextPresentationClient() {
     }
 
     setContent(updatedContent);
+    setHasUserEdits(true); // NEW: Mark that user has made edits
     
     // Clear the edited title since it's now part of the main content
     setEditedTitles(prev => {
@@ -344,6 +350,24 @@ export default function TextPresentationClient() {
 
   const getTitleForLesson = (lesson: any, index: number) => {
     return editedTitles[index] || lesson.title;
+  };
+
+  // NEW: Create clean content for smart change handling
+  const createCleanContent = (content: string) => {
+    const lessons = parseContentIntoLessons(content);
+    let cleanContent = "";
+    
+    lessons.forEach((lesson, index) => {
+      if (editedTitleIds.has(index)) {
+        // For edited lessons, include only the title (clean content)
+        cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n`;
+      } else {
+        // For unedited lessons, include the full content
+        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+      }
+    });
+    
+    return cleanContent.trim();
   };
 
   // Example prompts for advanced mode
@@ -404,9 +428,19 @@ export default function TextPresentationClient() {
     setLoadingEdit(true);
     setError(null);
     try {
+      // NEW: Smart change handling - determine content to send
+      let contentToSend = content;
+      let isCleanContent = false;
+      
+      if (hasUserEdits && editedTitleIds.size > 0) {
+        contentToSend = createCleanContent(content);
+        isCleanContent = true;
+      }
+      
       const payload: any = {
-        content,
+        content: contentToSend,
         editPrompt,
+        isCleanContent: isCleanContent,
       };
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
@@ -474,6 +508,7 @@ export default function TextPresentationClient() {
 
       setEditPrompt("");
       setSelectedExamples([]);
+      setHasUserEdits(true); // NEW: Mark that user has made edits after AI editing
     } catch (error: any) {
       setError(error.message || "Failed to apply edit");
     } finally {
@@ -494,6 +529,12 @@ export default function TextPresentationClient() {
       setFirstLineRemoved(false);
       // Reset stream completion flag for new preview
       setStreamDone(false);
+      // NEW: Reset smart change handling states for new generation
+      setHasUserEdits(false);
+      setOriginalContent("");
+      setEditedTitles({});
+      setEditedTitleIds(new Set());
+      setOriginalTitles({});
       const abortController = new AbortController();
       if (previewAbortRef.current) previewAbortRef.current.abort();
       previewAbortRef.current = abortController;
@@ -688,6 +729,14 @@ export default function TextPresentationClient() {
     }
   }, [streamDone, firstLineRemoved, content]);
 
+  // NEW: Save original content after stream completion for smart change handling
+  useEffect(() => {
+    if (streamDone && firstLineRemoved && content && !originalContent) {
+      setOriginalContent(content);
+      logger.info("Saved original content for smart change handling");
+    }
+  }, [streamDone, firstLineRemoved, content, originalContent]);
+
   // Finalize/save one-pager
   const handleFinalize = async () => {
     if (!content.trim()) {
@@ -709,18 +758,31 @@ export default function TextPresentationClient() {
     }, 300000); // 5 minutes timeout
 
     try {
+      // NEW: Smart change handling - determine content to send
+      let contentToSend = content;
+      let isCleanContent = false;
+      
+      if (hasUserEdits && editedTitleIds.size > 0) {
+        contentToSend = createCleanContent(content);
+        isCleanContent = true;
+      }
+      
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: content,
+          aiResponse: contentToSend,
           outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
           language: language,
           folderId: folderContext?.folderId || undefined,
+          // NEW: Smart change handling parameters
+          hasUserEdits: hasUserEdits,
+          originalContent: originalContent,
+          isCleanContent: isCleanContent,
         }),
         signal: abortController.signal
       });
@@ -1179,7 +1241,16 @@ export default function TextPresentationClient() {
         )}
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+            {/* NEW: Visual indicator for user edits */}
+            {hasUserEdits && (
+              <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                <span>✏️</span>
+                <span>User edits detected</span>
+              </div>
+            )}
+          </div>
           {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
