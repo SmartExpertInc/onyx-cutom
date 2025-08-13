@@ -1,7 +1,7 @@
 import os
 import base64
 import io
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import math
 from typing import List, Dict, Tuple
 import logging
@@ -60,34 +60,37 @@ class PieChartGenerator:
                     
                     current_angle += segment_angle
             
-            # Рисуем внутренний круг (donut hole)
+            # Рисуем внутренний круг (donut hole) - точно как во фронтенде
             self._draw_circle(
                 draw,
                 self.center_x,
                 self.center_y,
                 self.inner_radius,
-                fill=(255, 255, 255, 0),  # Прозрачный
-                outline=(229, 231, 235, 255),  # Серый контур
+                fill=(0, 0, 0, 0),  # Прозрачный
+                outline=(229, 231, 235, 255),  # #e5e7eb - точно как во фронтенде
                 width=2
             )
             
-            # Рисуем внешний контур
+            # Рисуем внешний контур - белый как во фронтенде
             self._draw_circle(
                 draw,
                 self.center_x,
                 self.center_y,
                 self.outer_radius,
                 fill=None,
-                outline=(255, 255, 255, 255),  # Белый контур
+                outline=(255, 255, 255, 255),  # Белый контур как во фронтенде
                 width=3
             )
             
-            # Рисуем процентные метки
+            # Рисуем процентные метки с точным стилем фронтенда
             self._draw_percentage_labels(draw, segments, total_percentage)
+            
+            # Добавляем тень - создаем новое изображение с тенью
+            shadow_image = self._add_shadow_effect(image)
             
             # Сохраняем в буфер
             buffer = io.BytesIO()
-            image.save(buffer, format='PNG')
+            shadow_image.save(buffer, format='PNG')
             buffer.seek(0)
             
             # Конвертируем в base64
@@ -95,7 +98,7 @@ class PieChartGenerator:
             
             # Сохраняем файл если указан путь
             if output_path:
-                image.save(output_path, format='PNG')
+                shadow_image.save(output_path, format='PNG')
                 logger.info(f"Pie chart saved to: {output_path}")
             
             return f"data:image/png;base64,{image_base64}"
@@ -109,7 +112,7 @@ class PieChartGenerator:
                          start_angle: float, end_angle: float, color: str):
         """Рисует сегмент pie chart"""
         try:
-            # Конвертируем цвета hex в RGB
+            # Конвертируем цвета hex в RGB - точно как во фронтенде
             if color.startswith('#'):
                 color = color[1:]
             rgb_color = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
@@ -156,13 +159,18 @@ class PieChartGenerator:
             logger.error(f"Error drawing circle: {e}")
     
     def _draw_percentage_labels(self, draw: ImageDraw.Draw, segments: List[Dict], total_percentage: float):
-        """Рисует процентные метки на сегментах"""
+        """Рисует процентные метки на сегментах с точным стилем фронтенда"""
         try:
             # Пытаемся загрузить шрифт, если не получится - используем дефолтный
             try:
+                # Используем Arial как во фронтенде
                 font = ImageFont.truetype("arial.ttf", 18)
             except:
-                font = ImageFont.load_default()
+                try:
+                    # Попробуем найти Arial в системе
+                    font = ImageFont.truetype("Arial", 18)
+                except:
+                    font = ImageFont.load_default()
             
             current_angle = 0
             for segment in segments:
@@ -170,9 +178,9 @@ class PieChartGenerator:
                     segment_angle = (segment['percentage'] / total_percentage) * 360
                     label_angle = current_angle + (segment_angle / 2)
                     
-                    # Вычисляем позицию метки
+                    # Вычисляем позицию метки - точно как во фронтенде
                     rad = math.radians(label_angle - 90)  # -90 для правильной ориентации
-                    label_radius = 98  # Расстояние от центра
+                    label_radius = 98  # Расстояние от центра - точно как во фронтенде
                     x = self.center_x + label_radius * math.cos(rad)
                     y = self.center_y + label_radius * math.sin(rad)
                     
@@ -188,10 +196,10 @@ class PieChartGenerator:
                     text_x = int(x - text_width / 2)
                     text_y = int(y - text_height / 2)
                     
-                    # Рисуем тень
+                    # Рисуем тень - точно как во фронтенде (text-shadow: 1px 1px 2px #000000)
                     draw.text((text_x + 1, text_y + 1), text, fill=(0, 0, 0, 255), font=font)
                     
-                    # Рисуем основной текст
+                    # Рисуем основной текст - белый как во фронтенде
                     draw.text((text_x, text_y), text, fill=(255, 255, 255, 255), font=font)
                     
                     current_angle += segment_angle
@@ -210,6 +218,41 @@ class PieChartGenerator:
             return f"data:image/png;base64,{image_base64}"
         except:
             return ""
+
+    def _add_shadow_effect(self, image: Image.Image) -> Image.Image:
+        """Добавляет тень к изображению pie chart"""
+        try:
+            # Создаем новое изображение с дополнительным пространством для тени
+            shadow_offset = 8
+            shadow_blur = 24
+            total_width = self.width + shadow_offset + shadow_blur
+            total_height = self.height + shadow_offset + shadow_blur
+            
+            # Создаем новое изображение
+            result_image = Image.new('RGBA', (total_width, total_height), (0, 0, 0, 0))
+            
+            # Создаем тень
+            shadow = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
+            shadow_draw = ImageDraw.Draw(shadow)
+            
+            # Рисуем круглую тень
+            shadow_draw.ellipse([0, 0, self.width, self.height], fill=(0, 0, 0, 40))
+            
+            # Размываем тень
+            for i in range(shadow_blur):
+                shadow = shadow.filter(ImageFilter.GaussianBlur(radius=1))
+            
+            # Вставляем тень
+            result_image.paste(shadow, (shadow_offset, shadow_offset), shadow)
+            
+            # Вставляем основное изображение
+            result_image.paste(image, (0, 0), image)
+            
+            return result_image
+            
+        except Exception as e:
+            logger.error(f"Error adding shadow effect: {e}")
+            return image
 
 # Глобальный экземпляр генератора
 pie_chart_generator = PieChartGenerator() 
