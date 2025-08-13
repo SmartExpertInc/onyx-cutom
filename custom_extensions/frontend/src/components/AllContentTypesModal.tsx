@@ -54,7 +54,7 @@ export const AllContentTypesModal = ({
         key={type.name}
         onClick={() => !isDisabled && onContentCreate(type.name)}
         disabled={isDisabled}
-        className={`group w-full flex items-center p-4 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${
+        className={`group w-full flex items-center p-4 border-2 rounded-xl transition-all duration-300 text-left ${
           isDisabled
             ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
             : `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
