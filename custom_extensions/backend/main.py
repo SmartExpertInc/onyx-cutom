@@ -6228,8 +6228,9 @@ async def startup_event():
             try:
                 await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
                 await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS completion_times JSONB;")
                 await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_is_advanced ON project_folders(is_advanced);")
-                logger.info("Ensured is_advanced and advanced_rates on project_folders")
+                logger.info("Ensured is_advanced, advanced_rates, and completion_times on project_folders")
             except Exception as e:
                 if "already exists" not in str(e) and "duplicate column" not in str(e):
                     logger.error(f"Error adding is_advanced/advanced_rates to project_folders: {e}")
@@ -6773,6 +6774,7 @@ class ProjectTierRequest(BaseModel):
     custom_rate: int
     is_advanced: Optional[bool] = None
     advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 BulletListBlock.model_rebuild()
 NumberedListBlock.model_rebuild()
@@ -15007,6 +15009,7 @@ class ProjectFolderTierRequest(BaseModel):
     custom_rate: int
     is_advanced: Optional[bool] = None
     advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])

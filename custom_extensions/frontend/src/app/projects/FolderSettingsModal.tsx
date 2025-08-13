@@ -42,6 +42,12 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
     quiz: 0,
     videoLesson: 0
   });
+  const [perProductCompletionTimes, setPerProductCompletionTimes] = useState({
+    presentation: 8, // Default: 8 minutes for presentation
+    onePager: 3,    // Default: 3 minutes for one-pager
+    quiz: 6,        // Default: 6 minutes for quiz
+    videoLesson: 4  // Default: 4 minutes for video-lesson
+  });
   const { t } = useLanguage();
   const [dataLoaded, setDataLoaded] = useState(false); // Track if we've loaded backend data
 
@@ -186,6 +192,12 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
           one_pager: perProductRates.onePager,
           quiz: perProductRates.quiz,
           video_lesson: perProductRates.videoLesson
+        };
+        payload.completion_times = {
+          presentation: perProductCompletionTimes.presentation,
+          one_pager: perProductCompletionTimes.onePager,
+          quiz: perProductCompletionTimes.quiz,
+          video_lesson: perProductCompletionTimes.videoLesson
         };
       }
       const response = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}/tier`, {
@@ -358,22 +370,55 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                             )}
                             {advancedEnabled && (
                               <div className="space-y-4">
-                                {[
-                                  { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-gray-600" /> },
-                                  { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-gray-600" /> },
-                                  { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-gray-600" /> },
-                                  { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-gray-600" /> },
-                                ].map((cfg) => (
-                                  <div key={cfg.key}>
-                                    <div className="flex items-center justify-between mb-1">
+                                {/* Rate Fields */}
+                                <div className="space-y-4">
+                                  <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('modals.rates.title', 'Creation Rates')}</h4>
+                                  {[
+                                    { key: 'presentation', label: t('modals.rates.presentation', 'Presentation rate'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-gray-600" /> },
+                                    { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager rate'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-gray-600" /> },
+                                    { key: 'quiz', label: t('modals.rates.quiz', 'Quiz rate'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-gray-600" /> },
+                                    { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson rate'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-gray-600" /> },
+                                  ].map((cfg) => (
+                                    <div key={cfg.key}>
+                                      <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs text-gray-700 flex items-center gap-1">
+                                          {cfg.icon}
+                                          {cfg.label}: <span className="font-semibold">{cfg.value}{t('modals.folderSettings.hours', 'h')}</span>
+                                        </span>
+                                      </div>
+                                      <input type="range" min={tier.hoursRange.min} max={tier.hoursRange.max} value={cfg.value} onChange={(e)=>cfg.setter(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" />
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* Completion Time Fields */}
+                                <div className="space-y-4 pt-4 border-t border-gray-200">
+                                  <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('modals.completionTimes.title', 'Completion Times')}</h4>
+                                  {[
+                                    { key: 'presentation', label: t('modals.completionTimes.presentation', 'Presentation time'), value: perProductCompletionTimes.presentation, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-gray-600" /> },
+                                    { key: 'onePager', label: t('modals.completionTimes.onePager', 'One‑pager time'), value: perProductCompletionTimes.onePager, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-gray-600" /> },
+                                    { key: 'quiz', label: t('modals.completionTimes.quiz', 'Quiz time'), value: perProductCompletionTimes.quiz, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-gray-600" /> },
+                                    { key: 'videoLesson', label: t('modals.completionTimes.videoLesson', 'Video lesson time'), value: perProductCompletionTimes.videoLesson, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-gray-600" /> },
+                                  ].map((cfg) => (
+                                    <div key={cfg.key} className="flex items-center justify-between">
                                       <span className="text-xs text-gray-700 flex items-center gap-1">
                                         {cfg.icon}
-                                        {cfg.label}: <span className="font-semibold">{cfg.value}{t('modals.folderSettings.hours', 'h')}</span>
+                                        {cfg.label}:
                                       </span>
+                                      <div className="flex items-center gap-2">
+                                        <input 
+                                          type="number" 
+                                          min="1" 
+                                          max="60" 
+                                          value={cfg.value} 
+                                          onChange={(e)=>cfg.setter(parseInt(e.target.value) || 1)} 
+                                          className="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                                        />
+                                        <span className="text-xs text-gray-600">minutes</span>
+                                      </div>
                                     </div>
-                                    <input type="range" min={tier.hoursRange.min} max={tier.hoursRange.max} value={cfg.value} onChange={(e)=>cfg.setter(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" />
-                                  </div>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
                             )}
                             

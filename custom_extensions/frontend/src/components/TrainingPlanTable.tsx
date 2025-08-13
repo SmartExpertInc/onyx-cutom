@@ -1127,7 +1127,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   // Handle saving lesson settings
-  const handleLessonSettingsSave = (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
+  const handleLessonSettingsSave = (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }, completionTimes?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
     const { sectionIndex, lessonIndex } = lessonSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0 && lessonIndex >= 0) {
@@ -1139,6 +1139,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       }
       if (advancedRates) {
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'advancedRates'], advancedRates);
+      }
+      if (completionTimes) {
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTimes'], completionTimes);
       }
       
       // Recalculate hours based on new rate or advanced configuration
@@ -1159,20 +1162,36 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'last_updated'], new Date().toISOString());
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'quality_tier_used'], qualityTier);
         
-        // Update completion time and breakdown based on new recommendations
-        const agg = computeCompletionAggregate(newRecommendations.primary);
-        const newCT = `${agg.total}m`;
+        // Update completion time and breakdown based on new recommendations and custom completion times
+        let breakdown: Record<string, number> = {};
+        let totalMinutes = 0;
+        
+        if (completionTimes && advancedEnabled) {
+          // Use custom completion times
+          newRecommendations.primary.forEach(product => {
+            const key = product === 'one-pager' ? 'onePager' : (product === 'video-lesson' ? 'videoLesson' : product);
+            const minutes = completionTimes[key as keyof typeof completionTimes] || 5;
+            breakdown[product] = minutes;
+            totalMinutes += minutes;
+          });
+        } else {
+          // Use default breakdown
+          const agg = computeCompletionAggregate(newRecommendations.primary);
+          breakdown = agg.breakdown;
+          totalMinutes = agg.total;
+        }
+        
+        const newCT = `${totalMinutes}m`;
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], newCT);
-        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], agg.breakdown);
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
         
         const completionTime = newCT; // Use the new completion time
-        const completionTimeMinutes = agg.total || 5;
+        const completionTimeMinutes = totalMinutes || 5;
         let newHours: number;
         if (advancedEnabled) {
           // Use the new recommendations instead of existing ones
           const primary: string[] = newRecommendations.primary;
           if (primary.length > 0) {
-            const breakdown = agg.breakdown;
             const rates = {
               presentation: advancedRates?.presentation ?? customRate,
               one_pager: advancedRates?.onePager ?? customRate,
@@ -1227,7 +1246,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   // Handle saving module settings
-  const handleModuleSettingsSave = async (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
+  const handleModuleSettingsSave = async (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }, completionTimes?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
     const { sectionIndex } = moduleSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0) {
@@ -1239,6 +1258,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       }
       if (advancedRates) {
         onTextChange(['sections', sectionIndex, 'advancedRates'], advancedRates);
+      }
+      if (completionTimes) {
+        onTextChange(['sections', sectionIndex, 'completionTimes'], completionTimes);
       }
       
       const section = dataToDisplay?.sections[sectionIndex] as any;
@@ -1262,20 +1284,36 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'last_updated'], new Date().toISOString());
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'quality_tier_used'], qualityTier);
           
-          // Update completion time and breakdown based on new recommendations
-          const agg = computeCompletionAggregate(newRecommendations.primary);
-          const newCT = `${agg.total}m`;
+          // Update completion time and breakdown based on new recommendations and custom completion times
+          let breakdown: Record<string, number> = {};
+          let totalMinutes = 0;
+          
+          if (completionTimes && advancedEnabled) {
+            // Use custom completion times
+            newRecommendations.primary.forEach(product => {
+              const key = product === 'one-pager' ? 'onePager' : (product === 'video-lesson' ? 'videoLesson' : product);
+              const minutes = completionTimes[key as keyof typeof completionTimes] || 5;
+              breakdown[product] = minutes;
+              totalMinutes += minutes;
+            });
+          } else {
+            // Use default breakdown
+            const agg = computeCompletionAggregate(newRecommendations.primary);
+            breakdown = agg.breakdown;
+            totalMinutes = agg.total;
+          }
+          
+          const newCT = `${totalMinutes}m`;
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], newCT);
-          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], agg.breakdown);
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
           
           const completionTime = newCT; // Use the new completion time
-          const completionTimeMinutes = agg.total || 5;
+          const completionTimeMinutes = totalMinutes || 5;
           let newHours: number;
           if (advancedEnabled) {
             // Use the new recommendations instead of existing ones
             const primary: string[] = newRecommendations.primary;
             if (primary.length > 0) {
-              const breakdown = agg.breakdown;
               const rates = {
                 presentation: advancedRates?.presentation ?? customRate,
                 one_pager: advancedRates?.onePager ?? customRate,
