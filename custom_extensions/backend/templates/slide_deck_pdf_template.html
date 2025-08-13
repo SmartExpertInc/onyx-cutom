@@ -1568,63 +1568,79 @@
                                 
                                 <!-- Center - Pie Chart -->
                                 <div style="display: flex; flex-direction: column; align-items: center;">
-                                    <!-- SVG Pie Chart - guaranteed to work in PDF -->
-                                    <div style="width: 280px; height: 280px; position: relative; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 8px 24px rgba(0,0,0,0.1); background-color: transparent;">
-                                        
-                                        <!-- SVG Pie Chart -->
+                                    <!-- Pie Chart Container -->
+                                    <div style="position: relative; width: 280px; height: 280px; margin: 0 auto;">
+                                        <!-- Pie chart using SVG for reliable PDF rendering -->
                                         <svg width="280" height="280" viewBox="0 0 280 280" style="position: absolute; top: 0; left: 0;">
-                                            <defs>
-                                                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                                                    <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="rgba(0,0,0,0.3)"/>
-                                                </filter>
-                                            </defs>
-                                            
-                                            <!-- Pie chart segments -->
-                                            {% set total_percentage = slide.props.chartData.segments | sum(attribute='percentage') %}
-                                            {% set cumulative_percentage = 0 %}
-                                            {% set center_x = 140 %}
-                                            {% set center_y = 140 %}
-                                            {% set radius = 120 %}
-                                            
+                                            <!-- Calculate total percentage -->
+                                            {% set total_percentage = 0 %}
                                             {% for segment in slide.props.chartData.segments %}
-                                                {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                                {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                                
-                                                {% set x1 = center_x + radius * (start_angle - 3.14159 / 2) | cos %}
-                                                {% set y1 = center_y + radius * (start_angle - 3.14159 / 2) | sin %}
-                                                {% set x2 = center_x + radius * (end_angle - 3.14159 / 2) | cos %}
-                                                {% set y2 = center_y + radius * (end_angle - 3.14159 / 2) | sin %}
-                                                
-                                                {% set large_arc_flag = 1 if segment.percentage > 50 else 0 %}
-                                                
-                                                <path d="M {{ center_x }} {{ center_y }} L {{ x1 }} {{ y1 }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ x2 }} {{ y2 }} Z" 
-                                                    fill="{{ segment.color }}" 
-                                                    filter="url(#shadow)" 
-                                                    stroke="#ffffff" 
-                                                    stroke-width="2"/>
-                                                
-                                                {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
+                                                {% set total_percentage = total_percentage + segment.percentage %}
+                                            {% endfor %}
+                                            
+                                            <!-- Draw pie segments -->
+                                            {% set current_angle = 0 %}
+                                            {% for segment in slide.props.chartData.segments %}
+                                                {% if segment.percentage > 0 %}
+                                                    {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
+                                                    {% set start_angle = current_angle %}
+                                                    {% set end_angle = current_angle + segment_angle %}
+                                                    
+                                                    <!-- Convert angles to radians -->
+                                                    {% set start_rad = start_angle * 3.14159 / 180 %}
+                                                    {% set end_rad = end_angle * 3.14159 / 180 %}
+                                                    
+                                                    <!-- Calculate SVG path coordinates -->
+                                                    {% set center_x = 140 %}
+                                                    {% set center_y = 140 %}
+                                                    {% set radius = 140 %}
+                                                    
+                                                    {% set start_x = center_x + radius * start_rad | cos %}
+                                                    {% set start_y = center_y + radius * start_rad | sin %}
+                                                    {% set end_x = center_x + radius * end_rad | cos %}
+                                                    {% set end_y = center_y + radius * end_rad | sin %}
+                                                    
+                                                    <!-- Determine large arc flag -->
+                                                    {% set angle_diff = end_rad - start_rad %}
+                                                    {% set large_arc_flag = 1 if angle_diff > 3.14159 else 0 %}
+                                                    
+                                                    <!-- Create SVG path -->
+                                                    <path d="M {{ center_x }} {{ center_y }} L {{ start_x }} {{ start_y }} A {{ radius }} {{ radius }} 0 {{ large_arc_flag }} 1 {{ end_x }} {{ end_y }} Z" 
+                                                          fill="{{ segment.color }}" stroke="none"/>
+                                                    
+                                                    {% set current_angle = current_angle + segment_angle %}
+                                                {% endif %}
                                             {% endfor %}
                                         </svg>
-                                        
-                                        <!-- Inner circle -->
-                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 67px; height: 67px; background-color: var(--bg-color); border-radius: 50%; border: 2px solid #e5e7eb; z-index: 10;"></div>
-                                        
+
+                                        <!-- Inner circle (donut hole) -->
+                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                                                    width: 67px; height: 67px; background-color: var(--bg-color); 
+                                                    border-radius: 50%; border: 2px solid #e5e7eb; z-index: 10;"></div>
+
                                         <!-- Percentage labels -->
-                                        {% set cumulative_percentage = 0 %}
+                                        {% set current_angle = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
-                                            {% set start_angle = (cumulative_percentage / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                            {% set end_angle = ((cumulative_percentage + segment.percentage) / (total_percentage if total_percentage > 0 else 1)) * 2 * 3.14159 %}
-                                            {% set center_angle = (start_angle + end_angle) / 2 %}
-                                            
-                                            {% set angle_rad = center_angle - 3.14159 / 2 %}
-                                            {% set label_radius = 70 %}
-                                            {% set label_x = 140 + label_radius * angle_rad | cos %}
-                                            {% set label_y = 140 + label_radius * angle_rad | sin %}
-                                            
-                                            <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">{{ segment.percentage }}%</div>
-                                            
-                                            {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
+                                            {% if segment.percentage > 0 %}
+                                                {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
+                                                {% set label_angle = current_angle + (segment_angle / 2) %}
+                                                
+                                                <!-- Calculate label position -->
+                                                {% set radius = 70 %}
+                                                {% set angle_rad = (label_angle - 90) * 3.14159 / 180 %}
+                                                {% set x = 140 + radius * angle_rad | cos %}
+                                                {% set y = 140 + radius * angle_rad | sin %}
+                                                
+                                                <div style="position: absolute; top: {{ y }}px; left: {{ x }}px; 
+                                                            transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; 
+                                                            font-weight: bold; font-family: Arial, Helvetica, sans-serif; 
+                                                            text-shadow: 1px 1px 2px #000000; padding: 4px 8px; 
+                                                            border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">
+                                                    {{ segment.percentage }}%
+                                                </div>
+                                                
+                                                {% set current_angle = current_angle + segment_angle %}
+                                            {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
