@@ -335,6 +335,25 @@ export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
   theme?: SlideTheme;
 }
 
+export interface BarChartInfographicsTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: {
+    categories: Array<{
+      label: string;
+      value: number;
+      color: string;
+      description: string;
+    }>;
+  };
+  monthlyData: Array<{
+    month: string;
+    description: string;
+    color?: string;
+  }>;
+  descriptionText?: string;
+  theme?: SlideTheme;
+}
+
 export interface MarketShareTemplateProps extends BaseTemplateProps {
   title: string;
   subtitle?: string;
@@ -398,6 +417,7 @@ export type TemplateId =
   | 'metrics-analytics'
   | 'org-chart'
   | 'pie-chart-infographics'
+  | 'bar-chart-infographics'
   | 'market-share';
 
 export interface TemplatePreview {
