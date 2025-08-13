@@ -180,7 +180,7 @@ class PieChartGenerator:
             
             for font_path in font_paths:
                 try:
-                    font = ImageFont.truetype(font_path, 20)  # Размер 20px для лучшего размещения на сегментах
+                    font = ImageFont.truetype(font_path, 18)  # Размер 18px - ТОЧНО как во фронтенде
                     logger.info(f"Successfully loaded font: {font_path}")
                     break
                 except:
@@ -201,7 +201,7 @@ class PieChartGenerator:
                     # Фронтенд: const angleRad = (centerAngle - 90) * Math.PI / 180;
                     # Фронтенд: const radius = 98; const x = 140 + radius * Math.cos(angleRad);
                     rad = math.radians(label_angle - 90)  # -90 для правильной ориентации
-                    label_radius = 105  # Увеличиваем радиус для лучшего позиционирования на сегментах
+                    label_radius = 98  # ТОЧНО как во фронтенде
                     x = self.center_x + label_radius * math.cos(rad)
                     y = self.center_y + label_radius * math.sin(rad)
                     
