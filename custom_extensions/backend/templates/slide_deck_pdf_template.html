@@ -1570,47 +1570,60 @@
                                 <div style="display: flex; flex-direction: column; align-items: center;">
                                     <!-- Pie Chart Container -->
                                     <div style="position: relative; width: 280px; height: 280px; margin: 0 auto;">
-                                        <!-- CSS Conic-Gradient Pie Chart -->
-                                        <div id="pieChart-{{ slide.id }}" 
-                                             style="width: 100%; height: 100%; border-radius: 50%; 
-                                                    background: conic-gradient(
-                                                        {% set cumulative_percentage = 0 %}
-                                                        {% for segment in slide.props.chartData.segments %}
-                                                            {% if segment.percentage > 0 %}
-                                                                {{ segment.color }} {{ cumulative_percentage }}% {{ cumulative_percentage + segment.percentage }}%
-                                                                {% if not loop.last %}, {% endif %}
-                                                            {% endif %}
-                                                            {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
-                                                        {% endfor %}
-                                                    );
-                                                    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-                                                    position: relative;">
-                                        </div>
+                                        <!-- Pie chart segments using CSS transforms (EXACT FRONTEND MATCH) -->
+                                        {% set total_percentage = 0 %}
+                                        {% for segment in slide.props.chartData.segments %}
+                                            {% set total_percentage = total_percentage + segment.percentage %}
+                                        {% endfor %}
                                         
-                                        <!-- Inner circle overlay -->
+                                        {% set current_angle = 0 %}
+                                        {% for segment in slide.props.chartData.segments %}
+                                            {% if segment.percentage > 0 %}
+                                                {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
+                                                {% set rotation = current_angle %}
+                                                
+                                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                                                            transform: rotate({{ rotation }}deg); transform-origin: center;">
+                                                    <div style="position: absolute; top: 0; left: 50%; width: 50%; height: 100%; 
+                                                                background-color: {{ segment.color }}; 
+                                                                transform: rotate({{ segment_angle }}deg); 
+                                                                transform-origin: left; 
+                                                                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);">
+                                                    </div>
+                                                </div>
+                                                
+                                                {% set current_angle = current_angle + segment_angle %}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        <!-- Inner circle (donut hole) -->
                                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
                                                     width: 67px; height: 67px; background-color: var(--bg-color); 
                                                     border-radius: 50%; border: 2px solid #e5e7eb; z-index: 10;"></div>
-                                        
-                                        <!-- Percentage labels -->
-                                        {% set cumulative_percentage = 0 %}
+
+                                        <!-- Percentage labels (EXACT FRONTEND MATCH) -->
+                                        {% set current_angle = 0 %}
                                         {% for segment in slide.props.chartData.segments %}
                                             {% if segment.percentage > 0 %}
-                                                {% set center_angle = cumulative_percentage + (segment.percentage / 2) %}
-                                                {% set angle_rad = (center_angle / 100) * 2 * 3.14159 - 3.14159 / 2 %}
-                                                {% set label_radius = 70 %}
-                                                {% set label_x = 140 + label_radius * angle_rad | cos %}
-                                                {% set label_y = 140 + label_radius * angle_rad | sin %}
+                                                {% set segment_angle = (segment.percentage / total_percentage) * 360 %}
+                                                {% set label_angle = current_angle + (segment_angle / 2) %}
                                                 
-                                                <div style="position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; 
+                                                <!-- Calculate label position exactly like frontend -->
+                                                {% set radius = 70 %}
+                                                {% set angle_rad = (label_angle - 90) * 3.14159 / 180 %}
+                                                {% set x = 140 + radius * angle_rad | cos %}
+                                                {% set y = 140 + radius * angle_rad | sin %}
+                                                
+                                                <div style="position: absolute; top: {{ y }}px; left: {{ x }}px; 
                                                             transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; 
-                                                            font-weight: bold; text-shadow: 1px 1px 2px #000000; 
-                                                            font-family: Arial, Helvetica, sans-serif; padding: 4px 8px; 
+                                                            font-weight: bold; font-family: Arial, Helvetica, sans-serif; 
+                                                            text-shadow: 1px 1px 2px #000000; padding: 4px 8px; 
                                                             border-radius: 4px; background: rgba(0,0,0,0.3); z-index: 20;">
                                                     {{ segment.percentage }}%
                                                 </div>
+                                                
+                                                {% set current_angle = current_angle + segment_angle %}
                                             {% endif %}
-                                            {% set cumulative_percentage = cumulative_percentage + segment.percentage %}
                                         {% endfor %}
                                     </div>
                                 </div>
