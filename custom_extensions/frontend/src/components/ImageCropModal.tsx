@@ -64,10 +64,15 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     isOpen,
     elementId,
     hasImageFile: !!imageFile,
+    imageFileName: imageFile?.name,
+    imageFileSize: imageFile?.size,
     imageLoaded,
     placeholderDimensions,
     scale,
-    position
+    position,
+    hasLocalUrl: !!localImageUrl,
+    localUrlLength: localImageUrl?.length,
+    imageDimensions
   });
 
   // Create portal container
@@ -79,6 +84,16 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   // Create local URL from File for preview
   useEffect(() => {
+    log('ImageCropModal', 'createLocalUrl_effect', {
+      elementId,
+      isOpen,
+      hasImageFile: !!imageFile,
+      imageFileName: imageFile?.name,
+      imageFileSize: imageFile?.size,
+      imageFileType: imageFile?.type,
+      currentLocalUrl: localImageUrl
+    });
+
     if (imageFile && isOpen) {
       const url = URL.createObjectURL(imageFile);
       setLocalImageUrl(url);
@@ -86,7 +101,10 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       log('ImageCropModal', 'createdLocalUrl', { 
         elementId, 
         hasImageFile: !!imageFile,
-        localUrl: url
+        imageFileName: imageFile.name,
+        imageFileSize: imageFile.size,
+        localUrl: url,
+        urlLength: url.length
       });
       
       // Cleanup URL when component unmounts or image changes
@@ -94,11 +112,27 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
         URL.revokeObjectURL(url);
         log('ImageCropModal', 'revokedLocalUrl', { elementId, url });
       };
+    } else {
+      log('ImageCropModal', 'createLocalUrl_skipped', {
+        elementId,
+        reason: !imageFile ? 'no_imageFile' : 'modal_not_open',
+        isOpen,
+        hasImageFile: !!imageFile
+      });
     }
-  }, [imageFile, isOpen, elementId]);
+  }, [imageFile, isOpen, elementId, localImageUrl]);
 
   // Reset state when modal opens/closes
   useEffect(() => {
+    log('ImageCropModal', 'modalStateChange', {
+      elementId,
+      isOpen,
+      currentImageLoaded: imageLoaded,
+      currentScale: scale,
+      currentPosition: position,
+      currentLocalUrl: localImageUrl
+    });
+
     if (!isOpen) {
       setImageLoaded(false);
       setScale(1);
@@ -106,15 +140,50 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       setIsDragging(false);
       setLocalImageUrl('');
       log('ImageCropModal', 'modalClosed_resetState', { elementId });
+    } else {
+      log('ImageCropModal', 'modalOpened', {
+        elementId,
+        hasImageFile: !!imageFile,
+        hasLocalUrl: !!localImageUrl,
+        placeholderDimensions
+      });
     }
-  }, [isOpen, elementId]);
+  }, [isOpen, elementId, imageLoaded, scale, position, localImageUrl, imageFile, placeholderDimensions]);
 
   // Handle image load
   const handleImageLoad = useCallback(() => {
+    log('ImageCropModal', 'handleImageLoad_start', {
+      elementId,
+      hasImageRef: !!imageRef.current,
+      imageSrc: imageRef.current?.src,
+      imageComplete: imageRef.current?.complete,
+      imageNaturalWidth: imageRef.current?.naturalWidth,
+      imageNaturalHeight: imageRef.current?.naturalHeight
+    });
+
     const img = imageRef.current;
-    if (!img) return;
+    if (!img) {
+      log('ImageCropModal', 'handleImageLoad_noImageRef', { elementId });
+      return;
+    }
     
     const { naturalWidth, naturalHeight } = img;
+    log('ImageCropModal', 'handleImageLoad_dimensions', {
+      elementId,
+      naturalWidth,
+      naturalHeight,
+      isValid: naturalWidth > 0 && naturalHeight > 0
+    });
+
+    if (naturalWidth <= 0 || naturalHeight <= 0) {
+      log('ImageCropModal', 'handleImageLoad_invalidDimensions', {
+        elementId,
+        naturalWidth,
+        naturalHeight
+      });
+      return;
+    }
+
     setImageDimensions({ width: naturalWidth, height: naturalHeight });
     setImageLoaded(true);
     
@@ -124,6 +193,32 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     const scaleY = frameHeight / naturalHeight;
     const initialScale = Math.max(scaleX, scaleY, 0.1); // Ensure minimum scale
     
+    log('ImageCropModal', 'handleImageLoad_scaleCalculation', {
+      elementId,
+      frameWidth,
+      frameHeight,
+      naturalWidth,
+      naturalHeight,
+      scaleX,
+      scaleY,
+      initialScale,
+      isScaleValid: !isNaN(initialScale) && isFinite(initialScale)
+    });
+
+    if (isNaN(initialScale) || !isFinite(initialScale)) {
+      log('ImageCropModal', 'handleImageLoad_invalidScale', {
+        elementId,
+        initialScale,
+        scaleX,
+        scaleY,
+        frameWidth,
+        frameHeight,
+        naturalWidth,
+        naturalHeight
+      });
+      return;
+    }
+    
     setScale(initialScale);
     
     // Center the image
@@ -131,9 +226,20 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     const scaledHeight = naturalHeight * initialScale;
     const centerX = (frameWidth - scaledWidth) / 2;
     const centerY = (frameHeight - scaledHeight) / 2;
+    
+    log('ImageCropModal', 'handleImageLoad_positionCalculation', {
+      elementId,
+      scaledWidth,
+      scaledHeight,
+      centerX,
+      centerY,
+      isCenterXValid: !isNaN(centerX) && isFinite(centerX),
+      isCenterYValid: !isNaN(centerY) && isFinite(centerY)
+    });
+
     setPosition({ x: centerX, y: centerY });
     
-    log('ImageCropModal', 'imageLoaded', {
+    log('ImageCropModal', 'imageLoaded_success', {
       elementId,
       naturalWidth,
       naturalHeight,
@@ -141,7 +247,9 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       frameHeight,
       initialScale,
       centerX,
-      centerY
+      centerY,
+      scaledWidth,
+      scaledHeight
     });
   }, [placeholderDimensions, elementId]);
 
@@ -241,12 +349,34 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   // Generate cropped image
   const generateCroppedImage = useCallback(() => {
+    log('ImageCropModal', 'generateCroppedImage_start', {
+      elementId,
+      hasCanvas: !!cropCanvasRef.current,
+      hasImage: !!imageRef.current,
+      imageLoaded,
+      currentScale: scale,
+      currentPosition: position,
+      imageDimensions,
+      placeholderDimensions
+    });
+
     const canvas = cropCanvasRef.current;
     const img = imageRef.current;
-    if (!canvas || !img || !imageLoaded) return null;
+    if (!canvas || !img || !imageLoaded) {
+      log('ImageCropModal', 'generateCroppedImage_missingRequirements', {
+        elementId,
+        hasCanvas: !!canvas,
+        hasImage: !!img,
+        imageLoaded
+      });
+      return null;
+    }
     
     const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
+    if (!ctx) {
+      log('ImageCropModal', 'generateCroppedImage_noContext', { elementId });
+      return null;
+    }
     
     const { width: frameWidth, height: frameHeight } = placeholderDimensions;
     
@@ -262,6 +392,18 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     const scaledWidth = imgWidth * scale;
     const scaledHeight = imgHeight * scale;
     
+    log('ImageCropModal', 'generateCroppedImage_calculations', {
+      elementId,
+      imgWidth,
+      imgHeight,
+      scale,
+      scaledWidth,
+      scaledHeight,
+      frameWidth,
+      frameHeight,
+      position
+    });
+    
     // Calculate which part of the image is visible in the crop frame
     const visibleLeft = Math.max(0, -position.x);
     const visibleTop = Math.max(0, -position.y);
@@ -271,7 +413,25 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     const visibleWidth = visibleRight - visibleLeft;
     const visibleHeight = visibleBottom - visibleTop;
     
-    if (visibleWidth <= 0 || visibleHeight <= 0) return null;
+    log('ImageCropModal', 'generateCroppedImage_visibleArea', {
+      elementId,
+      visibleLeft,
+      visibleTop,
+      visibleRight,
+      visibleBottom,
+      visibleWidth,
+      visibleHeight,
+      isValid: visibleWidth > 0 && visibleHeight > 0
+    });
+    
+    if (visibleWidth <= 0 || visibleHeight <= 0) {
+      log('ImageCropModal', 'generateCroppedImage_invalidVisibleArea', {
+        elementId,
+        visibleWidth,
+        visibleHeight
+      });
+      return null;
+    }
     
     // Convert back to original image coordinates
     const sourceX = visibleLeft / scale;
@@ -283,6 +443,12 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     const destX = Math.max(0, position.x) + visibleLeft;
     const destY = Math.max(0, position.y) + visibleTop;
     
+    log('ImageCropModal', 'generateCroppedImage_drawParams', {
+      elementId,
+      sourceRect: { x: sourceX, y: sourceY, width: sourceWidth, height: sourceHeight },
+      destRect: { x: destX, y: destY, width: visibleWidth, height: visibleHeight }
+    });
+    
     // Draw the cropped portion
     ctx.drawImage(
       img,
@@ -292,13 +458,15 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
     
     const croppedImageData = canvas.toDataURL('image/png');
     
-    log('ImageCropModal', 'generateCroppedImage', {
+    log('ImageCropModal', 'generateCroppedImage_success', {
       elementId,
       frameSize: { width: frameWidth, height: frameHeight },
       sourceRect: { x: sourceX, y: sourceY, width: sourceWidth, height: sourceHeight },
       destRect: { x: destX, y: destY, width: visibleWidth, height: visibleHeight },
       scale,
-      position
+      position,
+      croppedDataLength: croppedImageData.length,
+      croppedDataPrefix: croppedImageData.substring(0, 50) + '...'
     });
     
     return croppedImageData;
@@ -306,8 +474,20 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   // Handle crop confirm
   const handleCropConfirm = useCallback(() => {
+    log('ImageCropModal', 'handleCropConfirm_start', {
+      elementId,
+      currentScale: scale,
+      currentPosition: position,
+      imageLoaded,
+      hasImageRef: !!imageRef.current,
+      hasCanvasRef: !!cropCanvasRef.current
+    });
+
     const croppedImageData = generateCroppedImage();
-    if (!croppedImageData) return;
+    if (!croppedImageData) {
+      log('ImageCropModal', 'handleCropConfirm_noCroppedData', { elementId });
+      return;
+    }
     
     const cropSettings: CropSettings = {
       x: position.x,
@@ -317,14 +497,16 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
       scale
     };
     
-    log('ImageCropModal', 'cropConfirm', {
+    log('ImageCropModal', 'cropConfirm_success', {
       elementId,
       cropSettings,
-      hascroppedImageData: !!croppedImageData
+      hascroppedImageData: !!croppedImageData,
+      croppedDataLength: croppedImageData.length,
+      croppedDataPrefix: croppedImageData.substring(0, 50) + '...'
     });
     
     onCropConfirm(croppedImageData, cropSettings);
-  }, [generateCroppedImage, position, placeholderDimensions, scale, onCropConfirm, elementId]);
+  }, [generateCroppedImage, position, placeholderDimensions, scale, onCropConfirm, elementId, imageLoaded]);
 
   // Handle skip crop
   const handleSkipCrop = useCallback(() => {
@@ -376,19 +558,28 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
               onMouseDown={handleMouseDown}
             >
               {localImageUrl && (
-                <img
-                  ref={imageRef}
-                  src={localImageUrl}
-                  alt="Crop preview"
-                  className="absolute pointer-events-none"
-                  style={{
-                    transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                    transformOrigin: '0 0',
-                    userSelect: 'none'
-                  }}
-                  onLoad={handleImageLoad}
-                  draggable={false}
-                />
+                <>
+                  {log('ImageCropModal', 'renderingImage', {
+                    elementId,
+                    localImageUrl,
+                    position,
+                    scale,
+                    isScaleValid: !isNaN(scale) && isFinite(scale)
+                  })}
+                  <img
+                    ref={imageRef}
+                    src={localImageUrl}
+                    alt="Crop preview"
+                    className="absolute pointer-events-none"
+                    style={{
+                      transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                      transformOrigin: '0 0',
+                      userSelect: 'none'
+                    }}
+                    onLoad={handleImageLoad}
+                    draggable={false}
+                  />
+                </>
               )}
               
               {/* Crop frame overlay */}
