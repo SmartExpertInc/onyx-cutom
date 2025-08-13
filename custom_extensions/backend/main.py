@@ -15946,6 +15946,8 @@ async def get_effective_rates(
         # Resolve effective advanced config following inheritance: lesson > section > project > folder
         is_advanced = False
         rates = {}
+        completion_times = {}
+        completion_times = {}
         
         # Start with folder defaults
         if project.get('folder_is_advanced'):
@@ -15956,6 +15958,14 @@ async def get_effective_rates(
                     if isinstance(folder_rates, str):
                         folder_rates = json.loads(folder_rates)
                     rates.update(folder_rates)
+                except:
+                    pass
+            if project.get('folder_completion_times'):
+                try:
+                    folder_completion_times = project['folder_completion_times']
+                    if isinstance(folder_completion_times, str):
+                        folder_completion_times = json.loads(folder_completion_times)
+                    completion_times.update(folder_completion_times)
                 except:
                     pass
         folder_single_rate = project.get('folder_custom_rate') or 200
@@ -15969,6 +15979,14 @@ async def get_effective_rates(
                 if isinstance(project_rates, str):
                     project_rates = json.loads(project_rates)
                 rates.update(project_rates)
+            except:
+                pass
+        if project.get('completion_times'):
+            try:
+                project_completion_times = project['completion_times']
+                if isinstance(project_completion_times, str):
+                    project_completion_times = json.loads(project_completion_times)
+                completion_times.update(project_completion_times)
             except:
                 pass
         project_single_rate = project.get('custom_rate') or folder_single_rate
@@ -15991,6 +16009,20 @@ async def get_effective_rates(
                     if 'videoLesson' in section_rates:
                         backend_rates['video_lesson'] = section_rates['videoLesson']
                     rates.update(backend_rates)
+            if section.get('completionTimes'):
+                section_completion_times = section['completionTimes']
+                if isinstance(section_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in section_completion_times:
+                        backend_completion_times['presentation'] = section_completion_times['presentation']
+                    if 'onePager' in section_completion_times:
+                        backend_completion_times['one_pager'] = section_completion_times['onePager']
+                    if 'quiz' in section_completion_times:
+                        backend_completion_times['quiz'] = section_completion_times['quiz']
+                    if 'videoLesson' in section_completion_times:
+                        backend_completion_times['video_lesson'] = section_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
             section_single_rate = section.get('custom_rate') or project_single_rate
         else:
             section_single_rate = project_single_rate
@@ -16013,6 +16045,20 @@ async def get_effective_rates(
                     if 'videoLesson' in lesson_rates:
                         backend_rates['video_lesson'] = lesson_rates['videoLesson']
                     rates.update(backend_rates)
+            if lesson.get('completionTimes'):
+                lesson_completion_times = lesson['completionTimes']
+                if isinstance(lesson_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in lesson_completion_times:
+                        backend_completion_times['presentation'] = lesson_completion_times['presentation']
+                    if 'onePager' in lesson_completion_times:
+                        backend_completion_times['one_pager'] = lesson_completion_times['onePager']
+                    if 'quiz' in lesson_completion_times:
+                        backend_completion_times['quiz'] = lesson_completion_times['quiz']
+                    if 'videoLesson' in lesson_completion_times:
+                        backend_completion_times['video_lesson'] = lesson_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
             lesson_single_rate = lesson.get('custom_rate') or section_single_rate
         else:
             lesson_single_rate = section_single_rate
@@ -16039,10 +16085,10 @@ async def get_effective_rates(
                 "video_lesson": rates.get('video_lesson', fallback_single_rate),
             },
             "completion_times": {
-                "presentation": 8,  # Default values for now
-                "one_pager": 3,
-                "quiz": 6,
-                "video_lesson": 4,
+                "presentation": completion_times.get('presentation', 8),  # Will be replaced with proper inheritance logic
+                "one_pager": completion_times.get('one_pager', 3),
+                "quiz": completion_times.get('quiz', 6),
+                "video_lesson": completion_times.get('video_lesson', 4),
             },
             "fallback_single_rate": fallback_single_rate
         }
