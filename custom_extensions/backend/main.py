@@ -13277,7 +13277,6 @@ async def init_course_outline_chat(request: Request):
 # === Wizard Outline helpers & cache ===
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
 QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
-TEXT_PRESENTATION_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw text presentation content
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
     """Return a markdown outline that reflects the *structure* provided in
@@ -17108,7 +17107,7 @@ class TextPresentationWizardFinalize(BaseModel):
     chatSessionId: Optional[str] = None
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    # NEW: smart change handling
+    # NEW: user edit tracking for smart content processing
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
     isCleanContent: Optional[bool] = False
@@ -17117,8 +17116,6 @@ class TextPresentationEditRequest(BaseModel):
     content: str
     editPrompt: str
     chatSessionId: Optional[str] = None
-    # NEW: smart change handling
-    isCleanContent: Optional[bool] = False
 
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
@@ -17336,12 +17333,6 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-                
-                # NEW: Cache the assistant reply for smart change handling
-                if chat_id:
-                    TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
-                    logger.info(f"[TEXT_PRESENTATION_CACHE] Cached assistant reply for chat_id: {chat_id}")
-                
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
@@ -17388,9 +17379,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         "prompt": payload.editPrompt,
         "language": "en",  # Default to English for edits
         "originalContent": payload.content,
-        "editMode": True,
-        # NEW: smart change handling
-        "isCleanContent": payload.isCleanContent
+        "editMode": True
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
@@ -17532,81 +17521,10 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] hasUserEdits: {payload.hasUserEdits}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] originalContent length: {len(payload.originalContent) if payload.originalContent else 0}")
         
-        # NEW: Smart change handling logic
-        use_direct_parser = False
-        use_ai_parser = True
-        
-        if payload.hasUserEdits and payload.originalContent:
-            any_changes = _any_text_presentation_changes_made(payload.originalContent, payload.aiResponse)
-            
-            if not any_changes:
-                # NO CHANGES: Use direct parser path (fastest)
-                use_direct_parser = True
-                use_ai_parser = False
-                logger.info("No text presentation changes detected - using direct parser path")
-            else:
-                # CHANGES DETECTED: Use AI parser
-                use_direct_parser = False
-                use_ai_parser = True
-                logger.info("Text presentation changes detected - using AI parser path")
-        else:
-            # No change tracking data available - use AI parser path
-            use_direct_parser = False
-            use_ai_parser = True
-            logger.info("No change tracking data - using AI parser path")
-        
-        # ---------- 1) DIRECT PARSER PATH: No changes made, use cached data directly ----------
-        if use_direct_parser:
-            try:
-                # Use cached content directly since no changes were made
-                template_id = await _ensure_text_presentation_template(pool)
-                
-                logger.info(f"Direct parser path: Using cached content with {len(payload.originalContent)} characters")
-                
-                project_request = ProjectCreateRequest(
-                    projectName=project_name,
-                    design_template_id=template_id,
-                    microProductName=None,
-                    aiResponse=payload.originalContent,
-                    chatSessionId=uuid.UUID(payload.chatSessionId) if payload.chatSessionId else None,
-                    folder_id=int(payload.folderId) if payload.folderId else None,
-                )
-                
-                project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
-                
-                logger.info(f"Direct parser path: Created project {project_db_candidate.id}")
-                
-                # Check if content was parsed successfully
-                content_valid = False
-                if project_db_candidate.microproduct_content:
-                    if hasattr(project_db_candidate.microproduct_content, "contentBlocks"):
-                        content_blocks = getattr(project_db_candidate.microproduct_content, "contentBlocks", [])
-                        content_valid = len(content_blocks) > 0
-                        logger.info(f"Direct parser path: Found {len(content_blocks)} content blocks in parsed content")
-                    else:
-                        logger.warning(f"Direct parser path: Content does not have contentBlocks attribute")
-                else:
-                    logger.warning(f"Direct parser path: microproduct_content is None")
-                
-                if content_valid:
-                    logger.info("Direct parser path: Successfully created text presentation with cached content")
-                    return {"id": project_db_candidate.id}
-                else:
-                    logger.warning("Direct parser path: Content validation failed, falling back to AI parser")
-                    use_direct_parser = False
-                    use_ai_parser = True
-                    
-            except Exception as e:
-                logger.error(f"Direct parser path failed: {e}")
-                logger.info("Falling back to AI parser path")
-                use_direct_parser = False
-                use_ai_parser = True
-        
-        # ---------- 2) AI PARSER PATH: Changes detected or direct parser failed ----------
-        if use_ai_parser:
-            # Parse the text presentation data using LLM - only call once with consistent project name
-            parsed_text_presentation = await parse_ai_response_with_llm(
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
             ai_response=payload.aiResponse,
             project_name=project_name,  # Use consistent project name
             target_model=TextPresentationDetails,
@@ -17621,9 +17539,6 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
 
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
-            
-            **CRITICAL: Smart Change Handling**
-            {f"If the content contains only section titles without full content (clean content mode), generate comprehensive content for each section while maintaining the original structure and titles." if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
 
             **Global Fields:**
             1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
@@ -17799,11 +17714,6 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create text presentation project entry.")
         
         created_project = ProjectDB(**dict(row))
-        
-        # NEW: Clean up cache after successful creation
-        if payload.chatSessionId:
-            TEXT_PRESENTATION_PREVIEW_CACHE.pop(payload.chatSessionId, None)
-            logger.info(f"[TEXT_PRESENTATION_CACHE_CLEANUP] Removed cached content for chat_id: {payload.chatSessionId}")
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
         return {"id": created_project.id, "name": final_project_name}
@@ -18227,23 +18137,4 @@ def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
     except Exception as e:
         # On any parsing issue assume changes were made so we use AI
         logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
-        return True
-
-def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
-    """Compare original and edited text presentation content to detect changes"""
-    try:
-        # Normalize content for comparison
-        original_normalized = original_content.strip()
-        edited_normalized = edited_content.strip()
-        
-        # Simple text comparison
-        if original_normalized != edited_normalized:
-            logger.info(f"Text presentation content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
-            return True
-        
-        logger.info("No text presentation changes detected - content is identical")
-        return False
-    except Exception as e:
-        # On any parsing issue assume changes were made so we use AI
-        logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
