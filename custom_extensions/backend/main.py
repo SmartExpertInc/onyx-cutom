@@ -17390,7 +17390,9 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         "originalContent": payload.content,
         "editMode": True,
         # NEW: smart change handling
-        "isCleanContent": payload.isCleanContent
+        "isCleanContent": payload.isCleanContent,
+        # NEW: Additional context for clean content mode
+        "cleanContentInstructions": payload.isCleanContent and "Generate comprehensive content for each section title. Each section should have 2-4 paragraphs of detailed, educational content with bullet lists, numbered lists, or other content blocks as appropriate. Do not leave any section with just a title."
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
@@ -17623,7 +17625,17 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
             
             **CRITICAL: Smart Change Handling**
-            {f"If the content contains only section titles without full content (clean content mode), generate comprehensive content for each section while maintaining the original structure and titles." if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
+            {f"""If the content contains only section titles without full content (clean content mode), you MUST generate comprehensive content for each section while maintaining the original structure and titles.
+
+            **CLEAN CONTENT MODE RULES:**
+            - Each section title (## Title) should be followed by detailed content
+            - Generate 2-4 paragraphs of relevant content for each section
+            - Include bullet lists, numbered lists, or other content blocks as appropriate
+            - Maintain the educational tone and depth of the original presentation
+            - Do NOT leave any section with just a title - always add substantial content
+            - The content should be informative, engaging, and relevant to the section title
+            - Use the same language as the section titles
+            - Each section should be self-contained and complete""" if payload.isCleanContent else "Parse the full content as provided, maintaining all existing structure and details."}
 
             **Global Fields:**
             1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.

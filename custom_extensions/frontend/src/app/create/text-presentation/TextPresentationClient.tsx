@@ -357,6 +357,12 @@ export default function TextPresentationClient() {
     const lessons = parseContentIntoLessons(content);
     let cleanContent = "";
     
+    // Add context about the presentation
+    const firstLesson = lessons[0];
+    if (firstLesson) {
+      cleanContent += `# ${firstLesson.title.includes(':') ? firstLesson.title.split(':').pop()?.trim() || firstLesson.title : firstLesson.title}\n\n`;
+    }
+    
     lessons.forEach((lesson, index) => {
       if (editedTitleIds.has(index)) {
         // For edited lessons, include only the title (clean content)
@@ -442,6 +448,15 @@ export default function TextPresentationClient() {
         editPrompt,
         isCleanContent: isCleanContent,
       };
+      
+      // NEW: Log what we're sending for debugging
+      console.log("Text presentation edit payload:", {
+        contentLength: contentToSend.length,
+        isCleanContent,
+        editedTitleIds: Array.from(editedTitleIds),
+        contentPreview: contentToSend.substring(0, 200) + "..."
+      });
+      
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -766,6 +781,15 @@ export default function TextPresentationClient() {
         contentToSend = createCleanContent(content);
         isCleanContent = true;
       }
+      
+      // NEW: Log what we're sending for debugging
+      console.log("Text presentation finalize payload:", {
+        contentLength: contentToSend.length,
+        hasUserEdits,
+        isCleanContent,
+        editedTitleIds: Array.from(editedTitleIds),
+        contentPreview: contentToSend.substring(0, 200) + "..."
+      });
       
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
