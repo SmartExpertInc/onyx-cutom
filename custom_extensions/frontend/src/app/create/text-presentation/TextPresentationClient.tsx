@@ -200,8 +200,41 @@ export default function TextPresentationClient() {
       }
     }
     
-    // If no structured content found, create manual sections based on your specific content
+    // If no structured content found, try to create sections from paragraphs
     if (lessons.length === 0) {
+      // Split content by double newlines to find paragraphs
+      const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+      
+      if (paragraphs.length > 1) {
+        // Create sections from paragraphs
+        return paragraphs.map((paragraph, index) => {
+          const lines = paragraph.trim().split('\n');
+          const firstLine = lines[0].trim();
+          const restContent = lines.slice(1).join('\n').trim();
+          
+          // If first line looks like a title (short, no punctuation at end)
+          if (firstLine.length < 100 && !firstLine.endsWith('.') && !firstLine.endsWith('!') && !firstLine.endsWith('?')) {
+            return {
+              title: firstLine,
+              content: restContent || firstLine
+            };
+          } else {
+            // Treat as content without specific title
+            return {
+              title: `Section ${index + 1}`,
+              content: paragraph.trim()
+            };
+          }
+        });
+      } else if (paragraphs.length === 1) {
+        // Single paragraph - treat as one section
+        return [{
+          title: "Content",
+          content: paragraphs[0].trim()
+        }];
+      }
+      
+      // Fallback to manual sections if no paragraphs found
       const manualSections = [
         {
           title: "Benefits of AI Tools in Education",
@@ -357,16 +390,29 @@ export default function TextPresentationClient() {
     const lessons = parseContentIntoLessons(content);
     let cleanContent = "";
     
+    // Check if we have any lessons with content
+    const hasContentLessons = lessons.some(lesson => lesson.content && lesson.content.trim().length > 0);
+    
     lessons.forEach((lesson, index) => {
       if (editedTitleIds.has(index)) {
-        // For edited lessons, include the new title with original content
-        // This allows AI to understand the context and regenerate content for the new title
-        cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n${lesson.content}\n\n`;
+        // For edited lessons, include only the title (clean content)
+        cleanContent += `## ${getTitleForLesson(lesson, index)}\n\n`;
       } else {
         // For unedited lessons, include the full content
-        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+        if (lesson.content && lesson.content.trim().length > 0) {
+          cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+        } else {
+          // If lesson has no content, just include the title
+          cleanContent += `## ${lesson.title}\n\n`;
+        }
       }
     });
+    
+    // If no lessons have content, return the original content to preserve structure
+    if (!hasContentLessons && lessons.length > 0) {
+      console.log("No lessons with content found, returning original content structure");
+      return content;
+    }
     
     return cleanContent.trim();
   };
@@ -434,10 +480,22 @@ export default function TextPresentationClient() {
       let isCleanContent = false;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
-        // For text presentation, send content with updated titles and original content
-        // This allows AI to understand context and regenerate content for the new titles
-        contentToSend = createCleanContent(content);
-        isCleanContent = false; // Send full content with updated titles
+        const cleanContent = createCleanContent(content);
+        
+        // Check if clean content has enough structure to be useful
+        const lessons = parseContentIntoLessons(cleanContent);
+        const hasContentLessons = lessons.some(lesson => lesson.content && lesson.content.trim().length > 0);
+        
+        if (hasContentLessons || cleanContent !== content) {
+          contentToSend = cleanContent;
+          isCleanContent = true;
+          console.log("Using clean content for smart change handling");
+        } else {
+          // If clean content is the same as original or has no content, use full content
+          contentToSend = content;
+          isCleanContent = false;
+          console.log("Using full content - clean content would be empty");
+        }
       }
       
       const payload: any = {
@@ -766,10 +824,22 @@ export default function TextPresentationClient() {
       let isCleanContent = false;
       
       if (hasUserEdits && editedTitleIds.size > 0) {
-        // For text presentation, send content with updated titles and original content
-        // This allows AI to understand context and regenerate content for the new titles
-        contentToSend = createCleanContent(content);
-        isCleanContent = false; // Send full content with updated titles
+        const cleanContent = createCleanContent(content);
+        
+        // Check if clean content has enough structure to be useful
+        const lessons = parseContentIntoLessons(cleanContent);
+        const hasContentLessons = lessons.some(lesson => lesson.content && lesson.content.trim().length > 0);
+        
+        if (hasContentLessons || cleanContent !== content) {
+          contentToSend = cleanContent;
+          isCleanContent = true;
+          console.log("Using clean content for smart change handling");
+        } else {
+          // If clean content is the same as original or has no content, use full content
+          contentToSend = content;
+          isCleanContent = false;
+          console.log("Using full content - clean content would be empty");
+        }
       }
       
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
