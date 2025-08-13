@@ -2,20 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { PieChartInfographicsTemplateProps } from '@/types/slideTemplates';
 
-// PieChart Template (Frontend)!
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      svg: React.SVGProps<SVGSVGElement>;
-      defs: React.SVGProps<SVGDefsElement>;
-      filter: React.SVGProps<SVGFilterElement>;
-      feDropShadow: React.SVGProps<SVGFEDropShadowElement>;
-      path: React.SVGProps<SVGPathElement>;
-    }
-  }
-}
-
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -285,31 +271,107 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingPercentage(index);
   };
 
-
-
-  // Calculate label positions for pie chart segments
-  const getLabelPositions = () => {
+  // NEW: Simple pie chart using CSS transforms
+  const renderPieChart = () => {
     const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
-    let cumulativePercentage = 0;
-    
-    return chartData.segments.map((segment, index) => {
-      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 2 * Math.PI;
-      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 2 * Math.PI;
-      const centerAngle = (startAngle + endAngle) / 2;
-      cumulativePercentage += segment.percentage;
-      
-      // Convert angle to radians and calculate position
-      // Start from -90 degrees (top) and rotate clockwise
-      const angleRad = centerAngle - Math.PI / 2;
-      const radius = 98; // Distance from center
-      const x = 140 + radius * Math.cos(angleRad);
-      const y = 140 + radius * Math.sin(angleRad);
-      
-      return { x, y, angle: centerAngle * 180 / Math.PI };
-    });
-  };
+    let currentAngle = 0;
 
-  const labelPositions = getLabelPositions();
+    return (
+      <div className="relative w-[280px] h-[280px]">
+        {/* Pie chart segments using CSS transforms */}
+        {chartData.segments.map((segment, index) => {
+          const segmentAngle = (segment.percentage / totalPercentage) * 360;
+          const rotation = currentAngle;
+          currentAngle += segmentAngle;
+
+          return (
+            <div
+              key={index}
+              className="absolute top-0 left-0 w-full h-full"
+              style={{
+                transform: `rotate(${rotation}deg)`,
+                transformOrigin: 'center'
+              }}
+            >
+              <div
+                className="absolute top-0 left-1/2 w-1/2 h-full origin-left"
+                style={{
+                  backgroundColor: segment.color,
+                  transform: `rotate(${segmentAngle}deg)`,
+                  clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+                }}
+              />
+            </div>
+          );
+        })}
+
+        {/* Inner circle (donut hole) */}
+        <div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2"
+          style={{
+            backgroundColor: themeBg,
+            borderColor: '#e5e7eb'
+          }}
+        />
+
+        {/* Percentage labels */}
+        {chartData.segments.map((segment, index) => {
+          const segmentAngle = (segment.percentage / totalPercentage) * 360;
+          const labelAngle = currentAngle - segmentAngle / 2;
+          currentAngle -= segmentAngle;
+
+          // Calculate label position
+          const radius = 70; // Distance from center
+          const angleRad = (labelAngle - 90) * Math.PI / 180;
+          const x = 140 + radius * Math.cos(angleRad);
+          const y = 140 + radius * Math.sin(angleRad);
+
+          return (
+            <div
+              key={`label-${index}`}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80"
+              style={{
+                left: `${x}px`,
+                top: `${y}px`,
+                color: '#ffffff',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                fontFamily: 'Arial, Helvetica, sans-serif',
+                textShadow: '1px 1px 2px #000000',
+                userSelect: 'none',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                background: 'rgba(0,0,0,0.3)',
+                zIndex: 20
+              }}
+              onClick={() => isEditable && startEditingPercentage(index)}
+            >
+              {editingPercentage === index && isEditable ? (
+                <InlineEditor
+                  initialValue={segment.percentage.toString()}
+                  onSave={(value) => handlePercentageSave(index, value)}
+                  onCancel={() => handlePercentageCancel(index)}
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    background: 'rgba(0,0,0,0.5)',
+                    borderRadius: '4px',
+                    padding: '2px 4px',
+                    border: '1px solid #ffffff',
+                    minWidth: '40px'
+                  }}
+                />
+              ) : (
+                segment.label
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div 
@@ -434,119 +496,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Center - Pie Chart */}
           <div className="flex flex-col items-center">
             <div 
-              className="relative w-[280px] h-[280px] rounded-full border-3 border-white shadow-lg"
+              className="relative w-[280px] h-[280px] rounded-full shadow-lg overflow-hidden"
               style={{
-                borderColor: '#ffffff',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-                backgroundColor: 'transparent'
+                boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
               }}
             >
-              {/* SVG Pie Chart for better PDF compatibility */}
-              <svg
-                width="280"
-                height="280"
-                viewBox="0 0 280 280"
-                className="absolute top-0 left-0"
-              >
-                <defs>
-                  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="rgba(0,0,0,0.3)"/>
-                  </filter>
-                </defs>
-                
-                {/* Pie chart segments */}
-                {(() => {
-                  const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
-                  let cumulativePercentage = 0;
-                  const centerX = 140;
-                  const centerY = 140;
-                  const radius = 120;
-                  
-                  return chartData.segments.map((segment, index) => {
-                    const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 2 * Math.PI;
-                    const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 2 * Math.PI;
-                    cumulativePercentage += segment.percentage;
-                    
-                    // Calculate arc coordinates
-                    const x1 = centerX + radius * Math.cos(startAngle - Math.PI / 2);
-                    const y1 = centerY + radius * Math.sin(startAngle - Math.PI / 2);
-                    const x2 = centerX + radius * Math.cos(endAngle - Math.PI / 2);
-                    const y2 = centerY + radius * Math.sin(endAngle - Math.PI / 2);
-                    
-                    // Create path for pie segment
-                    const largeArcFlag = segment.percentage > 50 ? 1 : 0;
-                    const pathData = [
-                      `M ${centerX} ${centerY}`,
-                      `L ${x1} ${y1}`,
-                      `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                      'Z'
-                    ].join(' ');
-                    
-                    return (
-                      <path
-                        key={index}
-                        d={pathData}
-                        fill={segment.color}
-                        filter="url(#shadow)"
-                        stroke="#ffffff"
-                        strokeWidth="2"
-                      />
-                    );
-                  });
-                })()}
-              </svg>
-              
-              {/* Inner circle */}
-              <div 
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2 z-10"
-                style={{
-                  backgroundColor: themeBg,
-                  borderColor: '#e5e7eb'
-                }}
-              />
-              
-              {/* Percentage labels */}
-              {chartData.segments.map((segment, index) => {
-                const position = labelPositions[index];
-                return (
-                  <div
-                    key={index}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80 z-20"
-                    style={{
-                      left: `${position.x}px`,
-                      top: `${position.y}px`,
-                      color: '#ffffff',
-                      fontSize: '18px',
-                      fontWeight: 'bold',
-                      fontFamily: 'Arial, Helvetica, sans-serif',
-                      textShadow: '1px 1px 2px #000000',
-                      userSelect: 'none'
-                    }}
-                    onClick={() => isEditable && startEditingPercentage(index)}
-                  >
-                    {editingPercentage === index && isEditable ? (
-                      <InlineEditor
-                        initialValue={segment.percentage.toString()}
-                        onSave={(value) => handlePercentageSave(index, value)}
-                        onCancel={() => handlePercentageCancel(index)}
-                        style={{
-                          color: '#ffffff',
-                          fontSize: '16px',
-                          fontWeight: 'bold',
-                          textAlign: 'center',
-                          background: 'rgba(0,0,0,0.5)',
-                          borderRadius: '4px',
-                          padding: '2px 4px',
-                          border: '1px solid #ffffff',
-                          minWidth: '40px'
-                        }}
-                      />
-                    ) : (
-                      segment.label
-                    )}
-                  </div>
-                );
-              })}
+              {renderPieChart()}
             </div>
           </div>
 
