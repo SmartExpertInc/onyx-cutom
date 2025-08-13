@@ -17481,6 +17481,30 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
     
     try:
+        # NEW: Check for user edits and decide strategy (like in Quiz)
+        use_direct_parser = False
+        use_ai_parser = True
+        
+        if payload.hasUserEdits and payload.originalContent:
+            # User has made edits - check if they're significant
+            any_changes = _any_text_presentation_changes_made(payload.originalContent, payload.aiResponse)
+            
+            if not any_changes:
+                # NO CHANGES: Use direct parser path (fastest)
+                use_direct_parser = True
+                use_ai_parser = False
+                logger.info("No text presentation changes detected - using direct parser path")
+            else:
+                # CHANGES DETECTED: Use AI parser
+                use_direct_parser = False
+                use_ai_parser = True
+                logger.info("Text presentation changes detected - using AI parser path")
+        else:
+            # No edit information available - use AI parser
+            use_direct_parser = False
+            use_ai_parser = True
+            logger.info("No edit information available - using AI parser path")
+        
         # Ensure text presentation template exists
         template_id = await _ensure_text_presentation_template(pool)
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
@@ -17515,17 +17539,48 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=payload.aiResponse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
-                detectedLanguage=payload.language
-            ),
+        # NEW: Choose parsing strategy based on user edits
+        if use_direct_parser:
+            # DIRECT PARSER PATH: Use cached content directly since no changes were made
+            logger.info("Using direct parser path for text presentation finalization")
+            
+            # Use the original content for parsing since no changes were made
+            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            
+            parsed_text_presentation = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,  # Use consistent project name
+                target_model=TextPresentationDetails,
+                default_error_model_instance=TextPresentationDetails(
+                    textTitle=project_name,
+                    contentBlocks=[],
+                    detectedLanguage=payload.language
+                ),
+        else:
+            # AI PARSER PATH: Use AI to parse the content (original behavior)
+            logger.info("Using AI parser path for text presentation finalization")
+            
+            # NEW: If clean content is sent (titles only), we need to regenerate content around those titles
+            if payload.isCleanContent:
+                logger.info("Clean content detected - regenerating content around titles")
+                # The frontend sent only titles, so we need to generate content around them
+                # This is the key fix - when titles are changed, we need to regenerate content
+                content_to_parse = payload.aiResponse  # This contains only the titles
+            else:
+                # Regular content parsing
+                content_to_parse = payload.aiResponse
+            
+            parsed_text_presentation = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,  # Use consistent project name
+                target_model=TextPresentationDetails,
+                default_error_model_instance=TextPresentationDetails(
+                    textTitle=project_name,
+                    contentBlocks=[],
+                    detectedLanguage=payload.language
+                ),
             dynamic_instructions=f"""
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
@@ -18130,4 +18185,23 @@ def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
     except Exception as e:
         # On any parsing issue assume changes were made so we use AI
         logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
+        return True
+
+def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited text presentation content to detect changes"""
+    try:
+        # Normalize content for comparison
+        original_normalized = original_content.strip()
+        edited_normalized = edited_content.strip()
+        
+        # Simple text comparison
+        if original_normalized != edited_normalized:
+            logger.info(f"Text presentation content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            return True
+        
+        logger.info("No text presentation changes detected - content is identical")
+        return False
+    except Exception as e:
+        # On any parsing issue assume changes were made so we use AI
+        logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
