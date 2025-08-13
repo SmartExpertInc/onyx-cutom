@@ -180,7 +180,7 @@ class PieChartGenerator:
             
             for font_path in font_paths:
                 try:
-                    font = ImageFont.truetype(font_path, 24)  # Увеличиваем размер до 24px для лучшей видимости
+                    font = ImageFont.truetype(font_path, 20)  # Размер 20px для лучшего размещения на сегментах
                     logger.info(f"Successfully loaded font: {font_path}")
                     break
                 except:
@@ -201,7 +201,7 @@ class PieChartGenerator:
                     # Фронтенд: const angleRad = (centerAngle - 90) * Math.PI / 180;
                     # Фронтенд: const radius = 98; const x = 140 + radius * Math.cos(angleRad);
                     rad = math.radians(label_angle - 90)  # -90 для правильной ориентации
-                    label_radius = 98  # Расстояние от центра - точно как во фронтенде
+                    label_radius = 105  # Увеличиваем радиус для лучшего позиционирования на сегментах
                     x = self.center_x + label_radius * math.cos(rad)
                     y = self.center_y + label_radius * math.sin(rad)
                     
@@ -218,11 +218,8 @@ class PieChartGenerator:
                     text_y = int(y - text_height / 2)
                     
                     # Рисуем тень - делаем более заметной и четкой
-                    # Множественные слои тени для лучшей видимости
-                    for offset_x in range(3, 0, -1):
-                        for offset_y in range(3, 0, -1):
-                            alpha = 255 if offset_x == 3 and offset_y == 3 else 100
-                            draw.text((text_x + offset_x, text_y + offset_y), text, fill=(0, 0, 0, alpha), font=font)
+                    # Простая тень как во фронтенде (text-shadow: 1px 1px 2px #000000)
+                    draw.text((text_x + 1, text_y + 1), text, fill=(0, 0, 0, 255), font=font)
                     
                     # Рисуем основной текст - белый как во фронтенде
                     draw.text((text_x, text_y), text, fill=(255, 255, 255, 255), font=font)
