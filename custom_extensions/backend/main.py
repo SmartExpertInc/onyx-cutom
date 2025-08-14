@@ -13277,6 +13277,7 @@ async def init_course_outline_chat(request: Request):
 # === Wizard Outline helpers & cache ===
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
 QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
+TEXT_PRESENTATION_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw text presentation content
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
     """Return a markdown outline that reflects the *structure* provided in
@@ -17301,6 +17302,12 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                         logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
                 
                 logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # NEW: Cache the text presentation content for finalization
+                if chat_id:
+                    TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_CACHE] Cached text presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
+                
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
@@ -17334,6 +17341,12 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # NEW: Cache the text presentation content for finalization
+                if chat_id:
+                    TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_CACHE] Cached text presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
+                
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
@@ -17419,6 +17432,11 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
                     logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Sent keep-alive")
             
             logger.info(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+            
+            # NEW: Cache the edited text presentation content for finalization
+            if chat_id:
+                TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
+                logger.info(f"[TEXT_PRESENTATION_EDIT_CACHE] Cached edited text presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
             
         except Exception as e:
             logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
@@ -17554,8 +17572,17 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             # DIRECT PARSER PATH: Use cached content directly since no changes were made
             logger.info("Using direct parser path for text presentation finalization")
             
-            # Use the original content for parsing since no changes were made
-            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            # Try to get cached content first, then fallback to original content
+            cached_content = None
+            if payload.chatSessionId:
+                cached_content = TEXT_PRESENTATION_PREVIEW_CACHE.get(payload.chatSessionId)
+                if cached_content:
+                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_CACHE] Found cached content for chat_id={payload.chatSessionId}, length={len(cached_content)}")
+                else:
+                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_CACHE] No cached content found for chat_id={payload.chatSessionId}")
+            
+            # Use cached content if available, otherwise use original content
+            content_to_parse = cached_content if cached_content else (payload.originalContent if payload.originalContent else payload.aiResponse)
         else:
             # AI PARSER PATH: Use the provided content (which may be clean titles only)
             logger.info("Using AI parser path for text presentation finalization")
@@ -17563,35 +17590,30 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # NEW: Choose dynamic instructions based on content type
         if getattr(payload, 'isCleanContent', False):
-            # If clean content (only titles), provide specific instructions for content generation
+            # If content is clean (only titles), provide instructions to generate content for titles
             dynamic_instructions = f"""
             CRITICAL: You are generating content for a Text Presentation where ONLY the section titles/headlines were provided.
+            The user has edited some titles and wants you to generate appropriate content for each title.
             
-            The input contains section titles (like "## Title") but NO content for those sections.
-            Your task is to generate appropriate content for each title to create a complete, coherent text presentation.
+            **Your Task:** For each title/headline provided, generate comprehensive and relevant content that matches the title.
             
-            **Overall Goal:** Generate comprehensive content for each provided title to create a complete text presentation.
-            
-            **Global Fields:**
-            1.  `textTitle` (string): Main title for the document. Use the first meaningful title or create one based on the content.
-            2.  `contentBlocks` (array): Generate content blocks for each provided title.
-            3.  `detectedLanguage` (string): {payload.language}.
-
             **Content Generation Rules:**
-            - For each "## Title" in the input, create appropriate content blocks
-            - Generate meaningful paragraphs, lists, and other content that fits the title
-            - Maintain logical flow and coherence between sections
-            - Use appropriate content types: paragraphs, bullet lists, numbered lists, etc.
-            - Ensure content is educational, informative, and well-structured
+            1. Each title should become a major section (level 2 headline)
+            2. Generate 2-4 paragraphs of relevant content for each title
+            3. Include bullet points, numbered lists, or other content blocks as appropriate
+            4. Make the content educational, informative, and engaging
+            5. Maintain consistency in tone and style across all sections
+            6. Use the language specified: {payload.language}
             
-            **Content Block Types to Generate:**
-            1. **`type: "headline"`** - Use the provided titles with appropriate levels
-            2. **`type: "paragraph"`** - Generate descriptive text for each section
-            3. **`type: "bullet_list"`** - Create relevant bullet points where appropriate
-            4. **`type: "numbered_list"`** - Create step-by-step instructions where needed
-            5. **`type: "alert"`** - Add important notes or warnings where relevant
+            **Output Structure:** Convert the provided titles into a complete Text Presentation with full content blocks.
             
-            Return ONLY the JSON object with generated content for each title.
+            **Example:** If you receive "## Introduction to AI Tools", generate:
+            - A level 2 headline "Introduction to AI Tools"
+            - 2-3 paragraphs explaining what AI tools are
+            - A bullet list of key benefits
+            - A numbered list of examples
+            
+            Return ONLY the JSON object following the Text Presentation structure.
             """
         else:
             # Standard parsing instructions for full content
@@ -17650,6 +17672,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 * `caption` (string, optional): A short description or title for the table, if present in the source text.
                 * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
 
+
             6.  **`type: "alert"`**
                 *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
                 *   `title` (string, optional): The title of the alert.
@@ -17685,86 +17708,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 contentBlocks=[],
                 detectedLanguage=payload.language
             ),
-            dynamic_instructions=f"""
-            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
-            This product is for general text like introductions, goal descriptions, etc.
-            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
-
-            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
-
-            **Global Fields:**
-            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
-               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
-               - Extract ONLY the title part (the last part after the last "**")
-               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
-               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
-               - Do NOT include the course name or "Text Presentation" label in the title
-               - If no clear pattern is found, use the first meaningful title or heading
-            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
-            3.  `detectedLanguage` (string): e.g., "en", "ru".
-
-            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
-
-            1.  **`type: "headline"`**
-                * `level` (integer):
-                    * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
-                    * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
-                    * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
-                    * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
-                * `text` (string): Headline text.
-                * `iconName` (string, optional): Based on level and context as described above.
-                * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
-
-            2.  **`type: "paragraph"`**
-                * `text` (string): Full paragraph text.
-                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
-
-            3.  **`type: "bullet_list"`**
-                * `items` (array of `ListItem`): Can be strings or other nested content blocks.
-                * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
-
-            4.  **`type: "numbered_list"`**
-                * `items` (array of `ListItem`):
-                    * Can be simple strings for basic numbered points.
-                    * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
-                        * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
-                        * The `items` of this *inner* `bullet_list` should then be:
-                            1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
-                            2. A `paragraph` block (for the main descriptive text).
-                            3. Optionally, another `paragraph` block with `isRecommendation: true`.
-                    * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
-
-            5.  **`type: "table"`**
-                * `headers` (array of strings): The column headers for the table.
-                * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
-                * `caption` (string, optional): A short description or title for the table, if present in the source text.
-                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
-
-
-            6.  **`type: "alert"`**
-                *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
-                *   `title` (string, optional): The title of the alert.
-                *   `text` (string): The body text of the alert.
-                *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
-
-            7.  **`type: "section_break"`**
-                * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
-
-            **General Parsing Rules & Icon Names:**
-            * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
-            * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
-            * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
-            * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
-            * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
-            * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
-
-            Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
-              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
-              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
-              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
-
-            Return ONLY the JSON object.
-            """,
+            dynamic_instructions=dynamic_instructions,
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
         
@@ -18289,6 +18233,25 @@ def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
     except Exception as e:
         # On any parsing issue assume changes were made so we use AI
         logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
+        return True
+
+def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited text presentation content to detect changes"""
+    try:
+        # Normalize content for comparison
+        original_normalized = original_content.strip()
+        edited_normalized = edited_content.strip()
+        
+        # Simple text comparison
+        if original_normalized != edited_normalized:
+            logger.info(f"Text presentation change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            return True
+        
+        logger.info("No text presentation changes detected - content is identical")
+        return False
+    except Exception as e:
+        # On any parsing issue assume changes were made so we use AI
+        logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
 
 def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
