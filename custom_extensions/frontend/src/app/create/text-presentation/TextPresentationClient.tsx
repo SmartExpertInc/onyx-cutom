@@ -336,9 +336,11 @@ export default function TextPresentationClient() {
       return newSet;
     });
     
-    // NEW: Mark that content has been updated
+    // NEW: Mark that content has been updated and track the edited title
     if (updatedContent !== content) {
       setHasUserEdits(true);
+      // Add to originallyEditedTitles to track that this title was edited
+      setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
     }
   };
 
