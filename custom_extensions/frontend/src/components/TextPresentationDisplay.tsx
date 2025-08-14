@@ -1980,6 +1980,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             isOpen={showWordStyleEditor}
             onClose={() => setShowWordStyleEditor(false)}
             imageBlock={block as ImageBlock}
+            documentContent={documentContent}
             onImageChange={(updatedBlock) => {
               // Update all properties of the image block
               Object.keys(updatedBlock).forEach(key => {
