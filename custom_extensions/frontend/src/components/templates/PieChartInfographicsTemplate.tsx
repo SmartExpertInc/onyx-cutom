@@ -48,7 +48,6 @@ function InlineEditor({
     onSave(value);
   };
 
-  // Auto-resize textarea to fit content
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
@@ -57,11 +56,9 @@ function InlineEditor({
     }
   }, [value, multiline]);
 
-  // Set initial height for textarea to match content
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
@@ -79,7 +76,6 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
-          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -111,7 +107,6 @@ function InlineEditor({
       placeholder={placeholder}
       style={{
         ...style,
-        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -126,26 +121,26 @@ function InlineEditor({
 
 export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplateProps> = ({
   slideId,
-  title = 'Pie Chart Infographics',
+  title = 'Круговая диаграмма',
   chartData = {
     segments: [
-      { label: '15%', percentage: 15, color: '#0ea5e9', description: 'Blue segment' },
-      { label: '20%', percentage: 20, color: '#06b6d4', description: 'Cyan segment' },
-      { label: '25%', percentage: 25, color: '#67e8f9', description: 'Light blue segment' },
-      { label: '20%', percentage: 20, color: '#0891b2', description: 'Dark blue segment' },
-      { label: '12%', percentage: 12, color: '#f97316', description: 'Orange segment' },
-      { label: '8%', percentage: 8, color: '#fb923c', description: 'Light orange segment' }
+      { label: 'Сегмент 1', percentage: 16.67, color: '#3B82F6', description: 'Первый сегмент диаграммы' },
+      { label: 'Сегмент 2', percentage: 16.67, color: '#10B981', description: 'Второй сегмент диаграммы' },
+      { label: 'Сегмент 3', percentage: 16.67, color: '#F59E0B', description: 'Третий сегмент диаграммы' },
+      { label: 'Сегмент 4', percentage: 16.67, color: '#EF4444', description: 'Четвертый сегмент диаграммы' },
+      { label: 'Сегмент 5', percentage: 16.67, color: '#8B5CF6', description: 'Пятый сегмент диаграммы' },
+      { label: 'Сегмент 6', percentage: 16.67, color: '#EC4899', description: 'Шестой сегмент диаграммы' }
     ]
   },
   monthlyData = [
-    { month: 'Month 1', description: 'Mercury is the smallest planet of them all', color: '#0ea5e9' },
-    { month: 'Month 2', description: 'Jupiter is the biggest planet of them all', color: '#0ea5e9' },
-    { month: 'Month 3', description: 'Venus has a very poisonous atmosphere', color: '#0ea5e9' },
-    { month: 'Month 4', description: 'Saturn is a gas giant and has rings', color: '#f97316' },
-    { month: 'Month 5', description: 'Neptune is far away from Earth', color: '#f97316' },
-    { month: 'Month 6', description: 'Despite being red, Mars is actually cold', color: '#f97316' }
+    { month: 'Сегмент 1', description: 'Описание первого сегмента диаграммы', color: '#3B82F6', percentage: '16.7%' },
+    { month: 'Сегмент 2', description: 'Описание второго сегмента диаграммы', color: '#10B981', percentage: '16.7%' },
+    { month: 'Сегмент 3', description: 'Описание третьего сегмента диаграммы', color: '#F59E0B', percentage: '16.7%' },
+    { month: 'Сегмент 4', description: 'Описание четвертого сегмента диаграммы', color: '#EF4444', percentage: '16.7%' },
+    { month: 'Сегмент 5', description: 'Описание пятого сегмента диаграммы', color: '#8B5CF6', percentage: '16.7%' },
+    { month: 'Сегмент 6', description: 'Описание шестого сегмента диаграммы', color: '#EC4899', percentage: '16.7%' }
   ],
-  descriptionText = 'To modify this graph, click on it, follow the link, change the data and paste it here',
+  descriptionText = 'Нажмите на элементы для редактирования данных диаграммы',
   theme,
   onUpdate,
   isEditable = false
@@ -155,8 +150,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingMonth, setEditingMonth] = useState<number | null>(null);
-  const [editingMonthDesc, setEditingMonthDesc] = useState<number | null>(null);
+  const [editingSegment, setEditingSegment] = useState<number | null>(null);
+  const [editingSegmentDesc, setEditingSegmentDesc] = useState<number | null>(null);
   const [editingDescText, setEditingDescText] = useState(false);
   const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
 
@@ -202,46 +197,51 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingDescText(false);
   };
 
-  const handleMonthSave = (monthIndex: number, newValue: string) => {
-    setEditingMonth(null);
+  const handleSegmentSave = (segmentIndex: number, newValue: string) => {
+    setEditingSegment(null);
     const newMonthlyData = [...monthlyData];
-    newMonthlyData[monthIndex] = { ...newMonthlyData[monthIndex], month: newValue };
+    newMonthlyData[segmentIndex] = { ...newMonthlyData[segmentIndex], month: newValue };
     const newData = { title, chartData, monthlyData: newMonthlyData, descriptionText };
     scheduleAutoSave(newData);
   };
 
-  const handleMonthCancel = (monthIndex: number) => {
-    setEditingMonth(null);
+  const handleSegmentCancel = (segmentIndex: number) => {
+    setEditingSegment(null);
   };
 
-  const handleMonthDescSave = (monthIndex: number, newValue: string) => {
-    setEditingMonthDesc(null);
+  const handleSegmentDescSave = (segmentIndex: number, newValue: string) => {
+    setEditingSegmentDesc(null);
     const newMonthlyData = [...monthlyData];
-    newMonthlyData[monthIndex] = { ...newMonthlyData[monthIndex], description: newValue };
+    newMonthlyData[segmentIndex] = { ...newMonthlyData[segmentIndex], description: newValue };
     const newData = { title, chartData, monthlyData: newMonthlyData, descriptionText };
     scheduleAutoSave(newData);
   };
 
-  const handleMonthDescCancel = (monthIndex: number) => {
-    setEditingMonthDesc(null);
+  const handleSegmentDescCancel = (segmentIndex: number) => {
+    setEditingSegmentDesc(null);
   };
 
   const handlePercentageSave = (segmentIndex: number, newValue: string) => {
     setEditingPercentage(null);
     const newPercentage = parseFloat(newValue) || 0;
     
-    // Update the segment with new percentage
     const newSegments = [...chartData.segments];
     newSegments[segmentIndex] = {
       ...newSegments[segmentIndex],
       percentage: newPercentage,
-      label: `${newPercentage}%`
+      label: `Сегмент ${segmentIndex + 1}`
+    };
+    
+    const newMonthlyData = [...monthlyData];
+    newMonthlyData[segmentIndex] = {
+      ...newMonthlyData[segmentIndex],
+      percentage: `${newPercentage.toFixed(1)}%`
     };
     
     const newData = { 
       title, 
       chartData: { segments: newSegments }, 
-      monthlyData,
+      monthlyData: newMonthlyData,
       descriptionText
     };
     scheduleAutoSave(newData);
@@ -259,12 +259,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingDescText(true);
   };
 
-  const startEditingMonth = (index: number) => {
-    setEditingMonth(index);
+  const startEditingSegment = (index: number) => {
+    setEditingSegment(index);
   };
 
-  const startEditingMonthDesc = (index: number) => {
-    setEditingMonthDesc(index);
+  const startEditingSegmentDesc = (index: number) => {
+    setEditingSegmentDesc(index);
   };
 
   const startEditingPercentage = (index: number) => {
@@ -286,29 +286,6 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     
     return `conic-gradient(${gradientStops.join(', ')})`;
   };
-
-  // Calculate label positions for pie chart segments
-  const getLabelPositions = () => {
-    const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
-    let cumulativePercentage = 0;
-    
-    return chartData.segments.map((segment, index) => {
-      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
-      const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
-      const centerAngle = (startAngle + endAngle) / 2;
-      cumulativePercentage += segment.percentage;
-      
-      // Convert angle to radians and calculate position
-      const angleRad = (centerAngle - 90) * Math.PI / 180;
-      const radius = 98; // Distance from center
-      const x = 140 + radius * Math.cos(angleRad);
-      const y = 140 + radius * Math.sin(angleRad);
-      
-      return { x, y, angle: centerAngle };
-    });
-  };
-
-  const labelPositions = getLabelPositions();
 
   return (
     <div 
@@ -374,41 +351,70 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
         {/* Main Layout Container */}
         <div className="flex items-center justify-center gap-16">
           
-          {/* Left Column - Months 1-3 */}
+          {/* Left Column - Segments 1-3 */}
           <div className="flex flex-col gap-8">
             {monthlyData.slice(0, 3).map((item, index) => (
               <div key={index} className="flex flex-col gap-3 max-w-xs">
-                <div 
-                  className="px-6 py-3 rounded-lg font-bold text-white text-center text-lg"
-                  style={{ backgroundColor: item.color || '#0ea5e9' }}
-                >
-                  {editingMonth === index && isEditable ? (
-                    <InlineEditor
-                      initialValue={item.month}
-                      onSave={(value) => handleMonthSave(index, value)}
-                      onCancel={() => handleMonthCancel(index)}
-                      style={{
-                        color: '#ffffff',
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '1.125rem'
-                      }}
-                    />
-                  ) : (
-                    <span 
-                      className="cursor-pointer hover:opacity-80"
-                      onClick={() => isEditable && startEditingMonth(index)}
-                    >
-                      {item.month}
-                    </span>
-                  )}
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <div 
+                    className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1"
+                    style={{ backgroundColor: item.color }}
+                  >
+                    {editingSegment === index && isEditable ? (
+                      <InlineEditor
+                        initialValue={item.month}
+                        onSave={(value) => handleSegmentSave(index, value)}
+                        onCancel={() => handleSegmentCancel(index)}
+                        style={{
+                          color: '#ffffff',
+                          textAlign: 'center',
+                          fontWeight: 'bold',
+                          fontSize: '1.125rem'
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        className="cursor-pointer hover:opacity-80"
+                        onClick={() => isEditable && startEditingSegment(index)}
+                      >
+                        {item.month}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-lg font-bold" style={{ color: themeContent }}>
+                    {editingPercentage === index && isEditable ? (
+                      <InlineEditor
+                        initialValue={item.percentage.replace('%', '')}
+                        onSave={(value) => handlePercentageSave(index, value)}
+                        onCancel={() => handlePercentageCancel(index)}
+                        style={{
+                          color: themeContent,
+                          fontSize: '1.125rem',
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                          minWidth: '60px'
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        className="cursor-pointer hover:opacity-80"
+                        onClick={() => isEditable && startEditingPercentage(index)}
+                      >
+                        {item.percentage}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="text-base leading-relaxed">
-                  {editingMonthDesc === index && isEditable ? (
+                <div className="text-base leading-relaxed ml-7">
+                  {editingSegmentDesc === index && isEditable ? (
                     <InlineEditor
                       initialValue={item.description}
-                      onSave={(value) => handleMonthDescSave(index, value)}
-                      onCancel={() => handleMonthDescCancel(index)}
+                      onSave={(value) => handleSegmentDescSave(index, value)}
+                      onCancel={() => handleSegmentDescCancel(index)}
                       multiline={true}
                       style={{
                         color: themeContent,
@@ -420,7 +426,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     <p 
                       className="cursor-pointer hover:opacity-80"
                       style={{ color: themeContent }}
-                      onClick={() => isEditable && startEditingMonthDesc(index)}
+                      onClick={() => isEditable && startEditingSegmentDesc(index)}
                     >
                       {item.description}
                     </p>
@@ -433,104 +439,91 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Center - Pie Chart */}
           <div className="flex flex-col items-center">
             <div 
-              className="relative w-[280px] h-[280px] rounded-full border-3 border-white shadow-lg"
+              className="relative w-[320px] h-[320px] rounded-full border-4 border-white shadow-2xl"
               style={{
                 background: createConicGradient(),
                 borderColor: '#ffffff',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
+                boxShadow: '0 12px 32px rgba(0,0,0,0.15)'
               }}
             >
               {/* Inner circle */}
               <div 
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[67px] h-[67px] rounded-full border-2"
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80px] h-[80px] rounded-full border-3"
                 style={{
                   backgroundColor: themeBg,
-                  borderColor: '#e5e7eb'
+                  borderColor: '#e5e7eb',
+                  borderWidth: '3px'
                 }}
               />
-              
-              {/* Percentage labels */}
-              {chartData.segments.map((segment, index) => {
-                const position = labelPositions[index];
-                return (
-                  <div
-                    key={index}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:opacity-80"
-                    style={{
-                      left: `${position.x}px`,
-                      top: `${position.y}px`,
-                      color: '#ffffff',
-                      fontSize: '18px',
-                      fontWeight: 'bold',
-                      fontFamily: 'Arial, Helvetica, sans-serif',
-                      textShadow: '1px 1px 2px #000000',
-                      userSelect: 'none'
-                    }}
-                    onClick={() => isEditable && startEditingPercentage(index)}
-                  >
-                    {editingPercentage === index && isEditable ? (
-                      <InlineEditor
-                        initialValue={segment.percentage.toString()}
-                        onSave={(value) => handlePercentageSave(index, value)}
-                        onCancel={() => handlePercentageCancel(index)}
-                        style={{
-                          color: '#ffffff',
-                          fontSize: '16px',
-                          fontWeight: 'bold',
-                          textAlign: 'center',
-                          background: 'rgba(0,0,0,0.5)',
-                          borderRadius: '4px',
-                          padding: '2px 4px',
-                          border: '1px solid #ffffff',
-                          minWidth: '40px'
-                        }}
-                      />
-                    ) : (
-                      segment.label
-                    )}
-                  </div>
-                );
-              })}
             </div>
           </div>
 
-          {/* Right Column - Months 4-6 */}
+          {/* Right Column - Segments 4-6 */}
           <div className="flex flex-col gap-8">
             {monthlyData.slice(3, 6).map((item, index) => {
               const actualIndex = index + 3;
               return (
                 <div key={actualIndex} className="flex flex-col gap-3 max-w-xs">
-                  <div 
-                    className="px-6 py-3 rounded-lg font-bold text-white text-center text-lg"
-                    style={{ backgroundColor: item.color || '#f97316' }}
-                  >
-                    {editingMonth === actualIndex && isEditable ? (
-                      <InlineEditor
-                        initialValue={item.month}
-                        onSave={(value) => handleMonthSave(actualIndex, value)}
-                        onCancel={() => handleMonthCancel(actualIndex)}
-                        style={{
-                          color: '#ffffff',
-                          textAlign: 'center',
-                          fontWeight: 'bold',
-                          fontSize: '1.125rem'
-                        }}
-                      />
-                    ) : (
-                      <span 
-                        className="cursor-pointer hover:opacity-80"
-                        onClick={() => isEditable && startEditingMonth(actualIndex)}
-                      >
-                        {item.month}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <div 
+                      className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1"
+                      style={{ backgroundColor: item.color }}
+                    >
+                      {editingSegment === actualIndex && isEditable ? (
+                        <InlineEditor
+                          initialValue={item.month}
+                          onSave={(value) => handleSegmentSave(actualIndex, value)}
+                          onCancel={() => handleSegmentCancel(actualIndex)}
+                          style={{
+                            color: '#ffffff',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            fontSize: '1.125rem'
+                          }}
+                        />
+                      ) : (
+                        <span 
+                          className="cursor-pointer hover:opacity-80"
+                          onClick={() => isEditable && startEditingSegment(actualIndex)}
+                        >
+                          {item.month}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-lg font-bold" style={{ color: themeContent }}>
+                      {editingPercentage === actualIndex && isEditable ? (
+                        <InlineEditor
+                          initialValue={item.percentage.replace('%', '')}
+                          onSave={(value) => handlePercentageSave(actualIndex, value)}
+                          onCancel={() => handlePercentageCancel(actualIndex)}
+                          style={{
+                            color: themeContent,
+                            fontSize: '1.125rem',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            minWidth: '60px'
+                          }}
+                        />
+                      ) : (
+                        <span 
+                          className="cursor-pointer hover:opacity-80"
+                          onClick={() => isEditable && startEditingPercentage(actualIndex)}
+                        >
+                          {item.percentage}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-base leading-relaxed">
-                    {editingMonthDesc === actualIndex && isEditable ? (
+                  <div className="text-base leading-relaxed ml-7">
+                    {editingSegmentDesc === actualIndex && isEditable ? (
                       <InlineEditor
                         initialValue={item.description}
-                        onSave={(value) => handleMonthDescSave(actualIndex, value)}
-                        onCancel={() => handleMonthDescCancel(actualIndex)}
+                        onSave={(value) => handleSegmentDescSave(actualIndex, value)}
+                        onCancel={() => handleSegmentDescCancel(actualIndex)}
                         multiline={true}
                         style={{
                           color: themeContent,
@@ -542,7 +535,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       <p 
                         className="cursor-pointer hover:opacity-80"
                         style={{ color: themeContent }}
-                        onClick={() => isEditable && startEditingMonthDesc(actualIndex)}
+                        onClick={() => isEditable && startEditingSegmentDesc(actualIndex)}
                       >
                         {item.description}
                       </p>

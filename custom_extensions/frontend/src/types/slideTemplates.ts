@@ -329,7 +329,8 @@ export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
   monthlyData: Array<{
     month: string;
     description: string;
-    color?: string;
+    color: string;
+    percentage: string;
   }>;
   descriptionText?: string;
   theme?: SlideTheme;

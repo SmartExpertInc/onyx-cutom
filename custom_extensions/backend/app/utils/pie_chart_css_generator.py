@@ -5,7 +5,7 @@ from typing import List, Dict
 
 def generate_css_pie_chart(segments: List[Dict], chart_id: str = "pie-chart") -> Dict:
     """
-    Генерирует CSS pie chart с точным позиционированием процентов
+    Генерирует CSS pie chart без процентов на диаграмме
     
     Args:
         segments: Список сегментов с ключами 'percentage', 'color', 'label'
@@ -25,14 +25,11 @@ def generate_css_pie_chart(segments: List[Dict], chart_id: str = "pie-chart") ->
     # Генерируем один conic-gradient для всех сегментов
     conic_gradient = generate_conic_gradient(segments, total_percentage)
     
-    # Генерируем позиции для процентов
-    percentage_positions = generate_percentage_positions(segments, total_percentage)
-    
     # Собираем полный CSS
-    full_css = generate_full_css(chart_id, conic_gradient, percentage_positions)
+    full_css = generate_full_css(chart_id, conic_gradient)
     
     # Собираем полный HTML
-    full_html = generate_full_html(chart_id, percentage_positions)
+    full_html = generate_full_html(chart_id)
     
     return {
         "html": full_html,
@@ -49,7 +46,7 @@ def generate_conic_gradient(segments: List[Dict], total_percentage: float) -> st
         if percentage <= 0:
             continue
             
-        color = segment.get('color', '#0ea5e9')
+        color = segment.get('color', '#3B82F6')
         segment_angle = (percentage / total_percentage) * 360
         end_angle = current_angle + segment_angle
         
@@ -64,52 +61,15 @@ def generate_conic_gradient(segments: List[Dict], total_percentage: float) -> st
     else:
         return "conic-gradient(transparent 0deg, transparent 360deg)"
 
-def generate_percentage_positions(segments: List[Dict], total_percentage: float) -> List[Dict]:
-    """Вычисляет точные позиции для процентов"""
-    positions = []
-    current_angle = 0
-    
-    for segment in segments:
-        percentage = segment.get('percentage', 0)
-        if percentage <= 0:
-            continue
-            
-        segment_angle = (percentage / total_percentage) * 360
-        label_angle = current_angle + (segment_angle / 2)
-        
-        # Вычисляем позицию метки - ТОЧНО как во фронтенде
-        rad = math.radians(label_angle - 90)  # -90 для правильной ориентации
-        
-        # Адаптивный радиус для правильного позиционирования
-        if segment_angle < 30:  # Для маленьких сегментов
-            label_radius = 85  # Ближе к центру для лучшего размещения
-        else:
-            label_radius = 98  # ТОЧНО как во фронтенде
-            
-        x = 140 + label_radius * math.cos(rad)
-        y = 140 + label_radius * math.sin(rad)
-        
-        positions.append({
-            'x': x,
-            'y': y,
-            'label': segment.get('label', f"{percentage}%"),
-            'angle': label_angle
-        })
-        
-        current_angle += segment_angle
-    
-    return positions
-
-def generate_full_css(chart_id: str, conic_gradient: str, 
-                     percentage_positions: List[Dict]) -> str:
-    """Генерирует полный CSS код"""
+def generate_full_css(chart_id: str, conic_gradient: str) -> str:
+    """Генерирует полный CSS код для современной круговой диаграммы"""
     
     # CSS для контейнера
     container_css = f"""
     .{chart_id}-container {{
         position: relative;
-        width: 312px;
-        height: 312px;
+        width: 352px;
+        height: 352px;
         margin: 0 auto;
         display: flex;
         align-items: center;
@@ -118,11 +78,12 @@ def generate_full_css(chart_id: str, conic_gradient: str,
     
     .{chart_id}-chart {{
         position: relative;
-        width: 280px;
-        height: 280px;
+        width: 320px;
+        height: 320px;
         border-radius: 50%;
         background: {conic_gradient};
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        border: 4px solid white;
     }}
     
     .{chart_id}-donut-hole {{
@@ -130,79 +91,65 @@ def generate_full_css(chart_id: str, conic_gradient: str,
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 134px;
-        height: 134px;
+        width: 160px;
+        height: 160px;
         border-radius: 50%;
-        background: transparent;
-        border: 2px solid #e5e7eb;
-        z-index: 10;
+        background: white;
+        border: 4px solid #e5e7eb;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     }}
     
     .{chart_id}-outer-border {{
         position: absolute;
-        top: -3px;
-        left: -3px;
-        width: 286px;
-        height: 286px;
+        top: -4px;
+        left: -4px;
+        width: 328px;
+        height: 328px;
         border-radius: 50%;
-        border: 3px solid white;
+        border: 4px solid white;
         z-index: 5;
     }}
-    """
     
-    # CSS для процентов
-    percentage_css = ""
-    for i, pos in enumerate(percentage_positions):
-        percentage_css += f"""
-    .{chart_id}-percentage-{i} {{
+    .{chart_id}-shadow {{
         position: absolute;
-        left: {pos['x']}px;
-        top: {pos['y']}px;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 18px;
-        font-weight: bold;
-        font-family: Arial, Helvetica, sans-serif;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-        z-index: 20;
-        pointer-events: none;
+        top: 12px;
+        left: 12px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.1);
+        filter: blur(16px);
+        z-index: -1;
     }}
     """
     
-    # Собираем все CSS
-    all_css = container_css + percentage_css
-    
-    return all_css
+    return container_css
 
-def generate_full_html(chart_id: str, percentage_positions: List[Dict]) -> str:
-    """Генерирует полный HTML код"""
+def generate_full_html(chart_id: str) -> str:
+    """Генерирует полный HTML код для круговой диаграммы"""
     
     # HTML для контейнера
     container_html = f"""
     <div class="{chart_id}-container">
+        <div class="{chart_id}-shadow"></div>
         <div class="{chart_id}-chart">
             <div class="{chart_id}-outer-border"></div>
             <div class="{chart_id}-donut-hole"></div>
+        </div>
+    </div>
     """
-    
-    # Добавляем проценты
-    for i, pos in enumerate(percentage_positions):
-        container_html += f'            <div class="{chart_id}-percentage-{i}">{pos["label"]}</div>\n'
-    
-    container_html += "        </div>\n    </div>"
     
     return container_html
 
 def test_css_generator():
     """Тестирует CSS генератор"""
     test_segments = [
-        {"label": "8%", "percentage": 8, "color": "#0ea5e9"},
-        {"label": "15%", "percentage": 15, "color": "#f97316"},
-        {"label": "20%", "percentage": 20, "color": "#fb923c"},
-        {"label": "20%", "percentage": 20, "color": "#0ea5e9"},
-        {"label": "25%", "percentage": 25, "color": "#06b6d4"},
-        {"label": "20%", "percentage": 20, "color": "#67e8f9"},
-        {"label": "12%", "percentage": 12, "color": "#0891b2"}
+        {"label": "Сегмент 1", "percentage": 16.67, "color": "#3B82F6"},
+        {"label": "Сегмент 2", "percentage": 16.67, "color": "#10B981"},
+        {"label": "Сегмент 3", "percentage": 16.67, "color": "#F59E0B"},
+        {"label": "Сегмент 4", "percentage": 16.67, "color": "#EF4444"},
+        {"label": "Сегмент 5", "percentage": 16.67, "color": "#8B5CF6"},
+        {"label": "Сегмент 6", "percentage": 16.67, "color": "#EC4899"}
     ]
     
     result = generate_css_pie_chart(test_segments, "test-chart")

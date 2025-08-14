@@ -1,121 +1,157 @@
 #!/usr/bin/env python3
 """
-Utility for calculating precise label positions for pie chart segments
-This ensures consistency between frontend and PDF rendering
+Utility for calculating pie chart segment properties
+Simplified version without percentage labels on the chart
 """
 
 import math
 from typing import List, Dict, Tuple
 
-def calculate_label_positions(segments: List[Dict], center_x: int = 140, center_y: int = 140, radius: int = 98) -> List[Dict]:
+def calculate_segment_angles(segments: List[Dict]) -> List[Dict]:
     """
-    Calculate precise label positions for pie chart segments.
+    Calculate segment angles for pie chart.
     
     Args:
         segments: List of segment dictionaries with 'percentage' key
-        center_x: X coordinate of pie chart center
-        center_y: Y coordinate of pie chart center  
-        radius: Distance from center to place labels
     
     Returns:
-        List of dictionaries with 'x', 'y', 'angle' for each segment
+        List of dictionaries with 'start_angle', 'end_angle', 'center_angle' for each segment
     """
     total_percentage = sum(segment.get('percentage', 0) for segment in segments)
     if total_percentage == 0:
         return []
     
     cumulative_percentage = 0
-    label_positions = []
+    segment_angles = []
     
     for segment in segments:
         percentage = segment.get('percentage', 0)
         
-        # Calculate center angle of this segment
+        # Calculate angles for this segment
         start_angle = (cumulative_percentage / total_percentage) * 360
         end_angle = ((cumulative_percentage + percentage) / total_percentage) * 360
         center_angle = (start_angle + end_angle) / 2
         
-        # Convert to radians and calculate position (same as frontend)
-        angle_rad = (center_angle - 90) * math.pi / 180
-        
-        # АДАПТИВНЫЙ РАДИУС ДЛЯ ПРАВИЛЬНОГО ПОЗИЦИОНИРОВАНИЯ
-        segment_angle = (percentage / total_percentage) * 360
-        if segment_angle < 30:  # Для маленьких сегментов
-            adaptive_radius = 85  # Ближе к центру для лучшего размещения
-        else:
-            adaptive_radius = radius  # ТОЧНО как во фронтенде
-            
-        x = center_x + adaptive_radius * math.cos(angle_rad)
-        y = center_y + adaptive_radius * math.sin(angle_rad)
-        
-        label_positions.append({
-            'x': round(x, 2),
-            'y': round(y, 2),
-            'angle': round(center_angle, 2),
+        segment_angles.append({
+            'start_angle': round(start_angle, 2),
+            'end_angle': round(end_angle, 2),
+            'center_angle': round(center_angle, 2),
             'percentage': percentage,
-            'label': segment.get('label', f"{percentage}%")
+            'label': segment.get('label', f"Сегмент"),
+            'color': segment.get('color', '#3B82F6')
         })
         
         cumulative_percentage += percentage
     
-    return label_positions
+    return segment_angles
 
-def generate_jinja2_label_code(segments: List[Dict]) -> str:
+def generate_conic_gradient(segments: List[Dict]) -> str:
     """
-    Generate Jinja2 template code for label positioning.
+    Generate conic gradient CSS for pie chart.
     
     Args:
         segments: List of segment dictionaries
     
     Returns:
-        Jinja2 template code string
+        CSS conic-gradient string
     """
-    label_positions = calculate_label_positions(segments)
+    total_percentage = sum(segment.get('percentage', 0) for segment in segments)
+    if total_percentage == 0:
+        return "conic-gradient(transparent 0deg, transparent 360deg)"
     
-    if not label_positions:
-        return ""
+    gradient_parts = []
+    cumulative_percentage = 0
     
-    code_lines = [
-        "<!-- Percentage labels - positioned around the circle -->",
-        "{% set cumulative_percentage = 0 %}",
-        "{% for segment in slide.props.chartData.segments %}"
-    ]
+    for segment in segments:
+        percentage = segment.get('percentage', 0)
+        if percentage <= 0:
+            continue
+            
+        color = segment.get('color', '#3B82F6')
+        segment_angle = (percentage / total_percentage) * 360
+        end_angle = cumulative_percentage + segment_angle
+        
+        gradient_parts.append(f"{color} {cumulative_percentage}deg {end_angle}deg")
+        cumulative_percentage = end_angle
     
-    # Add position calculations for each segment
-    for i, pos in enumerate(label_positions):
-        code_lines.extend([
-            f"    {% if loop.index0 == {i} %}",
-            f"        {% set label_x = {pos['x']} %}",
-            f"        {% set label_y = {pos['y']} %}",
-            f"    {% endif %}"
-        ])
+    if gradient_parts:
+        return f"conic-gradient({', '.join(gradient_parts)})"
+    else:
+        return "conic-gradient(transparent 0deg, transparent 360deg)"
+
+def validate_segments(segments: List[Dict]) -> Dict:
+    """
+    Validate and normalize segment data.
     
-    code_lines.extend([
-        "    <div style=\"position: absolute; top: {{ label_y }}px; left: {{ label_x }}px; transform: translate(-50%, -50%); color: #ffffff; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000000; font-family: Arial, Helvetica, sans-serif;\">{{ segment.label }}</div>",
-        "    {% set cumulative_percentage = cumulative_percentage + segment.percentage %}",
-        "{% endfor %}"
-    ])
+    Args:
+        segments: List of segment dictionaries
     
-    return "\n".join(code_lines)
+    Returns:
+        Dictionary with validation results and normalized segments
+    """
+    if not segments:
+        return {
+            'valid': False,
+            'error': 'No segments provided',
+            'segments': []
+        }
+    
+    total_percentage = sum(segment.get('percentage', 0) for segment in segments)
+    
+    if total_percentage == 0:
+        return {
+            'valid': False,
+            'error': 'Total percentage is zero',
+            'segments': segments
+        }
+    
+    # Normalize segments to ensure they sum to 100%
+    normalized_segments = []
+    for segment in segments:
+        percentage = segment.get('percentage', 0)
+        normalized_percentage = (percentage / total_percentage) * 100 if total_percentage > 0 else 0
+        
+        normalized_segments.append({
+            'label': segment.get('label', 'Сегмент'),
+            'percentage': round(normalized_percentage, 2),
+            'color': segment.get('color', '#3B82F6'),
+            'description': segment.get('description', '')
+        })
+    
+    return {
+        'valid': True,
+        'total_percentage': 100.0,
+        'segments': normalized_segments
+    }
 
 def test_calculations():
-    """Test the label position calculations"""
+    """Test the segment calculations"""
     test_segments = [
-        {"label": "25%", "percentage": 25, "color": "#0ea5e9"},
-        {"label": "30%", "percentage": 30, "color": "#06b6d4"},
-        {"label": "20%", "percentage": 20, "color": "#67e8f9"},
-        {"label": "15%", "percentage": 15, "color": "#0891b2"},
-        {"label": "10%", "percentage": 10, "color": "#f97316"}
+        {"label": "Сегмент 1", "percentage": 16.67, "color": "#3B82F6"},
+        {"label": "Сегмент 2", "percentage": 16.67, "color": "#10B981"},
+        {"label": "Сегмент 3", "percentage": 16.67, "color": "#F59E0B"},
+        {"label": "Сегмент 4", "percentage": 16.67, "color": "#EF4444"},
+        {"label": "Сегмент 5", "percentage": 16.67, "color": "#8B5CF6"},
+        {"label": "Сегмент 6", "percentage": 16.67, "color": "#EC4899"}
     ]
     
-    positions = calculate_label_positions(test_segments)
+    # Test angle calculations
+    angles = calculate_segment_angles(test_segments)
+    print("Segment Angles:")
+    for i, angle_data in enumerate(angles):
+        print(f"Segment {i+1}: {angle_data['start_angle']}° - {angle_data['end_angle']}° (center: {angle_data['center_angle']}°)")
     
-    print("Test Label Positions:")
-    for i, pos in enumerate(positions):
-        print(f"Segment {i+1}: {pos['label']} at ({pos['x']}, {pos['y']}) - angle: {pos['angle']}°")
+    # Test conic gradient generation
+    gradient = generate_conic_gradient(test_segments)
+    print(f"\nConic Gradient:\n{gradient}")
     
-    print("\nGenerated Jinja2 Code:")
-    print(generate_jinja2_label_code(test_segments))
+    # Test validation
+    validation = validate_segments(test_segments)
+    print(f"\nValidation: {validation['valid']}")
+    if validation['valid']:
+        print(f"Total percentage: {validation['total_percentage']}%")
+        for segment in validation['segments']:
+            print(f"  {segment['label']}: {segment['percentage']}%")
 
 if __name__ == "__main__":
     test_calculations() 
