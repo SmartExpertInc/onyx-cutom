@@ -197,6 +197,7 @@ interface RenderBlockProps {
   onMoveBlockDown?: (index: number) => void;
   isFirstBlock?: boolean;
   isLastBlock?: boolean;
+  documentContent?: string;
 }
 
 // Modern Settings Modal Component
@@ -794,7 +795,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isMiniSectionHeadline, isListItemContent,
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
-    onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock
+    onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
+    documentContent
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
@@ -2277,6 +2279,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       onMoveBlockDown={handleMoveBlockDown}
                       isFirstBlock={originalIndex === 0}
                       isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                      documentContent={documentContent}
                     />
                   </div>
                 );
