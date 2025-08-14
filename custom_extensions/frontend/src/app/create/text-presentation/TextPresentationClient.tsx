@@ -233,7 +233,8 @@ export default function TextPresentationClient() {
     return lessons;
   };
 
-  const lessonList = parseContentIntoLessons(content);
+  // Use useMemo to recalculate lessonList when content changes
+  const lessonList = React.useMemo(() => parseContentIntoLessons(content), [content]);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
@@ -321,6 +322,10 @@ export default function TextPresentationClient() {
       }
     }
 
+    console.log("DEBUG: updateContentWithNewTitle - oldTitle:", oldTitle);
+    console.log("DEBUG: updateContentWithNewTitle - newTitle:", newTitle);
+    console.log("DEBUG: updateContentWithNewTitle - content changed:", updatedContent !== content);
+    
     setContent(updatedContent);
     
     // Clear the edited title since it's now part of the main content
@@ -343,6 +348,7 @@ export default function TextPresentationClient() {
       const newSet = new Set(prev);
       newSet.delete(oldTitle); // Remove old title
       newSet.add(newTitle);    // Add new title
+      console.log("DEBUG: updateContentWithNewTitle - updated editedTitleNames:", Array.from(newSet));
       return newSet;
     });
     
