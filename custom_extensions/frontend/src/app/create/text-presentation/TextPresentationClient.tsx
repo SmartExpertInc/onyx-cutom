@@ -484,6 +484,10 @@ export default function TextPresentationClient() {
     setError(null);
     try {
       // NEW: Determine what content to send based on user edits
+      console.log("[DEBUG] handleApplyEdit: hasUserEdits =", hasUserEdits);
+      console.log("[DEBUG] handleApplyEdit: originallyEditedTitles =", Array.from(originallyEditedTitles));
+      console.log("[DEBUG] handleApplyEdit: editedTitleIds =", Array.from(editedTitleIds));
+      
       let contentToSend = content;
       let isCleanContent = false;
       
@@ -491,10 +495,13 @@ export default function TextPresentationClient() {
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
+        console.log("[DEBUG] handleApplyEdit: Using clean content (titles only)");
+        console.log("[DEBUG] handleApplyEdit: Clean content =", contentToSend);
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;
         isCleanContent = false;
+        console.log("[DEBUG] handleApplyEdit: Using full content");
       }
 
       const payload: any = {
@@ -816,6 +823,10 @@ export default function TextPresentationClient() {
 
     try {
       // NEW: Determine what content to send based on user edits
+      console.log("[DEBUG] handleFinalize: hasUserEdits =", hasUserEdits);
+      console.log("[DEBUG] handleFinalize: originallyEditedTitles =", Array.from(originallyEditedTitles));
+      console.log("[DEBUG] handleFinalize: editedTitleIds =", Array.from(editedTitleIds));
+      
       let contentToSend = content;
       let isCleanContent = false;
       
@@ -823,10 +834,13 @@ export default function TextPresentationClient() {
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
+        console.log("[DEBUG] handleFinalize: Using clean content (titles only)");
+        console.log("[DEBUG] handleFinalize: Clean content =", contentToSend);
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;
         isCleanContent = false;
+        console.log("[DEBUG] handleFinalize: Using full content");
       }
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
