@@ -13,6 +13,7 @@ import {
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
 import { uploadOnePagerImage } from '@/lib/designTemplateApi';
+import WordStyleImageEditor from './WordStyleImageEditor';
 
 // Type definitions for internal structuring
 type MiniSection = {
@@ -195,317 +196,6 @@ interface RenderBlockProps {
   isFirstBlock?: boolean;
   isLastBlock?: boolean;
 }
-
-// Microsoft Word-style Image Editing Components
-const WordStyleImageToolbar: React.FC<{
-  isVisible: boolean;
-  onClose: () => void;
-  imageBlock: ImageBlock;
-  onImageChange: (updates: Partial<ImageBlock>) => void;
-  position: { x: number; y: number };
-}> = ({ isVisible, onClose, imageBlock, onImageChange, position }) => {
-  const { t } = useLanguage();
-  
-  if (!isVisible) return null;
-
-  return (
-    <div 
-      className="fixed z-[9999] bg-white border border-gray-300 rounded-lg shadow-lg"
-      style={{ 
-        left: position.x, 
-        top: position.y,
-        minWidth: '300px'
-      }}
-    >
-      {/* Toolbar Header */}
-      <div className="bg-gray-100 px-3 py-2 border-b border-gray-300 rounded-t-lg flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Image Tools</span>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Toolbar Content */}
-      <div className="p-3 space-y-4">
-        {/* Size Controls */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">Size</label>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
-                onImageChange({ width: Math.max(50, currentWidth - 25) });
-              }}
-              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-            >
-              Smaller
-            </button>
-            <button
-              onClick={() => {
-                const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
-                onImageChange({ width: Math.min(800, currentWidth + 25) });
-              }}
-              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-            >
-              Larger
-            </button>
-            <button
-              onClick={() => onImageChange({ width: 300 })}
-              className="px-2 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
-            >
-              Reset
-            </button>
-          </div>
-          <div className="mt-1 text-xs text-gray-500">
-            Width: {typeof imageBlock.width === 'number' ? `${imageBlock.width}px` : 'auto'}
-          </div>
-        </div>
-
-        {/* Layout Controls */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">Layout</label>
-          <div className="grid grid-cols-2 gap-1">
-            <button
-              onClick={() => onImageChange({ layoutMode: 'standalone' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.layoutMode === 'standalone' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              In Line
-            </button>
-            <button
-              onClick={() => onImageChange({ layoutMode: 'inline-left' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.layoutMode === 'inline-left' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Square
-            </button>
-            <button
-              onClick={() => onImageChange({ layoutMode: 'inline-right' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.layoutMode === 'inline-right' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Tight
-            </button>
-            <button
-              onClick={() => onImageChange({ layoutMode: 'side-by-side-left' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.layoutMode === 'side-by-side-left' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Behind
-            </button>
-          </div>
-        </div>
-
-        {/* Alignment Controls */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">Alignment</label>
-          <div className="flex gap-1">
-            <button
-              onClick={() => onImageChange({ alignment: 'left' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.alignment === 'left' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Left
-            </button>
-            <button
-              onClick={() => onImageChange({ alignment: 'center' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.alignment === 'center' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Center
-            </button>
-            <button
-              onClick={() => onImageChange({ alignment: 'right' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.alignment === 'right' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Right
-            </button>
-          </div>
-        </div>
-
-        {/* Border Controls */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">Border</label>
-          <div className="flex gap-1">
-            <button
-              onClick={() => onImageChange({ borderRadius: '0px' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.borderRadius === '0px' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              None
-            </button>
-            <button
-              onClick={() => onImageChange({ borderRadius: '4px' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.borderRadius === '4px' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Square
-            </button>
-            <button
-              onClick={() => onImageChange({ borderRadius: '8px' })}
-              className={`px-2 py-1 text-xs rounded border ${
-                imageBlock.borderRadius === '8px' 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Rounded
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const WordStyleContextMenu: React.FC<{
-  isVisible: boolean;
-  onClose: () => void;
-  imageBlock: ImageBlock;
-  onImageChange: (updates: Partial<ImageBlock>) => void;
-  position: { x: number; y: number };
-}> = ({ isVisible, onClose, imageBlock, onImageChange, position }) => {
-  if (!isVisible) return null;
-
-  return (
-    <div 
-      className="fixed z-[9999] bg-white border border-gray-300 rounded-lg shadow-lg min-w-[200px]"
-      style={{ left: position.x, top: position.y }}
-    >
-      <div className="py-1">
-                  <button
-            onClick={() => {
-              const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
-              onImageChange({ width: Math.max(50, currentWidth - 25) });
-              onClose();
-            }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
-            </svg>
-            Make Smaller
-          </button>
-          <button
-            onClick={() => {
-              const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
-              onImageChange({ width: Math.min(800, currentWidth + 25) });
-              onClose();
-            }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-          >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-          </svg>
-          Make Larger
-        </button>
-        <hr className="my-1" />
-        <button
-          onClick={() => {
-            onImageChange({ alignment: 'left' });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          Align Left
-        </button>
-        <button
-          onClick={() => {
-            onImageChange({ alignment: 'center' });
-            onImageChange({ alignment: 'center' });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          Align Center
-        </button>
-        <button
-          onClick={() => {
-            onImageChange({ alignment: 'right' });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          Align Right
-        </button>
-        <hr className="my-1" />
-        <button
-          onClick={() => {
-            onImageChange({ layoutMode: 'standalone' });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          In Line with Text
-        </button>
-        <button
-          onClick={() => {
-            onImageChange({ layoutMode: 'inline-left' });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          Square
-        </button>
-        <button
-          onClick={() => {
-            onImageChange({ layoutMode: 'inline-right' });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          Tight
-        </button>
-      </div>
-    </div>
-  );
-};
 
 // Modern Settings Modal Component
 const BlockSettingsModal = ({ 
@@ -1105,11 +795,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock
   } = props;
 
-  const [showSettings, setShowSettings] = useState(false);
-  const [showWordToolbar, setShowWordToolbar] = useState(false);
-  const [showContextMenu, setShowContextMenu] = useState(false);
-  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
-  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
 
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];
@@ -1135,57 +821,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       onTextChange(pathForData, event.target.value);
     }
   };
-
-  const handleImageChange = (updates: Partial<ImageBlock>) => {
-    if (onTextChange && block.type === 'image') {
-      Object.entries(updates).forEach(([key, value]) => {
-        onTextChange([...basePath, key], value);
-      });
-    }
-  };
-
-  const handleImageClick = (event: React.MouseEvent) => {
-    if (isEditing && block.type === 'image') {
-      event.preventDefault();
-      const rect = event.currentTarget.getBoundingClientRect();
-      setToolbarPosition({ 
-        x: rect.left, 
-        y: rect.bottom + 10 
-      });
-      setShowWordToolbar(true);
-      setShowContextMenu(false);
-    }
-  };
-
-  const handleImageRightClick = (event: React.MouseEvent) => {
-    if (isEditing && block.type === 'image') {
-      event.preventDefault();
-      setContextMenuPosition({ 
-        x: event.clientX, 
-        y: event.clientY 
-      });
-      setShowContextMenu(true);
-      setShowWordToolbar(false);
-    }
-  };
-
-  // Close menus when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setShowWordToolbar(false);
-      setShowContextMenu(false);
-    };
-
-    if (showWordToolbar || showContextMenu) {
-      document.addEventListener('click', handleClickOutside);
-      document.addEventListener('contextmenu', handleClickOutside);
-      
-      return () => {
-        document.removeEventListener('click', handleClickOutside);
-        document.removeEventListener('contextmenu', handleClickOutside);
-      };
-    }
-  }, [showWordToolbar, showContextMenu]);
   
   switch (block.type) {
     case 'headline': {
@@ -1742,7 +1377,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
       // Calculate current width for scaling controls
-      const currentWidth = width ? (typeof width === 'number' ? width : parseInt(String(width))) : 300;
+      const currentWidth = width ? (typeof width === 'number' ? width : parseInt(width)) : 300;
       const imageWidth = Math.max(50, Math.min(currentWidth, 800)); // Constrain between 50px and 800px
       
       // Ensure proper image path resolution with null check
@@ -1800,12 +1435,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </div>
             )}
             
-            {/* Settings button */}
+            {/* Word-style Editor button */}
             {isEditing && (
               <button
-                onClick={() => setShowSettings(true)}
-                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-50"
-                title="Image settings"
+                onClick={() => setShowWordStyleEditor(true)}
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#2b579a] hover:bg-[#1e3a8a] rounded p-1.5 text-xs text-white shadow-lg z-50"
+                title="Format Picture (Word-style)"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -1843,13 +1478,19 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </p>
             )}
             
-            {/* Settings Modal for inline layout */}
-            <BlockSettingsModal
-              isOpen={showSettings}
-              onClose={() => setShowSettings(false)}
-              block={block}
-              onTextChange={onTextChange}
-              basePath={basePath}
+            {/* Word-style Image Editor */}
+            <WordStyleImageEditor
+              isOpen={showWordStyleEditor}
+              onClose={() => setShowWordStyleEditor(false)}
+              imageBlock={block as ImageBlock}
+              onImageChange={(updatedBlock) => {
+                // Update all properties of the image block
+                Object.keys(updatedBlock).forEach(key => {
+                  if (key !== 'type' && key !== 'src') {
+                    onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                  }
+                });
+              }}
             />
           </div>
         );
@@ -1884,12 +1525,12 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </div>
             )}
             
-            {/* Settings button */}
+            {/* Word-style Editor button */}
             {isEditing && (
               <button
-                onClick={() => setShowSettings(true)}
-                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-50"
-                title="Image settings"
+                onClick={() => setShowWordStyleEditor(true)}
+                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#2b579a] hover:bg-[#1e3a8a] rounded p-1.5 text-xs text-white shadow-lg z-50"
+                title="Format Picture (Word-style)"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -1926,13 +1567,19 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </p>
             )}
             
-            {/* Settings Modal for side-by-side layout */}
-            <BlockSettingsModal
-              isOpen={showSettings}
-              onClose={() => setShowSettings(false)}
-              block={block}
-              onTextChange={onTextChange}
-              basePath={basePath}
+            {/* Word-style Image Editor */}
+            <WordStyleImageEditor
+              isOpen={showWordStyleEditor}
+              onClose={() => setShowWordStyleEditor(false)}
+              imageBlock={block as ImageBlock}
+              onImageChange={(updatedBlock) => {
+                // Update all properties of the image block
+                Object.keys(updatedBlock).forEach(key => {
+                  if (key !== 'type' && key !== 'src') {
+                    onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                  }
+                });
+              }}
             />
           </div>
         );
@@ -1968,21 +1615,20 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           )}
           
           <div className="inline-block relative">
-            {/* Word-style Image with click handlers */}
+            {/* Use regular img tag for better compatibility in view mode */}
             <img
               src={imageSrc}
               alt={alt || 'Uploaded image'}
-              className={`h-auto shadow-sm ${isEditing ? 'cursor-pointer hover:shadow-md transition-shadow duration-200' : ''}`}
+              className="h-auto shadow-sm"
               style={{
                 width: `${imageWidth}px`,
                 height: height ? (typeof height === 'number' ? `${height}px` : height) : 'auto',
                 borderRadius: borderRadius || '8px',
                 maxWidth: maxWidth || '100%'
               }}
-              onClick={handleImageClick}
-              onContextMenu={handleImageRightClick}
               onError={(e) => {
                 console.error('Image failed to load:', imageSrc);
+                // Fallback: try with different path resolution
                 const target = e.target as HTMLImageElement;
                 if (!target.src.includes('/api/custom-projects-backend/')) {
                   target.src = `/api/custom-projects-backend${imageSrc}`;
@@ -1990,10 +1636,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               }}
             />
             
-            {/* Word-style selection indicator */}
-            {isEditing && (
-              <div className="absolute inset-0 border-2 border-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-            )}
+            {/* Scaling Controls in Edit Mode */}
+
             
             {caption && (
               <p className="text-xs text-gray-600 mt-2 italic">
@@ -2012,41 +1656,30 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             )}
           </div>
           
-          {/* Word-style Toolbar */}
-          <WordStyleImageToolbar
-            isVisible={showWordToolbar}
-            onClose={() => setShowWordToolbar(false)}
-            imageBlock={block as ImageBlock}
-            onImageChange={handleImageChange}
-            position={toolbarPosition}
-          />
-          
-          {/* Word-style Context Menu */}
-          <WordStyleContextMenu
-            isVisible={showContextMenu}
-            onClose={() => setShowContextMenu(false)}
-            imageBlock={block as ImageBlock}
-            onImageChange={handleImageChange}
-            position={contextMenuPosition}
-          />
-          
-          {/* Legacy Settings Button (fallback) */}
+          {/* Word-style Settings Button */}
           {isEditing && onTextChange && (
             <button
-              onClick={() => setShowSettings(true)}
-              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
-              title="Advanced settings"
+              onClick={() => setShowWordStyleEditor(true)}
+              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-[#2b579a] border border-[#1e3a8a] rounded-md shadow-sm hover:bg-[#1e3a8a] hover:border-[#1e3a8a]"
+              title="Format Picture (Word-style)"
             >
-              <Settings className="w-4 h-4 text-gray-600" />
+              <Settings className="w-4 h-4 text-white" />
             </button>
           )}
           
-          <BlockSettingsModal
-            isOpen={showSettings}
-            onClose={() => setShowSettings(false)}
-            block={block}
-            onTextChange={onTextChange}
-            basePath={basePath}
+          {/* Word-style Image Editor */}
+          <WordStyleImageEditor
+            isOpen={showWordStyleEditor}
+            onClose={() => setShowWordStyleEditor(false)}
+            imageBlock={block as ImageBlock}
+            onImageChange={(updatedBlock) => {
+              // Update all properties of the image block
+              Object.keys(updatedBlock).forEach(key => {
+                if (key !== 'type' && key !== 'src') {
+                  onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                }
+              });
+            }}
           />
         </div>
       );
@@ -2183,67 +1816,6 @@ const ImageUploadModal: React.FC<{
         
         <div className="mt-4 text-xs text-gray-500">
           {t('interface.imageUpload.supportedFormatsText')}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Word-style Top Toolbar Component
-const WordStyleTopToolbar: React.FC<{
-  isVisible: boolean;
-  onAddImage: () => void;
-}> = ({ isVisible, onAddImage }) => {
-  if (!isVisible) return null;
-
-  return (
-    <div className="fixed top-0 left-0 right-0 z-[9998] bg-white border-b border-gray-300 shadow-sm">
-      <div className="flex items-center justify-between px-4 py-2">
-        <div className="flex items-center space-x-4">
-          {/* Insert Section */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700">Insert:</span>
-            <button
-              onClick={onAddImage}
-              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              Picture
-            </button>
-          </div>
-
-          {/* Format Section */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700">Format:</span>
-            <div className="flex items-center space-x-1">
-              <button className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <button className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12l3-3 3 3 3-3" />
-                </svg>
-              </button>
-              <button className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21l3-3m0 0l3 3m-3-3v6" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Help Section */}
-        <div className="flex items-center space-x-2">
-          <button className="px-2 py-1 text-gray-500 hover:text-gray-700">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
@@ -2449,17 +2021,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const styledTextTitle = parseAndStyleText(dataToDisplay.textTitle);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Word-style Top Toolbar */}
-      <WordStyleTopToolbar
-        isVisible={isEditing}
-        onAddImage={() => setShowImageUpload(true)}
-      />
-      
-      {/* Main Content with top margin for toolbar */}
-      <div className={`p-4 ${isEditing ? 'pt-16' : ''}`}>
-        <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-          <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-white p-4">
+      <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
+        <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
           {dataToDisplay.textTitle && (
             <header className="mb-4 text-left">
               {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
@@ -2627,7 +2191,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
               return null;
             })}
           </main>
-          </div>
         </div>
       </div>
       
