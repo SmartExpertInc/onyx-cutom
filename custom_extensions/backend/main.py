@@ -13641,6 +13641,14 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
         wizard_dict["prompt"] = payload.prompt
 
     wizard_dict["importantRules"] = "IMPORTANT: DO NOT CREATE CONCLUSION SLIDES. ONLY CREATE EDUCATIONAL SLIDES. DO NOT CREATE SLIDES WITH TITLES LIKE 'Conclusion', 'Summary', 'Wrap-Up', 'Thank You', 'Further Reading', 'Additional Resources', 'Questions', 'Open Floor for Questions', 'Feedback'. DO NOT MAKE SECOND SLIDE BE A TITLE SLIDE. DO NOT USE 'content-slide' SLIDES"
+    wizard_dict["importantRules"] += """
+CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
+1. After the Universal Product Header (**[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**), add exactly TWO blank lines
+2. Each slide MUST use this exact format: **Slide N: [Descriptive Title]**
+3. Use "---" separators between slides
+5. NEVER use markdown headers (##, ###) for slide titles - ONLY use **Slide N: Title** format
+6. Ensure slides are numbered sequentially: Slide 1, Slide 2, Slide 3, etc.
+    """
     
     # Add file context if provided
     if payload.fromFiles:
