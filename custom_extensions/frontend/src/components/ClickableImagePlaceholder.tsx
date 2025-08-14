@@ -92,10 +92,13 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   // Detailed logging for context menu lifecycle
   useEffect(() => {
     if (isOpen) {
+      const adjusted = getAdjustedPosition();
       console.log('🔍 [ContextMenu] OPENED', {
         instanceId,
         targetElementId,
-        position,
+        originalPosition: position,
+        adjustedPosition: adjusted,
+        viewportSize: { width: window.innerWidth, height: window.innerHeight },
         debugInfo,
         timestamp: Date.now()
       });
@@ -129,26 +132,85 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 
   if (!isOpen) return null;
 
-  // Calculate position to ensure menu appears below cursor
-  const adjustedPosition = {
-    x: position.x,
-    y: position.y + 10 // Offset below cursor
-  };
+  // Calculate position to ensure menu appears at cursor and stays in viewport
+  const getAdjustedPosition = useCallback(() => {
+    const menuWidth = 160; // min-w-[160px]
+    const menuHeight = 80; // Approximate height
+    const padding = 10;
+    
+    // Get scroll position
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Calculate viewport-relative position
+    let x = position.x - scrollX;
+    let y = position.y - scrollY + padding; // Small offset below cursor
+    
+    console.log('🔍 [ContextMenu] Position calculation', {
+      originalPosition: position,
+      scrollPosition: { x: scrollX, y: scrollY },
+      viewportPosition: { x, y },
+      viewportSize: { width: window.innerWidth, height: window.innerHeight }
+    });
+    
+    // Ensure menu doesn't go off the right edge of viewport
+    if (x + menuWidth > window.innerWidth) {
+      x = window.innerWidth - menuWidth - padding;
+    }
+    
+    // Ensure menu doesn't go off the bottom edge of viewport
+    if (y + menuHeight > window.innerHeight) {
+      y = position.y - scrollY - menuHeight - padding; // Show above cursor instead
+    }
+    
+    // Ensure menu doesn't go off the left edge
+    if (x < padding) {
+      x = padding;
+    }
+    
+    // Ensure menu doesn't go off the top edge
+    if (y < padding) {
+      y = padding;
+    }
+    
+    // Convert back to page coordinates for fixed positioning
+    const finalX = x + scrollX;
+    const finalY = y + scrollY;
+    
+    console.log('🔍 [ContextMenu] Final position', {
+      finalPosition: { x: finalX, y: finalY },
+      viewportAdjusted: { x, y }
+    });
+    
+    return { x: finalX, y: finalY };
+  }, [position.x, position.y]);
+  
+  const adjustedPosition = getAdjustedPosition();
 
   return (
-    <div
-      ref={menuRef}
-      className="fixed z-[99999] bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[160px]"
-      style={{
-        left: adjustedPosition.x,
-        top: adjustedPosition.y,
-        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
-      }}
-      data-context-menu-for={targetElementId}
-      data-instance-id={instanceId}
-      data-debug-slide={debugInfo?.slideId}
-      data-debug-element={debugInfo?.elementId}
-    >
+    <>
+      {/* Debug indicator - shows where the menu should appear */}
+      <div
+        className="fixed z-[99998] w-2 h-2 bg-red-500 rounded-full pointer-events-none"
+        style={{
+          left: position.x - 4,
+          top: position.y - 4,
+        }}
+      />
+      
+      <div
+        ref={menuRef}
+        className="fixed z-[99999] bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[160px]"
+        style={{
+          left: adjustedPosition.x,
+          top: adjustedPosition.y,
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
+        }}
+        data-context-menu-for={targetElementId}
+        data-instance-id={instanceId}
+        data-debug-slide={debugInfo?.slideId}
+        data-debug-element={debugInfo?.elementId}
+      >
       <button
         onClick={() => {
           console.log('🔍 [ContextMenu] Replace Image clicked', {
@@ -179,7 +241,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
           <span>Remove Image</span>
         </button>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
@@ -555,15 +618,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     };
     
     // Open the context menu for THIS instance
+    const menuPosition = { x: e.clientX, y: e.clientY };
+    
     console.log('🔍 [RightClick] Opening context menu', {
       instanceId,
-      position: { x: e.clientX, y: e.clientY },
+      position: menuPosition,
+      targetElementRect: targetElement.getBoundingClientRect(),
       debugInfo
     });
     
     setContextMenu({
       isOpen: true,
-      position: { x: e.clientX, y: e.clientY }
+      position: menuPosition
     });
     
     // Store debug info for context menu
