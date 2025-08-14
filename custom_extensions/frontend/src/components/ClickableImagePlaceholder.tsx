@@ -89,51 +89,12 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Detailed logging for context menu lifecycle
-  useEffect(() => {
-    if (isOpen) {
-      const adjusted = getAdjustedPosition();
-      console.log('🔍 [ContextMenu] OPENED', {
-        instanceId,
-        targetElementId,
-        originalPosition: position,
-        adjustedPosition: adjusted,
-        viewportSize: { width: window.innerWidth, height: window.innerHeight },
-        debugInfo,
-        timestamp: Date.now()
-      });
-    } else {
-      console.log('🔍 [ContextMenu] CLOSED', {
-        instanceId,
-        targetElementId,
-        timestamp: Date.now()
-      });
-    }
-  }, [isOpen, instanceId, targetElementId, position, debugInfo]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        console.log('🔍 [ContextMenu] Click outside detected', {
-          instanceId,
-          targetElementId,
-          clickedElement: event.target,
-          menuElement: menuRef.current
-        });
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen, onClose, instanceId, targetElementId]);
-
-  if (!isOpen) return null;
-
   // Calculate position to ensure menu appears at cursor and stays in viewport
   const getAdjustedPosition = useCallback(() => {
+    if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+      return { x: 0, y: 0 };
+    }
+    
     const menuWidth = 160; // min-w-[160px]
     const menuHeight = 80; // Approximate height
     const padding = 10;
@@ -183,8 +144,51 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     });
     
     return { x: finalX, y: finalY };
-  }, [position.x, position.y]);
-  
+  }, [position?.x, position?.y]);
+
+  // Detailed logging for context menu lifecycle
+  useEffect(() => {
+    if (isOpen) {
+      const adjusted = getAdjustedPosition();
+      console.log('🔍 [ContextMenu] OPENED', {
+        instanceId,
+        targetElementId,
+        originalPosition: position,
+        adjustedPosition: adjusted,
+        viewportSize: { width: window.innerWidth, height: window.innerHeight },
+        debugInfo,
+        timestamp: Date.now()
+      });
+    } else {
+      console.log('🔍 [ContextMenu] CLOSED', {
+        instanceId,
+        targetElementId,
+        timestamp: Date.now()
+      });
+    }
+  }, [isOpen, instanceId, targetElementId, position, debugInfo, getAdjustedPosition]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        console.log('🔍 [ContextMenu] Click outside detected', {
+          instanceId,
+          targetElementId,
+          clickedElement: event.target,
+          menuElement: menuRef.current
+        });
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen, onClose, instanceId, targetElementId]);
+
+  if (!isOpen) return null;
+
   const adjustedPosition = getAdjustedPosition();
 
   return (
