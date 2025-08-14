@@ -1667,15 +1667,21 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             )}
           </div>
           
-          {/* Word-style Settings Button */}
+          {/* Basic Actions Button */}
           {isEditing && onTextChange && (
-            <button
-              onClick={() => setShowWordStyleEditor(true)}
-              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-[#2b579a] border border-[#1e3a8a] rounded-md shadow-sm hover:bg-[#1e3a8a] hover:border-[#1e3a8a]"
-              title="Format Picture (Word-style)"
-            >
-              <Settings className="w-4 h-4 text-white" />
-            </button>
+            <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <ImageBasicActions
+                imageBlock={block as ImageBlock}
+                onImageChange={(updatedBlock) => {
+                  Object.keys(updatedBlock).forEach(key => {
+                    if (key !== 'type' && key !== 'src') {
+                      onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                    }
+                  });
+                }}
+                onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+              />
+            </div>
           )}
           
           {/* Word-style Image Editor */}
