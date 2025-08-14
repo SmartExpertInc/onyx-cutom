@@ -707,7 +707,6 @@
                 <!-- Pie Chart SVG -->
                 <div class="pie-chart-svg" style="flex: 1; max-width: 300px;">
                     <svg width="300" height="300" viewBox="0 0 300 300" style="display: block; margin: 0 auto;">
-                        <!-- Mock data for products distribution -->
                         {% set total_products = 156 %}
                         {% set one_pager_count = 45 %}
                         {% set presentation_count = 38 %}
@@ -718,71 +717,71 @@
                         {% set presentation_percentage = (presentation_count / total_products * 100) | round(1) %}
                         {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
                         {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
-                        
-                        <!-- Enhanced pie chart with precise calculations -->
+
+                        <!-- Precalculated arcs for mock data -->
                         <g transform="translate(150, 150)">
-                            <!-- One-pager segment (28.8% = 103.7 degrees) - Purple -->
-                            <path d="M 0 -120 A 120 120 0 0 1 114.6 -32.4 L 0 0 Z" 
+                            <!-- One-pager (28.8%) -->
+                            <path d="M 0 -120 A 120 120 0 0 1 116.49 -34.77 L 0 0 Z" 
                                   fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Presentation segment (24.4% = 87.8 degrees) - Blue -->
-                            <path d="M 114.6 -32.4 A 120 120 0 0 1 119.9 119.9 L 0 0 Z" 
+                            <!-- Presentation (24.4%) -->
+                            <path d="M 116.49 -34.77 A 120 120 0 0 1 69.92 97.51 L 0 0 Z" 
                                   fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Quiz segment (26.9% = 96.8 degrees) - Green -->
-                            <path d="M 119.9 119.9 A 120 120 0 0 1 -13.2 119.3 L 0 0 Z" 
+                            <!-- Quiz (26.9%) -->
+                            <path d="M 69.92 97.51 A 120 120 0 0 1 -42.35 112.31 L 0 0 Z" 
                                   fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Video lesson segment (19.9% = 71.7 degrees) - Orange -->
-                            <path d="M -13.2 119.3 A 120 120 0 0 1 0 -120 L 0 0 Z" 
+                            <!-- Video lesson (19.9%) -->
+                            <path d="M -42.35 112.31 A 120 120 0 0 1 0 -120 L 0 0 Z" 
                                   fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Enhanced center circle with better styling -->
-                            <circle cx="0" cy="0" r="45" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
-                            <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 16px; font-weight: 700; fill: #1e293b;">{{ total_products }}</text>
-                            <text x="0" y="22" text-anchor="middle" style="font-size: 11px; fill: #64748b; font-weight: 500;">Total Products</text>
+                            <!-- Center circle -->
+                            <circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+                            <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 14px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
+                            <text x="0" y="20" text-anchor="middle" style="font-size: 10px; fill: #64748b;">Total</text>
                         </g>
                     </svg>
                 </div>
                 
-                <!-- Enhanced Legend -->
+                <!-- Legend -->
                 <div class="pie-chart-legend" style="flex: 1; margin-left: 32px;">
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 20px; padding: 8px; border-radius: 6px; background: #f8fafc;">
-                        <div class="legend-color" style="width: 20px; height: 20px; background: #9333ea; border-radius: 4px; margin-right: 16px; flex-shrink: 0; border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></div>
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #9333ea; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">One-pager</div>
-                            <div style="color: #64748b; font-size: 13px; font-weight: 500;">{{ one_pager_count }} products ({{ one_pager_percentage }}%)</div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">One-pager</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ one_pager_count }} products ({{ one_pager_percentage }}%)</div>
                         </div>
                     </div>
                     
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 20px; padding: 8px; border-radius: 6px; background: #f8fafc;">
-                        <div class="legend-color" style="width: 20px; height: 20px; background: #2563eb; border-radius: 4px; margin-right: 16px; flex-shrink: 0; border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></div>
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #2563eb; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">Presentation</div>
-                            <div style="color: #64748b; font-size: 13px; font-weight: 500;">{{ presentation_count }} products ({{ presentation_percentage }}%)</div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Presentation</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ presentation_count }} products ({{ presentation_percentage }}%)</div>
                         </div>
                     </div>
                     
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 20px; padding: 8px; border-radius: 6px; background: #f8fafc;">
-                        <div class="legend-color" style="width: 20px; height: 20px; background: #16a34a; border-radius: 4px; margin-right: 16px; flex-shrink: 0; border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></div>
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #16a34a; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">Quiz</div>
-                            <div style="color: #64748b; font-size: 13px; font-weight: 500;">{{ quiz_count }} products ({{ quiz_percentage }}%)</div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Quiz</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ quiz_count }} products ({{ quiz_percentage }}%)</div>
                         </div>
                     </div>
                     
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 20px; padding: 8px; border-radius: 6px; background: #f8fafc;">
-                        <div class="legend-color" style="width: 20px; height: 20px; background: #ea580c; border-radius: 4px; margin-right: 16px; flex-shrink: 0; border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></div>
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #ea580c; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">Video Lesson</div>
-                            <div style="color: #64748b; font-size: 13px; font-weight: 500;">{{ video_lesson_count }} products ({{ video_lesson_percentage }}%)</div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Video Lesson</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ video_lesson_count }} products ({{ video_lesson_percentage }}%)</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         {% endif %}
-        
+
         <!-- Empty state -->
         {% if not folders and not unassigned_projects %}
         <div class="table-container">
