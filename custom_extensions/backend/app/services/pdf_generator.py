@@ -363,7 +363,7 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
         
         # Log all other properties
         logger.info(f"PDF GEN: === ALL OTHER PROPERTIES ===")
-            for key, value in props.items():
+        for key, value in props.items():
             if key not in image_path_props + size_props + fit_props + transform_props + prompt_props + ['title', 'subtitle', 'bullets']:
                 logger.info(f"PDF GEN: Additional prop '{key}': type={type(value)}, value={value}")
     
