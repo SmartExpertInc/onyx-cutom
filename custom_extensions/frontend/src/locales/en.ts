@@ -453,7 +453,6 @@ export const en = {
     
     // Modal common
     modal: {
-      customizeContent: "Customize your content",
       cancel: "Cancel",
       applyChanges: "Apply Changes"
     },
@@ -514,7 +513,6 @@ export const en = {
       layoutOptions: "Layout Options",
       partnerContent: "Partner Content",
       partnerContentHelp: "content to place alongside image",
-      selectContentBlock: "Select content block...",
       block1: "Block 1: Headline/Paragraph",
       block2: "Block 2: List/Content",
       block3: "Block 3: Another content block",
@@ -642,7 +640,6 @@ export const en = {
       questions: "questions",
       slides: "slides",
       lesson: "Lesson",
-      content: "Content",
       generatingLessonContent: "Generating lesson content...",
       applyingEdit: "Applying edit...",
       lessonContentPlaceholder: "Lesson content will appear here...",
@@ -677,11 +674,6 @@ export const en = {
       modeUsingAsBaseStructure: "Mode: Using as base structure",
       // Additional keys for themes and content sections
       setupContentBuilder: "Set up your Contentbuilder",
-      // Language options
-      english: "English",
-      ukrainian: "Ukrainian",
-      spanish: "Spanish",
-      russian: "Russian",
       // Course outline dropdown options
       perModule: "per module",
       // One-pager dropdown options

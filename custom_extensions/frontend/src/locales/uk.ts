@@ -408,7 +408,6 @@ export const uk = {
     
     // Modal common
     modal: {
-      customizeContent: "Налаштуйте ваш контент",
       cancel: "Скасувати",
       applyChanges: "Застосувати зміни"
     },
@@ -469,7 +468,6 @@ export const uk = {
       layoutOptions: "Параметри макета",
       partnerContent: "Партнерський контент",
       partnerContentHelp: "контент для розміщення поруч з зображенням",
-      selectContentBlock: "Виберіть блок контенту...",
       block1: "Блок 1: Заголовок/Абзац",
       block2: "Блок 2: Список/Контент",
       block3: "Блок 3: Інший блок контенту",
@@ -823,11 +821,6 @@ export const uk = {
       modeUsingAsBaseStructure: "Режим: Використання як базова структура",
       // Additional keys for themes and content sections
       setupContentBuilder: "Налаштуйте ваш Конструктор Контенту",
-      // Language options
-      english: "Англійська",
-      ukrainian: "Українська",
-      spanish: "Іспанська",
-      russian: "Російська",
 
       aiWillUseTextAsContext: "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту.",
       aiWillBuildUponText: "ШІ буде розвивати вашу існуючу структуру контенту для створення навчальних матеріалів.",

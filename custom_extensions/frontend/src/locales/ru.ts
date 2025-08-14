@@ -408,7 +408,6 @@ export const ru = {
     
     // Modal common
     modal: {
-      customizeContent: "Настройте ваш контент",
       cancel: "Отмена",
       applyChanges: "Применить изменения"
     },
@@ -469,7 +468,6 @@ export const ru = {
       layoutOptions: "Параметры макета",
       partnerContent: "Партнерский контент",
       partnerContentHelp: "контент для размещения рядом с изображением",
-      selectContentBlock: "Выберите блок контента...",
       block1: "Блок 1: Заголовок/Абзац",
       block2: "Блок 2: Список/Контент",
       block3: "Блок 3: Другой блок контента",
@@ -820,11 +818,6 @@ export const ru = {
       modeUsingAsBaseStructure: "Режим: Использование как базовая структура",
       // Additional keys for themes and content sections
       setupContentBuilder: "Настройте ваш Конструктор Контента",
-      // Language options
-      english: "Английский",
-      ukrainian: "Украинский",
-      spanish: "Испанский",
-      russian: "Русский",
 
       aiWillUseTextAsContext: "ИИ будет использовать ваш текст как справочный материал и контекст для создания нового образовательного контента.",
       aiWillBuildUponText: "ИИ будет развивать вашу существующую структуру контента для создания образовательных материалов.",

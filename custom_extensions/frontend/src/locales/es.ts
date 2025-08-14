@@ -415,7 +415,6 @@ export const es = {
     
     // Modal common
     modal: {
-      customizeContent: "Personaliza tu contenido",
       cancel: "Cancelar",
       applyChanges: "Aplicar cambios"
     },
@@ -476,7 +475,6 @@ export const es = {
       layoutOptions: "Opciones de diseño",
       partnerContent: "Contenido asociado",
       partnerContentHelp: "contenido para colocar junto a la imagen",
-      selectContentBlock: "Seleccionar bloque de contenido...",
       block1: "Bloque 1: Encabezado/Párrafo",
       block2: "Bloque 2: Lista/Contenido",
       block3: "Bloque 3: Otro bloque de contenido",
@@ -830,11 +828,6 @@ export const es = {
       modeUsingAsBaseStructure: "Modo: Usar como estructura base",
       // Additional keys for themes and content sections
       setupContentBuilder: "Configura tu Constructor de Contenido",
-      // Language options
-      english: "Inglés",
-      ukrainian: "Ucraniano",
-      spanish: "Español",
-      russian: "Ruso",
 
       aiWillUseTextAsContext: "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",
       aiWillBuildUponText: "La IA desarrollará tu estructura de contenido existente para crear materiales educativos.",
