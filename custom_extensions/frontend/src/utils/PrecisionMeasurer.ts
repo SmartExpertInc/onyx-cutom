@@ -82,7 +82,17 @@ export class PrecisionMeasurer {
    * @param transformString - CSS transform value (e.g., "translate(10px, 5px) scale(1.1)")
    * @returns Transform matrix with raw, matrix array, and decomposed components
    */
-  private static parseTransform(transformString: string) {
+  private static parseTransform(transformString: string): {
+    raw: string;
+    matrix: number[];
+    decomposed: {
+      translateX: number;
+      translateY: number;
+      scaleX: number;
+      scaleY: number;
+      rotation: number;
+    };
+  } {
     if (transformString === 'none') {
       return {
         raw: 'none',
