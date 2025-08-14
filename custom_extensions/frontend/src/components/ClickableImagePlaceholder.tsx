@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ImageIcon, Replace } from 'lucide-react';
+import { ImageIcon, Replace, MoreVertical, Download, Trash2 } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
@@ -40,6 +40,68 @@ export interface ClickableImagePlaceholderProps {
   savedImageSize?: { width: number; height: number };
 }
 
+// Context Menu Component
+interface ContextMenuProps {
+  isOpen: boolean;
+  position: { x: number; y: number };
+  onClose: () => void;
+  onReplaceImage: () => void;
+  onRemoveImage?: () => void;
+}
+
+const ContextMenu: React.FC<ContextMenuProps> = ({
+  isOpen,
+  position,
+  onClose,
+  onReplaceImage,
+  onRemoveImage
+}) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      ref={menuRef}
+      className="fixed z-[99999] bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[160px]"
+      style={{
+        left: position.x,
+        top: position.y,
+      }}
+    >
+      <button
+        onClick={onReplaceImage}
+        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2 transition-colors"
+      >
+        <Replace className="w-4 h-4" />
+        <span>Replace Image</span>
+      </button>
+      {onRemoveImage && (
+        <button
+          onClick={onRemoveImage}
+          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors"
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Remove Image</span>
+        </button>
+      )}
+    </div>
+  );
+};
+
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   imagePath,
   onImageUploaded,
@@ -67,14 +129,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [showImageEditModal, setShowImageEditModal] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
-  // ✅ FIXED: Improved state management for drag/resize operations
-  const [moveTarget, setMoveTarget] = useState<HTMLElement | null>(null);
+  // ✅ NEW: Click-to-activate interaction model
+  const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   
-  // ✅ NEW: Track if a drag operation has actually started (mouse moved)
-  const [hasActuallyDragged, setHasActuallyDragged] = useState(false);
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    isOpen: boolean;
+    position: { x: number; y: number };
+  }>({
+    isOpen: false,
+    position: { x: 0, y: 0 }
+  });
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -146,70 +214,28 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [containerRef, savedImagePosition, savedImageSize, elementId]);
 
-  // ✅ FIXED: Improved hover handlers with better state checking
-  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMouseEnter = useCallback(() => {
-    // Clear any pending hide timeout
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = null;
-    }
-
-    if (isEditable && containerRef.current && !isDragging && !isResizing && !isRotating) {
-      setMoveTarget(containerRef.current);
-      log('ClickableImagePlaceholder', 'showMoveable', {
-        elementId,
-        isDragging,
-        isResizing,
-        isRotating
-      });
-    }
-  }, [isEditable, containerRef, isDragging, isResizing, isRotating, elementId]);
-
-  const handleMouseLeave = useCallback(() => {
-    // Hide anchors only if no active operations and add delay to avoid flickering
-    if (!isDragging && !isResizing && !isRotating) {
-      hideTimeoutRef.current = setTimeout(() => {
-        setMoveTarget(null);
-        log('ClickableImagePlaceholder', 'hideMoveable', {
-          elementId,
-          isDragging,
-          isResizing,
-          isRotating
-        });
-      }, 150);
-    }
-  }, [isDragging, isResizing, isRotating, elementId]);
-
-  // Cleanup timeouts on unmount
+  // ✅ NEW: Click outside detection to deselect
   useEffect(() => {
-    return () => {
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsSelected(false);
+        log('ClickableImagePlaceholder', 'deselected', { elementId });
       }
     };
-  }, []);
 
-  // ✅ FIXED: Simplified drag/resize callbacks without timeout conflicts
-  const handleDragStart = useCallback(() => {
-    // Clear hide timeout when starting drag
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = null;
+    if (isSelected) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-    
+  }, [isSelected, containerRef, elementId]);
+
+  // ✅ NEW: Simplified drag/resize callbacks
+  const handleDragStart = useCallback(() => {
     setIsDragging(true);
-    setHasActuallyDragged(false); // Reset the actual drag flag
     log('ClickableImagePlaceholder', 'dragStart', { elementId });
   }, [elementId]);
 
   const handleDrag = useCallback((e: any) => {
-    // Mark that we've actually dragged (not just started)
-    if (!hasActuallyDragged) {
-      setHasActuallyDragged(true);
-    }
-
     e.target.style.transform = e.transform;
     
     // Extract position from transform
@@ -224,41 +250,27 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         elementId: elementId
       });
     }
-  }, [hasActuallyDragged, onSizeTransformChange, elementId]);
+  }, [onSizeTransformChange, elementId]);
 
   const handleDragEnd = useCallback((e: any) => {
-    const actuallyDragged = hasActuallyDragged;
-    
     setIsDragging(false);
-    setHasActuallyDragged(false);
+    log('ClickableImagePlaceholder', 'dragEnd', { elementId });
     
-    log('ClickableImagePlaceholder', 'dragEnd', { 
-      elementId, 
-      actuallyDragged 
-    });
-    
-    // Only update position if we actually dragged
-    if (actuallyDragged) {
-      const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-      if (transformMatch) {
-        const [, translate] = transformMatch;
-        const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
-        
-        onSizeTransformChange?.({
-          imagePosition: { x, y },
-          elementId: elementId,
-          final: true
-        });
-      }
+    // Final position update after drag ends
+    const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
+    if (transformMatch) {
+      const [, translate] = transformMatch;
+      const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
+      
+      onSizeTransformChange?.({
+        imagePosition: { x, y },
+        elementId: elementId,
+        final: true
+      });
     }
-  }, [hasActuallyDragged, onSizeTransformChange, elementId]);
+  }, [onSizeTransformChange, elementId]);
 
   const handleResizeStart = useCallback(() => {
-    // Clear hide timeout when starting resize
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = null;
-    }
     setIsResizing(true);
     log('ClickableImagePlaceholder', 'resizeStart', { elementId });
   }, [elementId]);
@@ -295,11 +307,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [onSizeTransformChange, elementId]);
 
   const handleRotateStart = useCallback(() => {
-    // Clear hide timeout when starting rotate
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = null;
-    }
     setIsRotating(true);
     log('ClickableImagePlaceholder', 'rotateStart', { elementId });
   }, [elementId]);
@@ -309,32 +316,57 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     log('ClickableImagePlaceholder', 'rotateEnd', { elementId });
   }, [elementId]);
 
-  // ✅ FIXED: Improved click handler that properly distinguishes from drag
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    // Prevent click if we're in the middle of operations or just finished dragging
-    if (isDragging || isResizing || isRotating || hasActuallyDragged) {
-      log('ClickableImagePlaceholder', 'clickBlocked', {
-        elementId,
-        isDragging,
-        isResizing,
-        isRotating,
-        hasActuallyDragged
-      });
-      return;
-    }
-
+  // ✅ NEW: Click handler for activating anchors
+  const handleImageClick = useCallback((e: React.MouseEvent) => {
     if (!isEditable) return;
+    
+    // Prevent event bubbling
+    e.stopPropagation();
+    
+    // Toggle selection state
+    setIsSelected(!isSelected);
+    log('ClickableImagePlaceholder', 'imageClick', { 
+      elementId, 
+      newSelectionState: !isSelected 
+    });
+  }, [isEditable, isSelected, elementId]);
 
-    log('ClickableImagePlaceholder', 'clickAllowed', { elementId });
+  // ✅ NEW: Right-click handler for context menu
+  const handleRightClick = useCallback((e: React.MouseEvent) => {
+    if (!isEditable || !displayedImage) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setContextMenu({
+      isOpen: true,
+      position: { x: e.clientX, y: e.clientY }
+    });
+    
+    log('ClickableImagePlaceholder', 'rightClick', { elementId });
+  }, [isEditable, displayedImage, elementId]);
 
-    if (displayedImage) {
-      // If image exists, show upload modal for replacement
-      setShowUploadModal(true);
-    } else {
-      // If no image, show upload modal
-      setShowUploadModal(true);
-    }
-  }, [isDragging, isResizing, isRotating, hasActuallyDragged, isEditable, displayedImage, elementId]);
+  // ✅ NEW: Context menu handlers
+  const handleReplaceImage = useCallback(() => {
+    setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+    setShowUploadModal(true);
+    log('ClickableImagePlaceholder', 'replaceImage', { elementId });
+  }, [elementId]);
+
+  const handleRemoveImage = useCallback(() => {
+    setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+    setDisplayedImage(undefined);
+    onImageUploaded('');
+    setIsSelected(false);
+    log('ClickableImagePlaceholder', 'removeImage', { elementId });
+  }, [onImageUploaded, elementId]);
+
+  // ✅ NEW: Click handler for empty placeholder
+  const handlePlaceholderClick = useCallback(() => {
+    if (!isEditable) return;
+    setShowUploadModal(true);
+    log('ClickableImagePlaceholder', 'placeholderClick', { elementId });
+  }, [isEditable, elementId]);
 
   // Handle image upload and open edit modal
   const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
@@ -434,13 +466,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     tmp.src = imagePath;
   }, [onImageUploaded, onSizeTransformChange, cropMode, elementId]);
 
-  // ✅ FIXED: Updated Moveable component with improved callbacks
+  // ✅ NEW: Updated Moveable component with click-to-activate
   const renderMoveable = () => {
-    if (!isEditable || !containerRef.current) return null;
+    if (!isEditable || !containerRef.current || !isSelected) return null;
 
     return (
       <Moveable
-        target={moveTarget}
+        target={containerRef.current}
         draggable={true}
         throttleDrag={1}
         edgeDraggable={false}
@@ -493,50 +525,38 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   if (displayedImage) {
     return (
       <>
-        <div
-          className="moveable-hover-area"
+        <div 
+          ref={containerRef}
+          data-moveable-element={elementId}
+          className={`
+            ${positionClasses[position]} 
+            relative overflow-hidden rounded-lg
+            ${isEditable ? 'cursor-pointer' : ''}
+            ${isSelected ? 'ring-2 ring-blue-500' : ''}
+            ${className}
+          `}
           style={{
-            position: 'relative',
-            padding: '20px',
-            margin: '-20px'
+            ...(style || {}),
           }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onClick={handleImageClick}
+          onContextMenu={handleRightClick}
         >
-          <div 
-            ref={containerRef}
-            data-moveable-element={elementId}
-            className={`
-              ${positionClasses[position]} 
-              relative overflow-hidden rounded-lg
-              ${isEditable && !isDragging && !isResizing && !isRotating ? 'group cursor-pointer hover:ring-2 hover:ring-blue-400' : ''}
-              ${className}
-            `}
+          <img 
+            ref={imgRef}
+            src={displayedImage}
+            alt="Uploaded content"
+            className="w-full h-full object-cover"
             style={{
-              ...(style || {}),
+              objectFit: cropMode
             }}
-            onClick={handleClick}
-          >
-            <img 
-              ref={imgRef}
-              src={displayedImage}
-              alt="Uploaded content"
-              className="w-full h-full object-cover"
-              style={{
-                objectFit: cropMode
-              }}
-            />
-            
-            {/* ✅ FIXED: Updated overlay condition */}
-            {isEditable && !isDragging && !isResizing && !isRotating && !hasActuallyDragged && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="text-white text-center">
-                  <Replace className="w-6 h-6 mx-auto mb-2" />
-                  <div className="text-sm font-medium">Replace Image</div>
-                </div>
-              </div>
-            )}
-          </div>
+          />
+          
+          {/* ✅ NEW: Selection indicator */}
+          {isSelected && (
+            <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1">
+              <MoreVertical className="w-4 h-4" />
+            </div>
+          )}
         </div>
 
         {renderMoveable()}
@@ -557,6 +577,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onDoNotCrop={handleDoNotCrop}
           onCancel={handleModalCancel}
         />
+
+        <ContextMenu
+          isOpen={contextMenu.isOpen}
+          position={contextMenu.position}
+          onClose={() => setContextMenu({ isOpen: false, position: { x: 0, y: 0 } })}
+          onReplaceImage={handleReplaceImage}
+          onRemoveImage={handleRemoveImage}
+        />
       </>
     );
   }
@@ -564,53 +592,40 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Placeholder when no image
   return (
     <>
-      <div
-        className="moveable-hover-area"
+      <div 
+        ref={containerRef}
+        data-moveable-element={elementId}
+        className={`
+          ${positionClasses[position]} 
+          bg-gradient-to-br from-blue-100 to-purple-100 
+          border-2 border-dashed border-gray-300 
+          rounded-lg flex items-center justify-center 
+          text-gray-500 text-sm
+          ${position === 'BACKGROUND' ? 'opacity-20' : ''}
+          ${isEditable ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer' : ''}
+          ${className}
+        `}
         style={{
-          position: 'relative',
-          padding: '20px',
-          margin: '-20px'
+          ...(style || {}),
         }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onClick={handlePlaceholderClick}
       >
-        <div 
-          ref={containerRef}
-          data-moveable-element={elementId}
-          className={`
-            ${positionClasses[position]} 
-            bg-gradient-to-br from-blue-100 to-purple-100 
-            border-2 border-dashed border-gray-300 
-            rounded-lg flex items-center justify-center 
-            text-gray-500 text-sm
-            ${position === 'BACKGROUND' ? 'opacity-20' : ''}
-            ${isEditable && !isDragging && !isResizing && !isRotating ? 'hover:border-blue-400 hover:bg-blue-50 transition-all duration-200' : ''}
-            ${className}
-          `}
-          style={{
-            ...(style || {}),
-          }}
-          onClick={handleClick}
-        >
-          <div className="text-center p-4" style={{ cursor: (isEditable && !isDragging && !isResizing && !isRotating) ? 'pointer' : 'default' }}>
-            <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <div className="font-medium">{size} Image</div>
-            <div className="text-xs mt-1 opacity-75">{description}</div>
-            {prompt && (
-              <div className="text-xs mt-1 opacity-60 italic">
-                "{prompt}"
-              </div>
-            )}
-            {isEditable && (
-              <div className="text-xs mt-2 text-blue-600 font-medium">
-                Click to upload
-              </div>
-            )}
-          </div>
+        <div className="text-center p-4">
+          <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <div className="font-medium">{size} Image</div>
+          <div className="text-xs mt-1 opacity-75">{description}</div>
+          {prompt && (
+            <div className="text-xs mt-1 opacity-60 italic">
+              "{prompt}"
+            </div>
+          )}
+          {isEditable && (
+            <div className="text-xs mt-2 text-blue-600 font-medium">
+              Click to upload
+            </div>
+          )}
         </div>
       </div>
-
-      {renderMoveable()}
 
       <PresentationImageUpload
         isOpen={showUploadModal}
