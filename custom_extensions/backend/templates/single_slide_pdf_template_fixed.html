@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Slide PDF - Fixed</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Mont Font Family - Embedded Base64 Fonts for PDF Rendering */
+        {{ embedded_fonts_css|safe }}
+        
+        /* Reset and base styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Dynamic page setup for PDF - HEIGHT IS SET BY PYTHON */
+        @page {
+            size: 1174px {{ slide_height }}px; /* Dynamic height from Python */
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Single slide container - EXACT FRONTEND MATCH */
+        .slide-page {
+            width: 1174px;
+            height: {{ slide_height }}px; /* Dynamic height from Python */
+            min-height: {{ slide_height }}px;
+            max-height: {{ slide_height }}px;
+            position: relative;
+            overflow: visible; /* Allow content to determine height */
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            display: block;
+        }
+        
+        /* Dynamic positioning support for PDF */
+        .positioned-element {
+            position: absolute;
+            z-index: 1;
+        }
+        
+        /* Hide empty content in PDF */
+        .hide-if-empty:empty {
+            display: none !important;
+        }
+        
+        /* Hide elements with only placeholder text */
+        .hide-placeholder {
+            display: none !important;
+        }
+        
+        /* Dynamic positioning container */
+        .slide-content {
+            width: 100%;
+            height: 100%; /* Fill the page height */
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            position: relative; /* Enable absolute positioning for children */
+        }
+        
+        /* Theme color definitions - EXACT FRONTEND MATCH */
+        .theme-dark-purple {
+            --bg-color: #110c35;
+            --title-color: #ffffff;
+            --subtitle-color: #d9e1ff;
+            --content-color: #d9e1ff;
+            --accent-color: #f35657;
+            --title-font: 'Kanit', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 45px;
+            --content-size: 18px;
+        }
+        
+        .theme-light-modern {
+            --bg-color: #ffffff;
+            --title-color: #1a1a1a;
+            --subtitle-color: #6b7280;
+            --content-color: #374151;
+            --accent-color: #3b82f6;
+            --title-font: 'Inter', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 36px;
+            --content-size: 16px;
+        }
+        
+        .theme-corporate-blue {
+            --bg-color: #1e3a8a;
+            --title-color: #ffffff;
+            --subtitle-color: #bfdbfe;
+            --content-color: #e0e7ff;
+            --accent-color: #60a5fa;
+            --title-font: 'Roboto', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 40px;
+            --content-size: 16px;
+        }
+        
+        /* Additional themes remain the same... */
+        .theme-chudo-theme {
+            --bg-color: #ffffff;
+            --title-color: #d01510;
+            --subtitle-color: #3a3a3a;
+            --content-color: #3a3a3a;
+            --accent-color: #ed6c00;
+            --border-color: #d01510;
+            --title-font: 'Mont Bold', sans-serif;
+            --content-font: 'Mont Regular', sans-serif;
+            --title-size: 40px;
+            --content-size: 16px;
+        }
+        
+        /* FIXED BULLET POINTS TEMPLATE */
+        .bullet-points {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 80px;
+            position: relative;
+            font-family: var(--content-font);
+        }
+        
+        .bullet-points .slide-title {
+            font-family: var(--title-font);
+            font-size: 45px;
+            font-weight: 700;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 32px;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        
+        .bullet-points .content-row {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-evenly;
+            flex: 1;
+        }
+        
+        .bullet-points .placeholder-container {
+            flex: 0 0 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            width: 50%;
+            height: 100%;
+        }
+        
+        .bullet-points .bullets-container {
+            flex: 1 1 50%;
+            font-size: 18px;
+            font-family: var(--content-font);
+            color: var(--content-color);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding-left: 40px;
+        }
+        
+        /* FIXED BIG IMAGE LEFT TEMPLATE */
+        .big-image-left {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            align-items: stretch;
+            padding: 0;
+        }
+        
+        .big-image-left .image-container {
+            flex: 0 0 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            position: relative;
+            min-width: 0;
+        }
+        
+        .big-image-left .content-container {
+            flex: 1 1 60%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+        
+        /* ENHANCED TWO-COLUMN TEMPLATE - FIXED ASPECT RATIO ISSUES */
+        .two-column {
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            min-height: 600px;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+        }
+        
+        .two-column-layout {
+            display: flex;
+            gap: 40px;
+            width: 100%;
+        }
+        
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Enhanced image containers for consistent behavior */
+        .responsive-image-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        
+        /* Common slide styles - EXACT FRONTEND MATCH */
+        .slide {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--content-color);
+            font-family: var(--content-font);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+        }
+        
+        /* Enhanced positioning for draggable elements */
+        .draggable-element {
+            position: absolute;
+            z-index: 1;
+        }
+        
+        /* Slide content with positioning support */
+        .slide-content-positioned {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        /* Title styles - EXACT FRONTEND MATCH */
+        .slide-title {
+            font-family: var(--title-font);
+            font-size: 45px;
+            color: var(--title-color);
+            text-align: left;
+            margin-bottom: 24px;
+            line-height: 1.2;
+            max-width: 1174px;
+            word-wrap: break-word;
+        }
+        
+        .slide-subtitle {
+            font-family: var(--content-font);
+            font-size: 26px;
+            color: var(--subtitle-color);
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.4;
+            max-width: 700px;
+            word-wrap: break-word;
+        }
+        
+        /* Content text styles - EXACT FRONTEND MATCH */
+        .content-text {
+            font-family: var(--content-font);
+            font-size: 18px;
+            color: var(--content-color);
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
+        /* Bullet list styling */
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+        
+        .bullet-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .bullet-icon {
+            color: var(--accent-color);
+            font-weight: 600;
+            min-width: 20px;
+            font-size: 1.2rem;
+            font-family: var(--title-font);
+        }
+        
+        .bullet-text {
+            font-family: var(--content-font);
+            font-size: 18px;
+            color: var(--content-color);
+            line-height: 1.6;
+        }
+        
+        /* MACRO FOR CONSISTENT IMAGE RENDERING */
+        .macro-render-image {
+            border-radius: 8px;
+            margin: 0;
+            display: block;
+        }
+        
+        /* Hide empty content in PDF */
+        .hide-if-empty:empty {
+            display: none !important;
+        }
+        
+        .hide-placeholder {
+            display: none !important;
+        }
+        
+        /* Enhanced error handling for missing images */
+        .image-error-fallback {
+            width: 100%;
+            height: 200px;
+            background-color: #f8f9fa;
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* Dynamic slide content container */
+        .slide-content {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            position: relative;
+        }
+        
+        /* CRITICAL FIX: Enhanced image system with !important for transforms */
+        .image-container-enhanced {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .image-with-transforms {
+            display: block;
+            border-radius: 8px;
+            margin: 0;
+            /* Force consistent object-fit behavior */
+            object-fit: var(--image-object-fit, cover);
+            /* Ensure transforms are always applied when present */
+            transform: var(--image-transform, none) !important;
+            transform-origin: var(--image-transform-origin, center center) !important;
+            /* Consistent sizing */
+            width: var(--image-width, 100%);
+            height: var(--image-height, 100%);
+            max-width: var(--image-max-width, none);
+            max-height: var(--image-max-height, none);
+        }
+        
+        /* Transform debugging - visible in dev mode */
+        .transform-debug {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid red;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0; /* Set to 1 for debugging */
+        }
+        
+        /* FIXED: Image with transform support - ADDED !important */
+        .transformed-image {
+            position: relative !important;
+            display: block !important;
+            max-width: none !important;
+            max-height: none !important;
+            border-radius: 8px !important;
+        }
+        
+        /* Support for different crop modes */
+        .crop-cover {
+            object-fit: cover !important;
+        }
+        
+        .crop-contain {
+            object-fit: contain !important;
+        }
+        
+        .crop-fill {
+            object-fit: fill !important;
+        }
+        
+        /* Enhanced positioning for draggable elements */
+        .draggable-element {
+            position: absolute !important;
+            z-index: 1 !important;
+        }
+        
+        /* Slide content with positioning support */
+        .slide-content-positioned {
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: visible !important;
+        }
+        
+        /* Image size variants */
+        .image-size-small {
+            width: 200px !important;
+            height: 150px !important;
+        }
+        
+        .image-size-medium {
+            width: 300px !important;
+            height: 200px !important;
+        }
+        
+        .image-size-large {
+            width: 400px !important;
+            height: 300px !important;
+        }
+        
+        /* Image position variants */
+        .image-position-left {
+            justify-self: start !important;
+            align-self: center !important;
+        }
+        
+        .image-position-right {
+            justify-self: end !important;
+            align-self: center !important;
+        }
+        
+        .image-position-center {
+            justify-self: center !important;
+            align-self: center !important;
+        }
+        
+        .image-position-background {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: -1 !important;
+            opacity: 0.2 !important;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="slide-page">
+        <div class="slide-content theme-{{ theme or 'dark-purple' }}">
+            {% if slide.templateId == 'bullet-points' %}
+                <div class="bullet-points">
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px) !important;"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    
+                    <div class="content-row">
+                        <div class="placeholder-container">
+                            {% if slide.props.imagePath %}
+                                <!-- FIXED: Enhanced image container with consistent transform application -->
+                                <div class="image-container-enhanced responsive-image-container" 
+                                     style="
+                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '400px' }};
+                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '400px' }};
+                                        aspect-ratio: 1 / 1;
+                                        --image-width: 100%;
+                                        --image-height: 100%;
+                                        --image-object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        {% if slide.props.imageOffset or slide.props.imageScale %}
+                                            --image-transform: 
+                                            {% if slide.props.imageOffset %}
+                                                translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }})
+                                            {% endif %}
+                                            {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale }})
+                                            {% endif %};
+                                            --image-transform-origin: center center;
+                                        {% else %}
+                                            --image-transform: none;
+                                        {% endif %}
+                                        {% if slide.metadata and slide.metadata.elementPositions %}
+                                            {% set imageId = 'draggable-' + slide.slideId + '-image' %}
+                                            {% if slide.metadata.elementPositions[imageId] %}
+                                                transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px) !important;
+                                            {% endif %}
+                                        {% endif %}
+                                     ">
+                                    
+                                    <img src="{{ slide.props.imagePath }}" 
+                                         alt="Uploaded image" 
+                                         class="image-with-transforms macro-render-image"
+                                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;image-error-fallback&quot;><div style=&quot;font-size: 32px; margin-bottom: 8px;&quot;>🖼️</div><div>Image Load Error</div><div style=&quot;font-size: 12px; opacity: 0.7;&quot;>{{ slide.props.imagePrompt or slide.props.imageAlt or 'Image could not be loaded' }}</div></div>';" />
+                                    
+                                    <!-- Transform debugging overlay -->
+                                    <div class="transform-debug"></div>
+                                </div>
+                            {% else %}
+                                <!-- Fallback placeholder -->
+                                <div class="image-error-fallback">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                    <div>No Image</div>
+                                    <div style="font-size: 12px; opacity: 0.7;">400px × 400px</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="bullets-container">
+                            <ul class="bullet-list">
+                                {% for bullet in slide.props.bullets %}
+                                    {% if bullet and bullet != 'Click to add bullet point' %}
+                                    <li class="bullet-item">
+                                        <span class="bullet-icon">
+                                            {% if slide.props.bulletStyle == 'arrow' %}→
+                                            {% elif slide.props.bulletStyle == 'check' %}✓
+                                            {% elif slide.props.bulletStyle == 'star' %}★
+                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                            {% else %}•
+                                            {% endif %}
+                                        </span>
+                                        <span class="bullet-text">{{ bullet }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'big-image-left' %}
+                <div class="big-image-left">
+                    <div class="image-container">
+                        {% if slide.props.imagePath %}
+                            <!-- FIXED: Consistent transform logic for big-image-left -->
+                            <div class="image-container-enhanced" 
+                                 style="
+                                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '500px' }};
+                                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '350px' }};
+                                    position: relative;
+                                    overflow: hidden;
+                                    border-radius: 8px;
+                                    --image-width: 100%;
+                                    --image-height: 100%;
+                                    --image-object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                    {% if slide.props.imageOffset or slide.props.imageScale %}
+                                        --image-transform: 
+                                        {% if slide.props.imageOffset %}
+                                            translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }})
+                                        {% endif %}
+                                        {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                            {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale }})
+                                        {% endif %};
+                                        --image-transform-origin: center center;
+                                    {% else %}
+                                        --image-transform: none;
+                                    {% endif %}
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set imageId = 'draggable-' + slide.slideId + '-image' %}
+                                        {% if slide.metadata.elementPositions[imageId] %}
+                                            transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px) !important;
+                                        {% endif %}
+                                    {% endif %}
+                                 ">
+                                
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     class="image-with-transforms macro-render-image"
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;image-error-fallback&quot;><div style=&quot;font-size: 32px; margin-bottom: 8px;&quot;>🖼️</div><div>Image Load Error</div></div>';" />
+                            </div>
+                        {% else %}
+                            <div class="image-error-fallback">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div>No Image</div>
+                                <div style="font-size: 12px; opacity: 0.7;">500px × 350px</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="content-container">
+                        {% if slide.props.title and slide.props.title != 'Click to add title' and slide.props.title != 'Add title' %}
+                            <h1 class="slide-title positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                    {% if slide.metadata.elementPositions[titleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px) !important;"
+                                    {% endif %}
+                                {% endif %}
+                            >{{ slide.props.title }}</h1>
+                        {% endif %}
+                        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' and slide.props.subtitle != 'Add subtitle' %}
+                            <div class="content-text positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+                                    {% if slide.metadata.elementPositions[subtitleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px) !important;"
+                                    {% endif %}
+                                {% endif %}
+                            >{{ slide.props.subtitle }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'two-column' %}
+                <div class="two-column">
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px) !important;"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    
+                    <div class="two-column-layout">
+                        <!-- LEFT COLUMN - FIXED ASPECT RATIO HANDLING -->
+                        <div class="column">
+                            {% if slide.props.leftImagePath %}
+                                <div class="responsive-image-container" 
+                                     style="
+                                        width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '100%' }};
+                                        height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else '200px' }};
+                                        max-width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '320px' }};
+                                        max-height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else '200px' }};
+                                        --image-width: 100%;
+                                        --image-height: 100%;
+                                        --image-object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'cover' }};
+                                        {% if slide.props.leftImageOffset or slide.props.leftImageScale %}
+                                            --image-transform: 
+                                            {% if slide.props.leftImageOffset %}
+                                                translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset.x is not none else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset.y is not none else '0px' }})
+                                            {% endif %}
+                                            {% if slide.props.leftImageScale and slide.props.leftImageScale != 1 %}
+                                                {% if slide.props.leftImageOffset %} {% endif %}scale({{ slide.props.leftImageScale }})
+                                            {% endif %};
+                                        {% else %}
+                                            --image-transform: none;
+                                        {% endif %}
+                                     ">
+                                    
+                                    <img src="{{ slide.props.leftImagePath }}" 
+                                         alt="Left column image" 
+                                         class="image-with-transforms macro-render-image"
+                                         onerror="this.parentElement.innerHTML='<div class=&quot;image-error-fallback&quot;><div>Left Image Error</div></div>';" />
+                                </div>
+                            {% endif %}
+                            
+                            {% if slide.props.leftTitle and slide.props.leftTitle != 'Click to add left title' %}
+                                <h2 class="column-title" style="font-family: var(--title-font); font-size: 27px; color: var(--title-color); margin: 16px 0; word-wrap: break-word;">{{ slide.props.leftTitle }}</h2>
+                            {% endif %}
+                            {% if slide.props.leftContent and slide.props.leftContent != 'Click to add left content' %}
+                                <p class="column-content" style="font-family: var(--content-font); font-size: 18px; color: var(--content-color); line-height: 1.6; word-wrap: break-word;">{{ slide.props.leftContent }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- RIGHT COLUMN - FIXED ASPECT RATIO HANDLING -->
+                        <div class="column">
+                            {% if slide.props.rightImagePath %}
+                                <div class="responsive-image-container" 
+                                     style="
+                                        width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '100%' }};
+                                        height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else '200px' }};
+                                        max-width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '320px' }};
+                                        max-height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else '200px' }};
+                                        --image-width: 100%;
+                                        --image-height: 100%;
+                                        --image-object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'cover' }};
+                                        {% if slide.props.rightImageOffset or slide.props.rightImageScale %}
+                                            --image-transform: 
+                                            {% if slide.props.rightImageOffset %}
+                                                translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset.x is not none else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset.y is not none else '0px' }})
+                                            {% endif %}
+                                            {% if slide.props.rightImageScale and slide.props.rightImageScale != 1 %}
+                                                {% if slide.props.rightImageOffset %} {% endif %}scale({{ slide.props.rightImageScale }})
+                                            {% endif %};
+                                        {% else %}
+                                            --image-transform: none;
+                                        {% endif %}
+                                     ">
+                                    
+                                    <img src="{{ slide.props.rightImagePath }}" 
+                                         alt="Right column image" 
+                                         class="image-with-transforms macro-render-image"
+                                         onerror="this.parentElement.innerHTML='<div class=&quot;image-error-fallback&quot;><div>Right Image Error</div></div>';" />
+                                </div>
+                            {% endif %}
+                            
+                            {% if slide.props.rightTitle and slide.props.rightTitle != 'Click to add right title' %}
+                                <h2 class="column-title" style="font-family: var(--title-font); font-size: 27px; color: var(--title-color); margin: 16px 0; word-wrap: break-word;">{{ slide.props.rightTitle }}</h2>
+                            {% endif %}
+                            {% if slide.props.rightContent and slide.props.rightContent != 'Click to add right content' %}
+                                <p class="column-content" style="font-family: var(--content-font); font-size: 18px; color: var(--content-color); line-height: 1.6; word-wrap: break-word;">{{ slide.props.rightContent }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <!-- Default template for any other templateId -->
+                <div class="default-slide">
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px) !important;"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    {% if slide.props.content and slide.props.content != 'Click to add content' %}
+                        <div class="slide-content positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set contentId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[contentId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px) !important;"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.content }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
