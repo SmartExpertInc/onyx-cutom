@@ -719,23 +719,22 @@
                         {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
                         {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
                         
-                        <!-- Pie chart segments using pre-calculated paths -->
+                        <!-- Pie chart using simple circles with different sizes -->
                         <g transform="translate(150, 150)">
-                            <!-- One-pager segment (28.8% = 103.7 degrees) -->
-                            <path d="M 0 -120 A 120 120 0 0 1 116.4 -35.2 L 0 0 Z" 
-                                  fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
+                            <!-- Background circle -->
+                            <circle cx="0" cy="0" r="120" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>
                             
-                            <!-- Presentation segment (24.4% = 87.8 degrees) -->
-                            <path d="M 116.4 -35.2 A 120 120 0 0 1 119.8 119.2 L 0 0 Z" 
-                                  fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+                            <!-- One-pager segment (28.8%) -->
+                            <circle cx="0" cy="0" r="120" fill="none" stroke="#9333ea" stroke-width="60" stroke-dasharray="216 360" stroke-dashoffset="0"/>
                             
-                            <!-- Quiz segment (26.9% = 96.8 degrees) -->
-                            <path d="M 119.8 119.2 A 120 120 0 0 1 -8.4 119.6 L 0 0 Z" 
-                                  fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+                            <!-- Presentation segment (24.4%) -->
+                            <circle cx="0" cy="0" r="120" fill="none" stroke="#2563eb" stroke-width="60" stroke-dasharray="175 360" stroke-dashoffset="216"/>
                             
-                            <!-- Video lesson segment (19.9% = 71.7 degrees) -->
-                            <path d="M -8.4 119.6 A 120 120 0 0 1 0 -120 L 0 0 Z" 
-                                  fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
+                            <!-- Quiz segment (26.9%) -->
+                            <circle cx="0" cy="0" r="120" fill="none" stroke="#16a34a" stroke-width="60" stroke-dasharray="194 360" stroke-dashoffset="391"/>
+                            
+                            <!-- Video lesson segment (19.9%) -->
+                            <circle cx="0" cy="0" r="120" fill="none" stroke="#ea580c" stroke-width="60" stroke-dasharray="143 360" stroke-dashoffset="585"/>
                             
                             <!-- Center circle -->
                             <circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
