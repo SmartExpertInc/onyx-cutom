@@ -506,7 +506,20 @@ export const ru = {
       imageOnOwnLine: "Изображение на своей строке",
       sideBySideDescription: "Изображение и текст рядом",
       // Visual effects
-      visualEffects: "Визуальные эффекты"
+      visualEffects: "Визуальные эффекты",
+      // Additional image settings
+      textWrapping: "Обтекание текста",
+      position: "Позиция",
+      shadow: "Тень",
+      border: "Граница",
+      none: "Нет",
+      subtle: "Легкая",
+      strong: "Сильная",
+      livePreview: "Живой предпросмотр",
+      changesApplyInRealTime: "Изменения применяются в реальном времени",
+      documentPreview: "Предпросмотр документа",
+      livePreviewDescription: "Это показывает, как ваше изображение появится в документе. Изменения применяются в реальном времени при настройке параметров.",
+      resetToDefault: "Сбросить к значению по умолчанию"
     },
     
     // Quality tiers

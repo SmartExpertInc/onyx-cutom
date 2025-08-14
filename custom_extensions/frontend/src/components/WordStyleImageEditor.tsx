@@ -303,7 +303,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Layout className="w-4 h-4" />
-                      Text Wrapping
+                      {t('interface.imageSettings.textWrapping')}
                     </h3>
                     <div className="space-y-2">
                       {layoutPresets.map((preset) => (
@@ -334,13 +334,13 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
                   {/* Position */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Position</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('interface.imageSettings.position')}</h3>
                     <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { value: 'left', label: 'Left', icon: '⬅️' },
-                        { value: 'center', label: 'Center', icon: '⬆️' },
-                        { value: 'right', label: 'Right', icon: '➡️' }
-                      ].map((option) => (
+                                              {[
+                          { value: 'left', label: t('interface.imageSettings.left'), icon: '⬅️' },
+                          { value: 'center', label: t('interface.imageSettings.center'), icon: '⬆️' },
+                          { value: 'right', label: t('interface.imageSettings.right'), icon: '➡️' }
+                        ].map((option) => (
                         <button
                           key={option.value}
                           onClick={() => updateImageProperty('alignment', option.value)}
@@ -367,11 +367,11 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Palette className="w-4 h-4" />
-                      Visual Effects
+                      {t('interface.imageSettings.visualEffects')}
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-sm text-gray-700 mb-2">Shadow</label>
+                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.shadow')}</label>
                         <select 
                           value={localImageBlock.boxShadow || 'none'}
                           onChange={(e) => {
@@ -385,14 +385,14 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
                         >
-                          <option value="none">None</option>
-                          <option value="subtle">Subtle</option>
-                          <option value="medium">Medium</option>
-                          <option value="strong">Strong</option>
+                          <option value="none">{t('interface.imageSettings.none')}</option>
+                          <option value="subtle">{t('interface.imageSettings.subtle')}</option>
+                          <option value="medium">{t('interface.imageSettings.medium')}</option>
+                          <option value="strong">{t('interface.imageSettings.strong')}</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm text-gray-700 mb-2">Border</label>
+                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.border')}</label>
                         <select 
                           value={localImageBlock.border || 'none'}
                           onChange={(e) => {
@@ -465,9 +465,9 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
              {/* Preview Header */}
              <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
                <div className="flex items-center justify-between">
-                 <h3 className="text-sm font-semibold text-gray-900">Live Preview</h3>
+                 <h3 className="text-sm font-semibold text-gray-900">{t('interface.imageSettings.livePreview')}</h3>
                  <div className="text-xs text-gray-500">
-                   Changes apply in real-time
+                   {t('interface.imageSettings.changesApplyInRealTime')}
                  </div>
                </div>
              </div>
@@ -478,7 +478,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                 <div className="prose max-w-none">
                   {/* Content before image */}
                   <div className="mb-6">
-                    <h2 className="text-xl font-bold text-gray-900 mb-3">Document Preview</h2>
+                    <h2 className="text-xl font-bold text-gray-900 mb-3">{t('interface.imageSettings.documentPreview')}</h2>
                     <p className="text-gray-700 leading-relaxed">
                       {documentContent || 'This preview shows how your image will appear in the document. The content from your document would appear here.'}
                     </p>
@@ -534,8 +534,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   {/* Preview info */}
                   <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="text-sm text-blue-800">
-                      <strong>Live Preview:</strong> This shows how your image will appear in the document. 
-                      Changes are applied in real-time as you adjust the settings.
+                      <strong>{t('interface.imageSettings.livePreview')}:</strong> {t('interface.imageSettings.livePreviewDescription')}
                     </div>
                   </div>
                 </div>
@@ -548,10 +547,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between rounded-b-xl">
            <div className="flex items-center gap-4">
              <div className="text-sm text-gray-600">
-               <span className="font-medium">Size:</span> {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
+               <span className="font-medium">{t('interface.imageSettings.size')}:</span> {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
              </div>
              <div className="text-sm text-gray-600">
-               <span className="font-medium">Alignment:</span> {localImageBlock.alignment || 'center'}
+               <span className="font-medium">{t('interface.imageSettings.alignment')}:</span> {localImageBlock.alignment || 'center'}
              </div>
            </div>
            <div className="flex gap-3">
@@ -559,13 +558,13 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                onClick={resetToDefaults}
                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
              >
-               Reset to Default
+               {t('interface.imageSettings.resetToDefault')}
              </button>
              <button
                onClick={onClose}
                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
              >
-               Apply Changes
+               {t('interface.modal.applyChanges')}
              </button>
            </div>
          </div>

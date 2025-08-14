@@ -506,7 +506,20 @@ export const uk = {
       imageOnOwnLine: "Зображення на власному рядку",
       sideBySideDescription: "Зображення та текст поруч",
       // Visual effects
-      visualEffects: "Візуальні ефекти"
+      visualEffects: "Візуальні ефекти",
+      // Additional image settings
+      textWrapping: "Обтікання тексту",
+      position: "Позиція",
+      shadow: "Тінь",
+      border: "Межа",
+      none: "Немає",
+      subtle: "Легка",
+      strong: "Сильна",
+      livePreview: "Живий перегляд",
+      changesApplyInRealTime: "Зміни застосовуються в реальному часі",
+      documentPreview: "Перегляд документа",
+      livePreviewDescription: "Це показує, як ваше зображення з'явиться в документі. Зміни застосовуються в реальному часі під час налаштування параметрів.",
+      resetToDefault: "Скинути до за замовчуванням"
     },
     
     // Quality tiers

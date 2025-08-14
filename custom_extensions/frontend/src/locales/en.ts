@@ -550,8 +550,21 @@ export const en = {
         // Layout descriptions
         imageOnOwnLine: "Image on its own line",
         sideBySideDescription: "Image and text side by side",
-        // Visual effects
-        visualEffects: "Visual Effects"
+              // Visual effects
+      visualEffects: "Visual Effects",
+      // Additional image settings
+      textWrapping: "Text Wrapping",
+      position: "Position",
+      shadow: "Shadow",
+      border: "Border",
+      none: "None",
+      subtle: "Subtle",
+      strong: "Strong",
+      livePreview: "Live Preview",
+      changesApplyInRealTime: "Changes apply in real-time",
+      documentPreview: "Document Preview",
+      livePreviewDescription: "This shows how your image will appear in the document. Changes are applied in real-time as you adjust the settings.",
+      resetToDefault: "Reset to Default"
       },
     
     // Quality tiers

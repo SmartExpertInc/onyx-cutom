@@ -513,7 +513,20 @@ export const es = {
       imageOnOwnLine: "Imagen en su propia línea",
       sideBySideDescription: "Imagen y texto lado a lado",
       // Visual effects
-      visualEffects: "Efectos visuales"
+      visualEffects: "Efectos visuales",
+      // Additional image settings
+      textWrapping: "Ajuste de texto",
+      position: "Posición",
+      shadow: "Sombra",
+      border: "Borde",
+      none: "Ninguno",
+      subtle: "Sutil",
+      strong: "Fuerte",
+      livePreview: "Vista previa en vivo",
+      changesApplyInRealTime: "Los cambios se aplican en tiempo real",
+      documentPreview: "Vista previa del documento",
+      livePreviewDescription: "Esto muestra cómo aparecerá tu imagen en el documento. Los cambios se aplican en tiempo real mientras ajustas la configuración.",
+      resetToDefault: "Restablecer a predeterminado"
     },
     
     // Quality tiers
