@@ -82,7 +82,12 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl shadow-2xl w-[90vw] h-[90vh] max-w-4xl flex flex-col">
+      <div 
+        className="bg-white rounded-xl shadow-2xl w-[90vw] h-[90vh] max-w-4xl flex flex-col"
+        onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+        onTouchStart={(e: React.TouchEvent) => e.stopPropagation()}
+        onDragStart={(e: React.DragEvent) => e.preventDefault()}
+      >
         {/* Header - Modern UI */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 flex items-center justify-between rounded-t-xl">
           <div className="flex items-center gap-3">
@@ -104,7 +109,12 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
         <div className="flex flex-1 overflow-hidden">
           {/* Left Panel - Settings */}
-          <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
+          <div 
+            className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col"
+            onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+            onTouchStart={(e: React.TouchEvent) => e.stopPropagation()}
+            onDragStart={(e: React.DragEvent) => e.preventDefault()}
+          >
             {/* Tab Navigation */}
             <div className="bg-white border-b border-gray-200">
               <div className="flex">
@@ -356,40 +366,68 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.opacity')}</label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={localImageBlock.opacity ? parseFloat(localImageBlock.opacity.toString()) * 100 : 100}
-                          onChange={(e) => {
-                            e.preventDefault(); // Запобігаємо перетягуванню модального вікна
-                            const value = parseFloat(e.target.value) / 100;
-                            updateImageProperty('opacity', value);
-                          }}
-                          onMouseDown={(e) => e.stopPropagation()} // Додатково запобігаємо
-                          onTouchStart={(e) => e.stopPropagation()} // Для мобільних пристроїв
+                        <div 
                           className="w-full"
-                        />
+                          onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+                          onTouchStart={(e: React.TouchEvent) => e.stopPropagation()}
+                          onDragStart={(e: React.DragEvent) => e.preventDefault()}
+                        >
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={localImageBlock.opacity ? parseFloat(localImageBlock.opacity.toString()) * 100 : 100}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value) / 100;
+                              updateImageProperty('opacity', value);
+                            }}
+                            onMouseDown={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                            onTouchStart={(e: React.TouchEvent) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                            onDragStart={(e: React.DragEvent) => e.preventDefault()}
+                            className="w-full cursor-pointer"
+                            style={{ pointerEvents: 'auto' }}
+                          />
+                        </div>
                         <div className="text-xs text-gray-500 text-center">
                           {localImageBlock.opacity ? Math.round(parseFloat(localImageBlock.opacity.toString()) * 100) : 100}%
                         </div>
                       </div>
                       <div>
                         <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.rotation')}</label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="360"
-                          value={localImageBlock.transform ? parseInt(localImageBlock.transform.replace(/rotate\((\d+)deg\)/, '$1')) || 0 : 0}
-                          onChange={(e) => {
-                            e.preventDefault(); // Запобігаємо перетягуванню модального вікна
-                            const value = parseInt(e.target.value);
-                            updateImageProperty('transform', `rotate(${value}deg)`);
-                          }}
-                          onMouseDown={(e) => e.stopPropagation()} // Додатково запобігаємо
-                          onTouchStart={(e) => e.stopPropagation()} // Для мобільних пристроїв
+                        <div 
                           className="w-full"
-                        />
+                          onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+                          onTouchStart={(e: React.TouchEvent) => e.stopPropagation()}
+                          onDragStart={(e: React.DragEvent) => e.preventDefault()}
+                        >
+                          <input
+                            type="range"
+                            min="0"
+                            max="360"
+                            value={localImageBlock.transform ? parseInt(localImageBlock.transform.replace(/rotate\((\d+)deg\)/, '$1')) || 0 : 0}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value);
+                              updateImageProperty('transform', `rotate(${value}deg)`);
+                            }}
+                            onMouseDown={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                            onTouchStart={(e: React.TouchEvent) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                            onDragStart={(e: React.DragEvent) => e.preventDefault()}
+                            className="w-full cursor-pointer"
+                            style={{ pointerEvents: 'auto' }}
+                          />
+                        </div>
                         <div className="text-xs text-gray-500 text-center">
                           {localImageBlock.transform ? parseInt(localImageBlock.transform.replace(/rotate\((\d+)deg\)/, '$1')) || 0 : 0}°
                         </div>
