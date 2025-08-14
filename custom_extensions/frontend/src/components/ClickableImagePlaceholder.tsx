@@ -125,10 +125,34 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // Keep local displayed image in sync with prop
   useEffect(() => {
+    console.log('🔍 [ImageSync] Syncing displayed image with prop', {
+      elementId,
+      instanceId,
+      imagePath,
+      hasImagePath: !!imagePath,
+      currentDisplayedImage: displayedImage,
+      timestamp: Date.now()
+    });
+    
     if (imagePath) {
       setDisplayedImage(imagePath);
+      console.log('🔍 [ImageSync] Set displayed image', {
+        elementId,
+        instanceId,
+        imagePath,
+        timestamp: Date.now()
+      });
+    } else {
+      // Clear displayed image when imagePath is empty/null/undefined
+      setDisplayedImage(undefined);
+      console.log('🔍 [ImageSync] Cleared displayed image', {
+        elementId,
+        instanceId,
+        reason: 'imagePath is empty/null/undefined',
+        timestamp: Date.now()
+      });
     }
-  }, [imagePath]);
+  }, [imagePath, elementId, instanceId, displayedImage]);
 
   // Apply saved position and size when component mounts or saved values change
   useEffect(() => {
@@ -320,9 +344,27 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       timestamp: Date.now()
     });
     
+    // Clear the image from local state
     setDisplayedImage(undefined);
-    onImageUploaded('');
+    
+    // Clear the image from backend by passing null/undefined instead of empty string
+    // This ensures the backend properly clears the imagePath field
+    onImageUploaded(null as any);
+    
+    // Clear selection state
     setIsSelected(false);
+    
+    // Also clear any saved image dimensions
+    setImageDimensions(null);
+    
+    console.log('🔍 [InlineAction] Image removal completed', {
+      elementId,
+      instanceId,
+      displayedImageCleared: true,
+      backendNotified: true,
+      selectionCleared: true,
+      timestamp: Date.now()
+    });
   }, [onImageUploaded, elementId, instanceId, displayedImage]);
 
   // ✅ NEW: Click handler for empty placeholder
