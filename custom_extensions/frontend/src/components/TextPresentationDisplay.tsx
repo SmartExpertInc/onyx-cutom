@@ -354,39 +354,39 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">List Icon</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.icon')}</label>
           <select
             value={listBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="">Default bullet</option>
-            <option value="none">No icon</option>
-            <option value="info">ℹ️ Info</option>
-            <option value="goal">🎯 Goal</option>
-            <option value="star">⭐ Star</option>
-            <option value="apple">🍎 Apple</option>
-            <option value="award">🏆 Award</option>
-            <option value="boxes">📦 Boxes</option>
-            <option value="calendar">📅 Calendar</option>
-            <option value="chart">📊 Chart</option>
-            <option value="clock">⏰ Clock</option>
-            <option value="globe">🌍 Globe</option>
+            <option value="">{t('interface.blockSettings.noIcon')}</option>
+            <option value="none">{t('interface.blockSettings.noIcon')}</option>
+            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
+            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.textSize')}</label>
           <select
             value={listBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="8px">Extra Small (8px)</option>
-            <option value="10px">Small (10px)</option>
-            <option value="12px">Medium (12px)</option>
-            <option value="14px">Large (14px)</option>
-            <option value="16px">Extra Large (16px)</option>
+            <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
+            <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
+            <option value="12px">{t('interface.blockSettings.medium')} (12px)</option>
+            <option value="14px">{t('interface.blockSettings.large')} (14px)</option>
+            <option value="16px">{t('interface.blockSettings.extraLarge')} (16px)</option>
           </select>
         </div>
       </div>
@@ -398,46 +398,46 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Alert Type</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.alertType')}</label>
           <select
             value={alertBlock.alertType}
             onChange={e => onTextChange?.(fieldPath('alertType'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="info">ℹ️ Info</option>
-            <option value="success">✅ Success</option>
-            <option value="warning">⚠️ Warning</option>
-            <option value="danger">❌ Danger</option>
+            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
+            <option value="success">✅ {t('interface.blockSettings.success')}</option>
+            <option value="warning">⚠️ {t('interface.blockSettings.warning')}</option>
+            <option value="danger">❌ {t('interface.blockSettings.danger')}</option>
           </select>
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Custom Icon</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.customIcon')}</label>
           <select
             value={alertBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="">Use default for alert type</option>
-            <option value="info">ℹ️ Info</option>
-            <option value="check">✅ Check</option>
-            <option value="alertTriangle">⚠️ Warning</option>
-            <option value="xCircle">❌ Error</option>
-            <option value="goal">🎯 Goal</option>
-            <option value="star">⭐ Star</option>
-            <option value="apple">🍎 Apple</option>
-            <option value="award">🏆 Award</option>
-            <option value="boxes">📦 Boxes</option>
-            <option value="calendar">📅 Calendar</option>
-            <option value="chart">📊 Chart</option>
-            <option value="clock">⏰ Clock</option>
-            <option value="globe">🌍 Globe</option>
+            <option value="">{t('interface.blockSettings.useDefaultForAlertType')}</option>
+            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
+            <option value="check">✅ {t('interface.blockSettings.check')}</option>
+            <option value="alertTriangle">⚠️ {t('interface.blockSettings.warning')}</option>
+            <option value="xCircle">❌ {t('interface.blockSettings.error')}</option>
+            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Background Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.backgroundColor')}</label>
             <input
               type="color"
               value={alertBlock.backgroundColor || '#ffffff'}
@@ -446,7 +446,7 @@ const BlockSettingsModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Border Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.borderColor')}</label>
             <input
               type="color"
               value={alertBlock.borderColor || '#000000'}
@@ -455,7 +455,7 @@ const BlockSettingsModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Text Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.textColor')}</label>
             <input
               type="color"
               value={alertBlock.textColor || '#000000'}
@@ -464,7 +464,7 @@ const BlockSettingsModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Icon Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.iconColor')}</label>
             <input
               type="color"
               value={alertBlock.iconColor || '#000000'}
@@ -475,17 +475,17 @@ const BlockSettingsModal = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.textSize')}</label>
           <select
             value={alertBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="8px">Extra Small (8px)</option>
-            <option value="10px">Small (10px)</option>
-            <option value="12px">Medium (12px)</option>
-            <option value="14px">Large (14px)</option>
-            <option value="16px">Extra Large (16px)</option>
+            <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
+            <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
+            <option value="12px">{t('interface.blockSettings.medium')} (12px)</option>
+            <option value="14px">{t('interface.blockSettings.large')} (14px)</option>
+            <option value="16px">{t('interface.blockSettings.extraLarge')} (16px)</option>
           </select>
         </div>
       </div>
@@ -764,13 +764,13 @@ const BlockSettingsModal = ({
               onClick={onClose}
               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              {t('interface.modal.cancel', 'Cancel')}
+              {t('interface.modal.cancel')}
             </button>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {t('interface.modal.applyChanges', 'Apply Changes')}
+              {t('interface.modal.applyChanges')}
             </button>
           </div>
         </div>
