@@ -1341,6 +1341,112 @@
     justify-content: center;
     font-size: 1.5rem;
 }
+        
+        /* Enhanced Image Placeholder System - EXACT FRONTEND MATCH */
+        
+        /* Image container positioning and sizing */
+        .enhanced-image-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Image element with enhanced positioning support */
+        .positioned-image {
+            position: relative;
+            display: block;
+            transition: none; /* Disable transitions for PDF */
+        }
+        
+        /* Enhanced image positioning container */
+        .image-positioning-container {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Image with transform support */
+        .transformed-image {
+            position: relative;
+            display: block;
+            max-width: none;
+            max-height: none;
+            border-radius: 8px;
+        }
+        
+        /* Support for different crop modes */
+        .crop-cover {
+            object-fit: cover;
+        }
+        
+        .crop-contain {
+            object-fit: contain;
+        }
+        
+        .crop-fill {
+            object-fit: fill;
+        }
+        
+        /* Enhanced positioning for draggable elements */
+        .draggable-element {
+            position: absolute;
+            z-index: 1;
+        }
+        
+        /* Slide content with positioning support */
+        .slide-content-positioned {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        /* Image size variants */
+        .image-size-small {
+            width: 200px;
+            height: 150px;
+        }
+        
+        .image-size-medium {
+            width: 300px;
+            height: 200px;
+        }
+        
+        .image-size-large {
+            width: 400px;
+            height: 300px;
+        }
+        
+        /* Image position variants */
+        .image-position-left {
+            justify-self: start;
+            align-self: center;
+        }
+        
+        .image-position-right {
+            justify-self: end;
+            align-self: center;
+        }
+        
+        .image-position-center {
+            justify-self: center;
+            align-self: center;
+        }
+        
+        .image-position-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
     </style>
 </head>
 <body>
@@ -1391,19 +1497,37 @@
                 <div class="big-image-left">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="
-                                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
-                                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
-                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                    {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
-                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                        transform-origin: center center;
+                            <div class="image-positioning-container" style="
+                                width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '500px' }};
+                                height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '350px' }};
+                                position: relative;
+                                overflow: hidden;
+                                border-radius: 8px;
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set imageId = 'draggable-' + slide.slideId + '-image' %}
+                                    {% if slide.metadata.elementPositions[imageId] %}
+                                        transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);
                                     {% endif %}
-                                    border-radius: 8px; margin: 0 auto; max-width: none; max-height: none;
-                                 "
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                {% endif %}
+                            ">
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     class="transformed-image"
+                                     style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
+                                            transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                            transform-origin: center center;
+                                        {% endif %}
+                                        border-radius: 8px;
+                                        margin: 0;
+                                        max-width: none;
+                                        max-height: none;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            </div>
                             <div class="image-placeholder" style="display: none;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
@@ -1444,19 +1568,38 @@
                 <div class="big-image-top">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="
-                                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
-                                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '240px' }};
-                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                    {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
-                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                        transform-origin: center center;
+                            <div class="image-positioning-container" style="
+                                width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
+                                height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '240px' }};
+                                position: relative;
+                                overflow: hidden;
+                                border-radius: 8px;
+                                margin-bottom: 24px;
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set imageId = 'draggable-' + slide.slideId + '-image' %}
+                                    {% if slide.metadata.elementPositions[imageId] %}
+                                        transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);
                                     {% endif %}
-                                    margin: 0 auto; margin-bottom: 24px !important; border-radius: 8px; max-width: none; max-height: none;
-                                 "
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                {% endif %}
+                            ">
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     class="transformed-image"
+                                     style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
+                                            transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                            transform-origin: center center;
+                                        {% endif %}
+                                        border-radius: 8px;
+                                        margin: 0;
+                                        max-width: none;
+                                        max-height: none;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            </div>
                             <div class="image-placeholder" style="display: none;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
@@ -1508,19 +1651,38 @@
                     <div class="content-row">
                         <div class="placeholder-container">
                             {% if slide.props.imagePath %}
-                                <img src="{{ slide.props.imagePath }}" 
-                                     alt="Uploaded image" 
-                                     style="
-                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
-                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
-                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
-                                            transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                            transform-origin: center center;
+                                <div class="image-positioning-container" style="
+                                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '50%' }};
+                                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '50%' }};
+                                    position: relative;
+                                    overflow: hidden;
+                                    border-radius: 8px;
+                                    aspect-ratio: 1 / 1;
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set imageId = 'draggable-' + slide.slideId + '-image' %}
+                                        {% if slide.metadata.elementPositions[imageId] %}
+                                            transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);
                                         {% endif %}
-                                        border-radius: 8px; margin: 0 auto; aspect-ratio: 1 / 1; max-width: none; max-height: none;
-                                     "
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                    {% endif %}
+                                ">
+                                    <img src="{{ slide.props.imagePath }}" 
+                                         alt="Uploaded image" 
+                                         class="transformed-image"
+                                         style="
+                                            width: 100%;
+                                            height: 100%;
+                                            object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                            {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                                transform-origin: center center;
+                                            {% endif %}
+                                            border-radius: 8px;
+                                            margin: 0;
+                                            max-width: none;
+                                            max-height: none;
+                                         "
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                </div>
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
                                     <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
