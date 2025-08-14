@@ -1586,13 +1586,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </div>
               )}
             </div>
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const fallback = target.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = 'block';
-              }}
-            />
             <div style={{ display: 'none', padding: '20px', border: '2px dashed #ccc', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
               {alt || 'Image not available'}
             </div>
