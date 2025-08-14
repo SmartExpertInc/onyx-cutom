@@ -719,28 +719,22 @@
                         {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
                         {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
                         
-                        <!-- Calculate angles for pie chart -->
-                        {% set one_pager_angle = (one_pager_count / total_products * 360) %}
-                        {% set presentation_angle = (presentation_count / total_products * 360) %}
-                        {% set quiz_angle = (quiz_count / total_products * 360) %}
-                        {% set video_lesson_angle = (video_lesson_count / total_products * 360) %}
-                        
-                        <!-- Pie chart segments -->
+                        <!-- Pie chart segments using pre-calculated paths -->
                         <g transform="translate(150, 150)">
-                            <!-- One-pager segment -->
-                            <path d="M 0 -120 A 120 120 0 0 1 {{ (one_pager_angle * 3.14159 / 180) | sin * 120 }} {{ -(one_pager_angle * 3.14159 / 180) | cos * 120 }} L 0 0 Z" 
+                            <!-- One-pager segment (28.8% = 103.7 degrees) -->
+                            <path d="M 0 -120 A 120 120 0 0 1 116.4 -35.2 L 0 0 Z" 
                                   fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Presentation segment -->
-                            <path d="M {{ (one_pager_angle * 3.14159 / 180) | sin * 120 }} {{ -(one_pager_angle * 3.14159 / 180) | cos * 120 }} A 120 120 0 0 1 {{ ((one_pager_angle + presentation_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle) * 3.14159 / 180) | cos * 120 }} L 0 0 Z" 
+                            <!-- Presentation segment (24.4% = 87.8 degrees) -->
+                            <path d="M 116.4 -35.2 A 120 120 0 0 1 119.8 119.2 L 0 0 Z" 
                                   fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Quiz segment -->
-                            <path d="M {{ ((one_pager_angle + presentation_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle) * 3.14159 / 180) | cos * 120 }} A 120 120 0 0 1 {{ ((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | cos * 120 }} L 0 0 Z" 
-                                  fill="##16a34a" stroke="#ffffff" stroke-width="2"/>
+                            <!-- Quiz segment (26.9% = 96.8 degrees) -->
+                            <path d="M 119.8 119.2 A 120 120 0 0 1 -8.4 119.6 L 0 0 Z" 
+                                  fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Video lesson segment -->
-                            <path d="M {{ ((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | cos * 120 }} A 120 120 0 0 1 0 -120 L 0 0 Z" 
+                            <!-- Video lesson segment (19.9% = 71.7 degrees) -->
+                            <path d="M -8.4 119.6 A 120 120 0 0 1 0 -120 L 0 0 Z" 
                                   fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
                             
                             <!-- Center circle -->
@@ -754,7 +748,7 @@
                 <!-- Legend -->
                 <div class="pie-chart-legend" style="flex: 1; margin-left: 32px;">
                     <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #2D7C21; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #9333ea; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
                             <div style="font-weight: 600; color: #1e293b; font-size: 14px;">One-pager</div>
                             <div style="color: #64748b; font-size: 12px;">{{ one_pager_count }} products ({{ one_pager_percentage }}%)</div>
@@ -762,7 +756,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #3B82F6; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #2563eb; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
                             <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Presentation</div>
                             <div style="color: #64748b; font-size: 12px;">{{ presentation_count }} products ({{ presentation_percentage }}%)</div>
@@ -770,7 +764,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #F59E0B; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #16a34a; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
                             <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Quiz</div>
                             <div style="color: #64748b; font-size: 12px;">{{ quiz_count }} products ({{ quiz_percentage }}%)</div>
@@ -778,7 +772,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #8B5CF6; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #ea580c; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
                         <div class="legend-text" style="flex: 1;">
                             <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Video Lesson</div>
                             <div style="color: #64748b; font-size: 12px;">{{ video_lesson_count }} products ({{ video_lesson_percentage }}%)</div>
