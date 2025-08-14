@@ -1899,11 +1899,6 @@ const ImageUploadModal: React.FC<{
 };
 
 const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName }: TextPresentationDisplayProps): React.JSX.Element | null => {
-  const searchParams = useSearchParams();
-  const lang = dataToDisplay?.detectedLanguage || searchParams?.get('lang') || 'en';
-  const locale = locales[lang as keyof typeof locales] || locales.en;
-  const { t } = useLanguage();
-
   // Extract text content from the document for preview
   const extractDocumentText = (data: TextPresentationData | null): string => {
     if (!data?.contentBlocks) return '';
@@ -1921,6 +1916,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   };
 
   const documentContent = extractDocumentText(dataToDisplay);
+  
+  const searchParams = useSearchParams();
+  const lang = dataToDisplay?.detectedLanguage || searchParams?.get('lang') || 'en';
+  const locale = locales[lang as keyof typeof locales] || locales.en;
+  const { t } = useLanguage();
   
   const [showImageUpload, setShowImageUpload] = useState(false);
 
