@@ -406,10 +406,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
                         >
-                          <option value="none">None</option>
-                          <option value="solid">Solid</option>
-                          <option value="dashed">Dashed</option>
-                          <option value="dotted">Dotted</option>
+                          <option value="none">{t('interface.imageSettings.none')}</option>
+                          <option value="solid">{t('interface.imageSettings.solid')}</option>
+                          <option value="dashed">{t('interface.imageSettings.dashed')}</option>
+                          <option value="dotted">{t('interface.imageSettings.dotted')}</option>
                         </select>
                       </div>
                     </div>
@@ -417,10 +417,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
                   {/* Advanced Options */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Advanced</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('interface.imageSettings.advanced')}</h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-sm text-gray-700 mb-2">Opacity</label>
+                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.opacity')}</label>
                         <input
                           type="range"
                           min="0"
@@ -437,7 +437,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm text-gray-700 mb-2">Rotation</label>
+                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.rotation')}</label>
                         <input
                           type="range"
                           min="0"
@@ -480,7 +480,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div className="mb-6">
                     <h2 className="text-xl font-bold text-gray-900 mb-3">{t('interface.imageSettings.documentPreview')}</h2>
                     <p className="text-gray-700 leading-relaxed">
-                      {documentContent || 'This preview shows how your image will appear in the document. The content from your document would appear here.'}
+                      {documentContent || t('interface.imageSettings.noDocumentContent')}
                     </p>
                   </div>
                   
@@ -524,10 +524,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   {/* Content after image */}
                   <div className="mt-6">
                     <p className="text-gray-700 leading-relaxed mb-4">
-                      {documentContent ? documentContent.slice(0, 200) + '...' : 'Additional content from your document would continue here, showing how the image integrates with the surrounding text and layout.'}
+                      {documentContent ? documentContent.slice(0, 200) + '...' : t('interface.imageSettings.additionalContentPlaceholder')}
                     </p>
                     <p className="text-gray-700 leading-relaxed">
-                      {documentContent ? documentContent.slice(200, 400) + '...' : 'The preview demonstrates the real-time changes to your image styling and how it affects the overall document presentation.'}
+                      {documentContent ? documentContent.slice(200, 400) + '...' : t('interface.imageSettings.previewDescription')}
                     </p>
                   </div>
                   

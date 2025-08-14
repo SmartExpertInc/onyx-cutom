@@ -564,7 +564,19 @@ export const en = {
       changesApplyInRealTime: "Changes apply in real-time",
       documentPreview: "Document Preview",
       livePreviewDescription: "This shows how your image will appear in the document. Changes are applied in real-time as you adjust the settings.",
-      resetToDefault: "Reset to Default"
+      resetToDefault: "Reset to Default",
+      // Border options
+      solid: "Solid",
+      dashed: "Dashed",
+      dotted: "Dotted",
+      // Advanced options
+      advanced: "Advanced",
+      opacity: "Opacity",
+      rotation: "Rotation",
+      // Preview placeholders
+      noDocumentContent: "No document content available for preview",
+      additionalContentPlaceholder: "Additional content from your document would continue here, showing how the image integrates with the surrounding text and layout.",
+      previewDescription: "The preview demonstrates the real-time changes to your image styling and how it affects the overall document presentation."
       },
     
     // Quality tiers

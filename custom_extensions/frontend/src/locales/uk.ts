@@ -519,7 +519,19 @@ export const uk = {
       changesApplyInRealTime: "Зміни застосовуються в реальному часі",
       documentPreview: "Перегляд документа",
       livePreviewDescription: "Це показує, як ваше зображення з'явиться в документі. Зміни застосовуються в реальному часі під час налаштування параметрів.",
-      resetToDefault: "Скинути до за замовчуванням"
+      resetToDefault: "Скинути до за замовчуванням",
+      // Border options
+      solid: "Суцільна",
+      dashed: "Пунктирна",
+      dotted: "Крапкова",
+      // Advanced options
+      advanced: "Розширені",
+      opacity: "Прозорість",
+      rotation: "Поворот",
+      // Preview placeholders
+      noDocumentContent: "Контент документа недоступний для перегляду",
+      additionalContentPlaceholder: "Додатковий контент з вашого документа продовжиться тут, показуючи як зображення інтегрується з навколишнім текстом та макетом.",
+      previewDescription: "Попередній перегляд демонструє зміни стилю зображення в реальному часі та як це впливає на загальну презентацію документа."
     },
     
     // Quality tiers

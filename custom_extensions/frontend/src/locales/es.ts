@@ -526,7 +526,19 @@ export const es = {
       changesApplyInRealTime: "Los cambios se aplican en tiempo real",
       documentPreview: "Vista previa del documento",
       livePreviewDescription: "Esto muestra cómo aparecerá tu imagen en el documento. Los cambios se aplican en tiempo real mientras ajustas la configuración.",
-      resetToDefault: "Restablecer a predeterminado"
+      resetToDefault: "Restablecer a predeterminado",
+      // Border options
+      solid: "Sólido",
+      dashed: "Discontinuo",
+      dotted: "Punteado",
+      // Advanced options
+      advanced: "Avanzado",
+      opacity: "Opacidad",
+      rotation: "Rotación",
+      // Preview placeholders
+      noDocumentContent: "No hay contenido del documento disponible para la vista previa",
+      additionalContentPlaceholder: "El contenido adicional de tu documento continuaría aquí, mostrando cómo la imagen se integra con el texto y diseño circundantes.",
+      previewDescription: "La vista previa demuestra los cambios en tiempo real al estilo de tu imagen y cómo afecta la presentación general del documento."
     },
     
     // Quality tiers
