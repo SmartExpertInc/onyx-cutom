@@ -553,21 +553,22 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       slideId: elementId?.split('-')[0], // Extract slide ID from element ID
       elementId,
       imagePath: displayedImage,
-      clickPosition: { x: e.clientX, y: e.clientY }
+      clickPosition: { x: e.pageX, y: e.pageY }
     };
     
-    // Open the context menu for THIS instance - SIMPLIFIED like the working example
+    // Open the context menu for THIS instance - FIXED positioning with page coordinates
     console.log('🔍 [RightClick] Opening context menu', {
       instanceId,
-      position: { x: e.clientX, y: e.clientY },
+      clientPosition: { x: e.clientX, y: e.clientY },
+      pagePosition: { x: e.pageX, y: e.pageY },
       targetElementRect: targetElement.getBoundingClientRect(),
       debugInfo
     });
     
     setContextMenu({
       visible: true,
-      x: e.clientX,
-      y: e.clientY
+      x: e.pageX,
+      y: e.pageY
     });
     
     // Store debug info for context menu
