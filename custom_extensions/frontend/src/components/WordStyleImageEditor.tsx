@@ -111,7 +111,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                 {[
                   { id: 'format', label: t('interface.imageSettings.format'), icon: Palette },
                   { id: 'size', label: t('interface.imageSettings.size'), icon: ZoomIn },
-                  { id: 'layout', label: t('interface.imageSettings.layout'), icon: Layout },
+                  // { id: 'layout', label: t('interface.imageSettings.layout'), icon: Layout }, // Закоментовано layout таб
                   { id: 'effects', label: t('interface.imageSettings.effects'), icon: Edit3 }
                 ].map((tab) => (
                   <button
@@ -154,7 +154,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                             onImageChange(updatedBlock);
                           }}
                           className={`p-3 border rounded-lg text-left transition-colors ${
-                                                         (typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')) === preset.width
+                            (typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')) === preset.width
                               ? 'border-[#2b579a] bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
@@ -205,7 +205,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         <button
                           key={option.value}
                           onClick={() => updateImageProperty('borderRadius', option.value)}
-                          className={`w-full p-2 text-left border rounded transition-colors ${
+                          className={`w-full p-3 text-left border rounded-lg transition-colors ${
                             localImageBlock.borderRadius === option.value
                               ? 'border-[#2b579a] bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
@@ -221,37 +221,30 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
               {activeTab === 'size' && (
                 <div className="space-y-6">
-                  {/* Size Controls */}
+                  {/* Width Control */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <ZoomIn className="w-4 h-4" />
-                      {t('interface.imageSettings.size')}
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.width')} (px)</label>
-                        <input
-                          type="number"
-                                                     value={typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}
-                          onChange={(e) => updateImageProperty('width', parseInt(e.target.value) || 300)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
-                          min="50"
-                          max="1200"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.height')}</label>
-                        <select
-                          value={localImageBlock.height || 'auto'}
-                          onChange={(e) => updateImageProperty('height', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
-                        >
-                          <option value="auto">{t('interface.imageSettings.auto')} ({t('interface.imageSettings.maintainAspectRatio')})</option>
-                          <option value="200px">200px</option>
-                          <option value="300px">300px</option>
-                          <option value="400px">400px</option>
-                        </select>
-                      </div>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('interface.imageSettings.width')}</h3>
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">{t('interface.imageSettings.currentWidth')}</label>
+                      <select
+                        value={typeof localImageBlock.width === 'number' ? `${localImageBlock.width}px` : localImageBlock.width || '300px'}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === 'auto') {
+                            updateImageProperty('width', 'auto');
+                          } else {
+                            updateImageProperty('width', parseInt(value));
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
+                      >
+                        <option value="auto">{t('interface.imageSettings.auto')} ({t('interface.imageSettings.maintainAspectRatio')})</option>
+                        <option value="100px">100px</option>
+                        <option value="150px">150px</option>
+                        <option value="200px">200px</option>
+                        <option value="300px">300px</option>
+                        <option value="400px">400px</option>
+                      </select>
                     </div>
                   </div>
 
@@ -297,89 +290,30 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                 </div>
               )}
 
+              {/* Layout tab закоментовано
               {activeTab === 'layout' && (
                 <div className="space-y-6">
-                  {/* Layout Options */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <Layout className="w-4 h-4" />
-                      {t('interface.imageSettings.textWrapping')}
-                    </h3>
-                    <div className="space-y-2">
-                      {layoutPresets.map((preset) => (
-                        <button
-                          key={preset.mode}
-                          onClick={() => {
-                            console.log(`Setting layout mode: ${preset.mode}, float: ${preset.float}`);
-                            const updatedBlock = {
-                              ...localImageBlock,
-                              layoutMode: preset.mode,
-                              float: preset.float
-                            };
-                            setLocalImageBlock(updatedBlock);
-                            onImageChange(updatedBlock);
-                          }}
-                          className={`w-full p-3 text-left border rounded-lg transition-colors ${
-                            localImageBlock.layoutMode === preset.mode
-                              ? 'border-[#2b579a] bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <div className="text-sm font-medium text-gray-900">{preset.name}</div>
-                          <div className="text-xs text-gray-500">{preset.description}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Position */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('interface.imageSettings.position')}</h3>
-                    <div className="grid grid-cols-3 gap-2">
-                                              {[
-                          { value: 'left', label: t('interface.imageSettings.left'), icon: '⬅️' },
-                          { value: 'center', label: t('interface.imageSettings.center'), icon: '⬆️' },
-                          { value: 'right', label: t('interface.imageSettings.right'), icon: '➡️' }
-                        ].map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => updateImageProperty('alignment', option.value)}
-                          className={`p-3 border rounded-lg transition-colors ${
-                            localImageBlock.alignment === option.value
-                              ? 'border-[#2b579a] bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <div className="text-center">
-                            <div className="text-lg mb-1">{option.icon}</div>
-                            <div className="text-xs text-gray-600">{option.label}</div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  // Layout content...
                 </div>
               )}
+              */}
 
               {activeTab === 'effects' && (
                 <div className="space-y-6">
                   {/* Visual Effects */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <Palette className="w-4 h-4" />
-                      {t('interface.imageSettings.visualEffects')}
-                    </h3>
-                    <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('interface.imageSettings.visualEffects')}</h3>
+                    <div className="space-y-4">
+                      {/* Shadow */}
                       <div>
                         <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.shadow')}</label>
-                        <select 
+                        <select
                           value={localImageBlock.boxShadow || 'none'}
                           onChange={(e) => {
                             const shadowValues = {
                               'none': 'none',
-                              'subtle': '0 1px 3px rgba(0,0,0,0.1)',
-                              'medium': '0 4px 6px rgba(0,0,0,0.15)',
-                              'strong': '0 10px 15px rgba(0,0,0,0.25)'
+                              'subtle': '0 2px 4px rgba(0,0,0,0.1)',
+                              'strong': '0 4px 8px rgba(0,0,0,0.2)'
                             };
                             updateImageProperty('boxShadow', shadowValues[e.target.value as keyof typeof shadowValues]);
                           }}
@@ -387,13 +321,14 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         >
                           <option value="none">{t('interface.imageSettings.none')}</option>
                           <option value="subtle">{t('interface.imageSettings.subtle')}</option>
-                          <option value="medium">{t('interface.imageSettings.medium')}</option>
                           <option value="strong">{t('interface.imageSettings.strong')}</option>
                         </select>
                       </div>
+
+                      {/* Border */}
                       <div>
                         <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.border')}</label>
-                        <select 
+                        <select
                           value={localImageBlock.border || 'none'}
                           onChange={(e) => {
                             const borderValues = {
@@ -427,9 +362,12 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           max="100"
                           value={localImageBlock.opacity ? parseFloat(localImageBlock.opacity.toString()) * 100 : 100}
                           onChange={(e) => {
+                            e.preventDefault(); // Запобігаємо перетягуванню модального вікна
                             const value = parseFloat(e.target.value) / 100;
                             updateImageProperty('opacity', value);
                           }}
+                          onMouseDown={(e) => e.stopPropagation()} // Додатково запобігаємо
+                          onTouchStart={(e) => e.stopPropagation()} // Для мобільних пристроїв
                           className="w-full"
                         />
                         <div className="text-xs text-gray-500 text-center">
@@ -444,9 +382,12 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           max="360"
                           value={localImageBlock.transform ? parseInt(localImageBlock.transform.replace(/rotate\((\d+)deg\)/, '$1')) || 0 : 0}
                           onChange={(e) => {
+                            e.preventDefault(); // Запобігаємо перетягуванню модального вікна
                             const value = parseInt(e.target.value);
                             updateImageProperty('transform', `rotate(${value}deg)`);
                           }}
+                          onMouseDown={(e) => e.stopPropagation()} // Додатково запобігаємо
+                          onTouchStart={(e) => e.stopPropagation()} // Для мобільних пристроїв
                           className="w-full"
                         />
                         <div className="text-xs text-gray-500 text-center">
@@ -460,37 +401,39 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
             </div>
           </div>
 
-                     {/* Right Panel - Live Preview */}
-           <div className="flex-1 flex flex-col">
-             {/* Preview Header */}
-             <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
-               <div className="flex items-center justify-between">
-                 <h3 className="text-sm font-semibold text-gray-900">{t('interface.imageSettings.livePreview')}</h3>
-                 <div className="text-xs text-gray-500">
-                   {t('interface.imageSettings.changesApplyInRealTime')}
-                 </div>
-               </div>
-             </div>
+          {/* Right Panel - Live Preview */}
+          <div className="flex-1 flex flex-col">
+            {/* Preview Header */}
+            <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-gray-900">{t('interface.imageSettings.livePreview')}</h3>
+                <div className="text-xs text-gray-500">
+                  {t('interface.imageSettings.changesApplyInRealTime')}
+                </div>
+              </div>
+            </div>
 
-                         {/* Preview Area - Enhanced */}
+            {/* Preview Area - Enhanced with Standalone Presentation styles */}
             <div className="flex-1 p-4 bg-gray-50 overflow-auto">
-              <div className="max-w-full mx-auto bg-white shadow-lg rounded-lg p-8">
+              <div className="max-w-full mx-auto bg-white shadow-lg rounded-lg p-8" style={{ fontFamily: 'Martel Sans, sans-serif' }}>
                 <div className="prose max-w-none">
                   {/* Content before image */}
                   <div className="mb-6">
-                    <h2 className="text-xl font-bold text-gray-900 mb-3">{t('interface.imageSettings.documentPreview')}</h2>
-                    <p className="text-gray-700 leading-relaxed">
+                    <h2 className="text-xl font-bold text-gray-900 mb-3" style={{ fontFamily: 'Kanit, sans-serif', fontSize: '24px', lineHeight: '1.2' }}>
+                      {t('interface.imageSettings.documentPreview')}
+                    </h2>
+                    <p className="text-gray-700 leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.6' }}>
                       {documentContent || t('interface.imageSettings.noDocumentContent')}
                     </p>
                   </div>
                   
-                  {/* Image Preview with Context */}
-                  <div className={`my-6 ${
-                    localImageBlock.alignment === 'left' ? 'text-left' :
-                    localImageBlock.alignment === 'right' ? 'text-right' :
-                    'text-center'
-                  }`}>
-                    <div className="inline-block relative">
+                  {/* Image Preview with Context - Alignment affects only the image container */}
+                  <div className="my-6">
+                    <div className={`inline-block relative ${
+                      localImageBlock.alignment === 'left' ? 'float-left mr-6 mb-4' :
+                      localImageBlock.alignment === 'right' ? 'float-right ml-6 mb-4' :
+                      'block mx-auto'
+                    }`}>
                       <img
                         src={localImageBlock.src}
                         alt={localImageBlock.alt || 'Preview image'}
@@ -523,10 +466,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   
                   {/* Content after image */}
                   <div className="mt-6">
-                    <p className="text-gray-700 leading-relaxed mb-4">
+                    <p className="text-gray-700 leading-relaxed mb-4" style={{ fontSize: '16px', lineHeight: '1.6' }}>
                       {documentContent ? documentContent.slice(0, 200) + '...' : t('interface.imageSettings.additionalContentPlaceholder')}
                     </p>
-                    <p className="text-gray-700 leading-relaxed">
+                    <p className="text-gray-700 leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.6' }}>
                       {documentContent ? documentContent.slice(200, 400) + '...' : t('interface.imageSettings.previewDescription')}
                     </p>
                   </div>
@@ -540,34 +483,34 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                 </div>
               </div>
             </div>
-           </div>
+          </div>
         </div>
 
-                 {/* Footer - Modern UI */}
-         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between rounded-b-xl">
-           <div className="flex items-center gap-4">
-             <div className="text-sm text-gray-600">
-               <span className="font-medium">{t('interface.imageSettings.size')}:</span> {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
-             </div>
-             <div className="text-sm text-gray-600">
-               <span className="font-medium">{t('interface.imageSettings.alignment')}:</span> {localImageBlock.alignment || 'center'}
-             </div>
-           </div>
-           <div className="flex gap-3">
-             <button
-               onClick={resetToDefaults}
-               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-             >
-               {t('interface.imageSettings.resetToDefault')}
-             </button>
-             <button
-               onClick={onClose}
-               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-             >
-               {t('interface.modal.applyChanges')}
-             </button>
-           </div>
-         </div>
+        {/* Footer - Modern UI */}
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between rounded-b-xl">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">{t('interface.imageSettings.size')}:</span> {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
+            </div>
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">{t('interface.imageSettings.alignment')}:</span> {localImageBlock.alignment || 'center'}
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={resetToDefaults}
+              className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            >
+              {t('interface.imageSettings.resetToDefault')}
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              {t('interface.modal.applyChanges')}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
