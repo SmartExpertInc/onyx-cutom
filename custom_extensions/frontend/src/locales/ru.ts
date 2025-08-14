@@ -500,6 +500,11 @@ export const ru = {
     items: "элементов",
     loadingProjects: "Загрузка проектов...",
     
+    // Text Presentation Display
+    textPresentationDisplay: {
+      noContent: "Нет текстового контента для отображения."
+    },
+    
     // Help button
     help: "Помощь",
     

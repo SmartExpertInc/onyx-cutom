@@ -500,6 +500,11 @@ export const uk = {
     items: "елементів",
     loadingProjects: "Завантаження проектів...",
     
+    // Text Presentation Display
+    textPresentationDisplay: {
+      noContent: "Немає текстового контенту для відображення."
+    },
+    
     // Help button
     help: "Допомога",
     

@@ -545,6 +545,11 @@ export const en = {
     items: "items",
     loadingProjects: "Loading projects...",
     
+    // Text Presentation Display
+    textPresentationDisplay: {
+      noContent: "No text content available to display."
+    },
+    
     // Help button
     help: "Help",
     

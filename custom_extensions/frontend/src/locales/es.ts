@@ -507,6 +507,11 @@ export const es = {
     items: "elementos",
     loadingProjects: "Cargando proyectos...",
     
+    // Text Presentation Display
+    textPresentationDisplay: {
+      noContent: "No hay contenido de texto disponible para mostrar."
+    },
+    
     // Help button
     help: "Ayuda",
     
