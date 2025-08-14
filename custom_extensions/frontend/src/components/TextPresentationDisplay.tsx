@@ -14,6 +14,7 @@ import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
 import { uploadOnePagerImage } from '@/lib/designTemplateApi';
 import WordStyleImageEditor from './WordStyleImageEditor';
+import ImageBasicActions from './ImageBasicActions';
 
 // Type definitions for internal structuring
 type MiniSection = {
@@ -796,6 +797,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
+  const [showBasicActions, setShowBasicActions] = useState(false);
 
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];

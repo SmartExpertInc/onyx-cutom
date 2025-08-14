@@ -1,49 +1,26 @@
-# New Image Actions - Basic Actions Dropdown
+# New Image Actions System
 
 ## Опис
 
-Нова логіка роботи з зображеннями: при натисканні на шестерню з'являється список базових дій, а не меню розширених налаштувань. В цьому списку є пункт "Відкрити меню розширених налаштувань", який відкриває модальне вікно.
+Нова система дій для зображень, яка розділяє базові дії (швидкі налаштування) та розширені налаштування (повний редактор).
 
-## 🎯 **Нова логіка**
+## 🎯 **Концепція**
 
-### **Структура дій:**
-1. **Шестерня** → Базові дії (dropdown)
-2. **Базові дії** → Розмір, Вирівнювання, Стиль
-3. **"Відкрити меню розширених налаштувань"** → Модальне вікно
+### **Два рівні редагування:**
 
-### **Базові дії включають:**
+1. **Базові дії** - швидкі налаштування через дроп-меню
+2. **Розширені налаштування** - повний модальний редактор
 
-#### **📏 Size (Розмір)**
-- **Make Smaller** - зменшує до 200px
-- **Make Larger** - збільшує до 600px
-
-#### **📍 Alignment (Вирівнювання)**
-- **⬅️ Align Left** - вирівнювання по лівому краю
-- **⬆️ Align Center** - вирівнювання по центру
-- **➡️ Align Right** - вирівнювання по правому краю
-
-#### **🎨 Style (Стиль)**
-- **🔲 Sharp Corners** - гострі кути (0px)
-- **🔲 Rounded Corners** - закруглені кути (8px)
-
-#### **⚙️ Advanced**
-- **Open Advanced Settings** - відкриває повне модальне вікно
-
-## 📁 **Структура файлів**
-
+### **Потік роботи:**
 ```
-custom_extensions/frontend/src/components/
-├── BasicImageActions.tsx           # Новий компонент базових дій
-├── NewImageActionsTest.tsx         # Тестовий компонент
-├── WordStyleImageEditor.tsx        # Модальне вікно розширених налаштувань
-└── TextPresentationDisplay.tsx     # Основний файл (потребує оновлення)
+Зображення → Hover → Actions Button → Dropdown Menu → Basic Actions OR Advanced Settings
 ```
 
 ## 🔧 **Компоненти**
 
-### **1. BasicImageActions.tsx**
+### **1. ImageBasicActions.tsx**
 ```tsx
-interface BasicImageActionsProps {
+interface ImageBasicActionsProps {
   imageBlock: ImageBlock;
   onImageChange: (updatedBlock: ImageBlock) => void;
   onOpenAdvancedSettings: () => void;
@@ -51,72 +28,76 @@ interface BasicImageActionsProps {
 ```
 
 **Функціональність:**
-- Dropdown з базовими діями
-- Категорії: Size, Alignment, Style
-- Кнопка "Open Advanced Settings"
-- Автоматичне закриття після вибору дії
+- Кнопка "Actions" з шестернею
+- Дроп-меню з базовими діями
+- Швидкі пресети розмірів
+- Вирівнювання
+- Стилі кутів
+- Посилання на розширені налаштування
 
-### **2. NewImageActionsTest.tsx**
-**Тестовий компонент для демонстрації:**
-- Показує зображення з кнопкою базових дій
-- Відображає поточні налаштування
-- Інструкції по використанню
-- JSON дані зображення
+### **2. WordStyleImageEditor.tsx**
+- Повний модальний редактор
+- Детальні налаштування
+- Live preview
+- Всі розширені опції
+
+## 📋 **Базові дії (Dropdown Menu)**
+
+### **Quick Size**
+- Small (200px)
+- Medium (400px) 
+- Large (600px)
+- Extra Large (800px)
+
+### **Alignment**
+- ⬅️ Left
+- ⬆️ Center  
+- ➡️ Right
+
+### **Corner Style**
+- Sharp Corners (0px)
+- Slightly Rounded (4px)
+- Rounded (8px)
+- Very Rounded (16px)
+
+### **Advanced Settings**
+- "Open Advanced Settings" - відкриває модальне вікно
 
 ## 🎨 **UI/UX Особливості**
 
-### **Dropdown Design:**
-```tsx
-<div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-  <div className="py-1">
-    {/* Size Actions */}
-    <div className="px-3 py-2 border-b border-gray-100">
-      <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Size</div>
-      {/* Actions */}
-    </div>
-    
-    {/* Alignment Actions */}
-    <div className="px-3 py-2 border-b border-gray-100">
-      <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Alignment</div>
-      {/* Actions */}
-    </div>
-    
-    {/* Style Actions */}
-    <div className="px-3 py-2 border-b border-gray-100">
-      <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Style</div>
-      {/* Actions */}
-    </div>
-    
-    {/* Advanced Settings */}
-    <div className="px-3 py-2">
-      <button className="text-blue-600 font-medium">
-        <Edit3 className="w-4 h-4" />
-        Open Advanced Settings
-      </button>
-    </div>
-  </div>
-</div>
-```
-
 ### **Кнопка Actions:**
 ```tsx
-<button className="flex items-center gap-2 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-md transition-colors">
+<button className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md">
   <Settings className="w-4 h-4" />
   Actions
-  <ChevronDown className={`w-3 h-3 transition-transform ${showActions ? 'rotate-180' : ''}`} />
+  <ChevronDown className="w-3 h-3" />
 </button>
+```
+
+### **Dropdown Menu:**
+- Ширина: 224px (w-56)
+- Розділені секції з заголовками
+- Hover ефекти
+- Закриття після вибору дії
+
+### **Секції меню:**
+```tsx
+<div className="px-3 py-2 border-b border-gray-100">
+  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+    Quick Size
+  </div>
+  {/* Content */}
+</div>
 ```
 
 ## 🚀 **Використання**
 
-### **Інтеграція в TextPresentationDisplay:**
+### **В TextPresentationDisplay.tsx:**
 ```tsx
-import BasicImageActions from './BasicImageActions';
-
-// Замість старої кнопки
+{/* Basic Actions Button */}
 {isEditing && (
-  <div className="absolute top-2 left-2 z-10">
-    <BasicImageActions
+  <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+    <ImageBasicActions
       imageBlock={block as ImageBlock}
       onImageChange={(updatedBlock) => {
         Object.keys(updatedBlock).forEach(key => {
@@ -131,7 +112,67 @@ import BasicImageActions from './BasicImageActions';
 )}
 ```
 
-### **Для тестування:**
+### **В тестовому компоненті:**
+```tsx
+<ImageBasicActions
+  imageBlock={imageBlock}
+  onImageChange={handleImageChange}
+  onOpenAdvancedSettings={() => setShowAdvancedEditor(true)}
+/>
+```
+
+## 📁 **Структура файлів**
+
+```
+custom_extensions/frontend/src/components/
+├── ImageBasicActions.tsx           # Новий компонент базових дій
+├── WordStyleImageEditor.tsx        # Розширені налаштування
+├── NewImageActionsTest.tsx         # Тестовий компонент
+├── TextPresentationDisplay.tsx     # Основний файл (потребує оновлення)
+└── UpdatedTestEditor.tsx           # Старий тестовий компонент
+```
+
+## 🎯 **Переваги нової системи**
+
+1. **Швидкість** - базові дії доступні через 1 клік
+2. **Зручність** - не потрібно відкривати модальне вікно для простих змін
+3. **Гнучкість** - можна використовувати як базові, так і розширені налаштування
+4. **Інтуїтивність** - зрозумілий потік роботи
+5. **Продуктивність** - менше кліків для простих операцій
+
+## 🔄 **Міграція**
+
+### **Заміна старих кнопок:**
+```tsx
+// Старий варіант:
+<button onClick={() => setShowWordStyleEditor(true)}>
+  <Settings className="w-3 h-3" />
+</button>
+
+// Новий варіант:
+<ImageBasicActions
+  imageBlock={block as ImageBlock}
+  onImageChange={handleImageChange}
+  onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+/>
+```
+
+### **Оновлення станів:**
+```tsx
+const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
+// Додати якщо потрібно:
+const [showBasicActions, setShowBasicActions] = useState(false);
+```
+
+## 🧪 **Тестування**
+
+### **NewImageActionsTest.tsx:**
+- Демонструє повну функціональність
+- Інструкції по використанню
+- Live preview змін
+- JSON дані для дебагу
+
+### **Використання:**
 ```tsx
 import NewImageActionsTest from './components/NewImageActionsTest';
 
@@ -139,34 +180,37 @@ import NewImageActionsTest from './components/NewImageActionsTest';
 <NewImageActionsTest />
 ```
 
-## 🔄 **Переваги нової логіки**
+## 🎨 **Дизайн**
 
-1. **Швидкість** - базові дії доступні одразу
-2. **Зручність** - не потрібно відкривати модальне вікно для простих змін
-3. **Логічність** - чітка ієрархія: базові дії → розширені налаштування
-4. **Ефективність** - менше кліків для простих операцій
-5. **Інтуїтивність** - зрозуміла структура дій
+### **Кольори:**
+- **Primary**: `blue-600` / `blue-700`
+- **Secondary**: `gray-100` / `gray-200`
+- **Text**: `gray-700` / `gray-500`
+- **Borders**: `gray-200` / `gray-100`
 
-## 📋 **План інтеграції**
+### **Анімації:**
+- Hover ефекти
+- Transition для ChevronDown
+- Opacity для появи кнопки
 
-### **Крок 1: Оновлення TextPresentationDisplay.tsx**
-- Замінити стару кнопку на `BasicImageActions`
-- Додати обробник `onOpenAdvancedSettings`
+### **Responsive:**
+- Dropdown позиціонується правильно
+- Адаптивні розміри
+- Touch-friendly на мобільних
 
-### **Крок 2: Тестування**
-- Використати `NewImageActionsTest.tsx`
-- Перевірити всі базові дії
-- Перевірити відкриття розширених налаштувань
+## 📝 **Плани розвитку**
 
-### **Крок 3: Фіналізація**
-- Видалити старі компоненти
-- Оновити документацію
-- Протестувати в реальному середовищі
+1. **Додати більше базових дій:**
+   - Обрізання
+   - Фільтри
+   - Тіні
 
-## 🎯 **Результат**
+2. **Покращити UX:**
+   - Keyboard shortcuts
+   - Undo/Redo
+   - Batch operations
 
-Тепер користувачі можуть:
-- **Швидко** змінювати розмір, вирівнювання та стиль зображення
-- **Легко** отримати доступ до розширених налаштувань
-- **Ефективно** працювати з зображеннями без зайвих кліків
-
+3. **Інтеграція:**
+   - З іншими компонентами
+   - Drag & drop
+   - Context menu

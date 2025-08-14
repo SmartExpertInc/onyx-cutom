@@ -23,7 +23,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'size' | 'layout' | 'effects'>('format');
-  const [showBasicActions, setShowBasicActions] = useState(false);
+  const [showBasicMenu, setShowBasicMenu] = useState(false);
 
   // Local state for real-time preview
   const [localImageBlock, setLocalImageBlock] = useState<ImageBlock>(imageBlock);
@@ -102,109 +102,85 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
         <div className="flex flex-1 overflow-hidden">
           {/* Left Panel - Settings */}
           <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
-            {/* Basic Actions */}
+            {/* Basic Actions Menu */}
             <div className="bg-white border-b border-gray-200 p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-gray-900">Basic Actions</h3>
                 <div className="relative">
                   <button
-                    onClick={() => setShowBasicActions(!showBasicActions)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-md transition-colors"
+                    onClick={() => setShowBasicMenu(!showBasicMenu)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors"
                   >
                     <Settings className="w-4 h-4" />
                     Actions
-                    <ChevronDown className={`w-3 h-3 transition-transform ${showBasicActions ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showBasicMenu ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  {/* Basic Actions Dropdown Menu */}
-                  {showBasicActions && (
+                  {/* Basic Actions Dropdown */}
+                  {showBasicMenu && (
                     <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="py-1">
-                        {/* Size Actions */}
+                        {/* Quick Size Actions */}
                         <div className="px-3 py-2 border-b border-gray-100">
-                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Size</div>
-                          <div className="space-y-1">
-                            <button
-                              onClick={() => {
-                                updateImageProperty('width', 200);
-                                updateImageProperty('height', 'auto');
-                                setShowBasicActions(false);
-                              }}
-                              className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              <ZoomOut className="w-4 h-4" />
-                              Make Smaller
-                            </button>
-                            <button
-                              onClick={() => {
-                                updateImageProperty('width', 600);
-                                updateImageProperty('height', 'auto');
-                                setShowBasicActions(false);
-                              }}
-                              className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              <ZoomIn className="w-4 h-4" />
-                              Make Larger
-                            </button>
+                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Quick Size</div>
+                          <div className="grid grid-cols-2 gap-1">
+                            {quickSizePresets.map((preset) => (
+                              <button
+                                key={preset.name}
+                                onClick={() => {
+                                  updateImageProperty('width', preset.width);
+                                  updateImageProperty('height', preset.height);
+                                  setShowBasicMenu(false);
+                                }}
+                                className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
+                              >
+                                <span>{preset.name}</span>
+                                <span className="text-gray-500">{preset.width}px</span>
+                              </button>
+                            ))}
                           </div>
                         </div>
 
                         {/* Alignment Actions */}
                         <div className="px-3 py-2 border-b border-gray-100">
                           <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Alignment</div>
-                          <div className="space-y-1">
-                            <button
-                              onClick={() => {
-                                updateImageProperty('alignment', 'left');
-                                setShowBasicActions(false);
-                              }}
-                              className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              ⬅️ Align Left
-                            </button>
-                            <button
-                              onClick={() => {
-                                updateImageProperty('alignment', 'center');
-                                setShowBasicActions(false);
-                              }}
-                              className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              ⬆️ Align Center
-                            </button>
-                            <button
-                              onClick={() => {
-                                updateImageProperty('alignment', 'right');
-                                setShowBasicActions(false);
-                              }}
-                              className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              ➡️ Align Right
-                            </button>
+                          <div className="flex gap-1">
+                            {alignmentOptions.map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() => {
+                                  updateImageProperty('alignment', option.value);
+                                  setShowBasicMenu(false);
+                                }}
+                                className="flex-1 px-2 py-1 text-xs hover:bg-blue-50 rounded text-center"
+                              >
+                                {option.icon} {option.label}
+                              </button>
+                            ))}
                           </div>
                         </div>
 
-                        {/* Style Actions */}
+                        {/* Border Radius Actions */}
                         <div className="px-3 py-2 border-b border-gray-100">
-                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Style</div>
+                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Corner Style</div>
                           <div className="space-y-1">
-                            <button
-                              onClick={() => {
-                                updateImageProperty('borderRadius', '0px');
-                                setShowBasicActions(false);
-                              }}
-                              className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              🔲 Sharp Corners
-                            </button>
-                            <button
-                              onClick={() => {
-                                updateImageProperty('borderRadius', '8px');
-                                setShowBasicActions(false);
-                              }}
-                              className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              🔲 Rounded Corners
-                            </button>
+                            {[
+                              { value: '0px', label: 'Sharp Corners' },
+                              { value: '4px', label: 'Slightly Rounded' },
+                              { value: '8px', label: 'Rounded' },
+                              { value: '16px', label: 'Very Rounded' }
+                            ].map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() => {
+                                  updateImageProperty('borderRadius', option.value);
+                                  setShowBasicMenu(false);
+                                }}
+                                className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded"
+                              >
+                                {option.label}
+                              </button>
+                            ))}
                           </div>
                         </div>
 
@@ -212,10 +188,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         <div className="px-3 py-2">
                           <button
                             onClick={() => {
-                              setShowBasicActions(false);
-                              // This will show the full modal content
+                              setActiveTab('format');
+                              setShowBasicMenu(false);
                             }}
-                            className="w-full px-2 py-1 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-blue-600 font-medium"
+                            className="w-full px-2 py-2 text-left text-sm hover:bg-blue-50 rounded flex items-center gap-2 font-medium text-blue-600"
                           >
                             <Edit3 className="w-4 h-4" />
                             Open Advanced Settings
