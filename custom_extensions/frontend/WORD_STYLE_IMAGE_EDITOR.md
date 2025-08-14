@@ -75,8 +75,7 @@
 
 ```
 custom_extensions/frontend/src/components/
-├── TextPresentationDisplay.tsx     # Основний компонент з Word-стиль інтерфейсом
-└── WordStyleImageEditor.tsx        # Окремий компонент для тестування
+└── TextPresentationDisplay.tsx     # Основний компонент з Word-стиль інтерфейсом
 ```
 
 ## 🔧 Технічна реалізація
@@ -85,7 +84,6 @@ custom_extensions/frontend/src/components/
 1. **WordStyleImageToolbar** - панель інструментів
 2. **WordStyleContextMenu** - контекстне меню
 3. **WordStyleTopToolbar** - верхня панель
-4. **WordStyleImageEditor** - окремий компонент для тестування
 
 ### **Стан компонентів**
 ```typescript
@@ -123,16 +121,7 @@ import TextPresentationDisplay from './TextPresentationDisplay';
 />
 ```
 
-### **Окремий компонент**
-```typescript
-import WordStyleImageEditor from './WordStyleImageEditor';
 
-<WordStyleImageEditor
-  imageBlock={imageBlock}
-  onImageChange={handleImageChange}
-  isEditing={true}
-/>
-```
 
 ## 🎯 Переваги Word-стиль інтерфейсу
 

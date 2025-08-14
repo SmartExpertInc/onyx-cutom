@@ -401,27 +401,27 @@ const WordStyleContextMenu: React.FC<{
       style={{ left: position.x, top: position.y }}
     >
       <div className="py-1">
-        <button
-          onClick={() => {
-            const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
-            onImageChange({ width: Math.max(50, currentWidth - 25) });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
-          </svg>
-          Make Smaller
-        </button>
-        <button
-          onClick={() => {
-            const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
-            onImageChange({ width: Math.min(800, currentWidth + 25) });
-            onClose();
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-        >
+                  <button
+            onClick={() => {
+              const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
+              onImageChange({ width: Math.max(50, currentWidth - 25) });
+              onClose();
+            }}
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+            </svg>
+            Make Smaller
+          </button>
+          <button
+            onClick={() => {
+              const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
+              onImageChange({ width: Math.min(800, currentWidth + 25) });
+              onClose();
+            }}
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+          >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
           </svg>
@@ -1742,7 +1742,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
       
       // Calculate current width for scaling controls
-      const currentWidth = width ? (typeof width === 'number' ? width : parseInt(width)) : 300;
+      const currentWidth = width ? (typeof width === 'number' ? width : parseInt(String(width))) : 300;
       const imageWidth = Math.max(50, Math.min(currentWidth, 800)); // Constrain between 50px and 800px
       
       // Ensure proper image path resolution with null check
