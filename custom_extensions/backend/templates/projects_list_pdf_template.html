@@ -26,7 +26,7 @@
         .pdf-container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 0;
+            padding: 0 24px;
         }
         
         /* Header */
@@ -49,8 +49,9 @@
         .table-container {
             background: white;
             border: 1px solid #e2e8f0;
-            border-radius: 0 0 8px 8px;
+            border-radius: 8px;
             overflow: hidden;
+            margin: 0 0 24px 0;
         }
         
         /* Table */
@@ -63,7 +64,7 @@
         
         /* Table Header */
         .table-header {
-            background: #f8fafc;
+            background: #6b7280;
             border-bottom: 2px solid #e2e8f0;
         }
         
@@ -72,7 +73,7 @@
             text-align: left;
             font-weight: 700;
             font-size: 12px;
-            color: #64748b;
+            color: #ffffff;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             border: none;
@@ -92,7 +93,7 @@
         
         /* Folder Rows */
         .folder-row {
-            background: #f8fafc;
+            background: #9ca3af;
             border-bottom: 1px solid #e2e8f0;
         }
         
@@ -112,7 +113,7 @@
         
         .folder-title {
             font-weight: 600;
-            color: #1e293b;
+            color: #ffffff;
             font-size: 14px;
             display: flex;
             align-items: center;
@@ -122,7 +123,7 @@
         .folder-icon {
             width: 18px;
             height: 18px;
-            color: #2D7C21;
+            color: #ffffff;
             flex-shrink: 0;
         }
         
@@ -235,6 +236,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             overflow: hidden;
+            margin-bottom: 24px;
         }
         
         .unassigned-header {
@@ -360,6 +362,7 @@
         .pie-chart-container {
             page-break-inside: avoid;
             break-inside: avoid;
+            margin: 0 0 24px 0;
         }
         
         .pie-chart-header {
@@ -389,6 +392,20 @@
             page-break-inside: avoid;
             break-inside: avoid;
         }
+        
+        /* Additional PDF-specific styling for better margins */
+        @media print {
+            .pdf-container {
+                padding: 0 32px;
+            }
+            
+            .table-container,
+            .mini-summary-container,
+            .pie-chart-container {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -400,14 +417,14 @@
         
         <!-- Mini Summary Table -->
         {% if folders or unassigned_projects %}
-        <div class="mini-summary-container" style="margin-bottom: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div class="mini-summary-container" style="margin-bottom: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-left: 0; margin-right: 0;">
             <table class="mini-summary-table" style="width: 100%; border-collapse: collapse; background: white; font-size: 13px;">
-                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                <thead style="background: #6b7280; border-bottom: 2px solid #e2e8f0;">
                     <tr>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL PROJECTS</th>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL LESSONS</th>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL CREATION TIME</th>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL COMPLETION TIME</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL PROJECTS</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL LESSONS</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL CREATION TIME</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL COMPLETION TIME</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -732,9 +749,9 @@
         <!-- Products Distribution Pie Chart -->
         {% if folders or unassigned_projects %}
         <div class="pie-chart-container" style="margin-top: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-            <div class="pie-chart-header" style="background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
-                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 0;">Products Distribution</h3>
-                <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
+            <div class="pie-chart-header" style="background: #6b7280; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #ffffff; margin: 0;">Products Distribution</h3>
+                <p style="font-size: 12px; color: #e5e7eb; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
             </div>
             
             <div class="pie-chart-content" style="padding: 24px; display: flex; align-items: center; justify-content: space-between;">
