@@ -1054,20 +1054,19 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 1. `big-image-left` - Opening slides with strong visual impact and lesson introduction
 2. `hero-title-slide` - Text-focused introductions with detailed learning objectives  
 3. `title-slide` - Section breaks and conclusion slides (use sparingly - max 2 per presentation)
-4. `content-slide` - Explanatory content with detailed concepts (use sparingly - max 2-3 per presentation)
-5. `bullet-points` - Key points and learning objectives (5-7 detailed points)
-6. `bullet-points-right` - Contextual bullet lists with introductory explanations
-7. `two-column` - Comparative analysis and before/after scenarios
-8. `comparison-slide` - Direct comparisons with detailed characteristics
+4. `bullet-points` - Key points and learning objectives (5-7 detailed points)
+5. `bullet-points-right` - Contextual bullet lists with introductory explanations
+6. `two-column` - Comparative analysis and before/after scenarios
+7. `comparison-slide` - Direct comparisons with detailed characteristics
 
 **SPECIALIZED EDUCATIONAL TEMPLATES:**
-9. `big-numbers` - Statistical data, metrics, and numerical insights
-10. `four-box-grid` - Four key concepts or benefits with detailed explanations
-11. `process-steps` - Sequential learning steps and methodologies
-12. `timeline` - Historical progression and evolution (exactly 4 steps)
-13. `pyramid` - Hierarchical concepts and foundational learning structures
-14. `challenges-solutions` - Problem-solving approaches and solutions
-15. `big-image-top` - Visual demonstrations with explanatory content below
+8. `big-numbers` - Statistical data, metrics, and numerical insights
+9. `four-box-grid` - Four key concepts or benefits with detailed explanations
+10. `process-steps` - Sequential learning steps and methodologies
+11`. `timeline` - Historical progression and evolution (exactly 4 steps)
+12. `pyramid` - Hierarchical concepts and foundational learning structures
+13. `challenges-solutions` - Problem-solving approaches and solutions
+14. `big-image-top` - Visual demonstrations with explanatory content below
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
@@ -1076,16 +1075,9 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **For bullet lists**: Use `bullet-points` or `bullet-points-right` (not content-slide)
 - **For comparisons**: Use `two-column` or `comparison-slide` (not content-slide)
 - **For grouped concepts**: Use `four-box-grid` (not content-slide)
-- **For explanatory text only**: Use `content-slide` (maximum 2-3 times per presentation)
 - **For section breaks**: Use `title-slide` (maximum 2 times per presentation)
 
 **CRITICAL TEMPLATE USAGE RULES:**
-- **NEVER use `content-slide` for any content with bullet points or lists** - use `bullet-points` or `bullet-points-right` instead
-- **NEVER use `content-slide` for numerical data** - use `big-numbers` instead
-- **NEVER use `content-slide` for hierarchical structures** - use `pyramid` instead
-- **NEVER use `content-slide` for sequential steps** - use `process-steps` or `timeline` instead
-- **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
-- **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
@@ -1377,7 +1369,6 @@ Effective AI governance requires comprehensive frameworks that address technical
 Choose templates based on content type and educational goals:
 
 - **Opening Slide**: **ALWAYS use `big-image-left` for the first slide by default** (strong visual introduction). Use `hero-title-slide` ONLY if specifically requested for text-focused intro.
-- **Core Content**: **SEVERELY LIMIT `content-slide` usage** - maximum 2-3 times per presentation, and ONLY for pure explanatory paragraphs without any lists, numbers, or hierarchical content. **IMPORTANT:** Do NOT use `content-slide` for numerical data, metrics, statistics, or KPIs - use `big-numbers` instead. Do NOT use `content-slide` for hierarchical structures, levels, or 3-step progressions - use `pyramid` instead. Do NOT use `content-slide` for any content with bullet points - use appropriate list templates instead.
 - **Key Points**: **LIMIT bullet-points usage** - maximum 3 total bullet-points slides per presentation. Use specialized templates instead when possible. **ALTERNATE** between `bullet-points` and `bullet-points-right` when using multiple bullet slides.
 - **Comparisons**: Choose:
   - `two-column` - For general comparative analysis without images
@@ -1413,9 +1404,9 @@ Information processing follows a structured approach where knowledge builds upon
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):
 - **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial content
-- **Short Lessons (5-7 slides)**: `big-image-left` + 4-5 varied slides + 1 conclusion slide (**no `content-slide` allowed**)
-- **Medium Lessons (8-12 slides)**: `big-image-left` + 7-11 varied slides + 1 conclusion slide (**no `content-slide` allowed**)  
-- **Long Lessons (13-15 slides)**: `big-image-left` + 12-14 varied slides + 1 conclusion slide (**no `content-slide` allowed**)
+- **Short Lessons (5-7 slides)**: `big-image-left` + 4-5 varied slides + 1 conclusion slide
+- **Medium Lessons (8-12 slides)**: `big-image-left` + 7-11 varied slides + 1 conclusion slide
+- **Long Lessons (13-15 slides)**: `big-image-left` + 12-14 varied slides + 1 conclusion slide
 - **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
 - **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
 - **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
