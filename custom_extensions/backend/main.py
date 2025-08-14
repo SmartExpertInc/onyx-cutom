@@ -9049,6 +9049,50 @@ CRITICAL FORMATTING REQUIREMENTS FOR COURSE OUTLINE:
 
 ENSURE: Create the requested number of modules, not a single module with all lessons.
 """
+    elif product_type == "Lesson Presentation":
+        enhanced_prompt += """
+CRITICAL FORMATTING REQUIREMENTS FOR LESSON PRESENTATION:
+1. After the Universal Product Header (**[Project Name]** : **Lesson Presentation** : **[Lesson Title]**), add exactly TWO blank lines
+2. Each slide MUST use this exact format: **Slide N: [Descriptive Title]** `[slide-type]`
+3. Use "---" separators between slides (with blank lines before and after each separator)
+4. Example structure:
+   **Slide 1: Introduction to Topic**
+   [Content here]
+   
+   ---
+   
+   **Slide 2: Key Concepts**
+   [Content here]
+   
+   ---
+   
+5. NEVER use markdown headers (##, ###) for slide titles - ONLY use **Slide N: Title** format
+6. Ensure slides are numbered sequentially: Slide 1, Slide 2, Slide 3, etc.
+
+ENSURE: Every slide follows the **Slide N: Title** format exactly.
+"""
+    elif product_type == "Video Lesson Presentation":
+        enhanced_prompt += """
+CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
+1. After the Universal Product Header (**[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**), add exactly TWO blank lines
+2. Each slide MUST use this exact format: **Slide N: [Descriptive Title]**
+3. Use "---" separators between slides (with blank lines before and after each separator)
+4. Example structure:
+   **Slide 1: Introduction to Topic**
+   [Content here]
+   
+   ---
+   
+   **Slide 2: Key Concepts**
+   [Content here]
+   
+   ---
+   
+5. NEVER use markdown headers (##, ###) for slide titles - ONLY use **Slide N: Title** format
+6. Ensure slides are numbered sequentially: Slide 1, Slide 2, Slide 3, etc.
+
+ENSURE: Every slide follows the **Slide N: Title** format exactly for proper video lesson processing.
+"""
     
     # Add specific instructions for the product type
     if file_context.get("metadata", {}).get("fallback_used"):
@@ -13679,7 +13723,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 chunks_received = 0
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Lesson Presentation"):
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
