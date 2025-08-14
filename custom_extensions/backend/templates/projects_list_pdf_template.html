@@ -380,68 +380,51 @@
                     <tr class="product-row">
                         <td class="data-cell bold" style="text-align: center;">
                             {% set total_courses = 0 %}
-                            {% for folder in folders %}
-                                {% if folder.id in folder_projects %}
-                                    {% set total_courses = total_courses + folder_projects[folder.id]|length %}
-                                {% endif %}
-                                {% if folder.children %}
-                                    {% for child in folder.children %}
-                                        {% if child.id in folder_projects %}
-                                            {% set total_courses = total_courses + folder_projects[child.id]|length %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                            {% set total_courses = total_courses + unassigned_projects|length %}
-                            {{ total_courses }}
-                        </td>
-                        <td class="data-cell bold" style="text-align: center;">
                             {% set total_lessons = 0 %}
+                            {% set total_creation_hours = 0 %}
+                            {% set total_completion_time = 0 %}
+                            
+                            <!-- Count projects from folders (same logic as main table) -->
                             {% for folder in folders %}
                                 {% if folder.id in folder_projects %}
                                     {% for project in folder_projects[folder.id] %}
+                                        {% set total_courses = total_courses + 1 %}
                                         {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
+                                        {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
+                                        {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
                                     {% endfor %}
                                 {% endif %}
                                 {% if folder.children %}
                                     {% for child in folder.children %}
                                         {% if child.id in folder_projects %}
                                             {% for project in folder_projects[child.id] %}
+                                                {% set total_courses = total_courses + 1 %}
                                                 {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
+                                                {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
+                                                {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
                                             {% endfor %}
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
+                            
+                            <!-- Count projects from unassigned (same logic as main table) -->
                             {% for project in unassigned_projects %}
+                                {% set total_courses = total_courses + 1 %}
                                 {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
+                                {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
+                                {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
                             {% endfor %}
+                            
+                            {{ total_courses }}
+                        </td>
+                        <td class="data-cell bold" style="text-align: center;">
                             {{ total_lessons }}
                         </td>
                         <td class="data-cell bold" style="text-align: center;">
                             <span class="dash">-</span>
                         </td>
                         <td class="data-cell bold" style="text-align: center;">
-                            {% set total_creation_hours = 0 %}
-                            {% for folder in folders %}
-                                {% if folder.id in folder_projects %}
-                                    {% for project in folder_projects[folder.id] %}
-                                        {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
-                                    {% endfor %}
-                                {% endif %}
-                                {% if folder.children %}
-                                    {% for child in folder.children %}
-                                        {% if child.id in folder_projects %}
-                                            {% for project in folder_projects[child.id] %}
-                                                {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                            {% for project in unassigned_projects %}
-                                {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
-                            {% endfor %}
                             {% if total_creation_hours > 0 %}
                                 <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
@@ -453,26 +436,6 @@
                             {% endif %}
                         </td>
                         <td class="data-cell bold" style="text-align: center;">
-                            {% set total_completion_time = 0 %}
-                            {% for folder in folders %}
-                                {% if folder.id in folder_projects %}
-                                    {% for project in folder_projects[folder.id] %}
-                                        {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
-                                    {% endfor %}
-                                {% endif %}
-                                {% if folder.children %}
-                                    {% for child in folder.children %}
-                                        {% if child.id in folder_projects %}
-                                            {% for project in folder_projects[child.id] %}
-                                                {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                            {% for project in unassigned_projects %}
-                                {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
-                            {% endfor %}
                             {% if total_completion_time > 0 %}
                                 <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
