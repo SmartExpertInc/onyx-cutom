@@ -355,6 +355,40 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
+
+        /* Page break controls for pie chart */
+        .pie-chart-container {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .pie-chart-header {
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        
+        .pie-chart-content {
+            page-break-before: avoid;
+            break-before: avoid;
+        }
+
+        /* Table page break controls */
+        .table-container {
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+        
+        .projects-table {
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+        
+        /* Ensure table rows don't break inappropriately */
+        .folder-row,
+        .product-row {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
     </style>
 </head>
 <body>
@@ -697,8 +731,8 @@
         
         <!-- Products Distribution Pie Chart -->
         {% if folders or unassigned_projects %}
-        <div class="pie-chart-container" style="margin-top: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; page-break-inside: avoid; break-inside: avoid;">
-            <div class="pie-chart-header" style="background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0; page-break-after: avoid; break-after: avoid;">
+        <div class="pie-chart-container" style="margin-top: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <div class="pie-chart-header" style="background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
                 <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 0;">Products Distribution</h3>
                 <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
             </div>
@@ -718,23 +752,23 @@
                         {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
                         {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
 
-                        <!-- Precalculated arcs for mock data -->
+                        <!-- Draw slices in order: smallest to largest so largest (purple) is on top -->
                         <g transform="translate(150, 150)">
-                            <!-- One-pager (28.8%) -->
-                            <path d="M 0 -120 A 120 120 0 0 1 116.49 -34.77 L 0 0 Z" 
-                                  fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
-                            
-                            <!-- Presentation (24.4%) -->
-                            <path d="M 116.49 -34.77 A 120 120 0 0 1 69.92 97.51 L 0 0 Z" 
-                                  fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-                            
-                            <!-- Quiz (26.9%) -->
-                            <path d="M 69.92 97.51 A 120 120 0 0 1 -42.35 112.31 L 0 0 Z" 
-                                  fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
-                            
-                            <!-- Video lesson (19.9%) -->
+                            <!-- Video lesson (orange, smallest) -->
                             <path d="M -42.35 112.31 A 120 120 0 0 1 0 -120 L 0 0 Z" 
                                   fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
+                            
+                            <!-- Presentation (blue) -->
+                            <path d="M 69.92 97.51 A 120 120 0 0 1 -42.35 112.31 L 0 0 Z" 
+                                  fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+                            
+                            <!-- Quiz (green) -->
+                            <path d="M 116.49 -34.77 A 120 120 0 0 1 69.92 97.51 L 0 0 Z" 
+                                  fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+                            
+                            <!-- One-pager (purple, largest) -->
+                            <path d="M 0 -120 A 120 120 0 0 1 116.49 -34.77 L 0 0 Z" 
+                                  fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
                             
                             <!-- Center circle -->
                             <circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
