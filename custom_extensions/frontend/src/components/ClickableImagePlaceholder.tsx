@@ -6,26 +6,23 @@ import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
 
-// Global context menu management - IMPROVED
+// Global context menu management - SIMPLIFIED but more effective
 const globalContextMenuState = {
-  activeInstances: new Map<string, { closeMenu: () => void }>(),
-  registerInstance: (elementId: string, closeMenu: () => void) => {
-    globalContextMenuState.activeInstances.set(elementId, { closeMenu });
+  currentMenu: null as { instanceId: string, closeMenu: () => void } | null,
+  
+  setActiveMenu: (instanceId: string, closeMenu: () => void) => {
+    // Close previous menu if different instance
+    if (globalContextMenuState.currentMenu && globalContextMenuState.currentMenu.instanceId !== instanceId) {
+      globalContextMenuState.currentMenu.closeMenu();
+    }
+    globalContextMenuState.currentMenu = { instanceId, closeMenu };
   },
-  unregisterInstance: (elementId: string) => {
-    globalContextMenuState.activeInstances.delete(elementId);
-  },
-  closeAllExcept: (elementId: string) => {
-    globalContextMenuState.activeInstances.forEach((instance, id) => {
-      if (id !== elementId) {
-        instance.closeMenu();
-      }
-    });
-  },
+  
   closeAll: () => {
-    globalContextMenuState.activeInstances.forEach((instance) => {
-      instance.closeMenu();
-    });
+    if (globalContextMenuState.currentMenu) {
+      globalContextMenuState.currentMenu.closeMenu();
+      globalContextMenuState.currentMenu = null;
+    }
   }
 };
 
@@ -195,33 +192,30 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     'BACKGROUND': 'absolute inset-0 z-0'
   };
 
-  // IMPROVED: Context menu management with proper instance isolation
+  // SIMPLIFIED: Context menu management
   const closeContextMenu = useCallback(() => {
     setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+    
+    // Clear from global state if this was the active menu
+    if (globalContextMenuState.currentMenu?.instanceId === instanceId) {
+      globalContextMenuState.currentMenu = null;
+    }
+    
     log('ClickableImagePlaceholder', 'contextMenuClosed', { 
       elementId, 
       instanceId 
     });
   }, [elementId, instanceId]);
 
-  // IMPROVED: Register/unregister this instance with global state
+  // SIMPLIFIED: No need for complex registration
   useEffect(() => {
-    globalContextMenuState.registerInstance(instanceId, closeContextMenu);
-    
-    log('ClickableImagePlaceholder', 'instanceRegistered', { 
-      elementId, 
-      instanceId,
-      totalInstances: globalContextMenuState.activeInstances.size
-    });
-
+    // Cleanup on unmount
     return () => {
-      globalContextMenuState.unregisterInstance(instanceId);
-      log('ClickableImagePlaceholder', 'instanceUnregistered', { 
-        elementId, 
-        instanceId 
-      });
+      if (globalContextMenuState.currentMenu?.instanceId === instanceId) {
+        globalContextMenuState.currentMenu = null;
+      }
     };
-  }, [instanceId, closeContextMenu, elementId]);
+  }, [instanceId]);
 
   // Keep local displayed image in sync with prop
   useEffect(() => {
@@ -400,38 +394,34 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [isEditable, isSelected, elementId, instanceId]);
 
-  // ✅ FIXED: Right-click handler with proper instance isolation
-  const handleRightClick = useCallback((e: React.MouseEvent) => {
+  // ✅ SIMPLIFIED: Right-click handler that directly manages the menu
+  const handleRightClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!isEditable || !displayedImage) return;
     
     e.preventDefault();
     e.stopPropagation();
     
-    log('ClickableImagePlaceholder', 'rightClickStart', { 
+    log('ClickableImagePlaceholder', 'rightClick', { 
       elementId,
       instanceId,
       clientX: e.clientX,
       clientY: e.clientY,
-      target: e.currentTarget,
-      displayedImage: !!displayedImage
+      currentActiveMenu: globalContextMenuState.currentMenu?.instanceId
     });
     
-    // Close all OTHER context menus (not this one)
-    globalContextMenuState.closeAllExcept(instanceId);
+    // Close any existing menu first
+    globalContextMenuState.closeAll();
     
-    // Open THIS instance's context menu
+    // Set this as the active menu
+    globalContextMenuState.setActiveMenu(instanceId, closeContextMenu);
+    
+    // Open the context menu for THIS instance
     setContextMenu({
       isOpen: true,
       position: { x: e.clientX, y: e.clientY }
     });
     
-    log('ClickableImagePlaceholder', 'rightClickComplete', { 
-      elementId,
-      instanceId,
-      menuPosition: { x: e.clientX, y: e.clientY },
-      activeInstances: globalContextMenuState.activeInstances.size
-    });
-  }, [isEditable, displayedImage, elementId, instanceId]);
+  }, [isEditable, displayedImage, elementId, instanceId, closeContextMenu]);
 
   // ✅ IMPROVED: Context menu handlers with proper instance tracking
   const handleReplaceImage = useCallback(() => {
