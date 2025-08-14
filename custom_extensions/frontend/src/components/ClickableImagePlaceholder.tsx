@@ -91,14 +91,33 @@ export interface ClickableImagePlaceholderProps {
   }) => {
     const menuRef = useRef<HTMLDivElement>(null);
 
-    // Detailed logging for context menu lifecycle
+    // SWISS WATCH logging for context menu lifecycle
     useEffect(() => {
       if (visible) {
-        console.log('🔍 [ContextMenu] OPENED', {
+        console.log('🔍 [ContextMenu] SWISS WATCH RENDER', {
           instanceId,
           targetElementId,
-          position: { x, y },
-          viewportSize: { width: window.innerWidth, height: window.innerHeight },
+          // Position being applied
+          appliedPosition: { x, y },
+          // CSS style that will be applied
+          cssStyle: {
+            left: `${x}px`,
+            top: `${y}px`,
+            position: 'fixed',
+            zIndex: 50
+          },
+          // Current scroll state
+          currentScroll: {
+            pageXOffset: window.pageXOffset,
+            pageYOffset: window.pageYOffset
+          },
+          // Viewport state
+          viewport: {
+            innerWidth: window.innerWidth,
+            innerHeight: window.innerHeight
+          },
+          // Menu ref status
+          menuRefExists: !!menuRef.current,
           debugInfo,
           timestamp: Date.now()
         });
@@ -126,14 +145,62 @@ export interface ClickableImagePlaceholderProps {
 
       if (visible) {
         document.addEventListener('mousedown', handleClickOutside);
+        
+        // SWISS WATCH: Verify actual rendered position after a short delay
+        setTimeout(() => {
+          if (menuRef.current) {
+            const actualRect = menuRef.current.getBoundingClientRect();
+            console.log('🔍 [ContextMenu] SWISS WATCH VERIFICATION', {
+              instanceId,
+              targetElementId,
+              expectedPosition: { x, y },
+              actualRenderedPosition: {
+                left: actualRect.left,
+                top: actualRect.top,
+                right: actualRect.right,
+                bottom: actualRect.bottom
+              },
+              difference: {
+                x: actualRect.left - x,
+                y: actualRect.top - y
+              },
+              menuElement: menuRef.current,
+              timestamp: Date.now()
+            });
+          }
+        }, 10);
+        
         return () => document.removeEventListener('mousedown', handleClickOutside);
       }
-    }, [visible, onClose, instanceId, targetElementId]);
+    }, [visible, onClose, instanceId, targetElementId, x, y]);
 
-    if (!visible) return null;
+        if (!visible) return null;
 
     return (
-              <div
+      <>
+        {/* SWISS WATCH DEBUG: Visual indicator showing exact cursor position */}
+        <div
+          className="fixed w-3 h-3 bg-red-500 rounded-full pointer-events-none z-[99999]"
+          style={{
+            left: `${x - 6}px`,
+            top: `${y - 6}px`,
+            boxShadow: '0 0 0 2px white, 0 0 0 4px red'
+          }}
+          title={`Cursor position: ${x}, ${y}`}
+        />
+        
+        {/* SWISS WATCH DEBUG: Visual indicator showing menu position */}
+        <div
+          className="fixed w-2 h-2 bg-blue-500 rounded-full pointer-events-none z-[99998]"
+          style={{
+            left: `${x}px`,
+            top: `${y}px`,
+            boxShadow: '0 0 0 2px white, 0 0 0 4px blue'
+          }}
+          title={`Menu top-left: ${x}, ${y}`}
+        />
+        
+        <div
           ref={menuRef}
           className="fixed bg-white border border-gray-300 rounded-lg shadow-lg py-2 z-50"
           style={{
@@ -145,6 +212,7 @@ export interface ClickableImagePlaceholderProps {
           data-instance-id={instanceId}
           data-debug-slide={debugInfo?.slideId}
           data-debug-element={debugInfo?.elementId}
+          data-debug-position={`${x},${y}`}
         >
           <button
             className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors duration-150 flex items-center space-x-2"
@@ -179,9 +247,10 @@ export interface ClickableImagePlaceholderProps {
               </button>
             </>
           )}
-                </div>
-      );
-    };
+        </div>
+      </>
+    );
+  };
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   imagePath,
@@ -556,19 +625,57 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       clickPosition: { x: e.pageX, y: e.pageY }
     };
     
-    // Open the context menu for THIS instance - FIXED positioning with page coordinates
-    console.log('🔍 [RightClick] Opening context menu', {
+    // Open the context menu for THIS instance - SWISS WATCH PRECISION
+    const menuPosition = { x: e.pageX, y: e.pageY };
+    
+    console.log('🔍 [RightClick] SWISS WATCH POSITIONING', {
       instanceId,
-      clientPosition: { x: e.clientX, y: e.clientY },
-      pagePosition: { x: e.pageX, y: e.pageY },
-      targetElementRect: targetElement.getBoundingClientRect(),
-      debugInfo
+      elementId,
+      // Raw event coordinates
+      rawEvent: {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        pageX: e.pageX,
+        pageY: e.pageY,
+        screenX: e.screenX,
+        screenY: e.screenY
+      },
+      // Calculated position
+      calculatedPosition: menuPosition,
+      // Scroll information
+      scrollInfo: {
+        pageXOffset: window.pageXOffset,
+        pageYOffset: window.pageYOffset,
+        documentElementScrollLeft: document.documentElement.scrollLeft,
+        documentElementScrollTop: document.documentElement.scrollTop
+      },
+      // Viewport information
+      viewportInfo: {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        outerWidth: window.outerWidth,
+        outerHeight: window.outerHeight
+      },
+      // Target element information
+      targetElement: {
+        rect: targetElement.getBoundingClientRect(),
+        offsetLeft: targetElement.offsetLeft,
+        offsetTop: targetElement.offsetTop,
+        scrollLeft: targetElement.scrollLeft,
+        scrollTop: targetElement.scrollTop
+      },
+      // Menu dimensions (estimated)
+      menuDimensions: {
+        width: 160,
+        height: 80
+      },
+      timestamp: Date.now()
     });
     
     setContextMenu({
       visible: true,
-      x: e.pageX,
-      y: e.pageY
+      x: menuPosition.x,
+      y: menuPosition.y
     });
     
     // Store debug info for context menu
