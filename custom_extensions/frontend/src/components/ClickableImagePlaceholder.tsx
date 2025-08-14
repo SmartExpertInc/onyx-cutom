@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ImageIcon, Replace, MoreVertical, Download, Trash2 } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
+import ImageEditModal from './ImageEditModal';
 
 // ✅ REMOVED: Global context menu management - replaced with inline buttons!
 
@@ -41,7 +43,7 @@ export interface ClickableImagePlaceholderProps {
   savedImageSize?: { width: number; height: number };
 }
 
-    // ✅ REMOVED: ContextMenu component - replaced with inline buttons!
+  // ✅ REMOVED: Context Menu Component - replaced with inline buttons!
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   imagePath,
@@ -66,7 +68,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   
-  // ✅ REMOVED: Modal state - no more modals!
+  // Modal state
+  const [showImageEditModal, setShowImageEditModal] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
   // ✅ NEW: Click-to-activate interaction model
   const [isSelected, setIsSelected] = useState(false);
@@ -99,7 +103,6 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       console.log('🔍 [ComponentLifecycle] UNMOUNTING', {
         elementId,
         instanceId,
-        // ✅ REMOVED: contextMenu reference
         timestamp: Date.now()
       });
     };
@@ -297,9 +300,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [isEditable, isSelected, elementId, instanceId]);
 
-  // ✅ NEW: Inline action button handlers
-  const handleChangeImage = useCallback(() => {
-    console.log('🔍 [InlineAction] Change Image clicked', { 
+  // ✅ NEW: Inline button handlers for image controls
+  const handleReplaceImage = useCallback(() => {
+    console.log('🔍 [InlineAction] Replace Image clicked', { 
       elementId,
       instanceId,
       currentImage: !!displayedImage,
@@ -309,8 +312,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setShowUploadModal(true);
   }, [elementId, instanceId, displayedImage]);
 
-  const handleDeleteImage = useCallback(() => {
-    console.log('🔍 [InlineAction] Delete Image clicked', { 
+  const handleRemoveImage = useCallback(() => {
+    console.log('🔍 [InlineAction] Remove Image clicked', { 
       elementId,
       instanceId,
       currentImage: !!displayedImage,
@@ -332,18 +335,80 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [isEditable, elementId, instanceId]);
 
-  // ✅ SIMPLIFIED: Handle image upload directly
-  const handleImageUploaded = (newImagePath: string) => {
+  // Handle image upload and open edit modal
+  const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
     log('ClickableImagePlaceholder', 'handleImageUploaded', {
       elementId,
       instanceId,
+      hasImageFile: !!imageFile,
       newImagePath: !!newImagePath
     });
 
-    // Direct upload - no modals!
-    onImageUploaded(newImagePath);
-    setDisplayedImage(newImagePath);
+    if (imageFile) {
+      // Store the file and open the edit modal
+      setPendingImageFile(imageFile);
+      setShowImageEditModal(true);
+    } else {
+      // Direct upload without file (fallback)
+      onImageUploaded(newImagePath);
+      setDisplayedImage(newImagePath);
+    }
   };
+
+  // Get placeholder dimensions for the modal
+  const getPlaceholderDimensions = useCallback(() => {
+    if (!containerRef.current) {
+      // Fallback dimensions based on size prop
+      const fallbackDimensions = {
+        'LARGE': { width: 400, height: 300 },
+        'MEDIUM': { width: 300, height: 200 },
+        'SMALL': { width: 200, height: 150 }
+      };
+      return fallbackDimensions[size];
+    }
+
+    const rect = containerRef.current.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }, [containerRef, size]);
+
+  // Handle modal confirm crop
+  const handleConfirmCrop = useCallback((croppedImagePath: string) => {
+    log('ClickableImagePlaceholder', 'handleConfirmCrop', {
+      elementId,
+      instanceId,
+      croppedImagePath: !!croppedImagePath
+    });
+
+    onImageUploaded(croppedImagePath);
+    setDisplayedImage(croppedImagePath);
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  }, [onImageUploaded, elementId, instanceId]);
+
+  // Handle modal do not crop
+  const handleDoNotCrop = useCallback((originalImagePath: string) => {
+    log('ClickableImagePlaceholder', 'handleDoNotCrop', {
+      elementId,
+      instanceId,
+      originalImagePath: !!originalImagePath
+    });
+
+    onImageUploaded(originalImagePath);
+    setDisplayedImage(originalImagePath);
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  }, [onImageUploaded, elementId, instanceId]);
+
+  // Handle modal cancel
+  const handleModalCancel = useCallback(() => {
+    log('ClickableImagePlaceholder', 'handleModalCancel', { 
+      elementId, 
+      instanceId 
+    });
+
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  }, [elementId, instanceId]);
 
   // Finalize image upload
   const finalizeImageUpload = useCallback(async (imagePath: string) => {
@@ -441,19 +506,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           data-instance-id={instanceId}
           data-debug-slide={elementId?.split('-')[0]}
           data-debug-element={elementId}
-          className={`
-            ${positionClasses[position]} 
+                      className={`
+              ${positionClasses[position]} 
               relative overflow-hidden rounded-lg
               ${isEditable ? 'cursor-pointer' : ''}
               ${isSelected ? 'ring-2 ring-blue-500' : ''}
-              ${isSelected ? 'ring-2 ring-blue-500 ring-opacity-75' : ''}
-            ${className}
-          `}
+              ${className}
+            `}
           style={{
             ...(style || {}),
           }}
-          onClick={handleImageClick}
-                        // ✅ REMOVED: Right-click handler - replaced with inline buttons!
+                      onClick={handleImageClick}
         >
           <img 
             ref={imgRef}
@@ -465,36 +528,36 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             }}
           />
           
-                      {/* ✅ NEW: Inline action buttons - no more modals! */}
-            {isSelected && (
-              <div className="absolute top-2 right-2 flex flex-col gap-1">
-                {/* Change Image Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('🔍 [InlineAction] Change Image clicked', { elementId, instanceId });
-                    handleChangeImage();
-                  }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
-                  title="Change Image"
-                >
-                  <Replace className="w-3 h-3" />
-                </button>
-                
-                {/* Delete Image Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('🔍 [InlineAction] Delete Image clicked', { elementId, instanceId });
-                    handleDeleteImage();
-                  }}
-                  className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
-                  title="Delete Image"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </div>
-            )}
+                     {/* ✅ NEW: Inline action buttons - no more context menu! */}
+           {isSelected && (
+             <div className="absolute top-2 right-2 flex flex-col gap-1">
+               {/* Change Image Button */}
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   console.log('🔍 [InlineAction] Change Image clicked', { elementId, instanceId });
+                   handleReplaceImage();
+                 }}
+                 className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
+                 title="Change Image"
+               >
+                 <Replace className="w-3 h-3" />
+               </button>
+               
+               {/* Delete Image Button */}
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   console.log('🔍 [InlineAction] Delete Image clicked', { elementId, instanceId });
+                   handleRemoveImage();
+                 }}
+                 className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
+                 title="Delete Image"
+               >
+                 <Trash2 className="w-3 h-3" />
+               </button>
+             </div>
+           )}
         </div>
 
         {renderMoveable()}
@@ -506,9 +569,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           title="Replace Image"
         />
 
-        {/* ✅ REMOVED: ImageEditModal - no more modals! */}
+        <ImageEditModal
+          isOpen={showImageEditModal}
+          onClose={() => setShowImageEditModal(false)}
+          imageFile={pendingImageFile}
+          placeholderDimensions={getPlaceholderDimensions()}
+          onConfirmCrop={handleConfirmCrop}
+          onDoNotCrop={handleDoNotCrop}
+          onCancel={handleModalCancel}
+        />
 
-        {/* ✅ REMOVED: ContextMenu - replaced with inline buttons! */}
+                 {/* ✅ REMOVED: ContextMenu - replaced with inline buttons! */}
       </>
     );
   }
@@ -559,7 +630,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         title="Upload Image"
       />
 
-      {/* ✅ REMOVED: ImageEditModal - no more modals! */}
+      <ImageEditModal
+        isOpen={showImageEditModal}
+        onClose={() => setShowImageEditModal(false)}
+        imageFile={pendingImageFile}
+        placeholderDimensions={getPlaceholderDimensions()}
+        onConfirmCrop={handleConfirmCrop}
+        onDoNotCrop={handleDoNotCrop}
+        onCancel={handleModalCancel}
+      />
     </>
   );
 };
