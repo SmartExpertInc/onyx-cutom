@@ -13644,7 +13644,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     wizard_dict["importantRules"] += """
 CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
 1. After the Universal Product Header (**[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**), add exactly TWO blank lines
-2. Each slide MUST use this exact format: **Slide N: [Descriptive Title]**
+2. Each slide MUST use this exact format: **Slide N: [Descriptive Title]** `[slide-type]`
 3. Use "---" separators between slides
 5. NEVER use markdown headers (##, ###) for slide titles - ONLY use **Slide N: Title** format
 6. Ensure slides are numbered sequentially: Slide 1, Slide 2, Slide 3, etc.
