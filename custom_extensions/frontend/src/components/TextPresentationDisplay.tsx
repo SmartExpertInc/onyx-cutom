@@ -877,7 +877,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const styledText = parseAndStyleText(text);
 
       return (
-        <div className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'}`}>
+        <div 
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+          className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'} ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+        >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -947,7 +975,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
+          <div 
+            draggable={isEditing}
+            onDragStart={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                onDragStart(e, contentBlockIndex);
+              }
+            }}
+            onDragOver={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                onDragOver(e, contentBlockIndex);
+              }
+            }}
+            onDragLeave={(e) => {
+              if (isEditing && onDragLeave) {
+                onDragLeave(e);
+              }
+            }}
+            onDrop={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                onDrop(e, contentBlockIndex);
+              }
+            }}
+            onDragEnd={() => {
+              if (isEditing && onDragEnd) {
+                onDragEnd();
+              }
+            }}
+            className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+          >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -1017,7 +1073,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       }
 
       return (
-        <div className={`${containerClasses.trim()} group relative`}>
+        <div 
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+          className={`${containerClasses.trim()} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+        >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -1184,7 +1268,36 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const AlertIconComponent = iconName ? iconMap[iconName] : Icon;
       
       return (
-        <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative`} role="alert">
+        <div 
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+          className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+          role="alert"
+        >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -1552,7 +1665,38 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         // Side-by-side layout - this will be handled by the parent component
         // For now, render as standalone but with layout info
         return (
-          <div className={`my-4 ${alignmentClass} group relative`} data-layout-mode={layoutMode} data-partner-index={layoutPartnerIndex} data-proportion={layoutProportion}>
+                      <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+              data-layout-mode={layoutMode} 
+              data-partner-index={layoutPartnerIndex} 
+              data-proportion={layoutProportion}
+            >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -1679,7 +1823,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // Standard standalone layout
       return (
-        <div className={`my-4 ${alignmentClass} group relative`}>
+                    <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+            >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -2319,6 +2491,12 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onMoveBlockDown={handleMoveBlockDown}
                                   isFirstBlock={originalMiniListIndex === 0}
                                   isLastBlock={originalMiniListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                  onDragStart={handleDragStart}
+                                  onDragOver={handleDragOver}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={handleDrop}
+                                  onDragEnd={handleDragEnd}
+                                  isDraggedOver={dragOverIndex === originalMiniListIndex}
                                 />
                               </div>
                             );
@@ -2336,6 +2514,12 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                               onMoveBlockDown={handleMoveBlockDown}
                               isFirstBlock={originalSubIndex === 0}
                               isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                              onDragStart={handleDragStart}
+                              onDragOver={handleDragOver}
+                              onDragLeave={handleDragLeave}
+                              onDrop={handleDrop}
+                              onDragEnd={handleDragEnd}
+                              isDraggedOver={dragOverIndex === originalSubIndex}
                             />;
                           }
                         })}
@@ -2376,6 +2560,12 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onMoveBlockDown={handleMoveBlockDown}
                         isFirstBlock={originalListIndex === 0}
                         isLastBlock={originalListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onDragEnd={handleDragEnd}
+                        isDraggedOver={dragOverIndex === originalListIndex}
                       />
                     </div>
                   </div>
