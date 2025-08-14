@@ -364,82 +364,6 @@
             <h1>{{ client_name if client_name else 'Production Time Estimate' }}</h1>
         </div>
         
-        <!-- Summary Table -->
-        <div class="table-container" style="margin-bottom: 16px;">
-            <table class="projects-table">
-                <thead class="table-header">
-                    <tr>
-                        <th style="width: 20%;">TOTAL COURSES</th>
-                        <th style="width: 20%;">TOTAL LESSONS</th>
-                        <th style="width: 20%;">TOTAL PRODUCTS</th>
-                        <th style="width: 20%;">TOTAL CREATION TIME</th>
-                        <th style="width: 20%;">TOTAL COMPLETION TIME</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="product-row">
-                        <td class="data-cell bold" style="text-align: center;">
-                            {% set total_courses = 0 %}
-                            {% set total_lessons = 0 %}
-                            {% set total_creation_hours = 0 %}
-                            {% set total_completion_time = 0 %}
-                            
-                            <!-- Simple approach: count all projects in folder_projects -->
-                            {% for folder_id, projects in folder_projects.items() %}
-                                {% for project in projects %}
-                                    {% set total_courses = total_courses + 1 %}
-                                    {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
-                                    {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
-                                    {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
-                                {% endfor %}
-                            {% endfor %}
-                            
-                            <!-- Add unassigned projects -->
-                            {% for project in unassigned_projects %}
-                                {% set total_courses = total_courses + 1 %}
-                                {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
-                                {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
-                                {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
-                            {% endfor %}
-                            
-                            {{ total_courses }}
-                        </td>
-                        <td class="data-cell bold" style="text-align: center;">
-                            {{ total_lessons }}
-                        </td>
-                        <td class="data-cell bold" style="text-align: center;">
-                            <span class="dash">-</span>
-                        </td>
-                        <td class="data-cell bold" style="text-align: center;">
-                            {% if total_creation_hours > 0 %}
-                                <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                    <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                {% if total_creation_hours == total_creation_hours|int %}{{ total_creation_hours|int }}h{% else %}{{ total_creation_hours }}h{% endif %}
-                            {% else %}
-                                <span class="dash">-</span>
-                            {% endif %}
-                        </td>
-                        <td class="data-cell bold" style="text-align: center;">
-                            {% if total_completion_time > 0 %}
-                                <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                    <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                {% set h = total_completion_time // 60 %}
-                                {% set m = total_completion_time % 60 %}
-                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                            {% else %}
-                                <span class="dash">-</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
         <!-- Main Table Container -->
         <div class="table-container">
             <table class="projects-table">
@@ -698,6 +622,105 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- Mini Summary Table -->
+        {% if folders or unassigned_projects %}
+        <div class="mini-summary-container" style="margin-top: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <table class="mini-summary-table" style="width: 100%; border-collapse: collapse; background: white; font-size: 13px;">
+                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL PROJECTS</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL LESSONS</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL CREATION TIME</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL COMPLETION TIME</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            {% set total_projects = 0 %}
+                            {% if folders %}
+                                {% for folder in folders %}
+                                    {% if folder.id in folder_projects %}
+                                        {% set total_projects = total_projects + folder_projects[folder.id]|length %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if unassigned_projects %}
+                                {% set total_projects = total_projects + unassigned_projects|length %}
+                            {% endif %}
+                            {{ total_projects }}
+                        </td>
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            {% set total_lessons = 0 %}
+                            {% if folders %}
+                                {% for folder in folders %}
+                                    {% if folder.id in folder_projects %}
+                                        {% for project in folder_projects[folder.id] %}
+                                            {% set total_lessons = total_lessons + project.total_lessons %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if unassigned_projects %}
+                                {% for project in unassigned_projects %}
+                                    {% set total_lessons = total_lessons + project.total_lessons %}
+                                {% endfor %}
+                            {% endif %}
+                            {{ total_lessons }}
+                        </td>
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            {% set total_creation_time = 0 %}
+                            {% if folders %}
+                                {% for folder in folders %}
+                                    {% if folder.id in folder_projects %}
+                                        {% for project in folder_projects[folder.id] %}
+                                            {% set total_creation_time = total_creation_time + project.total_hours %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if unassigned_projects %}
+                                {% for project in unassigned_projects %}
+                                    {% set total_creation_time = total_creation_time + project.total_hours %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if total_creation_time > 0 %}
+                                {% if total_creation_time == total_creation_time|int %}{{ total_creation_time|int }}h{% else %}{{ total_creation_time }}h{% endif %}
+                            {% else %}
+                                <span style="color: #64748b;">-</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            {% set total_completion_time = 0 %}
+                            {% if folders %}
+                                {% for folder in folders %}
+                                    {% if folder.id in folder_projects %}
+                                        {% for project in folder_projects[folder.id] %}
+                                            {% set total_completion_time = total_completion_time + project.total_completion_time %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if unassigned_projects %}
+                                {% for project in unassigned_projects %}
+                                    {% set total_completion_time = total_completion_time + project.total_completion_time %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if total_completion_time > 0 %}
+                                {% set h = total_completion_time // 60 %}
+                                {% set m = total_completion_time % 60 %}
+                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                            {% else %}
+                                <span style="color: #64748b;">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
         
         <!-- Empty state -->
         {% if not folders and not unassigned_projects %}
