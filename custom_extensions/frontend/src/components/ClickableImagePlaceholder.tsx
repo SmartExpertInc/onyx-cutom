@@ -1,31 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { ImageIcon, Replace, MoreVertical, Download, Trash2 } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
-import ImageEditModal from './ImageEditModal';
 
-// Global context menu management - SIMPLIFIED but more effective
-const globalContextMenuState = {
-  currentMenu: null as { instanceId: string, closeMenu: () => void } | null,
-  
-  setActiveMenu: (instanceId: string, closeMenu: () => void) => {
-    // Close previous menu if different instance
-    if (globalContextMenuState.currentMenu && globalContextMenuState.currentMenu.instanceId !== instanceId) {
-      globalContextMenuState.currentMenu.closeMenu();
-    }
-    globalContextMenuState.currentMenu = { instanceId, closeMenu };
-  },
-  
-  closeAll: () => {
-    if (globalContextMenuState.currentMenu) {
-      globalContextMenuState.currentMenu.closeMenu();
-      globalContextMenuState.currentMenu = null;
-    }
-  }
-};
+// ✅ REMOVED: Global context menu management - replaced with inline buttons!
 
 // Enhanced debug logging utility
 const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true);
@@ -61,203 +41,7 @@ export interface ClickableImagePlaceholderProps {
   savedImageSize?: { width: number; height: number };
 }
 
-  // Context Menu Component - SIMPLIFIED like the working example
-  interface ContextMenuProps {
-    visible: boolean;
-    x: number;
-    y: number;
-    onClose: () => void;
-    onReplaceImage: () => void;
-    onRemoveImage?: () => void;
-    targetElementId?: string;
-    instanceId?: string;
-    debugInfo?: {
-      slideId?: string;
-      elementId?: string;
-      imagePath?: string;
-      clickPosition?: { x: number; y: number };
-    };
-  }
-
-  const ContextMenu: React.FC<ContextMenuProps> = ({
-    visible,
-    x,
-    y,
-    onClose,
-    onReplaceImage,
-    onRemoveImage,
-    targetElementId,
-    instanceId,
-    debugInfo
-  }) => {
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    // SWISS WATCH logging for context menu lifecycle
-    useEffect(() => {
-      if (visible) {
-        console.log('🔍 [ContextMenu] SWISS WATCH RENDER', {
-          instanceId,
-          targetElementId,
-          // Position being applied
-          appliedPosition: { x, y },
-          // CSS style that will be applied
-          cssStyle: {
-            left: `${x}px`,
-            top: `${y}px`,
-            position: 'fixed',
-            zIndex: 50
-          },
-          // Current scroll state
-          currentScroll: {
-            pageXOffset: window.pageXOffset,
-            pageYOffset: window.pageYOffset
-          },
-          // Viewport state
-          viewport: {
-            innerWidth: window.innerWidth,
-            innerHeight: window.innerHeight
-          },
-          // Menu ref status
-          menuRefExists: !!menuRef.current,
-          debugInfo,
-          timestamp: Date.now()
-        });
-      } else {
-        console.log('🔍 [ContextMenu] CLOSED', {
-          instanceId,
-          targetElementId,
-          timestamp: Date.now()
-        });
-      }
-    }, [visible, instanceId, targetElementId, x, y, debugInfo]);
-
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-          console.log('🔍 [ContextMenu] Click outside detected', {
-            instanceId,
-            targetElementId,
-            clickedElement: event.target,
-            menuElement: menuRef.current
-          });
-          onClose();
-        }
-      };
-
-      if (visible) {
-        document.addEventListener('mousedown', handleClickOutside);
-        
-        // SWISS WATCH: Verify actual rendered position after a short delay
-        setTimeout(() => {
-          if (menuRef.current) {
-            const actualRect = menuRef.current.getBoundingClientRect();
-            console.log('🔍 [ContextMenu] SWISS WATCH VERIFICATION', {
-              instanceId,
-              targetElementId,
-              expectedPosition: { x, y },
-              actualRenderedPosition: {
-                left: actualRect.left,
-                top: actualRect.top,
-                right: actualRect.right,
-                bottom: actualRect.bottom
-              },
-              difference: {
-                x: actualRect.left - x,
-                y: actualRect.top - y
-              },
-              menuElement: menuRef.current,
-              timestamp: Date.now()
-            });
-          }
-        }, 10);
-        
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-      }
-    }, [visible, onClose, instanceId, targetElementId, x, y]);
-
-        if (!visible) return null;
-
-    // SWISS WATCH: Render via Portal to avoid parent transforms
-    const menuContent = (
-      <>
-        {/* SWISS WATCH DEBUG: Visual indicator showing exact cursor position */}
-        <div
-          className="fixed w-3 h-3 bg-red-500 rounded-full pointer-events-none z-[99999]"
-          style={{
-            left: `${x - 6}px`,
-            top: `${y - 6}px`,
-            boxShadow: '0 0 0 2px white, 0 0 0 4px red'
-          }}
-          title={`Cursor position: ${x}, ${y}`}
-        />
-        
-        {/* SWISS WATCH DEBUG: Visual indicator showing menu position */}
-        <div
-          className="fixed w-2 h-2 bg-blue-500 rounded-full pointer-events-none z-[99998]"
-          style={{
-            left: `${x}px`,
-            top: `${y}px`,
-            boxShadow: '0 0 0 2px white, 0 0 0 4px blue'
-          }}
-          title={`Menu top-left: ${x}, ${y}`}
-        />
-        
-        <div
-          ref={menuRef}
-          className="fixed bg-white border border-gray-300 rounded-lg shadow-lg py-2 z-50"
-          style={{
-            left: `${x}px`,
-            top: `${y}px`,
-          }}
-          onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the menu itself
-          data-context-menu-for={targetElementId}
-          data-instance-id={instanceId}
-          data-debug-slide={debugInfo?.slideId}
-          data-debug-element={debugInfo?.elementId}
-          data-debug-position={`${x},${y}`}
-        >
-          <button
-            className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors duration-150 flex items-center space-x-2"
-            onClick={() => {
-              console.log('🔍 [ContextMenu] Replace Image clicked', {
-                instanceId,
-                targetElementId,
-                debugInfo
-              });
-              onReplaceImage();
-            }}
-          >
-            <Replace className="w-4 h-4" />
-            <span>Replace Image</span>
-          </button>
-          {onRemoveImage && (
-            <>
-              <div className="border-t border-gray-200"></div>
-              <button
-                className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors duration-150 flex items-center space-x-2"
-                onClick={() => {
-                  console.log('🔍 [ContextMenu] Remove Image clicked', {
-                    instanceId,
-                    targetElementId,
-                    debugInfo
-                  });
-                  onRemoveImage();
-                }}
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Remove Image</span>
-              </button>
-            </>
-          )}
-        </div>
-      </>
-    );
-
-    // SWISS WATCH: Render to document.body to avoid parent transforms
-    return typeof window !== 'undefined' 
-      ? createPortal(menuContent, document.body)
-      : null;
-  };
+    // ✅ REMOVED: ContextMenu component - replaced with inline buttons!
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   imagePath,
@@ -282,9 +66,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   
-  // Modal state
-  const [showImageEditModal, setShowImageEditModal] = useState(false);
-  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  // ✅ REMOVED: Modal state - no more modals!
 
   // ✅ NEW: Click-to-activate interaction model
   const [isSelected, setIsSelected] = useState(false);
@@ -292,24 +74,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [isResizing, setIsResizing] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   
-  // Context menu state - SIMPLIFIED like the working example
-  const [contextMenu, setContextMenu] = useState<{
-    visible: boolean;
-    x: number;
-    y: number;
-  }>({
-    visible: false,
-    x: 0,
-    y: 0
-  });
-  
-  // Debug info for context menu
-  const [contextMenuDebugInfo, setContextMenuDebugInfo] = useState<{
-    slideId?: string;
-    elementId?: string;
-    imagePath?: string;
-    clickPosition?: { x: number; y: number };
-  }>({});
+  // ✅ REMOVED: Context menu state - replaced with inline buttons!
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -334,11 +99,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       console.log('🔍 [ComponentLifecycle] UNMOUNTING', {
         elementId,
         instanceId,
-        contextMenuVisible: contextMenu.visible,
+        // ✅ REMOVED: contextMenu reference
         timestamp: Date.now()
       });
     };
-  }, [elementId, instanceId, displayedImage, isEditable, contextMenu.visible]);
+  }, [elementId, instanceId, displayedImage, isEditable]);
 
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
@@ -353,34 +118,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     'BACKGROUND': 'absolute inset-0 z-0'
   };
 
-  // SIMPLIFIED: Context menu management like the working example
-  const hideContextMenu = useCallback(() => {
-    console.log('🔍 [HideContextMenu] Hiding menu', {
-      elementId,
-      instanceId,
-      wasActive: globalContextMenuState.currentMenu?.instanceId === instanceId,
-      currentActiveMenu: globalContextMenuState.currentMenu?.instanceId
-    });
-    
-    setContextMenu({ visible: false, x: 0, y: 0 });
-    setContextMenuDebugInfo({});
-    
-    // Clear from global state if this was the active menu
-    if (globalContextMenuState.currentMenu?.instanceId === instanceId) {
-      globalContextMenuState.currentMenu = null;
-      console.log('🔍 [HideContextMenu] Cleared from global state', { instanceId });
-    }
-  }, [elementId, instanceId]);
-
-  // SIMPLIFIED: No need for complex registration
-  useEffect(() => {
-    // Cleanup on unmount
-    return () => {
-      if (globalContextMenuState.currentMenu?.instanceId === instanceId) {
-        globalContextMenuState.currentMenu = null;
-      }
-    };
-  }, [instanceId]);
+  // ✅ REMOVED: Context menu management - replaced with inline buttons!
 
   // Keep local displayed image in sync with prop
   useEffect(() => {
@@ -559,167 +297,30 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [isEditable, isSelected, elementId, instanceId]);
 
-  // ✅ ENHANCED: Right-click handler with comprehensive logging and targeting
-  const handleRightClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isEditable || !displayedImage) {
-      console.log('🔍 [RightClick] BLOCKED', {
-        elementId,
-        instanceId,
-        isEditable,
-        hasDisplayedImage: !!displayedImage,
-        timestamp: Date.now()
-      });
-      return;
-    }
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Add visual feedback - flash the element
-    const targetElement = e.currentTarget as HTMLElement;
-    targetElement.style.transition = 'box-shadow 0.2s ease-in-out';
-    targetElement.style.boxShadow = '0 0 0 4px rgba(34, 197, 94, 0.5)';
-    setTimeout(() => {
-      targetElement.style.boxShadow = '';
-    }, 300);
-    
-    // Capture detailed event information
-    const eventDetails = {
+  // ✅ NEW: Inline action button handlers
+  const handleChangeImage = useCallback(() => {
+    console.log('🔍 [InlineAction] Change Image clicked', { 
       elementId,
       instanceId,
-      clientX: e.clientX,
-      clientY: e.clientY,
-      pageX: e.pageX,
-      pageY: e.pageY,
-      target: targetElement,
-      targetTagName: targetElement.tagName,
-      targetClassName: targetElement.className,
-      targetDataset: targetElement.dataset,
-      currentActiveMenu: globalContextMenuState.currentMenu?.instanceId,
-      displayedImage,
-      containerRef: containerRef.current,
-      containerRefExists: !!containerRef.current,
-      timestamp: Date.now()
-    };
-    
-    console.log('🔍 [RightClick] EVENT CAPTURED', eventDetails);
-    
-    // Verify the target element
-    const targetInstanceId = targetElement.getAttribute('data-instance-id');
-    const targetElementId = targetElement.getAttribute('data-moveable-element');
-    
-    console.log('🔍 [RightClick] TARGET VERIFICATION', {
-      expectedInstanceId: instanceId,
-      actualInstanceId: targetInstanceId,
-      expectedElementId: elementId,
-      actualElementId: targetElementId,
-      match: targetInstanceId === instanceId && targetElementId === elementId
-    });
-    
-    // Close any existing menu first
-    console.log('🔍 [RightClick] Closing existing menus...');
-    globalContextMenuState.closeAll();
-    
-    // Set this as the active menu
-    console.log('🔍 [RightClick] Setting active menu', { instanceId });
-    globalContextMenuState.setActiveMenu(instanceId, hideContextMenu);
-    
-    // Prepare debug info for context menu
-    const debugInfo = {
-      slideId: elementId?.split('-')[0], // Extract slide ID from element ID
-      elementId,
-      imagePath: displayedImage,
-      clickPosition: { x: e.pageX, y: e.pageY }
-    };
-    
-    // Open the context menu for THIS instance - SWISS WATCH PRECISION
-    const menuPosition = { x: e.pageX, y: e.pageY };
-    
-    console.log('🔍 [RightClick] SWISS WATCH POSITIONING', {
-      instanceId,
-      elementId,
-      // Raw event coordinates
-      rawEvent: {
-        clientX: e.clientX,
-        clientY: e.clientY,
-        pageX: e.pageX,
-        pageY: e.pageY,
-        screenX: e.screenX,
-        screenY: e.screenY
-      },
-      // Calculated position
-      calculatedPosition: menuPosition,
-      // Scroll information
-      scrollInfo: {
-        pageXOffset: window.pageXOffset,
-        pageYOffset: window.pageYOffset,
-        documentElementScrollLeft: document.documentElement.scrollLeft,
-        documentElementScrollTop: document.documentElement.scrollTop
-      },
-      // Viewport information
-      viewportInfo: {
-        innerWidth: window.innerWidth,
-        innerHeight: window.innerHeight,
-        outerWidth: window.outerWidth,
-        outerHeight: window.outerHeight
-      },
-      // Target element information
-      targetElement: {
-        rect: targetElement.getBoundingClientRect(),
-        offsetLeft: targetElement.offsetLeft,
-        offsetTop: targetElement.offsetTop,
-        scrollLeft: targetElement.scrollLeft,
-        scrollTop: targetElement.scrollTop
-      },
-      // Menu dimensions (estimated)
-      menuDimensions: {
-        width: 160,
-        height: 80
-      },
-      timestamp: Date.now()
-    });
-    
-    setContextMenu({
-      visible: true,
-      x: menuPosition.x,
-      y: menuPosition.y
-    });
-    
-    // Store debug info for context menu
-    setContextMenuDebugInfo(debugInfo);
-    
-  }, [isEditable, displayedImage, elementId, instanceId, hideContextMenu]);
-
-  // ✅ SIMPLIFIED: Context menu handlers like the working example
-  const handleReplaceImage = useCallback(() => {
-    console.log('🔍 [HandleReplaceImage] Executing', { 
-      elementId,
-      instanceId,
-      contextMenuVisible: contextMenu.visible,
       currentImage: !!displayedImage,
-      debugInfo: contextMenuDebugInfo,
       timestamp: Date.now()
     });
     
-    hideContextMenu();
     setShowUploadModal(true);
-  }, [elementId, instanceId, contextMenu.visible, displayedImage, hideContextMenu, contextMenuDebugInfo]);
+  }, [elementId, instanceId, displayedImage]);
 
-  const handleRemoveImage = useCallback(() => {
-    console.log('🔍 [HandleRemoveImage] Executing', { 
+  const handleDeleteImage = useCallback(() => {
+    console.log('🔍 [InlineAction] Delete Image clicked', { 
       elementId,
       instanceId,
-      contextMenuVisible: contextMenu.visible,
       currentImage: !!displayedImage,
-      debugInfo: contextMenuDebugInfo,
       timestamp: Date.now()
     });
     
-    hideContextMenu();
     setDisplayedImage(undefined);
     onImageUploaded('');
     setIsSelected(false);
-  }, [onImageUploaded, elementId, instanceId, contextMenu.visible, displayedImage, hideContextMenu, contextMenuDebugInfo]);
+  }, [onImageUploaded, elementId, instanceId, displayedImage]);
 
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
@@ -731,80 +332,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [isEditable, elementId, instanceId]);
 
-  // Handle image upload and open edit modal
-  const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
+  // ✅ SIMPLIFIED: Handle image upload directly
+  const handleImageUploaded = (newImagePath: string) => {
     log('ClickableImagePlaceholder', 'handleImageUploaded', {
       elementId,
       instanceId,
-      hasImageFile: !!imageFile,
       newImagePath: !!newImagePath
     });
 
-    if (imageFile) {
-      // Store the file and open the edit modal
-      setPendingImageFile(imageFile);
-      setShowImageEditModal(true);
-    } else {
-      // Direct upload without file (fallback)
-      onImageUploaded(newImagePath);
-      setDisplayedImage(newImagePath);
-    }
+    // Direct upload - no modals!
+    onImageUploaded(newImagePath);
+    setDisplayedImage(newImagePath);
   };
-
-  // Get placeholder dimensions for the modal
-  const getPlaceholderDimensions = useCallback(() => {
-    if (!containerRef.current) {
-      // Fallback dimensions based on size prop
-      const fallbackDimensions = {
-        'LARGE': { width: 400, height: 300 },
-        'MEDIUM': { width: 300, height: 200 },
-        'SMALL': { width: 200, height: 150 }
-      };
-      return fallbackDimensions[size];
-    }
-
-    const rect = containerRef.current.getBoundingClientRect();
-    return { width: rect.width, height: rect.height };
-  }, [containerRef, size]);
-
-  // Handle modal confirm crop
-  const handleConfirmCrop = useCallback((croppedImagePath: string) => {
-    log('ClickableImagePlaceholder', 'handleConfirmCrop', {
-      elementId,
-      instanceId,
-      croppedImagePath: !!croppedImagePath
-    });
-
-    onImageUploaded(croppedImagePath);
-    setDisplayedImage(croppedImagePath);
-    setShowImageEditModal(false);
-    setPendingImageFile(null);
-  }, [onImageUploaded, elementId, instanceId]);
-
-  // Handle modal do not crop
-  const handleDoNotCrop = useCallback((originalImagePath: string) => {
-    log('ClickableImagePlaceholder', 'handleDoNotCrop', {
-      elementId,
-      instanceId,
-      originalImagePath: !!originalImagePath
-    });
-
-    onImageUploaded(originalImagePath);
-    setDisplayedImage(originalImagePath);
-    setShowImageEditModal(false);
-    setPendingImageFile(null);
-  }, [onImageUploaded, elementId, instanceId]);
-
-  // Handle modal cancel
-  const handleModalCancel = useCallback(() => {
-    log('ClickableImagePlaceholder', 'handleModalCancel', { 
-      elementId, 
-      instanceId 
-    });
-
-    setShowImageEditModal(false);
-    setPendingImageFile(null);
-  }, [elementId, instanceId]);
 
   // Finalize image upload
   const finalizeImageUpload = useCallback(async (imagePath: string) => {
@@ -907,14 +446,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               relative overflow-hidden rounded-lg
               ${isEditable ? 'cursor-pointer' : ''}
               ${isSelected ? 'ring-2 ring-blue-500' : ''}
-              ${contextMenu.visible ? 'ring-2 ring-green-500 ring-opacity-75' : ''}
+              ${isSelected ? 'ring-2 ring-blue-500 ring-opacity-75' : ''}
             ${className}
           `}
           style={{
             ...(style || {}),
           }}
           onClick={handleImageClick}
-          onContextMenu={handleRightClick}
+                        // ✅ REMOVED: Right-click handler - replaced with inline buttons!
         >
           <img 
             ref={imgRef}
@@ -926,12 +465,36 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             }}
           />
           
-          {/* ✅ NEW: Selection indicator */}
-          {isSelected && (
-            <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1">
-              <MoreVertical className="w-4 h-4" />
-            </div>
-          )}
+                      {/* ✅ NEW: Inline action buttons - no more modals! */}
+            {isSelected && (
+              <div className="absolute top-2 right-2 flex flex-col gap-1">
+                {/* Change Image Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('🔍 [InlineAction] Change Image clicked', { elementId, instanceId });
+                    handleChangeImage();
+                  }}
+                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
+                  title="Change Image"
+                >
+                  <Replace className="w-3 h-3" />
+                </button>
+                
+                {/* Delete Image Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('🔍 [InlineAction] Delete Image clicked', { elementId, instanceId });
+                    handleDeleteImage();
+                  }}
+                  className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
+                  title="Delete Image"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            )}
         </div>
 
         {renderMoveable()}
@@ -943,30 +506,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           title="Replace Image"
         />
 
-        <ImageEditModal
-          isOpen={showImageEditModal}
-          onClose={() => setShowImageEditModal(false)}
-          imageFile={pendingImageFile}
-          placeholderDimensions={getPlaceholderDimensions()}
-          onConfirmCrop={handleConfirmCrop}
-          onDoNotCrop={handleDoNotCrop}
-          onCancel={handleModalCancel}
-        />
+        {/* ✅ REMOVED: ImageEditModal - no more modals! */}
 
-        {/* ContextMenu rendered via Portal to avoid parent transforms */}
-        {contextMenu.visible && (
-          <ContextMenu
-            visible={contextMenu.visible}
-            x={contextMenu.x}
-            y={contextMenu.y}
-            onClose={hideContextMenu}
-            onReplaceImage={handleReplaceImage}
-            onRemoveImage={handleRemoveImage}
-            targetElementId={elementId}
-            instanceId={instanceId}
-            debugInfo={contextMenuDebugInfo}
-          />
-        )}
+        {/* ✅ REMOVED: ContextMenu - replaced with inline buttons! */}
       </>
     );
   }
@@ -1017,15 +559,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         title="Upload Image"
       />
 
-      <ImageEditModal
-        isOpen={showImageEditModal}
-        onClose={() => setShowImageEditModal(false)}
-        imageFile={pendingImageFile}
-        placeholderDimensions={getPlaceholderDimensions()}
-        onConfirmCrop={handleConfirmCrop}
-        onDoNotCrop={handleDoNotCrop}
-        onCancel={handleModalCancel}
-      />
+      {/* ✅ REMOVED: ImageEditModal - no more modals! */}
     </>
   );
 };
