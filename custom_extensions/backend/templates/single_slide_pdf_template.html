@@ -54,8 +54,10 @@
         
         /* Dynamic positioning support for PDF */
         .positioned-element {
-            position: absolute;
+            position: relative; /* Changed from absolute to relative for better layout */
             z-index: 1;
+            /* Ensure transforms are applied correctly */
+            transform-origin: top left;
         }
         
         /* Hide empty content in PDF */
@@ -1457,7 +1459,7 @@
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element" 
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% set titleId = slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
@@ -1504,7 +1506,7 @@
                                 overflow: hidden;
                                 border-radius: 8px;
                                 {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set imageId = 'draggable-' + slide.slideId + '-image' %}
+                                    {% set imageId = slide.slideId + '-image' %}
                                     {% if slide.metadata.elementPositions[imageId] %}
                                         transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);
                                     {% endif %}
@@ -1519,9 +1521,9 @@
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
                                         {% if slide.props.imageOffset %}
                                             {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale }});
+                                                transform: translate({{ (slide.props.imageOffset.x|float|round(2)|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|float|round(2)|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale|float|round(3) }});
                                             {% else %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
+                                                transform: translate({{ (slide.props.imageOffset.x|float|round(2)|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|float|round(2)|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
                                             {% endif %}
                                             transform-origin: center center;
                                         {% endif %}
@@ -1667,7 +1669,7 @@
                                     border-radius: 8px;
                                     aspect-ratio: 1 / 1;
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set imageId = 'draggable-' + slide.slideId + '-image' %}
+                                        {% set imageId = slide.slideId + '-image' %}
                                         {% if slide.metadata.elementPositions[imageId] %}
                                             transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);
                                         {% endif %}
@@ -1682,9 +1684,9 @@
                                             object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
                                             {% if slide.props.imageOffset %}
                                                 {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale }});
+                                                    transform: translate({{ (slide.props.imageOffset.x|float|round(2)|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|float|round(2)|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale|float|round(3) }});
                                                 {% else %}
-                                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
+                                                    transform: translate({{ (slide.props.imageOffset.x|float|round(2)|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|float|round(2)|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
                                                 {% endif %}
                                                 transform-origin: center center;
                                             {% endif %}

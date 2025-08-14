@@ -1688,86 +1688,152 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             # List of image path properties to process
             image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
             
+            # Enhanced image processing with better positioning data
             for prop_name in image_props:
                 if prop_name in props and props[prop_name]:
-                    original_src = props[prop_name]
-                    logger.info(f"PDF GEN: Processing {prop_name}: {original_src}")
+                    image_path = props[prop_name]
+                    logger.info(f"PDF GEN: Processing {prop_name}: {image_path}")
                     
-                    # Only transform if not already a data URL
-                    if original_src and not original_src.startswith('data:'):
-                        if original_src.startswith('/static_design_images/'):
-                            filename = original_src.replace('/static_design_images/', '')
-                            full_path = os.path.join(static_images_abs_path, filename)
+                    # Handle both data URLs and file paths
+                    if image_path.startswith('data:'):
+                        logger.info(f"PDF GEN: {prop_name} is already a data URL")
+                        continue
+                    
+                    # Process file path (remove leading slash and construct full path)
+                    if image_path.startswith('/static_design_images/'):
+                        # Extract filename from path
+                        filename = os.path.basename(image_path)
+                        logger.info(f"PDF GEN: {prop_name} - Original: {image_path}")
+                        logger.info(f"PDF GEN: {prop_name} - Filename: {filename}")
+                        
+                        # Construct full path
+                        full_image_path = os.path.join(static_images_abs_path, filename)
+                        logger.info(f"PDF GEN: {prop_name} - Full path: {full_image_path}")
+                        
+                        # Check if file exists
+                        if os.path.exists(full_image_path):
+                            logger.info(f"PDF GEN: {prop_name} - File exists: True")
                             
-                            logger.info(f"PDF GEN: {prop_name} - Original: {original_src}")
-                            logger.info(f"PDF GEN: {prop_name} - Filename: {filename}")
-                            logger.info(f"PDF GEN: {prop_name} - Full path: {full_path}")
-                            logger.info(f"PDF GEN: {prop_name} - File exists: {os.path.exists(full_path)}")
-                            
-                            if os.path.exists(full_path):
-                                try:
-                                    # Read the image file and convert to base64
-                                    with open(full_path, 'rb') as image_file:
-                                        image_data = image_file.read()
-                                        image_base64 = base64.b64encode(image_data).decode('utf-8')
-                                        
-                                        # Determine MIME type
-                                        mime_type, _ = mimetypes.guess_type(full_path)
-                                        if not mime_type:
-                                            mime_type = 'image/jpeg'  # Default fallback
-                                        
-                                        # Create data URL
-                                        data_url = f"data:{mime_type};base64,{image_base64}"
-                                        
-                                        logger.info(f"PDF GEN: {prop_name} - MIME type: {mime_type}")
-                                        logger.info(f"PDF GEN: {prop_name} - Image size: {len(image_data)} bytes")
-                                        logger.info(f"PDF GEN: {prop_name} - Successfully converted to data URL")
-                                        
-                                        props[prop_name] = data_url
-                                        
-                                except Exception as e:
-                                    logger.error(f"PDF GEN: Failed to read image file {full_path}: {e}")
-                                    logger.info(f"PDF GEN: Keeping original {prop_name}: {original_src}")
-                            else:
-                                logger.warning(f"PDF GEN: Image file not found: {full_path}")
-                                logger.info(f"PDF GEN: Keeping original {prop_name}: {original_src}")
+                            try:
+                                # Read and convert to base64
+                                with open(full_image_path, 'rb') as img_file:
+                                    img_data = img_file.read()
+                                    
+                                    # Detect MIME type
+                                    mime_type = 'image/jpeg'  # default
+                                    if filename.lower().endswith('.png'):
+                                        mime_type = 'image/png'
+                                    elif filename.lower().endswith('.gif'):
+                                        mime_type = 'image/gif'
+                                    elif filename.lower().endswith('.webp'):
+                                        mime_type = 'image/jpeg'  # Convert WebP to JPEG for better PDF compatibility
+                                    
+                                    logger.info(f"PDF GEN: {prop_name} - MIME type: {mime_type}")
+                                    logger.info(f"PDF GEN: {prop_name} - Image size: {len(img_data)} bytes")
+                                    
+                                    # Convert to base64 data URL
+                                    img_base64 = base64.b64encode(img_data).decode('utf-8')
+                                    data_url = f"data:{mime_type};base64,{img_base64}"
+                                    
+                                    # Update the prop with data URL
+                                    props[prop_name] = data_url
+                                    logger.info(f"PDF GEN: {prop_name} - Successfully converted to data URL")
+                                    
+                            except Exception as e:
+                                logger.error(f"PDF GEN: {prop_name} - Failed to convert to data URL: {e}")
+                                # Keep original path as fallback
                         else:
-                            logger.info(f"PDF GEN: {prop_name} - Keeping original src: {original_src}")
-                    else:
-                        logger.info(f"PDF GEN: {prop_name} - Already data URL or empty: {original_src}")
+                            logger.warning(f"PDF GEN: {prop_name} - File does not exist: {full_image_path}")
+                    
+            # Process and normalize positioning data for better PDF compatibility
+            positioning_props = [
+                ('imageOffset', 'imageScale', 'widthPx', 'heightPx', 'objectFit'),
+                ('leftImageOffset', 'leftImageScale', 'leftWidthPx', 'leftHeightPx', 'leftObjectFit'),
+                ('rightImageOffset', 'rightImageScale', 'rightWidthPx', 'rightHeightPx', 'rightObjectFit')
+            ]
+            
+            for offset_prop, scale_prop, width_prop, height_prop, fit_prop in positioning_props:
+                # Ensure image offset is properly formatted
+                if offset_prop in props and props[offset_prop]:
+                    offset = props[offset_prop]
+                    if isinstance(offset, dict) and 'x' in offset and 'y' in offset:
+                        # Ensure x and y are numbers, not None
+                        props[offset_prop] = {
+                            'x': float(offset['x']) if offset['x'] is not None else 0.0,
+                            'y': float(offset['y']) if offset['y'] is not None else 0.0
+                        }
+                        logger.info(f"PDF GEN: Normalized {offset_prop}: {props[offset_prop]}")
+                
+                # Ensure image scale is a number
+                if scale_prop in props and props[scale_prop]:
+                    try:
+                        props[scale_prop] = float(props[scale_prop])
+                        logger.info(f"PDF GEN: Normalized {scale_prop}: {props[scale_prop]}")
+                    except (ValueError, TypeError):
+                        props[scale_prop] = 1.0
+                        logger.warning(f"PDF GEN: Invalid {scale_prop}, defaulting to 1.0")
+                
+                # Ensure dimensions are numbers
+                for dim_prop in [width_prop, height_prop]:
+                    if dim_prop in props and props[dim_prop]:
+                        try:
+                            props[dim_prop] = int(float(props[dim_prop]))
+                            logger.info(f"PDF GEN: Normalized {dim_prop}: {props[dim_prop]}")
+                        except (ValueError, TypeError):
+                            props[dim_prop] = None
+                            logger.warning(f"PDF GEN: Invalid {dim_prop}, setting to None")
+                
+                # Ensure object fit is valid
+                if fit_prop in props and props[fit_prop]:
+                    valid_fits = ['cover', 'contain', 'fill', 'scale-down', 'none']
+                    if props[fit_prop] not in valid_fits:
+                        props[fit_prop] = 'cover'
+                        logger.warning(f"PDF GEN: Invalid {fit_prop}, defaulting to 'cover'")
+            
+            # Ensure metadata is properly structured for element positioning
+            if 'metadata' not in safe_slide_data:
+                safe_slide_data['metadata'] = {}
+            
+            metadata = safe_slide_data['metadata']
+            if 'elementPositions' not in metadata:
+                metadata['elementPositions'] = {}
+            
+            # Log final positioning data
+            logger.info(f"PDF GEN: Final element positions: {metadata.get('elementPositions', {})}")
+            for prop_name in image_props:
+                if prop_name in props:
+                    base_prop = prop_name.replace('ImagePath', '')
+                    offset_prop = f"{base_prop}ImageOffset" if base_prop else "imageOffset"
+                    scale_prop = f"{base_prop}ImageScale" if base_prop else "imageScale"
+                    
+                    if offset_prop in props:
+                        logger.info(f"PDF GEN: {prop_name} positioning - offset: {props.get(offset_prop)}, scale: {props.get(scale_prop)}")
+        
+        # Log comprehensive template context for debugging
+        logger.info(f"PDF GEN: === TEMPLATE RENDERING ANALYSIS ===")
+        logger.info(f"PDF GEN: Template file: single_slide_pdf_template.html")
+        logger.info(f"PDF GEN: Context data keys: {list(context_data.keys())}")
+        logger.info(f"PDF GEN: Theme in context: {context_data.get('theme')}")
+        logger.info(f"PDF GEN: Slide height in context: {context_data.get('slide_height')}")
+        logger.info(f"PDF GEN: Slide data keys: {list(safe_slide_data.keys())}")
         
         # Render the single slide template
         try:
-            logger.info(f"PDF GEN: === TEMPLATE RENDERING ANALYSIS ===")
-            logger.info(f"PDF GEN: Template file: single_slide_pdf_template.html")
-            logger.info(f"PDF GEN: Context data keys: {list(context_data.keys())}")
-            
-            # Log context data details
-            logger.info(f"PDF GEN: Theme in context: {context_data.get('theme')}")
-            logger.info(f"PDF GEN: Slide height in context: {context_data.get('slide_height')}")
-            logger.info(f"PDF GEN: Slide data keys: {list(context_data.get('slide', {}).keys())}")
-            
             # Debug logging to see the data structure
             logger.info(f"PDF GEN: Template data for {slide_info}{template_info}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
-            if safe_slide_data.get('props', {}).get('items'):
-                logger.info(f"PDF GEN: slide.props.items content = {safe_slide_data['props']['items']}")
             
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
             logger.info(f"PDF GEN: Template rendered successfully")
-            
-            # Enable HTML content logging for debugging
-            await log_html_content(html_content, slide_index, template_id)
-            
         except Exception as template_error:
-            logger.error(f"Template rendering error for {slide_info}{template_info}: {template_error}", exc_info=True)
+            logger.error(f"PDF GEN: Template rendering error for {slide_info}{template_info}: {template_error}", exc_info=True)
             # Fallback to a simple template
             html_content = f"""
             <!DOCTYPE html>
             <html>
             <head><style>
                 body {{ margin: 0; padding: 40px; font-family: Arial, sans-serif; background: #f0f0f0; }}
-                .slide-page {{ width: 1174px; height: {slide_height}px; background: white; padding: 40px; border-radius: 8px; }}
+                .slide-page {{ width: 1174px; height: 600px; background: white; padding: 40px; border-radius: 8px; }}
                 .slide-content {{ display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }}
                 .slide-title {{ font-size: 32px; font-weight: bold; margin-bottom: 20px; }}
                 .content {{ font-size: 18px; }}
@@ -1776,16 +1842,86 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 <div class="slide-page">
                     <div class="slide-content">
                         <div class="slide-title">{safe_slide_data.get('props', {}).get('title', 'Untitled Slide')}</div>
-                        <div class="content">Slide content could not be rendered properly.</div>
+                        <div class="content">Slide content could not be rendered properly. Template error: {template_error}</div>
                     </div>
                 </div>
             </body>
             </html>
             """
         
+        # Enhanced HTML content analysis for debugging
+        logger.info(f"PDF GEN: === HTML CONTENT ANALYSIS for {slide_info}{template_info} ===")
+        
+        # Save HTML content for debugging
+        debug_html_path = f"/tmp/html_debug_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{slide_index}_{template_id}.html"
+        try:
+            with open(debug_html_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            logger.info(f"PDF GEN: HTML content saved to: {debug_html_path}")
+        except Exception as e:
+            logger.warning(f"PDF GEN: Could not save HTML debug file: {e}")
+        
+        # Analyze HTML content for positioning and transform issues
+        html_lines = html_content.split('\n')
+        logger.info(f"PDF GEN: === IMAGE PLACEHOLDER HTML ANALYSIS ===")
+        
+        # Look for image positioning containers
+        for i, line in enumerate(html_lines, 1):
+            if 'image-positioning-container' in line:
+                logger.info(f"PDF GEN: Found image-positioning-container elements")
+                logger.info(f"PDF GEN: Line {i}: {line.strip()}")
+                
+                # Look for style attributes in subsequent lines
+                for j in range(i, min(i + 10, len(html_lines))):
+                    if 'style=' in html_lines[j] and any(attr in html_lines[j] for attr in ['width:', 'height:', 'transform:']):
+                        logger.info(f"PDF GEN:   Style line {j + 1}: {html_lines[j].strip()}")
+        
+        # Look for transformed images
+        for i, line in enumerate(html_lines, 1):
+            if 'transformed-image' in line:
+                logger.info(f"PDF GEN: Found transformed-image elements")
+                logger.info(f"PDF GEN: Line {i}: {line.strip()}")
+                
+                # Look for style attributes in subsequent lines
+                for j in range(i, min(i + 10, len(html_lines))):
+                    if 'style=' in html_lines[j]:
+                        logger.info(f"PDF GEN:   Style line {j + 1}: {html_lines[j].strip()}")
+                    if 'object-fit:' in html_lines[j]:
+                        logger.info(f"PDF GEN:   Object-fit line {j + 1}: {html_lines[j].strip()}")
+        
+        # Look for template sections
+        template_sections = ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']
+        for section in template_sections:
+            if section in html_content:
+                logger.info(f"PDF GEN: Found {section} template section")
+        
+        # Look for transform and object-fit attributes
+        transform_count = 0
+        objectfit_count = 0
+        for i, line in enumerate(html_lines, 1):
+            if 'transform:' in line:
+                transform_count += 1
+                logger.info(f"PDF GEN: Transform line {i}: {line.strip()}")
+            if 'object-fit:' in line:
+                objectfit_count += 1
+                logger.info(f"PDF GEN: Object-fit line {i}: {line.strip()}")
+        
+        # Look for image data URLs
+        for i, line in enumerate(html_lines, 1):
+            if 'data:image/' in line and 'src=' in line:
+                # Extract just the beginning of the data URL for logging
+                src_start = line.find('src="data:image/')
+                if src_start != -1:
+                    src_end = line.find('"', src_start + 5)
+                    if src_end != -1:
+                        data_url_preview = line[src_start:min(src_end, src_start + 100)]
+                        logger.info(f"PDF GEN: Image data URL line {i}: <img {data_url_preview}...")
+        
+        logger.info(f"PDF GEN: === END HTML CONTENT ANALYSIS for {slide_info}{template_info} ===")
+        
         # Set content and wait for rendering
-        logger.info(f"PDF GEN: Setting HTML content in page")
         await page.setContent(html_content)
+        logger.info(f"PDF GEN: Setting HTML content in page")
         
         # Log browser console output for debugging
         await log_browser_console_output(page, slide_index, template_id)
