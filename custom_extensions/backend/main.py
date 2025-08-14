@@ -17557,9 +17557,9 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             # Use the original content for parsing since no changes were made
             content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
         else:
-                    # AI PARSER PATH: Use the provided content (which may be clean titles only)
-        logger.info("Using AI parser path for text presentation finalization")
-        content_to_parse = payload.aiResponse
+            # AI PARSER PATH: Use the provided content (which may be clean titles only)
+            logger.info("Using AI parser path for text presentation finalization")
+            content_to_parse = payload.aiResponse
         
         # NEW: Choose dynamic instructions based on content type
         if getattr(payload, 'isCleanContent', False):
