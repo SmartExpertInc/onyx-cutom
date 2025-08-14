@@ -16554,6 +16554,47 @@ async def download_projects_list_pdf(
                 logger.warning(f"Error parsing column widths: {e}. Using default widths.")
                 column_widths_settings = {}
 
+        # Calculate summary statistics for the mini table
+        def calculate_summary_stats(folders, folder_projects, unassigned_projects):
+            total_projects = 0
+            total_lessons = 0
+            total_creation_time = 0
+            total_completion_time = 0
+            
+            # Calculate from folders and their projects
+            for folder in folders:
+                if folder['id'] in folder_projects:
+                    for project in folder_projects[folder['id']]:
+                        total_projects += 1
+                        total_lessons += project.get('total_lessons', 0) or 0
+                        total_creation_time += project.get('total_hours', 0) or 0
+                        total_completion_time += project.get('total_completion_time', 0) or 0
+                
+                # Recursively calculate from subfolders
+                if folder.get('children'):
+                    child_stats = calculate_summary_stats(folder['children'], folder_projects, [])
+                    total_projects += child_stats['total_projects']
+                    total_lessons += child_stats['total_lessons']
+                    total_creation_time += child_stats['total_creation_time']
+                    total_completion_time += child_stats['total_completion_time']
+            
+            # Add unassigned projects
+            for project in unassigned_projects:
+                total_projects += 1
+                total_lessons += project.get('total_lessons', 0) or 0
+                total_creation_time += project.get('total_hours', 0) or 0
+                total_completion_time += project.get('total_completion_time', 0) or 0
+            
+            return {
+                'total_projects': total_projects,
+                'total_lessons': total_lessons,
+                'total_creation_time': total_creation_time,
+                'total_completion_time': total_completion_time
+            }
+
+        # Calculate summary statistics
+        summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
+
         # Prepare data for template
         template_data = {
             'folders': folder_tree,  # Use hierarchical structure
@@ -16563,7 +16604,8 @@ async def download_projects_list_pdf(
             'column_widths': column_widths_settings,
             'folder_id': folder_id,
             'client_name': client_name,  # Client name for header customization
-            'generated_at': datetime.now().isoformat()
+            'generated_at': datetime.now().isoformat(),
+            'summary_stats': summary_stats  # Add summary statistics to template data
         }
 
         # Generate PDF
