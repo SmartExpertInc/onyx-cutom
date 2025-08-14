@@ -325,6 +325,8 @@ export default function TextPresentationClient() {
     console.log("DEBUG: updateContentWithNewTitle - oldTitle:", oldTitle);
     console.log("DEBUG: updateContentWithNewTitle - newTitle:", newTitle);
     console.log("DEBUG: updateContentWithNewTitle - content changed:", updatedContent !== content);
+    console.log("DEBUG: updateContentWithNewTitle - content preview:", content.substring(0, 200));
+    console.log("DEBUG: updateContentWithNewTitle - updatedContent preview:", updatedContent.substring(0, 200));
     
     setContent(updatedContent);
     
@@ -386,6 +388,34 @@ export default function TextPresentationClient() {
         console.log(`DEBUG: Title "${lesson.title}" was not edited - sending with content`);
         // For unedited titles, send with full context
         // This preserves the original content structure and context
+        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+      }
+    });
+    
+    console.log("DEBUG: Final clean content length:", cleanContent.length);
+    return cleanContent.trim();
+  };
+
+  // NEW: Alternative approach - create clean content based on current UI state
+  const createCleanTitlesContentFromUI = () => {
+    console.log("DEBUG: createCleanTitlesContentFromUI called");
+    console.log("DEBUG: lessonList:", lessonList.map(l => ({ title: l.title, contentLength: l.content.length })));
+    console.log("DEBUG: editedTitles:", editedTitles);
+    console.log("DEBUG: editedTitleIds:", Array.from(editedTitleIds));
+    
+    let cleanContent = "";
+    
+    lessonList.forEach((lesson, index) => {
+      // Check if this lesson has an edited title
+      const hasEditedTitle = editedTitles[index] && editedTitles[index] !== lesson.title;
+      const isInEditedIds = editedTitleIds.has(index);
+      
+      if (hasEditedTitle || isInEditedIds) {
+        const titleToUse = editedTitles[index] || lesson.title;
+        console.log(`DEBUG: Title "${titleToUse}" was edited - sending only title`);
+        cleanContent += `## ${titleToUse}\n\n`;
+      } else {
+        console.log(`DEBUG: Title "${lesson.title}" was not edited - sending with content`);
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
       }
     });
@@ -498,9 +528,9 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
       
-      if (hasUserEdits && editedTitleNames.size > 0) {
+      if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
         // If titles were changed, send only titles without context
-        contentToSend = createCleanTitlesContent(content);
+        contentToSend = createCleanTitlesContentFromUI();
         isCleanContent = true;
       } else {
         // If no titles changed, send full content with context
@@ -833,10 +863,10 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
       
-      if (hasUserEdits && editedTitleNames.size > 0) {
-        console.log("DEBUG: handleFinalize - using clean content");
+      if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
+        console.log("DEBUG: handleFinalize - using clean content from UI");
         // If titles were changed, send only titles without context
-        contentToSend = createCleanTitlesContent(content);
+        contentToSend = createCleanTitlesContentFromUI();
         isCleanContent = true;
       } else {
         console.log("DEBUG: handleFinalize - using full content");
