@@ -752,18 +752,20 @@
             </table>
         </div>
         
-        <!-- Products Distribution Pie Chart -->
+        <!-- Charts Container -->
         {% if folders or unassigned_projects %}
-        <div class="pie-chart-container" style="margin-top: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-            <div class="pie-chart-header" style="background: #2D7C21; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
-                <h3 style="font-size: 16px; font-weight: 600; color: #ffffff; margin: 0;">Products Distribution</h3>
-                <p style="font-size: 12px; color: #dcfce7; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
-            </div>
-            
-            <div class="pie-chart-content" style="padding: 24px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="margin-top: 32px; display: flex; gap: 24px;">
+            <!-- Products Distribution Pie Chart -->
+            <div class="pie-chart-container" style="flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                <div class="pie-chart-header" style="background: #2D7C21; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #ffffff; margin: 0;">Products Distribution</h3>
+                    <p style="font-size: 12px; color: #dcfce7; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
+                </div>
+                
+                <div class="pie-chart-content" style="padding: 24px; display: flex; flex-direction: column; align-items: center;">
                 <!-- Doughnut Chart SVG -->
-                <div class="pie-chart-svg" style="flex: 1; max-width: 200px;">
-                    <svg width="200" height="200" viewBox="0 0 200 200" style="display: block; margin: 0 auto;">
+                <div class="pie-chart-svg" style="margin-bottom: 20px;">
+                    <svg width="140" height="140" viewBox="0 0 140 140" style="display: block; margin: 0 auto;">
                         {% set total_products = 156 %}
                         {% set one_pager_count = 45 %}
                         {% set presentation_count = 38 %}
@@ -776,64 +778,76 @@
                         {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
 
                         <!-- Draw doughnut slices in order: smallest to largest so largest (purple) is on top -->
-                        <g transform="translate(100, 100)">
+                        <g transform="translate(70, 70)">
                             <!-- Video lesson (orange, smallest) -->
-                            <path d="M -28.23 74.87 A 80 80 0 0 1 0 -80 L 0 -30 A 30 30 0 0 0 -10.59 28.08 Z" 
+                            <path d="M -19.76 52.41 A 56 56 0 0 1 0 -56 L 0 -21 A 21 21 0 0 0 -7.41 19.66 Z" 
                                   fill="#ea580c" stroke="#ffffff" stroke-width="1"/>
                             
                             <!-- Presentation (blue) -->
-                            <path d="M 46.61 65.01 A 80 80 0 0 1 -28.23 74.87 L -10.59 28.08 A 30 30 0 0 0 17.48 24.38 Z" 
+                            <path d="M 32.63 45.51 A 56 56 0 0 1 -19.76 52.41 L -7.41 19.66 A 21 21 0 0 0 12.24 17.07 Z" 
                                   fill="#2563eb" stroke="#ffffff" stroke-width="1"/>
                             
                             <!-- Quiz (green) -->
-                            <path d="M 77.66 -23.18 A 80 80 0 0 1 46.61 65.01 L 17.48 24.38 A 30 30 0 0 0 29.12 -8.69 Z" 
+                            <path d="M 54.36 -16.23 A 56 56 0 0 1 32.63 45.51 L 12.24 17.07 A 21 21 0 0 0 20.38 -6.08 Z" 
                                   fill="#16a34a" stroke="#ffffff" stroke-width="1"/>
                             
                             <!-- One-pager (purple, largest) -->
-                            <path d="M 0 -80 A 80 80 0 0 1 77.66 -23.18 L 29.12 -8.69 A 30 30 0 0 0 0 -30 Z" 
+                            <path d="M 0 -56 A 56 56 0 0 1 54.36 -16.23 L 20.38 -6.08 A 21 21 0 0 0 0 -21 Z" 
                                   fill="#9333ea" stroke="#ffffff" stroke-width="1"/>
                             
                             <!-- Center circle -->
-                            <circle cx="0" cy="0" r="25" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-                            <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 12px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
-                            <text x="0" y="15" text-anchor="middle" style="font-size: 8px; fill: #64748b;">Total</text>
+                            <circle cx="0" cy="0" r="18" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+                            <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 10px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
+                            <text x="0" y="12" text-anchor="middle" style="font-size: 7px; fill: #64748b;">Total</text>
                         </g>
                     </svg>
                 </div>
                 
                 <!-- Legend -->
-                <div class="pie-chart-legend" style="flex: 1; margin-left: 32px;">
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #9333ea; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
-                        <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">One-pager</div>
-                            <div style="color: #64748b; font-size: 12px;">{{ one_pager_count }} products ({{ one_pager_percentage }}%)</div>
+                <div class="pie-chart-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
+                    <div class="legend-item" style="display: flex; align-items: center;">
+                        <div class="legend-color" style="width: 12px; height: 12px; background: #9333ea; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-text">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 12px;">One-pager</div>
+                            <div style="color: #64748b; font-size: 10px;">{{ one_pager_count }} ({{ one_pager_percentage }}%)</div>
                         </div>
                     </div>
                     
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #2563eb; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
-                        <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Presentation</div>
-                            <div style="color: #64748b; font-size: 12px;">{{ presentation_count }} products ({{ presentation_percentage }}%)</div>
+                    <div class="legend-item" style="display: flex; align-items: center;">
+                        <div class="legend-color" style="width: 12px; height: 12px; background: #2563eb; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-text">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Presentation</div>
+                            <div style="color: #64748b; font-size: 10px;">{{ presentation_count }} ({{ presentation_percentage }}%)</div>
                         </div>
                     </div>
                     
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #16a34a; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
-                        <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Quiz</div>
-                            <div style="color: #64748b; font-size: 12px;">{{ quiz_count }} products ({{ quiz_percentage }}%)</div>
+                    <div class="legend-item" style="display: flex; align-items: center;">
+                        <div class="legend-color" style="width: 12px; height: 12px; background: #16a34a; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-text">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Quiz</div>
+                            <div style="color: #64748b; font-size: 10px;">{{ quiz_count }} ({{ quiz_percentage }}%)</div>
                         </div>
                     </div>
                     
-                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
-                        <div class="legend-color" style="width: 16px; height: 16px; background: #ea580c; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
-                        <div class="legend-text" style="flex: 1;">
-                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Video Lesson</div>
-                            <div style="color: #64748b; font-size: 12px;">{{ video_lesson_count }} products ({{ video_lesson_percentage }}%)</div>
+                    <div class="legend-item" style="display: flex; align-items: center;">
+                        <div class="legend-color" style="width: 12px; height: 12px; background: #ea580c; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-text">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Video Lesson</div>
+                            <div style="color: #64748b; font-size: 10px;">{{ video_lesson_count }} ({{ video_lesson_percentage }}%)</div>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Placeholder for second chart -->
+            <div class="pie-chart-container" style="flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                <div class="pie-chart-header" style="background: #2D7C21; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #ffffff; margin: 0;">Second Chart</h3>
+                    <p style="font-size: 12px; color: #dcfce7; margin: 4px 0 0 0;">Placeholder for your second chart</p>
+                </div>
+                
+                <div class="pie-chart-content" style="padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px;">
+                    <p style="color: #64748b; font-size: 14px; text-align: center;">Add your second chart here</p>
                 </div>
             </div>
         </div>
