@@ -775,36 +775,29 @@
                         {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
                         {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
 
-                        <!-- Draw slices in order: smallest to largest so largest (purple) is on top -->
+                        <!-- Draw slices with proper calculations -->
                         <g transform="translate(150, 150)">
-                            <!-- Video lesson (orange, smallest) -->
-                            <path d="M -42.35 112.31 A 120 120 0 0 1 0 -120 L 0 0 Z" 
-                                  fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
-                            
-                            <!-- Presentation (blue) -->
-                            <path d="M 69.92 97.51 A 120 120 0 0 1 -42.35 112.31 L 0 0 Z" 
-                                  fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-                            
-                            <!-- Quiz (green) -->
-                            <path d="M 116.49 -34.77 A 120 120 0 0 1 69.92 97.51 L 0 0 Z" 
-                                  fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
-                            
-                            <!-- One-pager (purple, largest) -->
-                            <path d="M 0 -120 A 120 120 0 0 1 116.49 -34.77 L 0 0 Z" 
+                            <!-- One-pager (Purple) - 28.8% -->
+                            <path d="M 0 0 L 0 -120 A 120 120 0 0 1 92.938 77.941 Z" 
                                   fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Product numbers in sectors -->
-                            <!-- One-pager (purple) - positioned in the largest sector -->
-                            <text x="0" y="-60" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ one_pager_count }}</text>
+                            <!-- Presentation (Blue) - 24.4% -->
+                            <path d="M 0 0 L 92.938 77.941 A 120 120 0 0 1 -116.998 -25.015 Z" 
+                                  fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Quiz (green) - positioned in the second largest sector -->
-                            <text x="60" y="30" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ quiz_count }}</text>
+                            <!-- Quiz (Green) - 26.9% -->
+                            <path d="M 0 0 L -116.998 -25.015 A 120 120 0 0 1 -43.899 -112.005 Z" 
+                                  fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Presentation (blue) - positioned in the third largest sector -->
-                            <text x="35" y="85" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ presentation_count }}</text>
+                            <!-- Video lesson (Orange) - 19.9% -->
+                            <path d="M 0 0 L -43.899 -112.005 A 120 120 0 0 1 0 -120 Z" 
+                                  fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
                             
-                            <!-- Video lesson (orange) - positioned in the smallest sector -->
-                            <text x="-25" y="85" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ video_lesson_count }}</text>
+                            <!-- Product numbers in sectors with precise positioning -->
+                            <text x="60.9" y="-35.2" fill="white" font-size="16" font-weight="700" text-anchor="middle" alignment-baseline="middle" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ one_pager_count }}</text>
+                            <text x="14.0" y="84.1" fill="white" font-size="16" font-weight="700" text-anchor="middle" alignment-baseline="middle" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ presentation_count }}</text>
+                            <text x="-104.0" y="-47.9" fill="white" font-size="16" font-weight="700" text-anchor="middle" alignment-baseline="middle" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ quiz_count }}</text>
+                            <text x="-21.9" y="-78.0" fill="white" font-size="16" font-weight="700" text-anchor="middle" alignment-baseline="middle" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ video_lesson_count }}</text>
                             
                             <!-- Center circle -->
                             <circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
@@ -851,6 +844,8 @@
             </div>
         </div>
         {% endif %}
+
+        
 
         <!-- Empty state -->
         {% if not folders and not unassigned_projects %}
