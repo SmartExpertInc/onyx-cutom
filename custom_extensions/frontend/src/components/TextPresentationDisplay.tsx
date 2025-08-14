@@ -943,7 +943,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         return (
           <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
             {/* Arrow buttons for reordering */}
-            {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -1013,7 +1013,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return (
         <div className={`${containerClasses.trim()} group relative`}>
           {/* Arrow buttons for reordering */}
-          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
             <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -1180,7 +1180,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return (
         <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative`} role="alert">
           {/* Arrow buttons for reordering */}
-          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -1460,28 +1460,28 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`
               }}
             >
-              <img 
-                src={imageSrc} 
-                alt={alt || 'Image'} 
+            <img 
+              src={imageSrc} 
+              alt={alt || 'Image'} 
                 className="rounded-lg"
-                style={{
-                  maxWidth: maxWidth || '200px',
-                  width: width || 'auto',
-                  height: height || 'auto',
-                  borderRadius: borderRadius || '8px',
+              style={{
+                maxWidth: maxWidth || '200px',
+                width: width || 'auto',
+                height: height || 'auto',
+                borderRadius: borderRadius || '8px',
                   display: 'block',
                   boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
                   border: (block as ImageBlock).border || 'none',
                   opacity: (block as ImageBlock).opacity || 1,
                   transform: (block as ImageBlock).transform || 'none'
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'block';
-                }}
-              />
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
               
               {/* Basic Actions Button - appears on image hover */}
               {isEditing && (
@@ -1571,28 +1571,28 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               }}
               className={`inline-block relative group/image w-full ${isEditing ? 'cursor-move' : ''}`}
             >
-              <img 
-                src={imageSrc} 
-                alt={alt || 'Image'} 
+            <img 
+              src={imageSrc} 
+              alt={alt || 'Image'} 
                 className="rounded-lg w-full"
-                style={{
-                  maxWidth: maxWidth || '100%',
-                  width: width || 'auto',
-                  height: height || 'auto',
-                  borderRadius: borderRadius || '8px',
-                  display: 'block',
+              style={{
+                maxWidth: maxWidth || '100%',
+                width: width || 'auto',
+                height: height || 'auto',
+                borderRadius: borderRadius || '8px',
+                display: 'block',
                   boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
                   border: (block as ImageBlock).border || 'none',
                   opacity: (block as ImageBlock).opacity || 1,
                   transform: (block as ImageBlock).transform || 'none'
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'block';
-                }}
-              />
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
               
               {/* Basic Actions Button - appears on image hover */}
               {isEditing && (
@@ -1643,7 +1643,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       return (
         <div className={`my-4 ${alignmentClass} group relative`}>
           {/* Arrow buttons for reordering */}
-          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -2118,8 +2118,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   return (
     <div className="min-h-screen bg-white p-4">
-      <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-        <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
+        <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
+          <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
           {dataToDisplay.textTitle && (
             <header className="mb-4 text-left">
               {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
