@@ -338,6 +338,14 @@ export default function TextPresentationClient() {
       return newSet;
     });
     
+    // NEW: Update editedTitleNames to reflect the new title
+    setEditedTitleNames(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(oldTitle); // Remove old title
+      newSet.add(newTitle);    // Add new title
+      return newSet;
+    });
+    
     // NEW: Mark that content has been updated
     if (updatedContent !== content) {
       setHasUserEdits(true);
@@ -355,21 +363,28 @@ export default function TextPresentationClient() {
     const lessons = parseContentIntoLessons(content);
     if (lessons.length === 0) return content;
     
+    console.log("DEBUG: createCleanTitlesContent called");
+    console.log("DEBUG: editedTitleNames:", Array.from(editedTitleNames));
+    console.log("DEBUG: lessons:", lessons.map(l => ({ title: l.title, contentLength: l.content.length })));
+    
     let cleanContent = "";
     
     lessons.forEach((lesson, index) => {
       // Check if this title was edited by the user (by name, not by index)
       if (editedTitleNames.has(lesson.title)) {
+        console.log(`DEBUG: Title "${lesson.title}" was edited - sending only title`);
         // For edited titles, send only the title without context
         // This allows AI to focus on the title change and regenerate appropriate content
         cleanContent += `## ${lesson.title}\n\n`;
       } else {
+        console.log(`DEBUG: Title "${lesson.title}" was not edited - sending with content`);
         // For unedited titles, send with full context
         // This preserves the original content structure and context
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
       }
     });
     
+    console.log("DEBUG: Final clean content length:", cleanContent.length);
     return cleanContent.trim();
   };
 
@@ -805,19 +820,27 @@ export default function TextPresentationClient() {
     }, 300000); // 5 minutes timeout
 
     try {
+      console.log("DEBUG: handleFinalize - hasUserEdits:", hasUserEdits);
+      console.log("DEBUG: handleFinalize - editedTitleNames:", Array.from(editedTitleNames));
+      
       // NEW: Determine what content to send based on user edits
       let contentToSend = content;
       let isCleanContent = false;
       
       if (hasUserEdits && editedTitleNames.size > 0) {
+        console.log("DEBUG: handleFinalize - using clean content");
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
       } else {
+        console.log("DEBUG: handleFinalize - using full content");
         // If no titles changed, send full content with context
         contentToSend = content;
         isCleanContent = false;
       }
+      
+      console.log("DEBUG: handleFinalize - contentToSend length:", contentToSend.length);
+      console.log("DEBUG: handleFinalize - isCleanContent:", isCleanContent);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
