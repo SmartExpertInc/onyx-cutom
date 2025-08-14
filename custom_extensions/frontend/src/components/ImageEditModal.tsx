@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ZoomIn, ZoomOut, Check, X, Image } from 'lucide-react';
 import Moveable from 'react-moveable';
 
@@ -43,6 +44,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
   onCancel,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const [editState, setEditState] = useState<ImageEditState>({
     imageUrl: '',
     scale: 1,
@@ -53,7 +55,14 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
 
   const editImageRef = useRef<HTMLImageElement>(null);
   const cropCanvasRef = useRef<HTMLCanvasElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Create portal container on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPortalContainer(document.body);
+      log('ImageEditModal', 'portalContainerSet', { container: 'document.body' });
+    }
+  }, []);
 
   // Initialize image when modal opens
   useEffect(() => {
@@ -402,7 +411,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
     onCancel();
   }, [onCancel]);
 
-  // Close modal on escape key and handle scroll behavior
+  // Close modal on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -412,46 +421,53 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Remove body overflow restriction to allow scrolling
-      // document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      // document.body.style.overflow = '';
     };
   }, [isOpen, handleCancel]);
 
-  // Calculate optimal modal position with scroll-aware positioning
-  const getModalPosition = useCallback((): React.CSSProperties => {
-    if (typeof window === 'undefined') return { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+  if (!isOpen || !portalContainer) {
+    log('ImageEditModal', 'notRendering', { 
+      isOpen, 
+      portalContainerExists: !!portalContainer 
+    });
+    return null;
+  }
 
-    const viewportHeight = window.innerHeight;
-    const scrollY = window.scrollY;
-    
-    // Use fixed positioning relative to viewport, not document
-    return {
-      position: 'fixed',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)'
-    };
-  }, []);
+  log('ImageEditModal', 'renderingModal', { 
+    isOpen, 
+    isProcessing, 
+    hasError: false 
+  });
 
-  if (!isOpen) return null;
-
-  const modalPosition = getModalPosition();
-
-  return (
+  const modalContent = (
     <div 
-      className="fixed inset-0 z-[99999] backdrop-blur-sm bg-black/20 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[99999] flex items-center justify-center backdrop-blur-sm bg-black/20"
+      onClick={handleCancel}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 99999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
     >
       <div 
-        ref={modalRef}
-        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-200"
-        style={{ 
-          minHeight: '600px',
-          ...modalPosition
+        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 border border-gray-200"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: '64rem',
+          width: '100%',
+          margin: '0 1rem',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          zIndex: 100000
         }}
       >
         {/* Modal Header */}
@@ -460,6 +476,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
           <button
             onClick={handleCancel}
             className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            disabled={isProcessing}
           >
             <X className="w-5 h-5" />
           </button>
@@ -471,12 +488,12 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
           <div className="flex justify-center mb-6">
             <div 
               className="relative overflow-hidden border-2 border-blue-500 bg-gray-100 rounded-lg"
-                      style={{
-          width: placeholderDimensions.width,
-          height: placeholderDimensions.height,
-          maxWidth: '100%',
-          maxHeight: '60vh'
-        }}
+              style={{
+                width: placeholderDimensions.width,
+                height: placeholderDimensions.height,
+                maxWidth: '100%',
+                maxHeight: '60vh'
+              }}
             >
               {editState.imageUrl && (
                 <>
@@ -671,6 +688,8 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, portalContainer);
 };
 
 export default ImageEditModal;
