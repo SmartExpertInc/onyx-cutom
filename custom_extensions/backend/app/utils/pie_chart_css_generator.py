@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-CSS Pie Chart Generator - генерирует pie chart с помощью CSS и HTML
-Точное позиционирование процентов без использования изображений
-"""
 
 import math
 from typing import List, Dict
