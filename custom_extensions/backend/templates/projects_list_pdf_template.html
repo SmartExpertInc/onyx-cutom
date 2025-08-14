@@ -364,6 +364,78 @@
             <h1>{{ client_name if client_name else 'Production Time Estimate' }}</h1>
         </div>
         
+        <!-- Mini Summary Table -->
+        {% if folders or unassigned_projects %}
+        <div class="mini-summary-container" style="margin-bottom: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <table class="mini-summary-table" style="width: 100%; border-collapse: collapse; background: white; font-size: 13px;">
+                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL PROJECTS</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL LESSONS</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL CREATION TIME</th>
+                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL COMPLETION TIME</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ summary_stats.total_projects if summary_stats and summary_stats.total_projects is defined else 0 }}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ summary_stats.total_lessons if summary_stats and summary_stats.total_lessons is defined else 0 }}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                {% if summary_stats and summary_stats.total_creation_time is defined and summary_stats.total_creation_time > 0 %}
+                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                        <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{% if summary_stats.total_creation_time == summary_stats.total_creation_time|int %}{{ summary_stats.total_creation_time|int }}h{% else %}{{ summary_stats.total_creation_time }}h{% endif %}</span>
+                                {% else %}
+                                    <span style="color: #64748b;">-</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                {% if summary_stats and summary_stats.total_completion_time is defined and summary_stats.total_completion_time > 0 %}
+                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                        <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>
+                                        {% set h = summary_stats.total_completion_time // 60 %}
+                                        {% set m = summary_stats.total_completion_time % 60 %}
+                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span style="color: #64748b;">-</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
         <!-- Main Table Container -->
         <div class="table-container">
             <table class="projects-table">
@@ -623,75 +695,97 @@
             </table>
         </div>
         
-        <!-- Mini Summary Table -->
+        <!-- Products Distribution Pie Chart -->
         {% if folders or unassigned_projects %}
-        <div class="mini-summary-container" style="margin-top: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-            <table class="mini-summary-table" style="width: 100%; border-collapse: collapse; background: white; font-size: 13px;">
-                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                    <tr>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL PROJECTS</th>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL LESSONS</th>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL CREATION TIME</th>
-                        <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL COMPLETION TIME</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <span>{{ summary_stats.total_projects if summary_stats and summary_stats.total_projects is defined else 0 }}</span>
-                            </div>
-                        </td>
-                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <span>{{ summary_stats.total_lessons if summary_stats and summary_stats.total_lessons is defined else 0 }}</span>
-                            </div>
-                        </td>
-                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                {% if summary_stats and summary_stats.total_creation_time is defined and summary_stats.total_creation_time > 0 %}
-                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                        <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>{% if summary_stats.total_creation_time == summary_stats.total_creation_time|int %}{{ summary_stats.total_creation_time|int }}h{% else %}{{ summary_stats.total_creation_time }}h{% endif %}</span>
-                                {% else %}
-                                    <span style="color: #64748b;">-</span>
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                {% if summary_stats and summary_stats.total_completion_time is defined and summary_stats.total_completion_time > 0 %}
-                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                        <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>
-                                        {% set h = summary_stats.total_completion_time // 60 %}
-                                        {% set m = summary_stats.total_completion_time % 60 %}
-                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                    </span>
-                                {% else %}
-                                    <span style="color: #64748b;">-</span>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="pie-chart-container" style="margin-top: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <div class="pie-chart-header" style="background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 0;">Products Distribution</h3>
+                <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
+            </div>
+            
+            <div class="pie-chart-content" style="padding: 24px; display: flex; align-items: center; justify-content: space-between;">
+                <!-- Pie Chart SVG -->
+                <div class="pie-chart-svg" style="flex: 1; max-width: 300px;">
+                    <svg width="300" height="300" viewBox="0 0 300 300" style="display: block; margin: 0 auto;">
+                        <!-- Mock data for products distribution -->
+                        {% set total_products = 156 %}
+                        {% set one_pager_count = 45 %}
+                        {% set presentation_count = 38 %}
+                        {% set quiz_count = 42 %}
+                        {% set video_lesson_count = 31 %}
+                        
+                        {% set one_pager_percentage = (one_pager_count / total_products * 100) | round(1) %}
+                        {% set presentation_percentage = (presentation_count / total_products * 100) | round(1) %}
+                        {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
+                        {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
+                        
+                        <!-- Calculate angles for pie chart -->
+                        {% set one_pager_angle = (one_pager_count / total_products * 360) %}
+                        {% set presentation_angle = (presentation_count / total_products * 360) %}
+                        {% set quiz_angle = (quiz_count / total_products * 360) %}
+                        {% set video_lesson_angle = (video_lesson_count / total_products * 360) %}
+                        
+                        <!-- Pie chart segments -->
+                        <g transform="translate(150, 150)">
+                            <!-- One-pager segment -->
+                            <path d="M 0 -120 A 120 120 0 0 1 {{ (one_pager_angle * 3.14159 / 180) | sin * 120 }} {{ -(one_pager_angle * 3.14159 / 180) | cos * 120 }} L 0 0 Z" 
+                                  fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
+                            
+                            <!-- Presentation segment -->
+                            <path d="M {{ (one_pager_angle * 3.14159 / 180) | sin * 120 }} {{ -(one_pager_angle * 3.14159 / 180) | cos * 120 }} A 120 120 0 0 1 {{ ((one_pager_angle + presentation_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle) * 3.14159 / 180) | cos * 120 }} L 0 0 Z" 
+                                  fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+                            
+                            <!-- Quiz segment -->
+                            <path d="M {{ ((one_pager_angle + presentation_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle) * 3.14159 / 180) | cos * 120 }} A 120 120 0 0 1 {{ ((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | cos * 120 }} L 0 0 Z" 
+                                  fill="##16a34a" stroke="#ffffff" stroke-width="2"/>
+                            
+                            <!-- Video lesson segment -->
+                            <path d="M {{ ((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | sin * 120 }} {{ -((one_pager_angle + presentation_angle + quiz_angle) * 3.14159 / 180) | cos * 120 }} A 120 120 0 0 1 0 -120 L 0 0 Z" 
+                                  fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
+                            
+                            <!-- Center circle -->
+                            <circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+                            <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 14px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
+                            <text x="0" y="20" text-anchor="middle" style="font-size: 10px; fill: #64748b;">Total</text>
+                        </g>
+                    </svg>
+                </div>
+                
+                <!-- Legend -->
+                <div class="pie-chart-legend" style="flex: 1; margin-left: 32px;">
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #2D7C21; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-text" style="flex: 1;">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">One-pager</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ one_pager_count }} products ({{ one_pager_percentage }}%)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #3B82F6; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-text" style="flex: 1;">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Presentation</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ presentation_count }} products ({{ presentation_percentage }}%)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #F59E0B; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-text" style="flex: 1;">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Quiz</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ quiz_count }} products ({{ quiz_percentage }}%)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="legend-color" style="width: 16px; height: 16px; background: #8B5CF6; border-radius: 3px; margin-right: 12px; flex-shrink: 0;"></div>
+                        <div class="legend-text" style="flex: 1;">
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Video Lesson</div>
+                            <div style="color: #64748b; font-size: 12px;">{{ video_lesson_count }} products ({{ video_lesson_percentage }}%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         {% endif %}
         
