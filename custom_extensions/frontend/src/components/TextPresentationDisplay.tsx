@@ -403,7 +403,8 @@ const WordStyleContextMenu: React.FC<{
       <div className="py-1">
         <button
           onClick={() => {
-            onImageChange({ width: Math.max(50, (imageBlock.width || 300) - 25) });
+            const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
+            onImageChange({ width: Math.max(50, currentWidth - 25) });
             onClose();
           }}
           className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
@@ -415,7 +416,8 @@ const WordStyleContextMenu: React.FC<{
         </button>
         <button
           onClick={() => {
-            onImageChange({ width: Math.min(800, (imageBlock.width || 300) + 25) });
+            const currentWidth = typeof imageBlock.width === 'number' ? imageBlock.width : 300;
+            onImageChange({ width: Math.min(800, currentWidth + 25) });
             onClose();
           }}
           className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
