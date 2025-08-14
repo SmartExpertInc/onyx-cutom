@@ -1442,7 +1442,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             
             {/* Image with overlay button */}
             <div 
-              className="inline-block relative group/image"
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined) {
+                  e.dataTransfer.setData('text/plain', contentBlockIndex.toString());
+                  e.dataTransfer.effectAllowed = 'move';
+                }
+              }}
+              onDragEnd={(e) => {
+                // Drag end cleanup if needed
+              }}
+              className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''}`}
               style={{
                 float: floatDirection,
                 margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`
@@ -1502,6 +1512,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               isOpen={showWordStyleEditor}
               onClose={() => setShowWordStyleEditor(false)}
               imageBlock={block as ImageBlock}
+              documentContent={documentContent}
               onImageChange={(updatedBlock) => {
                 // Update all properties of the image block
                 Object.keys(updatedBlock).forEach(key => {
@@ -1545,7 +1556,19 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             )}
             
             {/* Image with overlay button */}
-            <div className="inline-block relative group/image w-full">
+            <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined) {
+                  e.dataTransfer.setData('text/plain', contentBlockIndex.toString());
+                  e.dataTransfer.effectAllowed = 'move';
+                }
+              }}
+              onDragEnd={(e) => {
+                // Drag end cleanup if needed
+              }}
+              className={`inline-block relative group/image w-full ${isEditing ? 'cursor-move' : ''}`}
+            >
               <img 
                 src={imageSrc} 
                 alt={alt || 'Image'} 
@@ -1600,6 +1623,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               isOpen={showWordStyleEditor}
               onClose={() => setShowWordStyleEditor(false)}
               imageBlock={block as ImageBlock}
+              documentContent={documentContent}
               onImageChange={(updatedBlock) => {
                 // Update all properties of the image block
                 Object.keys(updatedBlock).forEach(key => {
@@ -1642,7 +1666,19 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </div>
           )}
           
-          <div className="inline-block relative group/image">
+          <div 
+            draggable={isEditing}
+            onDragStart={(e) => {
+              if (isEditing && contentBlockIndex !== undefined) {
+                e.dataTransfer.setData('text/plain', contentBlockIndex.toString());
+                e.dataTransfer.effectAllowed = 'move';
+              }
+            }}
+            onDragEnd={(e) => {
+              // Drag end cleanup if needed
+            }}
+            className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''}`}
+          >
             {/* Use regular img tag for better compatibility in view mode */}
             <img
               src={imageSrc}
@@ -1867,6 +1903,24 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const lang = dataToDisplay?.detectedLanguage || searchParams?.get('lang') || 'en';
   const locale = locales[lang as keyof typeof locales] || locales.en;
   const { t } = useLanguage();
+
+  // Extract text content from the document for preview
+  const extractDocumentText = (data: TextPresentationData | null): string => {
+    if (!data?.contentBlocks) return '';
+    
+    return data.contentBlocks
+      .map(block => {
+        if (block.type === 'paragraph') return block.text;
+        if (block.type === 'headline') return block.text;
+        if (block.type === 'alert') return block.text;
+        return '';
+      })
+      .filter(text => text.length > 0)
+      .join(' ')
+      .slice(0, 500); // Limit to 500 characters
+  };
+
+  const documentContent = extractDocumentText(dataToDisplay);
   
   const [showImageUpload, setShowImageUpload] = useState(false);
 

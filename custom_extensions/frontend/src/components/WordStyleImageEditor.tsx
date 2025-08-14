@@ -13,13 +13,15 @@ interface WordStyleImageEditorProps {
   onClose: () => void;
   imageBlock: ImageBlock;
   onImageChange: (updatedBlock: ImageBlock) => void;
+  documentContent?: string;
 }
 
 const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
   isOpen,
   onClose,
   imageBlock,
-  onImageChange
+  onImageChange,
+  documentContent
 }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'size' | 'layout' | 'effects'>('format');
@@ -143,8 +145,13 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         <button
                           key={preset.name}
                           onClick={() => {
-                            updateImageProperty('width', preset.width);
-                            updateImageProperty('height', preset.height);
+                            const updatedBlock = {
+                              ...localImageBlock,
+                              width: preset.width,
+                              height: preset.height
+                            };
+                            setLocalImageBlock(updatedBlock);
+                            onImageChange(updatedBlock);
                           }}
                           className={`p-3 border rounded-lg text-left transition-colors ${
                                                          (typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')) === preset.width
@@ -473,8 +480,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div className="mb-6">
                     <h2 className="text-xl font-bold text-gray-900 mb-3">Document Preview</h2>
                     <p className="text-gray-700 leading-relaxed">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                      {documentContent || 'This preview shows how your image will appear in the document. The content from your document would appear here.'}
                     </p>
                   </div>
                   
@@ -518,12 +524,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   {/* Content after image */}
                   <div className="mt-6">
                     <p className="text-gray-700 leading-relaxed mb-4">
-                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                      {documentContent ? documentContent.slice(0, 200) + '...' : 'Additional content from your document would continue here, showing how the image integrates with the surrounding text and layout.'}
                     </p>
                     <p className="text-gray-700 leading-relaxed">
-                      Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, 
-                      totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+                      {documentContent ? documentContent.slice(200, 400) + '...' : 'The preview demonstrates the real-time changes to your image styling and how it affects the overall document presentation.'}
                     </p>
                   </div>
                   

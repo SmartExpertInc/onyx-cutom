@@ -56,7 +56,10 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     <div className="relative">
       <button
         ref={buttonRef}
-        onClick={() => setShowMenu(!showMenu)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowMenu(!showMenu);
+        }}
         className="flex items-center gap-1 px-2 py-1 bg-white/90 hover:bg-white text-gray-700 text-xs rounded-md transition-colors shadow-sm border border-gray-200"
       >
         <Settings className="w-3 h-3" />
@@ -67,6 +70,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       {showMenu && (
         <div 
           ref={dropdownRef}
+          onClick={(e) => e.stopPropagation()}
           className="absolute left-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
           style={{
             transform: 'translateY(0)',
@@ -81,7 +85,8 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 {quickSizePresets.map((preset) => (
                   <button
                     key={preset.name}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       console.log(`Applying size preset: ${preset.name}, width: ${preset.width}`);
                       const updatedBlock = {
                         ...imageBlock,
@@ -89,7 +94,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                         height: preset.height
                       };
                       onImageChange(updatedBlock);
-                      setShowMenu(false);
+                      // Don't close menu automatically - let user make multiple changes
                     }}
                     className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
                   >
@@ -107,11 +112,16 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 {alignmentOptions.map((option) => (
                   <button
                     key={option.value}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       updateImageProperty('alignment', option.value);
-                      setShowMenu(false);
+                      // Don't close menu automatically
                     }}
-                    className="flex-1 px-2 py-1 text-xs hover:bg-blue-50 rounded text-center"
+                    className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors ${
+                      imageBlock.alignment === option.value 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'hover:bg-blue-50'
+                    }`}
                   >
                     {option.icon} {option.label}
                   </button>
@@ -131,11 +141,16 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 ].map((option) => (
                   <button
                     key={option.value}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       updateImageProperty('borderRadius', option.value);
-                      setShowMenu(false);
+                      // Don't close menu automatically
                     }}
-                    className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded"
+                    className={`w-full px-2 py-1 text-left text-xs rounded transition-colors ${
+                      imageBlock.borderRadius === option.value 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'hover:bg-blue-50'
+                    }`}
                   >
                     {option.label}
                   </button>
@@ -146,7 +161,8 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
             {/* Advanced Settings */}
             <div className="px-3 py-2">
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   onOpenAdvancedSettings();
                   setShowMenu(false);
                 }}
@@ -154,6 +170,16 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
               >
                 <Edit3 className="w-4 h-4" />
                 Open Advanced Settings
+              </button>
+            </div>
+
+            {/* Close Button */}
+            <div className="px-3 py-2 border-t border-gray-100">
+              <button
+                onClick={() => setShowMenu(false)}
+                className="w-full px-2 py-1 text-xs text-gray-500 hover:text-gray-700 rounded transition-colors"
+              >
+                Close
               </button>
             </div>
           </div>
