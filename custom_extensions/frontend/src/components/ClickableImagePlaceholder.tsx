@@ -60,7 +60,7 @@ export interface ClickableImagePlaceholderProps {
   savedImageSize?: { width: number; height: number };
 }
 
-// Context Menu Component - IMPROVED with better isolation
+// Context Menu Component - MODAL STYLE with detailed logging
 interface ContextMenuProps {
   isOpen: boolean;
   position: { x: number; y: number };
@@ -68,7 +68,13 @@ interface ContextMenuProps {
   onReplaceImage: () => void;
   onRemoveImage?: () => void;
   targetElementId?: string;
-  instanceId?: string; // NEW: Add instance-specific ID
+  instanceId?: string;
+  debugInfo?: {
+    slideId?: string;
+    elementId?: string;
+    imagePath?: string;
+    clickPosition?: { x: number; y: number };
+  };
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -78,13 +84,39 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   onReplaceImage,
   onRemoveImage,
   targetElementId,
-  instanceId
+  instanceId,
+  debugInfo
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Detailed logging for context menu lifecycle
+  useEffect(() => {
+    if (isOpen) {
+      console.log('🔍 [ContextMenu] OPENED', {
+        instanceId,
+        targetElementId,
+        position,
+        debugInfo,
+        timestamp: Date.now()
+      });
+    } else {
+      console.log('🔍 [ContextMenu] CLOSED', {
+        instanceId,
+        targetElementId,
+        timestamp: Date.now()
+      });
+    }
+  }, [isOpen, instanceId, targetElementId, position, debugInfo]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        console.log('🔍 [ContextMenu] Click outside detected', {
+          instanceId,
+          targetElementId,
+          clickedElement: event.target,
+          menuElement: menuRef.current
+        });
         onClose();
       }
     };
@@ -93,23 +125,39 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, instanceId, targetElementId]);
 
   if (!isOpen) return null;
+
+  // Calculate position to ensure menu appears below cursor
+  const adjustedPosition = {
+    x: position.x,
+    y: position.y + 10 // Offset below cursor
+  };
 
   return (
     <div
       ref={menuRef}
-      className="fixed z-[99999] bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[160px]"
+      className="fixed z-[99999] bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[160px]"
       style={{
-        left: position.x,
-        top: position.y,
+        left: adjustedPosition.x,
+        top: adjustedPosition.y,
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
       }}
       data-context-menu-for={targetElementId}
-      data-instance-id={instanceId} // NEW: Add instance tracking
+      data-instance-id={instanceId}
+      data-debug-slide={debugInfo?.slideId}
+      data-debug-element={debugInfo?.elementId}
     >
       <button
-        onClick={onReplaceImage}
+        onClick={() => {
+          console.log('🔍 [ContextMenu] Replace Image clicked', {
+            instanceId,
+            targetElementId,
+            debugInfo
+          });
+          onReplaceImage();
+        }}
         className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2 transition-colors"
       >
         <Replace className="w-4 h-4" />
@@ -117,7 +165,14 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
       </button>
       {onRemoveImage && (
         <button
-          onClick={onRemoveImage}
+          onClick={() => {
+            console.log('🔍 [ContextMenu] Remove Image clicked', {
+              instanceId,
+              targetElementId,
+              debugInfo
+            });
+            onRemoveImage();
+          }}
           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors"
         >
           <Trash2 className="w-4 h-4" />
@@ -161,7 +216,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [isResizing, setIsResizing] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   
-  // Context menu state - IMPROVED with instance isolation
+  // Context menu state - IMPROVED with instance isolation and debug info
   const [contextMenu, setContextMenu] = useState<{
     isOpen: boolean;
     position: { x: number; y: number };
@@ -169,6 +224,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     isOpen: false,
     position: { x: 0, y: 0 }
   });
+  
+  // Debug info for context menu
+  const [contextMenuDebugInfo, setContextMenuDebugInfo] = useState<{
+    slideId?: string;
+    elementId?: string;
+    imagePath?: string;
+    clickPosition?: { x: number; y: number };
+  }>({});
 
   const internalRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -178,6 +241,26 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // IMPROVED: Create unique instance ID that includes slide context
   const instanceId = useRef(`${elementId || 'img'}-${Math.random().toString(36).substr(2, 9)}`).current;
+  
+  // Component lifecycle logging
+  useEffect(() => {
+    console.log('🔍 [ComponentLifecycle] MOUNTED', {
+      elementId,
+      instanceId,
+      displayedImage: !!displayedImage,
+      isEditable,
+      timestamp: Date.now()
+    });
+    
+    return () => {
+      console.log('🔍 [ComponentLifecycle] UNMOUNTING', {
+        elementId,
+        instanceId,
+        contextMenuOpen: contextMenu.isOpen,
+        timestamp: Date.now()
+      });
+    };
+  }, [elementId, instanceId, displayedImage, isEditable, contextMenu.isOpen]);
 
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
@@ -192,19 +275,23 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     'BACKGROUND': 'absolute inset-0 z-0'
   };
 
-  // SIMPLIFIED: Context menu management
+  // ENHANCED: Context menu management with detailed logging
   const closeContextMenu = useCallback(() => {
+    console.log('🔍 [CloseContextMenu] Closing menu', {
+      elementId,
+      instanceId,
+      wasActive: globalContextMenuState.currentMenu?.instanceId === instanceId,
+      currentActiveMenu: globalContextMenuState.currentMenu?.instanceId
+    });
+    
     setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+    setContextMenuDebugInfo({});
     
     // Clear from global state if this was the active menu
     if (globalContextMenuState.currentMenu?.instanceId === instanceId) {
       globalContextMenuState.currentMenu = null;
+      console.log('🔍 [CloseContextMenu] Cleared from global state', { instanceId });
     }
-    
-    log('ClickableImagePlaceholder', 'contextMenuClosed', { 
-      elementId, 
-      instanceId 
-    });
   }, [elementId, instanceId]);
 
   // SIMPLIFIED: No need for complex registration
@@ -394,61 +481,126 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [isEditable, isSelected, elementId, instanceId]);
 
-  // ✅ SIMPLIFIED: Right-click handler that directly manages the menu
+  // ✅ ENHANCED: Right-click handler with comprehensive logging and targeting
   const handleRightClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isEditable || !displayedImage) return;
+    if (!isEditable || !displayedImage) {
+      console.log('🔍 [RightClick] BLOCKED', {
+        elementId,
+        instanceId,
+        isEditable,
+        hasDisplayedImage: !!displayedImage,
+        timestamp: Date.now()
+      });
+      return;
+    }
     
     e.preventDefault();
     e.stopPropagation();
     
-    log('ClickableImagePlaceholder', 'rightClick', { 
+    // Add visual feedback - flash the element
+    const targetElement = e.currentTarget as HTMLElement;
+    targetElement.style.transition = 'box-shadow 0.2s ease-in-out';
+    targetElement.style.boxShadow = '0 0 0 4px rgba(34, 197, 94, 0.5)';
+    setTimeout(() => {
+      targetElement.style.boxShadow = '';
+    }, 300);
+    
+    // Capture detailed event information
+    const eventDetails = {
       elementId,
       instanceId,
       clientX: e.clientX,
       clientY: e.clientY,
-      currentActiveMenu: globalContextMenuState.currentMenu?.instanceId
+      pageX: e.pageX,
+      pageY: e.pageY,
+      target: targetElement,
+      targetTagName: targetElement.tagName,
+      targetClassName: targetElement.className,
+      targetDataset: targetElement.dataset,
+      currentActiveMenu: globalContextMenuState.currentMenu?.instanceId,
+      displayedImage,
+      containerRef: containerRef.current,
+      containerRefExists: !!containerRef.current,
+      timestamp: Date.now()
+    };
+    
+    console.log('🔍 [RightClick] EVENT CAPTURED', eventDetails);
+    
+    // Verify the target element
+    const targetInstanceId = targetElement.getAttribute('data-instance-id');
+    const targetElementId = targetElement.getAttribute('data-moveable-element');
+    
+    console.log('🔍 [RightClick] TARGET VERIFICATION', {
+      expectedInstanceId: instanceId,
+      actualInstanceId: targetInstanceId,
+      expectedElementId: elementId,
+      actualElementId: targetElementId,
+      match: targetInstanceId === instanceId && targetElementId === elementId
     });
     
     // Close any existing menu first
+    console.log('🔍 [RightClick] Closing existing menus...');
     globalContextMenuState.closeAll();
     
     // Set this as the active menu
+    console.log('🔍 [RightClick] Setting active menu', { instanceId });
     globalContextMenuState.setActiveMenu(instanceId, closeContextMenu);
     
+    // Prepare debug info for context menu
+    const debugInfo = {
+      slideId: elementId?.split('-')[0], // Extract slide ID from element ID
+      elementId,
+      imagePath: displayedImage,
+      clickPosition: { x: e.clientX, y: e.clientY }
+    };
+    
     // Open the context menu for THIS instance
+    console.log('🔍 [RightClick] Opening context menu', {
+      instanceId,
+      position: { x: e.clientX, y: e.clientY },
+      debugInfo
+    });
+    
     setContextMenu({
       isOpen: true,
       position: { x: e.clientX, y: e.clientY }
     });
     
+    // Store debug info for context menu
+    setContextMenuDebugInfo(debugInfo);
+    
   }, [isEditable, displayedImage, elementId, instanceId, closeContextMenu]);
 
-  // ✅ IMPROVED: Context menu handlers with proper instance tracking
+  // ✅ ENHANCED: Context menu handlers with comprehensive logging
   const handleReplaceImage = useCallback(() => {
-    log('ClickableImagePlaceholder', 'handleReplaceImage', { 
+    console.log('🔍 [HandleReplaceImage] Executing', { 
       elementId,
       instanceId,
       contextMenuOpen: contextMenu.isOpen,
-      currentImage: !!displayedImage
+      currentImage: !!displayedImage,
+      debugInfo: contextMenuDebugInfo,
+      timestamp: Date.now()
     });
     
     closeContextMenu();
     setShowUploadModal(true);
-  }, [elementId, instanceId, contextMenu.isOpen, displayedImage, closeContextMenu]);
+  }, [elementId, instanceId, contextMenu.isOpen, displayedImage, closeContextMenu, contextMenuDebugInfo]);
 
   const handleRemoveImage = useCallback(() => {
-    log('ClickableImagePlaceholder', 'handleRemoveImage', { 
+    console.log('🔍 [HandleRemoveImage] Executing', { 
       elementId,
       instanceId,
       contextMenuOpen: contextMenu.isOpen,
-      currentImage: !!displayedImage
+      currentImage: !!displayedImage,
+      debugInfo: contextMenuDebugInfo,
+      timestamp: Date.now()
     });
     
     closeContextMenu();
     setDisplayedImage(undefined);
     onImageUploaded('');
     setIsSelected(false);
-  }, [onImageUploaded, elementId, instanceId, contextMenu.isOpen, displayedImage, closeContextMenu]);
+  }, [onImageUploaded, elementId, instanceId, contextMenu.isOpen, displayedImage, closeContextMenu, contextMenuDebugInfo]);
 
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
@@ -628,12 +780,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <div 
           ref={containerRef}
           data-moveable-element={elementId}
-          data-instance-id={instanceId} // NEW: Add instance tracking
+          data-instance-id={instanceId}
+          data-debug-slide={elementId?.split('-')[0]}
+          data-debug-element={elementId}
           className={`
             ${positionClasses[position]} 
             relative overflow-hidden rounded-lg
             ${isEditable ? 'cursor-pointer' : ''}
             ${isSelected ? 'ring-2 ring-blue-500' : ''}
+            ${contextMenu.isOpen ? 'ring-2 ring-green-500 ring-opacity-75' : ''}
             ${className}
           `}
           style={{
@@ -686,7 +841,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onReplaceImage={handleReplaceImage}
           onRemoveImage={handleRemoveImage}
           targetElementId={elementId}
-          instanceId={instanceId} // NEW: Pass instance ID
+          instanceId={instanceId}
+          debugInfo={contextMenuDebugInfo}
         />
       </>
     );
