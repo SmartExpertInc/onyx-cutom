@@ -82,6 +82,14 @@ export const uk = {
     createContent: "Створити Контент",
     backToFolders: "Повернутися до Папок",
     selectFilesToCreate: "Виберіть файли для створення освітнього контенту з ваших документів",
+    // Website/URL related
+    addWebsite: "Додати веб-сайт",
+    addWebsiteHelp: "Вставте URL, щоб включити вміст сторінки в цю папку",
+    enterUrl: "Введіть URL (наприклад, https://example.com/article)",
+    addUrl: "Додати URL",
+    adding: "Додавання...",
+    invalidUrl: "Будь ласка, введіть дійсний URL (наприклад, https://example.com)",
+    failedToCreateFromUrl: "Не вдалося створити з URL",
     // 3-dots menu
     addToFavorites: "Додати до вибраного",
     copyLink: "Копіювати посилання",

@@ -82,6 +82,14 @@ export const es = {
     createContent: "Crear Contenido",
     backToFolders: "Volver a Carpetas",
     selectFilesToCreate: "Selecciona archivos para crear contenido educativo desde tus documentos",
+    // Website/URL related
+    addWebsite: "Agregar un sitio web",
+    addWebsiteHelp: "Pega una URL para incluir el contenido de la página en esta carpeta",
+    enterUrl: "Ingresa URL (ej., https://ejemplo.com/articulo)",
+    addUrl: "Agregar URL",
+    adding: "Agregando...",
+    invalidUrl: "Por favor ingresa una URL válida (ej., https://ejemplo.com)",
+    failedToCreateFromUrl: "Error al crear desde URL",
     // 3-dots menu
     addToFavorites: "Agregar a favoritos",
     copyLink: "Copiar enlace",

@@ -83,6 +83,14 @@ export const en = {
     createContent: "Create Content",
     backToFolders: "Back to Folders",
     selectFilesToCreate: "Select files to create educational content from your documents",
+    // Website/URL related
+    addWebsite: "Add a website",
+    addWebsiteHelp: "Paste a URL to include the page content in this folder",
+    enterUrl: "Enter URL (e.g., https://example.com/article)",
+    addUrl: "Add URL",
+    adding: "Adding...",
+    invalidUrl: "Please enter a valid URL (e.g., https://example.com)",
+    failedToCreateFromUrl: "Failed to create from URL",
     // 3-dots menu
     addToFavorites: "Add to favorites",
     copyLink: "Copy link",

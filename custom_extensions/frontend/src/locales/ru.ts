@@ -83,6 +83,14 @@ export const ru = {
     createContent: "Создать Контент",
     backToFolders: "Вернуться к Папкам",
     selectFilesToCreate: "Выберите файлы для создания образовательного контента из ваших документов",
+    // Website/URL related
+    addWebsite: "Добавить веб-сайт",
+    addWebsiteHelp: "Вставьте URL, чтобы включить содержимое страницы в эту папку",
+    enterUrl: "Введите URL (например, https://example.com/article)",
+    addUrl: "Добавить URL",
+    adding: "Добавление...",
+    invalidUrl: "Пожалуйста, введите действительный URL (например, https://example.com)",
+    failedToCreateFromUrl: "Не удалось создать из URL",
     // 3-dots menu
     addToFavorites: "Добавить в избранное",
     copyLink: "Копировать ссылку",
