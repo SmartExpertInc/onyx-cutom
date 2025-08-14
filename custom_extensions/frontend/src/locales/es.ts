@@ -421,6 +421,11 @@ export const es = {
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Configuración de imagen",
+      format: "Formato",
+      size: "Tamaño",
+      layout: "Diseño",
+      effects: "Efectos",
       imagePreview: "Vista previa de imagen",
       preview: "Vista previa",
       noImageLoaded: "No hay imagen cargada",
@@ -471,6 +476,8 @@ export const es = {
       resetToDefaultSize: "Restablecer al tamaño predeterminado",
       currentWidth: "Ancho actual",
       auto: "automático",
+      maintainAspectRatio: "mantener proporción",
+      scale: "Escala",
       // Layout options
       layoutOptions: "Opciones de diseño",
       partnerContent: "Contenido asociado",
@@ -486,7 +493,27 @@ export const es = {
       contentLarger: "Contenido más grande (40% imagen, 60% contenido)",
       imageDominant: "Imagen dominante (70% imagen, 30% contenido)",
       contentDominant: "Contenido dominante (30% imagen, 70% contenido)",
-      spaceDistributionDescription: "Controla cuánto espacio horizontal ocupan la imagen y el contenido."
+      spaceDistributionDescription: "Controla cuánto espacio horizontal ocupan la imagen y el contenido.",
+      // Corner rounding options
+      cornerRounding: "Redondeo de esquinas",
+      sharp: "Agudo",
+      slightlyRounded: "Ligeramente redondeado",
+      rounded: "Redondeado",
+      veryRounded: "Muy redondeado",
+      // Alignment options
+      left: "Izquierda",
+      center: "Centro",
+      right: "Derecha",
+      // Size options
+      small: "Pequeño",
+      medium: "Mediano",
+      large: "Grande",
+      extraLarge: "Muy grande",
+      // Layout descriptions
+      imageOnOwnLine: "Imagen en su propia línea",
+      sideBySideDescription: "Imagen y texto lado a lado",
+      // Visual effects
+      visualEffects: "Efectos visuales"
     },
     
     // Quality tiers
@@ -506,11 +533,6 @@ export const es = {
     item: "elemento",
     items: "elementos",
     loadingProjects: "Cargando proyectos...",
-    
-    // Text Presentation Display
-    textPresentationDisplay: {
-      noContent: "No hay contenido de texto disponible para mostrar."
-    },
     
     // Help button
     help: "Ayuda",

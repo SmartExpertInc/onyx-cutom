@@ -58,24 +58,24 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
   };
 
   const quickSizePresets = [
-    { name: 'Small', width: 200, height: 'auto' },
-    { name: 'Medium', width: 400, height: 'auto' },
-    { name: 'Large', width: 600, height: 'auto' },
-    { name: 'Extra Large', width: 800, height: 'auto' }
+    { name: t('interface.imageSettings.small'), width: 200, height: 'auto' },
+    { name: t('interface.imageSettings.medium'), width: 400, height: 'auto' },
+    { name: t('interface.imageSettings.large'), width: 600, height: 'auto' },
+    { name: t('interface.imageSettings.extraLarge'), width: 800, height: 'auto' }
   ];
 
   const layoutPresets = [
-    { name: 'Inline with Text', mode: 'inline-left' as const, description: 'Text flows around the image', float: 'left' as const },
-    { name: 'Inline Right', mode: 'inline-right' as const, description: 'Text flows around on the left', float: 'right' as const },
-    { name: 'Break Text', mode: 'standalone' as const, description: 'Image on its own line', float: undefined },
-    { name: 'Side by Side Left', mode: 'side-by-side-left' as const, description: 'Image and text side by side', float: undefined },
-    { name: 'Side by Side Right', mode: 'side-by-side-right' as const, description: 'Text and image side by side', float: undefined }
+    { name: t('interface.imageSettings.inlineLeft'), mode: 'inline-left' as const, description: t('interface.imageSettings.textWillWrap'), float: 'left' as const },
+    { name: t('interface.imageSettings.inlineRight'), mode: 'inline-right' as const, description: t('interface.imageSettings.textWillWrap'), float: 'right' as const },
+    { name: t('interface.imageSettings.standalone'), mode: 'standalone' as const, description: t('interface.imageSettings.imageOnOwnLine'), float: undefined },
+    { name: t('interface.imageSettings.sideBySideLeft'), mode: 'side-by-side-left' as const, description: t('interface.imageSettings.sideBySideDescription'), float: undefined },
+    { name: t('interface.imageSettings.sideBySideRight'), mode: 'side-by-side-right' as const, description: t('interface.imageSettings.sideBySideDescription'), float: undefined }
   ];
 
   const alignmentOptions = [
-    { value: 'left', icon: '⬅️', label: 'Left' },
-    { value: 'center', icon: '⬆️', label: 'Center' },
-    { value: 'right', icon: '➡️', label: 'Right' }
+    { value: 'left', icon: '⬅️', label: t('interface.imageSettings.left') },
+    { value: 'center', icon: '⬆️', label: t('interface.imageSettings.center') },
+    { value: 'right', icon: '➡️', label: t('interface.imageSettings.right') }
   ];
 
   if (!isOpen) return null;
@@ -90,8 +90,8 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
               <ImageIcon className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold">Image Settings</h2>
-              <p className="text-blue-100 text-sm">Customize your image appearance</p>
+              <h2 className="text-lg font-semibold">{t('interface.imageSettings.imageSettings')}</h2>
+              <p className="text-blue-100 text-sm">{t('interface.blockSettings.customizeContent')}</p>
             </div>
           </div>
           <button
@@ -109,10 +109,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
             <div className="bg-white border-b border-gray-200">
               <div className="flex">
                 {[
-                  { id: 'format', label: 'Format', icon: Palette },
-                  { id: 'size', label: 'Size', icon: ZoomIn },
-                  { id: 'layout', label: 'Layout', icon: Layout },
-                  { id: 'effects', label: 'Effects', icon: Edit3 }
+                  { id: 'format', label: t('interface.imageSettings.format'), icon: Palette },
+                  { id: 'size', label: t('interface.imageSettings.size'), icon: ZoomIn },
+                  { id: 'layout', label: t('interface.imageSettings.layout'), icon: Layout },
+                  { id: 'effects', label: t('interface.imageSettings.effects'), icon: Edit3 }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -138,7 +138,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Palette className="w-4 h-4" />
-                      Quick Styles
+                      {t('interface.imageSettings.quickSizeControls')}
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
                       {quickSizePresets.map((preset) => (
@@ -170,7 +170,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Move className="w-4 h-4" />
-                      Alignment
+                      {t('interface.imageSettings.alignment')}
                     </h3>
                     <div className="flex gap-2">
                       {alignmentOptions.map((option) => (
@@ -194,13 +194,13 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
                   {/* Border Radius */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Corner Rounding</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('interface.imageSettings.cornerRounding')}</h3>
                     <div className="space-y-2">
                       {[
-                        { value: '0px', label: 'Sharp' },
-                        { value: '4px', label: 'Slightly Rounded' },
-                        { value: '8px', label: 'Rounded' },
-                        { value: '16px', label: 'Very Rounded' }
+                        { value: '0px', label: t('interface.imageSettings.sharp') },
+                        { value: '4px', label: t('interface.imageSettings.slightlyRounded') },
+                        { value: '8px', label: t('interface.imageSettings.rounded') },
+                        { value: '16px', label: t('interface.imageSettings.veryRounded') }
                       ].map((option) => (
                         <button
                           key={option.value}
@@ -225,11 +225,11 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <ZoomIn className="w-4 h-4" />
-                      Size
+                      {t('interface.imageSettings.size')}
                     </h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm text-gray-700 mb-2">Width (px)</label>
+                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.width')} (px)</label>
                         <input
                           type="number"
                                                      value={typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}
@@ -240,13 +240,13 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-gray-700 mb-2">Height</label>
+                        <label className="block text-sm text-gray-700 mb-2">{t('interface.imageSettings.height')}</label>
                         <select
                           value={localImageBlock.height || 'auto'}
                           onChange={(e) => updateImageProperty('height', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
                         >
-                          <option value="auto">Auto (maintain aspect ratio)</option>
+                          <option value="auto">{t('interface.imageSettings.auto')} ({t('interface.imageSettings.maintainAspectRatio')})</option>
                           <option value="200px">200px</option>
                           <option value="300px">300px</option>
                           <option value="400px">400px</option>
@@ -257,7 +257,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
                   {/* Scale Controls */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Scale</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('interface.imageSettings.scale')}</h3>
                     <div className="flex gap-2">
                       <button
                         onClick={() => {
@@ -268,7 +268,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex items-center justify-center gap-2"
                       >
                         <ZoomOut className="w-4 h-4" />
-                        Smaller
+                        {t('interface.imageSettings.smaller')}
                       </button>
                       <button
                         onClick={() => {
@@ -279,7 +279,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex items-center justify-center gap-2"
                       >
                         <ZoomIn className="w-4 h-4" />
-                        Larger
+                        {t('interface.imageSettings.larger')}
                       </button>
                     </div>
                   </div>
@@ -291,7 +291,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                       className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex items-center justify-center gap-2"
                     >
                       <RotateCcw className="w-4 h-4" />
-                      Reset to Default
+                      {t('interface.imageSettings.resetToDefaultSize')}
                     </button>
                   </div>
                 </div>

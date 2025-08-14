@@ -499,7 +499,7 @@ const BlockSettingsModal = ({
         {/* Quick Size Controls */}
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <label className="block text-sm font-semibold text-blue-900 mb-3">
-            {t('interface.imageSettings.quickSizeControls')}
+            {t('interface.imageSettings.quickSizeControls', 'Quick Size Controls')}
           </label>
           <div className="flex gap-2">
             <button
@@ -513,7 +513,7 @@ const BlockSettingsModal = ({
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
               </svg>
-              {t('interface.imageSettings.smaller')}
+              {t('interface.imageSettings.smaller', 'Smaller')}
             </button>
             <button
               onClick={() => {
@@ -526,14 +526,14 @@ const BlockSettingsModal = ({
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
               </svg>
-              {t('interface.imageSettings.larger')}
+              {t('interface.imageSettings.larger', 'Larger')}
             </button>
             <button
               onClick={() => {
                 onTextChange?.(fieldPath('width'), 300);
               }}
               className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
-              title={t('interface.imageSettings.resetToDefaultSize')}
+              title={t('interface.imageSettings.resetToDefaultSize', 'Reset to default size')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -541,7 +541,7 @@ const BlockSettingsModal = ({
             </button>
           </div>
           <p className="text-xs text-blue-600 mt-2">
-            {t('interface.imageSettings.currentWidth')}: {typeof imageBlock.width === 'number' ? `${imageBlock.width}px` : t('interface.imageSettings.auto')}
+            {t('interface.imageSettings.currentWidth', 'Current width')}: {typeof imageBlock.width === 'number' ? `${imageBlock.width}px` : t('interface.imageSettings.auto', 'auto')}
           </p>
         </div>
 
@@ -551,13 +551,13 @@ const BlockSettingsModal = ({
             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
-            {t('interface.imageSettings.layoutOptions')}
+            {t('interface.imageSettings.layoutOptions', 'Layout Options')}
           </h3>
           
           {/* Layout Mode */}
           <div className="mb-4">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              {t('interface.imageSettings.layoutMode')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.layoutModeHelp')})</span>
+              {t('interface.imageSettings.layoutMode', 'Layout Mode')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.layoutModeHelp', 'how image appears with other content')})</span>
             </label>
             <select
               value={imageBlock.layoutMode || 'standalone'}
@@ -586,14 +586,14 @@ const BlockSettingsModal = ({
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
             >
-              <option value="standalone">📄 {t('interface.imageSettings.standalone')}</option>
-              <option value="side-by-side-left">⬅️ {t('interface.imageSettings.sideBySideLeft')}</option>
-              <option value="side-by-side-right">➡️ {t('interface.imageSettings.sideBySideRight')}</option>
-              <option value="inline-left">⬅️ {t('interface.imageSettings.inlineLeft')}</option>
-              <option value="inline-right">➡️ {t('interface.imageSettings.inlineRight')}</option>
+              <option value="standalone">📄 {t('interface.imageSettings.standalone', 'Standalone (full width)')}</option>
+              <option value="side-by-side-left">⬅️ {t('interface.imageSettings.sideBySideLeft', 'Side-by-side (image left)')}</option>
+              <option value="side-by-side-right">➡️ {t('interface.imageSettings.sideBySideRight', 'Side-by-side (image right)')}</option>
+              <option value="inline-left">⬅️ {t('interface.imageSettings.inlineLeft', 'Inline (image left, text wraps)')}</option>
+              <option value="inline-right">➡️ {t('interface.imageSettings.inlineRight', 'Inline (image right, text wraps)')}</option>
             </select>
             <p className="text-xs text-gray-500 mt-1">
-              {t('interface.imageSettings.layoutModeDescription')}
+              {t('interface.imageSettings.layoutModeDescription', 'Side-by-side: Image and content are equal height. Inline: Text flows around the image.')}
             </p>
           </div>
 
@@ -601,7 +601,7 @@ const BlockSettingsModal = ({
           {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                {t('interface.imageSettings.partnerContent')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.partnerContentHelp')})</span>
+                {t('interface.imageSettings.partnerContent', 'Partner Content')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.partnerContentHelp', 'content to place alongside image')})</span>
               </label>
               <select
                 value={imageBlock.layoutPartnerIndex || ''}
@@ -612,14 +612,14 @@ const BlockSettingsModal = ({
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               >
-                <option value="">{t('interface.imageSettings.selectContentBlock')}</option>
+                <option value="">{t('interface.imageSettings.selectContentBlock', 'Select content block...')}</option>
                 {/* This will be populated dynamically based on available content blocks */}
-                <option value="0">{t('interface.imageSettings.block1')}</option>
-                <option value="1">{t('interface.imageSettings.block2')}</option>
-                <option value="2">{t('interface.imageSettings.block3')}</option>
+                <option value="0">{t('interface.imageSettings.block1', 'Block 1: Headline/Paragraph')}</option>
+                <option value="1">{t('interface.imageSettings.block2', 'Block 2: List/Content')}</option>
+                <option value="2">{t('interface.imageSettings.block3', 'Block 3: Another content block')}</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
-                {t('interface.imageSettings.partnerContentDescription')}
+                {t('interface.imageSettings.partnerContentDescription', 'Choose which content block should appear alongside this image.')}
               </p>
             </div>
           )}
@@ -628,7 +628,7 @@ const BlockSettingsModal = ({
           {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                {t('interface.imageSettings.spaceDistribution')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.spaceDistributionHelp')})</span>
+                {t('interface.imageSettings.spaceDistribution', 'Space Distribution')} <span className="text-gray-500 font-normal">({t('interface.imageSettings.spaceDistributionHelp', 'how much space each element gets')})</span>
               </label>
               <select
                 value={imageBlock.layoutProportion || '50-50'}
@@ -638,14 +638,14 @@ const BlockSettingsModal = ({
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               >
-                <option value="50-50">⚖️ {t('interface.imageSettings.equal')}</option>
-                <option value="60-40">📊 {t('interface.imageSettings.imageLarger')}</option>
-                <option value="40-60">📝 {t('interface.imageSettings.contentLarger')}</option>
-                <option value="70-30">🖼️ {t('interface.imageSettings.imageDominant')}</option>
-                <option value="30-70">📄 {t('interface.imageSettings.contentDominant')}</option>
+                <option value="50-50">⚖️ {t('interface.imageSettings.equal', 'Equal (50% each)')}</option>
+                <option value="60-40">📊 {t('interface.imageSettings.imageLarger', 'Image larger (60% image, 40% content)')}</option>
+                <option value="40-60">📝 {t('interface.imageSettings.contentLarger', 'Content larger (40% image, 60% content)')}</option>
+                <option value="70-30">🖼️ {t('interface.imageSettings.imageDominant', 'Image dominant (70% image, 30% content)')}</option>
+                <option value="30-70">📄 {t('interface.imageSettings.contentDominant', 'Content dominant (30% image, 70% content)')}</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
-                {t('interface.imageSettings.spaceDistributionDescription')}
+                {t('interface.imageSettings.spaceDistributionDescription', 'Controls how much horizontal space the image and content each take up.')}
               </p>
             </div>
           )}
@@ -654,31 +654,31 @@ const BlockSettingsModal = ({
           {(imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone') && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-dashed border-blue-200">
               <div className="text-center">
-                <div className="text-blue-600 text-sm font-medium mb-2">{t('interface.imageSettings.layoutPreview')}</div>
+                <div className="text-blue-600 text-sm font-medium mb-2">{t('interface.imageSettings.layoutPreview', 'Layout Preview')}</div>
                 <div className="flex items-center justify-center space-x-2 text-xs">
                   {imageBlock.layoutMode === 'side-by-side-left' && (
                     <>
-                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image')}</div>
+                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image', 'Image')}</div>
                       <div className="text-blue-400">+</div>
-                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content')}</div>
+                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content', 'Content')}</div>
                     </>
                   )}
                   {imageBlock.layoutMode === 'side-by-side-right' && (
                     <>
-                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content')}</div>
+                      <div className="bg-green-200 px-2 py-1 rounded">📄 {t('interface.imageSettings.content', 'Content')}</div>
                       <div className="text-blue-400">+</div>
-                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image')}</div>
+                      <div className="bg-blue-200 px-2 py-1 rounded">🖼️ {t('interface.imageSettings.image', 'Image')}</div>
                     </>
                   )}
                   {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
                     <div className="text-blue-600">
-                      {t('interface.imageSettings.textWillWrap')}
+                      {t('interface.imageSettings.textWillWrap', 'Text will wrap around the image')}
                     </div>
                   )}
                 </div>
                 {imageBlock.layoutProportion && (
                   <div className="text-xs text-blue-500 mt-1">
-                    {t('interface.imageSettings.space')}: {imageBlock.layoutProportion}
+                    {t('interface.imageSettings.space', 'Space')}: {imageBlock.layoutProportion}
                   </div>
                 )}
               </div>
@@ -738,7 +738,7 @@ const BlockSettingsModal = ({
               </div>
               <div>
                 <h2 className="text-lg font-semibold">{getBlockTitle()}</h2>
-                <p className="text-blue-100 text-sm">{t('interface.modal.customizeContent')}</p>
+                <p className="text-blue-100 text-sm">{t('interface.modal.customizeContent', 'Customize your content')}</p>
               </div>
             </div>
             <button
@@ -2299,7 +2299,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [onTextChange, dataToDisplay]);
 
   if (!dataToDisplay) {
-    return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent')}</div>;
+    return <div className="p-6 text-center text-gray-500 text-xs">{t('textPresentationDisplay.noContent', 'No text content available to display.')}</div>;
   }
   
   const renderableItems: RenderableItem[] = [];

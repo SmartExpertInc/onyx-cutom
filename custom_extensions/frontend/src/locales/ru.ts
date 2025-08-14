@@ -414,6 +414,11 @@ export const ru = {
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Настройки изображения",
+      format: "Формат",
+      size: "Размер",
+      layout: "Макет",
+      effects: "Эффекты",
       imagePreview: "Предпросмотр изображения",
       preview: "Предпросмотр",
       noImageLoaded: "Изображение не загружено",
@@ -464,6 +469,8 @@ export const ru = {
       resetToDefaultSize: "Сбросить к размеру по умолчанию",
       currentWidth: "Текущая ширина",
       auto: "авто",
+      maintainAspectRatio: "сохранить пропорции",
+      scale: "Масштаб",
       // Layout options
       layoutOptions: "Параметры макета",
       partnerContent: "Партнерский контент",
@@ -479,7 +486,27 @@ export const ru = {
       contentLarger: "Контент больше (40% изображение, 60% контент)",
       imageDominant: "Изображение доминирует (70% изображение, 30% контент)",
       contentDominant: "Контент доминирует (30% изображение, 70% контент)",
-      spaceDistributionDescription: "Контролирует, сколько горизонтального пространства занимают изображение и контент."
+      spaceDistributionDescription: "Контролирует, сколько горизонтального пространства занимают изображение и контент.",
+      // Corner rounding options
+      cornerRounding: "Скругление углов",
+      sharp: "Острые",
+      slightlyRounded: "Слегка скругленные",
+      rounded: "Скругленные",
+      veryRounded: "Очень скругленные",
+      // Alignment options
+      left: "Слева",
+      center: "По центру",
+      right: "Справа",
+      // Size options
+      small: "Маленький",
+      medium: "Средний",
+      large: "Большой",
+      extraLarge: "Очень большой",
+      // Layout descriptions
+      imageOnOwnLine: "Изображение на своей строке",
+      sideBySideDescription: "Изображение и текст рядом",
+      // Visual effects
+      visualEffects: "Визуальные эффекты"
     },
     
     // Quality tiers
@@ -499,11 +526,6 @@ export const ru = {
     item: "элемент",
     items: "элементов",
     loadingProjects: "Загрузка проектов...",
-    
-    // Text Presentation Display
-    textPresentationDisplay: {
-      noContent: "Нет текстового контента для отображения."
-    },
     
     // Help button
     help: "Помощь",

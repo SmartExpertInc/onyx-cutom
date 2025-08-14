@@ -414,6 +414,11 @@ export const uk = {
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Налаштування зображення",
+      format: "Формат",
+      size: "Розмір",
+      layout: "Макет",
+      effects: "Ефекти",
       imagePreview: "Попередній перегляд зображення",
       preview: "Попередній перегляд",
       noImageLoaded: "Зображення не завантажено",
@@ -464,6 +469,8 @@ export const uk = {
       resetToDefaultSize: "Скинути до розміру за замовчуванням",
       currentWidth: "Поточна ширина",
       auto: "авто",
+      maintainAspectRatio: "зберегти пропорції",
+      scale: "Масштаб",
       // Layout options
       layoutOptions: "Параметри макета",
       partnerContent: "Партнерський контент",
@@ -479,7 +486,27 @@ export const uk = {
       contentLarger: "Контент більше (40% зображення, 60% контенту)",
       imageDominant: "Зображення домінує (70% зображення, 30% контенту)",
       contentDominant: "Контент домінує (30% зображення, 70% контенту)",
-      spaceDistributionDescription: "Контролює, скільки горизонтального простору займає зображення та контент."
+      spaceDistributionDescription: "Контролює, скільки горизонтального простору займає зображення та контент.",
+      // Corner rounding options
+      cornerRounding: "Округлення кутів",
+      sharp: "Гострі",
+      slightlyRounded: "Трохи округлені",
+      rounded: "Округлені",
+      veryRounded: "Дуже округлені",
+      // Alignment options
+      left: "Ліворуч",
+      center: "По центру",
+      right: "Праворуч",
+      // Size options
+      small: "Малий",
+      medium: "Середній",
+      large: "Великий",
+      extraLarge: "Дуже великий",
+      // Layout descriptions
+      imageOnOwnLine: "Зображення на власному рядку",
+      sideBySideDescription: "Зображення та текст поруч",
+      // Visual effects
+      visualEffects: "Візуальні ефекти"
     },
     
     // Quality tiers
@@ -499,11 +526,6 @@ export const uk = {
     item: "елемент",
     items: "елементів",
     loadingProjects: "Завантаження проектів...",
-    
-    // Text Presentation Display
-    textPresentationDisplay: {
-      noContent: "Немає текстового контенту для відображення."
-    },
     
     // Help button
     help: "Допомога",
