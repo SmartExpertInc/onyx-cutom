@@ -371,6 +371,36 @@ export default function TextPresentationClient() {
     return cleanContent.trim();
   };
 
+  // NEW: Create clean content for finalization - similar to QuizClient logic
+  const createCleanFinalizationContent = (content: string) => {
+    const lessons = parseContentIntoLessons(content);
+    if (lessons.length === 0) return content;
+    
+    // If any titles were edited, send only the edited titles without context
+    // This allows AI to focus on the title changes and regenerate appropriate content
+    if (originallyEditedTitles.size > 0) {
+      let cleanContent = "";
+      lessons.forEach((lesson, index) => {
+        if (originallyEditedTitles.has(index)) {
+          // For edited titles, send only the title without context
+          cleanContent += `## ${lesson.title}\n\n`;
+        }
+      });
+      
+      console.log('createCleanFinalizationContent Debug:', {
+        originallyEditedTitles: Array.from(originallyEditedTitles),
+        lessonsCount: lessons.length,
+        cleanContentLength: cleanContent.length,
+        cleanContent: cleanContent
+      });
+      
+      return cleanContent.trim();
+    } else {
+      // If no titles were edited, send full content
+      return content;
+    }
+  };
+
   const handleTitleCancel = (lessonIndex: number) => {
     setEditedTitles(prev => {
       const newTitles = { ...prev };
@@ -785,14 +815,23 @@ export default function TextPresentationClient() {
       let isCleanContent = false;
       
       if (hasUserEdits && originallyEditedTitles.size > 0) {
-        // If titles were changed, send only titles without context
-        contentToSend = createCleanTitlesContent(content);
+        // If titles were changed, send only edited titles without context
+        contentToSend = createCleanFinalizationContent(content);
         isCleanContent = true;
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;
         isCleanContent = false;
       }
+
+      // Debug logging
+      console.log('TextPresentation Finalize Debug:', {
+        hasUserEdits,
+        originallyEditedTitles: Array.from(originallyEditedTitles),
+        contentToSendLength: contentToSend.length,
+        isCleanContent,
+        contentToSend: contentToSend.substring(0, 200) + '...'
+      });
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
