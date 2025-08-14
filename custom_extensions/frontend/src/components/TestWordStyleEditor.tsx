@@ -51,7 +51,7 @@ const TestWordStyleEditor: React.FC = () => {
             src={imageBlock.src}
             alt={imageBlock.alt}
             style={{
-              width: `${imageBlock.width}px`,
+              width: typeof imageBlock.width === 'number' ? `${imageBlock.width}px` : imageBlock.width || '300px',
               height: imageBlock.height || 'auto',
               borderRadius: imageBlock.borderRadius || '8px',
               maxWidth: imageBlock.maxWidth || '100%'

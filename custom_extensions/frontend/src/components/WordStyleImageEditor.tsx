@@ -141,7 +141,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                             updateImageProperty('height', preset.height);
                           }}
                           className={`p-3 border rounded-lg text-left transition-colors ${
-                            localImageBlock.width === preset.width
+                                                         (typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')) === preset.width
                               ? 'border-[#2b579a] bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
@@ -219,7 +219,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         <label className="block text-sm text-gray-700 mb-2">Width (px)</label>
                         <input
                           type="number"
-                          value={localImageBlock.width || 300}
+                                                     value={typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}
                           onChange={(e) => updateImageProperty('width', parseInt(e.target.value) || 300)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
                           min="50"
@@ -248,7 +248,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                     <div className="flex gap-2">
                       <button
                         onClick={() => {
-                          const currentWidth = localImageBlock.width || 300;
+                          const currentWidth = typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300');
                           const newWidth = Math.max(50, currentWidth - 50);
                           updateImageProperty('width', newWidth);
                         }}
@@ -259,7 +259,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                       </button>
                       <button
                         onClick={() => {
-                          const currentWidth = localImageBlock.width || 300;
+                          const currentWidth = typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300');
                           const newWidth = Math.min(1200, currentWidth + 50);
                           updateImageProperty('width', newWidth);
                         }}
@@ -462,7 +462,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         alt={localImageBlock.alt || 'Preview image'}
                         className="shadow-md"
                         style={{
-                          width: `${localImageBlock.width || 300}px`,
+                          width: typeof localImageBlock.width === 'number' ? `${localImageBlock.width}px` : localImageBlock.width || '300px',
                           height: localImageBlock.height || 'auto',
                           borderRadius: localImageBlock.borderRadius || '8px',
                           maxWidth: localImageBlock.maxWidth || '100%',
@@ -503,7 +503,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
         {/* Footer - Word-style */}
         <div className="bg-gray-100 px-6 py-3 border-t border-gray-200 flex items-center justify-between rounded-b-lg">
           <div className="text-sm text-gray-600">
-            Image: {localImageBlock.width || 300}px × {localImageBlock.height || 'auto'}
+            Image: {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
           </div>
           <div className="flex gap-2">
             <button
