@@ -16595,6 +16595,47 @@ async def download_projects_list_pdf(
         # Calculate summary statistics
         summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
 
+        # Generate chart data for pie chart
+        chart_data = {}
+        chart_colors = ['#9333ea', '#2563eb', '#16a34a', '#ea580c', '#dc2626', '#7c3aed']
+        matplotlib_chart = None
+        
+        try:
+            # Import chart generator
+            from app.services.chart_generator import chart_generator
+            
+            # Collect data for pie chart - count projects by type
+            project_types = {}
+            for folder in folder_tree:
+                if folder['id'] in folder_projects:
+                    for project in folder_projects[folder['id']]:
+                        project_type = project.get('design_microproduct_type', 'Other')
+                        if project_type not in project_types:
+                            project_types[project_type] = 0
+                        project_types[project_type] += 1
+            
+            # Add unassigned projects
+            for project in unassigned_projects:
+                project_type = project.get('design_microproduct_type', 'Other')
+                if project_type not in project_types:
+                    project_types[project_type] = 0
+                project_types[project_type] += 1
+            
+            # Only generate chart if we have data
+            if project_types:
+                # Generate Matplotlib chart
+                matplotlib_chart = chart_generator.generate_pie_chart_matplotlib(
+                    data=project_types,
+                    title="Products Distribution",
+                    colors=chart_colors[:len(project_types)]
+                )
+                
+                chart_data = project_types
+                
+        except Exception as e:
+            logger.warning(f"Failed to generate chart: {e}")
+            # Continue without chart - fallback to SVG
+
         # Prepare data for template
         template_data = {
             'folders': folder_tree,  # Use hierarchical structure
@@ -16605,7 +16646,11 @@ async def download_projects_list_pdf(
             'folder_id': folder_id,
             'client_name': client_name,  # Client name for header customization
             'generated_at': datetime.now().isoformat(),
-            'summary_stats': summary_stats  # Add summary statistics to template data
+            'summary_stats': summary_stats,  # Add summary statistics to template data
+            'chart_data': chart_data,  # Chart data for pie chart
+            'chart_colors': chart_colors,  # Chart colors
+            'matplotlib_chart': matplotlib_chart,  # Matplotlib chart (base64 image)
+            'total_products': sum(chart_data.values()) if chart_data else 0  # Total for percentage calculations
         }
 
         # Generate PDF

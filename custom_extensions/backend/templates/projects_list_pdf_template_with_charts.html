@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects List with Charts</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            font-size: 13px;
+            color: #334155;
+            background: #ffffff;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        
+        .pdf-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Header */
+        .pdf-header {
+            background: white;
+            color: black;
+            padding: 12px 32px;
+            margin-bottom: 0;
+            border-radius: 0;
+        }
+        
+        .pdf-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            margin: 0;
+        }
+        
+        /* Chart Container Styles */
+        .chart-section {
+            margin: 32px 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .chart-header {
+            background: #2D7C21;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .chart-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+        
+        .chart-header p {
+            font-size: 12px;
+            color: #dcfce7;
+            margin: 4px 0 0 0;
+        }
+        
+        .chart-content {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+        }
+        
+        .chart-image {
+            flex: 1;
+            max-width: 300px;
+            text-align: center;
+        }
+        
+        .chart-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-legend {
+            flex: 1;
+            margin-left: 32px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .legend-text {
+            flex: 1;
+        }
+        
+        .legend-text .label {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+        
+        .legend-text .value {
+            color: #64748b;
+            font-size: 12px;
+        }
+        
+        /* Chart.js Canvas Container */
+        .chartjs-container {
+            flex: 1;
+            max-width: 300px;
+            height: 300px;
+            position: relative;
+        }
+        
+        /* Chart Type Selector */
+        .chart-type-selector {
+            background: #f8fafc;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .chart-type-btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .chart-type-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .chart-type-btn.active {
+            background: #2D7C21;
+            color: white;
+            border-color: #2D7C21;
+        }
+        
+        /* Page break controls */
+        .chart-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .chart-header {
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        
+        .chart-content {
+            page-break-before: avoid;
+            break-before: avoid;
+        }
+        
+        /* Additional PDF-specific styling */
+        @media print {
+            .pdf-container {
+                padding: 0 32px;
+            }
+            
+            .chart-section {
+                margin-left: 0;
+                margin-right: 0;
+            }
+            
+            .chart-type-selector {
+                display: none; /* Hide selector in PDF */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pdf-container">
+        <!-- Header -->
+        <div class="pdf-header">
+            <h1>{{ client_name if client_name else 'Production Time Estimate' }}</h1>
+        </div>
+        
+        <!-- Chart Type Selector (hidden in PDF) -->
+        <div class="chart-type-selector">
+            <span style="font-weight: 600; color: #374151;">Chart Type:</span>
+            <button class="chart-type-btn active" onclick="switchChartType('matplotlib')">Matplotlib</button>
+            <button class="chart-type-btn" onclick="switchChartType('plotly')">Plotly</button>
+            <button class="chart-type-btn" onclick="switchChartType('svg')">SVG</button>
+            <button class="chart-type-btn" onclick="switchChartType('chartjs')">Chart.js</button>
+        </div>
+        
+        <!-- Products Distribution Chart - Matplotlib -->
+        {% if chart_data %}
+        <div class="chart-section" id="matplotlib-chart">
+            <div class="chart-header">
+                <h3>Products Distribution (Matplotlib)</h3>
+                <p>High-quality server-side generated chart</p>
+            </div>
+            
+            <div class="chart-content">
+                <!-- Matplotlib Chart Image -->
+                <div class="chart-image">
+                    <img src="data:image/png;base64,{{ matplotlib_chart }}" alt="Products Distribution Chart" />
+                </div>
+                
+                <!-- Legend -->
+                <div class="chart-legend">
+                    {% for label, value in chart_data.items() %}
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: {{ chart_colors[loop.index0] }};"></div>
+                        <div class="legend-text">
+                            <div class="label">{{ label }}</div>
+                            <div class="value">{{ value }} products ({{ (value / total_products * 100) | round(1) }}%)</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Distribution Chart - Plotly -->
+        <div class="chart-section" id="plotly-chart" style="display: none;">
+            <div class="chart-header">
+                <h3>Products Distribution (Plotly)</h3>
+                <p>Interactive-style chart with donut design</p>
+            </div>
+            
+            <div class="chart-content">
+                <!-- Plotly Chart Image -->
+                <div class="chart-image">
+                    <img src="data:image/png;base64,{{ plotly_chart }}" alt="Products Distribution Chart" />
+                </div>
+                
+                <!-- Legend -->
+                <div class="chart-legend">
+                    {% for label, value in chart_data.items() %}
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: {{ chart_colors[loop.index0] }};"></div>
+                        <div class="legend-text">
+                            <div class="label">{{ label }}</div>
+                            <div class="value">{{ value }} products ({{ (value / total_products * 100) | round(1) }}%)</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Distribution Chart - SVG -->
+        <div class="chart-section" id="svg-chart" style="display: none;">
+            <div class="chart-header">
+                <h3>Products Distribution (SVG)</h3>
+                <p>Vector-based chart with perfect scaling</p>
+            </div>
+            
+            <div class="chart-content">
+                <!-- SVG Chart -->
+                <div class="chart-image">
+                    {{ svg_chart | safe }}
+                </div>
+                
+                <!-- Legend -->
+                <div class="chart-legend">
+                    {% for label, value in chart_data.items() %}
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: {{ chart_colors[loop.index0] }};"></div>
+                        <div class="legend-text">
+                            <div class="label">{{ label }}</div>
+                            <div class="value">{{ value }} products ({{ (value / total_products * 100) | round(1) }}%)</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Distribution Chart - Chart.js -->
+        <div class="chart-section" id="chartjs-chart" style="display: none;">
+            <div class="chart-header">
+                <h3>Products Distribution (Chart.js)</h3>
+                <p>Client-side interactive chart</p>
+            </div>
+            
+            <div class="chart-content">
+                <!-- Chart.js Canvas -->
+                <div class="chartjs-container">
+                    <canvas id="chartjs-canvas"></canvas>
+                </div>
+                
+                <!-- Legend -->
+                <div class="chart-legend">
+                    {% for label, value in chart_data.items() %}
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: {{ chart_colors[loop.index0] }};"></div>
+                        <div class="legend-text">
+                            <div class="label">{{ label }}</div>
+                            <div class="value">{{ value }} products ({{ (value / total_products * 100) | round(1) }}%)</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Empty state -->
+        {% if not chart_data %}
+        <div class="chart-section">
+            <div class="chart-header">
+                <h3>Products Distribution</h3>
+                <p>No data available for chart generation</p>
+            </div>
+            
+            <div class="chart-content">
+                <div class="chart-image">
+                    <div style="text-align: center; color: #64748b; padding: 40px;">
+                        <p>No chart data available</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Chart.js Library (for client-side charts) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Chart.js Configuration
+        const chartConfig = {{ chartjs_config | tojson | safe }};
+        
+        // Initialize Chart.js when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('chartjs-canvas');
+            if (ctx) {
+                new Chart(ctx, chartConfig);
+            }
+        });
+        
+        // Chart type switching functionality
+        function switchChartType(type) {
+            // Hide all charts
+            document.querySelectorAll('.chart-section[id$="-chart"]').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected chart
+            const selectedChart = document.getElementById(type + '-chart');
+            if (selectedChart) {
+                selectedChart.style.display = 'block';
+            }
+            
+            // Update button states
+            document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
