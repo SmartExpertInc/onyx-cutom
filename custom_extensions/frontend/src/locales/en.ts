@@ -512,13 +512,6 @@ export const en = {
       auto: "auto",
       // Layout options
       layoutOptions: "Layout Options",
-      layoutMode: "Layout Mode",
-      layoutModeHelp: "how image appears with other content",
-      sideBySideLeft: "Side-by-side (image left)",
-      sideBySideRight: "Side-by-side (image right)",
-      inlineLeft: "Inline (image left, text wraps)",
-      inlineRight: "Inline (image right, text wraps)",
-      layoutModeDescription: "Side-by-side: Image and content are equal height. Inline: Text flows around the image.",
       partnerContent: "Partner Content",
       partnerContentHelp: "content to place alongside image",
       selectContentBlock: "Select content block...",
@@ -533,12 +526,7 @@ export const en = {
       contentLarger: "Content larger (40% image, 60% content)",
       imageDominant: "Image dominant (70% image, 30% content)",
       contentDominant: "Content dominant (30% image, 70% content)",
-      spaceDistributionDescription: "Controls how much horizontal space the image and content each take up.",
-      layoutPreview: "Layout Preview",
-      image: "Image",
-      content: "Content",
-      textWillWrap: "Text will wrap around the image",
-      space: "Space"
+      spaceDistributionDescription: "Controls how much horizontal space the image and content each take up."
     },
     
     // Quality tiers
