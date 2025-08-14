@@ -704,8 +704,8 @@
             </div>
             
             <div class="pie-chart-content" style="padding: 24px; display: flex; align-items: center; justify-content: space-between;">
-                <!-- Pie Chart SVG -->
-                <div class="pie-chart-svg" style="flex: 1; max-width: 300px;">
+                <!-- Products Distribution Chart -->
+                <div class="chart-svg" style="flex: 1; max-width: 300px;">
                     <svg width="300" height="300" viewBox="0 0 300 300" style="display: block; margin: 0 auto;">
                         <!-- Mock data for products distribution -->
                         {% set total_products = 156 %}
@@ -719,27 +719,31 @@
                         {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
                         {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
                         
-                        <!-- Pie chart using simple circles with different sizes -->
-                        <g transform="translate(150, 150)">
-                            <!-- Background circle -->
-                            <circle cx="0" cy="0" r="120" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>
+                        <!-- Simple horizontal bar chart -->
+                        <g>
+                            <!-- Background -->
+                            <rect x="20" y="20" width="260" height="200" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" rx="8"/>
                             
-                            <!-- One-pager segment (28.8%) -->
-                            <circle cx="0" cy="0" r="120" fill="none" stroke="#9333ea" stroke-width="60" stroke-dasharray="216 360" stroke-dashoffset="0"/>
+                            <!-- One-pager bar (28.8%) -->
+                            <rect x="30" y="40" width="{{ (one_pager_percentage * 2.4) | int }}" height="35" fill="#9333ea" rx="4"/>
+                            <text x="35" y="62" style="font-size: 12px; font-weight: 600; fill: white;">One-pager: {{ one_pager_count }} ({{ one_pager_percentage }}%)</text>
                             
-                            <!-- Presentation segment (24.4%) -->
-                            <circle cx="0" cy="0" r="120" fill="none" stroke="#2563eb" stroke-width="60" stroke-dasharray="175 360" stroke-dashoffset="216"/>
+                            <!-- Presentation bar (24.4%) -->
+                            <rect x="30" y="85" width="{{ (presentation_percentage * 2.4) | int }}" height="35" fill="#2563eb" rx="4"/>
+                            <text x="35" y="107" style="font-size: 12px; font-weight: 600; fill: white;">Presentation: {{ presentation_count }} ({{ presentation_percentage }}%)</text>
                             
-                            <!-- Quiz segment (26.9%) -->
-                            <circle cx="0" cy="0" r="120" fill="none" stroke="#16a34a" stroke-width="60" stroke-dasharray="194 360" stroke-dashoffset="391"/>
+                            <!-- Quiz bar (26.9%) -->
+                            <rect x="30" y="130" width="{{ (quiz_percentage * 2.4) | int }}" height="35" fill="#16a34a" rx="4"/>
+                            <text x="35" y="152" style="font-size: 12px; font-weight: 600; fill: white;">Quiz: {{ quiz_count }} ({{ quiz_percentage }}%)</text>
                             
-                            <!-- Video lesson segment (19.9%) -->
-                            <circle cx="0" cy="0" r="120" fill="none" stroke="#ea580c" stroke-width="60" stroke-dasharray="143 360" stroke-dashoffset="585"/>
+                            <!-- Video lesson bar (19.9%) -->
+                            <rect x="30" y="175" width="{{ (video_lesson_percentage * 2.4) | int }}" height="35" fill="#ea580c" rx="4"/>
+                            <text x="35" y="197" style="font-size: 12px; font-weight: 600; fill: white;">Video Lesson: {{ video_lesson_count }} ({{ video_lesson_percentage }}%)</text>
                             
-                            <!-- Center circle -->
-                            <circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-                            <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 14px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
-                            <text x="0" y="20" text-anchor="middle" style="font-size: 10px; fill: #64748b;">Total</text>
+                            <!-- Total in center -->
+                            <circle cx="150" cy="250" r="25" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+                            <text x="150" y="255" text-anchor="middle" style="font-size: 14px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
+                            <text x="150" y="270" text-anchor="middle" style="font-size: 10px; fill: #64748b;">Total</text>
                         </g>
                     </svg>
                 </div>
