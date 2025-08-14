@@ -89,10 +89,11 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Calculate position to ensure menu appears at cursor and stays in viewport
+  // Calculate position relative to the placeholder element with smart positioning
   const getAdjustedPosition = useCallback(() => {
     if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-      return { x: 0, y: 0 };
+      console.warn('🔍 [ContextMenu] Invalid position, using fallback');
+      return { x: 10, y: 10 };
     }
     
     const menuWidth = 160; // min-w-[160px]
@@ -103,47 +104,70 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
     const scrollY = window.pageYOffset || document.documentElement.scrollTop;
     
-    // Calculate viewport-relative position
-    let x = position.x - scrollX;
-    let y = position.y - scrollY + padding; // Small offset below cursor
+    // Calculate viewport boundaries
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
     
-    console.log('🔍 [ContextMenu] Position calculation', {
+    // Validate position is within reasonable bounds
+    if (position.x < -1000 || position.x > viewportWidth + 1000 || 
+        position.y < -1000 || position.y > viewportHeight + 1000) {
+      console.warn('🔍 [ContextMenu] Position out of bounds, using fallback', { position, viewportWidth, viewportHeight });
+      return { x: 10, y: 10 };
+    }
+    
+    // Smart positioning logic
+    let x, y;
+    
+    // Try to position to the right first
+    if (position.x + menuWidth + padding <= viewportWidth) {
+      x = position.x + padding;
+    } 
+    // If right side doesn't fit, try left side
+    else if (position.x - menuWidth - padding >= 0) {
+      x = position.x - menuWidth - padding;
+    } 
+    // If neither fits, center horizontally
+    else {
+      x = Math.max(padding, (viewportWidth - menuWidth) / 2);
+    }
+    
+    // Vertical positioning - try to center on placeholder
+    const centerY = position.y - (menuHeight / 2);
+    
+    if (centerY >= padding && centerY + menuHeight <= viewportHeight - padding) {
+      y = centerY;
+    } 
+    // If centered doesn't fit, try top alignment
+    else if (position.y + menuHeight <= viewportHeight - padding) {
+      y = position.y;
+    } 
+    // If top doesn't fit, try bottom alignment
+    else if (position.y - menuHeight >= padding) {
+      y = position.y - menuHeight;
+    } 
+    // If nothing fits, use available space
+    else {
+      y = Math.max(padding, viewportHeight - menuHeight - padding);
+    }
+    
+    // Final validation - ensure position is within viewport
+    x = Math.max(padding, Math.min(x, viewportWidth - menuWidth - padding));
+    y = Math.max(padding, Math.min(y, viewportHeight - menuHeight - padding));
+    
+    console.log('🔍 [ContextMenu] Smart placeholder-based position calculation', {
       originalPosition: position,
-      scrollPosition: { x: scrollX, y: scrollY },
-      viewportPosition: { x, y },
-      viewportSize: { width: window.innerWidth, height: window.innerHeight }
+      viewportSize: { width: viewportWidth, height: viewportHeight },
+      calculatedPosition: { x, y },
+      positioningStrategy: {
+        horizontal: x === position.x + padding ? 'right' : 
+                   x === position.x - menuWidth - padding ? 'left' : 'center',
+        vertical: y === centerY ? 'center' : 
+                 y === position.y ? 'top' : 
+                 y === position.y - menuHeight ? 'bottom' : 'constrained'
+      }
     });
     
-    // Ensure menu doesn't go off the right edge of viewport
-    if (x + menuWidth > window.innerWidth) {
-      x = window.innerWidth - menuWidth - padding;
-    }
-    
-    // Ensure menu doesn't go off the bottom edge of viewport
-    if (y + menuHeight > window.innerHeight) {
-      y = position.y - scrollY - menuHeight - padding; // Show above cursor instead
-    }
-    
-    // Ensure menu doesn't go off the left edge
-    if (x < padding) {
-      x = padding;
-    }
-    
-    // Ensure menu doesn't go off the top edge
-    if (y < padding) {
-      y = padding;
-    }
-    
-    // Convert back to page coordinates for fixed positioning
-    const finalX = x + scrollX;
-    const finalY = y + scrollY;
-    
-    console.log('🔍 [ContextMenu] Final position', {
-      finalPosition: { x: finalX, y: finalY },
-      viewportAdjusted: { x, y }
-    });
-    
-    return { x: finalX, y: finalY };
+    return { x, y };
   }, [position?.x, position?.y]);
 
   // Detailed logging for context menu lifecycle
@@ -193,7 +217,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 
   return (
     <>
-      {/* Debug indicator - shows where the menu should appear */}
+      {/* Debug indicator - shows where the menu should appear relative to placeholder */}
       <div
         className="fixed z-[99998] w-2 h-2 bg-red-500 rounded-full pointer-events-none"
         style={{
@@ -201,6 +225,29 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
           top: position.y - 4,
         }}
       />
+      
+      {/* Debug indicator - shows placeholder boundaries */}
+      <div
+        className="fixed z-[99997] border-2 border-blue-500 pointer-events-none"
+        style={{
+          left: position.x - 80, // Approximate placeholder width
+          top: position.y - 40,  // Approximate placeholder height
+          width: 160,
+          height: 80,
+        }}
+      />
+      
+      {/* Debug indicator - shows positioning strategy */}
+      <div
+        className="fixed z-[99996] bg-yellow-500 text-black text-xs px-2 py-1 rounded pointer-events-none"
+        style={{
+          left: position.x + 5,
+          top: position.y - 30,
+        }}
+      >
+        {adjustedPosition.x === position.x + 10 ? 'RIGHT' : 
+         adjustedPosition.x === position.x - 170 ? 'LEFT' : 'CENTER'}
+      </div>
       
       <div
         ref={menuRef}
@@ -621,13 +668,25 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       clickPosition: { x: e.clientX, y: e.clientY }
     };
     
-    // Open the context menu for THIS instance
-    const menuPosition = { x: e.clientX, y: e.clientY };
+    // Get placeholder element position for menu placement
+    const placeholderRect = targetElement.getBoundingClientRect();
+    const menuPosition = { 
+      x: placeholderRect.right, // Right edge of placeholder
+      y: placeholderRect.top + (placeholderRect.height / 2) // Vertically centered
+    };
     
-    console.log('🔍 [RightClick] Opening context menu', {
+    console.log('🔍 [RightClick] Opening context menu with placeholder positioning', {
       instanceId,
-      position: menuPosition,
-      targetElementRect: targetElement.getBoundingClientRect(),
+      cursorPosition: { x: e.clientX, y: e.clientY },
+      placeholderRect: {
+        left: placeholderRect.left,
+        right: placeholderRect.right,
+        top: placeholderRect.top,
+        bottom: placeholderRect.bottom,
+        width: placeholderRect.width,
+        height: placeholderRect.height
+      },
+      menuPosition,
       debugInfo
     });
     
