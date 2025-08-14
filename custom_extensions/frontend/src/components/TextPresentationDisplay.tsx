@@ -1440,46 +1440,54 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </div>
             )}
             
-            {/* Basic Actions Button */}
-            {isEditing && (
-              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                <ImageBasicActions
-                  imageBlock={block as ImageBlock}
-                  onImageChange={(updatedBlock) => {
-                    Object.keys(updatedBlock).forEach(key => {
-                      if (key !== 'type' && key !== 'src') {
-                        onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
-                      }
-                    });
-                  }}
-                  onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
-                />
-              </div>
-            )}
-            
-            <img 
-              src={imageSrc} 
-              alt={alt || 'Image'} 
-              className="rounded-lg"
+            {/* Image with overlay button */}
+            <div 
+              className="inline-block relative group/image"
               style={{
-                maxWidth: maxWidth || '200px',
-                width: width || 'auto',
-                height: height || 'auto',
-                borderRadius: borderRadius || '8px',
                 float: floatDirection,
-                margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`,
-                boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
-                border: (block as ImageBlock).border || 'none',
-                opacity: (block as ImageBlock).opacity || 1,
-                transform: (block as ImageBlock).transform || 'none'
+                margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`
               }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const fallback = target.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = 'block';
-              }}
-            />
+            >
+              <img 
+                src={imageSrc} 
+                alt={alt || 'Image'} 
+                className="rounded-lg"
+                style={{
+                  maxWidth: maxWidth || '200px',
+                  width: width || 'auto',
+                  height: height || 'auto',
+                  borderRadius: borderRadius || '8px',
+                  display: 'block',
+                  boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                  border: (block as ImageBlock).border || 'none',
+                  opacity: (block as ImageBlock).opacity || 1,
+                  transform: (block as ImageBlock).transform || 'none'
+                }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'block';
+                }}
+              />
+              
+              {/* Basic Actions Button - appears on image hover */}
+              {isEditing && (
+                <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200 z-50">
+                  <ImageBasicActions
+                    imageBlock={block as ImageBlock}
+                    onImageChange={(updatedBlock) => {
+                      Object.keys(updatedBlock).forEach(key => {
+                        if (key !== 'type' && key !== 'src') {
+                          onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                        }
+                      });
+                    }}
+                    onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                  />
+                </div>
+              )}
+            </div>
             <div style={{ display: 'none', padding: '20px', border: '2px dashed #ccc', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
               {alt || 'Image not available'}
             </div>
@@ -1536,38 +1544,48 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </div>
             )}
             
-            {/* Basic Actions Button */}
-            {isEditing && (
-              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                <ImageBasicActions
-                  imageBlock={block as ImageBlock}
-                  onImageChange={(updatedBlock) => {
-                    Object.keys(updatedBlock).forEach(key => {
-                      if (key !== 'type' && key !== 'src') {
-                        onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
-                      }
-                    });
-                  }}
-                  onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
-                />
-              </div>
-            )}
-            
-            <img 
-              src={imageSrc} 
-              alt={alt || 'Image'} 
-              className="rounded-lg"
-              style={{
-                maxWidth: maxWidth || '100%',
-                width: width || 'auto',
-                height: height || 'auto',
-                borderRadius: borderRadius || '8px',
-                display: 'block',
-                boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
-                border: (block as ImageBlock).border || 'none',
-                opacity: (block as ImageBlock).opacity || 1,
-                transform: (block as ImageBlock).transform || 'none'
-              }}
+            {/* Image with overlay button */}
+            <div className="inline-block relative group/image w-full">
+              <img 
+                src={imageSrc} 
+                alt={alt || 'Image'} 
+                className="rounded-lg w-full"
+                style={{
+                  maxWidth: maxWidth || '100%',
+                  width: width || 'auto',
+                  height: height || 'auto',
+                  borderRadius: borderRadius || '8px',
+                  display: 'block',
+                  boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                  border: (block as ImageBlock).border || 'none',
+                  opacity: (block as ImageBlock).opacity || 1,
+                  transform: (block as ImageBlock).transform || 'none'
+                }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'block';
+                }}
+              />
+              
+              {/* Basic Actions Button - appears on image hover */}
+              {isEditing && (
+                <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200 z-50">
+                  <ImageBasicActions
+                    imageBlock={block as ImageBlock}
+                    onImageChange={(updatedBlock) => {
+                      Object.keys(updatedBlock).forEach(key => {
+                        if (key !== 'type' && key !== 'src') {
+                          onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                        }
+                      });
+                    }}
+                    onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                  />
+                </div>
+              )}
+            </div>
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
@@ -1631,7 +1649,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </div>
           )}
           
-          <div className="inline-block relative">
+          <div className="inline-block relative group/image">
             {/* Use regular img tag for better compatibility in view mode */}
             <img
               src={imageSrc}
@@ -1641,7 +1659,11 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 width: `${imageWidth}px`,
                 height: height ? (typeof height === 'number' ? `${height}px` : height) : 'auto',
                 borderRadius: borderRadius || '8px',
-                maxWidth: maxWidth || '100%'
+                maxWidth: maxWidth || '100%',
+                boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                border: (block as ImageBlock).border || 'none',
+                opacity: (block as ImageBlock).opacity || 1,
+                transform: (block as ImageBlock).transform || 'none'
               }}
               onError={(e) => {
                 console.error('Image failed to load:', imageSrc);
@@ -1652,6 +1674,23 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 }
               }}
             />
+            
+            {/* Basic Actions Button - appears on image hover */}
+            {isEditing && onTextChange && (
+              <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200 z-50">
+                <ImageBasicActions
+                  imageBlock={block as ImageBlock}
+                  onImageChange={(updatedBlock) => {
+                    Object.keys(updatedBlock).forEach(key => {
+                      if (key !== 'type' && key !== 'src') {
+                        onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                      }
+                    });
+                  }}
+                  onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                />
+              </div>
+            )}
             
             {/* Scaling Controls in Edit Mode */}
 
@@ -1673,22 +1712,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             )}
           </div>
           
-          {/* Basic Actions Button */}
-          {isEditing && onTextChange && (
-            <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <ImageBasicActions
-                imageBlock={block as ImageBlock}
-                onImageChange={(updatedBlock) => {
-                  Object.keys(updatedBlock).forEach(key => {
-                    if (key !== 'type' && key !== 'src') {
-                      onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
-                    }
-                  });
-                }}
-                onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
-              />
-            </div>
-          )}
+
           
           {/* Word-style Image Editor */}
           <WordStyleImageEditor
