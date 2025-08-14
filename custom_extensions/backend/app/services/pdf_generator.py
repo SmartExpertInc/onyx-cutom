@@ -363,7 +363,7 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
         
         # Log all other properties
         logger.info(f"PDF GEN: === ALL OTHER PROPERTIES ===")
-        for key, value in props.items():
+            for key, value in props.items():
             if key not in image_path_props + size_props + fit_props + transform_props + prompt_props + ['title', 'subtitle', 'bullets']:
                 logger.info(f"PDF GEN: Additional prop '{key}': type={type(value)}, value={value}")
     
@@ -641,7 +641,7 @@ async def log_browser_console_output(page, slide_index: int = None, template_id:
                     logger.info(f"PDF GEN:   {el['tagName']}.{el['className']}: {el['width']}x{el['height']} at ({el['left']}, {el['top']})")
                     logger.info(f"PDF GEN:     Display: {el['display']}, Flex-direction: {el['flexDirection']}")
                     logger.info(f"PDF GEN:     Align-items: {el['alignItems']}, Justify-content: {el['justifyContent']}")
-        
+            
     except Exception as e:
         logger.error(f"PDF GEN: Error analyzing browser elements: {e}")
     
