@@ -918,72 +918,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             ) : ( styledText )}
           </Tag>
           
-          {/* Settings Button for headlines */}
-          {isEditing && onTextChange && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-40">
-              <div className="relative">
-                <button
-                  onClick={() => setShowDropdownMenu(!showDropdownMenu)}
-                  className="p-1.5 bg-[#2b579a] border border-[#1e3a8a] rounded-md shadow-sm hover:bg-[#1e3a8a] hover:border-[#1e3a8a]"
-                  title="Block actions"
-                >
-                  <Settings className="w-4 h-4 text-white" />
-                </button>
-                
-                {/* Dropdown Menu */}
-                {showDropdownMenu && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <div className="py-1">
-                      {/* Basic Actions */}
-                      <button
-                        onClick={() => {
-                          setShowDropdownMenu(false);
-                          // Move up action
-                          if (contentBlockIndex !== undefined && onMoveBlockUp) {
-                            onMoveBlockUp(contentBlockIndex);
-                          }
-                        }}
-                        disabled={isFirstBlock}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        <Move className="w-4 h-4" />
-                        Move up
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowDropdownMenu(false);
-                          // Move down action
-                          if (contentBlockIndex !== undefined && onMoveBlockDown) {
-                            onMoveBlockDown(contentBlockIndex);
-                          }
-                        }}
-                        disabled={isLastBlock}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        <Move className="w-4 h-4 rotate-180" />
-                        Move down
-                      </button>
-                      
-                      {/* Divider */}
-                      <div className="border-t border-gray-200 my-1"></div>
-                      
-                      {/* Advanced Settings */}
-                      <button
-                        onClick={() => {
-                          setShowDropdownMenu(false);
-                          setShowSettingsModal(true);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                      >
-                        <Settings className="w-4 h-4" />
-                        Advanced settings
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+
         </div>
       );
     }
