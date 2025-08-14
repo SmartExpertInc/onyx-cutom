@@ -1517,11 +1517,11 @@
                                         width: 100%;
                                         height: 100%;
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) %}
+                                        {% if slide.props.imageOffset %}
                                             {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale }});
+                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale }});
                                             {% else %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }});
+                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
                                             {% endif %}
                                             transform-origin: center center;
                                         {% endif %}
@@ -1593,11 +1593,11 @@
                                         width: 100%;
                                         height: 100%;
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) %}
+                                        {% if slide.props.imageOffset %}
                                             {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale }});
+                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale }});
                                             {% else %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }});
+                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
                                             {% endif %}
                                             transform-origin: center center;
                                         {% endif %}
@@ -1680,11 +1680,11 @@
                                             width: 100%;
                                             height: 100%;
                                             object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                            {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) %}
+                                            {% if slide.props.imageOffset %}
                                                 {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale }});
+                                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale }});
                                                 {% else %}
-                                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }});
+                                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
                                                 {% endif %}
                                                 transform-origin: center center;
                                             {% endif %}
@@ -1782,11 +1782,11 @@
                                         width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
                                         height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) %}
+                                        {% if slide.props.imageOffset %}
                                             {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale }});
+                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale }});
                                             {% else %}
-                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }});
+                                                transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
                                             {% endif %}
                                             transform-origin: center center;
                                         {% endif %}
@@ -1898,11 +1898,11 @@
                                         max-width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '320px' }};
                                         max-height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else '200px' }};
                                         object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'cover' }};
-                                        {% if slide.props.leftImageOffset and (slide.props.leftImageOffset.x is defined or slide.props.leftImageOffset.y is defined) %}
+                                        {% if slide.props.leftImageOffset %}
                                             {% if slide.props.leftImageScale and slide.props.leftImageScale != 1 %}
-                                                transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale }});
+                                                transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset.x is not none else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset.y is not none else '0px' }}) scale({{ slide.props.leftImageScale }});
                                             {% else %}
-                                                transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }});
+                                                transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset.x is not none else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset.y is not none else '0px' }});
                                             {% endif %}
                                             transform-origin: center center;
                                         {% endif %}
@@ -1951,11 +1951,11 @@
                                         max-width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '320px' }};
                                         max-height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else '200px' }};
                                         object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'cover' }};
-                                        {% if slide.props.rightImageOffset and (slide.props.rightImageOffset.x is defined or slide.props.rightImageOffset.y is defined) %}
+                                        {% if slide.props.rightImageOffset %}
                                             {% if slide.props.rightImageScale and slide.props.rightImageScale != 1 %}
-                                                transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale }});
+                                                transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset.x is not none else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset.y is not none else '0px' }}) scale({{ slide.props.rightImageScale }});
                                             {% else %}
-                                                transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }});
+                                                transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset.x is not none else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset.y is not none else '0px' }});
                                             {% endif %}
                                             transform-origin: center center;
                                         {% endif %}
