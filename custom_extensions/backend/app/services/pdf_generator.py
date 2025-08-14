@@ -283,6 +283,23 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             else:
                 logger.info(f"PDF GEN: {prop_name}: NOT PRESENT")
         
+        # Check for new positioning system
+        if '_positioning' in props:
+            positioning_data = props['_positioning']
+            logger.info(f"PDF GEN: _positioning: PRESENT")
+            logger.info(f"PDF GEN:   Type: {type(positioning_data)}")
+            if isinstance(positioning_data, dict):
+                logger.info(f"PDF GEN:   Version: {positioning_data.get('version', 'N/A')}")
+                logger.info(f"PDF GEN:   Capture timestamp: {positioning_data.get('captureTimestamp', 'N/A')}")
+                logger.info(f"PDF GEN:   Capture hash: {positioning_data.get('captureHash', 'N/A')}")
+                logger.info(f"PDF GEN:   Slide dimensions: {positioning_data.get('slideDimensions', 'N/A')}")
+                elements = positioning_data.get('elements', {})
+                logger.info(f"PDF GEN:   Elements count: {len(elements)}")
+                for element_id, element_data in elements.items():
+                    logger.info(f"PDF GEN:     Element {element_id}: {element_data.get('absoluteBounds', 'N/A')}")
+        else:
+            logger.info(f"PDF GEN: _positioning: NOT PRESENT")
+        
         # Check for image prompt properties
         prompt_props = ['imagePrompt', 'imageAlt', 'leftImagePrompt', 'leftImageAlt', 'rightImagePrompt', 'rightImageAlt']
         for prop_name in prompt_props:

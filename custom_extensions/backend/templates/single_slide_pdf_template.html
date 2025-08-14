@@ -1528,7 +1528,7 @@
                 <div class="big-image-left">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <!-- FRONTEND EXACT MATCH: Container with dimensions + element positioning -->
+                            <!-- FRONTEND EXACT MATCH: Container with new positioning system -->
                             <div style="
                                 position: relative;
                                 overflow: hidden;
@@ -1538,7 +1538,15 @@
                                 justify-content: center;
                                 width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 500 }}px;
                                 height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 350 }}px;
-                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% if slide.props._positioning and slide.props._positioning.elements %}
+                                    {% set imageElementId = slide.slideId + '-image' %}
+                                    {% if slide.props._positioning.elements[imageElementId] %}
+                                        {% set elementData = slide.props._positioning.elements[imageElementId] %}
+                                        {% if elementData.absoluteBounds %}
+                                            transform: translate({{ elementData.absoluteBounds.x|float|round(2) }}px, {{ elementData.absoluteBounds.y|float|round(2) }}px);
+                                        {% endif %}
+                                    {% endif %}
+                                {% elif slide.metadata and slide.metadata.elementPositions %}
                                     {% set imageId = slide.slideId + '-image' %}
                                     {% if slide.metadata.elementPositions[imageId] %}
                                         transform: translate({{ slide.metadata.elementPositions[imageId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[imageId].y|float|round(2) }}px);
@@ -1546,14 +1554,30 @@
                                 {% endif %}
                                 transform-origin: top left;
                             ">
-                                <!-- FRONTEND EXACT MATCH: Image with offset/scale transforms -->
+                                <!-- FRONTEND EXACT MATCH: Image with new positioning system -->
                                 <img src="{{ slide.props.imagePath }}" 
                                      alt="Slide image" 
                                      style="
                                         width: 100%;
                                         height: 100%;
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        {% if slide.props.imageOffset or slide.props.imageScale %}
+                                        {% if slide.props._positioning and slide.props._positioning.elements %}
+                                            {% set imageElementId = slide.slideId + '-image' %}
+                                            {% if slide.props._positioning.elements[imageElementId] %}
+                                                {% set elementData = slide.props._positioning.elements[imageElementId] %}
+                                                {% if elementData.transformMatrix and elementData.transformMatrix.decomposed %}
+                                                    {% set decomposed = elementData.transformMatrix.decomposed %}
+                                                    transform: translate({{ decomposed.translateX|float|round(2) }}px, {{ decomposed.translateY|float|round(2) }}px) scale({{ decomposed.scaleX|float|round(3) }}, {{ decomposed.scaleY|float|round(3) }}) rotate({{ decomposed.rotation|float|round(2) }}deg);
+                                                {% endif %}
+                                            {% elif slide.props.imageOffset or slide.props.imageScale %}
+                                                {% if slide.props.imageOffset %}
+                                                    translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
+                                                {% endif %}
+                                                {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                    scale({{ slide.props.imageScale|float|round(3) }})
+                                                {% endif %};
+                                            {% endif %}
+                                        {% elif slide.props.imageOffset or slide.props.imageScale %}
                                             transform: 
                                             {% if slide.props.imageOffset %}
                                                 translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
@@ -1699,7 +1723,15 @@
                                     overflow: hidden;
                                     border-radius: 8px;
                                     aspect-ratio: 1 / 1;
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% if slide.props._positioning and slide.props._positioning.elements %}
+                                        {% set imageElementId = slide.slideId + '-image' %}
+                                        {% if slide.props._positioning.elements[imageElementId] %}
+                                            {% set elementData = slide.props._positioning.elements[imageElementId] %}
+                                            {% if elementData.absoluteBounds %}
+                                                transform: translate({{ elementData.absoluteBounds.x|float|round(2) }}px, {{ elementData.absoluteBounds.y|float|round(2) }}px);
+                                            {% endif %}
+                                        {% endif %}
+                                    {% elif slide.metadata and slide.metadata.elementPositions %}
                                         {% set imageId = slide.slideId + '-image' %}
                                         {% if slide.metadata.elementPositions[imageId] %}
                                             transform: translate({{ slide.metadata.elementPositions[imageId].x }}px, {{ slide.metadata.elementPositions[imageId].y }}px);
@@ -1713,7 +1745,24 @@
                                             width: 100%;
                                             height: 100%;
                                             object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                            {% if slide.props.imageOffset %}
+                                            {% if slide.props._positioning and slide.props._positioning.elements %}
+                                                {% set imageElementId = slide.slideId + '-image' %}
+                                                {% if slide.props._positioning.elements[imageElementId] %}
+                                                    {% set elementData = slide.props._positioning.elements[imageElementId] %}
+                                                    {% if elementData.transformMatrix and elementData.transformMatrix.decomposed %}
+                                                        {% set decomposed = elementData.transformMatrix.decomposed %}
+                                                        transform: translate({{ decomposed.translateX|float|round(2) }}px, {{ decomposed.translateY|float|round(2) }}px) scale({{ decomposed.scaleX|float|round(3) }}, {{ decomposed.scaleY|float|round(3) }}) rotate({{ decomposed.rotation|float|round(2) }}deg);
+                                                        transform-origin: center center;
+                                                    {% endif %}
+                                                {% elif slide.props.imageOffset %}
+                                                    {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                        transform: translate({{ (slide.props.imageOffset.x|float|round(2)|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|float|round(2)|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale|float|round(3) }});
+                                                    {% else %}
+                                                        transform: translate({{ (slide.props.imageOffset.x|float|round(2)|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|float|round(2)|string + 'px') if slide.props.imageOffset.y is not none else '0px' }});
+                                                    {% endif %}
+                                                    transform-origin: center center;
+                                                {% endif %}
+                                            {% elif slide.props.imageOffset %}
                                                 {% if slide.props.imageScale and slide.props.imageScale != 1 %}
                                                     transform: translate({{ (slide.props.imageOffset.x|float|round(2)|string + 'px') if slide.props.imageOffset.x is not none else '0px' }}, {{ (slide.props.imageOffset.y|float|round(2)|string + 'px') if slide.props.imageOffset.y is not none else '0px' }}) scale({{ slide.props.imageScale|float|round(3) }});
                                                 {% else %}
