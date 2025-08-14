@@ -102,124 +102,26 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
         <div className="flex flex-1 overflow-hidden">
           {/* Left Panel - Settings */}
           <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
-            {/* Basic Actions Menu */}
-            <div className="bg-white border-b border-gray-200 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">Basic Actions</h3>
-                <div className="relative">
+            {/* Tab Navigation */}
+            <div className="bg-white border-b border-gray-200">
+              <div className="flex">
+                {[
+                  { id: 'format', label: 'Format', icon: Palette },
+                  { id: 'size', label: 'Size', icon: ZoomIn },
+                  { id: 'layout', label: 'Layout', icon: Layout },
+                  { id: 'effects', label: 'Effects', icon: Edit3 }
+                ].map((tab) => (
                   <button
-                    onClick={() => setShowBasicMenu(!showBasicMenu)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Actions
-                    <ChevronDown className={`w-3 h-3 transition-transform ${showBasicMenu ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {/* Basic Actions Dropdown */}
-                  {showBasicMenu && (
-                    <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                      <div className="py-1">
-                        {/* Quick Size Actions */}
-                        <div className="px-3 py-2 border-b border-gray-100">
-                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Quick Size</div>
-                          <div className="grid grid-cols-2 gap-1">
-                            {quickSizePresets.map((preset) => (
-                              <button
-                                key={preset.name}
-                                onClick={() => {
-                                  updateImageProperty('width', preset.width);
-                                  updateImageProperty('height', preset.height);
-                                  setShowBasicMenu(false);
-                                }}
-                                className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
-                              >
-                                <span>{preset.name}</span>
-                                <span className="text-gray-500">{preset.width}px</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Alignment Actions */}
-                        <div className="px-3 py-2 border-b border-gray-100">
-                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Alignment</div>
-                          <div className="flex gap-1">
-                            {alignmentOptions.map((option) => (
-                              <button
-                                key={option.value}
-                                onClick={() => {
-                                  updateImageProperty('alignment', option.value);
-                                  setShowBasicMenu(false);
-                                }}
-                                className="flex-1 px-2 py-1 text-xs hover:bg-blue-50 rounded text-center"
-                              >
-                                {option.icon} {option.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Border Radius Actions */}
-                        <div className="px-3 py-2 border-b border-gray-100">
-                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Corner Style</div>
-                          <div className="space-y-1">
-                            {[
-                              { value: '0px', label: 'Sharp Corners' },
-                              { value: '4px', label: 'Slightly Rounded' },
-                              { value: '8px', label: 'Rounded' },
-                              { value: '16px', label: 'Very Rounded' }
-                            ].map((option) => (
-                              <button
-                                key={option.value}
-                                onClick={() => {
-                                  updateImageProperty('borderRadius', option.value);
-                                  setShowBasicMenu(false);
-                                }}
-                                className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded"
-                              >
-                                {option.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Advanced Settings */}
-                        <div className="px-3 py-2">
-                          <button
-                            onClick={() => {
-                              setActiveTab('format');
-                              setShowBasicMenu(false);
-                            }}
-                            className="w-full px-2 py-2 text-left text-sm hover:bg-blue-50 rounded flex items-center gap-2 font-medium text-blue-600"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                            Open Advanced Settings
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* Quick Size Presets */}
-              <div className="grid grid-cols-2 gap-2">
-                {quickSizePresets.map((preset) => (
-                  <button
-                    key={preset.name}
-                    onClick={() => {
-                      updateImageProperty('width', preset.width);
-                      updateImageProperty('height', preset.height);
-                    }}
-                    className={`p-2 border rounded-lg text-left transition-colors ${
-                      (typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')) === preset.width
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-blue-600 text-blue-600 bg-blue-50'
+                        : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                     }`}
                   >
-                    <div className="text-sm font-medium text-gray-900">{preset.name}</div>
-                    <div className="text-xs text-gray-500">{preset.width}px</div>
+                    <tab.icon className="w-4 h-4 mx-auto mb-1" />
+                    {tab.label}
                   </button>
                 ))}
               </div>
