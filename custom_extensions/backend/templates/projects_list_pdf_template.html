@@ -793,6 +793,19 @@
                             <path d="M 0 -120 A 120 120 0 0 1 116.49 -34.77 L 0 0 Z" 
                                   fill="#9333ea" stroke="#ffffff" stroke-width="2"/>
                             
+                            <!-- Product numbers in sectors -->
+                            <!-- One-pager (purple) - positioned in the largest sector -->
+                            <text x="0" y="-60" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ one_pager_count }}</text>
+                            
+                            <!-- Quiz (green) - positioned in the second largest sector -->
+                            <text x="60" y="30" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ quiz_count }}</text>
+                            
+                            <!-- Presentation (blue) - positioned in the third largest sector -->
+                            <text x="35" y="85" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ presentation_count }}</text>
+                            
+                            <!-- Video lesson (orange) - positioned in the smallest sector -->
+                            <text x="-25" y="85" text-anchor="middle" style="font-size: 16px; font-weight: 700; fill: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{{ video_lesson_count }}</text>
+                            
                             <!-- Center circle -->
                             <circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
                             <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 14px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
