@@ -64,7 +64,7 @@
         
         /* Table Header */
         .table-header {
-            background: #6b7280;
+            background: #2D7C21;
             border-bottom: 2px solid #e2e8f0;
         }
         
@@ -93,7 +93,7 @@
         
         /* Folder Rows */
         .folder-row {
-            background: #9ca3af;
+            background: #4ade80;
             border-bottom: 1px solid #e2e8f0;
         }
         
@@ -125,6 +125,12 @@
             height: 18px;
             color: #ffffff;
             flex-shrink: 0;
+        }
+        
+        /* Make icons white in folder rows (green background) */
+        .folder-row .lesson-icon,
+        .folder-row .timer-icon {
+            color: #ffffff !important;
         }
         
         /* Project Rows */
@@ -419,7 +425,7 @@
         {% if folders or unassigned_projects %}
         <div class="mini-summary-container" style="margin-bottom: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-left: 0; margin-right: 0;">
             <table class="mini-summary-table" style="width: 100%; border-collapse: collapse; background: white; font-size: 13px;">
-                <thead style="background: #6b7280; border-bottom: 2px solid #e2e8f0;">
+                <thead style="background: #2D7C21; border-bottom: 2px solid #e2e8f0;">
                     <tr>
                         <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL PROJECTS</th>
                         <th style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; border: none; width: 25%;">TOTAL LESSONS</th>
@@ -749,9 +755,9 @@
         <!-- Products Distribution Pie Chart -->
         {% if folders or unassigned_projects %}
         <div class="pie-chart-container" style="margin-top: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-            <div class="pie-chart-header" style="background: #6b7280; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
+            <div class="pie-chart-header" style="background: #2D7C21; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
                 <h3 style="font-size: 16px; font-weight: 600; color: #ffffff; margin: 0;">Products Distribution</h3>
-                <p style="font-size: 12px; color: #e5e7eb; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
+                <p style="font-size: 12px; color: #dcfce7; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
             </div>
             
             <div class="pie-chart-content" style="padding: 24px; display: flex; align-items: center; justify-content: space-between;">
