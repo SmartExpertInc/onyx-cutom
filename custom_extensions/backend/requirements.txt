@@ -12,7 +12,4 @@ python-dotenv # To load .env variables
 python-multipart
 tiktoken
 openai
-matplotlib # For chart generation
-plotly # For interactive charts
-seaborn # For enhanced matplotlib styling
 
