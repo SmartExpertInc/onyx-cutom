@@ -198,6 +198,12 @@ interface RenderBlockProps {
   isFirstBlock?: boolean;
   isLastBlock?: boolean;
   documentContent?: string;
+  onDragStart?: (e: React.DragEvent, index: number) => void;
+  onDragOver?: (e: React.DragEvent, index: number) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent, index: number) => void;
+  onDragEnd?: () => void;
+  isDraggedOver?: boolean;
 }
 
 // Modern Settings Modal Component
@@ -796,7 +802,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
     onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
-    documentContent
+    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
@@ -1446,15 +1452,31 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <div 
               draggable={isEditing}
               onDragStart={(e) => {
-                if (isEditing && contentBlockIndex !== undefined) {
-                  e.dataTransfer.setData('text/plain', contentBlockIndex.toString());
-                  e.dataTransfer.effectAllowed = 'move';
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
                 }
               }}
-              onDragEnd={(e) => {
-                // Drag end cleanup if needed
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
               }}
-              className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''}`}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
               style={{
                 float: floatDirection,
                 margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`
@@ -1561,15 +1583,31 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <div 
               draggable={isEditing}
               onDragStart={(e) => {
-                if (isEditing && contentBlockIndex !== undefined) {
-                  e.dataTransfer.setData('text/plain', contentBlockIndex.toString());
-                  e.dataTransfer.effectAllowed = 'move';
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
                 }
               }}
-              onDragEnd={(e) => {
-                // Drag end cleanup if needed
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
               }}
-              className={`inline-block relative group/image w-full ${isEditing ? 'cursor-move' : ''}`}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`inline-block relative group/image w-full ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
             >
             <img 
               src={imageSrc} 
@@ -1671,15 +1709,31 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           <div 
             draggable={isEditing}
             onDragStart={(e) => {
-              if (isEditing && contentBlockIndex !== undefined) {
-                e.dataTransfer.setData('text/plain', contentBlockIndex.toString());
-                e.dataTransfer.effectAllowed = 'move';
+              if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                onDragStart(e, contentBlockIndex);
               }
             }}
-            onDragEnd={(e) => {
-              // Drag end cleanup if needed
+            onDragOver={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                onDragOver(e, contentBlockIndex);
+              }
             }}
-            className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''}`}
+            onDragLeave={(e) => {
+              if (isEditing && onDragLeave) {
+                onDragLeave(e);
+              }
+            }}
+            onDrop={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                onDrop(e, contentBlockIndex);
+              }
+            }}
+            onDragEnd={() => {
+              if (isEditing && onDragEnd) {
+                onDragEnd();
+              }
+            }}
+            className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
           >
             {/* Use regular img tag for better compatibility in view mode */}
             <img
@@ -1925,6 +1979,59 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const { t } = useLanguage();
   
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Drag & Drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    if (isEditing) {
+      setDraggedItemIndex(index);
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', index.toString());
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    if (isEditing && draggedItemIndex !== null && draggedItemIndex !== index) {
+      e.preventDefault();
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (isEditing) {
+      setDragOverIndex(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (isEditing && draggedItemIndex !== null && draggedItemIndex !== dropIndex && dataToDisplay?.contentBlocks && onTextChange) {
+      const newContentBlocks = [...dataToDisplay.contentBlocks];
+      const draggedItem = newContentBlocks[draggedItemIndex];
+      
+      // Remove from old position
+      newContentBlocks.splice(draggedItemIndex, 1);
+      
+      // Insert at new position
+      const actualDropIndex = draggedItemIndex < dropIndex ? dropIndex - 1 : dropIndex;
+      newContentBlocks.splice(actualDropIndex, 0, draggedItem);
+      
+      // Update the data
+      onTextChange(['contentBlocks'], newContentBlocks);
+      
+      console.log(`📦 [DRAG & DROP] Moved block from index ${draggedItemIndex} to ${actualDropIndex}`);
+    }
+    
+    setDraggedItemIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemIndex(null);
+    setDragOverIndex(null);
+  };
 
   // 🔍 COMPREHENSIVE LOGGING: Print entire content when one-pager opens
   useEffect(() => {
@@ -2166,6 +2273,12 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           onMoveBlockDown={handleMoveBlockDown}
                           isFirstBlock={originalHeadlineIndex === 0}
                           isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                          onDragStart={handleDragStart}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                          onDragEnd={handleDragEnd}
+                          isDraggedOver={dragOverIndex === originalHeadlineIndex}
                         />
                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
@@ -2188,6 +2301,12 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onMoveBlockDown={handleMoveBlockDown}
                                   isFirstBlock={originalMiniHeadlineIndex === 0}
                                   isLastBlock={originalMiniHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                  onDragStart={handleDragStart}
+                                  onDragOver={handleDragOver}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={handleDrop}
+                                  onDragEnd={handleDragEnd}
+                                  isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
                                 />
                                 <RenderBlock
                                   block={subItem.list}
@@ -2280,6 +2399,12 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       isFirstBlock={originalIndex === 0}
                       isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                       documentContent={documentContent}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onDragEnd={handleDragEnd}
+                      isDraggedOver={dragOverIndex === originalIndex}
                     />
                   </div>
                 );

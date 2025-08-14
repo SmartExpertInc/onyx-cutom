@@ -172,16 +172,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 Open Advanced Settings
               </button>
             </div>
-
-            {/* Close Button */}
-            <div className="px-3 py-2 border-t border-gray-100">
-              <button
-                onClick={() => setShowMenu(false)}
-                className="w-full px-2 py-1 text-xs text-gray-500 hover:text-gray-700 rounded transition-colors"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}
