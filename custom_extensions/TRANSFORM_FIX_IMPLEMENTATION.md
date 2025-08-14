@@ -205,3 +205,4 @@ If the fix doesn't work:
 ## Summary
 
 This fix addresses the CSS specificity issue by adding `!important` declarations to all transform-related CSS properties. This ensures that the image offset transforms are always applied, regardless of other CSS rules that might override them.
+

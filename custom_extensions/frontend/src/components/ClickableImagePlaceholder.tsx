@@ -6,6 +6,7 @@ import { ImageIcon, Replace, MoreVertical, Download, Trash2 } from 'lucide-react
 import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
+import { useSlidePositioning, SlidePositioningData } from '../hooks/useSlidePositioning';
 
 // ✅ REMOVED: Global context menu management - replaced with inline buttons!
 
@@ -41,6 +42,8 @@ export interface ClickableImagePlaceholderProps {
   // Saved position and size for persistence
   savedImagePosition?: { x: number; y: number };
   savedImageSize?: { width: number; height: number };
+  // NEW: Positioning capture callback
+  onPositionUpdate?: (state: SlidePositioningData) => void;
 }
 
   // ✅ REMOVED: Context Menu Component - replaced with inline buttons!
@@ -62,7 +65,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   onCropModeChange,
   slideContainerRef,
   savedImagePosition,
-  savedImageSize
+  savedImageSize,
+  onPositionUpdate
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
@@ -88,6 +92,35 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // IMPROVED: Create unique instance ID that includes slide context
   const instanceId = useRef(`${elementId || 'img'}-${Math.random().toString(36).substr(2, 9)}`).current;
+  
+  // NEW: Positioning capture system
+  const defaultSlideRef = useRef<HTMLElement>(null);
+  const { captureCompleteState } = useSlidePositioning(slideContainerRef || defaultSlideRef);
+  
+  // Debounce updates to avoid excessive calls
+  const updateTimeout = useRef<NodeJS.Timeout | null>(null);
+  
+  // NEW: Position update handler with debouncing
+  const handlePositionChange = useCallback(async () => {
+    if (!slideContainerRef?.current || !onPositionUpdate) {
+      return;
+    }
+    
+    if (updateTimeout.current) {
+      clearTimeout(updateTimeout.current);
+    }
+    
+    updateTimeout.current = setTimeout(async () => {
+      try {
+        const completeState = await captureCompleteState();
+        console.log(`🔄 Position update for ${elementId || 'unknown'}`);
+        
+        onPositionUpdate(completeState);
+      } catch (error) {
+        console.error(`Position capture failed for ${elementId || 'unknown'}:`, error);
+      }
+    }, 300); // 300ms debounce
+  }, [captureCompleteState, onPositionUpdate, elementId, slideContainerRef]);
   
   // Component lifecycle logging
   useEffect(() => {
@@ -259,7 +292,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         final: true
       });
     }
-  }, [onSizeTransformChange, elementId, instanceId]);
+    
+    // CRITICAL: Capture complete state after drag completes
+    handlePositionChange();
+  }, [onSizeTransformChange, elementId, instanceId, handlePositionChange]);
 
   const handleResizeStart = useCallback(() => {
     setIsResizing(true);
@@ -296,7 +332,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       elementId: elementId,
       final: true
     });
-  }, [onSizeTransformChange, elementId, instanceId]);
+    
+    // CRITICAL: Capture complete state after resize completes
+    handlePositionChange();
+  }, [onSizeTransformChange, elementId, instanceId, handlePositionChange]);
 
   const handleRotateStart = useCallback(() => {
     setIsRotating(true);
@@ -306,7 +345,10 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const handleRotateEnd = useCallback(() => {
     setIsRotating(false);
     log('ClickableImagePlaceholder', 'rotateEnd', { elementId, instanceId });
-  }, [elementId, instanceId]);
+    
+    // CRITICAL: Capture complete state after rotation completes
+    handlePositionChange();
+  }, [elementId, instanceId, handlePositionChange]);
 
   // ✅ NEW: Click handler for activating anchors
   const handleImageClick = useCallback((e: React.MouseEvent) => {

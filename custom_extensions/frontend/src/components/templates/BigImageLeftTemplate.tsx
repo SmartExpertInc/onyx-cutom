@@ -1,9 +1,10 @@
 // custom_extensions/frontend/src/components/templates/BigImageLeftTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import { SlidePositioningData } from '../../hooks/useSlidePositioning';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -192,6 +193,45 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       }
     }, 300); // 300ms debounce
   };
+  
+  // NEW: Enhanced positioning update handler
+  const handlePositionUpdate = useCallback(async (completeState: SlidePositioningData) => {
+    if (!onUpdate) return;
+    
+    // Send enhanced data with complete positioning
+    const enhancedUpdate = {
+      slideId,
+      templateId: 'big-image-left',
+      title,
+      subtitle,
+      imageUrl,
+      imageAlt,
+      imagePrompt,
+      imageSize,
+      imagePath,
+      widthPx,
+      heightPx,
+      imageScale,
+      imageOffset,
+      
+      // NEW: Complete positioning data
+      _positioning: {
+        version: '1.0.0',
+        captureTimestamp: completeState.captureTimestamp,
+        captureHash: completeState.captureHash,
+        slideDimensions: completeState.slideDimensions,
+        elements: completeState.elements
+      }
+    };
+    
+    console.log('📤 Sending enhanced update with positioning data:', {
+      slideId,
+      elementCount: Object.keys(completeState.elements).length,
+      captureHash: completeState.captureHash.substring(0, 8) + '...'
+    });
+    
+    onUpdate(enhancedUpdate);
+  }, [onUpdate, slideId, title, subtitle, imageUrl, imageAlt, imagePrompt, imageSize, imagePath, widthPx, heightPx, imageScale, imageOffset]);
   
   log('BigImageLeftTemplate', 'render', { 
     slideId, 
@@ -382,6 +422,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}
           savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          onPositionUpdate={handlePositionUpdate}
         />
       </div>
 

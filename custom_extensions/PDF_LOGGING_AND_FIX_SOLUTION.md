@@ -402,3 +402,4 @@ The enhanced PDF generation system now provides:
    - Transform support (scaling and offset)
 
 The detailed logging system ensures that developers can trace exactly how each property affects the final PDF output, making it easy to identify and fix any issues. The PDF output is now 1:1 identical to the web slides, preserving all image placeholder behaviors and layout rules.
+
