@@ -984,6 +984,27 @@ Universal Product Header: **[Project Name]** : **Lesson Presentation** : **[Less
 (Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
 (IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
 
+**CONTENT STRUCTURE REQUIREMENTS:**
+After the Universal Product Header and two blank lines, generate slide content using this format:
+
+**Slide 1: [Title]**
+[Content]
+
+---
+
+**Slide 2: [Title]**
+[Content]
+
+---
+
+[Continue for all slides...]
+
+**SLIDE VALIDATION CHECKLIST:**
+- Every slide MUST start with "**Slide N: [Title]**" format
+- Use "---" separators between slides
+- Include meaningful, unique titles for each slide
+- Ensure content is educational and properly structured
+
 For VIDEO LESSON SLIDES DECK (with voiceover):
 Universal Product Header: **[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**
 (Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)

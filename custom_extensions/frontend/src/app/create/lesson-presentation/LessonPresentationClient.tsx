@@ -255,6 +255,14 @@ export default function LessonPresentationClient() {
   // Auto-restart guard for malformed previews (no slides parsed)
   const [formatRetryCounter, setFormatRetryCounter] = useState(0);
   
+  // Add debugging state to track restart attempts
+  const [debugInfo, setDebugInfo] = useState<{
+    attempts: number;
+    lastAttemptTime: string;
+    contentLength: number;
+    slidesFound: number;
+  } | null>(null);
+  
   // Refs
   const previewAbortRef = useRef<AbortController | null>(null);
   // Note: textareaRef removed since we're using PresentationPreview instead
@@ -580,29 +588,66 @@ export default function LessonPresentationClient() {
   // If the stream completed but no slides were parsed (preview empty), automatically restart generation
   useEffect(() => {
     if (!streamDone) return;
+    
+    // Don't trigger restart logic if we're already loading or generating
+    if (loading || isGenerating) return;
+    
+    // Don't restart if there's already an error showing
+    if (error) return;
+    
+    // Clean up content before parsing to handle malformed AI responses
+    const cleanContent = (text: string): string => {
+      return text;
+    };
+    
     // Replicate slide parsing logic used in the UI to count slides
     const countParsedSlides = (text: string): number => {
       if (!text || !text.trim()) return 0;
+      
+      // Clean the content first
+      const cleanedText = cleanContent(text);
+      if (!cleanedText || !cleanedText.trim()) return 0;
+      
       let slides: string[] = [];
-      if (text.includes('---')) {
-        slides = text.split(/^---\s*$/m).filter((s) => s.trim());
+      if (cleanedText.includes('---')) {
+        slides = cleanedText.split(/^---\s*$/m).filter((s) => s.trim());
       } else {
-        slides = text.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter((s) => s.trim());
+        slides = cleanedText.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter((s) => s.trim());
       }
       slides = slides.filter((slideContent) => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
       return slides.length;
     };
 
     const slideCount = countParsedSlides(content);
+    console.log(`[RESTART_CHECK] Stream done. Content length: ${content.length}, Slides found: ${slideCount}, Retry counter: ${formatRetryCounter}`);
+    
+    // Update debug info
+    setDebugInfo({
+      attempts: formatRetryCounter,
+      lastAttemptTime: new Date().toLocaleTimeString(),
+      contentLength: content.length,
+      slidesFound: slideCount
+    });
+    
     if (slideCount === 0) {
       if (formatRetryCounter < 2) {
+        console.log(`[RESTART_TRIGGER] Triggering restart attempt ${formatRetryCounter + 1}/2`);
         setError(null);
+        setContent(""); // Clear malformed content
+        setLoading(true); // Show loading state during retry
         setFormatRetryCounter((c) => c + 1);
       } else {
-        setError("Preview was empty. Please adjust your prompt and try again.");
+        console.log(`[RESTART_EXHAUSTED] All restart attempts exhausted. Setting error.`);
+        setError("The preview appears to be empty or malformed. This can happen when the AI generates content in an unexpected format. Please try adjusting your prompt or try again.");
+      }
+    } else {
+      console.log(`[RESTART_SUCCESS] Preview generated successfully with ${slideCount} slides`);
+      // Reset retry counter on successful generation
+      if (formatRetryCounter > 0) {
+        setFormatRetryCounter(0);
       }
     }
-  }, [streamDone]);
+  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
@@ -1145,7 +1190,24 @@ export default function LessonPresentationClient() {
 
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.lesson', 'Lesson')} {t('interface.generate.content', 'Content')}</h2>
-          {loading && <LoadingAnimation message={t('interface.generate.generatingLessonContent', 'Generating lesson content...')} />}
+          {/* Loading state */}
+          {loading && (
+            <div className="flex flex-col items-center gap-4 py-8">
+              <LoadingAnimation />
+              <p className="text-gray-600 text-center max-w-md text-sm">
+                {formatRetryCounter > 0 
+                  ? `Retrying generation due to formatting issues... (Attempt ${formatRetryCounter}/2)`
+                  : t('interface.lesson.generatingPreview', 'Generating lesson presentation preview...')
+                }
+              </p>
+              {formatRetryCounter > 0 && debugInfo && (
+                <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-w-md">
+                  <p>Debug: Content length: {debugInfo.contentLength}, Slides found: {debugInfo.slidesFound}</p>
+                  <p>Last attempt: {debugInfo.lastAttemptTime}</p>
+                </div>
+              )}
+            </div>
+          )}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
           {/* Main content display - Custom slide titles display matching course outline format */}
@@ -1162,21 +1224,26 @@ export default function LessonPresentationClient() {
               
               {/* Parse and display slide titles in course outline format */}
               {(() => {
+                // Helper function to clean content (same as in restart logic)
+                const cleanContent = (text: string): string => {
+                  return text;
+                };
+                
+                // Clean the content first to handle malformed AI responses
+                const cleanedContent = cleanContent(content);
+                
                 // Split slides properly - first try by --- separators, then by language-agnostic patterns
                 let slides = [];
-                if (content.includes('---')) {
+                if (cleanedContent.includes('---')) {
                   // Split by --- separators
-                  slides = content.split(/^---\s*$/m).filter(slide => slide.trim());
+                  slides = cleanedContent.split(/^---\s*$/m).filter(slide => slide.trim());
                 } else {
                   // Split by language-agnostic pattern: **[anything] [number]: [title]
-                  slides = content.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter(slide => slide.trim());
+                  slides = cleanedContent.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter(slide => slide.trim());
                 }
                 
                 // Filter out slides that don't have proper numbered slide pattern (language-agnostic)
-                slides = slides.filter(slideContent => {
-                  const hasSlidePattern = /\*\*[^*]+\s+\d+\s*:/.test(slideContent);
-                  return hasSlidePattern;
-                });
+                slides = slides.filter(slideContent => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
                 
                 return slides.map((slideContent, slideIdx) => {
                   // Extract slide title using language-agnostic pattern: **[word(s)] [number]: [title]
