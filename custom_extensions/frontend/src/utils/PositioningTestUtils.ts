@@ -16,6 +16,7 @@ export interface PositioningTestResult {
     actual: any;
     tolerance: number;
     difference?: number;
+    error?: string;
   };
   timestamp: number;
 }
