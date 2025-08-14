@@ -638,83 +638,56 @@
                 <tbody>
                     <tr style="border-bottom: 1px solid #f1f5f9;">
                         <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            {% set total_projects = 0 %}
-                            {% if folders %}
-                                {% for folder in folders %}
-                                    {% if folder.id in folder_projects %}
-                                        {% set total_projects = total_projects + folder_projects[folder.id]|length %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                            {% if unassigned_projects %}
-                                {% set total_projects = total_projects + unassigned_projects|length %}
-                            {% endif %}
-                            {{ total_projects }}
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ summary_stats.total_projects if summary_stats and summary_stats.total_projects is defined else 0 }}</span>
+                            </div>
                         </td>
                         <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            {% set total_lessons = 0 %}
-                            {% if folders %}
-                                {% for folder in folders %}
-                                    {% if folder.id in folder_projects %}
-                                        {% for project in folder_projects[folder.id] %}
-                                            {% set total_lessons = total_lessons + project.total_lessons %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                            {% if unassigned_projects %}
-                                {% for project in unassigned_projects %}
-                                    {% set total_lessons = total_lessons + project.total_lessons %}
-                                {% endfor %}
-                            {% endif %}
-                            {{ total_lessons }}
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ summary_stats.total_lessons if summary_stats and summary_stats.total_lessons is defined else 0 }}</span>
+                            </div>
                         </td>
                         <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            {% set total_creation_time = 0 %}
-                            {% if folders %}
-                                {% for folder in folders %}
-                                    {% if folder.id in folder_projects %}
-                                        {% for project in folder_projects[folder.id] %}
-                                            {% set total_creation_time = total_creation_time + project.total_hours %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                            {% if unassigned_projects %}
-                                {% for project in unassigned_projects %}
-                                    {% set total_creation_time = total_creation_time + project.total_hours %}
-                                {% endfor %}
-                            {% endif %}
-                            {% if total_creation_time > 0 %}
-                                {% if total_creation_time == total_creation_time|int %}{{ total_creation_time|int }}h{% else %}{{ total_creation_time }}h{% endif %}
-                            {% else %}
-                                <span style="color: #64748b;">-</span>
-                            {% endif %}
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                {% if summary_stats and summary_stats.total_creation_time is defined and summary_stats.total_creation_time > 0 %}
+                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                        <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{% if summary_stats.total_creation_time == summary_stats.total_creation_time|int %}{{ summary_stats.total_creation_time|int }}h{% else %}{{ summary_stats.total_creation_time }}h{% endif %}</span>
+                                {% else %}
+                                    <span style="color: #64748b;">-</span>
+                                {% endif %}
+                            </div>
                         </td>
                         <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
-                            {% set total_completion_time = 0 %}
-                            {% if folders %}
-                                {% for folder in folders %}
-                                    {% if folder.id in folder_projects %}
-                                        {% for project in folder_projects[folder.id] %}
-                                            {% set total_completion_time = total_completion_time + project.total_completion_time %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                            {% if unassigned_projects %}
-                                {% for project in unassigned_projects %}
-                                    {% set total_completion_time = total_completion_time + project.total_completion_time %}
-                                {% endfor %}
-                            {% endif %}
-                            {% if total_completion_time > 0 %}
-                                {% set h = total_completion_time // 60 %}
-                                {% set m = total_completion_time % 60 %}
-                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                            {% else %}
-                                <span style="color: #64748b;">-</span>
-                            {% endif %}
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                {% if summary_stats and summary_stats.total_completion_time is defined and summary_stats.total_completion_time > 0 %}
+                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                        <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>
+                                        {% set h = summary_stats.total_completion_time // 60 %}
+                                        {% set m = summary_stats.total_completion_time % 60 %}
+                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span style="color: #64748b;">-</span>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                 </tbody>
