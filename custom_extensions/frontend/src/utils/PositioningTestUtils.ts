@@ -17,6 +17,7 @@ export interface PositioningTestResult {
     tolerance: number;
     difference?: number;
     error?: string;
+    issues?: string[];
   };
   timestamp: number;
 }
@@ -261,13 +262,15 @@ export class PositioningTestUtils {
       results.push(this.testTransformParsing(test.transform, test.expected));
     }
     
-    // Test 3: Complete positioning data capture
-    try {
-      const { captureCompleteState } = await import('../hooks/useSlidePositioning');
-      const slideRef = { current: slideContainer };
-      const positioningData = await captureCompleteState(slideRef);
-      results.push(this.testPositioningDataConsistency(positioningData));
-    } catch (error) {
+         // Test 3: Complete positioning data capture
+     try {
+       const { useSlidePositioning } = await import('../hooks/useSlidePositioning');
+       const slideRef = { current: slideContainer };
+       // Create a mock hook call to get the captureCompleteState function
+       const mockHook = useSlidePositioning(slideRef);
+       const positioningData = await mockHook.captureCompleteState();
+       results.push(this.testPositioningDataConsistency(positioningData));
+     } catch (error) {
       results.push({
         testName: 'Complete Positioning Data Test',
         passed: false,
