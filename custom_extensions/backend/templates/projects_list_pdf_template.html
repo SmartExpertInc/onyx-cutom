@@ -384,31 +384,17 @@
                             {% set total_creation_hours = 0 %}
                             {% set total_completion_time = 0 %}
                             
-                            <!-- Count projects from folders (same logic as main table) -->
-                            {% for folder in folders %}
-                                {% if folder.id in folder_projects %}
-                                    {% for project in folder_projects[folder.id] %}
-                                        {% set total_courses = total_courses + 1 %}
-                                        {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
-                                        {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
-                                        {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
-                                    {% endfor %}
-                                {% endif %}
-                                {% if folder.children %}
-                                    {% for child in folder.children %}
-                                        {% if child.id in folder_projects %}
-                                            {% for project in folder_projects[child.id] %}
-                                                {% set total_courses = total_courses + 1 %}
-                                                {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
-                                                {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
-                                                {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
+                            <!-- Simple approach: count all projects in folder_projects -->
+                            {% for folder_id, projects in folder_projects.items() %}
+                                {% for project in projects %}
+                                    {% set total_courses = total_courses + 1 %}
+                                    {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
+                                    {% set total_creation_hours = total_creation_hours + (project.total_hours or 0) %}
+                                    {% set total_completion_time = total_completion_time + (project.total_completion_time or 0) %}
+                                {% endfor %}
                             {% endfor %}
                             
-                            <!-- Count projects from unassigned (same logic as main table) -->
+                            <!-- Add unassigned projects -->
                             {% for project in unassigned_projects %}
                                 {% set total_courses = total_courses + 1 %}
                                 {% set total_lessons = total_lessons + (project.total_lessons or 0) %}
