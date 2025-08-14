@@ -51,6 +51,11 @@ export interface ImageBlock {
   layoutMode?: 'standalone' | 'side-by-side-left' | 'side-by-side-right' | 'inline-left' | 'inline-right';
   layoutPartnerIndex?: number;
   layoutProportion?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
+  // Visual effects properties
+  boxShadow?: string;
+  border?: string;
+  opacity?: number;
+  transform?: string;
 }
 
 // --- List Block Types ---

@@ -1442,7 +1442,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             
             {/* Basic Actions Button */}
             {isEditing && (
-              <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
                 <ImageBasicActions
                   imageBlock={block as ImageBlock}
                   onImageChange={(updatedBlock) => {
@@ -1460,7 +1460,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <img 
               src={imageSrc} 
               alt={alt || 'Image'} 
-              className="rounded-lg shadow-md"
+              className="rounded-lg"
               style={{
                 maxWidth: maxWidth || '200px',
                 width: width || 'auto',
@@ -1468,7 +1468,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 borderRadius: borderRadius || '8px',
                 float: floatDirection,
                 margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`,
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                border: (block as ImageBlock).border || 'none',
+                opacity: (block as ImageBlock).opacity || 1,
+                transform: (block as ImageBlock).transform || 'none'
               }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -1535,7 +1538,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             
             {/* Basic Actions Button */}
             {isEditing && (
-              <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
                 <ImageBasicActions
                   imageBlock={block as ImageBlock}
                   onImageChange={(updatedBlock) => {
@@ -1553,14 +1556,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             <img 
               src={imageSrc} 
               alt={alt || 'Image'} 
-              className="rounded-lg shadow-md"
+              className="rounded-lg"
               style={{
                 maxWidth: maxWidth || '100%',
                 width: width || 'auto',
                 height: height || 'auto',
                 borderRadius: borderRadius || '8px',
                 display: 'block',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                border: (block as ImageBlock).border || 'none',
+                opacity: (block as ImageBlock).opacity || 1,
+                transform: (block as ImageBlock).transform || 'none'
               }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;

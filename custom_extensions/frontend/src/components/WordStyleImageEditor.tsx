@@ -63,10 +63,11 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
   ];
 
   const layoutPresets = [
-    { name: 'Inline with Text', mode: 'inline-left', description: 'Text flows around the image' },
-    { name: 'Break Text', mode: 'standalone', description: 'Image on its own line' },
-    { name: 'Behind Text', mode: 'standalone', description: 'Image as background' },
-    { name: 'In Front of Text', mode: 'standalone', description: 'Image overlays text' }
+    { name: 'Inline with Text', mode: 'inline-left', description: 'Text flows around the image', float: 'left' },
+    { name: 'Inline Right', mode: 'inline-right', description: 'Text flows around on the left', float: 'right' },
+    { name: 'Break Text', mode: 'standalone', description: 'Image on its own line', float: undefined },
+    { name: 'Side by Side Left', mode: 'side-by-side-left', description: 'Image and text side by side', float: undefined },
+    { name: 'Side by Side Right', mode: 'side-by-side-right', description: 'Text and image side by side', float: undefined }
   ];
 
   const alignmentOptions = [
@@ -301,7 +302,16 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                       {layoutPresets.map((preset) => (
                         <button
                           key={preset.mode}
-                          onClick={() => updateImageProperty('layoutMode', preset.mode)}
+                          onClick={() => {
+                            console.log(`Setting layout mode: ${preset.mode}, float: ${preset.float}`);
+                            const updatedBlock = {
+                              ...localImageBlock,
+                              layoutMode: preset.mode,
+                              float: preset.float
+                            };
+                            setLocalImageBlock(updatedBlock);
+                            onImageChange(updatedBlock);
+                          }}
                           className={`w-full p-3 text-left border rounded-lg transition-colors ${
                             localImageBlock.layoutMode === preset.mode
                               ? 'border-[#2b579a] bg-blue-50'
@@ -355,20 +365,44 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm text-gray-700 mb-2">Shadow</label>
-                        <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]">
-                          <option>None</option>
-                          <option>Subtle</option>
-                          <option>Medium</option>
-                          <option>Strong</option>
+                        <select 
+                          value={localImageBlock.boxShadow || 'none'}
+                          onChange={(e) => {
+                            const shadowValues = {
+                              'none': 'none',
+                              'subtle': '0 1px 3px rgba(0,0,0,0.1)',
+                              'medium': '0 4px 6px rgba(0,0,0,0.15)',
+                              'strong': '0 10px 15px rgba(0,0,0,0.25)'
+                            };
+                            updateImageProperty('boxShadow', shadowValues[e.target.value as keyof typeof shadowValues]);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
+                        >
+                          <option value="none">None</option>
+                          <option value="subtle">Subtle</option>
+                          <option value="medium">Medium</option>
+                          <option value="strong">Strong</option>
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm text-gray-700 mb-2">Border</label>
-                        <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]">
-                          <option>None</option>
-                          <option>Solid</option>
-                          <option>Dashed</option>
-                          <option>Dotted</option>
+                        <select 
+                          value={localImageBlock.border || 'none'}
+                          onChange={(e) => {
+                            const borderValues = {
+                              'none': 'none',
+                              'solid': '2px solid #e5e7eb',
+                              'dashed': '2px dashed #e5e7eb',
+                              'dotted': '2px dotted #e5e7eb'
+                            };
+                            updateImageProperty('border', borderValues[e.target.value as keyof typeof borderValues]);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b579a] focus:border-[#2b579a]"
+                        >
+                          <option value="none">None</option>
+                          <option value="solid">Solid</option>
+                          <option value="dashed">Dashed</option>
+                          <option value="dotted">Dotted</option>
                         </select>
                       </div>
                     </div>
@@ -384,10 +418,16 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           type="range"
                           min="0"
                           max="100"
-                          defaultValue="100"
+                          value={localImageBlock.opacity ? parseFloat(localImageBlock.opacity.toString()) * 100 : 100}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value) / 100;
+                            updateImageProperty('opacity', value);
+                          }}
                           className="w-full"
                         />
-                        <div className="text-xs text-gray-500 text-center">100%</div>
+                        <div className="text-xs text-gray-500 text-center">
+                          {localImageBlock.opacity ? Math.round(parseFloat(localImageBlock.opacity.toString()) * 100) : 100}%
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm text-gray-700 mb-2">Rotation</label>
@@ -395,10 +435,16 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           type="range"
                           min="0"
                           max="360"
-                          defaultValue="0"
+                          value={localImageBlock.transform ? parseInt(localImageBlock.transform.replace(/rotate\((\d+)deg\)/, '$1')) || 0 : 0}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            updateImageProperty('transform', `rotate(${value}deg)`);
+                          }}
                           className="w-full"
                         />
-                        <div className="text-xs text-gray-500 text-center">0°</div>
+                        <div className="text-xs text-gray-500 text-center">
+                          {localImageBlock.transform ? parseInt(localImageBlock.transform.replace(/rotate\((\d+)deg\)/, '$1')) || 0 : 0}°
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -419,51 +465,78 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                </div>
              </div>
 
-             {/* Preview Area */}
-             <div className="flex-1 p-6 bg-gray-50 overflow-auto">
-               <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6">
-                 <div className="prose max-w-none">
-                   {/* Image Preview */}
-                   <div className={`my-4 ${
-                     localImageBlock.alignment === 'left' ? 'text-left' :
-                     localImageBlock.alignment === 'right' ? 'text-right' :
-                     'text-center'
-                   }`}>
-                     <div className="inline-block relative">
-                       <img
-                         src={localImageBlock.src}
-                         alt={localImageBlock.alt || 'Preview image'}
-                         className="shadow-md"
-                         style={{
-                           width: typeof localImageBlock.width === 'number' ? `${localImageBlock.width}px` : localImageBlock.width || '300px',
-                           height: localImageBlock.height || 'auto',
-                           borderRadius: localImageBlock.borderRadius || '8px',
-                           maxWidth: localImageBlock.maxWidth || '100%',
-                           float: localImageBlock.layoutMode === 'inline-left' ? 'left' :
-                                  localImageBlock.layoutMode === 'inline-right' ? 'right' : 'none',
-                           margin: localImageBlock.layoutMode === 'inline-left' ? '0 16px 16px 0' :
-                                   localImageBlock.layoutMode === 'inline-right' ? '0 0 16px 16px' : '0'
-                         }}
-                         onError={(e) => {
-                           const target = e.target as HTMLImageElement;
-                           target.style.display = 'none';
-                         }}
-                       />
-                       {localImageBlock.caption && (
-                         <p className="text-xs text-gray-600 mt-2 italic text-center">
-                           {localImageBlock.caption}
-                         </p>
-                       )}
-                     </div>
-                   </div>
-                   
-                   {/* Sample content for context */}
-                   <div className="mt-4 text-sm text-gray-600">
-                     <p>This preview shows how your image will appear in the document. Adjust settings on the left to see changes in real-time.</p>
-                   </div>
-                 </div>
-               </div>
-             </div>
+                         {/* Preview Area - Enhanced */}
+            <div className="flex-1 p-4 bg-gray-50 overflow-auto">
+              <div className="max-w-full mx-auto bg-white shadow-lg rounded-lg p-8">
+                <div className="prose max-w-none">
+                  {/* Content before image */}
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-3">Document Preview</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                  </div>
+                  
+                  {/* Image Preview with Context */}
+                  <div className={`my-6 ${
+                    localImageBlock.alignment === 'left' ? 'text-left' :
+                    localImageBlock.alignment === 'right' ? 'text-right' :
+                    'text-center'
+                  }`}>
+                    <div className="inline-block relative">
+                      <img
+                        src={localImageBlock.src}
+                        alt={localImageBlock.alt || 'Preview image'}
+                        style={{
+                          width: typeof localImageBlock.width === 'number' ? `${localImageBlock.width}px` : localImageBlock.width || '300px',
+                          height: localImageBlock.height || 'auto',
+                          borderRadius: localImageBlock.borderRadius || '8px',
+                          maxWidth: localImageBlock.maxWidth || '100%',
+                          float: localImageBlock.layoutMode === 'inline-left' ? 'left' :
+                                 localImageBlock.layoutMode === 'inline-right' ? 'right' : 'none',
+                          margin: localImageBlock.layoutMode === 'inline-left' ? '0 16px 16px 0' :
+                                  localImageBlock.layoutMode === 'inline-right' ? '0 0 16px 16px' : '0',
+                          boxShadow: localImageBlock.boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                          border: localImageBlock.border || 'none',
+                          opacity: localImageBlock.opacity || 1,
+                          transform: localImageBlock.transform || 'none'
+                        }}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                      {localImageBlock.caption && (
+                        <p className="text-sm text-gray-600 mt-2 italic text-center">
+                          {localImageBlock.caption}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Content after image */}
+                  <div className="mt-6">
+                    <p className="text-gray-700 leading-relaxed mb-4">
+                      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                    </p>
+                    <p className="text-gray-700 leading-relaxed">
+                      Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, 
+                      totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+                    </p>
+                  </div>
+                  
+                  {/* Preview info */}
+                  <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="text-sm text-blue-800">
+                      <strong>Live Preview:</strong> This shows how your image will appear in the document. 
+                      Changes are applied in real-time as you adjust the settings.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
            </div>
         </div>
 

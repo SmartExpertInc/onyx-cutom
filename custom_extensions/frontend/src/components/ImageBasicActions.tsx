@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ImageBlock } from '@/types/textPresentation';
 import { Settings, ChevronDown, Edit3, ZoomIn, Move, Palette } from 'lucide-react';
 
@@ -16,6 +16,23 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   onOpenAdvancedSettings
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showMenu]);
 
   const updateImageProperty = (property: keyof ImageBlock, value: any) => {
     const updatedBlock = { ...imageBlock, [property]: value };
@@ -38,17 +55,24 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setShowMenu(!showMenu)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors"
+        className="flex items-center gap-1 px-2 py-1 bg-white/90 hover:bg-white text-gray-700 text-xs rounded-md transition-colors shadow-sm border border-gray-200"
       >
-        <Settings className="w-4 h-4" />
-        Actions
+        <Settings className="w-3 h-3" />
         <ChevronDown className={`w-3 h-3 transition-transform ${showMenu ? 'rotate-180' : ''}`} />
       </button>
       
       {/* Basic Actions Dropdown */}
       {showMenu && (
-        <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+        <div 
+          ref={dropdownRef}
+          className="absolute left-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
+          style={{
+            transform: 'translateY(0)',
+            maxHeight: 'calc(100vh - 100px)'
+          }}
+        >
           <div className="py-1">
             {/* Quick Size Actions */}
             <div className="px-3 py-2 border-b border-gray-100">
@@ -58,8 +82,13 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                   <button
                     key={preset.name}
                     onClick={() => {
-                      updateImageProperty('width', preset.width);
-                      updateImageProperty('height', preset.height);
+                      console.log(`Applying size preset: ${preset.name}, width: ${preset.width}`);
+                      const updatedBlock = {
+                        ...imageBlock,
+                        width: preset.width,
+                        height: preset.height
+                      };
+                      onImageChange(updatedBlock);
                       setShowMenu(false);
                     }}
                     className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
