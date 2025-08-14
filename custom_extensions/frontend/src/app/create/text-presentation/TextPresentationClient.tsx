@@ -251,6 +251,10 @@ export default function TextPresentationClient() {
     
     // Add to edited titles list if title is different from original
     const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
+    console.log(`[DEBUG] handleTitleEdit: lessonIndex=${lessonIndex}, newTitle="${newTitle}", originalTitle="${originalTitle}"`);
+    console.log(`[DEBUG] handleTitleEdit: originalTitles:`, originalTitles);
+    console.log(`[DEBUG] handleTitleEdit: lessonList[${lessonIndex}]:`, lessonIndex < lessonList.length ? lessonList[lessonIndex] : 'undefined');
+    
     if (newTitle !== originalTitle) {
       setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
       setOriginallyEditedTitles(prev => {
@@ -285,6 +289,8 @@ export default function TextPresentationClient() {
       return;
     }
     const originalTitle = originalTitles[lessonIndex] || lessonList[lessonIndex].title;
+    console.log(`[DEBUG] handleTitleSave: lessonIndex=${lessonIndex}, newTitle="${newTitle}", originalTitle="${originalTitle}"`);
+    
     if (newTitle === originalTitle) {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
@@ -293,6 +299,7 @@ export default function TextPresentationClient() {
       });
     }
     // Update the original content with new title
+    console.log(`[DEBUG] handleTitleSave: Calling updateContentWithNewTitle(${lessonIndex}, "${newTitle}")`);
     updateContentWithNewTitle(lessonIndex, newTitle);
   };
 
@@ -325,6 +332,18 @@ export default function TextPresentationClient() {
     }
 
     setContent(updatedContent);
+    
+    // CRITICAL FIX: Update originalTitles to reflect the new state
+    // This ensures that originalTitles tracks the current title state
+    if (updatedContent !== content) {
+      setOriginalTitles(prev => {
+        const newTitles = { ...prev };
+        newTitles[lessonIndex] = newTitle;
+        console.log(`[DEBUG] updateContentWithNewTitle: Updated originalTitles[${lessonIndex}] = "${newTitle}"`);
+        console.log(`[DEBUG] updateContentWithNewTitle: originalTitles now:`, newTitles);
+        return newTitles;
+      });
+    }
     
     // Clear the edited title since it's now part of the main content
     setEditedTitles(prev => {
