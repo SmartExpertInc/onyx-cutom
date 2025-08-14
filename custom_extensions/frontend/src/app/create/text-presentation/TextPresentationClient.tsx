@@ -142,6 +142,7 @@ export default function TextPresentationClient() {
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalContent, setOriginalContent] = useState<string>("");
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
+  const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -254,6 +255,7 @@ export default function TextPresentationClient() {
     if (newTitle !== originalTitle) {
       setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
       setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
+      setEditedTitleNames(prev => new Set([...prev, newTitle]));
       setHasUserEdits(true); // NEW: Mark that user has made edits
     } else {
       setEditedTitleIds(prev => {
@@ -356,9 +358,9 @@ export default function TextPresentationClient() {
     let cleanContent = "";
     
     lessons.forEach((lesson, index) => {
-      // Check if this title was originally edited by the user
-      if (originallyEditedTitles.has(index)) {
-        // For originally edited titles, send only the title without context
+      // Check if this title was edited by the user (by name, not by index)
+      if (editedTitleNames.has(lesson.title)) {
+        // For edited titles, send only the title without context
         // This allows AI to focus on the title change and regenerate appropriate content
         cleanContent += `## ${lesson.title}\n\n`;
       } else {
@@ -379,9 +381,9 @@ export default function TextPresentationClient() {
     let cleanContent = "";
     
     lessons.forEach((lesson, index) => {
-      // Check if this title was originally edited by the user
-      if (originallyEditedTitles.has(index)) {
-        // For originally edited titles, send only the title without context
+      // Check if this title was edited by the user (by name, not by index)
+      if (editedTitleNames.has(lesson.title)) {
+        // For edited titles, send only the title without context
         // This allows AI to focus on the title change and regenerate appropriate content
         cleanContent += `## ${lesson.title}\n\n`;
       } else {
@@ -475,7 +477,7 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
       
-      if (hasUserEdits && originallyEditedTitles.size > 0) {
+      if (hasUserEdits && editedTitleNames.size > 0) {
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
@@ -807,7 +809,7 @@ export default function TextPresentationClient() {
       let contentToSend = content;
       let isCleanContent = false;
       
-      if (hasUserEdits && originallyEditedTitles.size > 0) {
+      if (hasUserEdits && editedTitleNames.size > 0) {
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
