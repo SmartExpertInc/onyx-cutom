@@ -146,3 +146,4 @@ const BasicImageActions: React.FC<BasicImageActionsProps> = ({
 };
 
 export default BasicImageActions;
+

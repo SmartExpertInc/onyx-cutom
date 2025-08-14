@@ -136,3 +136,4 @@ const NewImageActionsTest: React.FC = () => {
 };
 
 export default NewImageActionsTest;
+
