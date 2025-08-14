@@ -647,6 +647,147 @@ async def log_browser_console_output(page, slide_index: int = None, template_id:
     
     logger.info(f"PDF GEN: === END BROWSER CONSOLE AND ELEMENT ANALYSIS for {slide_info}{template_info} ===")
 
+async def log_transform_applications(page, slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log detailed information about transform applications."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    logger.info(f"PDF GEN: === TRANSFORM APPLICATION ANALYSIS for {slide_info}{template_info} ===")
+    
+    # Log image offset and scale properties
+    props = slide_data.get('props', {})
+    
+    # Check for image properties
+    image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
+    for prop in image_props:
+        if prop in props:
+            logger.info(f"PDF GEN: Found {prop}: {props[prop]}")
+            
+            # Check for corresponding offset and scale
+            if prop == 'imagePath':
+                offset_prop = 'imageOffset'
+                scale_prop = 'imageScale'
+            elif prop == 'leftImagePath':
+                offset_prop = 'leftImageOffset'
+                scale_prop = 'leftImageScale'
+            elif prop == 'rightImagePath':
+                offset_prop = 'rightImageOffset'
+                scale_prop = 'rightImageScale'
+            
+            if offset_prop in props:
+                offset = props[offset_prop]
+                logger.info(f"PDF GEN:   {offset_prop}: {offset}")
+                if isinstance(offset, dict):
+                    logger.info(f"PDF GEN:     X: {offset.get('x', 'undefined')}")
+                    logger.info(f"PDF GEN:     Y: {offset.get('y', 'undefined')}")
+            else:
+                logger.info(f"PDF GEN:   {offset_prop}: NOT PRESENT")
+            
+            if scale_prop in props:
+                scale = props[scale_prop]
+                logger.info(f"PDF GEN:   {scale_prop}: {scale}")
+            else:
+                logger.info(f"PDF GEN:   {scale_prop}: NOT PRESENT")
+    
+    # Check for element positions in metadata
+    metadata = slide_data.get('metadata', {})
+    if 'elementPositions' in metadata:
+        element_positions = metadata['elementPositions']
+        logger.info(f"PDF GEN: Element positions found: {len(element_positions)} elements")
+        for element_id, position in element_positions.items():
+            logger.info(f"PDF GEN:   Element '{element_id}': x={position.get('x', 'undefined')}, y={position.get('y', 'undefined')}")
+    else:
+        logger.info(f"PDF GEN: No element positions found in metadata")
+    
+    # Check browser for actual transform applications
+    try:
+        transform_info = await page.evaluate("""
+            () => {
+                const results = {
+                    imageTransforms: [],
+                    elementTransforms: [],
+                    computedTransforms: []
+                };
+                
+                // Check all images for transforms
+                const images = document.querySelectorAll('img');
+                images.forEach((img, index) => {
+                    const computedStyle = window.getComputedStyle(img);
+                    const transform = computedStyle.transform;
+                    const rect = img.getBoundingClientRect();
+                    
+                    results.imageTransforms.push({
+                        index: index,
+                        src: img.src.substring(0, 100) + '...',
+                        transform: transform,
+                        transformOrigin: computedStyle.transformOrigin,
+                        objectFit: computedStyle.objectFit,
+                        position: computedStyle.position,
+                        rect: {
+                            top: rect.top,
+                            left: rect.left,
+                            width: rect.width,
+                            height: rect.height
+                        }
+                    });
+                });
+                
+                // Check all elements with transforms
+                const allElements = document.querySelectorAll('*');
+                allElements.forEach((el, index) => {
+                    const computedStyle = window.getComputedStyle(el);
+                    const transform = computedStyle.transform;
+                    
+                    if (transform && transform !== 'none' && transform !== 'matrix(1, 0, 0, 1, 0, 0)') {
+                        const rect = el.getBoundingClientRect();
+                        results.elementTransforms.push({
+                            index: index,
+                            tagName: el.tagName,
+                            className: el.className,
+                            id: el.id,
+                            transform: transform,
+                            transformOrigin: computedStyle.transformOrigin,
+                            position: computedStyle.position,
+                            rect: {
+                                top: rect.top,
+                                left: rect.left,
+                                width: rect.width,
+                                height: rect.height
+                            }
+                        });
+                    }
+                });
+                
+                return results;
+            }
+        """)
+        
+        if transform_info:
+            # Log image transforms
+            if transform_info.get('imageTransforms'):
+                logger.info(f"PDF GEN: Found {len(transform_info['imageTransforms'])} images with transforms:")
+                for img in transform_info['imageTransforms']:
+                    logger.info(f"PDF GEN:   Image {img['index']}: {img['src']}")
+                    logger.info(f"PDF GEN:     Transform: {img['transform']}")
+                    logger.info(f"PDF GEN:     Transform-origin: {img['transformOrigin']}")
+                    logger.info(f"PDF GEN:     Object-fit: {img['objectFit']}")
+                    logger.info(f"PDF GEN:     Position: {img['position']}")
+                    logger.info(f"PDF GEN:     Rect: {img['rect']['width']}x{img['rect']['height']} at ({img['rect']['left']}, {img['rect']['top']})")
+            
+            # Log element transforms
+            if transform_info.get('elementTransforms'):
+                logger.info(f"PDF GEN: Found {len(transform_info['elementTransforms'])} elements with transforms:")
+                for el in transform_info['elementTransforms']:
+                    logger.info(f"PDF GEN:   {el['tagName']}.{el['className']}: {el['transform']}")
+                    logger.info(f"PDF GEN:     Transform-origin: {el['transformOrigin']}")
+                    logger.info(f"PDF GEN:     Position: {el['position']}")
+                    logger.info(f"PDF GEN:     Rect: {el['rect']['width']}x{el['rect']['height']} at ({el['rect']['left']}, {el['rect']['top']})")
+    
+    except Exception as e:
+        logger.error(f"PDF GEN: Error analyzing transforms: {e}")
+    
+    logger.info(f"PDF GEN: === END TRANSFORM APPLICATION ANALYSIS for {slide_info}{template_info} ===")
+
 async def log_computed_styles(page, slide_index: int = None, template_id: str = None):
     """Log computed styles for key elements."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
@@ -1648,6 +1789,9 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         
         # Log browser console output for debugging
         await log_browser_console_output(page, slide_index, template_id)
+        
+        # Log transform applications for debugging
+        await log_transform_applications(page, slide_data, slide_index, template_id)
         
         logger.info("Waiting for fonts to load")
         try:
