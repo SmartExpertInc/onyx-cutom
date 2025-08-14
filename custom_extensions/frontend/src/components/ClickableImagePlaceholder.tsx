@@ -6,12 +6,26 @@ import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
 
-// Global context menu management
+// Global context menu management - IMPROVED
 const globalContextMenuState = {
-  activeElementId: null as string | null,
+  activeInstances: new Map<string, { closeMenu: () => void }>(),
+  registerInstance: (elementId: string, closeMenu: () => void) => {
+    globalContextMenuState.activeInstances.set(elementId, { closeMenu });
+  },
+  unregisterInstance: (elementId: string) => {
+    globalContextMenuState.activeInstances.delete(elementId);
+  },
+  closeAllExcept: (elementId: string) => {
+    globalContextMenuState.activeInstances.forEach((instance, id) => {
+      if (id !== elementId) {
+        instance.closeMenu();
+      }
+    });
+  },
   closeAll: () => {
-    // Dispatch a custom event to close all context menus
-    window.dispatchEvent(new CustomEvent('closeAllContextMenus'));
+    globalContextMenuState.activeInstances.forEach((instance) => {
+      instance.closeMenu();
+    });
   }
 };
 
@@ -49,14 +63,15 @@ export interface ClickableImagePlaceholderProps {
   savedImageSize?: { width: number; height: number };
 }
 
-// Context Menu Component
+// Context Menu Component - IMPROVED with better isolation
 interface ContextMenuProps {
   isOpen: boolean;
   position: { x: number; y: number };
   onClose: () => void;
   onReplaceImage: () => void;
   onRemoveImage?: () => void;
-  targetElementId?: string; // Add unique identifier
+  targetElementId?: string;
+  instanceId?: string; // NEW: Add instance-specific ID
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -65,7 +80,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   onClose,
   onReplaceImage,
   onRemoveImage,
-  targetElementId
+  targetElementId,
+  instanceId
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -92,7 +108,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         left: position.x,
         top: position.y,
       }}
-      data-context-menu-for={targetElementId} // Add data attribute for debugging
+      data-context-menu-for={targetElementId}
+      data-instance-id={instanceId} // NEW: Add instance tracking
     >
       <button
         onClick={onReplaceImage}
@@ -147,7 +164,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [isResizing, setIsResizing] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   
-  // Context menu state
+  // Context menu state - IMPROVED with instance isolation
   const [contextMenu, setContextMenu] = useState<{
     isOpen: boolean;
     position: { x: number; y: number };
@@ -162,6 +179,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Use provided ref or internal ref
   const containerRef = elementRef || internalRef;
 
+  // IMPROVED: Create unique instance ID that includes slide context
+  const instanceId = useRef(`${elementId || 'img'}-${Math.random().toString(36).substr(2, 9)}`).current;
+
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
     'MEDIUM': 'h-32 md:h-40', 
@@ -174,6 +194,34 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     'CENTER': 'mx-auto mb-6',
     'BACKGROUND': 'absolute inset-0 z-0'
   };
+
+  // IMPROVED: Context menu management with proper instance isolation
+  const closeContextMenu = useCallback(() => {
+    setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+    log('ClickableImagePlaceholder', 'contextMenuClosed', { 
+      elementId, 
+      instanceId 
+    });
+  }, [elementId, instanceId]);
+
+  // IMPROVED: Register/unregister this instance with global state
+  useEffect(() => {
+    globalContextMenuState.registerInstance(instanceId, closeContextMenu);
+    
+    log('ClickableImagePlaceholder', 'instanceRegistered', { 
+      elementId, 
+      instanceId,
+      totalInstances: globalContextMenuState.activeInstances.size
+    });
+
+    return () => {
+      globalContextMenuState.unregisterInstance(instanceId);
+      log('ClickableImagePlaceholder', 'instanceUnregistered', { 
+        elementId, 
+        instanceId 
+      });
+    };
+  }, [instanceId, closeContextMenu, elementId]);
 
   // Keep local displayed image in sync with prop
   useEffect(() => {
@@ -189,6 +237,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       
       log('ClickableImagePlaceholder', 'applySavedState_start', {
         elementId,
+        instanceId,
         hasSavedPosition: !!savedImagePosition,
         hasSavedSize: !!savedImageSize,
         savedPosition: savedImagePosition,
@@ -200,6 +249,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         element.style.transform = `translate(${savedImagePosition.x}px, ${savedImagePosition.y}px)`;
         log('ClickableImagePlaceholder', 'applySavedPosition', {
           elementId,
+          instanceId,
           position: savedImagePosition,
           appliedTransform: element.style.transform
         });
@@ -211,6 +261,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         element.style.height = `${savedImageSize.height}px`;
         log('ClickableImagePlaceholder', 'applySavedSize', {
           elementId,
+          instanceId,
           size: savedImageSize,
           appliedWidth: element.style.width,
           appliedHeight: element.style.height
@@ -219,19 +270,23 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       
       log('ClickableImagePlaceholder', 'applySavedState_complete', {
         elementId,
+        instanceId,
         finalWidth: element.style.width,
         finalHeight: element.style.height,
         finalTransform: element.style.transform
       });
     }
-  }, [containerRef, savedImagePosition, savedImageSize, elementId]);
+  }, [containerRef, savedImagePosition, savedImageSize, elementId, instanceId]);
 
-  // ✅ NEW: Click outside detection to deselect
+  // ✅ IMPROVED: Click outside detection to deselect
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsSelected(false);
-        log('ClickableImagePlaceholder', 'deselected', { elementId });
+        log('ClickableImagePlaceholder', 'deselected', { 
+          elementId, 
+          instanceId 
+        });
       }
     };
 
@@ -239,42 +294,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [isSelected, containerRef, elementId]);
-
-  // ✅ NEW: Cleanup context menu on unmount
-  useEffect(() => {
-    return () => {
-      // Close context menu if this component is unmounting
-      if (contextMenu.isOpen) {
-        setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
-        log('ClickableImagePlaceholder', 'cleanupContextMenu', { elementId });
-      }
-    };
-  }, [contextMenu.isOpen, elementId]);
-
-  // ✅ NEW: Global context menu cleanup listener
-  useEffect(() => {
-    const handleCloseAllContextMenus = () => {
-      if (contextMenu.isOpen && globalContextMenuState.activeElementId !== elementId) {
-        setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
-        log('ClickableImagePlaceholder', 'closeAllContextMenus', { 
-          elementId, 
-          activeElementId: globalContextMenuState.activeElementId 
-        });
-      }
-    };
-
-    window.addEventListener('closeAllContextMenus', handleCloseAllContextMenus);
-    return () => {
-      window.removeEventListener('closeAllContextMenus', handleCloseAllContextMenus);
-    };
-  }, [contextMenu.isOpen, elementId]);
+  }, [isSelected, containerRef, elementId, instanceId]);
 
   // ✅ NEW: Simplified drag/resize callbacks
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
-    log('ClickableImagePlaceholder', 'dragStart', { elementId });
-  }, [elementId]);
+    log('ClickableImagePlaceholder', 'dragStart', { elementId, instanceId });
+  }, [elementId, instanceId]);
 
   const handleDrag = useCallback((e: any) => {
     e.target.style.transform = e.transform;
@@ -295,7 +321,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   const handleDragEnd = useCallback((e: any) => {
     setIsDragging(false);
-    log('ClickableImagePlaceholder', 'dragEnd', { elementId });
+    log('ClickableImagePlaceholder', 'dragEnd', { elementId, instanceId });
     
     // Final position update after drag ends
     const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
@@ -309,16 +335,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         final: true
       });
     }
-  }, [onSizeTransformChange, elementId]);
+  }, [onSizeTransformChange, elementId, instanceId]);
 
   const handleResizeStart = useCallback(() => {
     setIsResizing(true);
-    log('ClickableImagePlaceholder', 'resizeStart', { elementId });
-  }, [elementId]);
+    log('ClickableImagePlaceholder', 'resizeStart', { elementId, instanceId });
+  }, [elementId, instanceId]);
 
   const handleResizeEnd = useCallback((e: any) => {
     setIsResizing(false);
-    log('ClickableImagePlaceholder', 'resizeEnd', { elementId });
+    log('ClickableImagePlaceholder', 'resizeEnd', { elementId, instanceId });
     
     // Final size update after resize ends
     const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
@@ -331,6 +357,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     
     log('ClickableImagePlaceholder', 'onResizeEnd', {
       elementId,
+      instanceId,
       width,
       height,
       position: { x, y },
@@ -345,17 +372,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       elementId: elementId,
       final: true
     });
-  }, [onSizeTransformChange, elementId]);
+  }, [onSizeTransformChange, elementId, instanceId]);
 
   const handleRotateStart = useCallback(() => {
     setIsRotating(true);
-    log('ClickableImagePlaceholder', 'rotateStart', { elementId });
-  }, [elementId]);
+    log('ClickableImagePlaceholder', 'rotateStart', { elementId, instanceId });
+  }, [elementId, instanceId]);
 
   const handleRotateEnd = useCallback(() => {
     setIsRotating(false);
-    log('ClickableImagePlaceholder', 'rotateEnd', { elementId });
-  }, [elementId]);
+    log('ClickableImagePlaceholder', 'rotateEnd', { elementId, instanceId });
+  }, [elementId, instanceId]);
 
   // ✅ NEW: Click handler for activating anchors
   const handleImageClick = useCallback((e: React.MouseEvent) => {
@@ -368,73 +395,86 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setIsSelected(!isSelected);
     log('ClickableImagePlaceholder', 'imageClick', { 
       elementId, 
+      instanceId,
       newSelectionState: !isSelected 
     });
-  }, [isEditable, isSelected, elementId]);
+  }, [isEditable, isSelected, elementId, instanceId]);
 
-  // ✅ NEW: Right-click handler for context menu
+  // ✅ FIXED: Right-click handler with proper instance isolation
   const handleRightClick = useCallback((e: React.MouseEvent) => {
     if (!isEditable || !displayedImage) return;
     
     e.preventDefault();
     e.stopPropagation();
     
-    // Close any other context menus first (global cleanup)
-    globalContextMenuState.closeAll();
+    log('ClickableImagePlaceholder', 'rightClickStart', { 
+      elementId,
+      instanceId,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      target: e.currentTarget,
+      displayedImage: !!displayedImage
+    });
     
-    // Set this as the active element
-    globalContextMenuState.activeElementId = elementId || null;
+    // Close all OTHER context menus (not this one)
+    globalContextMenuState.closeAllExcept(instanceId);
     
+    // Open THIS instance's context menu
     setContextMenu({
       isOpen: true,
       position: { x: e.clientX, y: e.clientY }
     });
     
-    log('ClickableImagePlaceholder', 'rightClick', { 
+    log('ClickableImagePlaceholder', 'rightClickComplete', { 
       elementId,
-      clientX: e.clientX,
-      clientY: e.clientY,
-      target: e.currentTarget,
-      globalActiveElement: globalContextMenuState.activeElementId
+      instanceId,
+      menuPosition: { x: e.clientX, y: e.clientY },
+      activeInstances: globalContextMenuState.activeInstances.size
     });
-  }, [isEditable, displayedImage, elementId]);
+  }, [isEditable, displayedImage, elementId, instanceId]);
 
-  // ✅ NEW: Context menu handlers
+  // ✅ IMPROVED: Context menu handlers with proper instance tracking
   const handleReplaceImage = useCallback(() => {
     log('ClickableImagePlaceholder', 'handleReplaceImage', { 
       elementId,
+      instanceId,
       contextMenuOpen: contextMenu.isOpen,
-      currentImage: displayedImage
+      currentImage: !!displayedImage
     });
     
-    setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+    closeContextMenu();
     setShowUploadModal(true);
-  }, [elementId, contextMenu.isOpen, displayedImage]);
+  }, [elementId, instanceId, contextMenu.isOpen, displayedImage, closeContextMenu]);
 
   const handleRemoveImage = useCallback(() => {
     log('ClickableImagePlaceholder', 'handleRemoveImage', { 
       elementId,
+      instanceId,
       contextMenuOpen: contextMenu.isOpen,
-      currentImage: displayedImage
+      currentImage: !!displayedImage
     });
     
-    setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+    closeContextMenu();
     setDisplayedImage(undefined);
     onImageUploaded('');
     setIsSelected(false);
-  }, [onImageUploaded, elementId, contextMenu.isOpen, displayedImage]);
+  }, [onImageUploaded, elementId, instanceId, contextMenu.isOpen, displayedImage, closeContextMenu]);
 
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
     if (!isEditable) return;
     setShowUploadModal(true);
-    log('ClickableImagePlaceholder', 'placeholderClick', { elementId });
-  }, [isEditable, elementId]);
+    log('ClickableImagePlaceholder', 'placeholderClick', { 
+      elementId, 
+      instanceId 
+    });
+  }, [isEditable, elementId, instanceId]);
 
   // Handle image upload and open edit modal
   const handleImageUploaded = (newImagePath: string, imageFile?: File) => {
     log('ClickableImagePlaceholder', 'handleImageUploaded', {
       elementId,
+      instanceId,
       hasImageFile: !!imageFile,
       newImagePath: !!newImagePath
     });
@@ -470,6 +510,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const handleConfirmCrop = useCallback((croppedImagePath: string) => {
     log('ClickableImagePlaceholder', 'handleConfirmCrop', {
       elementId,
+      instanceId,
       croppedImagePath: !!croppedImagePath
     });
 
@@ -477,12 +518,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setDisplayedImage(croppedImagePath);
     setShowImageEditModal(false);
     setPendingImageFile(null);
-  }, [onImageUploaded, elementId]);
+  }, [onImageUploaded, elementId, instanceId]);
 
   // Handle modal do not crop
   const handleDoNotCrop = useCallback((originalImagePath: string) => {
     log('ClickableImagePlaceholder', 'handleDoNotCrop', {
       elementId,
+      instanceId,
       originalImagePath: !!originalImagePath
     });
 
@@ -490,20 +532,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setDisplayedImage(originalImagePath);
     setShowImageEditModal(false);
     setPendingImageFile(null);
-  }, [onImageUploaded, elementId]);
+  }, [onImageUploaded, elementId, instanceId]);
 
   // Handle modal cancel
   const handleModalCancel = useCallback(() => {
-    log('ClickableImagePlaceholder', 'handleModalCancel', { elementId });
+    log('ClickableImagePlaceholder', 'handleModalCancel', { 
+      elementId, 
+      instanceId 
+    });
 
     setShowImageEditModal(false);
     setPendingImageFile(null);
-  }, [elementId]);
+  }, [elementId, instanceId]);
 
   // Finalize image upload
   const finalizeImageUpload = useCallback(async (imagePath: string) => {
     log('ClickableImagePlaceholder', 'finalizeImageUpload', {
       elementId,
+      instanceId,
       imagePath: !!imagePath
     });
 
@@ -527,7 +573,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       }
     };
     tmp.src = imagePath;
-  }, [onImageUploaded, onSizeTransformChange, cropMode, elementId]);
+  }, [onImageUploaded, onSizeTransformChange, cropMode, elementId, instanceId]);
 
   // ✅ NEW: Updated Moveable component with click-to-activate
   const renderMoveable = () => {
@@ -559,6 +605,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           
           log('ClickableImagePlaceholder', 'onResize', {
             elementId,
+            instanceId,
             width: e.width,
             height: e.height,
             position: { x, y },
@@ -591,6 +638,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <div 
           ref={containerRef}
           data-moveable-element={elementId}
+          data-instance-id={instanceId} // NEW: Add instance tracking
           className={`
             ${positionClasses[position]} 
             relative overflow-hidden rounded-lg
@@ -644,14 +692,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <ContextMenu
           isOpen={contextMenu.isOpen}
           position={contextMenu.position}
-          onClose={() => {
-            setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
-            globalContextMenuState.activeElementId = null;
-            log('ClickableImagePlaceholder', 'contextMenuClose', { elementId });
-          }}
+          onClose={closeContextMenu}
           onReplaceImage={handleReplaceImage}
           onRemoveImage={handleRemoveImage}
           targetElementId={elementId}
+          instanceId={instanceId} // NEW: Pass instance ID
         />
       </>
     );
@@ -663,6 +708,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       <div 
         ref={containerRef}
         data-moveable-element={elementId}
+        data-instance-id={instanceId} // NEW: Add instance tracking
         className={`
           ${positionClasses[position]} 
           bg-gradient-to-br from-blue-100 to-purple-100 
