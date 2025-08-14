@@ -251,18 +251,9 @@ export default function TextPresentationClient() {
     
     // Add to edited titles list if title is different from original
     const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
-    console.log(`[DEBUG] handleTitleEdit: lessonIndex=${lessonIndex}, newTitle="${newTitle}", originalTitle="${originalTitle}"`);
-    console.log(`[DEBUG] handleTitleEdit: originalTitles:`, originalTitles);
-    console.log(`[DEBUG] handleTitleEdit: lessonList[${lessonIndex}]:`, lessonIndex < lessonList.length ? lessonList[lessonIndex] : 'undefined');
-    
     if (newTitle !== originalTitle) {
       setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
-      setOriginallyEditedTitles(prev => {
-        const newSet = new Set([...prev, lessonIndex]);
-        console.log(`[DEBUG] handleTitleEdit: Adding lessonIndex ${lessonIndex} to originallyEditedTitles`);
-        console.log(`[DEBUG] handleTitleEdit: originallyEditedTitles now:`, Array.from(newSet));
-        return newSet;
-      });
+      setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
       setHasUserEdits(true); // NEW: Mark that user has made edits
     } else {
       setEditedTitleIds(prev => {
@@ -289,8 +280,6 @@ export default function TextPresentationClient() {
       return;
     }
     const originalTitle = originalTitles[lessonIndex] || lessonList[lessonIndex].title;
-    console.log(`[DEBUG] handleTitleSave: lessonIndex=${lessonIndex}, newTitle="${newTitle}", originalTitle="${originalTitle}"`);
-    
     if (newTitle === originalTitle) {
       setEditedTitleIds(prev => {
         const newSet = new Set(prev);
@@ -299,7 +288,6 @@ export default function TextPresentationClient() {
       });
     }
     // Update the original content with new title
-    console.log(`[DEBUG] handleTitleSave: Calling updateContentWithNewTitle(${lessonIndex}, "${newTitle}")`);
     updateContentWithNewTitle(lessonIndex, newTitle);
   };
 
@@ -333,18 +321,6 @@ export default function TextPresentationClient() {
 
     setContent(updatedContent);
     
-    // CRITICAL FIX: Update originalTitles to reflect the new state
-    // This ensures that originalTitles tracks the current title state
-    if (updatedContent !== content) {
-      setOriginalTitles(prev => {
-        const newTitles = { ...prev };
-        newTitles[lessonIndex] = newTitle;
-        console.log(`[DEBUG] updateContentWithNewTitle: Updated originalTitles[${lessonIndex}] = "${newTitle}"`);
-        console.log(`[DEBUG] updateContentWithNewTitle: originalTitles now:`, newTitles);
-        return newTitles;
-      });
-    }
-    
     // Clear the edited title since it's now part of the main content
     setEditedTitles(prev => {
       const newTitles = { ...prev };
@@ -360,16 +336,9 @@ export default function TextPresentationClient() {
       return newSet;
     });
     
-    // NEW: Mark that content has been updated and track the edited title
+    // NEW: Mark that content has been updated
     if (updatedContent !== content) {
       setHasUserEdits(true);
-      // Add to originallyEditedTitles to track that this title was edited
-      setOriginallyEditedTitles(prev => {
-        const newSet = new Set([...prev, lessonIndex]);
-        console.log(`[DEBUG] updateContentWithNewTitle: Adding lessonIndex ${lessonIndex} to originallyEditedTitles`);
-        console.log(`[DEBUG] updateContentWithNewTitle: originallyEditedTitles now:`, Array.from(newSet));
-        return newSet;
-      });
     }
   };
 
@@ -503,10 +472,6 @@ export default function TextPresentationClient() {
     setError(null);
     try {
       // NEW: Determine what content to send based on user edits
-      console.log("[DEBUG] handleApplyEdit: hasUserEdits =", hasUserEdits);
-      console.log("[DEBUG] handleApplyEdit: originallyEditedTitles =", Array.from(originallyEditedTitles));
-      console.log("[DEBUG] handleApplyEdit: editedTitleIds =", Array.from(editedTitleIds));
-      
       let contentToSend = content;
       let isCleanContent = false;
       
@@ -514,13 +479,10 @@ export default function TextPresentationClient() {
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
-        console.log("[DEBUG] handleApplyEdit: Using clean content (titles only)");
-        console.log("[DEBUG] handleApplyEdit: Clean content =", contentToSend);
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;
         isCleanContent = false;
-        console.log("[DEBUG] handleApplyEdit: Using full content");
       }
 
       const payload: any = {
@@ -842,10 +804,6 @@ export default function TextPresentationClient() {
 
     try {
       // NEW: Determine what content to send based on user edits
-      console.log("[DEBUG] handleFinalize: hasUserEdits =", hasUserEdits);
-      console.log("[DEBUG] handleFinalize: originallyEditedTitles =", Array.from(originallyEditedTitles));
-      console.log("[DEBUG] handleFinalize: editedTitleIds =", Array.from(editedTitleIds));
-      
       let contentToSend = content;
       let isCleanContent = false;
       
@@ -853,13 +811,10 @@ export default function TextPresentationClient() {
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContent(content);
         isCleanContent = true;
-        console.log("[DEBUG] handleFinalize: Using clean content (titles only)");
-        console.log("[DEBUG] handleFinalize: Clean content =", contentToSend);
       } else {
         // If no titles changed, send full content with context
         contentToSend = content;
         isCleanContent = false;
-        console.log("[DEBUG] handleFinalize: Using full content");
       }
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {

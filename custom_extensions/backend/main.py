@@ -13277,7 +13277,6 @@ async def init_course_outline_chat(request: Request):
 # === Wizard Outline helpers & cache ===
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
 QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
-TEXT_PRESENTATION_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw text presentation content
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
     """Return a markdown outline that reflects the *structure* provided in
@@ -17302,12 +17301,6 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                         logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
                 
                 logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-                
-                # NEW: Cache the text presentation content for finalization
-                if chat_id:
-                    TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
-                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_CACHE] Cached text presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
-                
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                 
@@ -17341,12 +17334,6 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-                
-                # NEW: Cache the text presentation content for finalization
-                if chat_id:
-                    TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
-                    logger.info(f"[TEXT_PRESENTATION_PREVIEW_CACHE] Cached text presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
-                
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
@@ -17432,11 +17419,6 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
                     logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Sent keep-alive")
             
             logger.info(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-            
-            # NEW: Cache the edited text presentation content for finalization
-            if chat_id:
-                TEXT_PRESENTATION_PREVIEW_CACHE[chat_id] = assistant_reply
-                logger.info(f"[TEXT_PRESENTATION_EDIT_CACHE] Cached edited text presentation content for chat_id={chat_id}, length={len(assistant_reply)}")
             
         except Exception as e:
             logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
@@ -17572,52 +17554,36 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             # DIRECT PARSER PATH: Use cached content directly since no changes were made
             logger.info("Using direct parser path for text presentation finalization")
             
-            # Try to get cached content first, then fallback to original content
-            cached_content = None
-            if payload.chatSessionId:
-                cached_content = TEXT_PRESENTATION_PREVIEW_CACHE.get(payload.chatSessionId)
-                if cached_content:
-                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_CACHE] Found cached content for chat_id={payload.chatSessionId}, length={len(cached_content)}")
-                else:
-                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_CACHE] No cached content found for chat_id={payload.chatSessionId}")
-            
-            # Use cached content if available, otherwise use original content
-            content_to_parse = cached_content if cached_content else (payload.originalContent if payload.originalContent else payload.aiResponse)
+            # Use the original content for parsing since no changes were made
+            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
         else:
             # AI PARSER PATH: Use the provided content (which may be clean titles only)
             logger.info("Using AI parser path for text presentation finalization")
-            content_to_parse = payload.aiResponse
+            
+            # NEW: Check if we have clean content (only titles without descriptions)
+            if getattr(payload, 'isCleanContent', False):
+                logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+                
+                # Parse the clean content to identify sections that need content generation
+                content_to_parse = await _generate_content_for_clean_titles(
+                    clean_content=payload.aiResponse,
+                    original_content=payload.originalContent,
+                    language=payload.language
+                )
+            else:
+                content_to_parse = payload.aiResponse
         
-        # NEW: Choose dynamic instructions based on content type
-        if getattr(payload, 'isCleanContent', False):
-            # If content is clean (only titles), provide instructions to generate content for titles
-            dynamic_instructions = f"""
-            CRITICAL: You are generating content for a Text Presentation where ONLY the section titles/headlines were provided.
-            The user has edited some titles and wants you to generate appropriate content for each title.
-            
-            **Your Task:** For each title/headline provided, generate comprehensive and relevant content that matches the title.
-            
-            **Content Generation Rules:**
-            1. Each title should become a major section (level 2 headline)
-            2. Generate 2-4 paragraphs of relevant content for each title
-            3. Include bullet points, numbered lists, or other content blocks as appropriate
-            4. Make the content educational, informative, and engaging
-            5. Maintain consistency in tone and style across all sections
-            6. Use the language specified: {payload.language}
-            
-            **Output Structure:** Convert the provided titles into a complete Text Presentation with full content blocks.
-            
-            **Example:** If you receive "## Introduction to AI Tools", generate:
-            - A level 2 headline "Introduction to AI Tools"
-            - 2-3 paragraphs explaining what AI tools are
-            - A bullet list of key benefits
-            - A numbered list of examples
-            
-            Return ONLY the JSON object following the Text Presentation structure.
-            """
-        else:
-            # Standard parsing instructions for full content
-            dynamic_instructions = f"""
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
+            ai_response=content_to_parse,
+            project_name=project_name,  # Use consistent project name
+            target_model=TextPresentationDetails,
+            default_error_model_instance=TextPresentationDetails(
+                textTitle=project_name,
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            ),
+            dynamic_instructions=f"""
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
             Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
@@ -17696,19 +17662,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
               • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
 
             Return ONLY the JSON object.
-            """
-        
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=content_to_parse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
-                detectedLanguage=payload.language
-            ),
-            dynamic_instructions=dynamic_instructions,
+            """,
             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
         )
         
@@ -18244,25 +18198,6 @@ def _any_text_presentation_changes_made(original_content: str, edited_content: s
         
         # Simple text comparison
         if original_normalized != edited_normalized:
-            logger.info(f"Text presentation change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
-            return True
-        
-        logger.info("No text presentation changes detected - content is identical")
-        return False
-    except Exception as e:
-        # On any parsing issue assume changes were made so we use AI
-        logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
-        return True
-
-def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
-    """Compare original and edited text presentation content to detect changes"""
-    try:
-        # Normalize content for comparison
-        original_normalized = original_content.strip()
-        edited_normalized = edited_content.strip()
-        
-        # Simple text comparison
-        if original_normalized != edited_normalized:
             logger.info(f"Text presentation content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
             return True
         
@@ -18272,3 +18207,127 @@ def _any_text_presentation_changes_made(original_content: str, edited_content: s
         # On any parsing issue assume changes were made so we use AI
         logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
+
+async def _generate_content_for_clean_titles(clean_content: str, original_content: str, language: str) -> str:
+    """Generate content for clean titles (titles without descriptions)"""
+    try:
+        logger.info("Starting content generation for clean titles")
+        
+        # Parse the clean content to identify sections
+        sections = []
+        lines = clean_content.split('\n')
+        current_section = None
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Check if this is a header (## Title)
+            header_match = re.match(r'^(#{1,6})\s+(.+)$', line)
+            if header_match:
+                # Save previous section if exists
+                if current_section:
+                    sections.append(current_section)
+                
+                # Start new section
+                current_section = {
+                    'title': header_match.group(2).strip(),
+                    'content': '',
+                    'needs_content': True
+                }
+            elif current_section:
+                # This is content for the current section
+                current_section['content'] += line + '\n'
+                current_section['needs_content'] = False
+        
+        # Add the last section
+        if current_section:
+            sections.append(current_section)
+        
+        logger.info(f"Found {len(sections)} sections, {sum(1 for s in sections if s['needs_content'])} need content generation")
+        
+        # Generate content for sections that need it
+        for section in sections:
+            if section['needs_content']:
+                logger.info(f"Generating content for section: {section['title']}")
+                
+                # Create prompt for content generation
+                prompt = f"""Generate comprehensive content for the following section title in {language} language:
+
+Title: {section['title']}
+
+Please provide detailed, informative content that explains the topic thoroughly. The content should be:
+- Educational and informative
+- Well-structured with paragraphs
+- Include relevant examples or explanations
+- Match the tone and style of a professional presentation
+
+Generate the content:"""
+                
+                try:
+                    # Use OpenAI to generate content
+                    response = await stream_openai_response_direct(prompt)
+                    section['content'] = response
+                    logger.info(f"Generated {len(response)} characters for section: {section['title']}")
+                except Exception as e:
+                    logger.error(f"Failed to generate content for section {section['title']}: {e}")
+                    # Fallback to a simple description
+                    section['content'] = f"This section covers {section['title']}. Please refer to the original content for detailed information."
+        
+        # Reconstruct the content with generated descriptions
+        result_content = ""
+        for section in sections:
+            result_content += f"## {section['title']}\n\n{section['content']}\n\n"
+        
+        logger.info(f"Content generation completed. Total length: {len(result_content)} characters")
+        return result_content.strip()
+        
+    except Exception as e:
+        logger.error(f"Error in content generation for clean titles: {e}")
+        # Fallback to original content
+        return clean_content
+
+async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
+    """
+    Get a complete response directly from OpenAI API (non-streaming).
+    Returns the full response as a string.
+    """
+    try:
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
+        
+        logger.info(f"[OPENAI_DIRECT] Starting direct OpenAI request with model {model}")
+        logger.info(f"[OPENAI_DIRECT] Prompt length: {len(prompt)} chars")
+        
+        # Read the full ContentBuilder.ai assistant instructions
+        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        try:
+            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                system_prompt = f.read()
+        except FileNotFoundError:
+            logger.warning(f"[OPENAI_DIRECT] Assistant instructions file not found: {assistant_instructions_path}")
+            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Create the chat completion (non-streaming)
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=4000,
+            temperature=0.2
+        )
+        
+        if response.choices and len(response.choices) > 0:
+            content = response.choices[0].message.content
+            logger.info(f"[OPENAI_DIRECT] Response received: {len(content)} characters")
+            return content
+        else:
+            logger.error(f"[OPENAI_DIRECT] No content in response")
+            return ""
+            
+    except Exception as e:
+        logger.error(f"[OPENAI_DIRECT] Error in OpenAI direct request: {e}", exc_info=True)
+        return f"Error generating content: {str(e)}"
