@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ImageIcon, Replace, MoreVertical, Download, Trash2 } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
@@ -176,7 +177,8 @@ export interface ClickableImagePlaceholderProps {
 
         if (!visible) return null;
 
-    return (
+    // SWISS WATCH: Render via Portal to avoid parent transforms
+    const menuContent = (
       <>
         {/* SWISS WATCH DEBUG: Visual indicator showing exact cursor position */}
         <div
@@ -250,6 +252,11 @@ export interface ClickableImagePlaceholderProps {
         </div>
       </>
     );
+
+    // SWISS WATCH: Render to document.body to avoid parent transforms
+    return typeof window !== 'undefined' 
+      ? createPortal(menuContent, document.body)
+      : null;
   };
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
@@ -895,14 +902,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           data-instance-id={instanceId}
           data-debug-slide={elementId?.split('-')[0]}
           data-debug-element={elementId}
-                      className={`
-              ${positionClasses[position]} 
+          className={`
+            ${positionClasses[position]} 
               relative overflow-hidden rounded-lg
               ${isEditable ? 'cursor-pointer' : ''}
               ${isSelected ? 'ring-2 ring-blue-500' : ''}
               ${contextMenu.visible ? 'ring-2 ring-green-500 ring-opacity-75' : ''}
-              ${className}
-            `}
+            ${className}
+          `}
           style={{
             ...(style || {}),
           }}
@@ -946,17 +953,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onCancel={handleModalCancel}
         />
 
-        <ContextMenu
-          visible={contextMenu.visible}
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={hideContextMenu}
-          onReplaceImage={handleReplaceImage}
-          onRemoveImage={handleRemoveImage}
-          targetElementId={elementId}
-          instanceId={instanceId}
-          debugInfo={contextMenuDebugInfo}
-        />
+        {/* ContextMenu rendered via Portal to avoid parent transforms */}
+        {contextMenu.visible && (
+          <ContextMenu
+            visible={contextMenu.visible}
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onClose={hideContextMenu}
+            onReplaceImage={handleReplaceImage}
+            onRemoveImage={handleRemoveImage}
+            targetElementId={elementId}
+            instanceId={instanceId}
+            debugInfo={contextMenuDebugInfo}
+          />
+        )}
       </>
     );
   }
