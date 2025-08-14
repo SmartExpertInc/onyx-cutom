@@ -5,7 +5,7 @@ import { ImageBlock } from '@/types/textPresentation';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
   Settings, X, RotateCcw, ZoomIn, ZoomOut, Move, Crop, 
-  Palette, Type, Layout, Image as ImageIcon, Download, Upload
+  Palette, Type, Layout, Image as ImageIcon, ChevronDown, Edit3
 } from 'lucide-react';
 
 interface WordStyleImageEditorProps {
@@ -23,7 +23,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'format' | 'size' | 'layout' | 'effects'>('format');
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
 
   // Local state for real-time preview
   const [localImageBlock, setLocalImageBlock] = useState<ImageBlock>(imageBlock);
@@ -79,44 +79,98 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-2xl w-[90vw] h-[90vh] max-w-6xl flex flex-col">
-        {/* Header - Word-style */}
-        <div className="bg-[#2b579a] text-white px-6 py-3 flex items-center justify-between rounded-t-lg">
+      <div className="bg-white rounded-xl shadow-2xl w-[90vw] h-[90vh] max-w-4xl flex flex-col">
+        {/* Header - Modern UI */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 flex items-center justify-between rounded-t-xl">
           <div className="flex items-center gap-3">
-            <ImageIcon className="w-5 h-5" />
-            <h2 className="text-lg font-semibold">Format Picture</h2>
+            <div className="p-2 bg-white bg-opacity-20 rounded-lg">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">Image Settings</h2>
+              <p className="text-blue-100 text-sm">Customize your image appearance</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/20 rounded transition-colors"
+            className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Panel - Word-style ribbon */}
+          {/* Left Panel - Settings */}
           <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
-            {/* Tab Navigation */}
-            <div className="bg-white border-b border-gray-200">
-              <div className="flex">
-                {[
-                  { id: 'format', label: 'Format', icon: ImageIcon },
-                  { id: 'size', label: 'Size', icon: ZoomIn },
-                  { id: 'layout', label: 'Layout', icon: Layout },
-                  { id: 'effects', label: 'Effects', icon: Palette }
-                ].map((tab) => (
+            {/* Quick Actions */}
+            <div className="bg-white border-b border-gray-200 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Quick Actions</h3>
+                <div className="relative">
                   <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab.id
-                        ? 'border-[#2b579a] text-[#2b579a] bg-blue-50'
-                        : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                    onClick={() => setShowAdvancedEditor(!showAdvancedEditor)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Advanced
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showAdvancedEditor ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {/* Dropdown Menu */}
+                  {showAdvancedEditor && (
+                    <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => setActiveTab('format')}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Palette className="w-4 h-4" />
+                          Format & Style
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('size')}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <ZoomIn className="w-4 h-4" />
+                          Size & Scale
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('layout')}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Layout className="w-4 h-4" />
+                          Layout & Position
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('effects')}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                          Effects & Filters
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Quick Size Presets */}
+              <div className="grid grid-cols-2 gap-2">
+                {quickSizePresets.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => {
+                      updateImageProperty('width', preset.width);
+                      updateImageProperty('height', preset.height);
+                    }}
+                    className={`p-2 border rounded-lg text-left transition-colors ${
+                      (typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')) === preset.width
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <tab.icon className="w-4 h-4 mx-auto mb-1" />
-                    {tab.label}
+                    <div className="text-sm font-medium text-gray-900">{preset.name}</div>
+                    <div className="text-xs text-gray-500">{preset.width}px</div>
                   </button>
                 ))}
               </div>
@@ -402,124 +456,91 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
             </div>
           </div>
 
-          {/* Right Panel - Preview */}
-          <div className="flex-1 flex flex-col">
-            {/* Preview Controls */}
-            <div className="bg-gray-100 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-700">Preview:</span>
-                <div className="flex gap-1">
-                  {[
-                    { id: 'desktop', label: 'Desktop', icon: '🖥️' },
-                    { id: 'tablet', label: 'Tablet', icon: '📱' },
-                    { id: 'mobile', label: 'Mobile', icon: '📱' }
-                  ].map((device) => (
-                    <button
-                      key={device.id}
-                      onClick={() => setPreviewMode(device.id as any)}
-                      className={`px-3 py-1 rounded text-sm transition-colors ${
-                        previewMode === device.id
-                          ? 'bg-[#2b579a] text-white'
-                          : 'bg-white text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {device.icon} {device.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
-                  <Download className="w-4 h-4 inline mr-1" />
-                  Export
-                </button>
-              </div>
-            </div>
+                     {/* Right Panel - Live Preview */}
+           <div className="flex-1 flex flex-col">
+             {/* Preview Header */}
+             <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
+               <div className="flex items-center justify-between">
+                 <h3 className="text-sm font-semibold text-gray-900">Live Preview</h3>
+                 <div className="text-xs text-gray-500">
+                   Changes apply in real-time
+                 </div>
+               </div>
+             </div>
 
-            {/* Preview Area */}
-            <div className="flex-1 p-6 bg-gray-50 overflow-auto">
-              <div className={`mx-auto bg-white shadow-lg rounded-lg p-6 ${
-                previewMode === 'desktop' ? 'max-w-4xl' :
-                previewMode === 'tablet' ? 'max-w-2xl' :
-                'max-w-sm'
-              }`}>
-                <div className="prose max-w-none">
-                  <h2 className="text-xl font-bold mb-4">Sample Document</h2>
-                  <p className="mb-4">
-                    This is a sample paragraph that demonstrates how the image will appear in your document. 
-                    The text will wrap around the image according to the selected layout options.
-                  </p>
-                  
-                  {/* Image Preview */}
-                  <div className={`my-4 ${
-                    localImageBlock.alignment === 'left' ? 'text-left' :
-                    localImageBlock.alignment === 'right' ? 'text-right' :
-                    'text-center'
-                  }`}>
-                    <div className="inline-block relative">
-                      <img
-                        src={localImageBlock.src}
-                        alt={localImageBlock.alt || 'Preview image'}
-                        className="shadow-md"
-                        style={{
-                          width: typeof localImageBlock.width === 'number' ? `${localImageBlock.width}px` : localImageBlock.width || '300px',
-                          height: localImageBlock.height || 'auto',
-                          borderRadius: localImageBlock.borderRadius || '8px',
-                          maxWidth: localImageBlock.maxWidth || '100%',
-                          float: localImageBlock.layoutMode === 'inline-left' ? 'left' :
-                                 localImageBlock.layoutMode === 'inline-right' ? 'right' : 'none',
-                          margin: localImageBlock.layoutMode === 'inline-left' ? '0 16px 16px 0' :
-                                  localImageBlock.layoutMode === 'inline-right' ? '0 0 16px 16px' : '0'
-                        }}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
-                      />
-                      {localImageBlock.caption && (
-                        <p className="text-xs text-gray-600 mt-2 italic text-center">
-                          {localImageBlock.caption}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <p className="mb-4">
-                    This paragraph continues after the image, showing how the text flows around or below 
-                    the image based on the selected layout settings. You can see how the image positioning 
-                    affects the overall document layout.
-                  </p>
-                  
-                  <p>
-                    Additional content can be added here to demonstrate the full layout behavior. 
-                    The image editor provides real-time preview of how your changes will appear in the final document.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+             {/* Preview Area */}
+             <div className="flex-1 p-6 bg-gray-50 overflow-auto">
+               <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6">
+                 <div className="prose max-w-none">
+                   {/* Image Preview */}
+                   <div className={`my-4 ${
+                     localImageBlock.alignment === 'left' ? 'text-left' :
+                     localImageBlock.alignment === 'right' ? 'text-right' :
+                     'text-center'
+                   }`}>
+                     <div className="inline-block relative">
+                       <img
+                         src={localImageBlock.src}
+                         alt={localImageBlock.alt || 'Preview image'}
+                         className="shadow-md"
+                         style={{
+                           width: typeof localImageBlock.width === 'number' ? `${localImageBlock.width}px` : localImageBlock.width || '300px',
+                           height: localImageBlock.height || 'auto',
+                           borderRadius: localImageBlock.borderRadius || '8px',
+                           maxWidth: localImageBlock.maxWidth || '100%',
+                           float: localImageBlock.layoutMode === 'inline-left' ? 'left' :
+                                  localImageBlock.layoutMode === 'inline-right' ? 'right' : 'none',
+                           margin: localImageBlock.layoutMode === 'inline-left' ? '0 16px 16px 0' :
+                                   localImageBlock.layoutMode === 'inline-right' ? '0 0 16px 16px' : '0'
+                         }}
+                         onError={(e) => {
+                           const target = e.target as HTMLImageElement;
+                           target.style.display = 'none';
+                         }}
+                       />
+                       {localImageBlock.caption && (
+                         <p className="text-xs text-gray-600 mt-2 italic text-center">
+                           {localImageBlock.caption}
+                         </p>
+                       )}
+                     </div>
+                   </div>
+                   
+                   {/* Sample content for context */}
+                   <div className="mt-4 text-sm text-gray-600">
+                     <p>This preview shows how your image will appear in the document. Adjust settings on the left to see changes in real-time.</p>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
         </div>
 
-        {/* Footer - Word-style */}
-        <div className="bg-gray-100 px-6 py-3 border-t border-gray-200 flex items-center justify-between rounded-b-lg">
-          <div className="text-sm text-gray-600">
-            Image: {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={resetToDefaults}
-              className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-            >
-              Reset
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-[#2b579a] text-white rounded hover:bg-[#1e3a8a] transition-colors"
-            >
-              OK
-            </button>
-          </div>
-        </div>
+                 {/* Footer - Modern UI */}
+         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between rounded-b-xl">
+           <div className="flex items-center gap-4">
+             <div className="text-sm text-gray-600">
+               <span className="font-medium">Size:</span> {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
+             </div>
+             <div className="text-sm text-gray-600">
+               <span className="font-medium">Alignment:</span> {localImageBlock.alignment || 'center'}
+             </div>
+           </div>
+           <div className="flex gap-3">
+             <button
+               onClick={resetToDefaults}
+               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+             >
+               Reset to Default
+             </button>
+             <button
+               onClick={onClose}
+               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+             >
+               Apply Changes
+             </button>
+           </div>
+         </div>
       </div>
     </div>
   );
