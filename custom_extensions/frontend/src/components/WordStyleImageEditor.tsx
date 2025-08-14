@@ -63,11 +63,11 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
   ];
 
   const layoutPresets = [
-    { name: 'Inline with Text', mode: 'inline-left', description: 'Text flows around the image', float: 'left' },
-    { name: 'Inline Right', mode: 'inline-right', description: 'Text flows around on the left', float: 'right' },
-    { name: 'Break Text', mode: 'standalone', description: 'Image on its own line', float: undefined },
-    { name: 'Side by Side Left', mode: 'side-by-side-left', description: 'Image and text side by side', float: undefined },
-    { name: 'Side by Side Right', mode: 'side-by-side-right', description: 'Text and image side by side', float: undefined }
+    { name: 'Inline with Text', mode: 'inline-left' as const, description: 'Text flows around the image', float: 'left' as const },
+    { name: 'Inline Right', mode: 'inline-right' as const, description: 'Text flows around on the left', float: 'right' as const },
+    { name: 'Break Text', mode: 'standalone' as const, description: 'Image on its own line', float: undefined },
+    { name: 'Side by Side Left', mode: 'side-by-side-left' as const, description: 'Image and text side by side', float: undefined },
+    { name: 'Side by Side Right', mode: 'side-by-side-right' as const, description: 'Text and image side by side', float: undefined }
   ];
 
   const alignmentOptions = [
