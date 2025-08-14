@@ -513,7 +513,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
         {/* Add Website + File Upload Side-by-Side */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add Website Section */}
-          <div className="border-2 border-dashed rounded-lg p-6 text-center transition-all">
+          <div className="border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg p-6 text-center transition-all">
             <LinkIcon className="h-10 w-10 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('actions.addWebsite', 'Add a website')}</h3>
             <p className="text-gray-600 mb-4">{t('actions.addWebsiteHelp', 'Paste a URL to include the page content in this folder')}</p>
