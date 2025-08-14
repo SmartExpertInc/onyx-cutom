@@ -576,7 +576,9 @@ export const en = {
       // Preview placeholders
       noDocumentContent: "No document content available for preview",
       additionalContentPlaceholder: "Additional content from your document would continue here, showing how the image integrates with the surrounding text and layout.",
-      previewDescription: "The preview demonstrates the real-time changes to your image styling and how it affects the overall document presentation."
+      previewDescription: "The preview demonstrates the real-time changes to your image styling and how it affects the overall document presentation.",
+      // Basic actions dropdown
+      openAdvancedSettings: "Open Advanced Settings"
       },
     
     // Quality tiers

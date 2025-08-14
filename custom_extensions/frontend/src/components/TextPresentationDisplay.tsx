@@ -1168,6 +1168,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                       onTextChange={onTextChange}
                                       basePath={listItemPath(index, String(blockIndex))}
                                       suppressRecommendationStripe={hasRecommendation}
+                                      documentContent={documentContent}
                                   />
                               ))}
                           </div>
@@ -1181,6 +1182,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               onTextChange={onTextChange}
                               basePath={listItemPath(index)}
                               suppressRecommendationStripe={hasRecommendation}
+                              documentContent={documentContent}
                           />
                       )}
                     </div>
@@ -1235,6 +1237,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                     onTextChange={onTextChange}
                                     basePath={listItemPath(index, String(blockIndex))}
                                     suppressRecommendationStripe={hasRecommendation}
+                                    documentContent={documentContent}
                                 />
                             ))}
                         </div>
@@ -1248,6 +1251,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             onTextChange={onTextChange}
                             basePath={listItemPath(index)}
                             suppressRecommendationStripe={hasRecommendation}
+                            documentContent={documentContent}
                         />
                     )}
                   </div>
@@ -2131,16 +2135,20 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const extractDocumentText = (data: TextPresentationData | null): string => {
     if (!data?.contentBlocks) return '';
     
-    return data.contentBlocks
+    const extractedText = data.contentBlocks
       .map(block => {
         if (block.type === 'paragraph') return block.text;
         if (block.type === 'headline') return block.text;
         if (block.type === 'alert') return block.text;
+        if (block.type === 'bullet_list') return block.items?.join(' ') || '';
+        if (block.type === 'numbered_list') return block.items?.join(' ') || '';
         return '';
       })
       .filter(text => text.length > 0)
-      .join(' ')
-      .slice(0, 500); // Limit to 500 characters
+      .join(' ');
+    
+    // Return more content for preview, but still limit to avoid performance issues
+    return extractedText.slice(0, 1000); // Increased from 500 to 1000 characters
   };
 
   const documentContent = extractDocumentText(dataToDisplay);
@@ -2451,6 +2459,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           onDrop={handleDrop}
                           onDragEnd={handleDragEnd}
                           isDraggedOver={dragOverIndex === originalHeadlineIndex}
+                          documentContent={documentContent}
                         />
                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
@@ -2479,6 +2488,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDrop={handleDrop}
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
+                                  documentContent={documentContent}
                                 />
                                 <RenderBlock
                                   block={subItem.list}
@@ -2497,6 +2507,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDrop={handleDrop}
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniListIndex}
+                                  documentContent={documentContent}
                                 />
                               </div>
                             );
@@ -2520,6 +2531,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                               onDrop={handleDrop}
                               onDragEnd={handleDragEnd}
                               isDraggedOver={dragOverIndex === originalSubIndex}
+                              documentContent={documentContent}
                             />;
                           }
                         })}
@@ -2548,6 +2560,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onMoveBlockDown={handleMoveBlockDown}
                         isFirstBlock={originalHeadlineIndex === 0}
                         isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                        documentContent={documentContent}
                       />
                       <RenderBlock
                         block={item.list}
@@ -2566,6 +2579,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onDrop={handleDrop}
                         onDragEnd={handleDragEnd}
                         isDraggedOver={dragOverIndex === originalListIndex}
+                        documentContent={documentContent}
                       />
                     </div>
                   </div>
