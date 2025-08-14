@@ -253,7 +253,12 @@ export default function TextPresentationClient() {
     const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
     if (newTitle !== originalTitle) {
       setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
-      setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
+      setOriginallyEditedTitles(prev => {
+        const newSet = new Set([...prev, lessonIndex]);
+        console.log(`[DEBUG] handleTitleEdit: Adding lessonIndex ${lessonIndex} to originallyEditedTitles`);
+        console.log(`[DEBUG] handleTitleEdit: originallyEditedTitles now:`, Array.from(newSet));
+        return newSet;
+      });
       setHasUserEdits(true); // NEW: Mark that user has made edits
     } else {
       setEditedTitleIds(prev => {
@@ -340,7 +345,12 @@ export default function TextPresentationClient() {
     if (updatedContent !== content) {
       setHasUserEdits(true);
       // Add to originallyEditedTitles to track that this title was edited
-      setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
+      setOriginallyEditedTitles(prev => {
+        const newSet = new Set([...prev, lessonIndex]);
+        console.log(`[DEBUG] updateContentWithNewTitle: Adding lessonIndex ${lessonIndex} to originallyEditedTitles`);
+        console.log(`[DEBUG] updateContentWithNewTitle: originallyEditedTitles now:`, Array.from(newSet));
+        return newSet;
+      });
     }
   };
 
