@@ -6,6 +6,15 @@ import PresentationImageUpload from './PresentationImageUpload';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
 
+// Global context menu management
+const globalContextMenuState = {
+  activeElementId: null as string | null,
+  closeAll: () => {
+    // Dispatch a custom event to close all context menus
+    window.dispatchEvent(new CustomEvent('closeAllContextMenus'));
+  }
+};
+
 // Enhanced debug logging utility
 const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true);
 const log = (source: string, event: string, data: any) => {
@@ -47,6 +56,7 @@ interface ContextMenuProps {
   onClose: () => void;
   onReplaceImage: () => void;
   onRemoveImage?: () => void;
+  targetElementId?: string; // Add unique identifier
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -54,7 +64,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   position,
   onClose,
   onReplaceImage,
-  onRemoveImage
+  onRemoveImage,
+  targetElementId
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +92,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         left: position.x,
         top: position.y,
       }}
+      data-context-menu-for={targetElementId} // Add data attribute for debugging
     >
       <button
         onClick={onReplaceImage}
@@ -229,6 +241,35 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     }
   }, [isSelected, containerRef, elementId]);
 
+  // ✅ NEW: Cleanup context menu on unmount
+  useEffect(() => {
+    return () => {
+      // Close context menu if this component is unmounting
+      if (contextMenu.isOpen) {
+        setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+        log('ClickableImagePlaceholder', 'cleanupContextMenu', { elementId });
+      }
+    };
+  }, [contextMenu.isOpen, elementId]);
+
+  // ✅ NEW: Global context menu cleanup listener
+  useEffect(() => {
+    const handleCloseAllContextMenus = () => {
+      if (contextMenu.isOpen && globalContextMenuState.activeElementId !== elementId) {
+        setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+        log('ClickableImagePlaceholder', 'closeAllContextMenus', { 
+          elementId, 
+          activeElementId: globalContextMenuState.activeElementId 
+        });
+      }
+    };
+
+    window.addEventListener('closeAllContextMenus', handleCloseAllContextMenus);
+    return () => {
+      window.removeEventListener('closeAllContextMenus', handleCloseAllContextMenus);
+    };
+  }, [contextMenu.isOpen, elementId]);
+
   // ✅ NEW: Simplified drag/resize callbacks
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
@@ -338,28 +379,50 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
+    // Close any other context menus first (global cleanup)
+    globalContextMenuState.closeAll();
+    
+    // Set this as the active element
+    globalContextMenuState.activeElementId = elementId || null;
+    
     setContextMenu({
       isOpen: true,
       position: { x: e.clientX, y: e.clientY }
     });
     
-    log('ClickableImagePlaceholder', 'rightClick', { elementId });
+    log('ClickableImagePlaceholder', 'rightClick', { 
+      elementId,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      target: e.currentTarget,
+      globalActiveElement: globalContextMenuState.activeElementId
+    });
   }, [isEditable, displayedImage, elementId]);
 
   // ✅ NEW: Context menu handlers
   const handleReplaceImage = useCallback(() => {
+    log('ClickableImagePlaceholder', 'handleReplaceImage', { 
+      elementId,
+      contextMenuOpen: contextMenu.isOpen,
+      currentImage: displayedImage
+    });
+    
     setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
     setShowUploadModal(true);
-    log('ClickableImagePlaceholder', 'replaceImage', { elementId });
-  }, [elementId]);
+  }, [elementId, contextMenu.isOpen, displayedImage]);
 
   const handleRemoveImage = useCallback(() => {
+    log('ClickableImagePlaceholder', 'handleRemoveImage', { 
+      elementId,
+      contextMenuOpen: contextMenu.isOpen,
+      currentImage: displayedImage
+    });
+    
     setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
     setDisplayedImage(undefined);
     onImageUploaded('');
     setIsSelected(false);
-    log('ClickableImagePlaceholder', 'removeImage', { elementId });
-  }, [onImageUploaded, elementId]);
+  }, [onImageUploaded, elementId, contextMenu.isOpen, displayedImage]);
 
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
@@ -581,9 +644,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <ContextMenu
           isOpen={contextMenu.isOpen}
           position={contextMenu.position}
-          onClose={() => setContextMenu({ isOpen: false, position: { x: 0, y: 0 } })}
+          onClose={() => {
+            setContextMenu({ isOpen: false, position: { x: 0, y: 0 } });
+            globalContextMenuState.activeElementId = null;
+            log('ClickableImagePlaceholder', 'contextMenuClose', { elementId });
+          }}
           onReplaceImage={handleReplaceImage}
           onRemoveImage={handleRemoveImage}
+          targetElementId={elementId}
         />
       </>
     );
