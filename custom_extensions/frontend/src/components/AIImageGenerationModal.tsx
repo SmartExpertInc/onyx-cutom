@@ -77,10 +77,29 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
     setError(null);
     
     try {
+      // ✅ FIX: Ensure we send valid DALL-E 3 dimensions
+      let width = 1024;
+      let height = 1024;
+      
+      // Convert placeholder dimensions to valid DALL-E 3 sizes
+      if (placeholderDimensions.width > placeholderDimensions.height) {
+        // Landscape orientation
+        width = 1792;
+        height = 1024;
+      } else if (placeholderDimensions.height > placeholderDimensions.width) {
+        // Portrait orientation
+        width = 1024;
+        height = 1792;
+      } else {
+        // Square orientation (default)
+        width = 1024;
+        height = 1024;
+      }
+
       const request: AIImageGenerationRequest = {
         prompt: prompt.trim(),
-        width: placeholderDimensions.width,
-        height: placeholderDimensions.height,
+        width,
+        height,
         quality,
         style,
         model: 'dall-e-3'
@@ -88,6 +107,8 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
 
       log('AIImageGenerationModal', 'generateImage_apiCall', { 
         request,
+        originalDimensions: placeholderDimensions,
+        adjustedDimensions: { width, height },
         endpoint: '/api/custom/presentation/generate_image'
       });
 
@@ -226,8 +247,11 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <ImageIcon className="w-4 h-4" />
               <span>
-                Image will be generated at {placeholderDimensions.width}×{placeholderDimensions.height} pixels
+                Image will be generated at {placeholderDimensions.width > placeholderDimensions.height ? '1792×1024' : placeholderDimensions.height > placeholderDimensions.width ? '1024×1792' : '1024×1024'} pixels
               </span>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              (Optimized for DALL-E 3 based on your placeholder's aspect ratio)
             </div>
           </div>
 

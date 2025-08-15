@@ -7037,7 +7037,7 @@ class AIImageGenerationRequest(BaseModel):
     height: int = Field(..., description="Image height in pixels", ge=256, le=1792)
     quality: str = Field(default="standard", description="Image quality: standard or hd")
     style: str = Field(default="vivid", description="Image style: vivid or natural")
-    model: str = Field(default="dall-e-2", description="DALL-E model to use")
+    model: str = Field(default="dall-e-3", description="DALL-E model to use")
 
 @app.post("/api/custom/presentation/generate_image", responses={
     200: {"description": "Image generated successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/ai_generated_image.png"}}}},
@@ -7051,17 +7051,21 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         logger.info(f"[AI_IMAGE_GENERATION] Dimensions: {request.width}x{request.height}, Quality: {request.quality}, Style: {request.style}")
         
         # Validate dimensions (DALL-E 3 requirements)
-        if request.width not in [1024, 1792] and request.height not in [1024, 1792]:
-            # Round to nearest valid size
-            if request.width <= 1024:
-                request.width = 1024
-            else:
-                request.width = 1792
-            if request.height <= 1024:
-                request.height = 1024
-            else:
-                request.height = 1792
-            logger.info(f"[AI_IMAGE_GENERATION] Adjusted dimensions to: {request.width}x{request.height}")
+        valid_sizes = [(1024, 1024), (1792, 1024), (1024, 1792)]
+        current_size = (request.width, request.height)
+        
+        if current_size not in valid_sizes:
+            # Find the closest valid size based on aspect ratio
+            aspect_ratio = request.width / request.height
+            
+            if aspect_ratio > 1.5:  # Landscape
+                request.width, request.height = 1792, 1024
+            elif aspect_ratio < 0.7:  # Portrait
+                request.width, request.height = 1024, 1792
+            else:  # Square-ish
+                request.width, request.height = 1024, 1024
+                
+            logger.info(f"[AI_IMAGE_GENERATION] Adjusted dimensions from {current_size} to {request.width}x{request.height}")
         
         # Get OpenAI client
         client = get_openai_client()

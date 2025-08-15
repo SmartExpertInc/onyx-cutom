@@ -102,6 +102,8 @@ export interface AIImageGenerationResponse extends ImageUploadResponse {
 }
 
 export async function generateAIImage(request: AIImageGenerationRequest): Promise<AIImageGenerationResponse> {
+  console.log('🔍 [API] generateAIImage request:', request);
+  
   const response = await fetch(`${API_BASE_URL}/presentation/generate_image`, {
     method: 'POST',
     headers: {
@@ -112,10 +114,17 @@ export async function generateAIImage(request: AIImageGenerationRequest): Promis
 
   if (!response.ok) {
     const errorData = await response.json();
+    console.error('🔍 [API] generateAIImage error:', {
+      status: response.status,
+      statusText: response.statusText,
+      errorData
+    });
     throw new Error(errorData.detail || 'Failed to generate AI image');
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('🔍 [API] generateAIImage success:', result);
+  return result;
 }
 
 export async function addDesignTemplate(templateData: DesignTemplateFormData): Promise<DesignTemplate> {
