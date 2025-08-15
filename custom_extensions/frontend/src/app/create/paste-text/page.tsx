@@ -83,7 +83,7 @@ export default function PasteTextPage() {
       {/* back button absolute top-left */}
       <Link
         href="/create"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-black hover:text-black-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
       >
         <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
       </Link>
