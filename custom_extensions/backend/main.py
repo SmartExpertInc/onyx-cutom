@@ -16608,7 +16608,7 @@ async def download_projects_list_pdf(
                 product_query = """
                     WITH lesson_products AS (
                         SELECT 
-                            lesson->>'recommendedContentTypes' as recommended_types
+                            lesson->'recommended_content_types'->'primary' as primary_types
                         FROM projects p
                         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                         CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
@@ -16628,52 +16628,15 @@ async def download_projects_list_pdf(
                     ),
                     expanded_products AS (
                         SELECT 
-                            CASE 
-                                WHEN recommended_types LIKE '%presentation%' THEN 'presentation'
-                                ELSE NULL
-                            END as product_type
+                            value::text as product_type
                         FROM lesson_products
-                        WHERE recommended_types IS NOT NULL
-                        AND recommended_types != ''
-                        AND recommended_types LIKE '%presentation%'
-                        
-                        UNION ALL
-                        
-                        SELECT 
-                            CASE 
-                                WHEN recommended_types LIKE '%one-pager%' THEN 'one_pager'
-                                ELSE NULL
-                            END as product_type
-                        FROM lesson_products
-                        WHERE recommended_types IS NOT NULL
-                        AND recommended_types != ''
-                        AND recommended_types LIKE '%one-pager%'
-                        
-                        UNION ALL
-                        
-                        SELECT 
-                            CASE 
-                                WHEN recommended_types LIKE '%quiz%' THEN 'quiz'
-                                ELSE NULL
-                            END as product_type
-                        FROM lesson_products
-                        WHERE recommended_types IS NOT NULL
-                        AND recommended_types != ''
-                        AND recommended_types LIKE '%quiz%'
-                        
-                        UNION ALL
-                        
-                        SELECT 
-                            CASE 
-                                WHEN recommended_types LIKE '%video-lesson%' THEN 'video_lesson'
-                                ELSE NULL
-                            END as product_type
-                        FROM lesson_products
-                        WHERE recommended_types IS NOT NULL
-                        AND recommended_types != ''
-                        AND recommended_types LIKE '%video-lesson%'
+                        CROSS JOIN LATERAL jsonb_array_elements_text(primary_types) AS value
+                        WHERE primary_types IS NOT NULL
+                        AND jsonb_typeof(primary_types) = 'array'
                     )
-                    SELECT product_type, COUNT(*) as count
+                    SELECT 
+                        REPLACE(product_type, '"', '') as product_type, 
+                        COUNT(*) as count
                     FROM expanded_products
                     WHERE product_type IS NOT NULL
                     GROUP BY product_type
@@ -16682,6 +16645,37 @@ async def download_projects_list_pdf(
                 
                 logger.info(f"[PDF_ANALYTICS] Product query: {product_query}")
                 logger.info(f"[PDF_ANALYTICS] Product params: {product_params}")
+                
+                # First, let's debug what's actually in the lesson data
+                debug_query = """
+                    SELECT 
+                        lesson->>'title' as lesson_title,
+                        lesson->'recommended_content_types' as recommended_types,
+                        lesson->'recommended_content_types'->'primary' as primary_types,
+                        jsonb_pretty(lesson) as full_lesson_data
+                    FROM projects p
+                    LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                    CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                    CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                    WHERE p.onyx_user_id = $1
+                    AND p.microproduct_content IS NOT NULL
+                    AND p.microproduct_content->>'sections' IS NOT NULL
+                    AND dt.component_name = 'TrainingPlanTable'
+                """
+                debug_params = [onyx_user_id]
+                if folder_id is not None:
+                    debug_query += " AND p.folder_id = $2"
+                    debug_params.append(folder_id)
+                debug_query += " LIMIT 3"
+                
+                debug_rows = await analytics_conn.fetch(debug_query, *debug_params)
+                logger.info(f"[PDF_ANALYTICS] Debug: Found {len(debug_rows)} lessons to examine")
+                for i, row in enumerate(debug_rows):
+                    logger.info(f"[PDF_ANALYTICS] Debug lesson {i+1}:")
+                    logger.info(f"[PDF_ANALYTICS]   Title: {row['lesson_title']}")
+                    logger.info(f"[PDF_ANALYTICS]   Recommended types: {row['recommended_types']}")
+                    logger.info(f"[PDF_ANALYTICS]   Primary types: {row['primary_types']}")
+                    logger.info(f"[PDF_ANALYTICS]   Full lesson data: {row['full_lesson_data'][:500]}...")  # First 500 chars
                 
                 product_rows = await analytics_conn.fetch(product_query, *product_params)
                 logger.info(f"[PDF_ANALYTICS] Product query returned {len(product_rows)} rows")
