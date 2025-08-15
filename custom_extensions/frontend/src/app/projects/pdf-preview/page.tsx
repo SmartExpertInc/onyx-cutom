@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -22,7 +22,7 @@ interface Folder {
   projects?: Project[];
 }
 
-export default function ProjectsPdfPreviewPage() {
+function ProjectsPdfPreviewContent() {
   const searchParams = useSearchParams();
   const folderId = searchParams?.get('folderId');
   
@@ -199,5 +199,20 @@ export default function ProjectsPdfPreviewPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ProjectsPdfPreviewPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading projects preview...</p>
+        </div>
+      </div>
+    }>
+      <ProjectsPdfPreviewContent />
+    </Suspense>
   );
 } 

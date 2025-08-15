@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -21,7 +21,6 @@ interface ProjectInstance {
 
 export default function PdfPreviewPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const projectId = params?.projectId as string;
   
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstance | null>(null);
