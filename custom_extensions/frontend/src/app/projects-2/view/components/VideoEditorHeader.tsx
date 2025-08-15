@@ -16,6 +16,7 @@ export default function VideoEditorHeader() {
   ]);
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const sharePopupRef = useRef<HTMLDivElement>(null);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -23,8 +24,15 @@ export default function VideoEditorHeader() {
       if (resizeButtonRef.current && !resizeButtonRef.current.contains(event.target as Node)) {
         setIsResizePopupOpen(false);
       }
-      if (shareButtonRef.current && !shareButtonRef.current.contains(event.target as Node)) {
-        setIsSharePopupOpen(false);
+      
+      // For share popup, check if click is outside both button and popup
+      if (isSharePopupOpen) {
+        const isClickInButton = shareButtonRef.current?.contains(event.target as Node);
+        const isClickInPopup = sharePopupRef.current?.contains(event.target as Node);
+        
+        if (!isClickInButton && !isClickInPopup) {
+          setIsSharePopupOpen(false);
+        }
       }
     };
 
@@ -88,6 +96,26 @@ export default function VideoEditorHeader() {
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="w-3 h-3 text-gray-500">
       <path
         d="M3 4.5L6 7.5L9 4.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // Link icon component
+  const LinkIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-600">
+      <path
+        d="M6.5 9.5C6.83333 9.83333 7.16667 10 7.5 10H8.5C9.5 10 10.5 9 10.5 8C10.5 7 9.5 6 8.5 6H7.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.5 6.5C9.16667 6.16667 8.83333 6 8.5 6H7.5C6.5 6 5.5 7 5.5 8C5.5 9 6.5 10 7.5 10H8.5"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
@@ -282,7 +310,10 @@ export default function VideoEditorHeader() {
 
               {/* Share popup */}
               {isSharePopupOpen && (
-                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-80 p-4">
+                <div 
+                  ref={sharePopupRef}
+                  className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-96 p-4"
+                >
                   {/* Title */}
                   <h3 className="text-xs font-medium text-gray-700 mb-4">Invite team members</h3>
                   
@@ -331,15 +362,25 @@ export default function VideoEditorHeader() {
                    {/* Horizontal line */}
                    <div className="border-t border-gray-200 mb-4"></div>
                    
-                   {/* Bottom section */}
-                   <div className="flex justify-start">
+                                      {/* Bottom section */}
+                   <div className="flex justify-between items-center">
                      <button
                        onClick={addEmailInput}
-                       className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                       className="text-black hover:text-gray-800 text-sm font-medium flex items-center gap-1 border border-gray-300 hover:border-gray-400 rounded px-3 py-2 transition-colors"
                      >
                        <span className="text-base">+</span>
                        <span>add another</span>
                      </button>
+                     
+                     {/* Right side container with link and invite buttons */}
+                     <div className="flex items-center gap-2">
+                       <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                         <LinkIcon />
+                       </button>
+                       <button className="bg-black text-white hover:bg-gray-800 rounded px-4 py-2 text-sm font-medium transition-colors">
+                         Invite
+                       </button>
+                     </div>
                    </div>
                 </div>
               )}
