@@ -70,13 +70,13 @@ export default function Toolbar() {
                 return (
                   <div
                     key={tool.id}
-                    className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-3 ${
+                    className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-2 ${
                       tool.isActive ? 'bg-gray-200 border border-gray-300 rounded-lg' : ''
                     }`}
                   >
                     {/* Icon */}
-                    <div className="flex items-center justify-center mb-2 w-6 h-6">
-                                            <img
+                    <div className="flex items-center justify-center mb-1 w-5 h-5">
+                      <img
                         src={tool.icon}
                         alt={tool.label}
                         className="object-contain w-full h-full"
@@ -107,12 +107,12 @@ export default function Toolbar() {
               {tools.filter(tool => tool.id === 'default').map((tool) => (
                 <div
                   key={tool.id}
-                  className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-3 ${
+                  className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-2 ${
                     tool.isActive ? 'bg-gray-200 border border-gray-300 rounded-lg' : ''
                   }`}
                 >
                   {/* Icon */}
-                  <div className="flex items-center justify-center mb-2 w-8 h-8">
+                  <div className="flex items-center justify-center mb-1 w-5 h-5">
                     <img
                       src={tool.icon}
                       alt={tool.label}
@@ -135,11 +135,11 @@ export default function Toolbar() {
 
                   {/* Chevron */}
                   {tool.chevron && (
-                    <div className="flex items-center justify-center mt-1">
+                    <div className="flex items-center justify-center mt-0.5">
                       <img
                         src={tool.chevron}
                         alt="expand"
-                        className="object-contain w-4 h-2"
+                        className="object-contain w-3 h-1.5"
                       />
                     </div>
                   )}
