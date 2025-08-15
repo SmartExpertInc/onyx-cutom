@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-
 export default function VideoEditorHeader() {
   return (
     <header className="w-full bg-white h-[84px] flex items-center px-6">
@@ -70,8 +68,7 @@ export default function VideoEditorHeader() {
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
 
             {/* Upgrade button */}
-            <Button
-              variant="outline"
+            <button
               className="bg-editor-purple-bg border-editor-purple-border text-editor-purple-text hover:bg-editor-purple-bg/80 rounded-[9px] px-4 lg:px-6 py-2 h-[48px] gap-2 lg:gap-3 border"
             >
               <img
@@ -80,7 +77,7 @@ export default function VideoEditorHeader() {
                 className="w-5 h-[15px]"
               />
               <span className="text-lg font-normal">Upgrade</span>
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -108,19 +105,18 @@ export default function VideoEditorHeader() {
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
 
             {/* Share button */}
-            <Button
-              variant="outline"
+            <button
               className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-4 lg:px-6 py-2 h-[48px] border"
             >
               <span className="text-xl font-normal">Share</span>
-            </Button>
+            </button>
 
             {/* Generate button */}
-            <Button
+            <button
               className="bg-editor-dark text-editor-light-text hover:bg-gray-800 rounded-[7px] px-4 lg:px-6 py-2 h-[48px]"
             >
               <span className="text-xl font-normal">Generate</span>
-            </Button>
+            </button>
           </div>
         </div>
       </div>
