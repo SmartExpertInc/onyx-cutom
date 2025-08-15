@@ -17,6 +17,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   onOpenAdvancedSettings
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { t } = useLanguage();
@@ -27,6 +28,12 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
           buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setShowMenu(false);
+        // Hide button when dropdown is closed and cursor is not over the button
+        setTimeout(() => {
+          if (!buttonRef.current?.matches(':hover')) {
+            setIsButtonVisible(false);
+          }
+        }, 100);
       }
     };
 
@@ -58,11 +65,12 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     <div className="relative">
       <button
         ref={buttonRef}
+        onMouseEnter={() => setIsButtonVisible(true)}
         onClick={(e) => {
           e.stopPropagation();
           setShowMenu(!showMenu);
         }}
-        className="flex items-center gap-1 px-2 py-1 bg-white/90 hover:bg-white text-gray-700 text-xs rounded-md transition-colors shadow-sm border border-gray-200"
+        className={`flex items-center gap-1 px-2 py-1 bg-white/90 hover:bg-white text-gray-700 text-xs rounded-md transition-colors shadow-sm border border-gray-200 ${isButtonVisible || showMenu ? 'opacity-100' : 'opacity-0'}`}
       >
         <Settings className="w-3 h-3" />
         <ChevronDown className={`w-3 h-3 transition-transform ${showMenu ? 'rotate-180' : ''}`} />
