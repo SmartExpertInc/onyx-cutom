@@ -618,7 +618,7 @@
         /* Big Image Left Template - EXACT FRONTEND MATCH */
        /* Big Image Left Template - FIXED CSS CLASSES */
 
-.big-image-left {
+/* .big-image-left {
     width: 100%;
     height: 100%;
     background-color: var(--bg-color);
@@ -713,7 +713,7 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     margin: 0; /* Remove margin to prevent positioning conflicts */
-}
+} */
         
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
@@ -1423,60 +1423,53 @@
                     {% endif %}
                 </div>
                 
-                {% elif slide.templateId == 'big-image-left' %}
-                <div class="big-image-left">
-                    <div class="image-container">
-                        {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="
-                                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
-                                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
-                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                    transform-origin: center center;
-                                    border-radius: 8px; margin: 0 auto; max-width: none; max-height: none;
-                                 "
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            <div class="image-placeholder" style="display: none;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'man sitting on a chair' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">500px × 350px</div>
-                            </div>
-                        {% else %}
-                            <div class="image-placeholder" style="width: 500px; height: 350px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
-                                <!-- Empty placeholder - maintains layout -->
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="content-container">
-                        {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                            {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}
-                                <div class="title-wrapper positioned" style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);">
-                                    <h1 class="slide-title">{{ slide.props.title }}</h1>
-                                </div>
-                            {% else %}
-                                <div class="title-wrapper">
-                                    <h1 class="slide-title">{{ slide.props.title }}</h1>
-                                </div>
-                            {% endif %}
-                        {% endif %}
-                        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                            {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
-                            {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[subtitleId] %}
-                                <div class="subtitle-wrapper positioned" style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);">
-                                    <div class="content-text">{{ slide.props.subtitle }}</div>
-                                </div>
-                            {% else %}
-                                <div class="subtitle-wrapper">
-                                    <div class="content-text">{{ slide.props.subtitle }}</div>
-                                </div>
-                            {% endif %}
-                        {% endif %}
-                    </div>
-                </div>
+                <!-- Replace the existing big-image-left section with this SIMPLE fix -->
+{% elif slide.templateId == 'big-image-left' %}
+<div class="big-image-left">
+    <div class="image-container">
+        {% if slide.props.imagePath %}
+            <img src="{{ slide.props.imagePath }}" 
+                 alt="Uploaded image" 
+                 style="
+                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
+                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
+                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                    transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                    transform-origin: center center;
+                    border-radius: 8px; margin: 0 auto; max-width: none; max-height: none;
+                 "
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="image-placeholder" style="display: none;">
+                <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
+                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
+                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'man sitting on a chair' }}"</div>
+                <div style="font-size: 12px; color: #868e96;">500px × 350px</div>
+            </div>
+        {% else %}
+            <div class="image-placeholder" style="width: 500px; height: 350px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
+                <!-- Empty placeholder - maintains layout -->
+            </div>
+        {% endif %}
+    </div>
+    <div class="content-container">
+        {% if slide.props.title and slide.props.title != 'Click to add title' %}
+            {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+            <h1 class="slide-title"
+                {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}
+                    style="position: absolute; margin: 0; transform: translate({{ slide.metadata.elementPositions[titleId].x - 40 }}px, {{ slide.metadata.elementPositions[titleId].y - 40 }}px);"
+                {% endif %}
+            >{{ slide.props.title }}</h1>
+        {% endif %}
+        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
+            {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+            <div class="content-text"
+                {% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[subtitleId] %}
+                    style="position: absolute; margin: 0; transform: translate({{ slide.metadata.elementPositions[subtitleId].x - 40 }}px, {{ slide.metadata.elementPositions[subtitleId].y - 40 }}px);"
+                {% endif %}
+            >{{ slide.props.subtitle }}</div>
+        {% endif %}
+    </div>
+</div>
                 
             {% elif slide.templateId == 'big-image-top' %}
                 <div class="big-image-top">
