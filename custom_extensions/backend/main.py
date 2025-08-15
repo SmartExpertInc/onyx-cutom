@@ -16599,6 +16599,8 @@ async def download_projects_list_pdf(
         product_distribution = None
         quality_distribution = None
         
+        logger.info(f"[PDF_ANALYTICS] Starting analytics data fetch for user: {onyx_user_id}, folder_id: {folder_id}")
+        
         try:
             # Get product distribution data
             product_query = """
@@ -16615,7 +16617,11 @@ async def download_projects_list_pdf(
             
             product_query += " GROUP BY dt.component_name ORDER BY count DESC"
             
+            logger.info(f"[PDF_ANALYTICS] Product query: {product_query}")
+            logger.info(f"[PDF_ANALYTICS] Product params: {product_params}")
+            
             product_rows = await conn.fetch(product_query, *product_params)
+            logger.info(f"[PDF_ANALYTICS] Product query returned {len(product_rows)} rows")
             
             # Process product distribution
             product_counts = {}
@@ -16625,13 +16631,21 @@ async def download_projects_list_pdf(
                 component_name = row['component_name']
                 count = row['count']
                 total_products += count
+                logger.info(f"[PDF_ANALYTICS] Raw component: {component_name}, count: {count}")
                 
                 # Map component to product type
                 product_type = COMPONENT_TO_PRODUCT_TYPE.get(component_name)
+                logger.info(f"[PDF_ANALYTICS] Mapped {component_name} -> {product_type}")
                 if product_type:
                     if product_type not in product_counts:
                         product_counts[product_type] = 0
                     product_counts[product_type] += count
+                    logger.info(f"[PDF_ANALYTICS] Added {count} to {product_type}, total now: {product_counts[product_type]}")
+                else:
+                    logger.warning(f"[PDF_ANALYTICS] No mapping found for component: {component_name}")
+            
+            logger.info(f"[PDF_ANALYTICS] Total products: {total_products}")
+            logger.info(f"[PDF_ANALYTICS] Product counts: {product_counts}")
             
             # Create product distribution data for template
             product_distribution = {
@@ -16641,6 +16655,8 @@ async def download_projects_list_pdf(
                 'quiz_count': product_counts.get(ProductType.QUIZ, 0),
                 'video_lesson_count': product_counts.get(ProductType.VIDEO_LESSON, 0)
             }
+            
+            logger.info(f"[PDF_ANALYTICS] Product distribution before percentages: {product_distribution}")
             
             # Calculate percentages
             if total_products > 0:
@@ -16653,6 +16669,8 @@ async def download_projects_list_pdf(
                 product_distribution['presentation_percentage'] = 0
                 product_distribution['quiz_percentage'] = 0
                 product_distribution['video_lesson_percentage'] = 0
+            
+            logger.info(f"[PDF_ANALYTICS] Final product distribution: {product_distribution}")
             
             # Get quality distribution data
             quality_query = """
@@ -16689,7 +16707,11 @@ async def download_projects_list_pdf(
                 ORDER BY count DESC
             """
             
+            logger.info(f"[PDF_ANALYTICS] Quality query: {quality_query}")
+            logger.info(f"[PDF_ANALYTICS] Quality params: {quality_params}")
+            
             quality_rows = await conn.fetch(quality_query, *quality_params)
+            logger.info(f"[PDF_ANALYTICS] Quality query returned {len(quality_rows)} rows")
             
             # Process quality distribution
             tier_counts = {}
@@ -16699,6 +16721,7 @@ async def download_projects_list_pdf(
                 tier_name = row['quality_tier'].lower()
                 count = row['count']
                 total_lessons += count
+                logger.info(f"[PDF_ANALYTICS] Raw quality tier: {tier_name}, count: {count}")
                 
                 # Map tier names to enum values
                 tier_mapping = {
@@ -16711,9 +16734,14 @@ async def download_projects_list_pdf(
                 }
                 
                 tier = tier_mapping.get(tier_name, 'interactive')
+                logger.info(f"[PDF_ANALYTICS] Mapped quality tier {tier_name} -> {tier}")
                 if tier not in tier_counts:
                     tier_counts[tier] = 0
                 tier_counts[tier] += count
+                logger.info(f"[PDF_ANALYTICS] Added {count} to {tier}, total now: {tier_counts[tier]}")
+            
+            logger.info(f"[PDF_ANALYTICS] Total lessons: {total_lessons}")
+            logger.info(f"[PDF_ANALYTICS] Tier counts: {tier_counts}")
             
             # Create quality distribution data for template
             quality_distribution = {
@@ -16723,6 +16751,8 @@ async def download_projects_list_pdf(
                 'advanced_count': tier_counts.get('advanced', 0),
                 'immersive_count': tier_counts.get('immersive', 0)
             }
+            
+            logger.info(f"[PDF_ANALYTICS] Quality distribution before percentages: {quality_distribution}")
             
             # Calculate percentages
             if total_lessons > 0:
@@ -16735,9 +16765,11 @@ async def download_projects_list_pdf(
                 quality_distribution['interactive_percentage'] = 0
                 quality_distribution['advanced_percentage'] = 0
                 quality_distribution['immersive_percentage'] = 0
+            
+            logger.info(f"[PDF_ANALYTICS] Final quality distribution: {quality_distribution}")
                 
         except Exception as e:
-            logger.warning(f"Failed to fetch analytics data for PDF: {str(e)}")
+            logger.error(f"[PDF_ANALYTICS] Failed to fetch analytics data for PDF: {str(e)}", exc_info=True)
             # Use fallback data if analytics fetch fails
             product_distribution = {
                 'total_products': 0,
@@ -16761,6 +16793,7 @@ async def download_projects_list_pdf(
                 'advanced_percentage': 0,
                 'immersive_percentage': 0
             }
+            logger.info(f"[PDF_ANALYTICS] Using fallback data due to error")
 
         # Prepare data for template
         template_data = {
@@ -16776,8 +16809,21 @@ async def download_projects_list_pdf(
             'product_distribution': product_distribution,  # Add real product distribution data
             'quality_distribution': quality_distribution   # Add real quality distribution data
         }
+        
+        logger.info(f"[PDF_ANALYTICS] Template data prepared:")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {product_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {quality_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - summary_stats: {summary_stats}")
 
         # Generate PDF
+        logger.info(f"[PDF_ANALYTICS] About to generate PDF with template data keys: {list(template_data.keys())}")
+        logger.info(f"[PDF_ANALYTICS] Template data summary:")
+        logger.info(f"[PDF_ANALYTICS] - folders count: {len(template_data.get('folders', []))}")
+        logger.info(f"[PDF_ANALYTICS] - folder_projects count: {len(template_data.get('folder_projects', {}))}")
+        logger.info(f"[PDF_ANALYTICS] - unassigned_projects count: {len(template_data.get('unassigned_projects', []))}")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {template_data.get('product_distribution')}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {template_data.get('quality_distribution')}")
+        
         unique_output_filename = f"projects_list_{onyx_user_id}_{uuid.uuid4().hex[:12]}.pdf"
         pdf_path = await generate_pdf_from_html_template("projects_list_pdf_template.html", template_data, unique_output_filename)
         
