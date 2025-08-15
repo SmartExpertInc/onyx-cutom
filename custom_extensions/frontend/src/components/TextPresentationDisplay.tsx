@@ -198,6 +198,7 @@ interface RenderBlockProps {
   isFirstBlock?: boolean;
   isLastBlock?: boolean;
   documentContent?: string;
+  dataToDisplay?: TextPresentationData | null;
   onDragStart?: (e: React.DragEvent, index: number) => void;
   onDragOver?: (e: React.DragEvent, index: number) => void;
   onDragLeave?: (e: React.DragEvent) => void;
@@ -802,7 +803,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
     onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
-    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
+    documentContent, dataToDisplay, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
@@ -1635,6 +1636,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                       });
                     }}
                     onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                    dataToDisplay={dataToDisplay}
                   />
                 </div>
               )}
@@ -1782,19 +1784,37 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                       });
                     }}
                     onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                    dataToDisplay={dataToDisplay}
                   />
                 </div>
               )}
             </div>
             
-            {/* Content placeholder - це буде заповнено контентом з layoutPartnerIndex */}
+            {/* Content from layoutPartnerIndex */}
             <div 
               className="flex-1 side-by-side-content"
               style={{ width: contentWidth }}
             >
-              <div className="bg-gray-100 rounded-lg p-4 text-gray-500 text-sm italic">
-                Контент для side-by-side режиму буде додано тут
-              </div>
+              {layoutPartnerIndex !== undefined && dataToDisplay?.contentBlocks && dataToDisplay.contentBlocks[layoutPartnerIndex] ? (
+                <RenderBlock
+                  block={dataToDisplay.contentBlocks[layoutPartnerIndex]}
+                  depth={0}
+                  isEditing={isEditing}
+                  onTextChange={onTextChange}
+                  basePath={['contentBlocks', layoutPartnerIndex]}
+                  contentBlockIndex={layoutPartnerIndex}
+                  onMoveBlockUp={onMoveBlockUp}
+                  onMoveBlockDown={onMoveBlockDown}
+                  isFirstBlock={layoutPartnerIndex === 0}
+                  isLastBlock={layoutPartnerIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                  documentContent={documentContent}
+                  dataToDisplay={dataToDisplay}
+                />
+              ) : (
+                <div className="bg-gray-100 rounded-lg p-4 text-gray-500 text-sm italic">
+                  {layoutPartnerIndex !== undefined ? 'Контент не знайдено' : 'Виберіть контент для side-by-side режиму'}
+                </div>
+              )}
             </div>
             
             {/* Error fallback */}
@@ -1951,6 +1971,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     });
                   }}
                   onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                  dataToDisplay={dataToDisplay}
                 />
               </div>
             )}
@@ -2463,6 +2484,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           onDragEnd={handleDragEnd}
                           isDraggedOver={dragOverIndex === originalHeadlineIndex}
                           documentContent={documentContent}
+                          dataToDisplay={dataToDisplay}
                         />
                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
@@ -2492,6 +2514,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
                                   documentContent={documentContent}
+                                  dataToDisplay={dataToDisplay}
                                 />
                                 <RenderBlock
                                   block={subItem.list}
@@ -2511,6 +2534,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniListIndex}
                                   documentContent={documentContent}
+                                  dataToDisplay={dataToDisplay}
                                 />
                               </div>
                             );
@@ -2535,6 +2559,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                               onDragEnd={handleDragEnd}
                               isDraggedOver={dragOverIndex === originalSubIndex}
                               documentContent={documentContent}
+                              dataToDisplay={dataToDisplay}
                             />;
                           }
                         })}
@@ -2564,6 +2589,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         isFirstBlock={originalHeadlineIndex === 0}
                         isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                         documentContent={documentContent}
+                        dataToDisplay={dataToDisplay}
                       />
                       <RenderBlock
                         block={item.list}
@@ -2583,6 +2609,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onDragEnd={handleDragEnd}
                         isDraggedOver={dragOverIndex === originalListIndex}
                         documentContent={documentContent}
+                        dataToDisplay={dataToDisplay}
                       />
                     </div>
                   </div>
@@ -2606,6 +2633,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       isFirstBlock={originalIndex === 0}
                       isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                       documentContent={documentContent}
+                      dataToDisplay={dataToDisplay}
                       onDragStart={handleDragStart}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
