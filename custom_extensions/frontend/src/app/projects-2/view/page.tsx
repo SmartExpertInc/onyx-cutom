@@ -5,7 +5,7 @@ import React from 'react';
 // import { LeftSidebar } from '../components/LeftSidebar';
 // import { VideoPreview } from '../components/VideoPreview';
 // import { Timeline } from '../components/Timeline';
-import VideoEditorHeader from '../components/VideoEditorHeader';
+import VideoEditorHeader from './components/VideoEditorHeader';
 
 export default function Projects2ViewPage() {
   return (
