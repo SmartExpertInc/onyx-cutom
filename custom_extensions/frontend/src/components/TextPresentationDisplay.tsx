@@ -1624,7 +1624,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               
               {/* Basic Actions Button - appears on image hover */}
               {isEditing && (
-                <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200 z-50">
+                <div className="absolute top-2 right-2 opacity-100 transition-opacity duration-200 z-50">
                   <ImageBasicActions
                     imageBlock={block as ImageBlock}
                     onImageChange={(updatedBlock) => {
@@ -1782,7 +1782,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               
               {/* Basic Actions Button - appears on image hover */}
               {isEditing && (
-                <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200 z-50">
+                <div className="absolute top-2 right-2 opacity-100 transition-opacity duration-200 z-50">
                   <ImageBasicActions
                     imageBlock={block as ImageBlock}
                     onImageChange={(updatedBlock) => {
@@ -1938,7 +1938,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             
             {/* Basic Actions Button - appears on image hover */}
             {isEditing && onTextChange && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-200 z-50">
+              <div className="absolute top-2 right-2 opacity-100 transition-opacity duration-200 z-50">
                 <ImageBasicActions
                   imageBlock={block as ImageBlock}
                   onImageChange={(updatedBlock) => {
