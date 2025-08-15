@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-import os
-import sys
-
-# Отключаем создание .pyc файлов
-sys.dont_write_bytecode = True
-os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
-
 import math
 from typing import List, Dict
 
