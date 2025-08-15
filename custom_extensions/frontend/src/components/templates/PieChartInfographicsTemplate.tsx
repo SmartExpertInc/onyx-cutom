@@ -691,7 +691,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
       {/* Color picker modal for editing colors */}
       {editingColor !== null && isEditable && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
             <h3 className="text-lg font-bold mb-4">Выберите цвет для сегмента</h3>
             <div className="grid grid-cols-6 gap-2 mb-4">
               {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#67E8F9', '#0891B2', '#F97316', '#FB923C', '#FBBF24', '#34D399', '#059669', '#047857', '#F87171', '#DC2626', '#B91C1C', '#A855F7', '#7C3AED', '#6D28D9', '#F472B6', '#DB2777', '#BE185D', '#6366F1', '#8B5CF6', '#A855F7', '#7C3AED'].map((color) => (
@@ -719,7 +719,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
       {/* Pie Chart Editor Modal - без фона */}
       {editingPieChart !== null && isEditable && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl border border-gray-200">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl border border-gray-200" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
             <h3 className="text-lg font-bold mb-4 text-gray-900">Редактирование сегмента</h3>
             <p className="text-sm text-gray-700 mb-4">Измените процент для выбранного сегмента.</p>
             
