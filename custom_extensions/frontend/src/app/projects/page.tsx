@@ -21,13 +21,120 @@ import {
   Plus,
   Bell,
   MessageSquare,
-  ChevronRight
+  ChevronRight,
+  LayoutTemplate,
+  ChevronDown
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
+
+// Company Banner Component
+const CompanyBanner: React.FC = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const fullContentRef = React.useRef<HTMLDivElement>(null);
+
+  // Check for text overflow
+  React.useLayoutEffect(() => {
+    const checkOverflow = () => {
+      if (contentRef.current && fullContentRef.current) {
+        const contentRect = contentRef.current.getBoundingClientRect();
+        const fullContentRect = fullContentRef.current.getBoundingClientRect();
+
+        const isWidthOverflowing = fullContentRect.width > contentRect.width;
+        const isHeightOverflowing = fullContentRect.height > contentRect.height;
+
+        setIsOverflowing(isWidthOverflowing || isHeightOverflowing);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, []);
+
+  // Custom company content - you can modify this
+  const companyContent = "Welcome to our Product Management Platform - Organize, collaborate, and create amazing products with your team";
+
+  const handleMouseEnter = () => setIsExpanded(true);
+  const handleMouseLeave = () => setIsExpanded(false);
+
+  return (
+    <div
+      className={`
+        z-[39]
+        w-full
+        mx-auto
+        relative
+        cursor-default
+        shadow-sm
+        rounded
+        border
+        border-gray-200
+        border-l-8 border-l-blue-400
+        border-r-4 border-r-gray-200
+        bg-gray-50
+        transition-all duration-300 ease-in-out
+        ${isExpanded ? "shadow-md bg-white" : ""}
+      `}
+      onMouseLeave={handleMouseLeave}
+      aria-expanded={isExpanded}
+    >
+      <div className="text-gray-800 text-sm w-full">
+        {/* Padding for consistent spacing */}
+        <div className="relative p-2">
+          {/* Collapsible container */}
+          <div
+            className={`
+              overflow-hidden
+              transition-all duration-300 ease-in-out
+              ${
+                isExpanded
+                  ? "max-h-[1000px]"
+                  : "max-h-[1.5em]" // ~1.5 lines
+              }
+            `}
+          >
+            {/* Visible content container */}
+            <div ref={contentRef} className="text-center max-w-full">
+              <div className="prose text-left text-sm max-w-full whitespace-normal break-words">
+                {companyContent}
+              </div>
+            </div>
+          </div>
+
+          {/* Invisible element to measure overflow */}
+          <div className="absolute top-0 left-0 invisible">
+            <div
+              ref={fullContentRef}
+              className="overflow-hidden invisible text-center max-w-full"
+            >
+              <div className="prose text-sm max-w-full whitespace-normal break-words">
+                {companyContent}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="absolute -top-1 right-0">
+        {isOverflowing && !isExpanded && (
+          <button
+            onMouseEnter={handleMouseEnter}
+            className="cursor-pointer bg-white p-1 rounded-full transition-opacity duration-300 ease-in-out shadow-sm"
+            aria-label="Expand banner content"
+            onClick={() => setIsExpanded(true)}
+          >
+            <ChevronDown className="h-3 w-3 text-gray-600" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -455,7 +562,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Presentation size={18} />
+          <LayoutTemplate size={18} />
           <span>{t('interface.templates', 'Templates')}</span>
         </Link>
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
@@ -498,21 +605,29 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
   }, []);
 
   return (
-    <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? t('interface.trash', 'Trash') : t('interface.products', 'Products')}</h1>
-      <div className="flex items-center gap-4">
-        <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
-          <Sparkles size={16} className="text-yellow-500" />
-          {t('interface.getUnlimitedAI', 'Get unlimited AI')}
-        </Link>
-        <span className="text-sm font-semibold text-gray-800">
-          {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
-        </span>
-        <Bell size={20} className="text-gray-600 cursor-pointer" />
-        <LanguageDropdown />
-        <UserDropdown />
+    <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+      {/* Company Banner */}
+      <div className="px-8 py-2">
+        <CompanyBanner />
       </div>
-    </header>
+      
+      {/* Header Content */}
+      <header className="flex items-center justify-between p-4 px-8">
+        <h1 className="text-3xl font-bold text-gray-900">{isTrash ? t('interface.trash', 'Trash') : t('interface.products', 'Products')}</h1>
+        <div className="flex items-center gap-4">
+          <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
+            <Sparkles size={16} className="text-yellow-500" />
+            {t('interface.getUnlimitedAI', 'Get unlimited AI')}
+          </Link>
+          <span className="text-sm font-semibold text-gray-800">
+            {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
+          </span>
+          <Bell size={20} className="text-gray-600 cursor-pointer" />
+          <LanguageDropdown />
+          <UserDropdown />
+        </div>
+      </header>
+    </div>
   );
 };
 
