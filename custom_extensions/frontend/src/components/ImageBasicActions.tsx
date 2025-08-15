@@ -10,7 +10,7 @@ interface ImageBasicActionsProps {
   imageBlock: ImageBlock;
   onImageChange: (updatedBlock: ImageBlock) => void;
   onOpenAdvancedSettings: () => void;
-  imageRef?: React.RefObject<HTMLElement>;
+  imageRef?: React.RefObject<HTMLImageElement>;
 }
 
 const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
@@ -18,7 +18,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   onImageChange,
   onOpenAdvancedSettings,
   imageRef
-}) => {
+}: ImageBasicActionsProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
