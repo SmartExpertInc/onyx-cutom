@@ -73,6 +73,8 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
         <div 
           ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
+          onMouseEnter={(e: React.MouseEvent) => e.stopPropagation()}
+          onMouseLeave={(e: React.MouseEvent) => e.stopPropagation()}
           className="absolute left-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
           style={{
             transform: 'translateY(0)',
@@ -83,7 +85,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
             {/* Header with Advanced Settings button */}
             <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('interface.imageSettings.quickSizeControls')}</div>
-              <button
+              {/* <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpenAdvancedSettings();
@@ -93,7 +95,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 title={t('interface.imageSettings.openAdvancedSettings')}
               >
                 <Edit3 className="w-4 h-4 text-blue-600" />
-              </button>
+              </button> */}
             </div>
 
             {/* Quick Size Actions */}
