@@ -17,10 +17,9 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   onOpenAdvancedSettings
 }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [showProportionMenu, setShowProportionMenu] = useState(false);
+  const [showLayoutOptions, setShowLayoutOptions] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const proportionRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
   // Close dropdown when clicking outside
@@ -29,7 +28,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
           buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setShowMenu(false);
-        setShowProportionMenu(false);
+        setShowLayoutOptions(false);
       }
     };
 
@@ -105,12 +104,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     { value: '30-70', label: '30% - 70%', description: t('interface.imageSettings.contentDominant', 'Content dominant') }
   ];
 
-  // Отримати поточну пропорцію для відображення
-  const getCurrentProportion = () => {
-    const current = proportionOptions.find(opt => opt.value === imageBlock.layoutProportion);
-    return current || proportionOptions[0];
-  };
-
   return (
     <div className="relative">
       <button
@@ -118,6 +111,9 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
         onClick={(e) => {
           e.stopPropagation();
           setShowMenu(!showMenu);
+          if (!showMenu) {
+            setShowLayoutOptions(false);
+          }
         }}
         className="flex items-center gap-1 px-2 py-1 bg-white/90 hover:bg-white text-gray-700 text-xs rounded-md transition-colors shadow-sm border border-gray-200"
       >
@@ -155,86 +151,128 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
               </button>
             </div>
 
-            {/* Layout Options - НОВИЙ РОЗДІЛ */}
-            <div className="px-3 py-2 border-b border-gray-100">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-                <Layout className="w-3 h-3" />
-                {t('interface.imageSettings.layoutOptions', 'Layout Options')}
-              </div>
-              <div className="space-y-1">
-                {layoutOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log(`Applying layout: ${option.value}`);
-                      updateImageProperty('layoutMode', option.value);
-                      // Don't close menu automatically
-                    }}
-                    className={`w-full px-2 py-2 text-left text-xs rounded transition-colors flex items-center gap-2 ${
-                      imageBlock.layoutMode === option.value 
-                        ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                        : 'hover:bg-blue-50'
-                    }`}
-                    title={option.description}
-                  >
-                    <span className="text-sm">{option.preview}</span>
-                    <div className="flex-1">
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-gray-500 text-xs">{option.description}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Layout Options - ВКЛАДЕНИЙ DROPDOWN */}
+            <div className="border-b border-gray-100">
+              {/* Головна кнопка Layout Options */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowLayoutOptions(!showLayoutOptions);
+                }}
+                className="w-full px-3 py-2 text-left text-xs hover:bg-blue-50 transition-colors flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <Layout className="w-3 h-3" />
+                  <span className="font-medium">{t('interface.imageSettings.layoutOptions', 'Layout Options')}</span>
+                  {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
+                    <span className="text-xs text-blue-600 bg-blue-100 px-1 py-0.5 rounded">
+                      {imageBlock.layoutMode.includes('inline') ? '🖼️📄' : '🖼️|📄'}
+                    </span>
+                  )}
+                </div>
+                <ChevronRight className={`w-3 h-3 transition-transform ${showLayoutOptions ? 'rotate-90' : ''}`} />
+              </button>
 
-            {/* Параметри макета - як звичайний пункт в dropdown */}
-            {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
-              <div className="px-3 py-2 border-b border-gray-100">
-                {/* Кнопка "Параметри макета" */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowProportionMenu(!showProportionMenu);
-                  }}
-                  className="w-full text-left text-xs hover:bg-gray-50 rounded transition-colors flex items-center justify-between py-2 cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-600">📊</span>
-                    <div>
-                      <div className="font-medium">{t('interface.imageSettings.spaceDistribution', 'Space Distribution')}</div>
-                      <div className="text-gray-500 text-xs">{getCurrentProportion().label} - {getCurrentProportion().description}</div>
+              {/* Вкладений контент Layout Options */}
+              {showLayoutOptions && (
+                <div className="bg-gray-50 border-t border-gray-100">
+                  {/* Layout режими */}
+                  <div className="px-3 py-2 border-b border-gray-200">
+                    <div className="text-xs font-medium text-gray-600 mb-2">Layout Mode</div>
+                    <div className="space-y-1">
+                      {layoutOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log(`Applying layout: ${option.value}`);
+                            updateImageProperty('layoutMode', option.value);
+                            // Don't close menu automatically
+                          }}
+                          className={`w-full px-2 py-1.5 text-left text-xs rounded transition-colors flex items-center gap-2 ${
+                            imageBlock.layoutMode === option.value 
+                              ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                              : 'hover:bg-blue-50'
+                          }`}
+                          title={option.description}
+                        >
+                          <span className="text-sm">{option.preview}</span>
+                          <div className="flex-1">
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-gray-500 text-xs">{option.description}</div>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${showProportionMenu ? 'rotate-90' : ''}`} />
-                </button>
-                
-                {/* Опції пропорцій під кнопкою - ТІЛЬКИ КОЛИ showProportionMenu = true */}
-                {showProportionMenu && (
-                  <div className="mt-2 space-y-1">
-                    {proportionOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log(`Applying proportion: ${option.value}`);
-                          updateImageProperty('layoutProportion', option.value);
-                          // Не закриваємо меню автоматично
-                        }}
-                        className={`w-full px-3 py-2 text-left text-xs hover:bg-green-50 transition-colors rounded ${
-                          imageBlock.layoutProportion === option.value 
-                            ? 'bg-green-100 text-green-700 border-l-2 border-green-500' 
-                            : ''
-                        }`}
-                      >
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-gray-500 text-xs">{option.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+
+                  {/* Пропорції - тільки для side-by-side режимів */}
+                  {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
+                    <div className="px-3 py-2">
+                      <div className="text-xs font-medium text-gray-600 mb-2">Space Distribution</div>
+                      <div className="space-y-1">
+                        {proportionOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log(`Applying proportion: ${option.value}`);
+                              updateImageProperty('layoutProportion', option.value);
+                              // Don't close menu automatically
+                            }}
+                            className={`w-full px-2 py-1 text-left text-xs rounded transition-colors ${
+                              imageBlock.layoutProportion === option.value 
+                                ? 'bg-green-100 text-green-700 border border-green-200' 
+                                : 'hover:bg-green-50'
+                            }`}
+                          >
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-gray-500">{option.description}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Layout Preview - показує поточний стан */}
+                  {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
+                    <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-200">
+                      <div className="text-center">
+                        <div className="text-blue-600 text-xs font-medium mb-1">
+                          {t('interface.imageSettings.layoutPreview', 'Layout Preview')}
+                        </div>
+                        <div className="flex items-center justify-center space-x-1 text-xs">
+                          {imageBlock.layoutMode === 'side-by-side-left' && (
+                            <>
+                              <div className="bg-blue-200 px-1 py-0.5 rounded text-xs">🖼️</div>
+                              <div className="text-blue-400">|</div>
+                              <div className="bg-green-200 px-1 py-0.5 rounded text-xs">📄</div>
+                            </>
+                          )}
+                          {imageBlock.layoutMode === 'side-by-side-right' && (
+                            <>
+                              <div className="bg-green-200 px-1 py-0.5 rounded text-xs">📄</div>
+                              <div className="text-blue-400">|</div>
+                              <div className="bg-blue-200 px-1 py-0.5 rounded text-xs">🖼️</div>
+                            </>
+                          )}
+                          {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
+                            <div className="text-blue-600 text-xs">
+                              {imageBlock.layoutMode === 'inline-left' ? '🖼️ 📄' : '📄 🖼️'}
+                            </div>
+                          )}
+                        </div>
+                        {imageBlock.layoutProportion && (
+                          <div className="text-xs text-blue-500 mt-1">
+                            {t('interface.imageSettings.space', 'Space')}: {imageBlock.layoutProportion}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Quick Size Actions */}
             <div className="px-3 py-2 border-b border-gray-100">
@@ -257,9 +295,10 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       onImageChange(updatedBlock);
                       // Don't close menu automatically - let user make multiple changes
                     }}
-                    className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-center"
+                    className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
                   >
                     <span>{preset.name}</span>
+                    <span className="text-gray-500">{preset.width}px</span>
                   </button>
                 ))}
               </div>
@@ -280,7 +319,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       updateImageProperty('alignment', option.value);
                       // Don't close menu automatically
                     }}
-                    className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors flex items-center justify-center ${
+                    className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors flex items-center justify-center gap-1 ${
                       imageBlock.alignment === option.value 
                         ? 'bg-blue-100 text-blue-700' 
                         : 'hover:bg-blue-50'
@@ -288,6 +327,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     title={option.label}
                   >
                     <option.icon className="w-3 h-3" />
+                    <span className="hidden sm:inline">{option.label}</span>
                   </button>
                 ))}
               </div>
@@ -324,43 +364,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 ))}
               </div>
             </div>
-
-            {/* Layout Preview - показує поточний стан */}
-            {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
-              <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-200">
-                <div className="text-center">
-                  <div className="text-blue-600 text-xs font-medium mb-1">
-                    {t('interface.imageSettings.layoutPreview', 'Layout Preview')}
-                  </div>
-                  <div className="flex items-center justify-center space-x-1 text-xs">
-                    {imageBlock.layoutMode === 'side-by-side-left' && (
-                      <>
-                        <div className="bg-blue-200 px-1 py-0.5 rounded text-xs">🖼️</div>
-                        <div className="text-blue-400">|</div>
-                        <div className="bg-green-200 px-1 py-0.5 rounded text-xs">📄</div>
-                      </>
-                    )}
-                    {imageBlock.layoutMode === 'side-by-side-right' && (
-                      <>
-                        <div className="bg-green-200 px-1 py-0.5 rounded text-xs">📄</div>
-                        <div className="text-blue-400">|</div>
-                        <div className="bg-blue-200 px-1 py-0.5 rounded text-xs">🖼️</div>
-                      </>
-                    )}
-                    {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
-                      <div className="text-blue-600 text-xs">
-                        {imageBlock.layoutMode === 'inline-left' ? '🖼️ 📄' : '📄 🖼️'}
-                      </div>
-                    )}
-                  </div>
-                  {imageBlock.layoutProportion && (
-                    <div className="text-xs text-blue-500 mt-1">
-                      {t('interface.imageSettings.space', 'Space')}: {imageBlock.layoutProportion}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
