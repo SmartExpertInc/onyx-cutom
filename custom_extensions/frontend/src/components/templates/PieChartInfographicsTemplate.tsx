@@ -153,8 +153,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingSegmentDesc, setEditingSegmentDesc] = useState<number | null>(null);
   const [editingDescText, setEditingDescText] = useState(false);
   const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
-  const [editingColor, setEditingColor] = useState<number | null>(null);
-  const [editingPieChart, setEditingPieChart] = useState<number | null>(null);
+  const [editingColor, setEditingColor] = useState<{index: number, position: {x: number, y: number}} | null>(null);
+  const [editingPieChart, setEditingPieChart] = useState<{index: number, position: {x: number, y: number}} | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -317,12 +317,22 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingPercentage(index);
   };
 
-  const startEditingColor = (index: number) => {
-    setEditingColor(index);
+  const startEditingColor = (index: number, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    setEditingColor({ index, position });
   };
 
-  const startEditingPieChart = (segmentIndex: number) => {
-    setEditingPieChart(segmentIndex);
+  const startEditingPieChart = (segmentIndex: number, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    setEditingPieChart({ index: segmentIndex, position });
   };
 
   const handlePieChartSave = (segmentIndex: number, newPercentage: number) => {
@@ -444,7 +454,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   <div 
                     className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
                     style={{ backgroundColor: item.color }}
-                    onClick={() => isEditable && startEditingColor(index)}
+                                                onClick={(e) => isEditable && startEditingColor(index, e)}
                     title="Click to change color"
                   />
                   
@@ -565,7 +575,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       clipPath: clipPath,
                       WebkitClipPath: clipPath
                     }}
-                    onClick={() => startEditingPieChart(index)}
+                    onClick={(e) => startEditingPieChart(index, e)}
                     title={`Кликните для редактирования сегмента "${segment.label}"`}
                   />
                 );
@@ -688,10 +698,18 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
         </div>
       </div>
       
-      {/* Color picker modal for editing colors */}
+      {/* Color picker modal for editing colors - контекстный */}
       {editingColor !== null && isEditable && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <div className="fixed inset-0 z-50">
+          <div 
+            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-2xl border border-gray-200 absolute"
+            style={{ 
+              left: `${editingColor.position.x}px`, 
+              top: `${editingColor.position.y}px`,
+              transform: 'translate(-50%, -50%)',
+              zIndex: 51
+            }}
+          >
             <h3 className="text-lg font-bold mb-4">Выберите цвет для сегмента</h3>
             <div className="grid grid-cols-6 gap-2 mb-4">
               {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#67E8F9', '#0891B2', '#F97316', '#FB923C', '#FBBF24', '#34D399', '#059669', '#047857', '#F87171', '#DC2626', '#B91C1C', '#A855F7', '#7C3AED', '#6D28D9', '#F472B6', '#DB2777', '#BE185D', '#6366F1', '#8B5CF6', '#A855F7', '#7C3AED'].map((color) => (
@@ -699,7 +717,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   key={color}
                   className="w-8 h-8 rounded border-2 border-gray-300 hover:border-gray-500 transition-colors"
                   style={{ backgroundColor: color }}
-                  onClick={() => handleColorSave(editingColor, color)}
+                  onClick={() => handleColorSave(editingColor.index, color)}
                   title={color}
                 />
               ))}
@@ -707,7 +725,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             <div className="flex gap-2">
               <button
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-                onClick={() => handleColorCancel(editingColor)}
+                onClick={() => handleColorCancel(editingColor.index)}
               >
                 Отмена
               </button>
@@ -716,19 +734,27 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
         </div>
       )}
 
-      {/* Pie Chart Editor Modal - без фона */}
+      {/* Pie Chart Editor Modal - контекстный */}
       {editingPieChart !== null && isEditable && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl border border-gray-200" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <div className="fixed inset-0 z-50">
+          <div 
+            className="bg-white rounded-lg p-6 max-w-sm w-full shadow-2xl border border-gray-200 absolute"
+            style={{ 
+              left: `${editingPieChart.position.x}px`, 
+              top: `${editingPieChart.position.y}px`,
+              transform: 'translate(-50%, -50%)',
+              zIndex: 51
+            }}
+          >
             <h3 className="text-lg font-bold mb-4 text-gray-900">Редактирование сегмента</h3>
             <p className="text-sm text-gray-700 mb-4">Измените процент для выбранного сегмента.</p>
             
             <div className="flex items-center gap-3 mb-4">
               <div 
                 className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: chartData.segments[editingPieChart].color }}
+                style={{ backgroundColor: chartData.segments[editingPieChart.index].color }}
               />
-              <span className="flex-1 text-sm font-medium text-gray-900">{chartData.segments[editingPieChart].label}</span>
+              <span className="flex-1 text-sm font-medium text-gray-900">{chartData.segments[editingPieChart.index].label}</span>
             </div>
             
             <div className="flex items-center gap-3 mb-4">
@@ -739,11 +765,11 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 max="100"
                 step="0.1"
                 className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-gray-900"
-                value={chartData.segments[editingPieChart].percentage}
+                value={chartData.segments[editingPieChart.index].percentage}
                 onChange={(e) => {
                   const newValue = parseFloat(e.target.value) || 0;
                   const newSegments = [...chartData.segments];
-                  newSegments[editingPieChart] = { ...newSegments[editingPieChart], percentage: newValue };
+                  newSegments[editingPieChart.index] = { ...newSegments[editingPieChart.index], percentage: newValue };
                   
                   // Update the chart data immediately for preview
                   const newData = { 
@@ -763,7 +789,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             <div className="flex gap-2">
               <button
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                onClick={() => handlePieChartSave(editingPieChart, chartData.segments[editingPieChart].percentage)}
+                onClick={() => handlePieChartSave(editingPieChart.index, chartData.segments[editingPieChart.index].percentage)}
               >
                 Сохранить
               </button>
