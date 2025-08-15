@@ -805,6 +805,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
   } = props;
 
+  const imageRef = useRef<HTMLImageElement>(null);
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
   const [showBasicActions, setShowBasicActions] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -1600,6 +1601,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               }}
             >
             <img 
+              ref={imageRef}
               src={imageSrc} 
               alt={alt || 'Image'} 
                 className="rounded-lg"
@@ -1635,6 +1637,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                       });
                     }}
                     onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                    imageRef={imageRef}
                   />
                 </div>
               )}
@@ -1758,6 +1761,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               className={`inline-block relative group/image w-full ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
             >
             <img 
+              ref={imageRef}
               src={imageSrc} 
               alt={alt || 'Image'} 
                 className="rounded-lg w-full"
@@ -1793,6 +1797,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                       });
                     }}
                     onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                    imageRef={imageRef}
                   />
                 </div>
               )}
@@ -1913,6 +1918,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           >
             {/* Use regular img tag for better compatibility in view mode */}
             <img
+              ref={imageRef}
               src={imageSrc}
               alt={alt || 'Uploaded image'}
               className="h-auto shadow-sm"
@@ -1949,6 +1955,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     });
                   }}
                   onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                  imageRef={imageRef}
                 />
               </div>
             )}

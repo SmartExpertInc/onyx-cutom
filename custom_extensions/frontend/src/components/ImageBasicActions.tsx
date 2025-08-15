@@ -10,12 +10,14 @@ interface ImageBasicActionsProps {
   imageBlock: ImageBlock;
   onImageChange: (updatedBlock: ImageBlock) => void;
   onOpenAdvancedSettings: () => void;
+  imageRef?: React.RefObject<HTMLElement>;
 }
 
 const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   imageBlock,
   onImageChange,
-  onOpenAdvancedSettings
+  onOpenAdvancedSettings,
+  imageRef
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -79,8 +81,8 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
           onMouseLeave={(e: React.MouseEvent) => e.stopPropagation()}
           className="fixed w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] max-h-96 overflow-y-auto"
           style={{
-            left: buttonRef.current?.getBoundingClientRect().left || 0,
-            top: (buttonRef.current?.getBoundingClientRect().bottom || 0) + 4,
+            left: (imageRef?.current?.getBoundingClientRect().right || 0) - 224, // 224px = 56 * 4 (w-56)
+            top: (imageRef?.current?.getBoundingClientRect().top || 0) + 8,
             maxHeight: 'calc(100vh - 100px)'
           }}
         >
