@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ImageBlock } from '@/types/textPresentation';
-import { Settings, ChevronDown, Edit3, ZoomIn, Move, Palette } from 'lucide-react';
+import { Settings, ChevronDown, Edit3, ZoomIn, Move, Palette, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface ImageBasicActionsProps {
@@ -49,9 +49,9 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   ];
 
   const alignmentOptions = [
-    { value: 'left', icon: '⬅️', label: t('interface.imageSettings.left') },
-    { value: 'center', icon: '⬆️', label: t('interface.imageSettings.center') },
-    { value: 'right', icon: '➡️', label: t('interface.imageSettings.right') }
+    { value: 'left', icon: AlignLeft, label: t('interface.imageSettings.left') },
+    { value: 'center', icon: AlignCenter, label: t('interface.imageSettings.center') },
+    { value: 'right', icon: AlignRight, label: t('interface.imageSettings.right') }
   ];
 
   return (
@@ -80,9 +80,24 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
           }}
         >
           <div className="py-1">
+            {/* Header with Advanced Settings button */}
+            <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('interface.imageSettings.quickSizeControls')}</div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenAdvancedSettings();
+                  setShowMenu(false);
+                }}
+                className="p-1 hover:bg-blue-50 rounded transition-colors"
+                title={t('interface.imageSettings.openAdvancedSettings')}
+              >
+                <Edit3 className="w-4 h-4 text-blue-600" />
+              </button>
+            </div>
+
             {/* Quick Size Actions */}
             <div className="px-3 py-2 border-b border-gray-100">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{t('interface.imageSettings.quickSizeControls')}</div>
               <div className="grid grid-cols-2 gap-1">
                 {quickSizePresets.map((preset) => (
                   <button
@@ -101,7 +116,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
                   >
                     <span>{preset.name}</span>
-                    <span className="text-gray-500">{preset.width}px</span>
                   </button>
                 ))}
               </div>
@@ -119,13 +133,15 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       updateImageProperty('alignment', option.value);
                       // Don't close menu automatically
                     }}
-                    className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors ${
+                    className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors flex items-center justify-center gap-1 ${
                       imageBlock.alignment === option.value 
                         ? 'bg-blue-100 text-blue-700' 
                         : 'hover:bg-blue-50'
                     }`}
+                    title={option.label}
                   >
-                    {option.icon} {option.label}
+                    <option.icon className="w-3 h-3" />
+                    <span className="hidden sm:inline">{option.label}</span>
                   </button>
                 ))}
               </div>
@@ -158,21 +174,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Advanced Settings */}
-            <div className="px-3 py-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenAdvancedSettings();
-                  setShowMenu(false);
-                }}
-                className="w-full px-2 py-2 text-left text-sm hover:bg-blue-50 rounded flex items-center gap-2 font-medium text-blue-600"
-              >
-                <Edit3 className="w-4 h-4" />
-                {t('interface.imageSettings.openAdvancedSettings')}
-              </button>
             </div>
           </div>
         </div>

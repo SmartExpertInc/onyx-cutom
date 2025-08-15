@@ -470,8 +470,7 @@ export const es = {
       proportionImageMuchLarger: "70% - 30% (Imagen mucho más grande)",
       proportionImageMuchSmaller: "30% - 70% (Imagen mucho más pequeña)",
       // Quick size controls
-      quickSizeControls: "Controles de tamaño rápido",
-      quickStyles: "Estilos rápidos",
+              quickSizeControls: "Tamaño",
       smaller: "Más pequeño",
       larger: "Más grande",
       resetToDefaultSize: "Restablecer al tamaño predeterminado",
@@ -541,8 +540,7 @@ export const es = {
       additionalContentPlaceholder: "El contenido adicional de tu documento continuaría aquí, mostrando cómo la imagen se integra con el texto y diseño circundantes.",
       previewDescription: "La vista previa demuestra los cambios en tiempo real al estilo de tu imagen y cómo afecta la presentación general del documento.",
       // Basic actions dropdown
-      openAdvancedSettings: "Abrir configuración avanzada",
-      advancedSettings: "Configuración avanzada"
+      openAdvancedSettings: "Abrir configuración avanzada"
     },
     
     // Quality tiers

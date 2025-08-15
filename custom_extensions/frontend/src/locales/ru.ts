@@ -463,8 +463,7 @@ export const ru = {
       proportionImageMuchLarger: "70% - 30% (Изображение намного больше)",
       proportionImageMuchSmaller: "30% - 70% (Изображение намного меньше)",
       // Quick size controls
-      quickSizeControls: "Быстрые элементы управления размером",
-      quickStyles: "Быстрые стили",
+              quickSizeControls: "Размер",
       smaller: "Меньше",
       larger: "Больше",
       resetToDefaultSize: "Сбросить к размеру по умолчанию",
@@ -534,8 +533,7 @@ export const ru = {
       additionalContentPlaceholder: "Дополнительный контент из вашего документа продолжится здесь, показывая как изображение интегрируется с окружающим текстом и макетом.",
       previewDescription: "Предварительный просмотр демонстрирует изменения стиля изображения в реальном времени и как это влияет на общую презентацию документа.",
       // Basic actions dropdown
-      openAdvancedSettings: "Открыть расширенные настройки",
-      advancedSettings: "Расширенные настройки"
+      openAdvancedSettings: "Открыть расширенные настройки"
     },
     
     // Quality tiers
