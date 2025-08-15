@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, Users, Search, RefreshCw } from 'lucide-react';
+import CreditsAdministrationTable from '../../../components/CreditsAdministrationTable';
+import CreditUsagePieChart from '../../../components/CreditUsagePieChart';
+import UserActivityTimeline from '../../../components/UserActivityTimeline';
 
 interface UserCredits {
   id: number;
@@ -22,6 +25,8 @@ interface CreditTransaction {
   action: 'add' | 'remove';
   reason: string;
 }
+
+
 
 const AdminCreditsPage: React.FC = () => {
   const [users, setUsers] = useState<UserCredits[]>([]);
@@ -101,6 +106,17 @@ const AdminCreditsPage: React.FC = () => {
     if (!transaction.user_email || transaction.amount <= 0) {
       alert('Please enter a valid email and amount');
       return;
+    }
+
+    // Add confirmation for remove operations
+    if (transaction.action === 'remove') {
+      const confirmMessage = selectedUser 
+        ? `Are you sure you want to remove ${transaction.amount} credits from ${selectedUser.name}? Current balance: ${selectedUser.credits_balance} credits.`
+        : `Are you sure you want to remove ${transaction.amount} credits from ${transaction.user_email}?`;
+      
+      if (!confirm(confirmMessage)) {
+        return;
+      }
     }
 
     try {
@@ -272,104 +288,30 @@ const AdminCreditsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Users Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Credits Balance
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Used
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Purchased
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tier
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Purchase
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-black">{user.name}</div>
-                        <div className="text-sm text-black">{user.onyx_user_id}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.credits_balance > 50 
-                          ? 'bg-green-100 text-green-800'
-                          : user.credits_balance > 10
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {user.credits_balance}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                      {user.total_credits_used}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                      {user.credits_purchased}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {user.subscription_tier}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                      {user.last_purchase_date 
-                        ? new Date(user.last_purchase_date).toLocaleDateString()
-                        : 'Never'
-                      }
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => openTransactionModal(user, 'add')}
-                          className="flex items-center px-3 py-1 text-xs font-medium text-green-700 bg-green-100 border border-green-300 rounded hover:bg-green-200"
-                        >
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add
-                        </button>
-                        <button
-                          onClick={() => openTransactionModal(user, 'remove')}
-                          className="flex items-center px-3 py-1 text-xs font-medium text-red-700 bg-red-100 border border-red-300 rounded hover:bg-red-200"
-                        >
-                          <Minus className="w-3 h-3 mr-1" />
-                          Remove
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Credit Usage and Timeline Section */}
+        <div className="flex gap-6 mb-6">
+          {/* Credit Usage NIVO Pie Chart */}
+          <div className={selectedUser ? "w-1/2" : "w-full"}>
+            <CreditUsagePieChart selectedUser={selectedUser} />
           </div>
-
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-500">
-                {searchTerm ? 'No users found matching your search' : 'No users found'}
-              </p>
+          
+          {/* User Activity Timeline - Only show when user is selected */}
+          {selectedUser && (
+            <div className="w-1/2">
+              <UserActivityTimeline selectedUser={selectedUser} />
             </div>
           )}
+        </div>
+
+        {/* MUI Table */}
+        <div className="mt-8">
+          <CreditsAdministrationTable 
+            users={filteredUsers}
+            selectedUser={selectedUser}
+            onUserSelect={(user: UserCredits | null) => setSelectedUser(user)}
+            onAddCredits={(user: UserCredits) => openTransactionModal(user, 'add')}
+            onRemoveCredits={(user: UserCredits) => openTransactionModal(user, 'remove')}
+          />
         </div>
 
         {/* Transaction Modal */}
@@ -389,6 +331,11 @@ const AdminCreditsPage: React.FC = () => {
                 {selectedUser && (
                   <p className="text-sm text-black mt-1">
                     Current balance: {selectedUser.credits_balance} credits
+                    {transaction.action === 'remove' && transaction.amount > selectedUser.credits_balance && (
+                      <span className="block text-red-600 mt-1">
+                        Warning: Removing {transaction.amount} credits will reduce balance to 0
+                      </span>
+                    )}
                   </p>
                 )}
               </div>

@@ -104,11 +104,11 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded-full border ${option.id === question.correct_option_id ? 'border-[#FF1414] bg-[#FF1414]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${option.id === question.correct_option_id ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
                 >
                   {option.id === question.correct_option_id && (
-                    <div className="w-2 h-2 rounded-full bg-white m-auto" />
+                    <div className="w-2 h-2 rounded-full bg-white" />
                   )}
                 </div>
               </div>
@@ -139,8 +139,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-black">{question.explanation}</p>
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
+            <div className="flex items-center gap-2">
+              <div className="bg-white p-1 rounded flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+                </svg>
+              </div>
+              <p className="text-sm text-black flex-1">{question.explanation}</p>
+            </div>
           </div>
         )}
       </div>
@@ -168,11 +175,11 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded border ${correctIds.includes(option.id) ? 'border-[#FF1414] bg-[#FF1414]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded border flex items-center justify-center ${correctIds.includes(option.id) ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
                 >
                   {correctIds.includes(option.id) && (
-                    <div className="w-2 h-2 bg-white m-auto" />
+                    <div className="w-2 h-2 bg-white" />
                   )}
                 </div>
               </div>
@@ -203,8 +210,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-black">{question.explanation}</p>
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
+            <div className="flex items-center gap-2">
+              <div className="bg-white p-1 rounded flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+                </svg>
+              </div>
+              <p className="text-sm text-black flex-1">{question.explanation}</p>
+            </div>
           </div>
         )}
       </div>
@@ -230,7 +244,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       <div className="mt-4">
         {isEditing ? (
           <>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.prompts', 'Items')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt, promptIndex) => (
                 <div key={prompt.id} className="flex items-start">
@@ -274,7 +288,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               ))}
             </div>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt) => (
                 <div key={prompt.id} className="flex items-center space-x-2">
@@ -293,7 +307,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               ))}
             </div>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.prompts', 'Items')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt, promptIndex) => (
                 <div key={prompt.id} className="flex items-start">
@@ -315,7 +329,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               ))}
             </div>
-            <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
+            <h4 className="italic mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}:</h4>
             <div className="space-y-2">
               {question.prompts.map((prompt) => (
                 <div key={prompt.id} className="flex items-center space-x-2">
@@ -336,26 +350,24 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             </div>
           </>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className="font-medium mb-2 text-black">{t('quiz.prompts', 'Items')}</h4>
-              {question.prompts.map((prompt) => (
-                <div key={prompt.id} className="mb-2 flex items-center">
-                  <span className="text-black flex-1">{prompt.text}</span>
-                </div>
-              ))}
+          <div>
+            <div className="grid grid-cols-2 gap-4 mb-2">
+              <h4 className="italic text-black">{t('quiz.prompts', 'Items')}:</h4>
+              <h4 className="italic text-black">{t('quiz.correctMatches', 'Correct Matches')}:</h4>
             </div>
-            <div>
-              <h4 className="font-medium mb-2 text-black">{t('quiz.correctMatches', 'Correct Matches')}</h4>
-              {question.prompts.map((prompt) => {
-                const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
-                return (
-                  <div key={prompt.id} className="mb-2">
+            {question.prompts.map((prompt, promptIndex) => {
+              const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
+              return (
+                <div key={prompt.id} className="grid grid-cols-2 gap-4 mb-2">
+                  <div className="flex items-center">
+                    <span className="text-black flex-1">{prompt.text}</span>
+                  </div>
+                  <div className="flex items-center">
                     <span className="text-black">{matchedOption?.text}</span>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         )}
         {isEditing ? (
@@ -370,8 +382,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-black">{question.explanation}</p>
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
+            <div className="flex items-center gap-2">
+              <div className="bg-white p-1 rounded flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+                </svg>
+              </div>
+              <p className="text-sm text-black flex-1">{question.explanation}</p>
+            </div>
           </div>
         )}
       </div>
@@ -465,7 +484,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     onDrop={(e) => handleEditDrop(e, itemId)}
                   >
                     <span 
-                        className="w-6 h-6 flex items-center justify-center bg-[#FF1414] text-white rounded-full mr-3 cursor-grab"
+                        className="w-6 h-6 flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3 cursor-grab"
                         draggable
                         onDragStart={(e) => handleDragStart(e, itemId)}
                     >
@@ -482,7 +501,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 );
               })}
             </div>
-            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#FF1414]">{t('quiz.addItem', 'Add Item')}</button>
+            <button type="button" onClick={handleAddItem} className="mt-4 p-2 border rounded text-white bg-[#2563eb]">{t('quiz.addItem', 'Add Item')}</button>
 
              <div className="mt-4">
                 <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
@@ -505,7 +524,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             const item = question.items_to_sort.find(i => i.id === itemId);
             return (
               <div key={itemId} className="flex items-center">
-                <span className="w-6 h-6 flex items-center justify-center bg-[#FF1414] text-white rounded-full mr-3">
+                <span className="w-6 h-6 flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3">
                   {orderIndex + 1}
                 </span>
                 <span className="text-black">{item?.text}</span>
@@ -514,8 +533,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           })}
         </div>
         {question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-black">{question.explanation}</p>
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
+            <div className="flex items-center gap-2">
+              <div className="bg-white p-1 rounded flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+                </svg>
+              </div>
+              <p className="text-sm text-black flex-1">{question.explanation}</p>
+            </div>
           </div>
         )}
       </div>
@@ -532,7 +558,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     return (
       <div className="mt-4">
         <div className="space-y-2">
-          <h4 className="font-medium text-black">{t('quiz.acceptableAnswers', 'Acceptable Answers')}:</h4>
+          <h4 className="italic text-black">{t('quiz.acceptableAnswers', 'Acceptable Answers')}:</h4>
           {question.acceptable_answers.map((answer, answerIndex) => (
             <div key={answerIndex}>
               {isEditing ? (
@@ -560,8 +586,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-black">{question.explanation}</p>
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
+            <div className="flex items-center gap-2">
+              <div className="bg-white p-1 rounded flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+                </svg>
+              </div>
+              <p className="text-sm text-black flex-1">{question.explanation}</p>
+            </div>
           </div>
         )}
       </div>
@@ -575,7 +608,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     return (
       <div key={index} className="mb-8 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="flex items-start mb-4">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FF1414] text-white font-semibold mr-3">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2563eb] text-white font-semibold mr-3">
             {questionNumber}
           </span>
           <div className="flex-1">

@@ -17,7 +17,7 @@ interface CreateContentTypeModalProps {
   hasQuiz?: boolean;
   hasOnePager?: boolean;
   parentProjectName?: string; // Add outline name for quiz creation
-}
+} 
 
 export const CreateContentTypeModal = ({ 
   isOpen, 

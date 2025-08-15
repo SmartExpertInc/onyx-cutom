@@ -15,7 +15,10 @@ import {
   Home as HomeIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useDocumentsContext, FolderResponse } from "../../../components/documents/DocumentsContext";
+import {
+  useDocumentsContext,
+  FolderResponse,
+} from "../../../components/documents/DocumentsContext";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
 enum SortType {
@@ -31,13 +34,20 @@ enum SortDirection {
 
 const SkeletonLoader = () => {
   const { t } = useLanguage();
-  
+
   return (
     <div className="flex justify-center items-center w-full h-64">
       <div className="text-center">
         <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
-        <p className="text-gray-700 font-semibold text-lg">{t('interface.fromFiles.loadingFolders', 'Loading folders...')}</p>
-        <p className="text-gray-600 text-sm mt-2">{t('interface.fromFiles.fetchingDocuments', 'Fetching your documents')}</p>
+        <p className="text-gray-700 font-semibold text-lg">
+          {t("interface.fromFiles.loadingFolders", "Loading folders...")}
+        </p>
+        <p className="text-gray-600 text-sm mt-2">
+          {t(
+            "interface.fromFiles.fetchingDocuments",
+            "Fetching your documents"
+          )}
+        </p>
       </div>
     </div>
   );
@@ -62,31 +72,38 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
   onToggleSelect,
 }) => {
   const { t } = useLanguage();
-  
+
   return (
-    <div 
+    <div
       className={`flex items-center justify-between py-3 px-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-        isSelected ? 'bg-blue-50 border-blue-200' : ''
+        isSelected ? "bg-blue-50 border-blue-200" : ""
       }`}
     >
-      <div className="flex items-center gap-3 flex-1" onClick={() => onClick(folder.id)}>
+      <div
+        className="flex items-center gap-3 flex-1"
+        onClick={() => onClick(folder.id)}
+      >
         <FolderOpen className="h-5 w-5 text-orange-400" />
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-gray-900">{folder.name}</h3>
             <span className="text-sm text-gray-500">
-              {folder.files.length} {folder.files.length !== 1 ? t('interface.fromFiles.files', 'files') : t('interface.fromFiles.file', 'file')}
+              {folder.files.length}{" "}
+              {folder.files.length !== 1
+                ? t("interface.fromFiles.files", "files")
+                : t("interface.fromFiles.file", "file")}
             </span>
           </div>
           {description && (
             <p className="text-sm text-gray-600 mt-1">{description}</p>
           )}
           <p className="text-xs text-gray-400 mt-1">
-            {t('interface.fromFiles.created', 'Created')}: {new Date(lastUpdated).toLocaleDateString()}
+            {t("interface.fromFiles.created", "Created")}:{" "}
+            {new Date(lastUpdated).toLocaleDateString()}
           </p>
         </div>
       </div>
-      
+
       <div className="flex items-center gap-2">
         <button
           onClick={(e) => {
@@ -94,18 +111,18 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
             onToggleSelect();
           }}
           className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-colors ${
-            isSelected 
-              ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-              : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+            isSelected
+              ? "bg-blue-100 text-blue-700 border border-blue-300"
+              : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200"
           }`}
         >
           {isSelected ? (
             <>
               <CheckCircle2 className="h-4 w-4" />
-              {t('interface.fromFiles.selected', 'Selected')}
+              {t("interface.fromFiles.selected", "Selected")}
             </>
           ) : (
-            t('interface.fromFiles.select', 'Select')
+            t("interface.fromFiles.select", "Select")
           )}
         </button>
       </div>
@@ -127,7 +144,7 @@ const CreateFolderModal: React.FC<{
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    
+
     setIsSubmitting(true);
     try {
       await onSubmit(name.trim(), description.trim());
@@ -153,15 +170,17 @@ const CreateFolderModal: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop with blur */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/20 backdrop-blur-sm"
         onClick={handleClose}
       />
-      
+
       {/* Modal */}
       <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">{t('interface.fromFiles.createNewFolder', 'Create New Folder')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("interface.fromFiles.createNewFolder", "Create New Folder")}
+          </h2>
           <button
             onClick={handleClose}
             disabled={isSubmitting}
@@ -170,11 +189,14 @@ const CreateFolderModal: React.FC<{
             <X className="h-5 w-5" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700 mb-1">
-              {t('interface.fromFiles.folderName', 'Folder Name *')}
+            <label
+              htmlFor="folder-name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              {t("interface.fromFiles.folderName", "Folder Name *")}
             </label>
             <input
               id="folder-name"
@@ -182,27 +204,36 @@ const CreateFolderModal: React.FC<{
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
-              placeholder={t('interface.fromFiles.enterFolderName', 'Enter folder name')}
+              placeholder={t(
+                "interface.fromFiles.enterFolderName",
+                "Enter folder name"
+              )}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
               autoFocus
             />
           </div>
-          
+
           <div>
-            <label htmlFor="folder-description" className="block text-sm font-medium text-gray-700 mb-1">
-              {t('interface.fromFiles.description', 'Description (optional)')}
+            <label
+              htmlFor="folder-description"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              {t("interface.fromFiles.description", "Description (optional)")}
             </label>
             <textarea
               id="folder-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
-              placeholder={t('interface.fromFiles.enterFolderDescription', 'Enter folder description')}
+              placeholder={t(
+                "interface.fromFiles.enterFolderDescription",
+                "Enter folder description"
+              )}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 placeholder-gray-500"
             />
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
@@ -210,7 +241,7 @@ const CreateFolderModal: React.FC<{
               disabled={isSubmitting}
               className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
             >
-              {t('interface.fromFiles.cancel', 'Cancel')}
+              {t("interface.fromFiles.cancel", "Cancel")}
             </button>
             <button
               type="submit"
@@ -220,12 +251,12 @@ const CreateFolderModal: React.FC<{
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {t('interface.fromFiles.creating', 'Creating...')}
+                  {t("interface.fromFiles.creating", "Creating...")}
                 </>
               ) : (
                 <>
                   <Plus className="h-4 w-4" />
-                  {t('interface.fromFiles.createFolder', 'Create Folder')}
+                  {t("interface.fromFiles.createFolder", "Create Folder")}
                 </>
               )}
             </button>
@@ -242,7 +273,9 @@ export default function CreateFromFilesContent() {
   const { folders, selectedFolders, addSelectedFolder, removeSelectedFolder, clearSelectedItems, isLoading, refreshFolders, createFolder, error, createFileFromLink } = useDocumentsContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortType, setSortType] = useState<SortType>(SortType.TimeCreated);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(SortDirection.Descending);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(
+    SortDirection.Descending
+  );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
@@ -334,7 +367,9 @@ export default function CreateFromFilesContent() {
           comparison = bTokens - aTokens;
         }
 
-        return sortDirection === SortDirection.Ascending ? -comparison : comparison;
+        return sortDirection === SortDirection.Ascending
+          ? -comparison
+          : comparison;
       });
   }, [folders, searchQuery, sortType, sortDirection]);
 
@@ -361,27 +396,30 @@ export default function CreateFromFilesContent() {
     if (selectedFolders.length === 0) return;
 
     const params = new URLSearchParams();
-    params.set('fromFiles', 'true');
-    params.set('folderIds', selectedFolders.map(f => f.id).join(','));
-    
+    params.set("fromFiles", "true");
+    params.set("folderIds", selectedFolders.map((f) => f.id).join(","));
+
     // Check if we have lesson context to pass along
     try {
-      const lessonContextData = sessionStorage.getItem('lessonContext');
+      const lessonContextData = sessionStorage.getItem("lessonContext");
       if (lessonContextData) {
         const lessonContext = JSON.parse(lessonContextData);
         // Check if data is recent (within 1 hour)
-        if (lessonContext.timestamp && (Date.now() - lessonContext.timestamp < 3600000)) {
+        if (
+          lessonContext.timestamp &&
+          Date.now() - lessonContext.timestamp < 3600000
+        ) {
           Object.entries(lessonContext).forEach(([key, value]) => {
-            if (key !== 'timestamp') {
+            if (key !== "timestamp") {
               params.set(key, String(value));
             }
           });
         }
       }
     } catch (error) {
-      console.error('Error handling lesson context:', error);
+      console.error("Error handling lesson context:", error);
     }
-    
+
     router.push(`/create/generate?${params.toString()}`);
   };
 
@@ -416,7 +454,9 @@ export default function CreateFromFilesContent() {
       >
         <div className="flex justify-center items-center flex-1">
           <div className="text-center">
-            <p className="text-red-600 font-medium">{t('interface.error', 'Error')}: {error}</p>
+            <p className="text-red-600 font-medium">
+              {t("interface.error", "Error")}: {error}
+            </p>
           </div>
         </div>
       </main>
@@ -433,43 +473,27 @@ export default function CreateFromFilesContent() {
     >
       {/* Header */}
       <div className="p-6 pb-0">
-        {/* Breadcrumb Navigation */}
-        <nav className="flex items-center text-sm text-gray-600 mb-6">
-          <Link
-            href="/projects"
-            className="flex items-center hover:text-gray-900 transition-colors"
-          >
-            <HomeIcon className="h-4 w-4" />
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-          <Link
-            href="/create"
-            className="hover:text-gray-900 transition-colors"
-          >
-            {t('interface.create', 'Create')}
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-          <span className="text-gray-900 font-medium">{t('interface.fromFiles.browseFiles', 'Browse Files')}</span>
-        </nav>
+        {/* Back button - absolute positioned */}
+        <Link
+          href="/create"
+          className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+        >
+          <ArrowLeft size={14} /> {t("interface.generate.back", "Back")}
+        </Link>
 
-        {/* Header Content */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/create"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              {t('interface.fromFiles.backToCreate', 'Back to Create')}
-            </Link>
+        {/* Header Content - positioned below Back button */}
+        <div className="pt-16">
+          <div className="flex flex-col gap-2 mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {t("interface.fromFiles.browseYourFiles", "Browse Your Files")}
+            </h1>
+            <p className="text-gray-600">
+              {t(
+                "interface.fromFiles.browseDescription",
+                "Select folders containing the documents you want to use for creating educational content"
+              )}
+            </p>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-2 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t('interface.fromFiles.browseYourFiles', 'Browse Your Files')}</h1>
-          <p className="text-gray-600">
-            {t('interface.fromFiles.browseDescription', 'Select folders containing the documents you want to use for creating educational content')}
-          </p>
         </div>
       </div>
 
@@ -480,7 +504,10 @@ export default function CreateFromFilesContent() {
           <div className="relative w-full max-w-md">
             <input
               type="text"
-              placeholder={t('interface.fromFiles.searchFolders', 'Search folders...')}
+              placeholder={t(
+                "interface.fromFiles.searchFolders",
+                "Search folders..."
+              )}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
@@ -491,7 +518,7 @@ export default function CreateFromFilesContent() {
             className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
           >
             <Plus className="h-4 w-4" />
-            {t('interface.fromFiles.newFolder', 'New Folder')}
+            {t("interface.fromFiles.newFolder", "New Folder")}
           </button>
         </div>
 
@@ -501,10 +528,18 @@ export default function CreateFromFilesContent() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-blue-900">
-                  {selectedFolders.length} {selectedFolders.length !== 1 ? t('interface.fromFiles.files', 'files') : t('interface.fromFiles.file', 'file')} {t('interface.generate.selected', 'selected')}
+                  {selectedFolders.length}{" "}
+                  {selectedFolders.length !== 1
+                    ? t("interface.fromFiles.files", "files")
+                    : t("interface.fromFiles.file", "file")}{" "}
+                  {t("interface.generate.selected", "selected")}
                 </p>
                 <p className="text-sm text-blue-700">
-                  {totalSelectedFiles} {totalSelectedFiles !== 1 ? t('interface.fromFiles.files', 'files') : t('interface.fromFiles.file', 'file')} {t('interface.total', 'total')}
+                  {totalSelectedFiles}{" "}
+                  {totalSelectedFiles !== 1
+                    ? t("interface.fromFiles.files", "files")
+                    : t("interface.fromFiles.file", "file")}{" "}
+                  {t("interface.total", "total")}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -512,14 +547,17 @@ export default function CreateFromFilesContent() {
                   onClick={clearSelectedItems}
                   className="px-3 py-1 text-sm border border-blue-300 text-blue-700 rounded-md hover:bg-blue-100"
                 >
-                  {t('interface.fromFiles.clearSelection', 'Clear Selection')}
+                  {t("interface.fromFiles.clearSelection", "Clear Selection")}
                 </button>
                 <button
                   onClick={handleCreateFromSelected}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   <Sparkles className="h-4 w-4" />
-                  {t('interface.fromFiles.createFromFiles', 'Create from these files')}
+                  {t(
+                    "interface.fromFiles.createFromFiles",
+                    "Create from these files"
+                  )}
                 </button>
               </div>
             </div>
@@ -535,7 +573,7 @@ export default function CreateFromFilesContent() {
               onMouseLeave={() => setHoveredColumn(null)}
               className="flex items-center hover:text-gray-900"
             >
-              {t('interface.fromFiles.name', 'Name')}
+              {t("interface.fromFiles.name", "Name")}
               {renderSortIndicator(SortType.Alphabetical)}
               {renderHoverIndicator(SortType.Alphabetical)}
             </button>
@@ -545,7 +583,7 @@ export default function CreateFromFilesContent() {
               onMouseLeave={() => setHoveredColumn(null)}
               className="flex items-center hover:text-gray-900"
             >
-              {t('interface.fromFiles.created', 'Created')}
+              {t("interface.fromFiles.created", "Created")}
               {renderSortIndicator(SortType.TimeCreated)}
               {renderHoverIndicator(SortType.TimeCreated)}
             </button>
@@ -555,7 +593,7 @@ export default function CreateFromFilesContent() {
               onMouseLeave={() => setHoveredColumn(null)}
               className="flex items-center hover:text-gray-900"
             >
-              {t('interface.fromFiles.files', 'Files')}
+              {t("interface.fromFiles.files", "Files")}
               {renderSortIndicator(SortType.Tokens)}
               {renderHoverIndicator(SortType.Tokens)}
             </button>
@@ -579,9 +617,9 @@ export default function CreateFromFilesContent() {
                     onClick={handleFolderClick}
                     description={folder.description}
                     lastUpdated={folder.created_at}
-                    isSelected={selectedFolders.some(f => f.id === folder.id)}
+                    isSelected={selectedFolders.some((f) => f.id === folder.id)}
                     onToggleSelect={() => {
-                      if (selectedFolders.some(f => f.id === folder.id)) {
+                      if (selectedFolders.some((f) => f.id === folder.id)) {
                         removeSelectedFolder(folder.id);
                       } else {
                         addSelectedFolder(folder);
@@ -598,10 +636,13 @@ export default function CreateFromFilesContent() {
                 strokeWidth={1.5}
               />
               <p className="text-gray-500 text-lg font-normal">
-                {t('interface.fromFiles.noFoldersFound', 'No folders found')}
+                {t("interface.fromFiles.noFoldersFound", "No folders found")}
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                {t('interface.fromFiles.noFoldersDescription', 'Create a folder and upload documents to get started')}
+                {t(
+                  "interface.fromFiles.noFoldersDescription",
+                  "Create a folder and upload documents to get started"
+                )}
               </p>
             </div>
           )}
@@ -612,12 +653,14 @@ export default function CreateFromFilesContent() {
       {isCreatingFolder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium mb-4">{t('interface.fromFiles.createNewFolder', 'Create New Folder')}</h3>
+            <h3 className="text-lg font-medium mb-4">
+              {t("interface.fromFiles.createNewFolder", "Create New Folder")}
+            </h3>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
-                const name = formData.get('name') as string;
+                const name = formData.get("name") as string;
                 if (name.trim()) {
                   handleCreateFolder(name.trim(), "");
                   setIsCreatingFolder(false);
@@ -627,7 +670,10 @@ export default function CreateFromFilesContent() {
               <input
                 name="name"
                 type="text"
-                placeholder={t('interface.fromFiles.enterFolderName', 'Folder name')}
+                placeholder={t(
+                  "interface.fromFiles.enterFolderName",
+                  "Folder name"
+                )}
                 autoFocus
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 mb-4"
               />
@@ -637,13 +683,13 @@ export default function CreateFromFilesContent() {
                   onClick={() => setIsCreatingFolder(false)}
                   className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                 >
-                  {t('interface.fromFiles.cancel', 'Cancel')}
+                  {t("interface.fromFiles.cancel", "Cancel")}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  {t('interface.fromFiles.createFolder', 'Create')}
+                  {t("interface.fromFiles.createFolder", "Create")}
                 </button>
               </div>
             </form>
@@ -659,4 +705,4 @@ export default function CreateFromFilesContent() {
       />
     </main>
   );
-} 
+}

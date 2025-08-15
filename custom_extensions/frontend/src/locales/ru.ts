@@ -4,7 +4,8 @@ export const ru = {
     lesson: "УРОК",
     save: "Сохранить",
     saving: "Сохранение...",
-    confirmCancelEdit: "Вы уверены, что хотите отменить? Все несохраненные изменения будут потеряны.",
+    confirmCancelEdit:
+      "Вы уверены, что хотите отменить? Все несохраненные изменения будут потеряны.",
     errorDetails: "Детали:",
     sourceChatTooltip: "Перейти к чату, где был создан этот контент",
     sourceChat: "Исходный чат",
@@ -12,13 +13,13 @@ export const ru = {
     edit: "Редактировать",
     downloadPdf: "Скачать PDF",
     saveErrorTitle: "Ошибка сохранения:",
-    rendering: "Рендеринг контента..."
+    rendering: "Рендеринг контента...",
   },
   qualityTiers: {
     basic: "Базовый",
     interactive: "Интерактивный",
     advanced: "Продвинутый",
-    immersive: "Иммерсивный"
+    immersive: "Иммерсивный",
   },
   // Action buttons and UI elements
   actions: {
@@ -61,7 +62,8 @@ export const ru = {
     // Create from files page
     uploadDocuments: "Загрузить Документы",
     dragAndDropFiles: "Перетащите файлы сюда или нажмите для выбора файлов",
-    filesWillBeProcessed: "Файлы будут автоматически обработаны и проиндексированы для создания контента",
+    filesWillBeProcessed:
+      "Файлы будут автоматически обработаны и проиндексированы для создания контента",
     selectFiles: "Выбрать Файлы",
     processingFiles: "Обработка Файлов",
     uploadingAndIndexing: "Загрузка и индексация: {fileName}",
@@ -72,7 +74,8 @@ export const ru = {
     fetchingDocuments: "Получение ваших документов",
     folderNotFound: "Папка не найдена",
     filesInThisFolder: "Файлы в этой папке",
-    totalFilesReady: "{total} файлов всего, {ready} готово для создания контента",
+    totalFilesReady:
+      "{total} файлов всего, {ready} готово для создания контента",
     stillProcessing: "({processing} еще обрабатывается)",
     selectAll: "Выбрать Все",
     noFilesInFolder: "В этой папке пока нет файлов",
@@ -97,17 +100,19 @@ export const ru = {
     removeFromFolder: "Удалить из Папки",
     sendToTrash: "Отправить в корзину",
     areYouSure: "Вы уверены?",
-    actionPermanent: "Это действие необратимо и не может быть отменено. Проект будет удален навсегда.",
+    actionPermanent:
+      "Это действие необратимо и не может быть отменено. Проект будет удален навсегда.",
     deletePermanentlyButton: "Удалить Навсегда",
     wantToEditInTrash: "Хотите отредактировать это? Это в корзине.",
     restoreIt: "Восстановить",
     created: "Создан",
-    courseOutlineTrashMessage: "Это План Курса. Вы хотите переместить только план или план и все его уроки?",
+    courseOutlineTrashMessage:
+      "Это План Курса. Вы хотите переместить только план или план и все его уроки?",
     tokens: "токенов",
     ready: "Готово",
     failed: "Ошибка",
     processing: "Обработка",
-    pleaseWait: "Пожалуйста, подождите..."
+    pleaseWait: "Пожалуйста, подождите...",
   },
   videoLesson: {
     slide: "Слайд",
@@ -152,30 +157,35 @@ export const ru = {
       videoLessonScript: "Сценарий видео-урока",
       videoLesson: "Видео-урок",
       comingSoon: "Скоро!",
-      errorNoSessionId: "Ошибка: ID сессии чата недоступен. Невозможно создать урок."
+      errorNoSessionId:
+        "Ошибка: ID сессии чата недоступен. Невозможно создать урок.",
     },
     createTest: {
       title: "Создать тест",
       quiz: "Тест",
       quizTooltip: "Создать тест для этого урока",
-      errorNoSessionId: "Ошибка: ID сессии чата недоступен. Невозможно создать тест."
+      errorNoSessionId:
+        "Ошибка: ID сессии чата недоступен. Невозможно создать тест.",
     },
     createContent: {
       title: "Создать контент",
       lessonTypes: "Типы уроков",
       assessmentTypes: "Типы оценивания",
       createNewLesson: "Создать новый урок",
-      chooseContentType: "Выберите тип контента, который вы хотите создать для этого урока",
+      chooseContentType:
+        "Выберите тип контента, который вы хотите создать для этого урока",
       presentation: "Презентация",
-      presentationDescription: "Создать презентацию на основе слайдов с интерактивным контентом",
+      presentationDescription:
+        "Создать презентацию на основе слайдов с интерактивным контентом",
       onePager: "Одностраничник",
       onePagerDescription: "Создать комплексный текстовый документ-резюме",
       quiz: "Тест",
       quizDescription: "Создать интерактивный тест для проверки знаний",
       videoLesson: "Видео-урок",
-      videoLessonDescription: "Создать видео-урок с озвучкой и визуальными элементами",
+      videoLessonDescription:
+        "Создать видео-урок с озвучкой и визуальными элементами",
       soon: "Скоро",
-      alreadyCreated: "Уже создано"
+      alreadyCreated: "Уже создано",
     },
     openContent: {
       title: "Открыть контент",
@@ -190,7 +200,7 @@ export const ru = {
       videoLesson: "Видео-урок",
       videoLessonSoon: "Видео-уроки скоро появятся",
       noContentAvailable: "Нет доступного контента для открытия.",
-      soon: "Скоро"
+      soon: "Скоро",
     },
     openOrCreate: {
       title: "Урок",
@@ -210,19 +220,23 @@ export const ru = {
       createPresentationAndQuiz: "Создать презентацию или тест",
       createPresentationAndOnePager: "Создать презентацию или одностраничник",
       createQuizAndOnePager: "Создать тест или одностраничник",
-      createAll: "Создать презентацию, тест или одностраничник"
+      createAll: "Создать презентацию, тест или одностраничник",
     },
     folderSettings: {
       title: "Настройки папки",
       subtitle: "Настройка качества производства для",
       basic: "Базовый",
-      basicDescription: "Простой контент электронного обучения с основными функциями для простых потребностей в обучении",
+      basicDescription:
+        "Простой контент электронного обучения с основными функциями для простых потребностей в обучении",
       interactive: "Интерактивный",
-      interactiveDescription: "Увлекательный контент с интерактивными элементами для лучшего вовлечения и запоминания",
+      interactiveDescription:
+        "Увлекательный контент с интерактивными элементами для лучшего вовлечения и запоминания",
       advanced: "Продвинутый",
-      advancedDescription: "Сложные учебные процессы с персонализированным контентом и продвинутой интерактивностью",
+      advancedDescription:
+        "Сложные учебные процессы с персонализированным контентом и продвинутой интерактивностью",
       immersive: "Иммерсивный",
-      immersiveDescription: "Премиальные учебные процессы с передовыми технологиями для максимального вовлечения",
+      immersiveDescription:
+        "Премиальные учебные процессы с передовыми технологиями для максимального вовлечения",
       features: "Функции",
       hoursRange: "Диапазон часов",
       customRate: "Пользовательская ставка",
@@ -253,12 +267,12 @@ export const ru = {
       hours: "ч",
       saveChanges: "Сохранить изменения",
       saving: "Сохранение...",
-      failedToSave: "Не удалось сохранить настройки папки"
+      failedToSave: "Не удалось сохранить настройки папки",
     },
     projectSettings: {
       title: "Настройки курса",
       subtitle: "Настройка качества производства для",
-      failedToSave: "Не удалось сохранить настройку уровня проекта"
+      failedToSave: "Не удалось сохранить настройку уровня проекта",
     },
     clientName: {
       title: "Экспорт в PDF",
@@ -271,19 +285,21 @@ export const ru = {
       selected: "выбрано",
       skip: "Пропустить",
       generate: "Создать PDF",
-      generating: "Создание..."
+      generating: "Создание...",
     },
     folderExport: {
       title: "Создание PDF",
       subtitle: "Создание PDF экспорта для папки",
-      description: "Это может занять несколько минут в зависимости от количества файлов..."
-    }
+      description:
+        "Это может занять несколько минут в зависимости от количества файлов...",
+    },
   },
   projects: {
     loading: "Загрузка продуктов...",
     error: "Ошибка: {error}",
     noProductsSelected: "Нет выбранных продуктов для удаления.",
-    confirmDelete: "Вы уверены, что хотите удалить {count} выбранных продуктов?",
+    confirmDelete:
+      "Вы уверены, что хотите удалить {count} выбранных продуктов?",
     deleteError: "Ошибка удаления продуктов: {error}",
   },
   // New translations for the projects page interface
@@ -294,17 +310,18 @@ export const ru = {
     getUnlimitedAI: "Получить неограниченный ИИ",
     credits: "кредитов",
     loading: "Загрузка...",
-    
+
     // Sidebar
     jumpTo: "Перейти к",
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Поделились с вами",
     folders: "Папки",
     createOrJoinFolder: "Создать или присоединиться к папке",
-    organizeProducts: "Организуйте свои продукты по темам и делитесь ими с командой",
+    organizeProducts:
+      "Организуйте свои продукты по темам и делитесь ими с командой",
     templates: "Шаблоны",
     themes: "Темы",
-    
+
     // Main content
     all: "Все",
     trainingPlans: "Планы обучения",
@@ -317,16 +334,17 @@ export const ru = {
     grid: "Сетка",
     list: "Список",
     noProjectsFound: "Продукты не найдены.",
-    
+
     // Table headers
     title: "Название",
+    type: "Тип",
     created: "Создан",
     creator: "Создатель",
     numberOfLessons: "Количество уроков",
     estCreationTime: "Оц. время создания",
     estCompletionTime: "Оц. время завершения",
     actions: "Действия",
-    
+
     // Project actions
     rename: "Переименовать",
     duplicate: "Дублировать",
@@ -338,46 +356,48 @@ export const ru = {
     deletePermanently: "Удалить навсегда",
     moveToFolder: "Переместить в папку",
     settings: "Настройки",
-    
+
     // Folder actions
     folderSettings: "Настройки папки",
     renameFolder: "Переименовать папку",
     deleteFolder: "Удалить папку",
     moveFolder: "Переместить папку",
-    
+
     // Modals
     createFolder: "Создать или присоединиться к папке",
-    createFolderDescription: "Вы можете присоединиться к папке, чтобы отслеживать, над чем работают люди.",
+    createFolderDescription:
+      "Вы можете присоединиться к папке, чтобы отслеживать, над чем работают люди.",
     findOrCreateFolder: "Найти или создать новую папку",
     createFolderButton: "Создать папку",
     createAtTopLevel: "Создать на верхнем уровне (без родительской папки)",
     allFolders: "Все папки",
     noFoldersFound: "Папки не найдены.",
     done: "Готово",
-    
+
     // Image Upload Modal
     imageUpload: {
       title: "Загрузить изображение",
       uploadingText: "Загрузка...",
       dragAndDropText: "Перетащите изображение сюда или нажмите для выбора",
       chooseFileButton: "Выбрать файл",
-      supportedFormatsText: "Поддерживаемые форматы: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)"
+      supportedFormatsText:
+        "Поддерживаемые форматы: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)",
     },
-    
+
     // Block Settings Modal
     blockSettings: {
       customizeContent: "Настройте ваш контент",
       headlineSettings: "Настройки заголовка",
-      paragraphSettings: "Настройки абзаца", 
+      paragraphSettings: "Настройки абзаца",
       bulletListSettings: "Настройки маркированного списка",
       numberedListSettings: "Настройки нумерованного списка",
       alertSettings: "Настройки предупреждения",
-      imageSettings: "Настройки изображения"
+      imageSettings: "Настройки изображения",
     },
-    
+
     // Modal common
     modal: {
-      customizeContent: "Настройте ваш контент"
+      customizeContent: "Настройте ваш контент",
     },
 
     // Image Settings
@@ -388,13 +408,14 @@ export const ru = {
       altText: "Альтернативный текст",
       forAccessibility: "для доступности",
       altTextPlaceholder: "Опишите, что показывает это изображение...",
-      altTextHelp: "Это помогает программам чтения с экрана описывать изображение пользователям",
+      altTextHelp:
+        "Это помогает программам чтения с экрана описывать изображение пользователям",
       caption: "Подпись",
       captionPlaceholder: "Добавьте подпись к изображению...",
       captionHelp: "Подписи появляются под изображением",
       maxWidth: "Максимальная ширина",
       maxWidthHelp: "Максимальная ширина, которую может занимать изображение",
-      width: "Ширина", 
+      width: "Ширина",
       widthHelp: "Конкретная ширина изображения",
       height: "Высота",
       heightHelp: "Конкретная высота изображения",
@@ -409,9 +430,11 @@ export const ru = {
       sideBySideRight: "Рядом (изображение справа)",
       inlineLeft: "Встроенное (изображение слева, текст обтекает)",
       inlineRight: "Встроенное (изображение справа, текст обтекает)",
-      layoutModeDescription: "Рядом: Изображение и контент одинаковой высоты. Встроенное: Текст обтекает изображение.",
+      layoutModeDescription:
+        "Рядом: Изображение и контент одинаковой высоты. Встроенное: Текст обтекает изображение.",
       layoutPartner: "Партнер по макету",
-      layoutPartnerHelp: "Выберите, какой блок контента связать с этим изображением",
+      layoutPartnerHelp:
+        "Выберите, какой блок контента связать с этим изображением",
       layoutProportion: "Пропорции макета",
       layoutProportionHelp: "Сколько места занимает изображение в макете",
       layoutPreview: "Предпросмотр макета",
@@ -424,19 +447,19 @@ export const ru = {
       proportionImageLarger: "60% - 40% (Изображение больше)",
       proportionImageSmaller: "40% - 60% (Изображение меньше)",
       proportionImageMuchLarger: "70% - 30% (Изображение намного больше)",
-      proportionImageMuchSmaller: "30% - 70% (Изображение намного меньше)"
+      proportionImageMuchSmaller: "30% - 70% (Изображение намного меньше)",
     },
-    
+
     // Quality tiers
     basic: "Базовый",
     interactive: "Интерактивный",
     advanced: "Продвинутый",
     immersive: "Иммерсивный",
-    
+
     // Time units
     hours: "ч",
     minutes: "мин",
-    
+
     // Status
     private: "Приватный",
     createdByYou: "Создано вами",
@@ -444,17 +467,17 @@ export const ru = {
     item: "элемент",
     items: "элементов",
     loadingProjects: "Загрузка проектов...",
-    
+
     // Help button
     help: "Помощь",
-    
+
     // Language selector
     language: "Язык",
     english: "Английский",
     ukrainian: "Украинский",
     spanish: "Испанский",
     russian: "Русский",
-    
+
     // Date formatting
     today: "Сегодня",
     yesterday: "Вчера",
@@ -467,10 +490,12 @@ export const ru = {
     howToGetStarted: "Как бы вы хотели начать?",
     home: "Главная",
     pasteInText: "Вставить текст",
-    pasteInTextDescription: "Создать из заметок, плана или существующего контента",
+    pasteInTextDescription:
+      "Создать из заметок, плана или существующего контента",
     generateDescription: "Создать из однострочного запроса за несколько секунд",
     importFileOrUrl: "Импортировать файл или URL",
-    importFileOrUrlDescription: "Улучшить существующие документы, презентации или веб-страницы",
+    importFileOrUrlDescription:
+      "Улучшить существующие документы, презентации или веб-страницы",
     popular: "ПОПУЛЯРНО",
 
     // Projects table toolbar
@@ -483,11 +508,13 @@ export const ru = {
 
     // PDF Download Modal
     customizePDF: "Настроить PDF",
-    customizePDFDescription: "Введите имя клиента и выберите, какие папки/продукты включить в PDF.",
+    customizePDFDescription:
+      "Введите имя клиента и выберите, какие папки/продукты включить в PDF.",
     clientNameOptional: "Имя клиента (необязательно)",
     enterClientName: "Введите имя клиента",
     selectFoldersAndProducts: "Выбрать папки и продукты",
     selected: "выбрано",
+    selectAll: "Выбрать все",
     pdfFolders: "Папки",
     pdfUnassignedProducts: "Неприсвоенные продукты",
     noFoldersOrProductsAvailable: "Папки или продукты недоступны",
@@ -506,59 +533,59 @@ export const ru = {
     close: "Закрыть",
     // Analytics page
     analytics: {
-      title: 'Панель аналитики запросов',
-      subtitle: 'Комплексный мониторинг всех API запросов по всем аккаунтам',
-      loadingData: 'Загрузка данных аналитики...',
-      errorLoading: 'Ошибка загрузки аналитики',
-      retry: 'Повторить',
-      noDataAvailable: 'Данные аналитики недоступны',
-      refreshData: 'Обновить данные',
-      exportCsv: 'Экспорт CSV',
-      exportJson: 'Экспорт JSON',
-      activeFilters: 'Активные фильтры:',
-      clearAllFilters: 'Очистить все фильтры',
-      filters: 'Фильтры',
-      dateRange: 'Диапазон дат',
-      to: 'до',
-      endpoint: 'Эндпоинт',
-      filterEndpoint: 'Фильтр эндпоинта...',
-      httpMethod: 'HTTP метод',
-      allMethods: 'Все методы',
-      statusCode: 'Код статуса',
-      statusCodePlaceholder: 'например, 200, 404',
-      totalRequests: 'Всего запросов',
-      successRate: 'Процент успеха',
-      avgResponseTime: 'Среднее время ответа',
-      performancePercentiles: 'Процентили производительности',
-      p50Median: 'P50 (Медиана)',
-      p95: 'P95',
-      p99: 'P99',
-      dataTransfer: 'Передача данных',
-      totalTransferred: 'Всего передано',
-      failedRequests: 'Неудачные запросы',
-      errorRequests: 'Запросы с ошибками',
-      responseTimeRange: 'Диапазон времени ответа',
-      fastest: 'Быстрейший',
-      average: 'Средний',
-      slowest: 'Медленнейший',
-      aiModelUsage: 'Использование AI модели',
-      totalAiRequests: 'Всего запросов',
-      avgTokens: 'Среднее токенов',
-      totalTokens: 'Всего токенов',
-      tokenRange: 'Диапазон токенов',
-      topEndpoints: 'Топ эндпоинты',
-      requests: 'запросов',
-      avg: 'среднее',
-      error: 'ошибка',
-      recentErrors: 'Последние ошибки',
-      time: 'Время',
-      method: 'Метод',
-      status: 'Статус',
-      responseTime: 'Время ответа',
-      user: 'Пользователь',
-      errorMessage: 'Ошибка',
-      anonymous: 'Анонимный',
-      noErrorMessage: 'Нет сообщения об ошибке'
+      title: "Панель аналитики запросов",
+      subtitle: "Комплексный мониторинг всех API запросов по всем аккаунтам",
+      loadingData: "Загрузка данных аналитики...",
+      errorLoading: "Ошибка загрузки аналитики",
+      retry: "Повторить",
+      noDataAvailable: "Данные аналитики недоступны",
+      refreshData: "Обновить данные",
+      exportCsv: "Экспорт CSV",
+      exportJson: "Экспорт JSON",
+      activeFilters: "Активные фильтры:",
+      clearAllFilters: "Очистить все фильтры",
+      filters: "Фильтры",
+      dateRange: "Диапазон дат",
+      to: "до",
+      endpoint: "Эндпоинт",
+      filterEndpoint: "Фильтр эндпоинта...",
+      httpMethod: "HTTP метод",
+      allMethods: "Все методы",
+      statusCode: "Код статуса",
+      statusCodePlaceholder: "например, 200, 404",
+      totalRequests: "Всего запросов",
+      successRate: "Процент успеха",
+      avgResponseTime: "Среднее время ответа",
+      performancePercentiles: "Процентили производительности",
+      p50Median: "P50 (Медиана)",
+      p95: "P95",
+      p99: "P99",
+      dataTransfer: "Передача данных",
+      totalTransferred: "Всего передано",
+      failedRequests: "Неудачные запросы",
+      errorRequests: "Запросы с ошибками",
+      responseTimeRange: "Диапазон времени ответа",
+      fastest: "Быстрейший",
+      average: "Средний",
+      slowest: "Медленнейший",
+      aiModelUsage: "Использование AI модели",
+      totalAiRequests: "Всего запросов",
+      avgTokens: "Среднее токенов",
+      totalTokens: "Всего токенов",
+      tokenRange: "Диапазон токенов",
+      topEndpoints: "Топ эндпоинты",
+      requests: "запросов",
+      avg: "среднее",
+      error: "ошибка",
+      recentErrors: "Последние ошибки",
+      time: "Время",
+      method: "Метод",
+      status: "Статус",
+      responseTime: "Время ответа",
+      user: "Пользователь",
+      errorMessage: "Ошибка",
+      anonymous: "Анонимный",
+      noErrorMessage: "Нет сообщения об ошибке",
     },
     // Project View Page
     projectView: {
@@ -583,98 +610,123 @@ export const ru = {
       qualityTier: "Уровень качества",
       loadingContentDisplay: "Загрузка отображения контента...",
       contentDetails: "Детали контента",
-      utilizesDesignComponent: "Этот экземпляр проекта использует компонент дизайна:",
+      utilizesDesignComponent:
+        "Этот экземпляр проекта использует компонент дизайна:",
       unknownComponent: "Неизвестно",
-      specificUIForDirectViewing: "Специальный интерфейс для прямого просмотра или редактирования этого типа компонента может быть еще не полностью реализован на этой странице.",
-      editGeneralDetails: "Обычно вы можете редактировать общие детали проекта (например, имя или шаблон дизайна) через основную страницу редактирования проекта.",
-      toggleRawContentPreview: "Переключить предварительный просмотр исходного содержимого",
+      specificUIForDirectViewing:
+        "Специальный интерфейс для прямого просмотра или редактирования этого типа компонента может быть еще не полностью реализован на этой странице.",
+      editGeneralDetails:
+        "Обычно вы можете редактировать общие детали проекта (например, имя или шаблон дизайна) через основную страницу редактирования проекта.",
+      toggleRawContentPreview:
+        "Переключить предварительный просмотр исходного содержимого",
       noSlideDeckData: "Данные слайд-дека недоступны",
       projectDataNotLoaded: "Данные проекта еще не загружены.",
-      contentEditingNotSupported: "Редактирование контента в настоящее время поддерживается для типов {types} на этой странице.",
-      projectDataOrIdNotAvailable: "Данные проекта или ID недоступны для скачивания.",
+      contentEditingNotSupported:
+        "Редактирование контента в настоящее время поддерживается для типов {types} на этой странице.",
+      projectDataOrIdNotAvailable:
+        "Данные проекта или ID недоступны для скачивания.",
       errorProjectIdOrDataMissing: "Ошибка: ID проекта или данные отсутствуют.",
-      errorProjectInstanceDataNotLoaded: "Ошибка: Данные экземпляра проекта не загружены.",
-      errorCannotSaveComponentType: "Ошибка: Не удается сохранить. Редактирование контента для этого типа компонента не поддерживается здесь.",
+      errorProjectInstanceDataNotLoaded:
+        "Ошибка: Данные экземпляра проекта не загружены.",
+      errorCannotSaveComponentType:
+        "Ошибка: Не удается сохранить. Редактирование контента для этого типа компонента не поддерживается здесь.",
       contentSavedSuccessfully: "Контент успешно сохранен!",
       saveFailed: "Сохранение не удалось: {error}",
-      errorProjectIdOrEditableDataMissing: "ID проекта или редактируемые данные отсутствуют.",
-      errorProjectInstanceDataNotLoadedForSave: "Данные экземпляра проекта не загружены.",
-      errorContentEditingNotSupportedForSave: "Редактирование контента не поддерживается для этого типа компонента на этой странице.",
-      errorFailedToSaveModuleTierSetting: "Не удалось сохранить настройку уровня модуля",
-      errorFailedToSaveLessonTierSetting: "Не удалось сохранить настройку уровня урока",
+      errorProjectIdOrEditableDataMissing:
+        "ID проекта или редактируемые данные отсутствуют.",
+      errorProjectInstanceDataNotLoadedForSave:
+        "Данные экземпляра проекта не загружены.",
+      errorContentEditingNotSupportedForSave:
+        "Редактирование контента не поддерживается для этого типа компонента на этой странице.",
+      errorFailedToSaveModuleTierSetting:
+        "Не удалось сохранить настройку уровня модуля",
+      errorFailedToSaveLessonTierSetting:
+        "Не удалось сохранить настройку уровня урока",
       // Additional missing translations
       invalidProjectIdFormat: "Неверный формат ID проекта.",
-      couldNotFetchFullProjectsList: "Не удалось получить полный список проектов для определения имени родительского проекта.",
+      couldNotFetchFullProjectsList:
+        "Не удалось получить полный список проектов для определения имени родительского проекта.",
       newTrainingPlanTitle: "Новый план обучения",
       newPdfLessonTitle: "Новый PDF урок",
       newSlideDeckTitle: "Новый слайд-дек",
       newVideoLessonTitle: "Новый видео урок",
       newQuizTitle: "Новый тест",
       newTextPresentationTitle: "Новая текстовая презентация",
-      unknownErrorOccurred: "Произошла неизвестная ошибка при получении данных проекта.",
+      unknownErrorOccurred:
+        "Произошла неизвестная ошибка при получении данных проекта.",
       projectIdMissing: "ID проекта отсутствует в URL.",
       validationError: "Ошибка валидации",
       validationErrors: "Ошибки валидации",
       couldNotSaveData: "Не удалось сохранить данные.",
-      contentEditingSupported: "Редактирование контента в настоящее время поддерживается для",
+      contentEditingSupported:
+        "Редактирование контента в настоящее время поддерживается для",
       typesOnThisPage: "типов на этой странице.",
       project: "Проект",
       configureVisibleColumns: "Настроить видимые колонки",
-      moveToTrashTooltip: "Переместить этот продукт в корзину"
+      moveToTrashTooltip: "Переместить этот продукт в корзину",
     },
     // Pipelines page
     pipelines: {
-      title: 'Продукты',
-      loadingProducts: 'Загрузка продуктов...',
-      error: 'Ошибка',
-      addNewProduct: 'Добавить новый продукт',
-      noProductsConfigured: 'Продукты еще не настроены. Нажмите "Добавить новый продукт" для начала.',
-      productName: 'Название продукта',
-      discoveryPhase: 'Фаза исследования',
-      structuringPhase: 'Фаза структурирования',
-      actions: 'Действия',
-      editProduct: 'Редактировать продукт',
-      deleteProduct: 'Удалить продукт',
-      deleteConfirmation: 'Вы уверены, что хотите удалить продукт "{name}"? Это действие нельзя отменить.',
-      productDeleted: 'Продукт успешно удален!',
-      failedToDelete: 'Не удалось удалить продукт.',
-      loadingProductsPage: 'Загрузка страницы продуктов...'
+      title: "Продукты",
+      loadingProducts: "Загрузка продуктов...",
+      error: "Ошибка",
+      addNewProduct: "Добавить новый продукт",
+      noProductsConfigured:
+        'Продукты еще не настроены. Нажмите "Добавить новый продукт" для начала.',
+      productName: "Название продукта",
+      discoveryPhase: "Фаза исследования",
+      structuringPhase: "Фаза структурирования",
+      actions: "Действия",
+      editProduct: "Редактировать продукт",
+      deleteProduct: "Удалить продукт",
+      deleteConfirmation:
+        'Вы уверены, что хотите удалить продукт "{name}"? Это действие нельзя отменить.',
+      productDeleted: "Продукт успешно удален!",
+      failedToDelete: "Не удалось удалить продукт.",
+      loadingProductsPage: "Загрузка страницы продуктов...",
     },
     // Add to project page
     addToProject: {
-      title: 'Создать новый экземпляр продукта',
-      error: 'Ошибка',
-      selectProductType: '1. Выберите тип продукта',
-      noProductTypes: 'Типы продуктов недоступны. Пожалуйста, добавьте шаблоны дизайна в панели администратора.',
-      configureProject: '2. Настройте проект',
-      addToProject: 'Добавить в проект:',
-      selectOrCreateProject: '-- Выберите или создайте проект --',
-      loadingProjects: 'Загрузка проектов...',
-      createNewProject: '--- Создать новый проект ---',
-      newProjectName: 'Название нового проекта:',
-      enterNewProjectName: 'Введите название для нового проекта',
-      advancedOptions: 'Дополнительные опции',
-      instanceName: 'Название экземпляра (необязательно):',
+      title: "Создать новый экземпляр продукта",
+      error: "Ошибка",
+      selectProductType: "1. Выберите тип продукта",
+      noProductTypes:
+        "Типы продуктов недоступны. Пожалуйста, добавьте шаблоны дизайна в панели администратора.",
+      configureProject: "2. Настройте проект",
+      addToProject: "Добавить в проект:",
+      selectOrCreateProject: "-- Выберите или создайте проект --",
+      loadingProjects: "Загрузка проектов...",
+      createNewProject: "--- Создать новый проект ---",
+      newProjectName: "Название нового проекта:",
+      enterNewProjectName: "Введите название для нового проекта",
+      advancedOptions: "Дополнительные опции",
+      instanceName: "Название экземпляра (необязательно):",
       instanceNamePlaceholder: 'По умолчанию "{name}" или заголовок ответа AI',
-      instanceNameHelp: 'Если оставить пустым, будет использоваться название продукта (или заголовок AI).',
-      createProductInstance: 'Создать экземпляр продукта',
-      creating: 'Создание...',
-      loadingPageDetails: 'Загрузка деталей страницы...'
+      instanceNameHelp:
+        "Если оставить пустым, будет использоваться название продукта (или заголовок AI).",
+      createProductInstance: "Создать экземпляр продукта",
+      creating: "Создание...",
+      loadingPageDetails: "Загрузка деталей страницы...",
     },
     // Paste Text Page
     pasteText: {
       title: "Вставьте ваш текст",
-      subtitle: "Введите или вставьте ваш текстовый контент ниже и выберите, как вы хотите его использовать",
-      textPlaceholder: "Вставьте ваш текст, заметки, план или любой контент, с которым вы хотите работать...",
+      subtitle:
+        "Введите или вставьте ваш текстовый контент ниже и выберите, как вы хотите его использовать",
+      textPlaceholder:
+        "Вставьте ваш текст, заметки, план или любой контент, с которым вы хотите работать...",
       characters: "{count} символов",
-      textVeryLarge: "Текст очень большой и будет обработан как файл. Это может занять некоторое время.",
+      textVeryLarge:
+        "Текст очень большой и будет обработан как файл. Это может занять некоторое время.",
       textLarge: "Текст большой и будет сжат для оптимальной обработки.",
       howToUseText: "Как вы хотите использовать этот текст?",
       useAsContext: "Использовать как контекст",
-      useAsContextDescription: "ИИ будет использовать ваш текст как справочный материал и контекст для создания нового образовательного контента. Лучше всего подходит для заметок, исследований или справочной информации.",
+      useAsContextDescription:
+        "ИИ будет использовать ваш текст как справочный материал и контекст для создания нового образовательного контента. Лучше всего подходит для заметок, исследований или справочной информации.",
       useAsBase: "Использовать как основу",
-      useAsBaseDescription: "ИИ улучшит и отформатирует вашу существующую текстовую структуру, сохранив ваш контент и превратив его в полноценный образовательный продукт. Лучше всего подходит для черновиков или существующих планов.",
-      continueToGenerate: "Продолжить к генерации"
+      useAsBaseDescription:
+        "ИИ улучшит и отформатирует вашу существующую текстовую структуру, сохранив ваш контент и превратив его в полноценный образовательный продукт. Лучше всего подходит для черновиков или существующих планов.",
+      continueToGenerate: "Продолжить к генерации",
     },
     // From Files Page
     fromFiles: {
@@ -684,7 +736,8 @@ export const ru = {
       browseFiles: "Просмотр файлов",
       backToCreate: "Назад к созданию",
       browseYourFiles: "Просмотр ваших файлов",
-      browseDescription: "Выберите папки, содержащие документы, которые вы хотите использовать для создания образовательного контента",
+      browseDescription:
+        "Выберите папки, содержащие документы, которые вы хотите использовать для создания образовательного контента",
       searchFolders: "Поиск папок...",
       newFolder: "Новая папка",
       filesTotal: "{count} файл всего",
@@ -694,7 +747,8 @@ export const ru = {
       created: "Создано",
       files: "Файлы",
       noFoldersFound: "Папки не найдены",
-      noFoldersDescription: "Создайте папку и загрузите документы для начала работы",
+      noFoldersDescription:
+        "Создайте папку и загрузите документы для начала работы",
       createNewFolder: "Создать новую папку",
       folderName: "Название папки *",
       enterFolderName: "Введите название папки",
@@ -705,7 +759,7 @@ export const ru = {
       createFolder: "Создать папку",
       select: "Выбрать",
       selected: "Выбрано",
-      file: "файл"
+      file: "файл",
     },
     // Course Outline Page
     courseOutline: {
@@ -743,7 +797,7 @@ export const ru = {
       fluxKontextHQ: "Flux Kontext HQ",
       stableDiffusion: "Stable Diffusion 2.1",
       describeImprovements: "Опишите, что вы хотите улучшить...",
-      total: "всего"
+      total: "всего",
     },
     // Generate Page
     generate: {
@@ -758,7 +812,8 @@ export const ru = {
       foldersSelectedPlural: "{count} папки выбраны",
       filesSelected: "{count} файл выбран",
       filesSelectedPlural: "{count} файлов выбрано",
-      aiWillUseDocuments: "ИИ будет использовать ваши выбранные документы как исходный материал для создания образовательного контента.",
+      aiWillUseDocuments:
+        "ИИ будет использовать ваши выбранные документы как исходный материал для создания образовательного контента.",
       modeUsingAsContext: "Режим: Использование как контекст",
       modeUsingAsBaseStructure: "Режим: Использование как базовая структура",
       // Additional keys for themes and content sections
@@ -769,8 +824,10 @@ export const ru = {
       spanish: "Испанский",
       russian: "Русский",
 
-      aiWillUseTextAsContext: "ИИ будет использовать ваш текст как справочный материал и контекст для создания нового образовательного контента.",
-      aiWillBuildUponText: "ИИ будет развивать вашу существующую структуру контента для создания образовательных материалов.",
+      aiWillUseTextAsContext:
+        "ИИ будет использовать ваш текст как справочный материал и контекст для создания нового образовательного контента.",
+      aiWillBuildUponText:
+        "ИИ будет развивать вашу существующую структуру контента для создания образовательных материалов.",
       courseOutline: "План курса",
       videoLesson: "Видеоурок",
       presentation: "Презентация",
@@ -778,8 +835,10 @@ export const ru = {
       onePager: "Одностраничник",
       prompt: "Запрос",
       promptPlaceholder: "Опишите, что вы хотите создать...",
-      promptPlaceholderFromFiles: "Опишите, что вы хотите создать из ваших файлов...",
-      promptPlaceholderFromText: "Опишите, что вы хотите создать из вашего текста...",
+      promptPlaceholderFromFiles:
+        "Опишите, что вы хотите создать из ваших файлов...",
+      promptPlaceholderFromText:
+        "Опишите, что вы хотите создать из вашего текста...",
       examples: "Примеры",
       examplePrompts: "Примеры запросов",
       shuffleExamples: "Перемешать",
@@ -823,9 +882,11 @@ export const ru = {
       generatingOnePagerContent: "Генерация контента одной страницы...",
       onePagerContentPlaceholder: "Контент одной страницы появится здесь...",
       finalizingOnePager: "Финализация одной страницы...",
-      failedToGenerateOnePager: "Ошибка генерации одной страницы – попробуйте еще раз позже.",
+      failedToGenerateOnePager:
+        "Ошибка генерации одной страницы – попробуйте еще раз позже.",
       untitledOnePager: "Одна Страница Без Названия",
-      adjustTextAndImageStyles: "Настройте стили текста и изображений для вашей одной страницы",
+      adjustTextAndImageStyles:
+        "Настройте стили текста и изображений для вашей одной страницы",
       // Theme options
       wine: "Вино",
       default: "По умолчанию",
@@ -840,15 +901,17 @@ export const ru = {
       noPromptEntered: "Пожалуйста, введите запрос для продолжения",
       noOutlineSelected: "Пожалуйста, выберите план для продолжения",
       noLessonSelected: "Пожалуйста, выберите урок для продолжения",
-      presentationQuestion: "Хотите ли вы создать презентацию из существующего плана курса?",
+      presentationQuestion:
+        "Хотите ли вы создать презентацию из существующего плана курса?",
       yesContentFromOutline: "Да, контент для презентации из плана",
       noStandalone: "Нет, я хочу отдельную презентацию",
       quizQuestion: "Хотите ли вы создать тест из существующего плана курса?",
       yesContentForQuiz: "Да, контент для теста из плана",
       noStandaloneQuiz: "Нет, я хочу отдельный тест",
-      onePagerQuestion: "Хотите ли вы создать одностраничник из существующего плана курса?",
+      onePagerQuestion:
+        "Хотите ли вы создать одностраничник из существующего плана курса?",
       yesContentForOnePager: "Да, контент для одностраничника из плана",
-            noStandaloneOnePager: "Нет, я хочу отдельный одностраничник",
+      noStandaloneOnePager: "Нет, я хочу отдельный одностраничник",
       backButton: "← Назад",
       // Additional keys for preview pages
       loading: "Генерация...",
@@ -861,9 +924,11 @@ export const ru = {
       applying: "Применение...",
       advancedMode: "Расширенный режим",
       themes: "Темы",
-      themesDescription: "Используйте одну из наших популярных тем или просмотрите другие",
+      themesDescription:
+        "Используйте одну из наших популярных тем или просмотрите другие",
       viewMore: "Показать больше",
-      contentDescription: "Настройте стили текста и изображений для вашего урока",
+      contentDescription:
+        "Настройте стили текста и изображений для вашего урока",
       amountOfTextPerCard: "Количество текста на карточку",
       generatingQuiz: "Генерация теста...",
       retryGeneration: "Повторить генерацию",
@@ -873,15 +938,17 @@ export const ru = {
       words: "слов",
       short: "Короткий",
       medium: "Средний",
-      long: "Длинный"
+      long: "Длинный",
     },
 
     // Theme picker translations
     themePicker: {
       title: "Темы презентации",
-      description: "Выберите тему для изменения визуального стиля вашей презентации. Изменения будут применены немедленно.",
+      description:
+        "Выберите тему для изменения визуального стиля вашей презентации. Изменения будут применены немедленно.",
       applying: "Применение...",
-      footerInfo: "Изменения темы автоматически сохраняются и будут применены к вашим PDF загрузкам."
-    }
-  }
-}; 
+      footerInfo:
+        "Изменения темы автоматически сохраняются и будут применены к вашим PDF загрузкам.",
+    },
+  },
+};
