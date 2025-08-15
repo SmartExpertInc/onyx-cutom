@@ -2,7 +2,11 @@
 
 import { useState } from 'react';
 
-export default function Toolbar() {
+interface ToolbarProps {
+  onActiveToolChange?: (toolId: string) => void;
+}
+
+export default function Toolbar({ onActiveToolChange }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
 
   const tools = [
@@ -66,6 +70,7 @@ export default function Toolbar() {
 
   const handleToolClick = (toolId: string) => {
     setActiveToolId(toolId);
+    onActiveToolChange?.(toolId);
   };
 
   return (
