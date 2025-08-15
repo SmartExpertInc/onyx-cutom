@@ -2,8 +2,10 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ImageIcon, Replace, MoreVertical, Download, Trash2 } from 'lucide-react';
+import { ImageIcon, Replace, MoreVertical, Download, Trash2, Sparkles } from 'lucide-react';
 import PresentationImageUpload from './PresentationImageUpload';
+import AIImageGenerationModal from './AIImageGenerationModal';
+import ImageChoiceModal from './ImageChoiceModal';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
 
@@ -71,6 +73,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Modal state
   const [showImageEditModal, setShowImageEditModal] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+
+  // ✅ NEW: AI Generation modal state
+  const [showAIGenerationModal, setShowAIGenerationModal] = useState(false);
+
+  // ✅ NEW: Image choice modal state
+  const [showImageChoiceModal, setShowImageChoiceModal] = useState(false);
 
   // ✅ NEW: Click-to-activate interaction model
   const [isSelected, setIsSelected] = useState(false);
@@ -373,10 +381,50 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [onImageUploaded, elementId, instanceId, displayedImage]);
 
+  // ✅ NEW: AI Image Generation handler
+  const handleAIImageGenerated = useCallback((imagePath: string) => {
+    console.log('🔍 [AIGeneration] Image generated successfully', { 
+      elementId,
+      instanceId,
+      imagePath,
+      timestamp: Date.now()
+    });
+    
+    // Set the generated image
+    setDisplayedImage(imagePath);
+    
+    // Notify parent component
+    onImageUploaded(imagePath);
+    
+    // Clear selection state
+    setIsSelected(false);
+    
+    console.log('🔍 [AIGeneration] AI image integration completed', {
+      elementId,
+      instanceId,
+      imagePath,
+      timestamp: Date.now()
+    });
+  }, [onImageUploaded, elementId, instanceId]);
+
+  // ✅ NEW: Image choice handlers
+  const handleChooseUpload = useCallback(() => {
+    setShowUploadModal(true);
+    log('ClickableImagePlaceholder', 'chooseUpload', { elementId, instanceId });
+  }, [elementId, instanceId]);
+
+  const handleChooseAI = useCallback(() => {
+    setShowAIGenerationModal(true);
+    log('ClickableImagePlaceholder', 'chooseAI', { elementId, instanceId });
+  }, [elementId, instanceId]);
+
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
     if (!isEditable) return;
-      setShowUploadModal(true);
+    
+    // Show choice between upload and AI generation
+    // For now, default to upload modal - we can enhance this later with a choice dialog
+    setShowImageChoiceModal(true);
     log('ClickableImagePlaceholder', 'placeholderClick', { 
       elementId, 
       instanceId 
@@ -580,6 +628,19 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                      {/* ✅ NEW: Inline action buttons - no more context menu! */}
            {isSelected && (
              <div className="absolute top-2 right-2 flex flex-col gap-1">
+               {/* Generate with AI Button */}
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   console.log('🔍 [InlineAction] Generate with AI clicked', { elementId, instanceId });
+                   setShowAIGenerationModal(true);
+                 }}
+                 className="bg-purple-500 hover:bg-purple-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
+                 title="Generate with AI"
+               >
+                 <Sparkles className="w-3 h-3" />
+               </button>
+               
                {/* Change Image Button */}
                <button
                  onClick={(e) => {
@@ -628,6 +689,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onCancel={handleModalCancel}
         />
 
+        {/* ✅ NEW: AI Image Generation Modal */}
+        <AIImageGenerationModal
+          isOpen={showAIGenerationModal}
+          onClose={() => setShowAIGenerationModal(false)}
+          onImageGenerated={handleAIImageGenerated}
+          placeholderDimensions={getPlaceholderDimensions()}
+          title="Generate AI Image"
+        />
+
                  {/* ✅ REMOVED: ContextMenu - replaced with inline buttons! */}
       </>
     );
@@ -665,8 +735,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             </div>
           )}
           {isEditable && (
-            <div className="text-xs mt-2 text-blue-600 font-medium">
-              Click to upload
+            <div className="space-y-2 mt-3">
+              <div className="text-xs text-blue-600 font-medium">
+                Click to upload
+              </div>
+              <div className="text-xs text-purple-600 font-medium">
+                Or generate with AI
+              </div>
             </div>
           )}
         </div>
@@ -687,6 +762,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onConfirmCrop={handleConfirmCrop}
         onDoNotCrop={handleDoNotCrop}
         onCancel={handleModalCancel}
+      />
+
+      {/* ✅ NEW: AI Image Generation Modal for placeholder */}
+      <AIImageGenerationModal
+        isOpen={showAIGenerationModal}
+        onClose={() => setShowAIGenerationModal(false)}
+        onImageGenerated={handleAIImageGenerated}
+        placeholderDimensions={getPlaceholderDimensions()}
+        title="Generate AI Image"
+      />
+
+      {/* ✅ NEW: Image Choice Modal */}
+      <ImageChoiceModal
+        isOpen={showImageChoiceModal}
+        onClose={() => setShowImageChoiceModal(false)}
+        onChooseUpload={handleChooseUpload}
+        onChooseAI={handleChooseAI}
+        title="Add Image"
       />
     </>
   );

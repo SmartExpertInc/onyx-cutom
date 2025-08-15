@@ -7030,6 +7030,101 @@ async def upload_presentation_image(file: UploadFile = File(...)):
     web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
     return {"file_path": web_accessible_path}
 
+# NEW: AI Image Generation Endpoint
+class AIImageGenerationRequest(BaseModel):
+    prompt: str = Field(..., description="Text prompt for image generation")
+    width: int = Field(..., description="Image width in pixels", ge=256, le=1792)
+    height: int = Field(..., description="Image height in pixels", ge=256, le=1792)
+    quality: str = Field(default="standard", description="Image quality: standard or hd")
+    style: str = Field(default="vivid", description="Image style: vivid or natural")
+    model: str = Field(default="dall-e-2", description="DALL-E model to use")
+
+@app.post("/api/custom/presentation/generate_image", responses={
+    200: {"description": "Image generated successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/ai_generated_image.png"}}}},
+    400: {"description": "Invalid request parameters", "model": ErrorDetail},
+    500: {"description": "AI generation failed", "model": ErrorDetail}
+})
+async def generate_ai_image(request: AIImageGenerationRequest):
+    """Generate an image using DALL-E AI"""
+    try:
+        logger.info(f"[AI_IMAGE_GENERATION] Starting generation with prompt: '{request.prompt[:50]}...'")
+        logger.info(f"[AI_IMAGE_GENERATION] Dimensions: {request.width}x{request.height}, Quality: {request.quality}, Style: {request.style}")
+        
+        # Validate dimensions (DALL-E 3 requirements)
+        if request.width not in [1024, 1792] and request.height not in [1024, 1792]:
+            # Round to nearest valid size
+            if request.width <= 1024:
+                request.width = 1024
+            else:
+                request.width = 1792
+            if request.height <= 1024:
+                request.height = 1024
+            else:
+                request.height = 1792
+            logger.info(f"[AI_IMAGE_GENERATION] Adjusted dimensions to: {request.width}x{request.height}")
+        
+        # Get OpenAI client
+        client = get_openai_client()
+        
+        # Generate image using DALL-E
+        response = await client.images.generate(
+            model=request.model,
+            prompt=request.prompt,
+            size=f"{request.width}x{request.height}",
+            quality=request.quality,
+            style=request.style,
+            n=1
+        )
+        
+        if not response.data or len(response.data) == 0:
+            raise Exception("No image data received from DALL-E")
+        
+        # Get the generated image URL
+        image_url = response.data[0].url
+        if not image_url:
+            raise Exception("No image URL received from DALL-E")
+        
+        logger.info(f"[AI_IMAGE_GENERATION] Image generated successfully, downloading from: {image_url[:50]}...")
+        
+        # Download the image
+        async with httpx.AsyncClient() as http_client:
+            image_response = await http_client.get(image_url)
+            image_response.raise_for_status()
+            image_data = image_response.content
+        
+        # Save the image to disk
+        safe_filename_base = str(uuid.uuid4())
+        unique_filename = f"ai_generated_{safe_filename_base}.png"
+        file_path_on_disk = os.path.join(STATIC_DESIGN_IMAGES_DIR, unique_filename)
+        
+        try:
+            with open(file_path_on_disk, "wb") as buffer:
+                buffer.write(image_data)
+            
+            web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
+            
+            logger.info(f"[AI_IMAGE_GENERATION] Image saved successfully: {web_accessible_path}")
+            
+            return {
+                "file_path": web_accessible_path,
+                "prompt": request.prompt,
+                "dimensions": {"width": request.width, "height": request.height},
+                "quality": request.quality,
+                "style": request.style
+            }
+            
+        except Exception as e:
+            logger.error(f"[AI_IMAGE_GENERATION] Error saving image to disk: {e}", exc_info=not IS_PRODUCTION)
+            detail_msg = "Could not save generated image." if IS_PRODUCTION else f"Could not save generated image: {str(e)}"
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[AI_IMAGE_GENERATION] Error generating image: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "AI image generation failed." if IS_PRODUCTION else f"AI image generation failed: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
 @app.post("/api/custom/design_templates/add", response_model=DesignTemplateResponse, status_code=status.HTTP_201_CREATED)
 async def add_design_template(template_data: DesignTemplateCreate, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "INSERT INTO design_templates (template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created;"
