@@ -1387,8 +1387,7 @@
                     {% endif %}
                 </div>
                 
-            {% elif slide.templateId == 'big-image-left' %}
-                <!-- DEBUG: Big Image Left Template Start -->
+                {% elif slide.templateId == 'big-image-left' %}
                 <div class="big-image-left">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
@@ -1418,27 +1417,18 @@
                     <div class="content-container">
                         {% if slide.props.title and slide.props.title != 'Click to add title' %}
                             <h1 class="slide-title positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                    {% if slide.metadata.elementPositions[titleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                    {% endif %}
-                                {% endif %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}"
                             >{{ slide.props.title }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
                             <div class="content-text positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
-                                    {% if slide.metadata.elementPositions[subtitleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                                    {% endif %}
-                                {% endif %}
+                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[subtitleId] %}transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);{% endif %}"
                             >{{ slide.props.subtitle }}</div>
                         {% endif %}
                     </div>
                 </div>
-                <!-- DEBUG: Big Image Left Template End -->
                 
             {% elif slide.templateId == 'big-image-top' %}
                 <div class="big-image-top">

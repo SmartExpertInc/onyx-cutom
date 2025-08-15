@@ -1394,14 +1394,12 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.info(f"=== GENERATED HTML ANALYSIS for {slide_info}{template_info} ===")
                 
                 # Extract the big-image-left section from the HTML
-                big_image_left_pattern = r'<div class="big-image-left">(.*?)</div>'
+                big_image_left_pattern = r'<div class="big-image-left">(.*?)</div>\s*</div>\s*</div>'
                 match = re.search(big_image_left_pattern, html_content, re.DOTALL)
                 
                 if match:
                     big_image_left_html = match.group(1)
                     logger.info(f"Big-image-left HTML section found")
-                    logger.info(f"Extracted HTML length: {len(big_image_left_html)} characters")
-                    logger.info(f"First 500 chars of extracted HTML: {big_image_left_html[:500]}")
                     
                     # Look for positioned elements
                     positioned_elements = re.findall(r'<[^>]*class="[^"]*positioned-element[^"]*"[^>]*>', big_image_left_html)
@@ -1419,8 +1417,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                         logger.info(f"Transform {i+1}: {transform}")
                     
                     # Look for title and subtitle elements specifically
-                    title_pattern = r'<h1[^>]*class="[^"]*slide-title[^"]*"[^>]*>.*?</h1>'
-                    subtitle_pattern = r'<div[^>]*class="[^"]*content-text[^"]*"[^>]*>.*?</div>'
+                    title_pattern = r'<h1[^>]*class="[^"]*slide-title[^"]*"[^>]*>(.*?)</h1>'
+                    subtitle_pattern = r'<div[^>]*class="[^"]*content-text[^"]*"[^>]*>(.*?)</div>'
                     
                     title_match = re.search(title_pattern, big_image_left_html, re.DOTALL)
                     subtitle_match = re.search(subtitle_pattern, big_image_left_html, re.DOTALL)
@@ -1436,12 +1434,6 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                         logger.info(f"Subtitle HTML: {subtitle_html}")
                     else:
                         logger.info("No subtitle element found")
-                    
-                    # Fallback: Look for any elements with transform styles
-                    all_transform_elements = re.findall(r'<[^>]*style="[^"]*transform:\s*translate\([^)]+\)[^"]*"[^>]*>.*?</[^>]*>', big_image_left_html, re.DOTALL)
-                    logger.info(f"Found {len(all_transform_elements)} elements with transform styles")
-                    for i, element in enumerate(all_transform_elements):
-                        logger.info(f"Transform element {i+1}: {element[:200]}...")
                 else:
                     logger.warning("Big-image-left HTML section not found in generated HTML")
                 
