@@ -1,4 +1,67 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+
 export default function VideoEditorHeader() {
+  const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
+  const resizeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (resizeButtonRef.current && !resizeButtonRef.current.contains(event.target as Node)) {
+        setIsResizePopupOpen(false);
+      }
+    };
+
+    if (isResizePopupOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isResizePopupOpen]);
+
+  const handleResizeClick = () => {
+    setIsResizePopupOpen(!isResizePopupOpen);
+  };
+
+  const resizeOptions = [
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+          <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      text: "16:9 Desktop video, Youtube"
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+          <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      text: "9:16 Instagram story"
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+          <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      text: "1:1 Square, instagram post"
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+          <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" fill="none"/>
+        </svg>
+      ),
+      text: "Custom set a custom size"
+    }
+  ];
+
   return (
     <header className="w-full bg-white h-[68px] flex items-center px-6">
       <div className="flex items-center justify-between w-full">
@@ -44,13 +107,40 @@ export default function VideoEditorHeader() {
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
 
             {/* Resize tool - hidden on smaller screens */}
-            <div className="hidden lg:flex items-center gap-2">
-              <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/8574a9b72f54dd9d3d4b47f6ff7ae4fd1526bd0a?width=44"
-                alt="Resize"
-                className="w-3 h-3"
-              />
-              <span className="text-editor-resize-text text-xs font-normal">Resize</span>
+            <div className="hidden lg:flex items-center relative">
+              <button
+                ref={resizeButtonRef}
+                onClick={handleResizeClick}
+                className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors"
+              >
+                <img
+                  src="https://api.builder.io/api/v1/image/assets/TEMP/8574a9b72f54dd9d3d4b47f6ff7ae4fd1526bd0a?width=44"
+                  alt="Resize"
+                  className="w-3 h-3"
+                />
+                <span className="text-editor-resize-text text-xs font-normal">Resize</span>
+              </button>
+
+              {/* Resize popup */}
+              {isResizePopupOpen && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 py-2">
+                  {resizeOptions.map((option, index) => (
+                    <button
+                      key={index}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left"
+                      onClick={() => {
+                        // Handle resize option selection here
+                        setIsResizePopupOpen(false);
+                      }}
+                    >
+                      <div className="text-gray-600">
+                        {option.icon}
+                      </div>
+                      <span className="text-sm text-gray-700">{option.text}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
