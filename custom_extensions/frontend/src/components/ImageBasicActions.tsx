@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ImageBlock } from '@/types/textPresentation';
 import { Settings, ChevronDown, Edit3, ZoomIn, Move, Palette, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -70,15 +71,16 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       </button>
       
       {/* Basic Actions Dropdown */}
-      {showMenu && (
+      {showMenu && createPortal(
         <div 
           ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
           onMouseEnter={(e: React.MouseEvent) => e.stopPropagation()}
           onMouseLeave={(e: React.MouseEvent) => e.stopPropagation()}
-          className="absolute left-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
+          className="fixed w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] max-h-96 overflow-y-auto"
           style={{
-            transform: 'translateY(0)',
+            left: buttonRef.current?.getBoundingClientRect().left || 0,
+            top: (buttonRef.current?.getBoundingClientRect().bottom || 0) + 4,
             maxHeight: 'calc(100vh - 100px)'
           }}
         >
@@ -179,7 +181,8 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
