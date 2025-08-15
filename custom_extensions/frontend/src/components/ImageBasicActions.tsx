@@ -61,22 +61,19 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     {
       value: 'standalone',
       icon: ImageIcon,
-      label: t('interface.imageSettings.standalone', 'Standalone'),
-      description: 'Окремо',
+      label: 'Окремо',
       preview: '🖼️'
     },
     {
       value: 'inline-left',
       icon: Layout,
-      label: t('interface.imageSettings.inlineLeft', 'Inline Left'),
-      description: 'Зліва від тексту',
+      label: 'Зліва від тексту',
       preview: '🖼️ 📄'
     },
     {
       value: 'inline-right',
       icon: Layout,
-      label: t('interface.imageSettings.inlineRight', 'Inline Right'),
-      description: 'Справа від тексту',
+      label: 'Справа від тексту',
       preview: '📄 🖼️'
     },
     // {
@@ -202,7 +199,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                           <span className="text-sm">{option.preview}</span>
                           <div className="flex-1">
                             <div className="font-medium">{option.label}</div>
-                            <div className="text-gray-500 text-xs">{option.description}</div>
                           </div>
                         </button>
                       ))}
