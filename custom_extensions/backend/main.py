@@ -16604,12 +16604,19 @@ async def download_projects_list_pdf(
         try:
             # Use a new connection for analytics queries since the original conn might be released
             async with pool.acquire() as analytics_conn:
-                # Get product distribution data
+                # Get product distribution data - count lesson products within training plans
                 product_query = """
-                    SELECT dt.component_name, COUNT(*) as count
-                    FROM projects p
-                    LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                    WHERE p.onyx_user_id = $1
+                    WITH lesson_products AS (
+                        SELECT 
+                            lesson->>'recommendedContentTypes' as recommended_types
+                        FROM projects p
+                        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                        CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        WHERE p.onyx_user_id = $1
+                        AND p.microproduct_content IS NOT NULL
+                        AND p.microproduct_content->>'sections' IS NOT NULL
+                        AND dt.component_name = 'TrainingPlanTable'
                 """
                 product_params = [onyx_user_id]
                 
@@ -16617,7 +16624,61 @@ async def download_projects_list_pdf(
                     product_query += " AND p.folder_id = $2"
                     product_params.append(folder_id)
                 
-                product_query += " GROUP BY dt.component_name ORDER BY count DESC"
+                product_query += """
+                    ),
+                    expanded_products AS (
+                        SELECT 
+                            CASE 
+                                WHEN recommended_types LIKE '%presentation%' THEN 'presentation'
+                                ELSE NULL
+                            END as product_type
+                        FROM lesson_products
+                        WHERE recommended_types IS NOT NULL
+                        AND recommended_types != ''
+                        AND recommended_types LIKE '%presentation%'
+                        
+                        UNION ALL
+                        
+                        SELECT 
+                            CASE 
+                                WHEN recommended_types LIKE '%one-pager%' THEN 'one_pager'
+                                ELSE NULL
+                            END as product_type
+                        FROM lesson_products
+                        WHERE recommended_types IS NOT NULL
+                        AND recommended_types != ''
+                        AND recommended_types LIKE '%one-pager%'
+                        
+                        UNION ALL
+                        
+                        SELECT 
+                            CASE 
+                                WHEN recommended_types LIKE '%quiz%' THEN 'quiz'
+                                ELSE NULL
+                            END as product_type
+                        FROM lesson_products
+                        WHERE recommended_types IS NOT NULL
+                        AND recommended_types != ''
+                        AND recommended_types LIKE '%quiz%'
+                        
+                        UNION ALL
+                        
+                        SELECT 
+                            CASE 
+                                WHEN recommended_types LIKE '%video-lesson%' THEN 'video_lesson'
+                                ELSE NULL
+                            END as product_type
+                        FROM lesson_products
+                        WHERE recommended_types IS NOT NULL
+                        AND recommended_types != ''
+                        AND recommended_types LIKE '%video-lesson%'
+                    )
+                    SELECT product_type, COUNT(*) as count
+                    FROM expanded_products
+                    WHERE product_type IS NOT NULL
+                    GROUP BY product_type
+                    ORDER BY count DESC
+                """
                 
                 logger.info(f"[PDF_ANALYTICS] Product query: {product_query}")
                 logger.info(f"[PDF_ANALYTICS] Product params: {product_params}")
@@ -16630,21 +16691,28 @@ async def download_projects_list_pdf(
                 total_products = 0
                 
                 for row in product_rows:
-                    component_name = row['component_name']
+                    product_type_str = row['product_type']
                     count = row['count']
                     total_products += count
-                    logger.info(f"[PDF_ANALYTICS] Raw component: {component_name}, count: {count}")
+                    logger.info(f"[PDF_ANALYTICS] Raw product type: {product_type_str}, count: {count}")
                     
-                    # Map component to product type
-                    product_type = COMPONENT_TO_PRODUCT_TYPE.get(component_name)
-                    logger.info(f"[PDF_ANALYTICS] Mapped {component_name} -> {product_type}")
+                    # Map string to ProductType enum
+                    product_type_mapping = {
+                        'one_pager': ProductType.ONE_PAGER,
+                        'presentation': ProductType.PRESENTATION,
+                        'quiz': ProductType.QUIZ,
+                        'video_lesson': ProductType.VIDEO_LESSON
+                    }
+                    
+                    product_type = product_type_mapping.get(product_type_str)
+                    logger.info(f"[PDF_ANALYTICS] Mapped {product_type_str} -> {product_type}")
                     if product_type:
                         if product_type not in product_counts:
                             product_counts[product_type] = 0
                         product_counts[product_type] += count
                         logger.info(f"[PDF_ANALYTICS] Added {count} to {product_type}, total now: {product_counts[product_type]}")
                     else:
-                        logger.warning(f"[PDF_ANALYTICS] No mapping found for component: {component_name}")
+                        logger.warning(f"[PDF_ANALYTICS] No mapping found for product type: {product_type_str}")
                 
                 logger.info(f"[PDF_ANALYTICS] Total products: {total_products}")
                 logger.info(f"[PDF_ANALYTICS] Product counts: {product_counts}")
@@ -18835,6 +18903,7 @@ COMPONENT_TO_PRODUCT_TYPE = {
     COMPONENT_NAME_VIDEO_LESSON: ProductType.VIDEO_LESSON,
     COMPONENT_NAME_VIDEO_LESSON_PRESENTATION: ProductType.VIDEO_LESSON,
     COMPONENT_NAME_PDF_LESSON: ProductType.ONE_PAGER,  # PDF lessons are considered one-pagers
+    # Note: TrainingPlanTable components contain lessons, we need to count the lesson products, not the outline itself
 }
 
 @app.get("/api/custom/projects/analytics/product-distribution", response_model=ProductsDistributionResponse)
