@@ -23,15 +23,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   const proportionRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
-  // Діагностика стану меню
-  useEffect(() => {
-    console.log('🔍 [PROPORTION MENU] State changed:', {
-      showProportionMenu,
-      layoutMode: imageBlock.layoutMode,
-      isSideBySide: imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right'
-    });
-  }, [showProportionMenu, imageBlock.layoutMode]);
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -197,16 +188,14 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
               </div>
             </div>
 
-            {/* Proportion Options - НОВИЙ DROPDOWN */}
+            {/* Параметри макета - як звичайний пункт в dropdown */}
             {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
               <div className="px-3 py-2 border-b border-gray-100">
                 {/* Кнопка "Параметри макета" */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('🖱️ [PROPORTION BUTTON] Clicked! Current state:', showProportionMenu);
                     setShowProportionMenu(!showProportionMenu);
-                    console.log('🖱️ [PROPORTION BUTTON] New state will be:', !showProportionMenu);
                   }}
                   className="w-full text-left text-xs hover:bg-gray-50 rounded transition-colors flex items-center justify-between py-2"
                 >
@@ -220,10 +209,9 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                   <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${showProportionMenu ? 'rotate-90' : ''}`} />
                 </button>
                 
-                {/* Розгорнута секція з варіантами пропорцій - ТІЛЬКИ КОЛИ showProportionMenu = true */}
+                {/* Опції пропорцій під кнопкою */}
                 {showProportionMenu && (
                   <div className="mt-2 space-y-1">
-                    {console.log('🎯 [PROPORTION SECTION] Rendering expanded section, showProportionMenu:', showProportionMenu)}
                     {proportionOptions.map((option) => (
                       <button
                         key={option.value}
