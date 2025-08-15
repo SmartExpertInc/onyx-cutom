@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ImageBlock } from '@/types/textPresentation';
-import { Settings, ChevronDown, Edit3, ZoomIn, Move, Palette, AlignLeft, AlignCenter, AlignRight, Layout, Image as ImageIcon, Type } from 'lucide-react';
+import { Settings, ChevronDown, Edit3, ZoomIn, Move, Palette, AlignLeft, AlignCenter, AlignRight, Layout, Image as ImageIcon, Type, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface ImageBasicActionsProps {
@@ -17,8 +17,10 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   onOpenAdvancedSettings
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [showProportionMenu, setShowProportionMenu] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const proportionRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
   // Close dropdown when clicking outside
@@ -27,6 +29,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
           buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setShowMenu(false);
+        setShowProportionMenu(false);
       }
     };
 
@@ -101,6 +104,12 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     { value: '70-30', label: '70% - 30%', description: t('interface.imageSettings.imageDominant', 'Image dominant') },
     { value: '30-70', label: '30% - 70%', description: t('interface.imageSettings.contentDominant', 'Content dominant') }
   ];
+
+  // Отримати поточну пропорцію для відображення
+  const getCurrentProportion = () => {
+    const current = proportionOptions.find(opt => opt.value === imageBlock.layoutProportion);
+    return current || proportionOptions[0];
+  };
 
   return (
     <div className="relative">
@@ -179,32 +188,61 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
               </div>
             </div>
 
-            {/* Proportion Options - тільки для side-by-side режимів */}
+            {/* Proportion Options - НОВИЙ DROPDOWN */}
             {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
               <div className="px-3 py-2 border-b border-gray-100">
                 <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
                   {t('interface.imageSettings.spaceDistribution', 'Space Distribution')}
                 </div>
-                <div className="space-y-1">
-                  {proportionOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log(`Applying proportion: ${option.value}`);
-                        updateImageProperty('layoutProportion', option.value);
-                        // Don't close menu automatically
-                      }}
-                      className={`w-full px-2 py-1 text-left text-xs rounded transition-colors ${
-                        imageBlock.layoutProportion === option.value 
-                          ? 'bg-green-100 text-green-700 border border-green-200' 
-                          : 'hover:bg-green-50'
-                      }`}
+                
+                {/* Dropdown button для пропорцій */}
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowProportionMenu(!showProportionMenu);
+                    }}
+                    className="w-full px-3 py-2 text-left text-xs border border-gray-200 rounded-md hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-600">📊</span>
+                      <div>
+                        <div className="font-medium">{getCurrentProportion().label}</div>
+                        <div className="text-gray-500 text-xs">{getCurrentProportion().description}</div>
+                      </div>
+                    </div>
+                    <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${showProportionMenu ? 'rotate-90' : ''}`} />
+                  </button>
+                  
+                  {/* Dropdown меню для пропорцій */}
+                  {showProportionMenu && (
+                    <div 
+                      ref={proportionRef}
+                      className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10"
                     >
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-gray-500">{option.description}</div>
-                    </button>
-                  ))}
+                      <div className="py-1">
+                        {proportionOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log(`Applying proportion: ${option.value}`);
+                              updateImageProperty('layoutProportion', option.value);
+                              setShowProportionMenu(false);
+                            }}
+                            className={`w-full px-3 py-2 text-left text-xs hover:bg-green-50 transition-colors ${
+                              imageBlock.layoutProportion === option.value 
+                                ? 'bg-green-100 text-green-700 border-l-2 border-green-500' 
+                                : ''
+                            }`}
+                          >
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-gray-500 text-xs">{option.description}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
