@@ -360,6 +360,7 @@ export const en = {
     
     // Main content
     all: "All",
+    other: "Other",
     trainingPlans: "Training Plans",
     pdfLessons: "PDF Lessons",
     videoLessons: "Video Lessons",

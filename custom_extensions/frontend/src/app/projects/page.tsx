@@ -423,36 +423,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
         </Link>
       </nav>
-      <div className="mt-4">
-        <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
-          <span>{t('interface.folders', 'Folders')}</span>
-          <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
-        </div>
-        {folders.length === 0 ? (
-          <div className="bg-gray-100 p-4 rounded-lg text-center">
-            <p className="mb-2 text-gray-700">{t('interface.organizeProducts', 'Organize your products by topic and share them with your team')}</p>
-            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>{t('interface.createOrJoinFolder', 'Create or join a folder')}</button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-1">
-            {buildFolderTree(folders).map((folder) => (
-              <FolderItem
-                key={folder.id}
-                folder={folder}
-                level={0}
-                selectedFolderId={selectedFolderId}
-                onFolderSelect={onFolderSelect}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                folderProjects={folderProjects}
-                allFolders={folders}
-              />
-            ))}
-          </div>
-        )}
-      </div>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <LayoutTemplate size={18} />

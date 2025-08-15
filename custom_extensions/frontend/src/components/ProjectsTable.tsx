@@ -11,6 +11,7 @@ import {
   Home, 
   Clock, 
   User, 
+  Users,
   Star, 
   ArrowUpDown, 
   LayoutGrid, 
@@ -968,6 +969,385 @@ const FolderRow: React.FC<{
             {isExpanded && hasChildren && folder.children!.map((childFolder, childIndex) => (
                 <FolderRow
                     key={`child-folder-${childFolder.id}`}
+                    folder={childFolder}
+                    level={level + 1}
+                    index={childIndex}
+                    trashMode={trashMode}
+                    columnVisibility={columnVisibility}
+                    columnWidths={columnWidths}
+                    expandedFolders={expandedFolders}
+                    folderProjects={folderProjects}
+                    lessonDataCache={lessonDataCache}
+                    draggedFolder={draggedFolder}
+                    draggedProject={draggedProject}
+                    dragOverIndex={dragOverIndex}
+                    isDragging={isDragging}
+                    isReordering={isReordering}
+                    formatDate={formatDate}
+                    formatCompletionTime={formatCompletionTimeLocalized}
+                    toggleFolder={toggleFolder}
+                    handleDragStart={handleDragStart}
+                    handleDragOver={handleDragOver}
+                    handleDragLeave={handleDragLeave}
+                    handleDrop={handleDrop}
+                    handleDragEnd={handleDragEnd}
+                    handleDeleteProject={handleDeleteProject}
+                    handleRestoreProject={handleRestoreProject}
+                    handleDeletePermanently={handleDeletePermanently}
+                    handleDeleteFolder={handleDeleteFolder}
+                    allFolders={allFolders}
+                />
+            ))}
+        </>
+    );
+};
+
+// Client row component for displaying folders as "Clients" in list view
+const ClientRow: React.FC<{
+    folder: Folder;
+    level: number;
+    index: number;
+    trashMode: boolean;
+    columnVisibility: ColumnVisibility;
+    columnWidths: ColumnWidths;
+    expandedFolders: Set<number>;
+    folderProjects: Record<number, Project[]>;
+    lessonDataCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>;
+    draggedFolder: Folder | null;
+    draggedProject: Project | null;
+    dragOverIndex: number | null;
+    isDragging: boolean;
+    isReordering: boolean;
+    formatDate: (date: string) => string;
+    formatCompletionTime: (minutes: number | string) => string;
+    toggleFolder: (folderId: number) => void;
+    handleDragStart: (e: React.DragEvent, item: Folder | Project, type: 'folder' | 'project') => void;
+    handleDragOver: (e: React.DragEvent, index: number) => void;
+    handleDragLeave: (e: React.DragEvent) => void;
+    handleDrop: (e: React.DragEvent, index: number) => void;
+    handleDragEnd: (e: React.DragEvent) => void;
+    handleDeleteProject: (projectId: number, scope: 'self' | 'all') => void;
+    handleRestoreProject: (projectId: number) => void;
+    handleDeletePermanently: (projectId: number) => void;
+    handleDeleteFolder: (folderId: number) => void;
+    allFolders: Folder[];
+    isOtherSection?: boolean;
+}> = ({ 
+    folder, 
+    level, 
+    index, 
+    trashMode, 
+    columnVisibility, 
+    columnWidths,
+    expandedFolders, 
+    folderProjects, 
+    lessonDataCache,
+    draggedFolder,
+    draggedProject,
+    dragOverIndex,
+    isDragging,
+    isReordering,
+    formatDate, 
+    formatCompletionTime,
+    toggleFolder,
+    handleDragStart,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleDragEnd,
+    handleDeleteProject,
+    handleRestoreProject,
+    handleDeletePermanently,
+    handleDeleteFolder,
+    allFolders,
+    isOtherSection = false
+}) => {
+    const { t } = useLanguage();
+
+    const hasChildren = folder.children && folder.children.length > 0;
+    const isExpanded = expandedFolders.has(folder.id);
+    const folderProjectsList = folderProjects[folder.id] || [];
+
+    return (
+        <>
+            {/* Client row */}
+            <tr 
+                key={`client-${folder.id}`}
+                data-folder-id={folder.id}
+                className={`hover:bg-gray-50 transition group ${
+                    !getModalState() 
+                        ? 'cursor-grab active:cursor-grabbing' 
+                        : 'cursor-default'
+                } ${
+                    dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
+                draggable={!trashMode && !getModalState()}
+                onDragStart={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    handleDragStart(e, folder, 'folder');
+                }}
+                onDragOver={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragOver(e, index);
+                }}
+                onDragLeave={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragLeave(e);
+                }}
+                onDrop={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDrop(e, index);
+                }}
+                onDragEnd={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragEnd(e);
+                }}
+                onClick={() => toggleFolder(folder.id)}
+            >
+                {columnVisibility.title && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <span className="inline-flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
+                            <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                    <circle cx="9" cy="5" r="2"/>
+                                    <circle cx="9" cy="12" r="2"/>
+                                    <circle cx="9" cy="19" r="2"/>
+                                    <circle cx="15" cy="5" r="2"/>
+                                    <circle cx="15" cy="12" r="2"/>
+                                    <circle cx="15" cy="19" r="2"/>
+                                </svg>
+                            </div>
+                            <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
+                                <ChevronRight 
+                                    size={16} 
+                                    className={`transition-transform duration-200 ${
+                                        isExpanded ? 'rotate-90' : ''
+                                    }`}
+                                />
+                            </button>
+                            <Users size={16} className="mr-2 text-green-600" />
+                            <DynamicText 
+                                text={isOtherSection ? t('interface.other', 'Other') : folder.name}
+                                columnWidthPercent={columnWidths.title}
+                                className="font-semibold text-green-700"
+                                title={isOtherSection ? t('interface.other', 'Other') : folder.name}
+                            />
+                            <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? t('interface.item', 'item') : t('interface.items', 'items')}
+                            </span>
+                        </span>
+                    </td>
+                )}
+                {columnVisibility.created && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {isOtherSection ? '-' : formatDate(folder.created_at)}
+                    </td>
+                )}
+                {columnVisibility.creator && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span className="inline-flex items-center">
+                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span className="text-xs font-bold text-gray-700">Y</span>
+                            </span>
+                            You
+                        </span>
+                    </td>
+                )}
+                {columnVisibility.numberOfLessons && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalLessons = getTotalLessonsInFolder(folder);
+                            return totalLessons > 0 ? totalLessons : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.estCreationTime && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.estCompletionTime && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
+                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
+                        })()}
+                    </td>
+                )}
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                    {!isOtherSection && (
+                        <FolderRowMenu 
+                            folder={folder} 
+                            formatDate={formatDate} 
+                            trashMode={trashMode}
+                            onDeleteFolder={handleDeleteFolder}
+                        />
+                    )}
+                </td>
+            </tr>
+            
+            {/* Expanded client content - projects */}
+            {isExpanded && folderProjectsList.length > 0 && (
+                folderProjectsList.map((p: Project, projectIndex: number) => (
+                    <tr 
+                        key={`client-project-${p.id}`} 
+                        className={`hover:bg-gray-50 transition group bg-gray-50 ${
+                            !getModalState() 
+                                ? 'cursor-grab active:cursor-grabbing' 
+                                : 'cursor-default'
+                        } ${
+                            dragOverIndex === projectIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                        draggable={!trashMode && !getModalState()}
+                        onDragStart={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return;
+                            }
+                            handleDragStart(e, p, 'project');
+                        }}
+                        onDragOver={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragOver(e, projectIndex);
+                        }}
+                        onDragLeave={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragLeave(e);
+                        }}
+                        onDrop={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDrop(e, projectIndex);
+                        }}
+                        onDragEnd={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragEnd(e);
+                        }}
+                    >
+                        {columnVisibility.title && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <span className="inline-flex items-center" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
+                                        getModalState() 
+                                            ? 'cursor-grab active:cursor-grabbing' 
+                                            : 'cursor-default opacity-30'
+                                    }`}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                            <circle cx="9" cy="5" r="2"/>
+                                            <circle cx="9" cy="12" r="2"/>
+                                            <circle cx="9" cy="19" r="2"/>
+                                            <circle cx="15" cy="5" r="2"/>
+                                            <circle cx="15" cy="12" r="2"/>
+                                            <circle cx="15" cy="19" r="2"/>
+                                        </svg>
+                                    </div>
+                                    <div className="w-4 h-4 border-l-2 border-green-200 mr-3"></div>
+                                    <Star size={16} className="text-gray-300 mr-2" />
+                                    <DynamicText 
+                                        text={p.title}
+                                        columnWidthPercent={columnWidths.title}
+                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
+                                        title={p.title}
+                                    />
+                                </span>
+                            </td>
+                        )}
+                        {columnVisibility.created && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                        )}
+                        {columnVisibility.creator && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <span className="inline-flex items-center">
+                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                    </span>
+                                    You
+                                </span>
+                            </td>
+                        )}
+                        {columnVisibility.numberOfLessons && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData ? lessonData.lessonCount : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.estCreationTime && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.estCompletionTime && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                })()}
+                            </td>
+                        )}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                            <ProjectRowMenu 
+                                project={p} 
+                                formatDate={formatDate} 
+                                trashMode={trashMode}
+                                onDelete={handleDeleteProject}
+                                onRestore={handleRestoreProject}
+                                onDeletePermanently={handleDeletePermanently}
+                                folderId={folder.id}
+                            />
+                        </td>
+                    </tr>
+                ))
+            )}
+            
+            {/* Loading state for client projects */}
+            {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
+                <tr>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 1} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                        Loading projects...
+                    </td>
+                </tr>
+            )}
+            
+            {/* Recursively render child folders */}
+            {isExpanded && hasChildren && folder.children!.map((childFolder, childIndex) => (
+                <ClientRow
+                    key={`child-client-${childFolder.id}`}
                     folder={childFolder}
                     level={level + 1}
                     index={childIndex}
@@ -3525,10 +3905,10 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
-                                {/* Show nested folders as expandable rows when not viewing a specific folder */}
+                                {/* Show folders as "Clients" when not viewing a specific folder */}
                                 {!trashMode && folderId === null && buildFolderTree(folders).map((folder, folderIndex) => (
-                                    <FolderRow
-                                        key={`folder-${folder.id}`}
+                                    <ClientRow
+                                        key={`client-${folder.id}`}
                                         folder={folder}
                                         level={0}
                                         index={folderIndex}
@@ -3559,132 +3939,52 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                     />
                                 ))}
                                 
-                                {/* Show unassigned projects when not viewing a specific folder */}
-                                {!trashMode && folderId === null && visibleUnassignedProjects.map((p: Project, index: number) => (
-                                    <tr 
-                                        key={p.id} 
-                                        className={`hover:bg-gray-50 transition group ${
-                                            !getModalState() 
-                                                ? 'cursor-grab active:cursor-grabbing' 
-                                                : 'cursor-default'
-                                        } ${
-                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
-                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
-                                        draggable={!trashMode && !getModalState()}
-                                        onDragStart={(e) => {
-                                            if (getModalState()) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                return;
-                                            }
-                                            handleDragStart(e, p, 'project');
+                                {/* Show "Other" section for unassigned projects when not viewing a specific folder */}
+                                {!trashMode && folderId === null && visibleUnassignedProjects.length > 0 && (
+                                    <ClientRow
+                                        key="client-other"
+                                        folder={{ 
+                                            id: -1, 
+                                            name: t('interface.other', 'Other'), 
+                                            created_at: "", 
+                                            project_count: visibleUnassignedProjects.length,
+                                            order: 0,
+                                            total_lessons: 0,
+                                            total_hours: 0,
+                                            total_completion_time: 0,
+                                            children: [] 
                                         }}
-                                        onDragOver={(e) => {
-                                            if (getModalState()) {
-                                                e.preventDefault();
-                                                return;
-                                            }
-                                            handleDragOver(e, index);
-                                        }}
-                                        onDragLeave={(e) => {
-                                            if (getModalState()) {
-                                                e.preventDefault();
-                                                return;
-                                            }
-                                            handleDragLeave(e);
-                                        }}
-                                        onDrop={(e) => {
-                                            if (getModalState()) {
-                                                e.preventDefault();
-                                                return;
-                                            }
-                                            handleDrop(e, index);
-                                        }}
-                                        onDragEnd={(e) => {
-                                            if (getModalState()) {
-                                                e.preventDefault();
-                                                return;
-                                            }
-                                            handleDragEnd(e);
-                                        }}
-                                    >
-                                        {columnVisibility.title && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                                        getModalState() 
-                                                            ? 'cursor-grab active:cursor-grabbing' 
-                                                            : 'cursor-default opacity-30'
-                                                    }`}>
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
-                                                            <circle cx="9" cy="5" r="2"/>
-                                                            <circle cx="9" cy="12" r="2"/>
-                                                            <circle cx="9" cy="19" r="2"/>
-                                                            <circle cx="15" cy="5" r="2"/>
-                                                            <circle cx="15" cy="12" r="2"/>
-                                                            <circle cx="15" cy="19" r="2"/>
-                                                        </svg>
-                                                    </div>
-                                                    <Star size={16} className="text-gray-300 mr-2" />
-                                                    <DynamicText 
-                                                        text={p.title}
-                                                        columnWidthPercent={columnWidths.title}
-                                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
-                                                        title={p.title}
-                                                    />
-                                                </span>
-                                            </td>
-                                        )}
-                                        {columnVisibility.created && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
-                                        )}
-                                        {columnVisibility.creator && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <span className="inline-flex items-center">
-                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                                                        <span className="text-xs font-bold text-gray-700">Y</span>
-                                                    </span>
-                                                    You
-                                                </span>
-                                            </td>
-                                        )}
-                                        {columnVisibility.numberOfLessons && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? lessonData.lessonCount : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        {columnVisibility.estCreationTime && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        {columnVisibility.estCompletionTime && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(() => {
-                                                    const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
-                                                })()}
-                                            </td>
-                                        )}
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
-                                            <ProjectRowMenu 
-                                                project={p} 
-                                                formatDate={formatDate} 
-                                                trashMode={trashMode}
-                                                onDelete={handleDeleteProject}
-                                                onRestore={handleRestoreProject}
-                                                onDeletePermanently={handleDeletePermanently}
-                                                folderId={folderId}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
+                                        level={0}
+                                        index={buildFolderTree(folders).length}
+                                        trashMode={trashMode}
+                                        columnVisibility={columnVisibility}
+                                        columnWidths={columnWidths}
+                                        expandedFolders={expandedFolders}
+                                        folderProjects={{ [-1]: visibleUnassignedProjects }}
+                                        lessonDataCache={lessonDataCache}
+                                        draggedFolder={draggedFolder}
+                                        draggedProject={draggedProject}
+                                        dragOverIndex={dragOverIndex}
+                                        isDragging={isDragging}
+                                        isReordering={isReordering}
+                                        formatDate={formatDate}
+                                        formatCompletionTime={formatCompletionTimeLocalized}
+                                        toggleFolder={toggleFolder}
+                                        handleDragStart={handleDragStart}
+                                        handleDragOver={handleDragOver}
+                                        handleDragLeave={handleDragLeave}
+                                        handleDrop={handleDrop}
+                                        handleDragEnd={handleDragEnd}
+                                        handleDeleteProject={handleDeleteProject}
+                                        handleRestoreProject={handleRestoreProject}
+                                        handleDeletePermanently={handleDeletePermanently}
+                                        handleDeleteFolder={handleDeleteFolder}
+                                        allFolders={folders}
+                                        isOtherSection={true}
+                                    />
+                                )}
+                                
+
                                 
                                 {/* Show projects for specific folder or all projects in trash mode */}
                                 {(trashMode || folderId !== null) && visibleProjects.map((p: Project, index: number) => (
