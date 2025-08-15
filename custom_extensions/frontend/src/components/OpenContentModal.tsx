@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, HelpCircle, X, ExternalLink, FileText } from 'lucide-react';
+import { Presentation, Video, HelpCircle, X, ExternalLink, FileText } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface OpenContentModalProps {
@@ -84,7 +84,7 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
             >
               <div className="flex items-center space-x-4 flex-1">
                 <div className="p-3 rounded-lg text-blue-600 bg-blue-100">
-                  <BookText size={24} />
+                  <Presentation size={24} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">

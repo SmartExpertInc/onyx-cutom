@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, Film, X, HelpCircle, FileText } from 'lucide-react';
+import { Presentation, Video, Film, X, HelpCircle, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -38,7 +38,7 @@ export const CreateContentTypeModal = ({
   const contentTypes = [
     { 
       name: "lessonPresentation", 
-      icon: <BookText className="w-6 h-6" />, 
+      icon: <Presentation className="w-6 h-6" />, 
       label: t('modals.createContent.presentation'),
       description: t('modals.createContent.presentationDescription'),
       color: "blue",

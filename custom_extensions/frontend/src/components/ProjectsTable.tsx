@@ -40,7 +40,7 @@ import {
   ArrowDownToLine,
   Settings,
   Download,
-  BookText,
+  Presentation,
   Video,
   HelpCircle,
   FileText,
@@ -62,7 +62,7 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
     case "Quiz":
       return <HelpCircle size={iconSize} className={iconClass} />;
     case "Slide Deck":
-      return <BookText size={iconSize} className={iconClass} />;
+      return <Presentation size={iconSize} className={iconClass} />;
     case "Video Lesson Presentation":
       return <Video size={iconSize} className={iconClass} />;
     case "Text Presentation":

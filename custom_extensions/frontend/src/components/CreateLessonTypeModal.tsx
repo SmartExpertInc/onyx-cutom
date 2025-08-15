@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, Film, X, HelpCircle } from 'lucide-react';
+import { Presentation, Video, Film, X, HelpCircle } from 'lucide-react';
 import { locales } from '@/locales';
 
 interface CreateLessonTypeModalProps {
@@ -18,7 +18,7 @@ interface CreateLessonTypeModalProps {
 const lessonTypes = [
   { 
     name: "lessonPresentation", 
-    icon: <BookText className="w-6 h-6" />, 
+    icon: <Presentation className="w-6 h-6" />, 
     disabled: false 
   },
   { 
