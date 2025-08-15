@@ -1,10 +1,15 @@
+"use client";
+
+import { useState } from 'react';
+
 export default function Toolbar() {
+  const [activeToolId, setActiveToolId] = useState<string>('script');
+
   const tools = [
     {
       id: 'script',
       label: 'Script',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/938b59e2c0325ef5e4e47fd23bfe23fdfed31200?width=54',
-      isActive: true
+      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/938b59e2c0325ef5e4e47fd23bfe23fdfed31200?width=54'
     },
     {
       id: 'avatar',
@@ -59,8 +64,12 @@ export default function Toolbar() {
     }
   ];
 
+  const handleToolClick = (toolId: string) => {
+    setActiveToolId(toolId);
+  };
+
   return (
-    <div className="w-full bg-white" style={{ height: '72px' }}>
+    <div className="w-full bg-white px-6 py-3" style={{ height: '72px' }}>
       {/* Toolbar container */}
       <div className="flex items-start justify-between max-w-full h-full">
             {/* Left side - all tools except Default */}
@@ -70,8 +79,9 @@ export default function Toolbar() {
                 return (
                   <div
                     key={tool.id}
+                    onClick={() => handleToolClick(tool.id)}
                     className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-2 ${
-                      tool.isActive ? 'bg-gray-200 border border-gray-300 rounded-lg' : ''
+                      activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
                     }`}
                   >
                     {/* Icon */}
@@ -107,8 +117,9 @@ export default function Toolbar() {
               {tools.filter(tool => tool.id === 'default').map((tool) => (
                 <div
                   key={tool.id}
+                  onClick={() => handleToolClick(tool.id)}
                   className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-2 ${
-                    tool.isActive ? 'bg-gray-200 border border-gray-300 rounded-lg' : ''
+                    activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
                   }`}
                 >
                   {/* Icon */}

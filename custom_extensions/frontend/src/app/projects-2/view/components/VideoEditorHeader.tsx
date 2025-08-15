@@ -1,6 +1,6 @@
 export default function VideoEditorHeader() {
   return (
-    <header className="w-full bg-white h-[68px] flex items-center">
+    <header className="w-full bg-white h-[68px] flex items-center px-6">
       <div className="flex items-center justify-between w-full">
         {/* Left section - Logo and tools */}
         <div className="flex items-center gap-4 lg:gap-6">
