@@ -355,6 +355,7 @@ export const en = {
     folders: "Folders",
     clients: "Clients",
     noClientsYet: "No clients yet",
+    showMoreClients: "Type to search more clients...",
     createOrJoinFolder: "Create or join a folder",
     organizeProducts: "Organize your products by topic and share them with your team",
     templates: "Templates",

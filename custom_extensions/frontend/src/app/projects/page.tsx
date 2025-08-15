@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/app/projects/page.tsx 
 "use client";
 
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
@@ -342,9 +342,25 @@ const FolderItem: React.FC<{
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
   const { t } = useLanguage();
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
+
+  // Filter and limit clients
+  const filteredAndLimitedClients = useMemo(() => {
+    const filtered = folders.filter(folder => 
+      folder.name.toLowerCase().includes(clientSearchTerm.toLowerCase())
+    );
+    
+    if (clientSearchTerm) {
+      // Show all matching clients when searching
+      return filtered;
+    } else {
+      // Show only 5 most recent clients when not searching
+      return filtered.slice(0, 5);
+    }
+  }, [folders, clientSearchTerm]);
 
   const handleDragOver = (e: React.DragEvent) => {
     if (isModalOpen) {
@@ -427,7 +443,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       {/* Clients Section */}
       <div className="mt-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('interface.clients', 'Clients')}</h3>
+          <div className="flex items-center gap-2">
+            <Users size={16} className="text-green-600" />
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('interface.clients', 'Clients')}</h3>
+          </div>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
             className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
@@ -436,39 +455,64 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             <Plus size={14} />
           </button>
         </div>
+
+        {/* Client Search */}
+        <div className="relative mb-3">
+          <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder={t('interface.searchClients', 'Search clients...')}
+            value={clientSearchTerm}
+            onChange={(e) => setClientSearchTerm(e.target.value)}
+            className="w-full bg-gray-50 rounded-md pl-8 pr-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white"
+          />
+        </div>
         
         <div className="space-y-1">
           {folders.length === 0 ? (
             <div className="text-xs text-gray-500 px-2 py-1">
               {t('interface.noClientsYet', 'No clients yet')}
             </div>
+          ) : filteredAndLimitedClients.length === 0 ? (
+            <div className="text-xs text-gray-500 px-2 py-1">
+              {t('interface.noClientsFound', 'No clients found')}
+            </div>
           ) : (
-            folders.map((folder) => {
-              const projectCount = folderProjects?.[folder.id]?.length || 0;
-              return (
-                <button
-                  key={folder.id}
-                  onClick={() => onFolderSelect(folder.id)}
-                  className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-colors ${
-                    selectedFolderId === folder.id
-                      ? 'bg-green-50 text-green-700 font-medium'
-                      : 'hover:bg-gray-100 text-gray-700'
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, folder.id)}
-                  onDragEnter={handleDragEnter}
-                  onDragLeave={handleDragLeave}
-                >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
-                    <span className="truncate text-sm">{folder.name}</span>
-                  </div>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                    {projectCount}
-                  </span>
-                </button>
-              );
-            })
+            <>
+              {filteredAndLimitedClients.map((folder) => {
+                const projectCount = folderProjects?.[folder.id]?.length || 0;
+                return (
+                  <button
+                    key={folder.id}
+                    onClick={() => onFolderSelect(folder.id)}
+                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-colors ${
+                      selectedFolderId === folder.id
+                        ? 'bg-green-50 text-green-700 font-medium'
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, folder.id)}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                      <span className="truncate text-sm">{folder.name}</span>
+                    </div>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                      {projectCount}
+                    </span>
+                  </button>
+                );
+              })}
+              
+              {/* Show "Show more" when there are more clients and not searching */}
+              {!clientSearchTerm && folders.length > 5 && (
+                <div className="text-xs text-gray-500 px-2 py-1 text-center">
+                  {t('interface.showMoreClients', 'Type to search more clients...')}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

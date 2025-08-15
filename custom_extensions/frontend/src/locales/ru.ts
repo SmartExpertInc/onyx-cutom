@@ -338,6 +338,7 @@ export const ru = {
     folders: "Папки",
     clients: "Клиенты",
     noClientsYet: "Пока нет клиентов",
+    showMoreClients: "Введите для поиска других клиентов...",
     createOrJoinFolder: "Создать или присоединиться к папке",
     organizeProducts: "Организуйте свои продукты по темам и делитесь ими с командой",
     templates: "Шаблоны",

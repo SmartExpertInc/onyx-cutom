@@ -324,6 +324,7 @@ export const uk = {
     folders: "Папки",
     clients: "Клієнти",
     noClientsYet: "Поки немає клієнтів",
+    showMoreClients: "Введіть для пошуку інших клієнтів...",
     createOrJoinFolder: "Створити або приєднатися до папки",
     organizeProducts: "Організуйте свої продукти за темами та діліться ними з командою",
     templates: "Шаблони",
