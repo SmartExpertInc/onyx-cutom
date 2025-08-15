@@ -1421,14 +1421,9 @@
                                     {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                     {% if slide.metadata.elementPositions[titleId] %}
                                         style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                        <!-- LOG: Title positioned at {{ slide.metadata.elementPositions[titleId].x }}, {{ slide.metadata.elementPositions[titleId].y }} -->
-                                    {% else %}
-                                        <!-- LOG: Title position not found for {{ titleId }} -->
                                     {% endif %}
-                                {% else %}
-                                    <!-- LOG: No elementPositions metadata for title -->
                                 {% endif %}
-                            >{{ slide.props.title|safe }}</h1>
+                            >{{ slide.props.title }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
                             <div class="content-text positioned-element"
@@ -1436,14 +1431,9 @@
                                     {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
                                     {% if slide.metadata.elementPositions[subtitleId] %}
                                         style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                                        <!-- LOG: Subtitle positioned at {{ slide.metadata.elementPositions[subtitleId].x }}, {{ slide.metadata.elementPositions[subtitleId].y }} -->
-                                    {% else %}
-                                        <!-- LOG: Subtitle position not found for {{ subtitleId }} -->
                                     {% endif %}
-                                {% else %}
-                                    <!-- LOG: No elementPositions metadata for subtitle -->
                                 {% endif %}
-                            >{{ slide.props.subtitle|safe }}</div>
+                            >{{ slide.props.subtitle }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -1747,7 +1737,7 @@
                                             style="transform: translate({{ slide.metadata.elementPositions[leftContentId].x }}px, {{ slide.metadata.elementPositions[leftContentId].y }}px);"
                                         {% endif %}
                                     {% endif %}
-                                >{{ slide.props.leftContent|safe }}</p>
+                                >{{ slide.props.leftContent }}</p>
                             {% endif %}
                         </div>
                         <div class="column">
@@ -1783,7 +1773,7 @@
                                             style="transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px);"
                                         {% endif %}
                                     {% endif %}
-                                >{{ slide.props.rightTitle|safe }}</h2>
+                                >{{ slide.props.rightTitle }}</h2>
                             {% endif %}
                             {% if slide.props.rightContent and slide.props.rightContent != 'Click to add right content' %}
                                 <p class="column-content positioned-element"
@@ -1793,7 +1783,7 @@
                                             style="transform: translate({{ slide.metadata.elementPositions[rightContentId].x }}px, {{ slide.metadata.elementPositions[rightContentId].y }}px);"
                                         {% endif %}
                                     {% endif %}
-                                >{{ slide.props.rightContent|safe }}</p>
+                                >{{ slide.props.rightContent }}</p>
                             {% endif %}
                         </div>
                     </div>

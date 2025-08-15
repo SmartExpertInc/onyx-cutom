@@ -701,7 +701,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             onSizeTransformChange={handleSizeTransformChange}
             elementId={`${slideId}-image`}
             elementRef={imageRef}
-            cropMode={objectFit || 'cover'}
+            cropMode={objectFit || 'contain'}
             slideContainerRef={slideContainerRef}
             savedImagePosition={imageOffset}
             savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}

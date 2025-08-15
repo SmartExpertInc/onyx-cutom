@@ -370,7 +370,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode={objectFit || 'cover'}
+          cropMode={objectFit || 'contain'}
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}
