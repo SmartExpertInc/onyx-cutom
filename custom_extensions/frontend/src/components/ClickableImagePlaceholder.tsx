@@ -46,6 +46,7 @@ export interface ClickableImagePlaceholderProps {
   // ✅ NEW: AI generation props
   aiGeneratedPrompt?: string; // Pre-filled prompt from AI
   isGenerating?: boolean; // Loading state for AI generation
+  onGenerationStarted?: (elementId: string) => void; // NEW: Callback when generation starts
 }
 
   // ✅ REMOVED: Context Menu Component - replaced with inline buttons!
@@ -69,7 +70,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   savedImagePosition,
   savedImageSize,
   aiGeneratedPrompt, // New prop
-  isGenerating // New prop
+  isGenerating, // New prop
+  onGenerationStarted // New prop
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
@@ -110,6 +112,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       displayedImage: !!displayedImage,
       isEditable,
       cropMode,
+      isGenerating,
+      hasAiGeneratedPrompt: !!aiGeneratedPrompt,
       timestamp: Date.now()
     });
     
@@ -120,7 +124,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         timestamp: Date.now()
       });
     };
-  }, [elementId, instanceId, displayedImage, isEditable, cropMode]);
+  }, [elementId, instanceId, displayedImage, isEditable, cropMode, isGenerating, aiGeneratedPrompt]);
+
+  // ✅ NEW: Log spinner state changes
+  useEffect(() => {
+    console.log('🔍 [SpinnerState] isGenerating changed', {
+      elementId,
+      instanceId,
+      isGenerating,
+      timestamp: Date.now()
+    });
+  }, [isGenerating, elementId, instanceId]);
 
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
@@ -423,9 +437,22 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // Close the modal and show loading state
     setShowAIGenerationModal(false);
     
-    // Notify parent component that generation has started
-    // The parent should set isGenerating=true for this placeholder
-  }, [elementId, instanceId]);
+    // ✅ NEW: Notify parent component that generation has started
+    if (onGenerationStarted && elementId) {
+      onGenerationStarted(elementId);
+      console.log('🔍 [AIGeneration] Parent notified of generation start', {
+        elementId,
+        instanceId,
+        timestamp: Date.now()
+      });
+    } else {
+      console.log('🔍 [AIGeneration] No parent callback or elementId, waiting for parent to set isGenerating=true', {
+        elementId,
+        instanceId,
+        currentIsGenerating: isGenerating
+      });
+    }
+  }, [elementId, instanceId, isGenerating, onGenerationStarted]);
 
   // ✅ NEW: Image choice handlers
   const handleChooseUpload = useCallback(() => {
@@ -434,9 +461,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [elementId, instanceId]);
 
   const handleChooseAI = useCallback(() => {
+    console.log('🔍 [AIGeneration] Choose AI clicked', { 
+      elementId, 
+      instanceId,
+      hasAiGeneratedPrompt: !!aiGeneratedPrompt,
+      aiGeneratedPromptPreview: aiGeneratedPrompt?.substring(0, 50) + '...',
+      timestamp: Date.now()
+    });
     setShowAIGenerationModal(true);
     log('ClickableImagePlaceholder', 'chooseAI', { elementId, instanceId });
-  }, [elementId, instanceId]);
+  }, [elementId, instanceId, aiGeneratedPrompt]);
 
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
@@ -716,6 +750,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onImageGenerated={handleAIImageGenerated}
           onGenerationStarted={handleAIGenerationStarted}
           placeholderDimensions={getPlaceholderDimensions()}
+          placeholderId={elementId}
           title="Generate AI Image"
           preFilledPrompt={aiGeneratedPrompt}
         />
@@ -802,6 +837,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onImageGenerated={handleAIImageGenerated}
         onGenerationStarted={handleAIGenerationStarted}
         placeholderDimensions={getPlaceholderDimensions()}
+        placeholderId={elementId}
         title="Generate AI Image"
         preFilledPrompt={aiGeneratedPrompt}
       />

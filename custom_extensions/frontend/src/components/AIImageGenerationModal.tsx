@@ -21,6 +21,7 @@ interface AIImageGenerationModalProps {
   placeholderDimensions?: { width: number; height: number };
   title?: string;
   preFilledPrompt?: string; // NEW: Pre-filled prompt from AI
+  placeholderId?: string; // NEW: For debugging - placeholder identifier
 }
 
 const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
@@ -30,7 +31,8 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
   onGenerationStarted,
   placeholderDimensions = { width: 1024, height: 1024 },
   title = "Generate AI Image",
-  preFilledPrompt
+  preFilledPrompt,
+  placeholderId
 }) => {
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -44,7 +46,10 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
     generating, 
     hasError: !!error,
     portalContainerExists: !!portalContainer,
-    placeholderDimensions
+    placeholderDimensions,
+    placeholderId,
+    hasPreFilledPrompt: !!preFilledPrompt,
+    preFilledPromptLength: preFilledPrompt?.length || 0
   });
 
   // Create portal container on client side
@@ -57,18 +62,34 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
 
   // Reset state when modal opens/closes
   useEffect(() => {
+    log('AIImageGenerationModal', 'useEffect_modalState', { 
+      isOpen, 
+      placeholderId,
+      hasPreFilledPrompt: !!preFilledPrompt,
+      preFilledPromptPreview: preFilledPrompt?.substring(0, 50) + '...',
+      currentPrompt: prompt
+    });
+
     if (!isOpen) {
       setPrompt('');
       setError(null);
       setGenerating(false);
+      log('AIImageGenerationModal', 'modalClosed', { placeholderId });
     } else if (preFilledPrompt) {
       // Pre-fill prompt when modal opens
       setPrompt(preFilledPrompt);
       log('AIImageGenerationModal', 'preFillPrompt', { 
-        preFilledPrompt: preFilledPrompt.substring(0, 50) + '...'
+        placeholderId,
+        preFilledPrompt: preFilledPrompt.substring(0, 50) + '...',
+        fullPromptLength: preFilledPrompt.length
+      });
+    } else {
+      log('AIImageGenerationModal', 'modalOpened_noPreFill', { 
+        placeholderId,
+        reason: 'No preFilledPrompt provided'
       });
     }
-  }, [isOpen, preFilledPrompt]);
+  }, [isOpen, preFilledPrompt, placeholderId]);
 
   const generateImage = async () => {
     if (!prompt.trim()) {
@@ -77,6 +98,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
     }
 
     log('AIImageGenerationModal', 'generateImage_start', { 
+      placeholderId,
       prompt: prompt.substring(0, 50),
       dimensions: placeholderDimensions,
       quality,
@@ -84,6 +106,10 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
     });
 
     // ✅ NEW: Close modal immediately and notify parent
+    log('AIImageGenerationModal', 'generationStarted_notifyParent', { 
+      placeholderId,
+      timestamp: Date.now()
+    });
     onGenerationStarted();
     onClose();
 
@@ -118,6 +144,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       };
 
       log('AIImageGenerationModal', 'generateImage_apiCall', { 
+        placeholderId,
         request,
         originalDimensions: placeholderDimensions,
         adjustedDimensions: { width, height },
@@ -127,8 +154,10 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       const result = await generateAIImage(request);
       
       log('AIImageGenerationModal', 'generateImage_success', { 
+        placeholderId,
         result,
-        filePath: result.file_path
+        filePath: result.file_path,
+        timestamp: Date.now()
       });
 
       onImageGenerated(result.file_path);
@@ -136,8 +165,10 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
     } catch (err: any) {
       const errorMessage = err.message || 'AI image generation failed';
       log('AIImageGenerationModal', 'generateImage_error', { 
+        placeholderId,
         error: errorMessage,
-        errorObject: err
+        errorObject: err,
+        timestamp: Date.now()
       });
       // ✅ NEW: Handle error by calling onImageGenerated with null to indicate failure
       onImageGenerated(null as any);
