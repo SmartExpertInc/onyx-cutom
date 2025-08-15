@@ -16295,6 +16295,14 @@ async def download_projects_list_pdf(
             except json.JSONDecodeError:
                 logger.warning("Invalid column_visibility JSON, using defaults")
 
+        # Parse selected projects first to use in the query
+        selected_project_ids = set()
+        if selected_projects:
+            try:
+                selected_project_ids = set(json.loads(selected_projects))
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing selected_projects: {e}")
+
         # Fetch projects and folders data
         async with pool.acquire() as conn:
             # Fetch projects
@@ -16306,13 +16314,22 @@ async def download_projects_list_pdf(
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.onyx_user_id = $1
-                ORDER BY p."order" ASC, p.created_at DESC;
             """
             projects_params = [onyx_user_id]
+            param_count = 1
             
             if folder_id is not None:
-                projects_query = projects_query.replace("WHERE p.onyx_user_id = $1", "WHERE p.onyx_user_id = $1 AND p.folder_id = $2")
+                projects_query += f" AND p.folder_id = ${param_count + 1}"
                 projects_params.append(folder_id)
+                param_count += 1
+            
+            # Add selected projects filter if provided
+            if selected_project_ids:
+                placeholders = ','.join([f'${i + param_count + 1}' for i in range(len(selected_project_ids))])
+                projects_query += f" AND p.id IN ({placeholders})"
+                projects_params.extend(selected_project_ids)
+            
+            projects_query += " ORDER BY p.\"order\" ASC, p.created_at DESC;"
             
             projects_rows = await conn.fetch(projects_query, *projects_params)
             
@@ -16608,19 +16625,14 @@ async def download_projects_list_pdf(
         for folder in folder_tree:
             add_tier_info(folder)
 
-        # Filter data based on selected folders and projects
-        if selected_folders or selected_projects:
+        # Filter data based on selected folders (projects are already filtered in the query)
+        if selected_folders:
             try:
                 selected_folder_ids = set()
-                selected_project_ids = set()
                 
                 # Parse selected folders
                 if selected_folders:
                     selected_folder_ids = set(json.loads(selected_folders))
-                
-                # Parse selected projects
-                if selected_projects:
-                    selected_project_ids = set(json.loads(selected_projects))
                 
                 # Filter folders - only include selected folders and their children
                 def filter_folders_recursive(folders_list):
@@ -16645,26 +16657,15 @@ async def download_projects_list_pdf(
                 filtered_folder_projects = {}
                 for folder_id, projects in folder_projects.items():
                     if folder_id in selected_folder_ids:
-                        # Filter projects within this folder
-                        if selected_project_ids:
-                            filtered_projects = [p for p in projects if p['id'] in selected_project_ids]
-                            if filtered_projects:
-                                filtered_folder_projects[folder_id] = filtered_projects
-                        else:
-                            filtered_folder_projects[folder_id] = projects
-                
-                # Filter unassigned projects
-                filtered_unassigned_projects = unassigned_projects
-                if selected_project_ids:
-                    filtered_unassigned_projects = [p for p in unassigned_projects if p['id'] in selected_project_ids]
+                        filtered_folder_projects[folder_id] = projects
                 
                 # Use filtered data
                 folder_tree = filtered_folder_tree
                 folder_projects = filtered_folder_projects
-                unassigned_projects = filtered_unassigned_projects
+                # Note: unassigned_projects are already filtered by the query when selected_projects is provided
                 
             except (json.JSONDecodeError, TypeError) as e:
-                logger.warning(f"Error parsing selected folders/projects: {e}. Using all data.")
+                logger.warning(f"Error parsing selected folders: {e}. Using all data.")
                 # If parsing fails, use all data (fallback)
 
         # Parse column widths if provided

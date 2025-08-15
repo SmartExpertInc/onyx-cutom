@@ -3958,35 +3958,35 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                 {!trashMode && folderId === null && buildFolderTree(folders).map((folder, folderIndex) => (
                                                                     <ClientRow
                                     key={`client-${folder.id}`}
-                                    folder={folder}
-                                    level={0}
-                                    index={folderIndex}
-                                    trashMode={trashMode}
-                                    columnVisibility={columnVisibility}
-                                    columnWidths={columnWidths}
-                                    expandedFolders={expandedFolders}
-                                    folderProjects={filteredFolderProjects}
-                                    lessonDataCache={lessonDataCache}
-                                    draggedFolder={draggedFolder}
-                                    draggedProject={draggedProject}
-                                    dragOverIndex={dragOverIndex}
-                                    isDragging={isDragging}
-                                    isReordering={isReordering}
-                                    formatDate={formatDate}
-                                    formatCompletionTime={formatCompletionTimeLocalized}
-                                    toggleFolder={toggleFolder}
-                                    handleDragStart={handleDragStart}
-                                    handleDragOver={handleDragOver}
-                                    handleDragLeave={handleDragLeave}
-                                    handleDrop={handleDrop}
-                                    handleDragEnd={handleDragEnd}
-                                    handleDeleteProject={handleDeleteProject}
-                                    handleRestoreProject={handleRestoreProject}
-                                    handleDeletePermanently={handleDeletePermanently}
-                                    handleDeleteFolder={handleDeleteFolder}
-                                    allFolders={folders}
+                                        folder={folder}
+                                        level={0}
+                                        index={folderIndex}
+                                        trashMode={trashMode}
+                                        columnVisibility={columnVisibility}
+                                        columnWidths={columnWidths}
+                                        expandedFolders={expandedFolders}
+                                        folderProjects={filteredFolderProjects}
+                                        lessonDataCache={lessonDataCache}
+                                        draggedFolder={draggedFolder}
+                                        draggedProject={draggedProject}
+                                        dragOverIndex={dragOverIndex}
+                                        isDragging={isDragging}
+                                        isReordering={isReordering}
+                                        formatDate={formatDate}
+                                        formatCompletionTime={formatCompletionTimeLocalized}
+                                        toggleFolder={toggleFolder}
+                                        handleDragStart={handleDragStart}
+                                        handleDragOver={handleDragOver}
+                                        handleDragLeave={handleDragLeave}
+                                        handleDrop={handleDrop}
+                                        handleDragEnd={handleDragEnd}
+                                        handleDeleteProject={handleDeleteProject}
+                                        handleRestoreProject={handleRestoreProject}
+                                        handleDeletePermanently={handleDeletePermanently}
+                                        handleDeleteFolder={handleDeleteFolder}
+                                        allFolders={folders}
                                     handleClientPdfDownload={handleClientPdfDownload}
-                                />
+                                    />
                                 ))}
                                 
                                 {/* Show "Other" section for unassigned projects when not viewing a specific folder */}
@@ -4006,7 +4006,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         }}
                                         level={0}
                                         index={buildFolderTree(folders).length}
-                                        trashMode={trashMode}
+                                                trashMode={trashMode}
                                         columnVisibility={columnVisibility}
                                         columnWidths={columnWidths}
                                         expandedFolders={expandedFolders}
