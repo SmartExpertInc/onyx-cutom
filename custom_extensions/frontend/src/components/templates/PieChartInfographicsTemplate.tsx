@@ -154,6 +154,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingDescText, setEditingDescText] = useState(false);
   const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
   const [editingColor, setEditingColor] = useState<number | null>(null);
+  const [editingPieChart, setEditingPieChart] = useState(false);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -318,6 +319,44 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
 
   const startEditingColor = (index: number) => {
     setEditingColor(index);
+  };
+
+  const startEditingPieChart = () => {
+    setEditingPieChart(true);
+  };
+
+  const handlePieChartSave = (newPercentages: number[]) => {
+    setEditingPieChart(false);
+    
+    const newSegments = [...chartData.segments];
+    const newMonthlyData = [...monthlyData];
+    
+    newPercentages.forEach((percentage, index) => {
+      if (index < newSegments.length) {
+        newSegments[index] = {
+          ...newSegments[index],
+          percentage: percentage
+        };
+      }
+      if (index < newMonthlyData.length) {
+        newMonthlyData[index] = {
+          ...newMonthlyData[index],
+          percentage: `${percentage.toFixed(1)}%`
+        };
+      }
+    });
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData: newMonthlyData,
+      descriptionText
+    };
+    scheduleAutoSave(newData);
+  };
+
+  const handlePieChartCancel = () => {
+    setEditingPieChart(false);
   };
 
   // Create conic gradient for pie chart
@@ -497,23 +536,27 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Center - Pie Chart */}
           <div className="flex flex-col items-center">
             <div 
-              className="relative w-[320px] h-[320px] rounded-full border-4 border-white shadow-2xl"
+              className="relative w-[320px] h-[320px] rounded-full shadow-2xl cursor-pointer hover:opacity-90 transition-opacity"
               style={{
                 background: createConicGradient(),
-                borderColor: '#ffffff',
                 boxShadow: '0 12px 32px rgba(0,0,0,0.15)'
               }}
+              onClick={() => isEditable && startEditingPieChart()}
+              title={isEditable ? "Кликните для редактирования размеров сегментов" : ""}
             >
-              {/* Inner circle */}
+              {/* Inner circle - much smaller */}
               <div 
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80px] h-[80px] rounded-full border-3"
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full"
                 style={{
-                  backgroundColor: themeBg,
-                  borderColor: '#e5e7eb',
-                  borderWidth: '3px'
+                  backgroundColor: themeBg
                 }}
               />
             </div>
+            {isEditable && (
+              <p className="text-sm text-gray-500 mt-2 text-center">
+                Кликните на диаграмму для редактирования размеров
+              </p>
+            )}
           </div>
 
           {/* Right Column - Segments 4-6 */}
@@ -642,8 +685,83 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           </div>
         </div>
       )}
+
+      {/* Pie Chart Editor Modal */}
+      {editingPieChart && isEditable && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold mb-4">Редактирование размеров сегментов</h3>
+            <p className="text-sm text-gray-600 mb-4">Измените проценты для каждого сегмента. Общая сумма должна быть 100%.</p>
+            
+            <div className="space-y-3 mb-4">
+              {chartData.segments.map((segment, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: segment.color }}
+                  />
+                  <span className="flex-1 text-sm font-medium">{segment.label}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                    value={segment.percentage}
+                    onChange={(e) => {
+                      const newValue = parseFloat(e.target.value) || 0;
+                      const newSegments = [...chartData.segments];
+                      newSegments[index] = { ...newSegments[index], percentage: newValue };
+                      
+                      // Update the chart data immediately for preview
+                      const newData = { 
+                        title, 
+                        chartData: { segments: newSegments }, 
+                        monthlyData,
+                        descriptionText
+                      };
+                      if (onUpdate) {
+                        onUpdate(newData);
+                      }
+                    }}
+                  />
+                  <span className="text-sm text-gray-500">%</span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-sm font-medium">Общая сумма:</span>
+              <span className={`text-sm font-bold ${Math.abs(sum(chartData.segments.map(s => s.percentage)) - 100) < 0.1 ? 'text-green-600' : 'text-red-600'}`}>
+                {sum(chartData.segments.map(s => s.percentage)).toFixed(1)}%
+              </span>
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                onClick={() => handlePieChartSave(chartData.segments.map(s => s.percentage))}
+                disabled={Math.abs(sum(chartData.segments.map(s => s.percentage)) - 100) > 0.1}
+              >
+                Сохранить
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                onClick={handlePieChartCancel}
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+// Helper function to sum array
+function sum(arr: number[]): number {
+  return arr.reduce((a, b) => a + b, 0);
+}
 
 export default PieChartInfographicsTemplate;

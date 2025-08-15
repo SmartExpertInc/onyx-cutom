@@ -83,7 +83,6 @@ def generate_full_css(chart_id: str, conic_gradient: str) -> str:
         border-radius: 50%;
         background: {conic_gradient};
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-        border: 4px solid white;
     }}
     
     .{chart_id}-donut-hole {{
@@ -91,23 +90,10 @@ def generate_full_css(chart_id: str, conic_gradient: str) -> str:
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 160px;
-        height: 160px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        background: white;
-        border: 4px solid #e5e7eb;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    }}
-    
-    .{chart_id}-outer-border {{
-        position: absolute;
-        top: -4px;
-        left: -4px;
-        width: 328px;
-        height: 328px;
-        border-radius: 50%;
-        border: 4px solid white;
-        z-index: 5;
+        background: var(--bg-color, #ffffff);
     }}
     
     .{chart_id}-shadow {{
@@ -133,7 +119,6 @@ def generate_full_html(chart_id: str) -> str:
     <div class="{chart_id}-container">
         <div class="{chart_id}-shadow"></div>
         <div class="{chart_id}-chart">
-            <div class="{chart_id}-outer-border"></div>
             <div class="{chart_id}-donut-hole"></div>
         </div>
     </div>
