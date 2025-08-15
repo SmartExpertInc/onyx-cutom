@@ -2,9 +2,20 @@
 
 import { useState, useRef, useEffect } from 'react';
 
+interface EmailInput {
+  id: string;
+  email: string;
+  role: 'viewer' | 'editor' | 'admin';
+}
+
 export default function VideoEditorHeader() {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
+  const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
+  const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
+    { id: '1', email: '', role: 'editor' }
+  ]);
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
+  const shareButtonRef = useRef<HTMLButtonElement>(null);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -12,20 +23,78 @@ export default function VideoEditorHeader() {
       if (resizeButtonRef.current && !resizeButtonRef.current.contains(event.target as Node)) {
         setIsResizePopupOpen(false);
       }
+      if (shareButtonRef.current && !shareButtonRef.current.contains(event.target as Node)) {
+        setIsSharePopupOpen(false);
+      }
     };
 
-    if (isResizePopupOpen) {
+    if (isResizePopupOpen || isSharePopupOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isResizePopupOpen]);
+  }, [isResizePopupOpen, isSharePopupOpen]);
 
   const handleResizeClick = () => {
     setIsResizePopupOpen(!isResizePopupOpen);
   };
+
+  const handleShareClick = () => {
+    setIsSharePopupOpen(!isSharePopupOpen);
+  };
+
+  const handleEmailChange = (id: string, email: string) => {
+    setEmailInputs(prev => prev.map(input => 
+      input.id === id ? { ...input, email } : input
+    ));
+  };
+
+  const handleRoleChange = (id: string, role: 'viewer' | 'editor' | 'admin') => {
+    setEmailInputs(prev => prev.map(input => 
+      input.id === id ? { ...input, role } : input
+    ));
+  };
+
+  const addEmailInput = () => {
+    const newId = (emailInputs.length + 1).toString();
+    setEmailInputs(prev => [...prev, { id: newId, email: '', role: 'editor' }]);
+  };
+
+  // Envelope icon component
+  const EnvelopeIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-400">
+      <path
+        d="M2.67 3.33H13.33C14.07 3.33 14.67 3.93 14.67 4.67V11.33C14.67 12.07 14.07 12.67 13.33 12.67H2.67C1.93 12.67 1.33 12.07 1.33 11.33V4.67C1.33 3.93 1.93 3.33 2.67 3.33Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <path
+        d="M14.67 4.67L8 8.67L1.33 4.67"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // Dropdown icon component
+  const DropdownIcon = () => (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="w-3 h-3 text-gray-500">
+      <path
+        d="M3 4.5L6 7.5L9 4.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 
   const resizeOptions = [
     {
@@ -195,11 +264,74 @@ export default function VideoEditorHeader() {
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
 
             {/* Share button */}
-            <button
-              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8"
-            >
-              <span className="text-xs font-normal">Share</span>
-            </button>
+            <div className="relative">
+              <button
+                ref={shareButtonRef}
+                onClick={handleShareClick}
+                className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8"
+              >
+                <span className="text-xs font-normal">Share</span>
+              </button>
+
+              {/* Share popup */}
+              {isSharePopupOpen && (
+                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-80 p-4">
+                  {/* Title */}
+                  <h3 className="text-xs font-medium text-gray-700 mb-4">Invite team members</h3>
+                  
+                  {/* Top section */}
+                  <div className="space-y-3 mb-4">
+                    {emailInputs.map((emailInput) => (
+                      <div key={emailInput.id} className="flex items-center gap-2">
+                        {/* Email input with envelope icon */}
+                        <div className="flex-1 relative">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                            <EnvelopeIcon />
+                          </div>
+                          <input
+                            type="email"
+                            value={emailInput.email}
+                            onChange={(e) => handleEmailChange(emailInput.id, e.target.value)}
+                            placeholder="Work email e.g. john@company.com"
+                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+                        
+                        {/* Role dropdown */}
+                        <div className="relative">
+                          <select
+                            value={emailInput.role}
+                            onChange={(e) => handleRoleChange(emailInput.id, e.target.value as 'viewer' | 'editor' | 'admin')}
+                            className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                          >
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <DropdownIcon />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Horizontal line */}
+                  <div className="border-t border-gray-200 mb-4"></div>
+                  
+                  {/* Bottom section */}
+                  <div className="flex justify-start">
+                    <button
+                      onClick={addEmailInput}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                    >
+                      <span className="text-base">+</span>
+                      <span>add another</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Generate button */}
             <button
