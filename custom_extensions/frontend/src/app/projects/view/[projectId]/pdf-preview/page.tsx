@@ -22,7 +22,7 @@ interface ProjectInstance {
 export default function PdfPreviewPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const projectId = params.projectId as string;
+  const projectId = params?.projectId as string;
   
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstance | null>(null);
   const [editableData, setEditableData] = useState<any>(null);
