@@ -224,25 +224,34 @@ export default function VideoEditorHeader() {
 
               {/* Resize popup */}
               {isResizePopupOpen && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 py-2">
-                  {resizeOptions.map((option, index) => (
-                    <button
-                      key={index}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left"
-                      onClick={() => {
-                        // Handle resize option selection here
-                        setIsResizePopupOpen(false);
-                      }}
-                    >
-                      <div>
-                        {option.icon}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm text-black">{option.ratio}</span>
-                        <span className="text-sm text-gray-500">{option.description}</span>
-                      </div>
-                    </button>
-                  ))}
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64">
+                  <div className="py-2">
+                    {resizeOptions.map((option, index) => (
+                      <button
+                        key={index}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left"
+                        onClick={() => {
+                          // Handle resize option selection here
+                          setIsResizePopupOpen(false);
+                        }}
+                      >
+                        <div>
+                          {option.icon}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-black">{option.ratio}</span>
+                          <span className="text-sm text-gray-500">{option.description}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Warning text */}
+                  <div className="px-4 pb-3">
+                    <div className="bg-amber-50 text-amber-800 text-xs p-3 rounded-md">
+                      Existing content on the scene will not be reorganised automatically.
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -331,7 +340,7 @@ export default function VideoEditorHeader() {
                             value={emailInput.email}
                             onChange={(e) => handleEmailChange(emailInput.id, e.target.value)}
                             placeholder="Work email e.g. john@company.com"
-                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-black focus:border-[3px]"
                           />
                         </div>
                         
@@ -340,7 +349,7 @@ export default function VideoEditorHeader() {
                           <select
                             value={emailInput.role}
                             onChange={(e) => handleRoleChange(emailInput.id, e.target.value as 'viewer' | 'editor' | 'admin')}
-                            className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                            className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:border-black focus:border-[3px] cursor-pointer"
                           >
                             <option value="viewer">Viewer</option>
                             <option value="editor">Editor</option>
@@ -354,10 +363,7 @@ export default function VideoEditorHeader() {
                     ))}
                   </div>
                   
-                                     {/* Warning text */}
-                   <div className="bg-amber-50 text-amber-800 text-xs p-3 rounded-md mb-4">
-                     Existing content on the scene will not be reorganised automatically.
-                   </div>
+                  
                    
                    {/* Horizontal line */}
                    <div className="border-t border-gray-200 mb-4"></div>

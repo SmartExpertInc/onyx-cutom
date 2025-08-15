@@ -56,12 +56,12 @@ export default function Projects2ViewPage() {
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-4">
           {/* Top Container - Takes 70% of main container height */}
-          <div className="bg-gray-200 rounded-md overflow-auto" style={{ height: '70%' }}>
+          <div className="bg-gray-200 rounded-md overflow-auto" style={{ height: '80%' }}>
           </div>
 
           {/* Bottom Container - Takes 30% of main container height */}
-          <div className="bg-white rounded-md border border-gray-200 overflow-auto p-4" style={{ height: '30%' }}>
-            <div className="flex items-start gap-4">
+          <div className="bg-white rounded-md border border-gray-200 overflow-auto p-4" style={{ height: '20%' }}>
+            <div className="flex items-start gap-4 justify-center">
               {/* Play Button */}
               <button className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
                 <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
