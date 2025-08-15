@@ -62,9 +62,9 @@ export default function Toolbar() {
   return (
     <div className="w-full bg-white" style={{ height: '72px' }}>
       {/* Toolbar container */}
-      <div className="flex items-start justify-between px-2 max-w-full h-full">
+      <div className="flex items-start justify-between max-w-full h-full">
             {/* Left side - all tools except Default */}
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-2">
               {tools.filter(tool => tool.id !== 'default').map((tool) => {
 
                 return (

@@ -1,6 +1,6 @@
 export default function VideoEditorHeader() {
   return (
-    <header className="w-full bg-white h-[68px] flex items-center px-6">
+    <header className="w-full bg-white h-[68px] flex items-center">
       <div className="flex items-center justify-between w-full">
         {/* Left section - Logo and tools */}
         <div className="flex items-center gap-4 lg:gap-6">
@@ -69,7 +69,7 @@ export default function VideoEditorHeader() {
 
             {/* Upgrade button */}
             <button
-              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-1.5 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
+              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
             >
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/e6fe4a219f32df67b6826887f30a0297ba8af2db?width=40"
@@ -106,14 +106,14 @@ export default function VideoEditorHeader() {
 
             {/* Share button */}
             <button
-              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-1.5 py-1.5 border flex items-center h-8"
+              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8"
             >
               <span className="text-xs font-normal">Share</span>
             </button>
 
             {/* Generate button */}
             <button
-              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-1.5 py-1.5 flex items-center h-8 border"
+              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border"
             >
               <span className="text-xs font-normal">Generate</span>
             </button>

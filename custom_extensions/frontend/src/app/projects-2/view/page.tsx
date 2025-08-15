@@ -27,7 +27,7 @@ export default function Projects2ViewPage() {
         </div>
 
         {/* Main Container - 70% width, full height of available space */}
-        <div className="w-[70%] h-full flex flex-col gap-4 p-4">
+        <div className="w-[70%] h-full flex flex-col gap-4">
           {/* Top Container - Takes 70% of main container height */}
           <div className="bg-gray-200 rounded-lg border border-gray-300 overflow-auto" style={{ height: '70%' }}>
           </div>
