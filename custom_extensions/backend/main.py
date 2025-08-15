@@ -6118,7 +6118,8 @@ async def startup_event():
                     name TEXT NOT NULL,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     "order" INTEGER DEFAULT 0,
-                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE
+                    parent_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE,
+                    website TEXT
                 );
             """)
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES project_folders(id) ON DELETE SET NULL;")
@@ -6155,6 +6156,14 @@ async def startup_event():
             except Exception as e:
                 # Index might already exist, which is fine
                 if "already exists" not in str(e) and "duplicate key" not in str(e):
+                    raise e
+            
+            # Add website column to existing project_folders table if it doesn't exist
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS website TEXT;")
+            except Exception as e:
+                # Column might already exist, which is fine
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
                     raise e
             
             # Add quality_tier column to project_folders table
@@ -6411,13 +6420,6 @@ async def startup_event():
                 
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
-
-            # Add website field to project_folders table
-            try:
-                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS website TEXT;")
-                logger.info("Added website column to project_folders table.")
-            except Exception as e:
-                logger.warning(f"Error adding website column (may already exist): {e}")
 
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
@@ -14976,17 +14978,16 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
 # --- Folders API Models ---
 class ProjectFolderCreateRequest(BaseModel):
     name: str
-    website: Optional[str] = None
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
     is_advanced: Optional[bool] = False
     advanced_rates: Optional[Dict[str, float]] = None  # { presentation, one_pager, quiz, video_lesson }
+    website: Optional[str] = None
 
 class ProjectFolderResponse(BaseModel):
     id: int
     name: str
-    website: Optional[str] = None
     created_at: datetime
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
@@ -14994,6 +14995,7 @@ class ProjectFolderResponse(BaseModel):
     is_advanced: Optional[bool] = False
     advanced_rates: Optional[Dict[str, float]] = None
     completion_times: Optional[Dict[str, int]] = None
+    website: Optional[str] = None
 
 class ProjectFolderListResponse(BaseModel):
     id: int
@@ -15040,6 +15042,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             pf.is_advanced as is_advanced,
             pf.advanced_rates as advanced_rates,
             pf.completion_times as completion_times,
+            pf.website as website,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -15117,8 +15120,8 @@ async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Dep
             if not parent_folder:
                 raise HTTPException(status_code=404, detail="Parent folder not found")
         
-        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
-        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None)
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates, website) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates, website;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, req.website)
     return ProjectFolderResponse(**dict(row))
 
 @app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)

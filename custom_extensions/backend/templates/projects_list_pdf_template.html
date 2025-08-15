@@ -131,82 +131,82 @@
                     {% if column_visibility.numberOfLessons %}<th class="column-lessons" style="text-align:center;">NUMBER OF<br>LESSONS</th>{% endif %}
                     {% if column_visibility.estCreationTime %}<th class="column-creation" style="text-align:center;">EST. CREATION<br>TIME</th>{% endif %}
                     {% if column_visibility.estCompletionTime %}<th class="column-completion" style="text-align:center;">EST. COMPLETION<br>TIME</th>{% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% set product_counter = namespace(value=1) %}
-                {% macro render_folder_rows(folders, level=0) %}
-                    {% for folder in folders %}
-                        <tr class="folder-row">
-                            <td class="folder-title indent-{{level}}">
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set product_counter = namespace(value=1) %}
+                    {% macro render_folder_rows(folders, level=0) %}
+                        {% for folder in folders %}
+                            <tr class="folder-row">
+                                <td class="folder-title indent-{{level}}">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                                         <path d="M6 9l6 6 6-6" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                     {{ folder.name }}
-                                </div>
-                            </td>
-                            {% if column_visibility.numberOfLessons %}
+                                    </div>
+                                </td>
+                                {% if column_visibility.numberOfLessons %}
                                 <td style="text-align:center;">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
-                            {% endif %}
-                            {% if column_visibility.estCreationTime %}
+                                {% endif %}
+                                {% if column_visibility.estCreationTime %}
                                 <td style="text-align:center;">
-                                    {% if folder.total_hours > 0 %}
-                                        {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
+                                        {% if folder.total_hours > 0 %}
+                                            {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
                                     {% else %}-{% endif %}
-                                </td>
-                            {% endif %}
-                            {% if column_visibility.estCompletionTime %}
-                                <td style="text-align:center;">
-                                    {% if folder.total_completion_time > 0 %}
-                                        {% set h = folder.total_completion_time // 60 %}
-                                        {% set m = folder.total_completion_time % 60 %}
-                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                    {% else %}-{% endif %}
-                                </td>
-                            {% endif %}
-                        </tr>
-                        {% if folder.id in folder_projects %}
-                            {% for project in folder_projects[folder.id] %}
-                                <tr class="product-row">
-                                    <td class="product-title indent-{{level+1}}">
-                                        <div class="product-number">{{ product_counter.value }}</div>
-                                        {{ project.title }}
                                     </td>
-                                    {% if column_visibility.numberOfLessons %}
+                                {% endif %}
+                                {% if column_visibility.estCompletionTime %}
+                                <td style="text-align:center;">
+                                        {% if folder.total_completion_time > 0 %}
+                                            {% set h = folder.total_completion_time // 60 %}
+                                            {% set m = folder.total_completion_time % 60 %}
+                                            {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                            {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                                    {% else %}-{% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% if folder.id in folder_projects %}
+                                {% for project in folder_projects[folder.id] %}
+                                    <tr class="product-row">
+                                    <td class="product-title indent-{{level+1}}">
+                                            <div class="product-number">{{ product_counter.value }}</div>
+                                            {{ project.title }}
+                                        </td>
+                                        {% if column_visibility.numberOfLessons %}
                                         <td style="text-align:center;">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
-                                    {% endif %}
-                                    {% if column_visibility.estCreationTime %}
+                                        {% endif %}
+                                        {% if column_visibility.estCreationTime %}
                                         <td style="text-align:center;">
-                                            {% if project.total_hours > 0 %}
-                                                {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
+                                                {% if project.total_hours > 0 %}
+                                                    {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
                                             {% else %}-{% endif %}
-                                        </td>
-                                    {% endif %}
-                                    {% if column_visibility.estCompletionTime %}
+                                            </td>
+                                        {% endif %}
+                                        {% if column_visibility.estCompletionTime %}
                                         <td style="text-align:center;">
-                                            {% if project.total_completion_time > 0 %}
-                                                {% set h = project.total_completion_time // 60 %}
-                                                {% set m = project.total_completion_time % 60 %}
-                                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                                                {% if project.total_completion_time > 0 %}
+                                                    {% set h = project.total_completion_time // 60 %}
+                                                    {% set m = project.total_completion_time % 60 %}
+                                                    {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                                    {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
                                             {% else %}-{% endif %}
-                                        </td>
-                                    {% endif %}
-                                </tr>
-                                {% set product_counter.value = product_counter.value + 1 %}
-                            {% endfor %}
-                        {% endif %}
-                        {% if folder.children %}
-                            {{ render_folder_rows(folder.children, level+1) }}
-                        {% endif %}
-                    {% endfor %}
-                {% endmacro %}
-                {% if folders %}
-                    {{ render_folder_rows(folders) }}
-                {% endif %}
-                {% if unassigned_projects %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% set product_counter.value = product_counter.value + 1 %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if folder.children %}
+                                {{ render_folder_rows(folder.children, level+1) }}
+                            {% endif %}
+                        {% endfor %}
+                    {% endmacro %}
+                    {% if folders %}
+                        {{ render_folder_rows(folders) }}
+                    {% endif %}
+                    {% if unassigned_projects %}
                     {# No header row for unassigned projects #}
                     {% for project in unassigned_projects %}
                         <tr class="product-row unassigned">
@@ -231,17 +231,17 @@
                                         {% set m = project.total_completion_time % 60 %}
                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                     {% else %}-{% endif %}
-                                </td>
-                            {% endif %}
-                        </tr>
-                        {% set product_counter.value = product_counter.value + 1 %}
-                    {% endfor %}
-                {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% set product_counter.value = product_counter.value + 1 %}
+                        {% endfor %}
+                    {% endif %}
                 {% if not folders and not unassigned_projects %}
                     <tr><td colspan="4" style="text-align:center; color:#888;">No projects found.</td></tr>
                 {% endif %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
     </div>
 </body>
-</html> 
+</html>

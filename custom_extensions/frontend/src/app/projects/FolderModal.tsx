@@ -10,13 +10,12 @@ interface FolderModalProps {
 }
 
 const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreated, existingFolders }) => {
-    const [folderName, setFolderName] = useState('');
-  const [website, setWebsite] = useState('');
+  const [folderName, setFolderName] = useState('');
+  const [clientWebsite, setClientWebsite] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
- 
+
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
-  const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null);
   const { t } = useLanguage();
 
   // Fetch all projects for folder content move
@@ -54,16 +53,16 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           name: folderName.trim(),
-          website: website.trim() || null,
           parent_id: selectedParentId,
-          quality_tier: 'interactive'
+          quality_tier: 'interactive',
+          website: clientWebsite.trim() || null
         })
       });
       if (!res.ok) throw new Error('Failed to create client');
       const data = await res.json();
       onFolderCreated(data);
       setFolderName('');
-      setWebsite('');
+      setClientWebsite('');
       setSelectedParentId(null);
       if (typeof window !== 'undefined') (window as any).__modalOpen = false;
       
@@ -78,46 +77,9 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
     }
   };
 
-  const handleDeleteFolder = async (folderId: number) => {
-    setDeletingFolderId(folderId);
-    setError('');
-    try {
-      // Find the folder and its parent
-      const folder = existingFolders.find(f => f.id === folderId);
-      const parentId = folder?.parent_id ?? null;
-      // Move all projects in this folder to the parent (or root)
-      const projectsToMove = allProjects.filter(p => p.folder_id === folderId);
-      for (const project of projectsToMove) {
-        await fetch(`/api/custom-projects-backend/projects/${project.id}/folder`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ folder_id: parentId })
-        });
-      }
-      // Delete the folder
-      const res = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}`, {
-        method: 'DELETE',
-        credentials: 'same-origin',
-      });
-      if (!res.ok) throw new Error('Failed to delete client');
-      
-      // Refresh UI
-      if (typeof window !== 'undefined') (window as any).__modalOpen = false;
-      onClose();
-      
-      // Reload the page to ensure all changes are visually applied
-      setTimeout(() => {
-        window.location.reload();
-      }, 500); // Small delay to show success state
-    } catch (e: any) {
-      setError(e.message || 'Error deleting client');
-    } finally {
-      setDeletingFolderId(null);
-    }
-  };
 
-  const filteredFolders = existingFolders;
+
+
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/50" onClick={handleBackdropClick}>
@@ -148,12 +110,8 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
             </div>
             
             <div className="space-y-3">
-              <div>
-                <label htmlFor="folder-name" className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('interface.clientName', 'Client Name')} *
-                </label>
+              <div className="relative">
                 <input
-                  id="folder-name"
                   type="text"
                   placeholder={t('interface.enterClientNamePlaceholder', 'Enter client name...')}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
@@ -163,17 +121,14 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                 />
               </div>
               
-              <div>
-                <label htmlFor="website" className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('interface.website', 'Website')} <span className="text-gray-500 font-normal">({t('interface.optional', 'optional')})</span>
-                </label>
+              <div className="relative">
                 <input
-                  id="website"
                   type="url"
-                  placeholder={t('interface.enterWebsitePlaceholder', 'https://example.com')}
+                  placeholder={t('interface.enterClientWebsitePlaceholder', 'Enter website URL (optional)...')}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                  value={website}
-                  onChange={e => setWebsite(e.target.value)}
+                  value={clientWebsite}
+                  onChange={e => setClientWebsite(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
                 />
               </div>
               
