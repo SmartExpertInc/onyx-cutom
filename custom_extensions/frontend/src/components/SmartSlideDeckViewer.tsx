@@ -143,8 +143,47 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
             slideId: slide.slideId,
             templateId: slide.templateId,
-            props: slide.props
+            props: slide.props,
+            metadata: slide.metadata
           });
+          
+          // Special logging for big-image-left template
+          if (slide.templateId === 'big-image-left') {
+            console.log(`🔍 BIG-IMAGE-LEFT SLIDE ${index + 1} DETAILED ANALYSIS:`);
+            console.log(`  Title: '${slide.props?.title || 'NOT SET'}'`);
+            console.log(`  Subtitle: '${slide.props?.subtitle || 'NOT SET'}'`);
+            
+            // Log image info without base64 data
+            const imagePath = slide.props?.imagePath || '';
+            if (imagePath) {
+              if (imagePath.startsWith('data:')) {
+                console.log(`  Image: [BASE64 DATA URL - ${imagePath.length} characters]`);
+              } else {
+                console.log(`  Image: ${imagePath}`);
+              }
+            } else {
+              console.log(`  Image: NOT SET`);
+            }
+            
+            console.log(`  Metadata exists: ${!!slide.metadata}`);
+            console.log(`  Element positions exist: ${!!slide.metadata?.elementPositions}`);
+            if (slide.metadata?.elementPositions) {
+              console.log(`  Element positions keys:`, Object.keys(slide.metadata.elementPositions));
+              
+              // Check for title and subtitle positions
+              const slideId = slide.slideId || 'unknown';
+              const titleId = `draggable-${slideId}-0`;
+              const subtitleId = `draggable-${slideId}-1`;
+              
+              const titlePos = slide.metadata.elementPositions[titleId];
+              const subtitlePos = slide.metadata.elementPositions[subtitleId];
+              
+              console.log(`  Title element ID: ${titleId}`);
+              console.log(`  Title position:`, titlePos);
+              console.log(`  Subtitle element ID: ${subtitleId}`);
+              console.log(`  Subtitle position:`, subtitlePos);
+            }
+          }
         });
 
         // Set theme on the deck
@@ -250,6 +289,31 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     };
 
     setComponentDeck(updatedDeck);
+    
+    // 🔍 LOGGING: Log what data is being sent to backend on slide update
+    console.log('🔍 SmartSlideDeckViewer: handleSlideUpdate - onSave called with updated deck:', {
+      slideCount: updatedDeck.slides.length,
+      theme: updatedDeck.theme,
+      updatedSlideId: updatedSlide.slideId,
+      updatedSlideTemplate: updatedSlide.templateId,
+      bigImageLeftSlides: updatedDeck.slides.filter(s => s.templateId === 'big-image-left').map(s => {
+        // Filter out base64 image data from logging
+        const imagePath = s.props?.imagePath || '';
+        const imageInfo = imagePath.startsWith('data:') 
+          ? `[BASE64 DATA URL - ${imagePath.length} characters]`
+          : imagePath || 'NOT SET';
+        
+        return {
+          slideId: s.slideId,
+          title: s.props?.title,
+          subtitle: s.props?.subtitle,
+          imagePath: imageInfo,
+          metadata: s.metadata,
+          elementPositions: s.metadata?.elementPositions
+        };
+      })
+    });
+    
     onSave?.(updatedDeck);
   };
 

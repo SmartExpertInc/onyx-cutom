@@ -16,6 +16,7 @@ from datetime import datetime
 import base64
 import mimetypes
 import functools
+import re
 
 # Attempt to import settings (as before)
 try:
@@ -280,9 +281,15 @@ async def log_image_fit_properties(slide_data: dict, slide_index: int = None, te
         if template_id in ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']:
             image_fit_logger.info(f"Template: {template_id}")
             
-            # Log image path
+            # Log image path without base64 data
             image_path = props.get('imagePath')
-            image_fit_logger.info(f"Image path: {image_path}")
+            if image_path:
+                if image_path.startswith('data:'):
+                    image_fit_logger.info(f"Image path: [BASE64 DATA URL - {len(image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Image path: {image_path}")
+            else:
+                image_fit_logger.info(f"Image path: NOT SET")
             
             # Log size and fit properties
             width_px = props.get('widthPx')
@@ -311,13 +318,20 @@ async def log_image_fit_properties(slide_data: dict, slide_index: int = None, te
         elif template_id == 'two-column':
             image_fit_logger.info(f"Template: {template_id}")
             
-            # Log left image properties
+            # Log left image properties without base64
             left_image_path = props.get('leftImagePath')
             left_object_fit = props.get('leftObjectFit')
             left_width_px = props.get('leftWidthPx')
             left_height_px = props.get('leftHeightPx')
             
-            image_fit_logger.info(f"Left image path: {left_image_path}")
+            if left_image_path:
+                if left_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Left image path: [BASE64 DATA URL - {len(left_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Left image path: {left_image_path}")
+            else:
+                image_fit_logger.info(f"Left image path: NOT SET")
+                
             image_fit_logger.info(f"Left object fit: {left_object_fit}")
             image_fit_logger.info(f"Left width: {left_width_px}px")
             image_fit_logger.info(f"Left height: {left_height_px}px")
@@ -327,13 +341,20 @@ async def log_image_fit_properties(slide_data: dict, slide_index: int = None, te
             else:
                 image_fit_logger.info(f"✅ Left object fit is present: {left_object_fit}")
             
-            # Log right image properties
+            # Log right image properties without base64
             right_image_path = props.get('rightImagePath')
             right_object_fit = props.get('rightObjectFit')
             right_width_px = props.get('rightWidthPx')
             right_height_px = props.get('rightHeightPx')
             
-            image_fit_logger.info(f"Right image path: {right_image_path}")
+            if right_image_path:
+                if right_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Right image path: [BASE64 DATA URL - {len(right_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Right image path: {right_image_path}")
+            else:
+                image_fit_logger.info(f"Right image path: NOT SET")
+                
             image_fit_logger.info(f"Right object fit: {right_object_fit}")
             image_fit_logger.info(f"Right width: {right_width_px}px")
             image_fit_logger.info(f"Right height: {right_height_px}px")
@@ -1361,9 +1382,111 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             # ✅ NEW: Log image fit properties before template rendering
             await log_image_fit_properties(safe_slide_data, slide_index, template_id)
             
+            # ✅ NEW: Detailed logging for text positioning in big-image-left template
+            if safe_slide_data.get('templateId') == 'big-image-left':
+                logger.info(f"=== TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
+                props = safe_slide_data.get('props', {})
+                
+                # Log all text-related properties
+                logger.info(f"Title: '{props.get('title', 'NOT SET')}'")
+                logger.info(f"Subtitle: '{props.get('subtitle', 'NOT SET')}'")
+                
+                # Log image info without base64 data
+                image_path = props.get('imagePath', '')
+                if image_path:
+                    if image_path.startswith('data:'):
+                        logger.info(f"Image: [BASE64 DATA URL - {len(image_path)} characters]")
+                    else:
+                        logger.info(f"Image: {image_path}")
+                else:
+                    logger.info(f"Image: NOT SET")
+                
+                # Log metadata and element positions
+                metadata = safe_slide_data.get('metadata', {})
+                element_positions = metadata.get('elementPositions', {})
+                logger.info(f"Metadata exists: {bool(metadata)}")
+                logger.info(f"Element positions exist: {bool(element_positions)}")
+                logger.info(f"Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
+                
+                # Log specific element positions for big-image-left template
+                slide_id = safe_slide_data.get('slideId', 'unknown')
+                title_id = f'draggable-{slide_id}-0'
+                subtitle_id = f'draggable-{slide_id}-1'
+                
+                title_position = element_positions.get(title_id)
+                subtitle_position = element_positions.get(subtitle_id)
+                
+                logger.info(f"Title element ID: {title_id}")
+                logger.info(f"Title position: {title_position}")
+                logger.info(f"Subtitle element ID: {subtitle_id}")
+                logger.info(f"Subtitle position: {subtitle_position}")
+                
+                # Log what the template will receive
+                logger.info(f"Template will receive title position: {title_position}")
+                logger.info(f"Template will receive subtitle position: {subtitle_position}")
+                
+                # Log the complete slide data structure for debugging (excluding base64)
+                logger.info(f"Complete slide data structure:")
+                logger.info(f"  templateId: {safe_slide_data.get('templateId')}")
+                logger.info(f"  slideId: {safe_slide_data.get('slideId')}")
+                logger.info(f"  props keys: {list(props.keys())}")
+                logger.info(f"  metadata keys: {list(metadata.keys()) if metadata else 'None'}")
+                
+                logger.info(f"=== END TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
+            
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
             logger.info("Template rendered successfully")
+            
+            # ✅ NEW: Log generated HTML for big-image-left template to debug text positioning
+            if safe_slide_data.get('templateId') == 'big-image-left':
+                logger.info(f"=== GENERATED HTML ANALYSIS for {slide_info}{template_info} ===")
+                
+                # Extract the big-image-left section from the HTML
+                big_image_left_pattern = r'<div class="big-image-left">(.*?)</div>\s*</div>\s*</div>'
+                match = re.search(big_image_left_pattern, html_content, re.DOTALL)
+                
+                if match:
+                    big_image_left_html = match.group(1)
+                    logger.info(f"Big-image-left HTML section found")
+                    
+                    # Look for positioned elements
+                    positioned_elements = re.findall(r'<[^>]*class="[^"]*positioned-element[^"]*"[^>]*>', big_image_left_html)
+                    logger.info(f"Found {len(positioned_elements)} positioned elements")
+                    
+                    for i, element in enumerate(positioned_elements):
+                        logger.info(f"Positioned element {i+1}: {element}")
+                    
+                    # Look for transform styles
+                    transform_pattern = r'style="[^"]*transform:\s*translate\([^)]+\)[^"]*"'
+                    transforms = re.findall(transform_pattern, big_image_left_html)
+                    logger.info(f"Found {len(transforms)} transform styles")
+                    
+                    for i, transform in enumerate(transforms):
+                        logger.info(f"Transform {i+1}: {transform}")
+                    
+                    # Look for title and subtitle elements specifically
+                    title_pattern = r'<h1[^>]*class="[^"]*slide-title[^"]*"[^>]*>(.*?)</h1>'
+                    subtitle_pattern = r'<div[^>]*class="[^"]*content-text[^"]*"[^>]*>(.*?)</div>'
+                    
+                    title_match = re.search(title_pattern, big_image_left_html, re.DOTALL)
+                    subtitle_match = re.search(subtitle_pattern, big_image_left_html, re.DOTALL)
+                    
+                    if title_match:
+                        title_html = title_match.group(0)
+                        logger.info(f"Title HTML: {title_html}")
+                    else:
+                        logger.info("No title element found")
+                    
+                    if subtitle_match:
+                        subtitle_html = subtitle_match.group(0)
+                        logger.info(f"Subtitle HTML: {subtitle_html}")
+                    else:
+                        logger.info("No subtitle element found")
+                else:
+                    logger.warning("Big-image-left HTML section not found in generated HTML")
+                
+                logger.info(f"=== END GENERATED HTML ANALYSIS for {slide_info}{template_info} ===")
             
             # Log HTML content for debugging - DISABLED FOR PERFORMANCE
             # await log_html_content(html_content, slide_index, template_id)

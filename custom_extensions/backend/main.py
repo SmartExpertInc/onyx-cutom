@@ -9330,6 +9330,64 @@ async def download_slide_deck_pdf(
 
         logger.info(f"Slide Deck PDF Gen (Project {project_id}): Generating PDF with {len(slide_deck_data['slides'])} slides, theme: {theme}")
 
+        # ✅ NEW: Detailed logging for slide data before PDF generation
+        logger.info(f"=== SLIDE DATA ANALYSIS BEFORE PDF GENERATION ===")
+        logger.info(f"Project ID: {project_id}")
+        logger.info(f"Total slides: {len(slide_deck_data['slides'])}")
+        logger.info(f"Theme: {theme}")
+        
+        # Analyze each slide for big-image-left template
+        big_image_left_slides = []
+        for i, slide in enumerate(slide_deck_data['slides']):
+            if slide.get('templateId') == 'big-image-left':
+                big_image_left_slides.append((i, slide))
+                logger.info(f"Found big-image-left slide at index {i}")
+                
+                # Log slide structure
+                logger.info(f"  Slide {i} structure:")
+                logger.info(f"    templateId: {slide.get('templateId')}")
+                logger.info(f"    slideId: {slide.get('slideId')}")
+                logger.info(f"    props keys: {list(slide.get('props', {}).keys())}")
+                logger.info(f"    metadata keys: {list(slide.get('metadata', {}).keys()) if slide.get('metadata') else 'None'}")
+                
+                # Log text content
+                props = slide.get('props', {})
+                logger.info(f"    title: '{props.get('title', 'NOT SET')}'")
+                logger.info(f"    subtitle: '{props.get('subtitle', 'NOT SET')}'")
+                
+                # Log image info without base64 data
+                image_path = props.get('imagePath', '')
+                if image_path:
+                    if image_path.startswith('data:'):
+                        logger.info(f"    imagePath: [BASE64 DATA URL - {len(image_path)} characters]")
+                    else:
+                        logger.info(f"    imagePath: {image_path}")
+                else:
+                    logger.info(f"    imagePath: NOT SET")
+                
+                # Log positioning data
+                metadata = slide.get('metadata', {})
+                element_positions = metadata.get('elementPositions', {})
+                logger.info(f"    elementPositions exists: {bool(element_positions)}")
+                if element_positions:
+                    logger.info(f"    elementPositions keys: {list(element_positions.keys())}")
+                    
+                    # Check for title and subtitle positions
+                    slide_id = slide.get('slideId', 'unknown')
+                    title_id = f'draggable-{slide_id}-0'
+                    subtitle_id = f'draggable-{slide_id}-1'
+                    
+                    title_pos = element_positions.get(title_id)
+                    subtitle_pos = element_positions.get(subtitle_id)
+                    
+                    logger.info(f"    title element ID: {title_id}")
+                    logger.info(f"    title position: {title_pos}")
+                    logger.info(f"    subtitle element ID: {subtitle_id}")
+                    logger.info(f"    subtitle position: {subtitle_pos}")
+        
+        logger.info(f"Total big-image-left slides found: {len(big_image_left_slides)}")
+        logger.info(f"=== END SLIDE DATA ANALYSIS ===")
+
         # Prepare template context
         context_for_jinja = {
             'details': slide_deck_data
