@@ -194,7 +194,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                               ? 'bg-blue-100 text-blue-700 border border-blue-200' 
                               : 'hover:bg-blue-50'
                           }`}
-                          title={option.description}
+                          title={option.label}
                         >
                           <span className="text-sm">{option.preview}</span>
                           <div className="flex-1">
