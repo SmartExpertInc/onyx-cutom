@@ -509,6 +509,7 @@ export const en = {
         proportionImageMuchSmaller: "30% - 70% (Image much smaller)",
         // Quick size controls
         quickSizeControls: "Size",
+        quickSettings: "Settings",
         smaller: "Smaller",
         larger: "Larger",
         resetToDefaultSize: "Reset to default size",

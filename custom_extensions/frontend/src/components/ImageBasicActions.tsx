@@ -79,30 +79,30 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       description: t('interface.imageSettings.textWillWrap', 'Text will wrap around the image'),
       preview: '📄 🖼️'
     },
-    {
-      value: 'side-by-side-left',
-      icon: Layout,
-      label: t('interface.imageSettings.sideBySideLeft', 'Side-by-side Left'),
-      description: t('interface.imageSettings.sideBySideDescription', 'Image and text side by side'),
-      preview: '🖼️ | 📄'
-    },
-    {
-      value: 'side-by-side-right',
-      icon: Layout,
-      label: t('interface.imageSettings.sideBySideRight', 'Side-by-side Right'),
-      description: t('interface.imageSettings.sideBySideDescription', 'Image and text side by side'),
-      preview: '📄 | 🖼️'
-    }
+    // {
+    //   value: 'side-by-side-left',
+    //   icon: Layout,
+    //   label: t('interface.imageSettings.sideBySideLeft', 'Side-by-side Left'),
+    //   description: t('interface.imageSettings.sideBySideDescription', 'Image and text side by side'),
+    //   preview: '🖼️ | 📄'
+    // },
+    // {
+    //   value: 'side-by-side-right',
+    //   icon: Layout,
+    //   label: t('interface.imageSettings.sideBySideRight', 'Side-by-side Right'),
+    //   description: t('interface.imageSettings.sideBySideDescription', 'Image and text side by side'),
+    //   preview: '📄 | 🖼️'
+    // }
   ];
 
   // Пропорції для side-by-side режимів
-  const proportionOptions = [
-    { value: '50-50', label: '50% - 50%', description: t('interface.imageSettings.equal', 'Equal') },
-    { value: '60-40', label: '60% - 40%', description: t('interface.imageSettings.imageLarger', 'Image larger') },
-    { value: '40-60', label: '40% - 60%', description: t('interface.imageSettings.contentLarger', 'Content larger') },
-    { value: '70-30', label: '70% - 30%', description: t('interface.imageSettings.imageDominant', 'Image dominant') },
-    { value: '30-70', label: '30% - 70%', description: t('interface.imageSettings.contentDominant', 'Content dominant') }
-  ];
+  // const proportionOptions = [
+  //   { value: '50-50', label: '50% - 50%', description: t('interface.imageSettings.equal', 'Equal') },
+  //   { value: '60-40', label: '60% - 40%', description: t('interface.imageSettings.imageLarger', 'Image larger') },
+  //   { value: '40-60', label: '40% - 60%', description: t('interface.imageSettings.contentLarger', 'Content larger') },
+  //   { value: '70-30', label: '70% - 30%', description: t('interface.imageSettings.imageDominant', 'Image dominant') },
+  //   { value: '30-70', label: '30% - 70%', description: t('interface.imageSettings.contentDominant', 'Content dominant') }
+  // ];
 
   return (
     <div className="relative">
@@ -137,8 +137,8 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
           <div className="py-1">
             {/* Header with Advanced Settings button */}
             <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Масштаб</div>
-              <button
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('interface.imageSettings.quickSettings', 'Settings')}</div>
+              {/* <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpenAdvancedSettings();
@@ -148,7 +148,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 title={t('interface.imageSettings.openAdvancedSettings', 'Open Advanced Settings')}
               >
                 <Edit3 className="w-4 h-4 text-blue-600" />
-              </button>
+              </button> */}
             </div>
 
             {/* Layout Options - ВКЛАДЕНИЙ DROPDOWN */}
@@ -166,7 +166,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                   <span className="font-medium">{t('interface.imageSettings.layoutOptions', 'Layout Options')}</span>
                   {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
                     <span className="text-xs text-blue-600 bg-blue-100 px-1 py-0.5 rounded">
-                      {imageBlock.layoutMode.includes('inline') ? '🖼️📄' : '🖼️|📄'}
+                      🖼️📄
                     </span>
                   )}
                 </div>
@@ -210,7 +210,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                   </div>
 
                   {/* Пропорції - тільки для side-by-side режимів */}
-                  {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
+                  {/* {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
                     <div className="px-3 py-2">
                       <div className="text-xs font-medium text-gray-600 mb-2">Space Distribution</div>
                       <div className="space-y-1">
@@ -235,7 +235,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                         ))}
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>
@@ -244,7 +244,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
             <div className="px-3 py-2 border-b border-gray-100">
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
                 <ZoomIn className="w-3 h-3" />
-                Масштаб
+                {t('interface.imageSettings.scale', 'Scale')}
               </div>
               <div className="grid grid-cols-2 gap-1">
                 {quickSizePresets.map((preset) => (

@@ -471,6 +471,7 @@ export const es = {
       proportionImageMuchSmaller: "30% - 70% (Imagen mucho más pequeña)",
       // Quick size controls
               quickSizeControls: "Tamaño",
+              quickSettings: "Configuración",
       smaller: "Más pequeño",
       larger: "Más grande",
       resetToDefaultSize: "Restablecer al tamaño predeterminado",

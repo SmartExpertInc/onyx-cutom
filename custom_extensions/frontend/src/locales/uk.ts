@@ -464,6 +464,7 @@ export const uk = {
       proportionImageMuchSmaller: "30% - 70% (Зображення набагато менше)",
       // Quick size controls
               quickSizeControls: "Розмір",
+              quickSettings: "Налаштування",
       smaller: "Менше",
       larger: "Більше",
       resetToDefaultSize: "Скинути до розміру за замовчуванням",
