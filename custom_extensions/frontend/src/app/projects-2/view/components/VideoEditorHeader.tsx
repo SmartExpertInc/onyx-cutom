@@ -69,7 +69,7 @@ export default function VideoEditorHeader() {
 
             {/* Upgrade button */}
             <button
-              className="bg-editor-purple-bg border-editor-purple-border text-editor-purple-text hover:bg-editor-purple-bg/80 rounded-[9px] px-4 lg:px-6 py-2.5 gap-2 lg:gap-3 border flex items-center h-10"
+              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[9px] px-3 lg:px-4 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
             >
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/e6fe4a219f32df67b6826887f30a0297ba8af2db?width=40"
@@ -106,14 +106,14 @@ export default function VideoEditorHeader() {
 
             {/* Share button */}
             <button
-              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-4 lg:px-6 py-2.5 border flex items-center h-10"
+              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-3 lg:px-4 py-1.5 border flex items-center h-8"
             >
               <span className="text-sm font-normal">Share</span>
             </button>
 
             {/* Generate button */}
             <button
-              className="bg-editor-dark text-editor-light-text hover:bg-gray-800 rounded-[7px] px-4 lg:px-6 py-2.5 flex items-center h-10"
+              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 lg:px-4 py-1.5 flex items-center h-8 border"
             >
               <span className="text-sm font-normal">Generate</span>
             </button>
