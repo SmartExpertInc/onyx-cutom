@@ -233,20 +233,21 @@ Edit Mode Rules:
 2. Apply the edit instructions from the `prompt` to modify the content appropriately
 3. Maintain the same format and structure as the original content
 4. Preserve any existing formatting, headers, and organizational elements
-5. **PRESERVE MODULE ID FORMATS**: If you see module headers like "## #1: Title", "## mod3: Title", or any non-standard format, preserve the EXACT ID format (#1, mod3, etc.) in your output. Do NOT convert to standard "Module X" format.
-6. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
+5. **PRESERVE ORIGINAL LANGUAGE**: The edited content MUST be in the same language as the original content. Do NOT translate table headers, field labels, or any text unless explicitly requested in the edit prompt. If the original content has Ukrainian headers like "Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань", preserve these EXACTLY.
+6. **PRESERVE MODULE ID FORMATS**: If you see module headers like "## #1: Title", "## mod3: Title", or any non-standard format, preserve the EXACT ID format (#1, mod3, etc.) in your output. Do NOT convert to standard "Module X" format.
+7. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
    - **PRESERVE MODULE IDs EXACTLY**: When you see module headers like "## Module 3: Advanced AI Applications", you MUST preserve the EXACT format and numbering in your output. If you see "Module 3", output "Module 3". If you see "Module 61", output "Module 61". Do NOT renumber or change the module identifier format unless explicitly asked.
    - **PRESERVE ORIGINAL ID FORMAT**: If the original content uses a specific module ID format (like "#1", "Module 3", etc.), maintain that EXACT format in your edited output.
    - If the user asks to change creation hours, ONLY change the creation hours - preserve all module IDs, lesson names, completion times, content coverage percentages, knowledge assessment values, and information sources exactly as they are
    - If the user asks to change lesson names, ONLY change the lesson names - preserve all other details unchanged  
    - If the user asks to add more questions to a quiz, ONLY add the questions - preserve all existing questions exactly as they are
    - If the user asks to modify specific text in a presentation, ONLY modify that specific text - preserve all other content, formatting, and structure
-7. Return the edited content in the same format as the original (no Universal Product Header needed for edits)
-8. Do NOT add any conversational text or explanations - return only the edited content
-9. For Quiz edits: Maintain the same question structure and types, only modify content as requested
-10. For Text Presentation edits: Preserve the existing content blocks and structure, only modify text as requested
-11. For Course Outline edits: Maintain the same module/lesson structure, only modify titles or details as requested
-12. **CRITICAL:** For Course Outline edits, ensure the structure includes Total Time, Number of Lessons, and "### Lessons" header for each module - NEVER remove these required elements during editing.
+8. Return the edited content in the same format as the original (no Universal Product Header needed for edits)
+9. Do NOT add any conversational text or explanations - return only the edited content
+10. For Quiz edits: Maintain the same question structure and types, only modify content as requested
+11. For Text Presentation edits: Preserve the existing content blocks and structure, only modify text as requested
+12. For Course Outline edits: Maintain the same module/lesson structure, only modify titles or details as requested
+13. **CRITICAL:** For Course Outline edits, ensure the structure includes Total Time, Number of Lessons, and "### Lessons" header for each module - NEVER remove these required elements during editing.
 
 Examples of edit mode requests:
 
@@ -1068,11 +1069,17 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 14. `challenges-solutions` - Problem-solving approaches and solutions
 15. `big-image-top` - Visual demonstrations with explanatory content below
 
-**ADVANCED DATA VISUALIZATION TEMPLATES:**
-16. `market-share` - Market analysis with bar charts and competitive positioning
-17. `table-dark` - Professional data tables with dark theme and interactive checkmarks
-18. `table-light` - Structured data presentation with light theme and clear organization
-19. `pie-chart-infographics` - Complex data visualization with pie charts and detailed monthly breakdowns
+**ADVANCED SPECIALIZED TEMPLATES:**
+16. `org-chart` - Organizational structures and team hierarchies
+17. `contraindications-indications` - Medical or technical pros and cons analysis
+18. `metrics-analytics` - Advanced data visualization and analytics dashboards
+19. `event-list` - Chronological event listings and schedules
+20. `market-share` - Market analysis and competitive positioning
+21. `table-dark` - Dark-themed data tables for professional presentations
+22. `table-light` - Light-themed data tables for clean presentations
+23. `pie-chart-infographics` - Circular data visualization with percentages
+24. `bar-chart-infographics` - Bar chart data visualization with metrics
+25. `six-ideas-list` - Six key ideas or concepts in organized format
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
@@ -1083,6 +1090,15 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **For grouped concepts**: Use `four-box-grid` (not content-slide)
 - **For explanatory text only**: Use `content-slide` (maximum 2-3 times per presentation)
 - **For section breaks**: Use `title-slide` (maximum 2 times per presentation)
+- **For organizational structures**: Use `org-chart` for team hierarchies and organizational charts
+- **For pros and cons analysis**: Use `contraindications-indications` for medical or technical analysis
+- **For advanced analytics**: Use `metrics-analytics` for data dashboards and complex metrics
+- **For chronological events**: Use `event-list` for timelines and event schedules
+- **For market analysis**: Use `market-share` for competitive positioning and market data
+- **For data tables**: Use `table-dark` or `table-light` for structured data presentation
+- **For circular data visualization**: Use `pie-chart-infographics` for percentage-based data
+- **For bar chart visualization**: Use `bar-chart-infographics` for comparative metrics
+- **For six key concepts**: Use `six-ideas-list` for organized idea presentation
 
 **CRITICAL TEMPLATE USAGE RULES:**
 - **NEVER use `content-slide` for any content with bullet points or lists** - use `bullet-points` or `bullet-points-right` instead
@@ -1090,6 +1106,8 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **NEVER use `content-slide` for hierarchical structures** - use `pyramid` instead
 - **NEVER use `content-slide` for sequential steps** - use `process-steps` or `timeline` instead
 - **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
+- **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
+- **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
 - **For `leftContent` and `rightContent`**: Use flowing paragraph text, NOT lists
@@ -1097,115 +1115,397 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Example CORRECT format**: "Smart homes include devices that enhance convenience and security. Wearable technology provides health monitoring and fitness tracking capabilities. Industrial IoT optimizes manufacturing processes and supply chains."
 - **Example INCORRECT format**: "- Smart Homes: Devices...\n- Wearable Technology: Health...\n- Industrial IoT: Optimizing..."
 
-**EDUCATIONAL TEMPLATE EXAMPLES:**
+**COMPREHENSIVE 15-SLIDE EDUCATIONAL TEMPLATE EXAMPLE:**
 
-**Opening Visual Impact** (`big-image-left`):
+**Note:** This example shows core templates. For advanced templates, see the specialized template descriptions above.
+
 ```
 ---
-**Slide 1: Introduction to [Learning Topic]** `big-image-left`
+**Slide 1: Introduction to Artificial Intelligence and Machine Learning** `big-image-left`
 
-## [Comprehensive Lesson Title]
+## Mastering AI and Machine Learning for Business Applications
 
-[Engaging introduction that sets learning expectations and provides essential context. Explain what learners will achieve and why this knowledge matters in real-world applications. Include specific outcomes they can expect.]
+Welcome to this comprehensive course on Artificial Intelligence and Machine Learning. In this presentation, you'll discover how AI technologies are transforming industries across the globe, from healthcare and finance to manufacturing and retail. We'll explore the fundamental concepts that power modern AI systems, examine real-world implementation strategies, and provide you with practical frameworks for applying these technologies in your organization. By the end of this course, you'll have a solid understanding of AI fundamentals, machine learning algorithms, and the strategic considerations for successful AI adoption.
 
-[IMAGE_PLACEHOLDER: LARGE | LEFT | Professional visual that captures the essence of the learning topic and immediately engages learners]
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Futuristic AI neural network visualization with interconnected nodes and data flows]
 
-**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
+**VOICEOVER:** Welcome to our comprehensive exploration of Artificial Intelligence and Machine Learning. Today's digital landscape demands a deep understanding of these transformative technologies that are reshaping how we work, communicate, and solve complex problems across every industry.
+
+---
+**Slide 2: The Foundation of Modern AI Systems** `big-image-top`
+
+## Understanding Core AI Technologies and Their Applications
+
+**Subtitle:** Artificial Intelligence represents one of the most significant technological advances of our time, fundamentally changing how we approach problem-solving and decision-making across industries worldwide. Modern AI systems are built on sophisticated algorithms that can process vast amounts of data, recognize complex patterns, and make predictions with unprecedented accuracy and speed. These intelligent systems combine multiple sophisticated approaches including supervised learning for predictive analytics, unsupervised learning for pattern discovery, and reinforcement learning for adaptive decision-making to create comprehensive solutions that continuously adapt and improve over time through experience and feedback.
+
+The foundation of artificial intelligence lies in its remarkable ability to simulate and enhance human cognitive functions such as learning, reasoning, perception, and language understanding, but with the computational power to process information at scales and speeds that are impossible for human minds to achieve. Today's AI applications span an incredibly diverse range of implementations, from natural language processing systems that power virtual assistants, real-time translation services, and content generation platforms, to advanced computer vision systems that enable autonomous vehicles, medical diagnostic tools, quality control in manufacturing, and facial recognition systems.
+
+The strategic integration of AI technologies into business processes has created unprecedented opportunities for automation, optimization, and innovation across every sector of the economy, while simultaneously presenting unique challenges in terms of data management, algorithmic bias, ethical considerations, regulatory compliance, and workforce adaptation. Organizations must navigate complex decisions about technology selection, implementation strategies, skill development, and change management to successfully leverage these powerful capabilities.
+
+Understanding these foundational concepts, underlying technologies, implementation strategies, and strategic considerations is absolutely essential for anyone looking to leverage AI technologies effectively in their professional environment and drive meaningful business transformation through intelligent automation.
+
+[IMAGE_PLACEHOLDER: LARGE | TOP | Comprehensive diagram showing AI system architecture with data flow, processing layers, and output mechanisms]
+
+**VOICEOVER:** To truly understand AI's transformative power, we need to examine the foundational technologies that make intelligent systems possible. These aren't just theoretical concepts, but practical tools that are already reshaping industries and creating new possibilities for innovation and growth.
+
+---
+**Slide 3: Essential Machine Learning Algorithms** `bullet-points`
+
+## Core Algorithms That Power AI Applications
+
+- **Supervised Learning Algorithms**: These algorithms learn from labeled training data to make predictions on new, unseen data. Examples include linear regression for predicting continuous values, decision trees for classification tasks, and support vector machines for complex pattern recognition. Supervised learning is widely used in applications like email spam detection, medical diagnosis, and financial risk assessment.
+
+- **Unsupervised Learning Techniques**: These methods discover hidden patterns in data without pre-labeled examples. Clustering algorithms group similar data points together, while dimensionality reduction techniques simplify complex datasets. Applications include customer segmentation, anomaly detection, and data compression for more efficient storage and processing.
+
+- **Deep Learning Neural Networks**: Inspired by the human brain's structure, these multi-layered networks excel at processing complex data like images, speech, and natural language. Convolutional neural networks revolutionize computer vision, while recurrent networks handle sequential data like time series and language translation.
+
+- **Reinforcement Learning Systems**: These algorithms learn through trial and error, receiving rewards or penalties for their actions. They excel in dynamic environments where optimal strategies must be discovered through experience. Applications include game playing AI, autonomous vehicle navigation, and robotics control systems.
+
+- **Ensemble Methods**: These approaches combine multiple algorithms to create more robust and accurate predictions. Random forests, gradient boosting, and voting classifiers leverage the strengths of different models while minimizing individual weaknesses, resulting in superior performance across diverse applications.
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Visual comparison of different machine learning algorithm types with flowcharts and decision boundaries]
+
+**VOICEOVER:** The power of AI comes from its diverse toolkit of machine learning algorithms, each designed to solve specific types of problems. Understanding when and how to apply these different approaches is crucial for building effective AI solutions.
+
+---
+**Slide 4: Data Strategy and AI Implementation** `two-column`
+
+## Building Robust Data Foundations for AI Success
+
+**Data Collection and Quality Management**: Successful AI implementation begins with comprehensive data strategy that encompasses collection, validation, and quality assurance processes. Organizations must identify relevant data sources, establish data governance frameworks, and implement automated quality monitoring systems. This includes developing protocols for handling missing data, detecting outliers, and ensuring data consistency across different sources and time periods.
+
+**Infrastructure and Implementation Planning**: The technical infrastructure supporting AI initiatives requires careful planning and substantial investment in both hardware and software systems. Cloud-based solutions offer scalability and flexibility, while on-premises systems provide greater control and security. Organizations must also consider data storage requirements, processing capabilities, and integration with existing business systems to ensure seamless AI deployment.
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Split visualization showing data pipeline on left and infrastructure architecture on right]
+
+**VOICEOVER:** Before diving into complex algorithms, we must establish solid foundations. The quality of your data and the robustness of your infrastructure will ultimately determine the success of your AI initiatives.
+
+---
+**Slide 5: Real-World AI Applications** `four-box-grid`
+
+## Transformative AI Use Cases Across Industries
+
+**Healthcare Revolution**: AI-powered diagnostic systems analyze medical images with superhuman accuracy, while predictive models identify patients at risk for various conditions. Electronic health records enhanced with AI provide personalized treatment recommendations, and robotic surgery systems improve precision and outcomes.
+
+**Financial Services Innovation**: Algorithmic trading systems process market data in milliseconds, while fraud detection algorithms monitor transactions in real-time. Credit scoring models incorporate alternative data sources, and robo-advisors democratize investment management for retail customers.
+
+**Manufacturing Optimization**: Predictive maintenance algorithms prevent costly equipment failures, while quality control systems identify defects with unprecedented accuracy. Supply chain optimization reduces costs and improves efficiency, and autonomous robots handle complex assembly tasks.
+
+**Retail and E-commerce**: Recommendation engines personalize shopping experiences, while demand forecasting optimizes inventory management. Price optimization algorithms maximize revenue, and chatbots provide 24/7 customer support with natural language understanding capabilities.
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Grid showing icons and examples from each industry with AI applications]
+
+**VOICEOVER:** AI isn't just a theoretical concept – it's actively transforming every major industry. Let's explore how these technologies are creating real value and solving complex challenges across different sectors.
+
+---
+**Slide 6: Performance Metrics and Success Indicators** `big-numbers`
+
+## Measuring AI Implementation Success
+
+**85%**: Average accuracy improvement reported by organizations implementing AI-powered decision support systems compared to traditional manual processes, with some industries seeing even higher gains in specific applications.
+
+**40%**: Reduction in operational costs typically achieved through AI automation and optimization initiatives, including decreased manual labor requirements and improved resource utilization efficiency.
+
+**3x**: Faster time-to-market for new products and services when AI is integrated into development and testing processes, enabling rapid prototyping and automated quality assurance.
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Dashboard-style visualization showing key performance indicators and metrics]
+
+**VOICEOVER:** Success in AI implementation isn't just about having the technology – it's about measuring and demonstrating tangible business value. These metrics represent typical outcomes from well-executed AI initiatives.
+
+---
+**Slide 7: Implementation Challenges and Solutions** `challenges-solutions`
+
+## Overcoming Common AI Deployment Obstacles
+
+**Challenges:**
+- Data quality and availability issues with incomplete, inconsistent, or biased datasets that compromise model performance
+- Talent and skills gap with shortage of qualified AI specialists and need for extensive staff training
+- Integration and infrastructure challenges with legacy systems not designed for AI workloads
+
+**Solutions:**
+- Implement comprehensive data governance frameworks with automated quality monitoring and standardized collection processes
+- Create strategic talent development programs combining internal training with external AI specialist partnerships
+- Develop phased integration approaches starting with pilot projects and API-first architectures
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Problem-solution flowchart showing challenges on left connected to solutions on right]
+
+**VOICEOVER:** Every AI implementation faces predictable challenges, but with proper planning and proven strategies, these obstacles become manageable stepping stones to success.
+
+---
+**Slide 8: Step-by-Step AI Implementation Process** `process-steps`
+
+## Structured Approach to AI Project Success
+
+**Phase 1: Discovery and Assessment** - Conduct comprehensive business needs analysis to identify high-value AI opportunities. Evaluate existing data assets, technical infrastructure, and organizational readiness. Define clear success metrics and establish project scope with realistic timelines and resource requirements.
+
+**Phase 2: Data Preparation and Architecture** - Design and implement data collection and storage systems optimized for AI workloads. Clean and preprocess existing datasets, establish data quality monitoring procedures, and create secure data pipelines that support both training and production environments.
+
+**Phase 3: Model Development and Testing** - Select appropriate algorithms based on problem requirements and data characteristics. Develop and train initial models using best practices for validation and testing. Implement robust evaluation frameworks that assess both technical performance and business impact.
+
+**Phase 4: Deployment and Integration** - Deploy trained models into production environments with proper monitoring and alerting systems. Integrate AI capabilities with existing business processes and user interfaces. Establish feedback loops for continuous model improvement and performance optimization.
+
+**Phase 5: Monitoring and Optimization** - Implement comprehensive monitoring systems to track model performance, data drift, and business outcomes. Establish regular retraining schedules and model update procedures. Create governance frameworks for ongoing AI system management and compliance.
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Sequential flowchart showing implementation phases with checkpoints and deliverables]
+
+**VOICEOVER:** Successful AI implementation requires a systematic approach. This five-phase methodology has been proven across hundreds of organizations and provides a reliable roadmap for achieving your AI objectives.
+
+---
+**Slide 9: AI Development Timeline and Milestones** `timeline`
+
+## Project Phases and Key Deliverables
+
+**Heading:** Project Initiation and Planning
+**Description:** Complete stakeholder alignment, define project scope, and establish success criteria. Conduct initial data assessment and begin infrastructure planning. Assemble project team and establish governance framework.
+
+**Heading:** Data Foundation Development
+**Description:** Implement data collection and storage systems. Complete data cleaning and preprocessing activities. Establish data quality monitoring and validation procedures.
+
+**Heading:** Model Development and Training
+**Description:** Train and validate initial AI models. Conduct extensive testing and performance evaluation. Refine algorithms based on validation results and business requirements.
+
+**Heading:** Production Launch and Optimization
+**Description:** Deploy models to production environments. Monitor performance and gather user feedback. Implement optimization improvements and establish ongoing maintenance procedures.
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Project timeline with milestones, deliverables, and resource allocation]
+
+**VOICEOVER:** Timing is crucial in AI projects. This timeline represents a typical enterprise AI implementation, though specific timelines may vary based on project complexity and organizational readiness.
+
+---
+**Slide 10: Technology Comparison and Selection** `two-column`
+
+## Evaluating AI Platforms and Tools
+
+**Cloud-Based Solutions**: Services like AWS SageMaker, Google Cloud AI, and Microsoft Azure ML provide scalable infrastructure with pre-built algorithms and automated model deployment capabilities. These platforms offer excellent integration with existing cloud services, rapid deployment options, and pay-as-you-scale pricing models. However, organizations must consider ongoing operational costs and potential vendor lock-in scenarios when making long-term technology commitments.
+
+**On-Premises and Open-Source Options**: Tools like TensorFlow, PyTorch, and Scikit-learn provide maximum flexibility and control over AI development processes. These solutions offer extensive community support, continuous innovation, and complete data sovereignty. Organizations can customize implementations to meet specific requirements and maintain full control over their AI infrastructure, though this approach requires significant technical expertise and infrastructure management overhead.
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Comparison matrix showing features, costs, and capabilities of different AI platforms]
+
+**VOICEOVER:** Choosing the right AI platform is crucial for long-term success. Each approach has distinct advantages and considerations that must align with your organization's technical capabilities and strategic objectives.
+
+---
+**Slide 11: Advanced AI Techniques and Innovations** `bullet-points`
+
+## Cutting-Edge Developments in AI Technology
+
+- **Transfer Learning and Domain Adaptation**: AI models can leverage knowledge from one domain to excel in another, dramatically reducing training time and data requirements. This breakthrough enables organizations to apply pre-trained models to specific business challenges without starting from scratch.
+
+- **Generative AI and Content Creation**: Advanced models create entirely new content, from realistic images and videos to code and written content, opening unprecedented creative possibilities. These systems can generate marketing materials, product designs, and even software code based on simple text descriptions.
+
+- **Federated Learning and Privacy-Preserving AI**: Organizations can collaborate on AI development while keeping sensitive data secure and private within their own systems. This approach enables collective learning without compromising data sovereignty or regulatory compliance requirements.
+
+- **Explainable AI and Model Interpretability**: Advanced techniques make complex model decisions transparent and interpretable, addressing critical needs in regulated industries like healthcare and finance. Stakeholders can understand how AI systems arrive at specific conclusions and recommendations.
+
+- **Edge AI and Real-Time Processing**: Intelligent processing capabilities deployed directly to devices enable real-time decision-making without cloud connectivity. This advancement supports autonomous systems, IoT applications, and scenarios requiring immediate responses without network latency.
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Futuristic AI laboratory with advanced computing systems and innovative technology displays]
+
+**VOICEOVER:** The AI field evolves rapidly, with new techniques and applications emerging constantly. Staying current with these developments is essential for maintaining competitive advantage and identifying new opportunities.
+
+---
+**Slide 12: Team Structure and Roles** `pyramid`
+
+## Building Effective AI Development Teams
+
+**Title:** AI Team Hierarchy
+**Subtitle:** Strategic, Technical, and Operational Excellence
+
+**Level 1 - Executive Leadership**: C-level executives and senior managers who define AI vision, allocate resources, and ensure strategic alignment with business objectives while championing AI initiatives across the organization.
+
+**Level 2 - Technical Specialists**: AI specialists and data scientists who design, develop, and implement AI models with deep expertise in machine learning, statistics, and programming to solve complex technical challenges.
+
+**Level 3 - Operational Foundation**: Data engineers, infrastructure specialists, and domain experts who build data pipelines, maintain systems, and ensure AI solutions address real business problems with reliable, scalable operations.
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Organizational pyramid showing team hierarchy and collaboration patterns]
+
+**VOICEOVER:** Successful AI projects require diverse teams with complementary skills. This structure ensures technical excellence while maintaining business focus and regulatory compliance.
+
+---
+**Slide 13: Risk Management and Governance** `bullet-points-right`
+
+## Ensuring Responsible AI Development and Deployment
+
+Effective AI governance requires comprehensive frameworks that address technical, ethical, and regulatory considerations while enabling innovation and business value creation. Organizations must establish clear policies for data usage, model development, and deployment procedures that ensure consistent quality and compliance across all AI initiatives.
+
+- **Data Privacy and Security Frameworks**: Implement robust data protection measures that comply with regulations like GDPR and CCPA while enabling effective AI development. Establish data access controls, encryption standards, and audit trails that protect sensitive information throughout the AI lifecycle.
+
+- **Algorithmic Bias Detection and Mitigation**: Develop systematic approaches to identify and address potential biases in training data and model outputs. Regular bias testing, diverse development teams, and inclusive design principles help ensure AI systems serve all users fairly and effectively.
+
+- **Model Interpretability and Transparency**: Create documentation and explanation capabilities that make AI decision-making processes understandable to stakeholders and regulators. This includes model versioning, performance tracking, and clear explanations of how inputs influence outputs.
+
+- **Regulatory Compliance and Standards**: Stay current with evolving AI regulations and industry standards across different jurisdictions and sectors. Implement compliance monitoring systems that ensure ongoing adherence to legal requirements and industry best practices.
+
+- **Ethical AI Guidelines and Review Processes**: Establish ethics committees and review procedures that evaluate AI projects for potential societal impact and alignment with organizational values. Create guidelines for responsible AI use that balance innovation with social responsibility.
+
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Governance framework diagram showing interconnected policies, procedures, and oversight mechanisms]
+
+**VOICEOVER:** With great power comes great responsibility. Effective AI governance protects both organizations and society while enabling the full potential of AI technologies to create positive impact.
+
+---
+**Slide 14: Future Trends and Emerging Technologies** `bullet-points`
+
+## Next-Generation AI Developments and Opportunities
+
+- **Quantum Machine Learning Integration**: The convergence of quantum computing and artificial intelligence promises exponential improvements in processing complex optimization problems and pattern recognition tasks. Early applications in drug discovery, financial modeling, and cryptography demonstrate the transformative potential of quantum-enhanced AI systems.
+
+- **Autonomous AI Systems and Self-Improving Models**: Advanced AI systems that can modify their own algorithms and learn new capabilities without human intervention represent the next frontier in artificial intelligence. These systems will enable unprecedented automation and adaptation capabilities across industries.
+
+- **Brain-Computer Interface Integration**: Direct neural interfaces will create new possibilities for AI-human collaboration, enabling thought-based control of AI systems and enhanced cognitive capabilities. Medical applications include treating neurological conditions and restoring functionality for paralyzed patients.
+
+- **Synthetic Data Generation and Privacy-Preserving AI**: Advanced techniques for creating realistic synthetic datasets will enable AI development while protecting individual privacy. This approach addresses data scarcity issues while maintaining compliance with strict privacy regulations.
+
+- **Multimodal AI and Cross-Domain Understanding**: AI systems that seamlessly integrate text, images, audio, and sensor data will provide more comprehensive understanding and decision-making capabilities. These systems will enable more natural human-AI interactions and complex problem-solving scenarios.
+
+- **Sustainable AI and Green Computing**: Energy-efficient AI algorithms and computing architectures will address environmental concerns while enabling broader AI adoption. New approaches to model compression and distributed computing will reduce the carbon footprint of AI systems.
+
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Futuristic technology collage showing emerging AI applications and innovations]
+
+**VOICEOVER:** The future of AI holds incredible promise, with emerging technologies that will reshape our understanding of what's possible. Preparing for these developments today positions organizations for tomorrow's opportunities.
+
+---
+**Slide 15: Your AI Journey Begins** `title-slide`
+
+# Your AI Transformation Journey
+## Start Today, Shape Tomorrow
+
+[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Inspiring visualization of AI-powered future with connected systems, innovation, and human-AI collaboration]
+
+**VOICEOVER:** Your AI transformation journey starts today. With the knowledge and frameworks we've explored, you're equipped to make informed decisions and create meaningful impact through artificial intelligence technologies.
 ```
-*Use for maximum visual impact and learner engagement at lesson start*
 
-**Learning Objectives Focus** (`hero-title-slide`):
+**ADVANCED TEMPLATE USAGE EXAMPLES:**
+
+**IMPORTANT:** All templates listed above are fully supported in PDF generation. The system automatically renders each template with appropriate styling and layout for professional PDF output.
+
+**Organizational Chart Example:**
 ```
 ---
-**Slide 2: Learning Objectives and Outcomes** `hero-title-slide`
+**Slide 1: Company Structure and Team Roles** `org-chart`
 
-# [Comprehensive Lesson Title]
-## [Clear statement of what learners will master, including specific skills, knowledge areas, and practical applications they'll be able to demonstrate after completing this lesson]
+## Organizational Structure
+**Subtitle:** Clear reporting relationships and team responsibilities
 
-[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Educational theme that reinforces learning goals]
+**CEO Level:** Executive leadership and strategic direction
+**Management Level:** Department heads and team leaders  
+**Staff Level:** Individual contributors and specialists
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Organizational chart visualization with connected boxes and reporting lines]
 ```
-*Use when emphasizing learning outcomes and objectives*
 
-**Detailed Concept Explanation** (`content-slide`):
-```
----
-**Slide 3: Understanding [Core Concept]** `content-slide`
-
-## [Fundamental Concept Title]
-
-[Comprehensive explanation of the concept with real-world context. Start with basic definition, then expand with practical implications and applications. Include why this concept matters in the broader field.]
-
-[Detailed analysis with examples, use cases, and practical applications. Connect theory to practice with specific scenarios learners might encounter. Provide thorough explanations without using bullet points or lists.]
-
-[Additional insights with practical application and real-world examples. Include important considerations with implementation guidance and critical success factors with actionable advice.]
-
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Detailed diagram or visual that reinforces the concept being taught]
-
-**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
-```
-*Reserve for essential explanatory content - use maximum 2-3 times per presentation. Use ONLY paragraph text, never bullet points or lists.*
-
-**Comprehensive Learning Points** (`bullet-points`):
+**Market Analysis Example:**
 ```
 ---
-**Slide 4: Key Learning Objectives** `bullet-points`
+**Slide 1: Competitive Market Position** `market-share`
 
-## [Educational Topic Title]
+## Market Share Analysis
+**Subtitle:** Understanding our competitive landscape
 
-- **Comprehensive Learning Point 1**: [Detailed explanation with practical applications and real-world context. Include specific examples and actionable insights that learners can implement immediately.]
+**Market Leader:** 35% market share with strong brand recognition
+**Key Competitor:** 28% market share with aggressive pricing
+**Emerging Players:** 22% combined share with innovative approaches
+**Other Players:** 15% fragmented market presence
 
-- **Comprehensive Learning Point 2**: [Thorough analysis with implementation guidance and critical success factors. Provide depth of understanding with practical considerations.]
-
-- **Comprehensive Learning Point 3**: [In-depth exploration with best practices and common pitfalls to avoid. Include specific techniques and methodologies.]
-
-- **Comprehensive Learning Point 4**: [Detailed examination with advanced concepts and expert insights. Provide comprehensive coverage with practical applications.]
-
-- **Comprehensive Learning Point 5**: [Thorough analysis with strategic considerations and long-term implications. Include actionable recommendations and next steps.]
-
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Visual reinforcement of key learning concepts]
-
-**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the slide content, expanding on what's visually presented, using inclusive language and providing context for approximately 30-60 seconds of speaking time]
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Market share pie chart with competitive positioning]
 ```
-*Use for comprehensive topic coverage with detailed educational content. Each point must provide substantial value.*
 
-**Contextual Learning Points** (`bullet-points-right`):
+**Data Table Example:**
 ```
 ---
-**Slide 5: Advanced Implementation Strategies** `bullet-points-right`
+**Slide 1: Performance Metrics Comparison** `table-dark`
 
-## [Advanced Topic Title]
+## Quarterly Performance Analysis
 
-[Comprehensive introduction that sets context and explains the importance of the following points. Provide background information and establish learning objectives for this section.]
+| Metric | Q1 | Q2 | Q3 | Q4 |
+|--------|----|----|----|----|
+| Revenue | $2.1M | $2.3M | $2.8M | $3.2M |
+| Growth | +15% | +9.5% | +21.7% | +14.3% |
+| Customers | 1,250 | 1,380 | 1,520 | 1,680 |
 
-- **Strategic Implementation Point 1**: [Detailed explanation with practical applications and real-world context. Include specific examples and actionable insights that learners can implement immediately.]
-
-- **Strategic Implementation Point 2**: [Thorough analysis with implementation guidance and critical success factors. Provide depth of understanding with practical considerations.]
-
-- **Strategic Implementation Point 3**: [In-depth exploration with best practices and common pitfalls to avoid. Include specific techniques and methodologies.]
-
-- **Strategic Implementation Point 4**: [Detailed examination with advanced concepts and expert insights. Provide comprehensive coverage with practical applications.]
-
-- **Strategic Implementation Point 5**: [Thorough analysis with strategic considerations and long-term implications. Include actionable recommendations and next steps.]
-
-[IMAGE_PLACEHOLDER: LARGE | LEFT | Professional visual that reinforces the contextual learning points]
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Data visualization with charts and graphs]
 ```
-*Use when you need to provide context before presenting list items. Preferred for educational content as it provides better learning flow.*
+
+**Pie Chart Example:**
+```
 ---
-**Slide 4: Key Learning Elements** `bullet-points`
+**Slide 1: Revenue Distribution by Channel** `pie-chart-infographics`
 
-## [Educational Topic Title]
+## Revenue Channel Analysis
+**Subtitle:** Understanding our revenue sources
 
-* [First learning point with detailed explanation, practical examples, and real-world applications that help learners understand both theory and practice. This comprehensive approach ensures learners can immediately apply concepts in their work environment and understand the broader implications of the technology.]
-* [Second educational insight with comprehensive analysis, use cases, and actionable guidance that learners can immediately apply. Include specific scenarios where this knowledge becomes critical and how it contributes to overall project success and team collaboration.]  
-* [Third critical concept with thorough explanation, best practices, and common challenges learners should be aware of. Provide detailed examples of implementation pitfalls and how to avoid them, along with proven strategies for overcoming typical obstacles.]
-* [Fourth essential element with in-depth coverage, implementation strategies, and success factors. Explain the strategic importance of this element and how it integrates with other components to create a cohesive and effective solution.]
-* [Fifth important consideration with detailed analysis, practical tips, and expert recommendations. Include industry best practices, performance considerations, and long-term maintenance strategies that ensure sustainable implementation.]
-* [Sixth valuable insight with comprehensive explanation, real-world examples, and future applications. Discuss emerging trends, potential evolution of the technology, and how learners can stay ahead of industry developments.]
-* [Seventh key takeaway with thorough analysis, actionable advice, and long-term benefits. Summarize the most critical learning outcomes and provide a clear roadmap for continued skill development and practical application.]
+**Direct Sales:** 45% of total revenue
+**Online Platform:** 30% of total revenue  
+**Partnerships:** 15% of total revenue
+**Other Channels:** 10% of total revenue
 
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Educational visual that supports and reinforces the learning points]
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Pie chart with percentage segments and color coding]
 ```
-*Generate 5-7 comprehensive list items with substantial educational value*
+
+**Bar Chart Example:**
+```
+---
+**Slide 1: Regional Performance Comparison** `bar-chart-infographics`
+
+## Regional Sales Performance
+**Subtitle:** Comparing performance across markets
+
+**North America:** $850K - Strong market presence
+**Europe:** $620K - Growing opportunities
+**Asia Pacific:** $480K - Emerging market
+**Latin America:** $320K - Development phase
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Bar chart showing regional performance metrics]
+```
+
+**Six Ideas Example:**
+```
+---
+**Slide 1: Key Success Factors** `six-ideas-list`
+
+## Six Critical Success Factors
+**Subtitle:** Essential elements for achieving our goals
+
+1. **Clear Strategy** - Well-defined objectives and roadmap
+2. **Strong Leadership** - Experienced management team
+3. **Quality Products** - Superior value proposition
+4. **Customer Focus** - Deep understanding of needs
+5. **Operational Excellence** - Efficient processes and systems
+6. **Continuous Innovation** - Ongoing improvement and adaptation
+
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Success factors visualization with icons and connections]
+```
+
+**TEMPLATE SELECTION RECOMMENDATIONS:**
+
+**For Business Presentations:**
+- Use `org-chart` for company structure and team presentations
+- Use `market-share` for competitive analysis and market research
+- Use `table-dark` or `table-light` for financial reports and data analysis
+- Use `metrics-analytics` for performance dashboards and KPI presentations
+
+**For Educational Content:**
+- Use `pyramid` for hierarchical learning concepts
+- Use `process-steps` for step-by-step procedures
+- Use `timeline` for historical context and chronological learning
+- Use `challenges-solutions` for problem-solving scenarios
+
+**For Data Visualization:**
+- Use `pie-chart-infographics` for percentage-based data and market shares
+- Use `bar-chart-infographics` for comparative metrics and performance data
+- Use `big-numbers` for key statistics and KPIs
+- Use `four-box-grid` for categorized information and benefits
+
+**For Strategic Planning:**
+- Use `six-ideas-list` for key strategies and action items
+- Use `event-list` for project timelines and milestone planning
+- Use `contraindications-indications` for decision-making frameworks
+- Use `comparison-slide` for option analysis and evaluation
+
+**For Technical Presentations:**
+- Use `org-chart` for system architecture and component relationships
+- Use `process-steps` for technical procedures and workflows
+- Use `table-dark` for technical specifications and data tables
+- Use `metrics-analytics` for system performance and monitoring data
 
 **LIST ITEM REQUIREMENTS FOR BULLET-POINTS TEMPLATE:**
 - These rules apply to the content WITHIN each individual bullet-points slide. They do NOT refer to the number of bullet-points slides in the presentation.
@@ -1229,277 +1529,6 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **INCORRECT**: Slide with 5 list items but each is only 1 sentence (too short)
 - **CORRECT**: Slide with 6 list items, each with 2-3 sentences of detailed content
 
-**Comparative Learning Analysis** (`two-column`):
-```
----
-**Slide 5: Comparative Analysis of [Learning Concepts]** `two-column`
-
-## [Educational Comparison Title]
-
-### [First Concept/Approach]
-[Comprehensive explanation of the first concept with detailed analysis, practical examples, and real-world applications. Discuss advantages, use cases, and when this approach is most effective. Include specific scenarios and outcomes. Convert any natural lists into flowing paragraph text.]
-
-### [Second Concept/Approach]
-[Thorough analysis of the second concept with practical insights, implementation considerations, and educational benefits. Explain key differences, advantages, and practical applications learners should understand. Use paragraph format, not bullet points.]
-
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Educational visual that illustrates the comparison effectively]
-```
-*Use flowing educational narrative - avoid lists, focus on comprehensive explanations. Convert any lists to paragraph text.*
-
-**Educational Problem-Solution Framework** (`challenges-solutions`):
-```
----
-**Slide 6: Overcoming [Learning Challenge]** `challenges-solutions`
-
-## [Educational Challenge and Solution Title]
-
-### Learning Challenges
-[Detailed analysis of common challenges learners face in this area, including specific obstacles, misconceptions, and practical difficulties. Explain why these challenges occur and their impact on learning outcomes.]
-
-### Educational Solutions  
-[Comprehensive strategies and approaches to overcome these challenges, including proven methodologies, practical techniques, and step-by-step guidance. Provide actionable solutions learners can implement immediately.]
-
-[IMAGE_PLACEHOLDER: LARGE | CENTER | Visual representation of the problem-solution educational flow]
-```
-*Focus on educational challenges and proven learning solutions*
-
-**Process Steps Slides** (`process-steps`):
-```
----
-**Slide 7: [Process Description]** `process-steps`
-
-## [Process Title]
-
-1. [First step with detailed description covering 2-3 sentences explaining what to do, why it's important, and how to implement it effectively. Include specific techniques, tools, or considerations.]
-
-2. [Second step with comprehensive explanation spanning 2-3 sentences that details the process, discusses potential challenges, and provides practical guidance. Include best practices and common pitfalls to avoid.]
-
-3. [Third step with thorough description using 2-3 sentences to elaborate on the methodology, explain the reasoning behind the approach, and highlight key success factors. Include specific examples or scenarios.]
-
-4. [Fourth step with in-depth explanation covering 2-3 sentences that summarizes the final phase, discusses quality assurance measures, and provides next steps or follow-up actions. Include validation criteria or success indicators.]
-
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Process flow diagram]
-```
-**PROCESS STEPS CONTENT REQUIREMENTS:**
-- Each step MUST contain 2-3 detailed sentences with comprehensive explanations
-- Include specific techniques, tools, best practices, and practical guidance
-- Provide examples, scenarios, or use cases where relevant
-- Discuss potential challenges and how to overcome them
-- **MANDATORY DETAIL:** Each step must include practical implementation guidance and real-world applications
-- **Depth requirement:** Never use single-sentence descriptions - always provide substantial educational content
-
-**Title Slides** (`title-slide`):
-```
----
-**Slide 9: [Simple Title]** `title-slide`
-
-# [Main Title]
-## [Subtitle]
-
-[IMAGE_PLACEHOLDER: BACKGROUND | BACKGROUND | Background visual]
-
-
-
-- Use for section breaks or conclusions
-- Simple text-focused design
-```
-
-**Bullet Points Right Slides** (`bullet-points-right`):
-```
----
-**Slide 10: [Key Points Topic]** `bullet-points-right`
-
-## [Main Title]
-
-[Subtitle or context before the list]
-
-* [First key point]
-* [Second key point]
-* [Third key point]
-* [Fourth key point]
-* [Fifth key point]
-* [Sixth key point]
-
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting visual for the key points]
-
--Use this template when you want to provide a short context, summary, or explanation (subtitle) before presenting a list of key points.
--Choose bullet-points-right instead of bullet-points if the slide needs a subtitle or introductory sentence above the bullet list.
--The subtitle should be 1-2 sentences and give context or highlight the importance of the following points.
--List items should be concise, actionable, and directly related to the subtitle/context. Use 5-7 list items for comprehensive coverage.
--The image placeholder is always on the left and should visually represent the overall topic of the list items (not individual items).
--Ideal for: summarizing main takeaways, listing security principles, highlighting grouped recommendations, or when you want to draw attention to the context before the list.
--Avoid using this template for long paragraphs or when a visual is not needed.
--Example use cases: "Key Security Principles", "Main Benefits", "Summary of Recommendations".
-```
-
-**Big Image Top Slides** (`big-image-top`):
-```
----
-**Slide 11: [Visual Topic]** `big-image-top`
-
-## [Main Title]
-
-[Subtitle or content goes here]
-
-[IMAGE_PLACEHOLDER: LARGE | TOP | Relevant visual for the topic]
-```
-- Use this template when you want to visually introduce a topic with a large image at the top, followed by a title and content/description below.
-- The image should be relevant and engaging, setting the context for the slide.
-- Ideal for: visual introductions, topic overviews, inspirational quotes with visuals, or when you want to focus attention on a visual before the main content.
-- Example use cases: "Lesson Introduction", "Key Visual Concept", "Motivational Quote with Image".
-```
-
-**Four Box Grid Slides** (`four-box-grid`):
-```
----
-**Slide 12: [Grid Topic]** `four-box-grid`
-
-## [Main Title]
-
-Box 1: [Heading] - [Detailed description with 2-3 sentences explaining the concept, its benefits, and practical applications. Include specific examples or use cases where relevant.]
-
-Box 2: [Heading] - [Comprehensive explanation covering 2-3 sentences with detailed insights, implementation considerations, and real-world impact. Provide concrete examples or scenarios.]
-
-Box 3: [Heading] - [Thorough description spanning 2-3 sentences that elaborates on the concept, discusses best practices, and highlights key advantages. Include practical tips or recommendations.]
-
-Box 4: [Heading] - [In-depth explanation with 2-3 sentences covering the concept details, potential challenges, and strategic importance. Provide actionable insights or future considerations.]
-
-[NO IMAGE PLACEHOLDERS - this template creates visual grid internally]
-```
-- Use this template for slides that need to present 4 key points or benefits in a visually organized grid.
-- **CRITICAL:** Use the exact format "Box N: [Heading] - [Description]" (not bullet points) so the parser can convert it to the boxes array.
-- **CONTENT REQUIREMENTS:** Each box description MUST contain 2-3 detailed sentences with comprehensive explanations, examples, and practical insights.
-- **AVOID SHORT DESCRIPTIONS:** Never use single-sentence descriptions. Always provide substantial content that educates and informs.
-- **MANDATORY DETAIL:** Each box must include practical examples, implementation considerations, and real-world applications.
-- Ideal for: feature highlights, grouped benefits, comparison of four aspects, or summarizing main advantages.
-- Example use cases: "Benefits of a Well-Designed System Architecture", "Key Features", "Main Pillars of Success".
-```
-
-**Timeline Slides** (`timeline`):
-```
----
-**Slide 13: [Timeline Topic]** `timeline`
-
-## [Main Title]
-
-[Horizontal timeline with 4 steps. Each step has a number, heading, and description. Text blocks are placed above and below the line in a chessboard pattern.]
-
-1. [Heading 1] - [Description 1]
-2. [Heading 2] - [Description 2]
-3. [Heading 3] - [Description 3]
-4. [Heading 4] - [Description 4]
-```
-- Use this template for slides that need to show a process, history, or evolution in **exactly 4 key steps**.
-- **CRITICAL:** Always generate exactly 4 steps for the timeline (no more, no less). If the process has fewer or more steps, group or summarize to fit 4.
-- Each step should have a short heading and a concise description.
-- The timeline line and numbers are rendered automatically; just provide the steps array.
-- Example use cases: "History and Evolution", "Project Milestones", "Key Phases of Development".
-```
-
-**Big Numbers Slides** (`big-numbers`):
-```
----
-**Slide 14: Key Financial Metrics** `big-numbers`
-
-## Key Financial Metrics
-
-| 25% | 3x | 50% |
-|:----:|:---:|:---:|
-| **Profit Margin** | **Growth Rate** | **Customer Retention** |
-| The company has achieved a profit margin of 25%, indicating strong profitability. | Our growth rate has increased 3 times over the last five years, showcasing rapid expansion. | Customer retention stands at 50%, reflecting our commitment to customer satisfaction. |
-```
-
-**CRITICAL NUMERICAL VALUE RULE FOR BIG-NUMBERS:**
-- **FIRST ROW MUST CONTAIN ONLY NUMBERS**: The first row of the table MUST contain only numerical values (percentages like 25%, multipliers like 3x, ratios like 2:1, whole numbers like 95, decimals like 4.2, etc.). 
-- **NEVER put text, names, or tool names in the first row** - these belong in the second row as labels.
-- **Examples of CORRECT first row values**: 25%, 3x, 95%, 4.2, 1000+, 2:1, 50ms, 99.9%
-- **Examples of INCORRECT first row values**: "Gprof", "Valgrind", "Python", "React", "Advanced", "Basic"
-
-- **Use this template whenever you want to highlight numerical data, statistics, or metrics. Always use the exact markdown table format shown above.**
-- Each column should have a big number (e.g., %, x, ratio), a bolded label, and a concise description.
-- **Trigger words:** If the slide involves "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or numerical achievements, use `big-numbers`.
-- Ideal for: business results, technical KPIs, performance benchmarks, or any slide where numbers are the main focus.
-- Example use cases: "Key Financial Metrics", "Performance Benchmarks", "Business Impact", "Growth Statistics".
-
-**Market Share Template** (`market-share`):
-```
----
-**Slide X: Market Analysis** `market-share`
-
-## Market Share Comparison
-
-[Chart displays bar comparison with legend showing two competing entities with their descriptions and market positioning]
-
-**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the market dynamics, expanding on competitive positioning for approximately 30-60 seconds]
-```
-- **Trigger words:** If the slide involves "market", "share", "competition", "comparison", "vs", "versus", "competitor", "market analysis", "business metrics", "competitive positioning", use `market-share`.
-- Ideal for: competitive analysis, market positioning, business strategy presentations, or comparative business metrics.
-- Example use cases: "Market Share Analysis", "Competitive Positioning", "Business Comparison", "Market Dynamics".
-
-**Table Dark Template** (`table-dark`):
-```
----
-**Slide X: Data Comparison** `table-dark`
-
-## Data Analysis Table
-
-[Dynamic table with dark theme, checkmarks/crosses for binary data, customizable rows and columns]
-
-**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the table data and insights for approximately 30-60 seconds]
-```
-- **Trigger words:** If the slide involves "table", "data", "comparison", "matrix", "grid", "checkmarks", "status", "tasks", "features comparison", "dark theme", use `table-dark`.
-- Ideal for: feature comparisons, task status, compatibility matrices, or structured data with binary values.
-- Example use cases: "Feature Comparison", "Task Status Matrix", "Compatibility Grid", "System Requirements".
-
-**Table Light Template** (`table-light`):
-```
----
-**Slide X: Professional Data** `table-light`
-
-## Structured Information
-
-[Dynamic table with light theme, professional styling, customizable rows and columns for detailed data presentation]
-
-**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the structured data and relationships for approximately 30-60 seconds]
-```
-- **Trigger words:** If the slide involves "table", "data", "spreadsheet", "rows", "columns", "professional", "teams", "departments", "structured data", "light theme", use `table-light`.
-- Ideal for: team data, department information, structured presentations, or professional data displays.
-- Example use cases: "Team Overview", "Department Data", "Resource Allocation", "Professional Information".
-
-**Pie Chart Infographics Template** (`pie-chart-infographics`):
-```
----
-**Slide X: Data Visualization** `pie-chart-infographics`
-
-## Comprehensive Data Story
-
-[Interactive pie chart with detailed monthly breakdowns, visual segments, and comprehensive infographic elements]
-
-**VOICEOVER:** [For Video Lesson Slides Deck only - conversational explanation of the data story and monthly insights for approximately 30-60 seconds]
-```
-- **Trigger words:** If the slide involves "pie chart", "infographics", "data story", "monthly", "segments", "breakdown", "visualization", "complex data", "comprehensive analysis", use `pie-chart-infographics`.
-- Ideal for: comprehensive data stories, monthly reports, complex visualizations, or detailed analytical presentations.
-- Example use cases: "Monthly Performance Review", "Data Breakdown Analysis", "Comprehensive Metrics", "Annual Report Summary".
-
-**Additional Correct Examples:**
-```
-| 99.9% | 15ms | 50% |
-|:----:|:---:|:---:|
-| **System Uptime** | **Response Time** | **Cost Reduction** |
-| System maintains 99.9% availability throughout the year. | Average response time reduced to 15 milliseconds. | Operating costs reduced by 50% after optimization. |
-```
-
-```
-| 10x | 95% | 24/7 |
-|:----:|:---:|:---:|
-| **Performance Boost** | **Accuracy Rate** | **Availability** |
-| System performance improved by 10 times after upgrade. | AI model achieves 95% accuracy in predictions. | Services available 24 hours a day, 7 days a week. |
-```
-
-
-
-Content Distribution Strategy (Updated for Component-Based Templates):
-
 **STRATEGIC TEMPLATE SELECTION (REVISED):**
 Choose templates based on content type and educational goals:
 
@@ -1517,6 +1546,15 @@ Choose templates based on content type and educational goals:
 - **Key Point with Context**: Use `bullet-points-right` for lists of important information that require a short context or subtitle before the bullet list (e.g., summary, grouped recommendations, security principles).
 - **Key Metrics / Numbers**: Use `big-numbers` when you need to highlight 2-3 key metrics, statistics, or numbers with short labels and descriptions. **CRITICAL:** If the slide title contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "benchmarks", or when you want to showcase specific numerical achievements, ALWAYS use `big-numbers` template. Ideal for business results, KPIs, comparisons, survey results, or any slide where the main focus is on numbers. Each column contains a big number (%, x, ratio), a bold label, and a concise description.
 - **Pyramid Diagram**: Use `pyramid` to show hierarchical relationships or foundational concepts. **CRITICAL:** If the slide title contains words like "hierarchy", "hierarchical", "levels", "priorities", "foundation", "foundational", "understanding", "needs", "satisfaction", "efficiency", "reliability", "structure", "building blocks", or when you want to showcase 3-level relationships, ALWAYS use `pyramid` template. Ideal for showing levels, priorities, or dependencies.
+- **Organizational Charts**: Use `org-chart` for team structures, reporting relationships, and organizational hierarchies. Ideal for showing company structure, team roles, or reporting lines.
+- **Pros and Cons Analysis**: Use `contraindications-indications` for medical, technical, or business analysis with advantages and disadvantages. Perfect for decision-making frameworks and risk assessment.
+- **Advanced Analytics**: Use `metrics-analytics` for complex data dashboards, performance metrics, and analytical insights. Ideal for business intelligence and data-driven presentations.
+- **Event Timelines**: Use `event-list` for chronological event listings, project milestones, and historical timelines. Perfect for project planning and historical presentations.
+- **Market Analysis**: Use `market-share` for competitive analysis, market positioning, and industry insights. Ideal for business strategy and market research presentations.
+- **Data Tables**: Use `table-dark` or `table-light` for structured data presentation, comparison tables, and detailed information display. Choose based on presentation theme and readability needs.
+- **Circular Data Visualization**: Use `pie-chart-infographics` for percentage-based data, market shares, and proportional relationships. Perfect for showing parts of a whole.
+- **Bar Chart Visualization**: Use `bar-chart-infographics` for comparative metrics, performance comparisons, and quantitative data visualization. Ideal for showing relative values and trends.
+- **Six Key Ideas**: Use `six-ideas-list` for presenting six main concepts, benefits, or ideas in an organized format. Perfect for summarizing key points and takeaways.
 
 **Pyramid Diagram Slides** (`pyramid`):
 ```
@@ -1540,9 +1578,9 @@ Information processing follows a structured approach where knowledge builds upon
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):
 - **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial content
-- **Short Lessons (5-7 slides)**: `big-image-left` + 3-4 varied slides (max 1 content-slide) + substantial conclusion
-- **Medium Lessons (8-12 slides)**: `big-image-left` + 6-9 varied slides (max 2 content-slide) + substantial conclusion  
-- **Long Lessons (13-15 slides)**: `big-image-left` + 10-12 varied slides (max 3 content-slide) + substantial conclusion
+- **Short Lessons (5-7 slides)**: `big-image-left` + 4-5 varied slides + 1 conclusion slide (**no `content-slide` allowed**)
+- **Medium Lessons (8-12 slides)**: `big-image-left` + 7-11 varied slides + 1 conclusion slide (**no `content-slide` allowed**)  
+- **Long Lessons (13-15 slides)**: `big-image-left` + 12-14 varied slides + 1 conclusion slide (**no `content-slide` allowed**)
 - **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
 - **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
 - **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
@@ -1572,13 +1610,13 @@ Information processing follows a structured approach where knowledge builds upon
 - **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 2 times per presentation - this is NON-NEGOTIABLE
 - **TITLE-SLIDE RESTRICTION**: Maximum 2 slides per presentation (only for section breaks and conclusion)
 - **TEMPLATE REPETITION VALIDATION**: Before adding any slide, check how many times that template has been used - if already used 2 times, choose a different template
-- **BALANCE REQUIREMENT**: Maximum 30% text-heavy templates (content-slide, bullet-points), minimum 70% visual/interactive templates
+- **BALANCE REQUIREMENT**: Maximum 30% text-heavy templates (**bullet-points templates only**), minimum 70% visual/interactive templates
 - **ALWAYS start with `big-image-left` for maximum visual engagement**
-- **VISUAL VARIETY MANDATE**: Must alternate between different visual templates, never use `big-image-left` and `big-image-top` consecutively
+- **VISUAL VARIETY MANDATE**: **Never** use the **same template** twice in a row. Always alternate between different template types (e.g., avoid `bullet-points` → `bullet-points`). Also avoid placing `big-image-left` and `big-image-top` consecutively.
 - **TITLE-SLIDE RESTRICTION**: If you've already used `title-slide` twice, you CANNOT use it again - choose `content-slide`, `big-image-top`, or another template for conclusions
 - **BULLET-POINTS RESTRICTION**: Maximum 3 bullet-points slides total per presentation (bullet-points + bullet-points-right combined)
 - **BULLET-POINTS ALTERNATION**: MUST alternate between `bullet-points` and `bullet-points-right` when using multiple bullet slides
-- **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid) over bullet-points
+- **SPECIALIZED TEMPLATE PRIORITY**: Always prefer specialized templates (big-numbers, pyramid, process-steps, timeline, two-column, challenges-solutions, four-box-grid, org-chart, metrics-analytics, pie-chart-infographics, bar-chart-infographics, table-dark, table-light, market-share, event-list, contraindications-indications, six-ideas-list) over bullet-points
 - **MANDATORY DIVERSITY**: For presentations with 8+ slides, use minimum 8 different template types
 
 **ALTERNATIVE CONCLUSION TEMPLATES:**
@@ -1640,50 +1678,6 @@ Question Format:
 - Ensure explanations are concise but informative
 - **For open-answer questions:** Provide specific, detailed correct answers that demonstrate expected knowledge depth. Avoid generic responses like "answers will vary" - instead give concrete, comprehensive answers that serve as assessment criteria
 
-**EDUCATIONAL CONTENT CREATION PRINCIPLES:**
-
-**Template Variety for Effective Learning:**
-- Use diverse templates to maintain learner engagement and accommodate different learning styles
-- Vary presentation methods to reinforce concepts through multiple modalities
-- Balance visual, textual, and interactive elements for comprehensive understanding
-- Maximum 2 uses per template to ensure variety and prevent monotony
-- **BULLET-POINTS VARIETY**: Use both `bullet-points` and `bullet-points-right` for different contexts
-- **TITLE-SLIDE LIMITATION**: Maximum 2 uses per presentation, only for major transitions
-- **VISUAL DIVERSITY**: Alternate between different visual templates for engagement
-
-**Educational Content Standards:**
-- Focus on substantial learning value in every slide
-- Include practical examples and real-world applications
-- Provide actionable insights learners can implement immediately
-- Connect theoretical concepts to practical implementation
-- Use progressive complexity to build understanding systematically
-
-**Professional Educational Presentation Structure:**
-- **Opening**: Start with visually engaging introduction (`big-image-left` or `hero-title-slide`)
-- **Core Content**: Mix explanatory content, key points, and specialized templates based on content type
-- **Conclusion**: End with comprehensive summary of key learning outcomes
-
-**Smart Template Selection:**
-- **Statistical/Numerical Content**: Use `big-numbers` for metrics and data
-- **Hierarchical Concepts**: Use `pyramid` for levels and structures  
-- **Sequential Processes**: Use `process-steps` or `timeline` for step-by-step content
-- **Comparative Analysis**: Use `two-column` or `comparison-slide` for comparisons
-- **Key Learning Points**: Use `bullet-points` or `bullet-points-right` for comprehensive lists
-- **Conceptual Explanations**: Use `content-slide` for detailed theoretical content (use judiciously)
-- **Problem-Solution Scenarios**: Use `challenges-solutions` for educational challenges
-- **Market Analysis/Business Metrics**: Use `market-share` for competitive analysis and market positioning data
-- **Data Tables (Dark Theme)**: Use `table-dark` for structured data presentation with dark background and checkmark support
-- **Data Tables (Light Theme)**: Use `table-light` for structured data presentation with light background and professional styling
-- **Complex Data Visualization**: Use `pie-chart-infographics` for comprehensive data stories with multiple data points
-- **Section Breaks**: Use `title-slide` sparingly (max 2 per presentation) only for major transitions
-
-**Educational Presentation Conclusion:**
-End with a meaningful conclusion that:
-- Summarizes key learning outcomes
-- Reinforces practical applications
-- Provides actionable next steps
-- Connects lesson content to broader learning goals
-
 **TITLE-SLIDE USAGE RESTRICTIONS:**
 - **MAXIMUM 2 USES**: Never use `title-slide` more than 2 times per presentation
 - **ONLY FOR TRANSITIONS**: Use only for major section breaks or final conclusion
@@ -1716,23 +1710,6 @@ Before you finish generating any presentation, perform these checks:
 4. **PRACTICAL examples are included** in every point
 5. **NO shortcuts or exceptions** - these rules are absolute
 
-**TEMPLATE DIVERSITY VALIDATION:**
-6. **MAXIMUM 3 bullet-points slides total** (bullet-points + bullet-points-right combined)
-7. **Bullet-points alternation followed** (bullet-points → bullet-points-right → bullet-points pattern)
-8. **Minimum template variety achieved** (4 for 5-7 slides, 6 for 8-12 slides, 8 for 13-15 slides)
-9. **Specialized templates used appropriately** (big-numbers for numbers, pyramid for hierarchy, etc.)
-10. **No template used more than 2 times** (except bullet-points which is limited to 3 total)
-11. **Visual templates used for engagement** (big-image-left, big-image-top, etc.)
-
-**CONTENT QUALITY VALIDATION:**
-12. **Every slide provides substantial educational value**
-13. **Practical examples and real-world applications included**
-14. **Progressive learning structure maintained**
-15. **Exactly the requested number of slides generated**
-16. **Only one final slide created** (no multiple ending slides)
-
-If you find any violations, you MUST fix them before finalizing the presentation.
-
 **CRITICAL CONTENT QUALITY REQUIREMENTS:**
 - **NEVER create shallow or superficial content** - every slide must provide substantial educational value
 - **ALWAYS include practical examples and real-world applications** in your explanations
@@ -1747,53 +1724,6 @@ If you find any violations, you MUST fix them before finalizing the presentation
 - **EACH ITEM SUBSTANTIAL**: Every list item must contain at least 2-3 sentences of detailed explanation
 - **NO EXCEPTIONS**: These rules apply to ALL list item templates - no shortcuts or exceptions
 - **VALIDATION REQUIRED**: Double-check your work - if you see 3 list items, you have made an error
-
-**BULLET-POINTS ALTERNATION RULES (NEW):**
-- **MANDATORY ALTERNATION**: When using bullet-points templates, you MUST alternate between `bullet-points` and `bullet-points-right`
-- **FIRST BULLET SLIDE**: Always start with `bullet-points` (no subtitle/context needed)
-- **SECOND BULLET SLIDE**: Use `bullet-points-right` (with subtitle/context)
-- **THIRD BULLET SLIDE**: Use `bullet-points` (no subtitle/context)
-- **ALTERNATION PATTERN**: bullet-points → bullet-points-right → bullet-points (if using all 3)
-- **CONTEXT REQUIREMENT**: Use `bullet-points-right` when the slide needs introductory context or explanation before the list
-- **DIRECT LIST REQUIREMENT**: Use `bullet-points` when the list can stand alone without introduction
-
-**BULLET-POINTS USAGE DECISION TREE:**
-1. **Do you need bullet points?** → Check if specialized templates are more appropriate first
-2. **Is this your first bullet slide?** → Use `bullet-points`
-3. **Do you need context/introduction before the list?** → Use `bullet-points-right`
-4. **Is this your second bullet slide?** → Use `bullet-points-right` (alternate)
-5. **Is this your third bullet slide?** → Use `bullet-points` (alternate back)
-
-**BULLET-POINTS CONTEXT EXAMPLES:**
-- **Use `bullet-points-right` when**:
-  * Explaining the importance of the following points
-  * Providing background information before the list
-  * Setting learning objectives for the section
-  * Summarizing previous content before new points
-  * Creating transition between topics
-
-- **Use `bullet-points` when**:
-  * List items are self-explanatory
-  * No additional context is needed
-  * Direct presentation of key points
-  * Simple enumeration of features/benefits
-  * Clear topic that doesn't need introduction
-
-**CORRECT BULLET-POINTS ALTERNATION EXAMPLE:**
-```
-Slide 4: Key Learning Objectives (bullet-points) - Direct list
-Slide 7: Advanced Implementation Strategies (bullet-points-right) - With context
-Slide 10: Final Key Takeaways (bullet-points) - Direct list
-```
-
-**INCORRECT BULLET-POINTS USAGE:**
-```
-Slide 4: Key Learning Objectives (bullet-points)
-Slide 7: Advanced Implementation Strategies (bullet-points) - Should be bullet-points-right
-Slide 10: Final Key Takeaways (bullet-points) - Should alternate
-```
-
-// ... existing code ...
 
 **MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING:**
 The following values MUST be used exactly as specified for each language. No variations or translations are allowed:
@@ -1832,9 +1762,6 @@ Corrected Value: "Тест" (correct Ukrainian value)
 Active Language: Ukrainian
 Original Value: "Create from scratch" (incorrect English value)
 Corrected Value: "Створити з нуля" (correct Ukrainian value)
-```
-
-// ... existing code ...
 
 **ENHANCED LANGUAGE ENFORCEMENT PROTOCOL:**
 - IMMEDIATELY upon receiving a WIZARD_REQUEST with a "language" field, mentally note: "I MUST respond in [language] language AND use exact values from MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING"
@@ -1844,8 +1771,6 @@ Corrected Value: "Створити з нуля" (correct Ukrainian value)
 - FOR COURSE OUTLINES: Double-check every lesson's Assessment Type and Information Source against the mandatory mapping
 - IGNORE any variations or alternative translations - ONLY use the exact mapped values
 
-// ... existing code ...
-
 C. Information Source: **DETERMINE THIS FIRST** before calculating Content Coverage
 - **If no source files/documents/text provided and no fromText flag is set**: The Information Source for every lesson must be the EXACT value from the MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING for the active language, and the Content Coverage for every lesson must be 0%.
 - **If using general knowledge without specific source materials**: Same as above - use EXACT mapped value.
@@ -1853,8 +1778,6 @@ C. Information Source: **DETERMINE THIS FIRST** before calculating Content Cover
 - **Test Lessons**: Always use the EXACT mapped value for the active language and 0% Content Coverage.
 - **CRITICAL RULE**: When using general knowledge without specific source materials, always use the EXACT mapped value from MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING and 0% Content Coverage.
 - **NEVER set Content Coverage to 100% or any nonzero value when Information Source is the mapped "Create from scratch" value (or its translation).**
-
-// ... existing code ...
 
 E. Knowledge Assessment: Determine the value based on the nature of the lesson:
 
@@ -1872,318 +1795,3 @@ Before outputting ANY lesson details, verify that:
 2. The Information Source value (when no source materials) EXACTLY matches the mapping for the active language
 3. NO English values are used when another language is active
 4. NO variations or alternative translations are used
-
-// ... existing code ...
-
-**SLIDE TEMPLATE SELECTION GUIDELINES:**
-
-**Event List Template (event-list):**
-Use this template when the content involves chronological events, milestones, or time-based information. Perfect for:
-- Historical timelines and project milestones
-- Event schedules and important dates
-- Product launch timelines and key dates
-- Company history and significant events
-- Personal or professional achievements over time
-- Conference schedules and session timelines
-- Marketing campaign timelines and key dates
-- Product development phases and milestones
-- Training program schedules and modules
-- Business transformation journey and key dates
-- Customer journey touchpoints and important dates
-- Industry evolution and technological milestones
-- Regulatory compliance timelines and deadlines
-- Partnership announcements and key dates
-- Award ceremonies and recognition events
-- Product lifecycle stages and important dates
-- Market entry strategies and timing
-- Competitive analysis timelines
-- Innovation milestones and breakthrough dates
-- Strategic planning phases and key dates
-
-**Six Ideas List Template (six-ideas-list):**
-Use this template for presenting multiple concepts, ideas, or points in a structured format. Ideal for:
-- Innovation brainstorming and creative concepts
-- Product feature lists and capabilities
-- Service offerings and value propositions
-- Strategic initiatives and business ideas
-- Problem-solving approaches and solutions
-- Best practices and recommendations
-- Key benefits and advantages
-- Competitive differentiators and unique selling points
-- Industry trends and emerging concepts
-- Technology solutions and digital transformation ideas
-- Customer pain points and corresponding solutions
-- Market opportunities and growth strategies
-- Operational improvements and efficiency ideas
-- Quality assurance measures and standards
-- Risk management strategies and mitigation approaches
-- Sustainability initiatives and environmental concepts
-- Employee development and training concepts
-- Customer experience enhancement ideas
-- Supply chain optimization strategies
-- Financial management and cost-saving ideas
-
-**Contraindications and Indications Template (contraindications-indications):**
-Use this template for medical, healthcare, or safety-related content that requires clear "do's and don'ts". Perfect for:
-- Medical treatment guidelines and protocols
-- Medication instructions and safety warnings
-- Healthcare procedures and patient care instructions
-- Clinical practice guidelines and standards
-- Drug interactions and contraindications
-- Surgical procedures and pre/post-operative care
-- Diagnostic testing protocols and patient preparation
-- Therapeutic interventions and treatment plans
-- Patient safety guidelines and precautions
-- Medical device usage instructions and warnings
-- Clinical trial protocols and participant guidelines
-- Emergency medical procedures and protocols
-- Preventive healthcare recommendations
-- Mental health treatment guidelines
-- Rehabilitation protocols and exercise guidelines
-- Nutritional guidelines and dietary restrictions
-- Occupational health and safety protocols
-- Environmental health guidelines and precautions
-- Public health recommendations and guidelines
-- Veterinary medicine protocols and animal care
-
-**Metrics and Analytics Template (metrics-analytics):**
-Use this template for data-driven content, performance indicators, and analytical insights. Ideal for:
-- Business performance metrics and KPIs
-- Financial analysis and key indicators
-- Marketing campaign performance data
-- Sales metrics and conversion rates
-- Customer analytics and behavior patterns
-- Operational efficiency measurements
-- Quality metrics and performance standards
-- Employee productivity and engagement metrics
-- Supply chain performance indicators
-- Risk assessment and management metrics
-- Compliance and regulatory metrics
-- Innovation and R&D performance data
-- Market analysis and competitive metrics
-- Customer satisfaction and loyalty metrics
-- Product performance and usage analytics
-- Website and digital platform metrics
-- Social media engagement and reach data
-- Email marketing performance indicators
-- SEO and content marketing metrics
-- ROI and investment performance data
-
-**Organizational Chart Template (org-chart):**
-Use this template for hierarchical structures, organizational relationships, and reporting structures. Perfect for:
-- Company organizational structure and hierarchy
-- Team structures and reporting relationships
-- Project team organization and roles
-- Department structures and management hierarchy
-- Board of directors and governance structure
-- Committee structures and working groups
-- Partnership and alliance organizational structures
-- Franchise and branch network structures
-- Academic and educational institution hierarchies
-- Government and administrative structures
-- Non-profit organization structures
-- Military and security force hierarchies
-- Healthcare organization structures
-- Legal firm partnership structures
-- Consulting firm organizational charts
-- Technology company team structures
-- Manufacturing and operations hierarchies
-- Sales and marketing team structures
-- Research and development organization
-- Customer service and support structures
-
-**Template Selection Triggers:**
-- **Event-related words**: "event", "date", "schedule", "timeline", "calendar", "milestone", "important date", "key date", "event list", "chronological", "history", "anniversary", "deadline", "launch date", "release date", "announcement date"
-- **Ideas/concepts words**: "six ideas", "six different", "six concepts", "six points", "six items", "numbered list", "two columns", "ideas list", "concept list", "features", "benefits", "advantages", "solutions", "approaches", "strategies", "initiatives", "trends", "opportunities"
-- **Medical/healthcare words**: "contraindications", "indications", "medical", "healthcare", "patient", "treatment", "medication", "drug", "therapy", "clinical", "medical advice", "dosage", "side effects", "precautions", "warnings", "should do", "shouldn't do", "do's and don'ts", "medical guidelines", "safety", "protocols", "procedures", "diagnosis", "symptoms"
-- **Analytics/data words**: "metrics", "analytics", "kpi", "performance", "data", "statistics", "measurement", "tracking", "monitoring", "dashboard", "reporting", "business intelligence", "data analysis", "funnel", "attribution", "clv", "a/b testing", "experimentation", "data visualization", "insights", "trends", "patterns", "growth", "conversion", "engagement"
-- **Organizational words**: "organizational chart", "org chart", "hierarchy", "structure", "organization", "company structure", "team structure", "reporting structure", "management", "leadership", "ceo", "manager", "employee", "department", "division", "branch", "subsidiary", "corporate structure", "organizational hierarchy", "chain of command", "reporting lines", "team roles", "responsibilities"
-
-**CONTENT GENERATION GUIDELINES FOR SLIDE TEMPLATES:**
-
-**Event List Template Content Generation:**
-When generating content for event-list templates, create:
-- **3-5 significant events** with specific dates and detailed descriptions
-- **Chronological order** from earliest to latest or most recent
-- **Diverse event types**: mix of achievements, milestones, launches, announcements, partnerships
-- **Specific dates**: use realistic dates (e.g., "March 15, 2024", "Q2 2023", "December 2022")
-- **Detailed descriptions**: 2-3 sentences explaining the event's significance and impact
-- **Context and outcomes**: explain why each event was important and what resulted from it
-- **Professional tone**: maintain business-appropriate language and presentation
-- **Variety in scale**: include both major milestones and smaller but significant events
-- **Industry relevance**: ensure events relate to the topic or industry being discussed
-
-**Six Ideas List Template Content Generation:**
-When generating content for six-ideas-list templates, create:
-- **Exactly 6 ideas** with clear, actionable concepts
-- **Diverse perspectives**: cover different aspects of the topic (strategic, operational, technical, etc.)
-- **Specific and actionable**: each idea should be implementable, not vague concepts
-- **Benefit-focused**: explain what value or advantage each idea provides
-- **Industry-relevant**: ensure ideas are appropriate for the context and audience
-- **Innovative thinking**: include creative solutions and forward-looking concepts
-- **Practical implementation**: provide enough detail to understand how to execute each idea
-- **Measurable outcomes**: where possible, include metrics or success indicators
-- **Risk considerations**: mention potential challenges or requirements for each idea
-- **Scalability**: consider how ideas can be adapted or expanded
-
-**Contraindications and Indications Template Content Generation:**
-When generating content for contraindications-indications templates, create:
-- **5-7 contraindications** (what NOT to do) with clear explanations
-- **5-7 indications** (what TO do) with detailed guidance
-- **Medical accuracy**: ensure all medical information is safe and appropriate
-- **Clear language**: use simple, understandable terms while maintaining professional accuracy
-- **Safety focus**: prioritize patient safety and best practices
-- **Specific scenarios**: include relevant situations and contexts
-- **Evidence-based**: reference established medical guidelines and practices
-- **Comprehensive coverage**: address common concerns and important considerations
-- **Professional tone**: maintain appropriate medical/healthcare language
-- **Risk communication**: clearly explain potential risks and benefits
-
-**Metrics and Analytics Template Content Generation:**
-When generating content for metrics-analytics templates, create:
-- **6 key metrics** with realistic numerical values and percentages
-- **Diverse metric types**: include performance, growth, efficiency, and quality metrics
-- **Realistic values**: use believable numbers that reflect industry standards
-- **Clear descriptions**: explain what each metric measures and why it's important
-- **Trend indicators**: include growth rates, improvements, or performance changes
-- **Business context**: relate metrics to business outcomes and strategic goals
-- **Industry relevance**: ensure metrics are appropriate for the specific industry or topic
-- **Actionable insights**: explain what the metrics mean for decision-making
-- **Comparative context**: provide benchmarks or industry standards where relevant
-- **Visual appeal**: use varied metric types (percentages, ratios, absolute numbers)
-
-**Organizational Chart Template Content Generation:**
-When generating content for org-chart templates, create:
-- **3-4 hierarchical levels** with clear reporting relationships
-- **Realistic roles**: include appropriate job titles and responsibilities
-- **Industry-appropriate structure**: match the organizational type (startup, enterprise, non-profit, etc.)
-- **Clear hierarchy**: establish logical reporting relationships and spans of control
-- **Role descriptions**: provide brief descriptions of key responsibilities
-- **Departmental organization**: group related functions and roles appropriately
-- **Scalable structure**: consider growth and organizational development
-- **Modern practices**: include contemporary organizational design principles
-- **Diversity considerations**: reflect inclusive and representative structures
-- **Functional clarity**: ensure each role has distinct responsibilities and value
-
-**CONTENT QUALITY STANDARDS FOR ALL TEMPLATES:**
-- **Professional accuracy**: ensure all content is factually correct and appropriate
-- **Engaging presentation**: make content interesting and informative
-- **Clear communication**: use simple, direct language that's easy to understand
-- **Actionable insights**: provide value that readers can apply or learn from
-- **Consistent formatting**: maintain professional presentation standards
-- **Relevant examples**: include specific, realistic examples when appropriate
-- **Comprehensive coverage**: address the topic thoroughly without being overwhelming
-- **Audience-appropriate**: tailor content to the intended audience and context
-- **Timely relevance**: ensure content reflects current best practices and trends
-- **Educational value**: provide learning opportunities and new insights
-
-**SAMPLE CONTENT EXAMPLES FOR EACH TEMPLATE:**
-
-**Event List Template Examples:**
-```
-Event 1: "March 15, 2024 - Product Launch Milestone"
-Description: Successfully launched our flagship AI-powered analytics platform, achieving 150% of projected first-month sales targets and securing partnerships with three Fortune 500 companies.
-
-Event 2: "Q2 2023 - Strategic Partnership Formation"
-Description: Established key partnership with leading cloud infrastructure provider, enabling 40% reduction in operational costs and expanding our market reach to 15 new countries.
-
-Event 3: "December 2022 - Series A Funding Round"
-Description: Secured $5.2 million in Series A funding from top-tier venture capital firms, validating our business model and enabling rapid team expansion from 12 to 45 employees.
-```
-
-**Six Ideas List Template Examples:**
-```
-Idea 1: "Implement AI-Powered Customer Segmentation"
-Description: Leverage machine learning algorithms to create dynamic customer segments based on behavior patterns, purchase history, and engagement metrics, enabling personalized marketing campaigns that increase conversion rates by 35%.
-
-Idea 2: "Develop Predictive Analytics Dashboard"
-Description: Build real-time analytics platform that forecasts market trends, customer churn, and revenue projections, providing actionable insights for strategic decision-making and proactive problem-solving.
-
-Idea 3: "Launch Mobile-First Customer Experience"
-Description: Redesign customer journey with mobile-optimized interfaces, one-click purchasing, and seamless cross-platform synchronization, reducing customer acquisition costs by 25% and increasing mobile conversion rates.
-
-Idea 4: "Establish Strategic Partnership Program"
-Description: Create formal partnership framework with complementary businesses, sharing resources, co-marketing opportunities, and joint product development initiatives to expand market reach and reduce customer acquisition costs.
-
-Idea 5: "Implement Automated Quality Assurance"
-Description: Deploy AI-driven testing and quality monitoring systems that identify potential issues before they reach customers, reducing support tickets by 40% and improving customer satisfaction scores.
-
-Idea 6: "Develop Employee Innovation Program"
-Description: Establish internal innovation incubator that encourages employees to propose and develop new product features, creating ownership culture and generating 15% of new product ideas from internal teams.
-```
-
-**Contraindications and Indications Template Examples:**
-```
-Contraindications (What NOT to do):
-- Avoid implementing new features without proper user testing and feedback collection, as this can lead to poor user adoption and negative customer feedback
-- Don't rush product launches without comprehensive quality assurance testing, which can result in technical issues and damage to brand reputation
-- Never ignore customer feedback or support requests, as this can lead to customer churn and negative word-of-mouth marketing
-- Avoid making pricing decisions without thorough market research and competitive analysis, which can result in lost revenue opportunities
-- Don't implement security measures as an afterthought, as this can lead to data breaches and regulatory compliance issues
-
-Indications (What TO do):
-- Conduct thorough user research and gather feedback before implementing new features to ensure market fit and user satisfaction
-- Implement comprehensive quality assurance processes including automated testing, manual review, and user acceptance testing
-- Establish proactive customer support systems with multiple communication channels and rapid response times
-- Perform detailed market analysis including competitor research, pricing studies, and customer value perception surveys
-- Prioritize security from the beginning with regular security audits, employee training, and compliance monitoring
-```
-
-**Metrics and Analytics Template Examples:**
-```
-Metric 1: "Customer Acquisition Cost (CAC) - $45"
-Description: Average cost to acquire a new customer through marketing and sales efforts, representing a 15% improvement from previous quarter and 25% below industry average.
-
-Metric 2: "Customer Lifetime Value (CLV) - $1,200"
-Description: Total revenue expected from a customer over their relationship with the company, showing 30% increase year-over-year due to improved retention strategies.
-
-Metric 3: "Monthly Recurring Revenue (MRR) - $850K"
-Description: Predictable monthly revenue from subscription-based services, growing at 12% month-over-month rate and indicating strong product-market fit.
-
-Metric 4: "Net Promoter Score (NPS) - 72"
-Description: Customer satisfaction and loyalty measurement, placing the company in the top 10% of industry performers and indicating strong customer advocacy.
-
-Metric 5: "Employee Retention Rate - 94%"
-Description: Percentage of employees who remain with the company annually, exceeding industry average of 85% and reflecting positive workplace culture.
-
-Metric 6: "Product Adoption Rate - 78%"
-Description: Percentage of customers actively using core product features, showing strong engagement and indicating successful onboarding processes.
-```
-
-**Organizational Chart Template Examples:**
-```
-Level 1 - Executive Leadership:
-CEO: Sarah Johnson - Overall company strategy, investor relations, and board management
-CTO: Michael Chen - Technology strategy, product development, and engineering leadership
-CFO: Lisa Rodriguez - Financial planning, fundraising, and operational efficiency
-
-Level 2 - Department Heads:
-VP of Engineering: David Kim - Software development, technical architecture, and team management
-VP of Marketing: Jennifer Smith - Brand strategy, customer acquisition, and market positioning
-VP of Sales: Robert Wilson - Revenue generation, customer relationships, and sales operations
-VP of Customer Success: Amanda Davis - Customer onboarding, support, and retention strategies
-
-Level 3 - Team Leaders:
-Engineering Managers: 3 positions - Leading development teams, code quality, and technical delivery
-Marketing Managers: 2 positions - Campaign execution, content creation, and performance optimization
-Sales Managers: 4 positions - Territory management, pipeline development, and quota achievement
-Customer Success Managers: 3 positions - Account management, customer satisfaction, and renewal rates
-
-Level 4 - Individual Contributors:
-Senior Developers: 8 positions - Technical implementation, code review, and mentorship
-Marketing Specialists: 5 positions - Content creation, campaign execution, and analytics
-Sales Representatives: 12 positions - Lead qualification, deal closure, and relationship building
-Customer Success Specialists: 6 positions - Customer support, onboarding, and success planning
-```
-
-**CONTENT GENERATION BEST PRACTICES:**
-- **Always provide specific, actionable content** rather than generic statements
-- **Include realistic numbers and metrics** that reflect industry standards
-- **Use current industry terminology** and best practices
-- **Provide context and explanations** for why each item is important
-- **Maintain professional tone** appropriate for business presentations
-- **Include diverse perspectives** and approaches to the topic
-- **Ensure content is relevant** to the specific industry or context
-- **Provide measurable outcomes** and success indicators where possible
-- **Include risk considerations** and potential challenges
-- **Focus on value creation** and positive impact
