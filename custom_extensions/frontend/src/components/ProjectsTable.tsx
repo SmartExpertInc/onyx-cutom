@@ -3949,7 +3949,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         </th>
                                     )}
                                     <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '120px' }}>{t('interface.customOffer', 'Custom Offer')}</th>
-                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '80px' }}>{t('interface.actions', 'Actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">

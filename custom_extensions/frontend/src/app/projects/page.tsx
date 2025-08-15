@@ -416,9 +416,17 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
 
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
-      <div className="relative mb-4">
-        <div className="w-full bg-gray-100 rounded-md px-4 py-2 flex items-center justify-center">
-          <span className="text-gray-700 font-semibold text-sm">ContentBuilder</span>
+      <div className="relative mb-6">
+        <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <span className="text-blue-600 font-bold text-lg">CB</span>
+            </div>
+            <div className="text-white">
+              <div className="font-bold text-sm leading-tight">Content</div>
+              <div className="font-semibold text-xs leading-tight opacity-90">Builder</div>
+            </div>
+          </div>
         </div>
       </div>
       <nav className="flex flex-col gap-1">
