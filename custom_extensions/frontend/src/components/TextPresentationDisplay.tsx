@@ -1857,7 +1857,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
             >
           {/* Arrow buttons for reordering */}
-          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+          {/* {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -1880,7 +1880,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </svg>
               </button>
             </div>
-          )}
+          )} */}
           
           <div 
             draggable={isEditing}

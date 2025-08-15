@@ -141,7 +141,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     title={option.label}
                   >
                     <option.icon className="w-3 h-3" />
-                    <span className="hidden sm:inline">{option.label}</span>
+                    {/* <span className="hidden sm:inline">{option.label}</span> */}
                   </button>
                 ))}
               </div>

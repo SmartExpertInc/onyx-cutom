@@ -188,7 +188,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         >
                           <div className="text-center">
                             <div className="text-lg mb-1">{option.icon}</div>
-                            <div className="text-xs text-gray-600">{option.label}</div>
+                            {/* <div className="text-xs text-gray-600">{option.label}</div> */}
                           </div>
                         </button>
                       ))}
