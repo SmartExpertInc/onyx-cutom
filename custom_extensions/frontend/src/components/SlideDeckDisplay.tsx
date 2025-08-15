@@ -7,7 +7,7 @@ import { locales } from '@/locales';
 import {
   AlertCircle, CheckCircle, Info, XCircle, Minus, Type, List, ListOrdered,
   Award, Brain, BookOpen, Edit3, Lightbulb, Search, Compass, CloudDrizzle, EyeOff,
-  ClipboardCheck, AlertTriangle, Star, ArrowRight, Circle,
+  ClipboardCheck, AlertTriangle, Star, ArrowRight, Circle, Presentation,
 } from 'lucide-react';
 
 // --- Theme Colors (consistent with other displays) ---

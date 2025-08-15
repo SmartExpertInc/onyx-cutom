@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes'; // Adjust path
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Presentation } from 'lucide-react';
 
 // --- Theme Colors (consistent with PdfLessonDisplay & image) ---
 const THEME_COLORS = {
