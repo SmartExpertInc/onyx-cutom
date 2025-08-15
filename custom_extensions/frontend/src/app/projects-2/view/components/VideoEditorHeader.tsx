@@ -15,7 +15,7 @@ export default function VideoEditorHeader() {
 
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-3 lg:gap-4">
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/60296c8d8172d9ab8392adf60a696e5288c8807d?width=40"
                 alt="Tool"
@@ -23,7 +23,7 @@ export default function VideoEditorHeader() {
               />
             </button>
 
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/2b3f3c7afc27ca26f9322d487e50a8435d666ff4?width=40"
                 alt="Tool"
@@ -33,7 +33,7 @@ export default function VideoEditorHeader() {
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
 
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/22e7f5026e7be941193d1729124a7ba85fb26df7?width=46"
                 alt="Tool"
@@ -69,7 +69,7 @@ export default function VideoEditorHeader() {
 
             {/* Upgrade button */}
             <button
-              className="bg-editor-purple-bg border-editor-purple-border text-editor-purple-text hover:bg-editor-purple-bg/80 rounded-[9px] px-4 lg:px-6 py-2 h-[48px] gap-2 lg:gap-3 border"
+              className="bg-editor-purple-bg border-editor-purple-border text-editor-purple-text hover:bg-editor-purple-bg/80 rounded-[9px] px-4 lg:px-6 py-2.5 gap-2 lg:gap-3 border flex items-center h-10"
             >
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/e6fe4a219f32df67b6826887f30a0297ba8af2db?width=40"
@@ -106,14 +106,14 @@ export default function VideoEditorHeader() {
 
             {/* Share button */}
             <button
-              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-4 lg:px-6 py-2 h-[48px] border"
+              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-4 lg:px-6 py-2.5 border flex items-center h-10"
             >
               <span className="text-sm font-normal">Share</span>
             </button>
 
             {/* Generate button */}
             <button
-              className="bg-editor-dark text-editor-light-text hover:bg-gray-800 rounded-[7px] px-4 lg:px-6 py-2 h-[48px]"
+              className="bg-editor-dark text-editor-light-text hover:bg-gray-800 rounded-[7px] px-4 lg:px-6 py-2.5 flex items-center h-10"
             >
               <span className="text-sm font-normal">Generate</span>
             </button>
