@@ -191,62 +191,48 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
             {/* Proportion Options - НОВИЙ DROPDOWN */}
             {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && (
               <div className="px-3 py-2 border-b border-gray-100">
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-                  {t('interface.imageSettings.spaceDistribution', 'Space Distribution')}
-                </div>
+                {/* Кнопка "Параметри макета" */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowProportionMenu(!showProportionMenu);
+                  }}
+                  className="w-full text-left text-xs hover:bg-gray-50 rounded transition-colors flex items-center justify-between py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-600">📊</span>
+                    <div>
+                      <div className="font-medium">{t('interface.imageSettings.spaceDistribution', 'Space Distribution')}</div>
+                      <div className="text-gray-500 text-xs">{getCurrentProportion().label} - {getCurrentProportion().description}</div>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${showProportionMenu ? 'rotate-90' : ''}`} />
+                </button>
                 
-                {/* Dropdown button для пропорцій */}
-                <div className="relative">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowProportionMenu(!showProportionMenu);
-                    }}
-                    className="w-full px-3 py-2 text-left text-xs border border-gray-200 rounded-md hover:bg-gray-50 flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-600">📊</span>
-                      <div>
-                        <div className="font-medium">{getCurrentProportion().label}</div>
-                        <div className="text-gray-500 text-xs">{getCurrentProportion().description}</div>
-                      </div>
-                    </div>
-                    <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${showProportionMenu ? 'rotate-90' : ''}`} />
-                  </button>
-                  
-                  {/* Dropdown меню для пропорцій - ВИПРАВЛЕНО ПОЗИЦІОНУВАННЯ */}
-                  {showProportionMenu && (
-                    <div 
-                      ref={proportionRef}
-                      className="absolute left-full top-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20"
-                      style={{
-                        minWidth: '200px'
-                      }}
-                    >
-                      <div className="py-1">
-                        {proportionOptions.map((option) => (
-                          <button
-                            key={option.value}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log(`Applying proportion: ${option.value}`);
-                              updateImageProperty('layoutProportion', option.value);
-                              setShowProportionMenu(false);
-                            }}
-                            className={`w-full px-3 py-2 text-left text-xs hover:bg-green-50 transition-colors ${
-                              imageBlock.layoutProportion === option.value 
-                                ? 'bg-green-100 text-green-700 border-l-2 border-green-500' 
-                                : ''
-                            }`}
-                          >
-                            <div className="font-medium">{option.label}</div>
-                            <div className="text-gray-500 text-xs">{option.description}</div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {/* Розгорнута секція з варіантами пропорцій */}
+                {showProportionMenu && (
+                  <div className="mt-2 space-y-1">
+                    {proportionOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log(`Applying proportion: ${option.value}`);
+                          updateImageProperty('layoutProportion', option.value);
+                          // Не закриваємо меню автоматично
+                        }}
+                        className={`w-full px-3 py-2 text-left text-xs hover:bg-green-50 transition-colors rounded ${
+                          imageBlock.layoutProportion === option.value 
+                            ? 'bg-green-100 text-green-700 border-l-2 border-green-500' 
+                            : ''
+                        }`}
+                      >
+                        <div className="font-medium">{option.label}</div>
+                        <div className="text-gray-500 text-xs">{option.description}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
