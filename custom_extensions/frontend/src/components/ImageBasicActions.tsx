@@ -10,7 +10,7 @@ interface ImageBasicActionsProps {
   imageBlock: ImageBlock;
   onImageChange: (updatedBlock: ImageBlock) => void;
   onOpenAdvancedSettings: () => void;
-  imageRef?: React.RefObject<HTMLImageElement>;
+  imageRef?: React.RefObject<HTMLImageElement | null>;
 }
 
 const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
@@ -73,7 +73,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       </button>
       
       {/* Basic Actions Dropdown */}
-      {showMenu && createPortal(
+      {showMenu && imageRef?.current && createPortal(
         <div 
           ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
@@ -81,8 +81,8 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
           onMouseLeave={(e: React.MouseEvent) => e.stopPropagation()}
           className="fixed w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] max-h-96 overflow-y-auto"
           style={{
-            left: (imageRef?.current?.getBoundingClientRect().right || 0) - 224, // 224px = 56 * 4 (w-56)
-            top: (imageRef?.current?.getBoundingClientRect().top || 0) + 8,
+            left: imageRef.current.getBoundingClientRect().right - 224, // 224px = 56 * 4 (w-56)
+            top: imageRef.current.getBoundingClientRect().top + 8,
             maxHeight: 'calc(100vh - 100px)'
           }}
         >
