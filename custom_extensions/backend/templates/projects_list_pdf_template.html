@@ -766,16 +766,16 @@
                 <!-- Doughnut Chart SVG -->
                 <div class="pie-chart-svg" style="flex-shrink: 0;">
                     <svg width="140" height="140" viewBox="0 0 140 140" style="display: block;">
-                        {% set total_products = 156 %}
-                        {% set one_pager_count = 45 %}
-                        {% set presentation_count = 38 %}
-                        {% set quiz_count = 42 %}
-                        {% set video_lesson_count = 31 %}
+                        {% set total_products = product_distribution.total_products if product_distribution else 0 %}
+                        {% set one_pager_count = product_distribution.one_pager_count if product_distribution else 0 %}
+                        {% set presentation_count = product_distribution.presentation_count if product_distribution else 0 %}
+                        {% set quiz_count = product_distribution.quiz_count if product_distribution else 0 %}
+                        {% set video_lesson_count = product_distribution.video_lesson_count if product_distribution else 0 %}
                         
-                        {% set one_pager_percentage = (one_pager_count / total_products * 100) | round(1) %}
-                        {% set presentation_percentage = (presentation_count / total_products * 100) | round(1) %}
-                        {% set quiz_percentage = (quiz_count / total_products * 100) | round(1) %}
-                        {% set video_lesson_percentage = (video_lesson_count / total_products * 100) | round(1) %}
+                        {% set one_pager_percentage = product_distribution.one_pager_percentage if product_distribution else 0 %}
+                        {% set presentation_percentage = product_distribution.presentation_percentage if product_distribution else 0 %}
+                        {% set quiz_percentage = product_distribution.quiz_percentage if product_distribution else 0 %}
+                        {% set video_lesson_percentage = product_distribution.video_lesson_percentage if product_distribution else 0 %}
 
                         <!-- Draw doughnut slices in order: smallest to largest so largest (purple) is on top -->
                         <g transform="translate(70, 70)">
@@ -851,16 +851,16 @@
                 <!-- Quality Tiers Doughnut Chart SVG -->
                 <div class="pie-chart-svg" style="flex-shrink: 0;">
                     <svg width="140" height="140" viewBox="0 0 140 140" style="display: block;">
-                        {% set total_lessons = 156 %}
-                        {% set basic_count = 52 %}
-                        {% set interactive_count = 48 %}
-                        {% set advanced_count = 36 %}
-                        {% set immersive_count = 20 %}
+                        {% set total_lessons = quality_distribution.total_lessons if quality_distribution else 0 %}
+                        {% set basic_count = quality_distribution.basic_count if quality_distribution else 0 %}
+                        {% set interactive_count = quality_distribution.interactive_count if quality_distribution else 0 %}
+                        {% set advanced_count = quality_distribution.advanced_count if quality_distribution else 0 %}
+                        {% set immersive_count = quality_distribution.immersive_count if quality_distribution else 0 %}
                         
-                        {% set basic_percentage = (basic_count / total_lessons * 100) | round(1) %}
-                        {% set interactive_percentage = (interactive_count / total_lessons * 100) | round(1) %}
-                        {% set advanced_percentage = (advanced_count / total_lessons * 100) | round(1) %}
-                        {% set immersive_percentage = (immersive_count / total_lessons * 100) | round(1) %}
+                        {% set basic_percentage = quality_distribution.basic_percentage if quality_distribution else 0 %}
+                        {% set interactive_percentage = quality_distribution.interactive_percentage if quality_distribution else 0 %}
+                        {% set advanced_percentage = quality_distribution.advanced_percentage if quality_distribution else 0 %}
+                        {% set immersive_percentage = quality_distribution.immersive_percentage if quality_distribution else 0 %}
 
                         <!-- Draw doughnut slices in order: smallest to largest so largest (basic green) is on top -->
                         <g transform="translate(70, 70)">
