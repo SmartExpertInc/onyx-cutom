@@ -480,7 +480,7 @@ export const es = {
       maintainAspectRatio: "mantener proporción",
       scale: "Escala",
       // Layout options
-      layoutOptions: "Opciones de diseño",
+      layoutOptions: "Posición",
       partnerContent: "Contenido asociado",
       partnerContentHelp: "contenido para colocar junto a la imagen",
       block1: "Bloque 1: Encabezado/Párrafo",

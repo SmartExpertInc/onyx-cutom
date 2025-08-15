@@ -473,7 +473,7 @@ export const uk = {
       maintainAspectRatio: "зберегти пропорції",
       scale: "Масштаб",
       // Layout options
-      layoutOptions: "Параметри макета",
+      layoutOptions: "Розташування",
       partnerContent: "Партнерський контент",
       partnerContentHelp: "контент для розміщення поруч з зображенням",
       block1: "Блок 1: Заголовок/Абзац",

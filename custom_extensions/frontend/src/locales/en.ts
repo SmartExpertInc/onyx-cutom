@@ -518,7 +518,7 @@ export const en = {
         maintainAspectRatio: "maintain aspect ratio",
         scale: "Scale",
         // Layout options
-        layoutOptions: "Layout Options",
+        layoutOptions: "Position",
         partnerContent: "Partner Content",
         partnerContentHelp: "content to place alongside image",
         block1: "Block 1: Headline/Paragraph",

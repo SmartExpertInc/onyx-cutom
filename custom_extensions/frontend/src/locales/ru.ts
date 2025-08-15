@@ -473,7 +473,7 @@ export const ru = {
       maintainAspectRatio: "сохранить пропорции",
       scale: "Масштаб",
       // Layout options
-      layoutOptions: "Параметры макета",
+      layoutOptions: "Расположение",
       partnerContent: "Партнерский контент",
       partnerContentHelp: "контент для размещения рядом с изображением",
       block1: "Блок 1: Заголовок/Абзац",

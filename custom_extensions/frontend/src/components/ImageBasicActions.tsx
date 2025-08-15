@@ -62,21 +62,21 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       value: 'standalone',
       icon: ImageIcon,
       label: t('interface.imageSettings.standalone', 'Standalone'),
-      description: t('interface.imageSettings.imageOnOwnLine', 'Image on its own line'),
+      description: 'Окремо',
       preview: '🖼️'
     },
     {
       value: 'inline-left',
       icon: Layout,
       label: t('interface.imageSettings.inlineLeft', 'Inline Left'),
-      description: t('interface.imageSettings.textWillWrap', 'Text will wrap around the image'),
+      description: 'Зліва від тексту',
       preview: '🖼️ 📄'
     },
     {
       value: 'inline-right',
       icon: Layout,
       label: t('interface.imageSettings.inlineRight', 'Inline Right'),
-      description: t('interface.imageSettings.textWillWrap', 'Text will wrap around the image'),
+      description: 'Справа від тексту',
       preview: '📄 🖼️'
     },
     // {
