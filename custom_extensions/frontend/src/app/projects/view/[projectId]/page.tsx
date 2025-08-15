@@ -851,6 +851,10 @@ export default function ProjectInstanceViewPage() {
         return;
     }
     
+    // Open PDF preview page in new tab
+    const previewUrl = `/projects/view/${projectId}/pdf-preview`;
+    window.open(previewUrl, '_blank');
+    
     // Special handling for slide decks and video lesson presentations  
     if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
         projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
@@ -925,7 +929,14 @@ export default function ProjectInstanceViewPage() {
         pdfUrl += `?${queryParams.toString()}`;
     }
 
-    window.open(pdfUrl, '_blank');
+    // Download PDF in background
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.download = `${projectInstanceData.name || 'document'}_${new Date().toISOString().split('T')[0]}.pdf`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   // Theme management for slide decks

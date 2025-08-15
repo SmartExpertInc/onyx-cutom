@@ -3220,6 +3220,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     // Add PDF download function
     const handlePdfDownload = () => {
+        // Open PDF preview page in new tab
+        const previewUrl = `/projects/pdf-preview?folderId=${folderId || ''}`;
+        window.open(previewUrl, '_blank');
+        
+        // Show client name modal for PDF download
         setShowClientNameModal(true);
     };
 
@@ -3263,8 +3268,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             pdfUrl += `?${queryParams.toString()}`;
         }
         
-        // Open PDF in new tab
-        window.open(pdfUrl, '_blank');
+        // Download PDF in background
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = `projects_list_${new Date().toISOString().split('T')[0]}.pdf`;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     };
 
     // Add these just before the render block
