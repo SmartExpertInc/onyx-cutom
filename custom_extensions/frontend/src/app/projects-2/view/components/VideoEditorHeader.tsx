@@ -50,7 +50,7 @@ export default function VideoEditorHeader() {
                 alt="Resize"
                 className="w-3 h-3"
               />
-              <span className="text-editor-resize-text text-sm font-normal">Resize</span>
+              <span className="text-editor-resize-text text-xs font-normal">Resize</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
@@ -62,21 +62,21 @@ export default function VideoEditorHeader() {
                 alt="Grid"
                 className="w-3 h-3"
               />
-              <span className="text-editor-icon-text text-sm font-normal">Grid</span>
+              <span className="text-editor-icon-text text-xs font-normal">Grid</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
 
             {/* Upgrade button */}
             <button
-              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[9px] px-3 lg:px-4 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
+              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-1.5 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
             >
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/e6fe4a219f32df67b6826887f30a0297ba8af2db?width=40"
                 alt="Crown"
                 className="w-3 h-3"
               />
-              <span className="text-sm font-normal">Upgrade</span>
+              <span className="text-xs font-normal">Upgrade</span>
             </button>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function VideoEditorHeader() {
         {/* Center section - Create video text (hidden on mobile) */}
         <div className="hidden lg:flex flex-1 justify-center">
           <div className="flex items-center gap-3">
-            <span className="text-editor-gray-text text-sm font-medium whitespace-nowrap">Create your first AI video</span>
+            <span className="text-editor-gray-text text-xs font-medium whitespace-nowrap">Create your first AI video</span>
             <img
               src="https://api.builder.io/api/v1/image/assets/TEMP/0dfa92304b25765dd8a203dc550f8d5fac95163b?width=42"
               alt="AI"
@@ -106,16 +106,16 @@ export default function VideoEditorHeader() {
 
             {/* Share button */}
             <button
-              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-3 lg:px-4 py-1.5 border flex items-center h-8"
+              className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-1.5 py-1.5 border flex items-center h-8"
             >
-              <span className="text-sm font-normal">Share</span>
+              <span className="text-xs font-normal">Share</span>
             </button>
 
             {/* Generate button */}
             <button
-              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 lg:px-4 py-1.5 flex items-center h-8 border"
+              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-1.5 py-1.5 flex items-center h-8 border"
             >
-              <span className="text-sm font-normal">Generate</span>
+              <span className="text-xs font-normal">Generate</span>
             </button>
           </div>
         </div>
