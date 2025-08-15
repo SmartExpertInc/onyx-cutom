@@ -93,8 +93,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     slideId: slide.slideId,
     isEditable,
     onUpdate: handlePropsUpdate,
-    theme: currentTheme,
-    metadata: slide.metadata // ✅ NEW: Pass metadata to templates
+    theme: currentTheme
   };
 
   // Use HybridTemplateBase for all editable slides (positioning enabled by default)

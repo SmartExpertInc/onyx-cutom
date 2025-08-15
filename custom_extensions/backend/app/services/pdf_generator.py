@@ -1382,62 +1382,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             # ✅ NEW: Log image fit properties before template rendering
             await log_image_fit_properties(safe_slide_data, slide_index, template_id)
             
-            # ✅ NEW: Detailed logging for text positioning in big-image-left template
-            template_id_from_data = safe_slide_data.get('templateId')
-            logger.info(f"DEBUG: Template ID check - template_id_from_data: '{template_id_from_data}', template_id param: '{template_id}'")
-            
-            if template_id_from_data == 'big-image-left' or template_id == 'big-image-left':
-                logger.info(f"=== TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
-                props = safe_slide_data.get('props', {})
-                
-                # Log all text-related properties
-                logger.info(f"Title: '{props.get('title', 'NOT SET')}'")
-                logger.info(f"Subtitle: '{props.get('subtitle', 'NOT SET')}'")
-                
-                # Log image info without base64 data
-                image_path = props.get('imagePath', '')
-                if image_path:
-                    if image_path.startswith('data:'):
-                        logger.info(f"Image: [BASE64 DATA URL - {len(image_path)} characters]")
-                    else:
-                        logger.info(f"Image: {image_path}")
-                else:
-                    logger.info(f"Image: NOT SET")
-                
-                # Log metadata and element positions
-                metadata = safe_slide_data.get('metadata', {})
-                element_positions = metadata.get('elementPositions', {})
-                logger.info(f"Metadata exists: {bool(metadata)}")
-                logger.info(f"Element positions exist: {bool(element_positions)}")
-                logger.info(f"Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
-                
-                # Log specific element positions for big-image-left template
-                slide_id = safe_slide_data.get('slideId', 'unknown')
-                title_id = f'draggable-{slide_id}-0'
-                subtitle_id = f'draggable-{slide_id}-1'
-                
-                title_position = element_positions.get(title_id)
-                subtitle_position = element_positions.get(subtitle_id)
-                
-                logger.info(f"Title element ID: {title_id}")
-                logger.info(f"Title position: {title_position}")
-                logger.info(f"Subtitle element ID: {subtitle_id}")
-                logger.info(f"Subtitle position: {subtitle_position}")
-                
-                # Log what the template will receive
-                logger.info(f"Template will receive title position: {title_position}")
-                logger.info(f"Template will receive subtitle position: {subtitle_position}")
-                
-                # Log the complete slide data structure for debugging (excluding base64)
-                logger.info(f"Complete slide data structure:")
-                logger.info(f"  templateId: {safe_slide_data.get('templateId')}")
-                logger.info(f"  slideId: {safe_slide_data.get('slideId')}")
-                logger.info(f"  props keys: {list(props.keys())}")
-                logger.info(f"  metadata keys: {list(metadata.keys()) if metadata else 'None'}")
-                
-                logger.info(f"=== END TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
-            else:
-                logger.info(f"DEBUG: Not a big-image-left template. Template ID: '{template_id_from_data}'")
+            # ✅ NEW: Log text positioning properties for big-image-left template
+            await log_text_positioning_properties(safe_slide_data, slide_index, template_id)
             
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
@@ -1908,3 +1854,80 @@ async def test_all_slides_individually(slides_data: list, theme: str) -> dict:
             logger.error(f"    - Slide {failed['slide_index']} ({failed['template_id']}): {failed['error']}")
     
     return summary
+
+async def log_text_positioning_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log text positioning properties specifically for debugging text positioning in PDF."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    logger.info(f"=== TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
+    
+    if isinstance(slide_data, dict):
+        template_id = slide_data.get('templateId', 'Unknown')
+        props = slide_data.get('props', {})
+        metadata = slide_data.get('metadata', {})
+        
+        # Check if this is a big-image-left template
+        if template_id == 'big-image-left':
+            logger.info(f"Template: {template_id}")
+            
+            # Log text content
+            title = props.get('title', 'NOT SET')
+            subtitle = props.get('subtitle', 'NOT SET')
+            logger.info(f"Title: '{title}'")
+            logger.info(f"Subtitle: '{subtitle}'")
+            
+            # Log metadata and element positions
+            element_positions = metadata.get('elementPositions', {})
+            logger.info(f"Metadata exists: {bool(metadata)}")
+            logger.info(f"Element positions exist: {bool(element_positions)}")
+            logger.info(f"Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
+            
+            # Log specific element positions for big-image-left template
+            slide_id = slide_data.get('slideId', 'unknown')
+            title_id = f'draggable-{slide_id}-0'
+            subtitle_id = f'draggable-{slide_id}-1'
+            
+            title_position = element_positions.get(title_id)
+            subtitle_position = element_positions.get(subtitle_id)
+            
+            logger.info(f"Title element ID: {title_id}")
+            logger.info(f"Title position: {title_position}")
+            logger.info(f"Subtitle element ID: {subtitle_id}")
+            logger.info(f"Subtitle position: {subtitle_position}")
+            
+            # Log what the template will receive
+            logger.info(f"Template will receive title position: {title_position}")
+            logger.info(f"Template will receive subtitle position: {subtitle_position}")
+            
+            # Log all props keys to see what's available
+            logger.info(f"All props keys: {list(props.keys())}")
+            logger.info(f"All metadata keys: {list(metadata.keys()) if metadata else 'None'}")
+            
+            # Check for any text-specific positioning properties
+            text_position = props.get('textPosition')
+            text_transform = props.get('textTransform')
+            text_align = props.get('textAlign')
+            
+            logger.info(f"Text position prop: {text_position}")
+            logger.info(f"Text transform prop: {text_transform}")
+            logger.info(f"Text align prop: {text_align}")
+            
+            # Log image info without base64 data
+            image_path = props.get('imagePath', '')
+            if image_path:
+                if image_path.startswith('data:'):
+                    logger.info(f"Image: [BASE64 DATA URL - {len(image_path)} characters]")
+                else:
+                    logger.info(f"Image: {image_path}")
+            else:
+                logger.info(f"Image: NOT SET")
+            
+            # Log the complete slide data structure for debugging (excluding base64)
+            logger.info(f"Complete slide data structure:")
+            logger.info(f"  templateId: {slide_data.get('templateId')}")
+            logger.info(f"  slideId: {slide_data.get('slideId')}")
+            logger.info(f"  props keys: {list(props.keys())}")
+            logger.info(f"  metadata keys: {list(metadata.keys()) if metadata else 'None'}")
+    
+    logger.info(f"=== END TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")

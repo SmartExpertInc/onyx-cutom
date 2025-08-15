@@ -303,13 +303,27 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           ? `[BASE64 DATA URL - ${imagePath.length} characters]`
           : imagePath || 'NOT SET';
         
+        // Log text positioning data
+        const metadata = s.metadata || {};
+        const elementPositions = metadata.elementPositions || {};
+        const slideId = s.slideId;
+        const titleId = `draggable-${slideId}-0`;
+        const subtitleId = `draggable-${slideId}-1`;
+        
+        const titlePosition = elementPositions[titleId];
+        const subtitlePosition = elementPositions[subtitleId];
+        
         return {
           slideId: s.slideId,
-          title: s.props?.title,
-          subtitle: s.props?.subtitle,
+          title: s.props?.title || 'NOT SET',
+          subtitle: s.props?.subtitle || 'NOT SET',
           imagePath: imageInfo,
-          metadata: s.metadata,
-          elementPositions: s.metadata?.elementPositions
+          objectFit: s.props?.objectFit || 'NOT SET',
+          // Text positioning data
+          titlePosition: titlePosition,
+          subtitlePosition: subtitlePosition,
+          elementPositionsKeys: Object.keys(elementPositions),
+          metadataKeys: Object.keys(metadata)
         };
       })
     });

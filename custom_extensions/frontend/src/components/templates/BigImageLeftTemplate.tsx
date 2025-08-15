@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import { MoveableManager, MoveableElement } from '../positioning/MoveableManager';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -142,10 +141,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
-  metadata?: {
-    elementPositions?: Record<string, { x: number; y: number }>;
-    [key: string]: any;
-  };
 }> = ({
   title,
   subtitle,
@@ -162,8 +157,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   heightPx,
   imageScale,
   imageOffset,
-  objectFit,
-  metadata
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -180,152 +174,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const subtitleRef = useRef<HTMLDivElement>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
   
-  // ✅ NEW: State for text positioning
-  const [textPositions, setTextPositions] = useState<Record<string, { x: number; y: number }>>({});
-  const [textSizes, setTextSizes] = useState<Record<string, { width: number; height: number }>>({});
-  
-  // ✅ NEW: Initialize text positions from props if available
-  useEffect(() => {
-    if (onUpdate) {
-      // Initialize positions from any existing metadata
-      const initialPositions: Record<string, { x: number; y: number }> = {};
-      const initialSizes: Record<string, { width: number; height: number }> = {};
-      
-      // Load existing positions from metadata if available
-      if (metadata?.elementPositions) {
-        // Copy existing positions
-        Object.assign(initialPositions, metadata.elementPositions);
-        log('BigImageLeftTemplate', 'loadedExistingPositions', { 
-          slideId, 
-          existingPositions: metadata.elementPositions 
-        });
-      } else {
-        // Set default positions if none exist
-        initialPositions[`draggable-${slideId}-0`] = { x: 0, y: 0 };
-        initialPositions[`draggable-${slideId}-1`] = { x: 0, y: 0 };
-        log('BigImageLeftTemplate', 'setDefaultPositions', { 
-          slideId, 
-          defaultPositions: initialPositions 
-        });
-      }
-      
-      setTextPositions(initialPositions);
-      setTextSizes(initialSizes);
-      
-      log('BigImageLeftTemplate', 'initializedTextPositions', { 
-        slideId, 
-        initialPositions,
-        initialSizes 
-      });
-    }
-  }, [slideId, onUpdate, metadata]);
-  
-  // ✅ NEW: Handle text position changes
-  const handleTextPositionChange = (elementId: string, position: { x: number; y: number }) => {
-    log('BigImageLeftTemplate', 'handleTextPositionChange', { 
-      slideId, 
-      elementId, 
-      position 
-    });
-    
-    setTextPositions(prev => ({
-      ...prev,
-      [elementId]: position
-    }));
-    
-    // Save to backend - update metadata with elementPositions
-    if (onUpdate) {
-      const updateData = {
-        metadata: {
-          elementPositions: {
-            ...textPositions,
-            [elementId]: position
-          }
-        }
-      };
-      
-      log('BigImageLeftTemplate', 'savingTextPosition', { 
-        slideId, 
-        elementId, 
-        position,
-        updateData 
-      });
-      
-      onUpdate(updateData);
-    }
-  };
-  
-  // ✅ NEW: Handle text size changes
-  const handleTextSizeChange = (elementId: string, size: { width: number; height: number }) => {
-    log('BigImageLeftTemplate', 'handleTextSizeChange', { 
-      slideId, 
-      elementId, 
-      size 
-    });
-    
-    setTextSizes(prev => ({
-      ...prev,
-      [elementId]: size
-    }));
-  };
-  
-  // ✅ NEW: Handle transform end
-  const handleTransformEnd = (elementId: string, transform: { position: { x: number; y: number }; size: { width: number; height: number } }) => {
-    log('BigImageLeftTemplate', 'handleTransformEnd', { 
-      slideId, 
-      elementId, 
-      transform 
-    });
-    
-    // Update both position and size
-    setTextPositions(prev => ({
-      ...prev,
-      [elementId]: transform.position
-    }));
-    
-    setTextSizes(prev => ({
-      ...prev,
-      [elementId]: transform.size
-    }));
-    
-    // Save to backend - update metadata with elementPositions
-    if (onUpdate) {
-      const updateData = {
-        metadata: {
-          elementPositions: {
-            ...textPositions,
-            [elementId]: transform.position
-          }
-        }
-      };
-      
-      log('BigImageLeftTemplate', 'savingTextTransform', { 
-        slideId, 
-        elementId, 
-        transform,
-        updateData 
-      });
-      
-      onUpdate(updateData);
-    }
-  };
-  
-  // ✅ NEW: Create moveable elements for text
-  const moveableElements: MoveableElement[] = [
-    {
-      id: `draggable-${slideId}-0`, // Title element
-      ref: titleRef,
-      type: 'text',
-      cropMode: undefined
-    },
-    {
-      id: `draggable-${slideId}-1`, // Subtitle element
-      ref: subtitleRef,
-      type: 'text',
-      cropMode: undefined
-    }
-  ];
-  
   // ✅ NEW: Debug logging to see what props are received
   useEffect(() => {
     console.log('🔍 BigImageLeftTemplate: Received props', {
@@ -336,11 +184,40 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       heightPx,
       imageScale,
       imageOffset,
-      hasOnUpdate: !!onUpdate,
-      metadata: metadata,
-      elementPositions: metadata?.elementPositions
+      hasOnUpdate: !!onUpdate
     });
-  }, [slideId, objectFit, imagePath, widthPx, heightPx, imageScale, imageOffset, onUpdate, metadata]);
+  }, [slideId, objectFit, imagePath, widthPx, heightPx, imageScale, imageOffset, onUpdate]);
+  
+  // ✅ NEW: Text positioning logging
+  useEffect(() => {
+    console.log('🔍 BigImageLeftTemplate: Text positioning analysis', {
+      slideId,
+      title: title || 'NOT SET',
+      subtitle: subtitle || 'NOT SET',
+      hasOnUpdate: !!onUpdate,
+      isEditable
+    });
+  }, [slideId, title, subtitle, onUpdate, isEditable]);
+  
+  // ✅ NEW: Log when text elements are rendered
+  useEffect(() => {
+    if (titleRef.current) {
+      console.log('🔍 BigImageLeftTemplate: Title element rendered', {
+        slideId,
+        elementId: `${slideId}-title`,
+        element: titleRef.current,
+        hasOnUpdate: !!onUpdate
+      });
+    }
+    if (subtitleRef.current) {
+      console.log('🔍 BigImageLeftTemplate: Subtitle element rendered', {
+        slideId,
+        elementId: `${slideId}-subtitle`,
+        element: subtitleRef.current,
+        hasOnUpdate: !!onUpdate
+      });
+    }
+  }, [slideId, onUpdate]);
   
   // Debounced update function to prevent infinite autosaves
   const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
@@ -451,6 +328,13 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
+    console.log('🔍 BigImageLeftTemplate: Title save triggered', {
+      slideId,
+      oldTitle: title,
+      newTitle,
+      hasOnUpdate: !!onUpdate
+    });
+    
     if (onUpdate) {
       onUpdate({ title: newTitle });
     }
@@ -458,11 +342,22 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const handleTitleCancel = () => {
+    console.log('🔍 BigImageLeftTemplate: Title edit cancelled', {
+      slideId,
+      currentTitle: title
+    });
     setEditingTitle(false);
   };
 
   // Handle subtitle editing
   const handleSubtitleSave = (newSubtitle: string) => {
+    console.log('🔍 BigImageLeftTemplate: Subtitle save triggered', {
+      slideId,
+      oldSubtitle: subtitle,
+      newSubtitle,
+      hasOnUpdate: !!onUpdate
+    });
+    
     if (onUpdate) {
       onUpdate({ subtitle: newSubtitle });
     }
@@ -470,6 +365,10 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const handleSubtitleCancel = () => {
+    console.log('🔍 BigImageLeftTemplate: Subtitle edit cancelled', {
+      slideId,
+      currentSubtitle: subtitle
+    });
     setEditingSubtitle(false);
   };
 
@@ -568,16 +467,9 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
         {/* Title - wrapped */}
         <div 
           ref={titleRef}
-          data-moveable-element={`draggable-${slideId}-0`}
+          data-moveable-element={`${slideId}-title`}
           data-draggable="true" 
-          style={{ 
-            display: 'inline-block',
-            // ✅ NEW: Apply positioning from saved positions
-            transform: textPositions[`draggable-${slideId}-0`] 
-              ? `translate(${textPositions[`draggable-${slideId}-0`].x}px, ${textPositions[`draggable-${slideId}-0`].y}px)`
-              : 'translate(0px, 0px)',
-            position: 'relative'
-          }}
+          style={{ display: 'inline-block' }}
         >
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -613,6 +505,11 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
                   return;
                 }
                 if (isEditable) {
+                  console.log('🔍 BigImageLeftTemplate: Title clicked for editing', {
+                    slideId,
+                    currentTitle: title,
+                    elementId: `${slideId}-title`
+                  });
                   setEditingTitle(true);
                 }
               }}
@@ -626,16 +523,9 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
         {/* Subtitle - wrapped */}
         <div 
           ref={subtitleRef}
-          data-moveable-element={`draggable-${slideId}-1`}
+          data-moveable-element={`${slideId}-subtitle`}
           data-draggable="true" 
-          style={{ 
-            display: 'inline-block',
-            // ✅ NEW: Apply positioning from saved positions
-            transform: textPositions[`draggable-${slideId}-1`] 
-              ? `translate(${textPositions[`draggable-${slideId}-1`].x}px, ${textPositions[`draggable-${slideId}-1`].y}px)`
-              : 'translate(0px, 0px)',
-            position: 'relative'
-          }}
+          style={{ display: 'inline-block' }}
         >
           {isEditable && editingSubtitle ? (
             <InlineEditor
@@ -671,6 +561,11 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
                   return;
                 }
                 if (isEditable) {
+                  console.log('🔍 BigImageLeftTemplate: Subtitle clicked for editing', {
+                    slideId,
+                    currentSubtitle: subtitle,
+                    elementId: `${slideId}-subtitle`
+                  });
                   setEditingSubtitle(true);
                 }
               }}
@@ -681,20 +576,6 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           )}
         </div>
       </div>
-      
-      {/* ✅ NEW: MoveableManager for text positioning */}
-      {isEditable && (
-        <MoveableManager
-          isEnabled={isEditable}
-          slideId={slideId}
-          elements={moveableElements}
-          savedPositions={textPositions}
-          savedSizes={textSizes}
-          onPositionChange={handleTextPositionChange}
-          onSizeChange={handleTextSizeChange}
-          onTransformEnd={handleTransformEnd}
-        />
-      )}
     </div>
   );
 };
