@@ -448,9 +448,9 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     title="Click to change color"
                   />
                   
-                  {/* Segment name */}
+                  {/* Segment name with percentage */}
                   <div 
-                    className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1"
+                    className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
                     style={{ backgroundColor: item.color }}
                   >
                     {editingSegment === index && isEditable ? (
@@ -473,31 +473,34 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                         {item.month}
                       </span>
                     )}
-                  </div>
-                  
-                  {/* Percentage */}
-                  <div className="text-lg font-bold" style={{ color: themeContent }}>
-                    {editingPercentage === index && isEditable ? (
-                      <InlineEditor
-                        initialValue={item.percentage.replace('%', '')}
-                        onSave={(value) => handlePercentageSave(index, value)}
-                        onCancel={() => handlePercentageCancel(index)}
-                        style={{
-                          color: themeContent,
-                          fontSize: '1.125rem',
-                          fontWeight: 'bold',
-                          textAlign: 'center',
-                          minWidth: '60px'
-                        }}
-                      />
-                    ) : (
-                      <span 
-                        className="cursor-pointer hover:opacity-80"
-                        onClick={() => isEditable && startEditingPercentage(index)}
-                      >
-                        {item.percentage}
-                      </span>
-                    )}
+                    
+                    {/* Percentage badge on segment name */}
+                    <div className="absolute -top-1 -right-1 bg-white text-gray-900 text-xs font-bold px-2 py-1 rounded-full shadow-md border border-gray-200">
+                      {editingPercentage === index && isEditable ? (
+                        <InlineEditor
+                          initialValue={item.percentage.replace('%', '')}
+                          onSave={(value) => handlePercentageSave(index, value)}
+                          onCancel={() => handlePercentageCancel(index)}
+                          style={{
+                            color: '#1f2937',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            minWidth: '30px',
+                            background: 'transparent',
+                            border: 'none',
+                            outline: 'none'
+                          }}
+                        />
+                      ) : (
+                        <span 
+                          className="cursor-pointer hover:opacity-80"
+                          onClick={() => isEditable && startEditingPercentage(index)}
+                        >
+                          {item.percentage}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -598,9 +601,9 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       title="Click to change color"
                     />
                     
-                    {/* Segment name */}
+                    {/* Segment name with percentage */}
                     <div 
-                      className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1"
+                      className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
                       style={{ backgroundColor: item.color }}
                     >
                       {editingSegment === actualIndex && isEditable ? (
@@ -623,31 +626,34 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                           {item.month}
                         </span>
                       )}
-                    </div>
-                    
-                    {/* Percentage */}
-                    <div className="text-lg font-bold" style={{ color: themeContent }}>
-                      {editingPercentage === actualIndex && isEditable ? (
-                        <InlineEditor
-                          initialValue={item.percentage.replace('%', '')}
-                          onSave={(value) => handlePercentageSave(actualIndex, value)}
-                          onCancel={() => handlePercentageCancel(actualIndex)}
-                          style={{
-                            color: themeContent,
-                            fontSize: '1.125rem',
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            minWidth: '60px'
-                          }}
-                        />
-                      ) : (
-                        <span 
-                          className="cursor-pointer hover:opacity-80"
-                          onClick={() => isEditable && startEditingPercentage(actualIndex)}
-                        >
-                          {item.percentage}
-                        </span>
-                      )}
+                      
+                      {/* Percentage badge on segment name */}
+                      <div className="absolute -top-1 -right-1 bg-white text-gray-900 text-xs font-bold px-2 py-1 rounded-full shadow-md border border-gray-200">
+                        {editingPercentage === actualIndex && isEditable ? (
+                          <InlineEditor
+                            initialValue={item.percentage.replace('%', '')}
+                            onSave={(value) => handlePercentageSave(actualIndex, value)}
+                            onCancel={() => handlePercentageCancel(actualIndex)}
+                            style={{
+                              color: '#1f2937',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold',
+                              textAlign: 'center',
+                              minWidth: '30px',
+                              background: 'transparent',
+                              border: 'none',
+                              outline: 'none'
+                            }}
+                          />
+                        ) : (
+                          <span 
+                            className="cursor-pointer hover:opacity-80"
+                            onClick={() => isEditable && startEditingPercentage(actualIndex)}
+                          >
+                            {item.percentage}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
@@ -712,8 +718,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
 
       {/* Pie Chart Editor Modal */}
       {editingPieChart !== null && isEditable && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl border border-gray-200">
             <h3 className="text-lg font-bold mb-4 text-gray-900">Редактирование сегмента</h3>
             <p className="text-sm text-gray-700 mb-4">Измените процент для выбранного сегмента.</p>
             
