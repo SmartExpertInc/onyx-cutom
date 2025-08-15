@@ -24,7 +24,7 @@ export default function Sidebar() {
             />
             {/* Counter Badge */}
             <div className="absolute -top-1 -right-1 bg-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-sm border border-gray-100">
-              <span className="text-[#585858] text-xs sm:text-[15px] font-medium">2</span>
+              <span className="text-[#585858] text-sm font-medium">2</span>
             </div>
             {/* Small Avatar Overlay */}
             <img
@@ -43,7 +43,7 @@ export default function Sidebar() {
                   alt="Flag"
                   className="w-4 h-4 sm:w-5 sm:h-5 object-cover flex-shrink-0"
                 />
-                <span className="text-[#626262] text-lg sm:text-[21px] font-medium truncate">US-Leesa</span>
+                <span className="text-[#626262] text-sm font-medium truncate">US-Leesa</span>
               </div>
             </div>
           </div>
@@ -51,7 +51,7 @@ export default function Sidebar() {
 
         {/* Main Content Text */}
         <div className="w-full max-w-[615px] lg:max-w-[650px]">
-          <p className="text-[#5F5F5F] text-base sm:text-lg md:text-xl lg:text-[21px] leading-relaxed sm:leading-8 md:leading-9 lg:leading-[39.909px] font-normal">
+          <p className="text-[#5F5F5F] text-sm leading-relaxed font-normal">
             Create dynamic, powerful and informative videos with an
             avatar as your host. Instantly translate your video into over
             eighty languages, use engaging media to grab your

@@ -60,7 +60,7 @@ export default function Toolbar() {
   ];
 
   return (
-    <div className="w-full bg-white" style={{ height: '103px' }}>
+    <div className="w-full bg-white" style={{ height: '72px' }}>
       {/* Toolbar container */}
       <div className="flex items-start justify-between px-2 max-w-full h-full">
             {/* Left side - all tools except Default */}
@@ -89,7 +89,7 @@ export default function Toolbar() {
                         style={{
                           color: '#000000',
                           fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                          fontSize: tool.id === 'default' ? '18px' : '16px',
+                          fontSize: '14px',
 
                           lineHeight: 'normal'
                         }}
@@ -126,7 +126,7 @@ export default function Toolbar() {
                     style={{
                       color: '#000000',
                       fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                      fontSize: '18px',
+                      fontSize: '14px',
                       lineHeight: 'normal'
                     }}
                   >

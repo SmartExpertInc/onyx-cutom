@@ -1,6 +1,6 @@
 export default function VideoEditorHeader() {
   return (
-    <header className="w-full bg-white h-[84px] flex items-center px-6">
+    <header className="w-full bg-white h-[68px] flex items-center px-6">
       <div className="flex items-center justify-between w-full">
         {/* Left section - Logo and tools */}
         <div className="flex items-center gap-4 lg:gap-6">
@@ -9,7 +9,7 @@ export default function VideoEditorHeader() {
             <img
               src="https://api.builder.io/api/v1/image/assets/TEMP/9b71665e2dee95dc0f540b8501037f291f63ef3c?width=96"
               alt="Logo"
-              className="w-12 h-[42px]"
+              className="w-12 h-6"
             />
           </div>
 
@@ -19,7 +19,7 @@ export default function VideoEditorHeader() {
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/60296c8d8172d9ab8392adf60a696e5288c8807d?width=40"
                 alt="Tool"
-                className="w-5 h-[15px]"
+                className="w-3 h-3"
               />
             </button>
 
@@ -27,7 +27,7 @@ export default function VideoEditorHeader() {
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/2b3f3c7afc27ca26f9322d487e50a8435d666ff4?width=40"
                 alt="Tool"
-                className="w-5 h-[15px]"
+                className="w-3 h-3"
               />
             </button>
 
@@ -37,7 +37,7 @@ export default function VideoEditorHeader() {
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/22e7f5026e7be941193d1729124a7ba85fb26df7?width=46"
                 alt="Tool"
-                className="w-[23px] h-[22px]"
+                className="w-3 h-3"
               />
             </button>
 
@@ -48,9 +48,9 @@ export default function VideoEditorHeader() {
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/8574a9b72f54dd9d3d4b47f6ff7ae4fd1526bd0a?width=44"
                 alt="Resize"
-                className="w-[22px] h-4"
+                className="w-3 h-3"
               />
-              <span className="text-editor-resize-text text-lg font-normal">Resize</span>
+              <span className="text-editor-resize-text text-sm font-normal">Resize</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
@@ -60,9 +60,9 @@ export default function VideoEditorHeader() {
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/2d90825e49d8a04eeafdd5bea6924bcd90f97ef3?width=44"
                 alt="Grid"
-                className="w-[22px] h-5"
+                className="w-3 h-3"
               />
-              <span className="text-editor-icon-text text-lg font-normal">Grid</span>
+              <span className="text-editor-icon-text text-sm font-normal">Grid</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
@@ -74,9 +74,9 @@ export default function VideoEditorHeader() {
               <img
                 src="https://api.builder.io/api/v1/image/assets/TEMP/e6fe4a219f32df67b6826887f30a0297ba8af2db?width=40"
                 alt="Crown"
-                className="w-5 h-[15px]"
+                className="w-3 h-3"
               />
-              <span className="text-lg font-normal">Upgrade</span>
+              <span className="text-sm font-normal">Upgrade</span>
             </button>
           </div>
         </div>
@@ -84,11 +84,11 @@ export default function VideoEditorHeader() {
         {/* Center section - Create video text (hidden on mobile) */}
         <div className="hidden lg:flex flex-1 justify-center">
           <div className="flex items-center gap-3">
-            <span className="text-editor-gray-text text-lg font-medium whitespace-nowrap">Create your first AI video</span>
+            <span className="text-editor-gray-text text-sm font-medium whitespace-nowrap">Create your first AI video</span>
             <img
               src="https://api.builder.io/api/v1/image/assets/TEMP/0dfa92304b25765dd8a203dc550f8d5fac95163b?width=42"
               alt="AI"
-              className="w-[21px] h-[21px]"
+              className="w-3 h-3"
             />
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function VideoEditorHeader() {
             <img
               src="https://api.builder.io/api/v1/image/assets/TEMP/3ff68570baf0004ced57daf86b108cb061230776?width=32"
               alt="Profile"
-              className="w-4 h-5"
+              className="w-3 h-3"
             />
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -108,14 +108,14 @@ export default function VideoEditorHeader() {
             <button
               className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-4 lg:px-6 py-2 h-[48px] border"
             >
-              <span className="text-lg font-normal">Share</span>
+              <span className="text-sm font-normal">Share</span>
             </button>
 
             {/* Generate button */}
             <button
               className="bg-editor-dark text-editor-light-text hover:bg-gray-800 rounded-[7px] px-4 lg:px-6 py-2 h-[48px]"
             >
-              <span className="text-lg font-normal">Generate</span>
+              <span className="text-sm font-normal">Generate</span>
             </button>
           </div>
         </div>
