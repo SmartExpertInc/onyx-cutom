@@ -15,6 +15,21 @@ import json
 from datetime import datetime
 import base64
 import mimetypes
+import math
+
+# Import pie chart generators
+try:
+    from .pie_chart_generator import pie_chart_generator
+except ImportError:
+    pie_chart_generator = None
+    logger.warning("Pie chart generator not available")
+
+# Import CSS pie chart generator
+try:
+    from ..utils.pie_chart_css_generator import generate_css_pie_chart
+except ImportError:
+    generate_css_pie_chart = None
+    logger.warning("CSS pie chart generator not available")
 
 # Attempt to import settings (as before)
 try:
@@ -82,6 +97,10 @@ def shuffle_filter(seq):
         return seq
 
 jinja_env.filters['shuffle'] = shuffle_filter
+
+# Add math functions for pie chart calculations
+jinja_env.filters['cos'] = lambda x: math.cos(float(x))
+jinja_env.filters['sin'] = lambda x: math.sin(float(x))
 
 # Enhanced logging functions for debugging
 async def log_slide_data_structure(slide_data: dict, slide_index: int = None, template_id: str = None):
@@ -324,7 +343,15 @@ def get_browser_launch_options():
             '--no-first-run', 
             '--safeBrowse-disable-auto-update',
             '--font-render-hinting=none',
-            '--enable-font-antialiasing'
+            '--enable-font-antialiasing',
+            '--enable-logging',
+            '--v=1',
+            '--enable-logging=stderr',
+            '--log-level=0',
+            '--force-color-profile=srgb',
+            '--disable-background-timer-throttling',
+            '--disable-renderer-backgrounding',
+            '--disable-backgrounding-occluded-windows'
         ],
         'dumpio': True,  # Capture browser console output
         'devtools': False,
@@ -1046,6 +1073,35 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             'slide_height': slide_height
         }
         
+        # Generate pie chart CSS if needed
+        if safe_slide_data.get('templateId') == 'pie-chart-infographics' and generate_css_pie_chart:
+            try:
+                chart_data = safe_slide_data.get('props', {}).get('chartData', {})
+                segments = chart_data.get('segments', [])
+                
+                if segments:
+                    logger.info(f"Generating CSS pie chart for {slide_info}{template_info}")
+                    chart_id = f"pie-chart-{slide_index}" if slide_index is not None else "pie-chart"
+                    css_pie_chart = generate_css_pie_chart(segments, chart_id)
+                    context_data['pie_chart_html'] = css_pie_chart['html']
+                    context_data['pie_chart_css'] = css_pie_chart['css']
+                    context_data['pie_chart_image'] = ""  # Empty for CSS version
+                    logger.info(f"CSS pie chart generated successfully for {slide_info}{template_info}")
+                else:
+                    logger.warning(f"No segments found for pie chart in {slide_info}{template_info}")
+                    context_data['pie_chart_html'] = ""
+                    context_data['pie_chart_css'] = ""
+                    context_data['pie_chart_image'] = ""
+            except Exception as e:
+                logger.error(f"Error generating CSS pie chart for {slide_info}{template_info}: {e}")
+                context_data['pie_chart_html'] = ""
+                context_data['pie_chart_css'] = ""
+                context_data['pie_chart_image'] = ""
+        else:
+            context_data['pie_chart_html'] = ""
+            context_data['pie_chart_css'] = ""
+            context_data['pie_chart_image'] = ""
+        
         # Process presentation slide images (convert imagePath to base64 data URLs)
         if safe_slide_data.get('props'):
             props = safe_slide_data['props']
@@ -1060,7 +1116,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             logger.info(f"PDF GEN: Static images absolute path: {static_images_abs_path}")
             
             # List of image path properties to process
-            image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
+            image_props = ['imagePath', 'leftImagePath', 'rightImagePath', 'imageUrl']
             
             for prop_name in image_props:
                 if prop_name in props and props[prop_name]:
@@ -1116,6 +1172,28 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             logger.info(f"DEBUG: Template data for {slide_info}{template_info}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
             if safe_slide_data.get('props', {}).get('items'):
                 logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
+            
+            # Additional debug logging for specific templates
+            template_id = safe_slide_data.get('templateId', 'unknown')
+            logger.info(f"DEBUG: Processing template: {template_id}")
+            
+            if template_id == 'org-chart':
+                chart_data = safe_slide_data.get('props', {}).get('chartData', [])
+                logger.info(f"DEBUG: org-chart chartData length: {len(chart_data)}")
+                logger.info(f"DEBUG: org-chart chartData: {chart_data}")
+            
+            elif template_id == 'contraindications-indications':
+                contraindications = safe_slide_data.get('props', {}).get('contraindications', [])
+                indications = safe_slide_data.get('props', {}).get('indications', [])
+                logger.info(f"DEBUG: contraindications length: {len(contraindications)}")
+                logger.info(f"DEBUG: indications length: {len(indications)}")
+                logger.info(f"DEBUG: contraindications: {contraindications}")
+                logger.info(f"DEBUG: indications: {indications}")
+            
+            elif template_id == 'metrics-analytics':
+                metrics = safe_slide_data.get('props', {}).get('metrics', [])
+                logger.info(f"DEBUG: metrics-analytics metrics length: {len(metrics)}")
+                logger.info(f"DEBUG: metrics-analytics metrics: {metrics}")
             
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)

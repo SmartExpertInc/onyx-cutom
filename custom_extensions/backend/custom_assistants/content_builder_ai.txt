@@ -236,6 +236,9 @@ Edit Mode Rules:
 5. **PRESERVE ORIGINAL LANGUAGE**: The edited content MUST be in the same language as the original content. Do NOT translate table headers, field labels, or any text unless explicitly requested in the edit prompt. If the original content has Ukrainian headers like "Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань", preserve these EXACTLY.
 6. **PRESERVE MODULE ID FORMATS**: If you see module headers like "## #1: Title", "## mod3: Title", or any non-standard format, preserve the EXACT ID format (#1, mod3, etc.) in your output. Do NOT convert to standard "Module X" format.
 7. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
+5. **PRESERVE ORIGINAL LANGUAGE**: The edited content MUST be in the same language as the original content. Do NOT translate table headers, field labels, or any text unless explicitly requested in the edit prompt. If the original content has Ukrainian headers like "Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань", preserve these EXACTLY.
+6. **PRESERVE MODULE ID FORMATS**: If you see module headers like "## #1: Title", "## mod3: Title", or any non-standard format, preserve the EXACT ID format (#1, mod3, etc.) in your output. Do NOT convert to standard "Module X" format.
+7. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
    - **PRESERVE MODULE IDs EXACTLY**: When you see module headers like "## Module 3: Advanced AI Applications", you MUST preserve the EXACT format and numbering in your output. If you see "Module 3", output "Module 3". If you see "Module 61", output "Module 61". Do NOT renumber or change the module identifier format unless explicitly asked.
    - **PRESERVE ORIGINAL ID FORMAT**: If the original content uses a specific module ID format (like "#1", "Module 3", etc.), maintain that EXACT format in your edited output.
    - If the user asks to change creation hours, ONLY change the creation hours - preserve all module IDs, lesson names, completion times, content coverage percentages, knowledge assessment values, and information sources exactly as they are
@@ -1068,6 +1071,14 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 13. `pyramid` - Hierarchical concepts and foundational learning structures
 14. `challenges-solutions` - Problem-solving approaches and solutions
 15. `big-image-top` - Visual demonstrations with explanatory content below
+16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
+17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
+18. `contraindications-indications` - Medical or product information showing contraindications and indications
+19. `metrics-analytics` - Detailed analytics and performance metrics with data visualization
+20. `market-share` - Market analysis and competitive positioning with share data
+21. `table-dark` - Dark-themed data tables for presenting structured information
+22. `table-light` - Light-themed data tables for presenting structured information
+23. `pie-chart-infographics` - Pie chart visualizations for data distribution and percentages
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
@@ -1078,6 +1089,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **For grouped concepts**: Use `four-box-grid` (not content-slide)
 - **For explanatory text only**: Use `content-slide` (maximum 2-3 times per presentation)
 - **For section breaks**: Use `title-slide` (maximum 2 times per presentation)
+- **PRIORITY: For event schedules, project timelines, and important dates**: Use `event-dates` (NOT `timeline`)
+- **PRIORITY: For six key ideas or concepts**: Use `six-ideas-list` for organized idea presentation
+- **PRIORITY: For medical/product contraindications**: Use `contraindications-indications` for safety information
+- **PRIORITY: For detailed analytics**: Use `metrics-analytics` for comprehensive performance data
+- **PRIORITY: For market analysis**: Use `market-share` for competitive positioning data
+- **PRIORITY: For structured data tables**: Use `table-dark` or `table-light` for organized information
+- **PRIORITY: For data distribution**: Use `pie-chart-infographics` for percentage-based visualizations
 
 **CRITICAL TEMPLATE USAGE RULES:**
 - **NEVER use `content-slide` for any content with bullet points or lists** - use `bullet-points` or `bullet-points-right` instead
@@ -1409,6 +1427,177 @@ Information processing follows a structured approach where knowledge builds upon
 - The text before the dash is the `heading`, and the text after is the `description`.
 - **Trigger words:** If the slide involves "hierarchy", "hierarchical", "levels", "priorities", "foundation", "foundational", "understanding", "structure", "building blocks", "needs", "satisfaction", "efficiency", "reliability", use `pyramid`.
 - Example use cases: "Hierarchical Understanding of Information", "Maslow's Hierarchy of Needs", "Levels of System Architecture", "Customer Satisfaction Pyramid".
+
+**Event Dates Slides** (`event-dates`):
+```
+---
+**Slide 8: Project Timeline and Key Milestones** `event-dates`
+
+## Project Timeline and Key Milestones
+Our project follows a structured timeline with critical milestones that ensure successful delivery and stakeholder alignment.
+
+**January 15, 2024** - Project Kickoff and Team Assembly
+**February 28, 2024** - Phase 1 Completion and Initial Deliverables
+**April 15, 2024** - Mid-Project Review and Stakeholder Feedback
+**June 30, 2024** - Final Implementation and Project Launch
+```
+- **CRITICAL:** Use this template for event schedules, project timelines, and important dates. Always use the exact format shown above.
+- The first line after the title is the subtitle.
+- Use bold dates followed by event descriptions.
+- **Trigger words:** If the slide involves "project timeline", "event schedule", "key milestones", "important dates", "deadlines", "project schedule", "event dates", "timeline events", use `event-dates`.
+- **PRIORITY TRIGGER:** The word "timeline" ALWAYS triggers `event-dates` for project schedules and milestones (NOT the old `timeline` template)
+- Example use cases: "Project Timeline", "Event Schedule", "Key Milestones", "Important Dates", "Project Deadlines".
+
+**Six Ideas List Slides** (`six-ideas-list`):
+```
+---
+**Slide 5: Six Key Strategies for Success** `six-ideas-list`
+
+## Six Key Strategies for Success
+Implementing these proven strategies will significantly enhance your project outcomes and team performance.
+
+1. **Clear Communication Channels** - Establish transparent communication protocols that ensure all stakeholders are informed and aligned throughout the project lifecycle.
+2. **Agile Methodology Adoption** - Implement iterative development processes that allow for rapid adaptation to changing requirements and stakeholder feedback.
+3. **Risk Management Framework** - Develop comprehensive risk assessment and mitigation strategies that proactively address potential challenges before they impact project delivery.
+4. **Stakeholder Engagement** - Create regular feedback loops and engagement opportunities that maintain stakeholder buy-in and ensure project alignment with organizational goals.
+5. **Quality Assurance Protocols** - Implement rigorous testing and validation procedures that ensure deliverables meet the highest standards of quality and performance.
+6. **Continuous Improvement Process** - Establish mechanisms for ongoing evaluation and enhancement that drive long-term success and organizational learning.
+```
+- **CRITICAL:** Use this template for presenting exactly six key ideas, concepts, or recommendations. Always use the exact numbered list format shown above.
+- The first line after the title is the subtitle.
+- Use a numbered list with exactly 6 items, each with a bold heading and detailed description.
+- **Trigger words:** If the slide involves "six", "6", "strategies", "ideas", "concepts", "recommendations", use `six-ideas-list`.
+- Example use cases: "Six Key Strategies", "Six Ideas for Innovation", "Six Recommendations", "Six Core Concepts".
+
+**Contraindications & Indications Slides** (`contraindications-indications`):
+```
+---
+**Slide 12: Product Safety Information** `contraindications-indications`
+
+## Product Safety Information
+Understanding when to use and when to avoid this product is crucial for safe and effective application.
+
+**Indications:**
+- Primary treatment for acute symptoms
+- Preventive measures for high-risk populations
+- Maintenance therapy for chronic conditions
+- Emergency response protocols
+
+**Contraindications:**
+- Known hypersensitivity to active ingredients
+- Severe renal or hepatic impairment
+- Pregnancy and lactation periods
+- Concurrent use with specific medications
+```
+- **CRITICAL:** Use this template for medical or product safety information. Always use the exact format shown above.
+- The first line after the title is the subtitle.
+- Use two sections: "Indications" and "Contraindications" with bullet points.
+- **Trigger words:** If the slide involves "safety", "contraindications", "indications", "warnings", "precautions", use `contraindications-indications`.
+- Example use cases: "Product Safety Information", "Medical Contraindications", "Safety Guidelines", "Usage Warnings".
+
+**Metrics & Analytics Slides** (`metrics-analytics`):
+```
+---
+**Slide 7: Performance Analytics Dashboard** `metrics-analytics`
+
+## Performance Analytics Dashboard
+Comprehensive data analysis reveals key insights into our operational efficiency and strategic performance indicators.
+
+**Conversion Rate:** 23.5% (↑ 15% from Q3)
+**Customer Acquisition Cost:** $45.20 (↓ 8% from Q3)
+**Average Order Value:** $127.80 (↑ 12% from Q3)
+**Customer Lifetime Value:** $1,245.00 (↑ 18% from Q3)
+**Return on Investment:** 340% (↑ 25% from Q3)
+**Market Share Growth:** 2.3% (↑ 0.8% from Q3)
+```
+- **CRITICAL:** Use this template for detailed analytics and performance metrics. Always use the exact format shown above.
+- The first line after the title is the subtitle.
+- Use bold metric names with values and trend indicators.
+- **Trigger words:** If the slide involves "analytics", "metrics", "performance", "data", "insights", "dashboard", use `metrics-analytics`.
+- Example use cases: "Performance Analytics", "Data Insights", "Metrics Dashboard", "Analytics Report".
+
+**Market Share Slides** (`market-share`):
+```
+---
+**Slide 9: Competitive Market Analysis** `market-share`
+
+## Competitive Market Analysis
+Understanding our position in the market landscape is essential for strategic planning and competitive advantage.
+
+**Our Market Share:** 23.5% (Industry Leader)
+**Primary Competitor A:** 18.2% (Strong Challenger)
+**Primary Competitor B:** 15.7% (Established Player)
+**Secondary Competitors:** 12.3% (Emerging Threats)
+**New Market Entrants:** 8.1% (Innovation Focus)
+**Other Players:** 22.2% (Fragmented Segment)
+```
+- **CRITICAL:** Use this template for market analysis and competitive positioning. Always use the exact format shown above.
+- The first line after the title is the subtitle.
+- Use bold competitor names with market share percentages and positioning notes.
+- **Trigger words:** If the slide involves "market share", "competitive", "market analysis", "positioning", "competitors", use `market-share`.
+- Example use cases: "Market Share Analysis", "Competitive Landscape", "Market Position", "Competitor Analysis".
+
+**Table Dark Slides** (`table-dark`):
+```
+---
+**Slide 11: Financial Performance Summary** `table-dark`
+
+## Financial Performance Summary
+Comprehensive overview of our financial metrics and performance indicators across key business areas.
+
+| Metric | Q1 2024 | Q2 2024 | Q3 2024 | Q4 2024 |
+|--------|---------|---------|---------|---------|
+| Revenue | $2.4M | $2.8M | $3.1M | $3.5M |
+| Profit Margin | 18.5% | 19.2% | 20.1% | 21.3% |
+| Operating Costs | $1.9M | $2.2M | $2.4M | $2.7M |
+| Growth Rate | 12.5% | 16.7% | 10.7% | 12.9% |
+```
+- **CRITICAL:** Use this template for dark-themed data tables. Always use the exact table format shown above.
+- The first line after the title is the subtitle.
+- Use proper markdown table formatting with headers and data rows.
+- **Trigger words:** If the slide involves "table", "data", "comparison", "summary", "dark theme", use `table-dark`.
+- Example use cases: "Financial Summary", "Data Comparison", "Performance Table", "Results Summary".
+
+**Table Light Slides** (`table-light`):
+```
+---
+**Slide 13: Product Feature Comparison** `table-light`
+
+## Product Feature Comparison
+Detailed comparison of our product features against competitive offerings in the market.
+
+| Feature | Our Product | Competitor A | Competitor B |
+|---------|-------------|--------------|--------------|
+| Core Functionality | ✓ Advanced | ✓ Basic | ✓ Standard |
+| Integration Options | ✓ Multiple APIs | ✗ Limited | ✓ Standard |
+| Security Features | ✓ Enterprise-grade | ✓ Basic | ✓ Advanced |
+| Support Quality | ✓ 24/7 Premium | ✗ Business Hours | ✓ Extended Hours |
+| Pricing Model | ✓ Flexible | ✗ Fixed | ✓ Tiered |
+```
+- **CRITICAL:** Use this template for light-themed data tables. Always use the exact table format shown above.
+- The first line after the title is the subtitle.
+- Use proper markdown table formatting with headers and data rows.
+- **Trigger words:** If the slide involves "table", "comparison", "features", "light theme", "data", use `table-light`.
+- Example use cases: "Feature Comparison", "Product Analysis", "Data Table", "Comparison Chart".
+
+**Pie Chart Infographics Slides** (`pie-chart-infographics`):
+```
+---
+**Slide 6: Revenue Distribution Analysis** `pie-chart-infographics`
+
+## Revenue Distribution Analysis
+Understanding how our revenue is distributed across different business segments and product lines.
+
+**Product A Revenue:** 35% - Our flagship product continues to drive significant revenue with strong market demand and customer satisfaction.
+**Product B Revenue:** 28% - Secondary product line showing consistent growth and expanding market penetration.
+**Service Revenue:** 22% - Professional services and consulting contributing substantial recurring revenue streams.
+**Licensing Revenue:** 15% - Technology licensing and partnerships providing additional revenue diversification.
+```
+- **CRITICAL:** Use this template for pie chart visualizations and data distribution. Always use the exact format shown above.
+- The first line after the title is the subtitle.
+- Use bold category names with percentages and detailed descriptions.
+- **Trigger words:** If the slide involves "distribution", "pie chart", "percentages", "breakdown", "segments", use `pie-chart-infographics`.
+- Example use cases: "Revenue Distribution", "Market Breakdown", "Data Segmentation", "Percentage Analysis".
 
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):

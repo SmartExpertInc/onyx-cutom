@@ -1,9 +1,9 @@
 // custom_extensions/frontend/src/types/slideTemplates.ts
 
-import React from 'react';
+import * as React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
 
-// --- Base Template System Types ---
+// --- Base Template System Types! ---
 
 export interface BaseTemplateProps {
   slideId: string;
@@ -211,9 +211,73 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
   voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
+export interface EventListTemplateProps extends BaseTemplateProps {
+  events: Array<{
+    date: string;
+    description: string;
+  }>;
+  titleColor?: string;
+  descriptionColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
 
-export interface FourBoxGridProps {
-  slideId: string;
+export interface SixIdeasListTemplateProps extends BaseTemplateProps {
+  title: string;
+  ideas: Array<{
+    number: string;
+    text: string;
+  }>;
+  imageUrl?: string;
+  imageAlt?: string;
+  imagePrompt?: string;
+  imagePath?: string;
+  titleColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface ContraindicationsIndicationsTemplateProps extends BaseTemplateProps {
+  title: string;
+  contraindications: string[];
+  indications: string[];
+  titleColor?: string;
+  contraindicationsColor?: string;
+  indicationsColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface MetricsAnalyticsTemplateProps extends BaseTemplateProps {
+  title: string;
+  metrics: Array<{
+    number: string;
+    text: string;
+  }>;
+  titleColor?: string;
+  numberColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface OrgChartTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: Array<{
+    id: string;
+    title: string;
+    level: number;
+    parentId?: string;
+  }>;
+  titleColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+
+export interface FourBoxGridProps extends BaseTemplateProps {
   title: string;
   boxes: Array<{
     heading: string;
@@ -227,15 +291,13 @@ export interface TimelineStep {
   description: string;
 }
 
-export interface TimelineTemplateProps {
-  slideId: string;
+export interface TimelineTemplateProps extends BaseTemplateProps {
   title: string;
   steps: TimelineStep[];
   theme?: SlideTheme;
 }
 
-export interface PyramidTemplateProps {
-  slideId: string;
+export interface PyramidTemplateProps extends BaseTemplateProps {
   title: string;
   subtitle: string;
   items: { heading: string; description: string }[];
@@ -248,10 +310,62 @@ export interface BigNumberItem {
   description: string;
 }
 
-export interface BigNumbersTemplateProps {
-  slideId: string;
+export interface BigNumbersTemplateProps extends BaseTemplateProps {
   title: string;
   items: BigNumberItem[];
+  theme?: SlideTheme;
+}
+
+export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: {
+    segments: Array<{
+      label: string;
+      percentage: number;
+      color: string;
+      description?: string;
+    }>;
+  };
+  monthlyData: Array<{
+    month: string;
+    description: string;
+    color: string;
+    percentage: string;
+  }>;
+  descriptionText?: string;
+  theme?: SlideTheme;
+}
+
+export interface BarChartInfographicsTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: {
+    categories: Array<{
+      label: string;
+      value: number;
+      color: string;
+      description: string;
+    }>;
+  };
+  monthlyData: Array<{
+    month: string;
+    description: string;
+    color?: string;
+  }>;
+  descriptionText?: string;
+  theme?: SlideTheme;
+}
+
+export interface MarketShareTemplateProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  chartData: Array<{
+    label: string;
+    description: string;
+    percentage: number;
+    color: string;
+    year?: string;
+  }>;
+  bottomText?: string;
   theme?: SlideTheme;
 }
 
@@ -297,7 +411,15 @@ export type TemplateId =
   | 'four-box-grid'
   | 'timeline'
   | 'big-numbers'
-  | 'pyramid';
+  | 'pyramid'
+  | 'event-list'
+  | 'six-ideas-list'
+  | 'contraindications-indications'
+  | 'metrics-analytics'
+  | 'org-chart'
+  | 'pie-chart-infographics'
+  | 'bar-chart-infographics'
+  | 'market-share';
 
 export interface TemplatePreview {
   templateId: string;

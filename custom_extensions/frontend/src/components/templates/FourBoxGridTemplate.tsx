@@ -1,16 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { FourBoxGridProps } from '@/types/slideTemplates';
 
-export interface FourBoxGridProps {
-  slideId: string;
-  title: string;
-  boxes: Array<{
-    heading: string;
-    text: string;
-  }>;
-  theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
-  isEditable?: boolean;
+interface BoxItem {
+  heading: string;
+  text: string;
 }
 
 interface InlineEditorProps {
@@ -309,7 +303,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
 
       <div style={gridStyles}>
         {Array.isArray(boxes) && boxes.length >= 4 ? (
-          boxes.slice(0, 4).map((box: any, idx: number) => (
+          boxes.slice(0, 4).map((box: BoxItem, idx: number) => (
             <div key={idx} style={boxStyles}>
               {/* Box Heading */}
               {isEditable && editingBoxHeadings.includes(idx) ? (

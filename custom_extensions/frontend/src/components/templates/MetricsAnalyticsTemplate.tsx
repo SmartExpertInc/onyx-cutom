@@ -1,0 +1,331 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { MetricsAnalyticsTemplateProps } from '@/types/slideTemplates';
+import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        wordWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
+        boxSizing: 'border-box',
+        display: 'block',
+        lineHeight: '1.2'
+      }}
+    />
+  );
+}
+
+const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
+  title = 'Metrics and analytics',
+  metrics = [
+    { number: '01', text: 'Key performance indicators (KPIs)' },
+    { number: '02', text: 'Funnel analytics' },
+    { number: '03', text: 'Traffic sources and attribution' },
+    { number: '04', text: 'Customer lifetime value (CLV)' },
+    { number: '05', text: 'A/B testing and experimentation' },
+    { number: '06', text: 'Data visualization' }
+  ],
+  titleColor,
+  numberColor,
+  textColor,
+  backgroundColor,
+  slideId,
+  theme,
+  isEditable = false,
+  onUpdate
+}) => {
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const tColor = titleColor || currentTheme.colors.titleColor;
+  const numColor = numberColor || currentTheme.colors.accentColor;
+  const txtColor = textColor || currentTheme.colors.contentColor;
+  const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
+
+  // Inline editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingMetrics, setEditingMetrics] = useState<{ [key: number]: { number?: boolean; text?: boolean } }>({});
+
+  const handleTitleSave = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
+    setEditingTitle(false);
+  };
+
+  const handleTitleCancel = () => {
+    setEditingTitle(false);
+  };
+
+  const handleMetricSave = (index: number, field: 'number' | 'text', value: string) => {
+    if (onUpdate) {
+      const updatedMetrics = [...metrics];
+      updatedMetrics[index] = { ...updatedMetrics[index], [field]: value };
+      onUpdate({ metrics: updatedMetrics });
+    }
+    setEditingMetrics(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: false } 
+    }));
+  };
+
+  const handleMetricCancel = (index: number, field: 'number' | 'text') => {
+    setEditingMetrics(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: false } 
+    }));
+  };
+
+  const handleMetricEdit = (index: number, field: 'number' | 'text') => {
+    if (!isEditable) return;
+    setEditingMetrics(prev => ({ 
+      ...prev, 
+      [index]: { ...prev[index], [field]: true } 
+    }));
+  };
+
+  return (
+    <div
+      style={{
+        background: bgColor,
+        minHeight: 600,
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: currentTheme.fonts.contentFont,
+        position: 'relative',
+        padding: '40px',
+        boxSizing: 'border-box'
+      }}
+    >
+      {/* Title Section */}
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={false}
+            placeholder="Enter title..."
+            style={{
+              fontWeight: 700,
+              fontSize: currentTheme.fonts.titleSize,
+              color: tColor,
+              textAlign: 'center',
+              width: '100%',
+              fontFamily: currentTheme.fonts.titleFont
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: currentTheme.fonts.titleSize,
+              color: tColor,
+              textAlign: 'center',
+              cursor: isEditable ? 'pointer' : 'default',
+              fontFamily: currentTheme.fonts.titleFont
+            }}
+            onClick={() => isEditable && setEditingTitle(true)}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || (isEditable ? 'Click to add title' : '')}
+          </div>
+        )}
+      </div>
+
+      {/* Metrics Grid */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr 1fr', 
+        gap: '40px',
+        flex: 1,
+        position: 'relative'
+      }}>
+
+        {metrics.map((metric, index) => (
+          <div key={index} style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            position: 'relative',
+            zIndex: 2,
+            padding: '20px',
+            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            transition: 'all 0.3s ease',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}>
+            {/* Number */}
+            {isEditable && editingMetrics[index]?.number ? (
+              <InlineEditor
+                initialValue={metric.number}
+                onSave={(value) => handleMetricSave(index, 'number', value)}
+                onCancel={() => handleMetricCancel(index, 'number')}
+                multiline={false}
+                placeholder="Enter number..."
+                style={{
+                  fontSize: '36px',
+                  fontWeight: 700,
+                  color: numColor,
+                  marginBottom: '16px',
+                  fontFamily: currentTheme.fonts.titleFont,
+                  textAlign: 'center',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+              />
+            ) : (
+              <div 
+                style={{
+                  fontSize: '36px',
+                  fontWeight: 700,
+                  color: numColor,
+                  marginBottom: '16px',
+                  fontFamily: currentTheme.fonts.titleFont,
+                  cursor: isEditable ? 'pointer' : 'default',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+                onClick={() => isEditable && handleMetricEdit(index, 'number')}
+              >
+                {metric.number}
+              </div>
+            )}
+            
+            {/* Text */}
+            {isEditable && editingMetrics[index]?.text ? (
+              <InlineEditor
+                initialValue={metric.text}
+                onSave={(value) => handleMetricSave(index, 'text', value)}
+                onCancel={() => handleMetricCancel(index, 'text')}
+                multiline={true}
+                placeholder="Enter text..."
+                style={{
+                  fontSize: currentTheme.fonts.contentSize,
+                  color: txtColor,
+                  lineHeight: '1.5',
+                  fontFamily: currentTheme.fonts.contentFont,
+                  textAlign: 'center',
+                  fontWeight: '500'
+                }}
+              />
+            ) : (
+              <div 
+                style={{
+                  fontSize: currentTheme.fonts.contentSize,
+                  color: txtColor,
+                  lineHeight: '1.5',
+                  fontFamily: currentTheme.fonts.contentFont,
+                  cursor: isEditable ? 'pointer' : 'default',
+                  fontWeight: '500'
+                }}
+                onClick={() => isEditable && handleMetricEdit(index, 'text')}
+              >
+                {metric.text || (isEditable ? 'Click to add text' : '')}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default MetricsAnalyticsTemplate; 

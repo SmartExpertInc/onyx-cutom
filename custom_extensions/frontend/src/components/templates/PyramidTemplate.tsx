@@ -1,20 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-export interface PyramidItem {
-  heading: string;
-  description: string;
-}
-
-export interface PyramidTemplateProps {
-  slideId: string;
-  title: string;
-  subtitle: string;
-  items: PyramidItem[];
-  theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
-  isEditable?: boolean;
-}
+import { PyramidTemplateProps } from '@/types/slideTemplates';
 
 interface InlineEditorProps {
   initialValue: string;
