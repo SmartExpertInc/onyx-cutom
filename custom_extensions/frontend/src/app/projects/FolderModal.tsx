@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { Plus, Search, Users, Trash2, X } from 'lucide-react';
+import { Plus, Users, X } from 'lucide-react';
 
 interface FolderModalProps {
   open: boolean;
@@ -11,11 +11,11 @@ interface FolderModalProps {
 
 const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreated, existingFolders }) => {
   const [folderName, setFolderName] = useState('');
-  const [clientWebsite, setClientWebsite] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
 
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
+
   const { t } = useLanguage();
 
   // Fetch all projects for folder content move
@@ -54,15 +54,13 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         body: JSON.stringify({ 
           name: folderName.trim(),
           parent_id: selectedParentId,
-          quality_tier: 'interactive',
-          website: clientWebsite.trim() || null
+          quality_tier: 'interactive'
         })
       });
       if (!res.ok) throw new Error('Failed to create client');
       const data = await res.json();
       onFolderCreated(data);
       setFolderName('');
-      setClientWebsite('');
       setSelectedParentId(null);
       if (typeof window !== 'undefined') (window as any).__modalOpen = false;
       
@@ -117,17 +115,6 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   value={folderName}
                   onChange={e => setFolderName(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
-                />
-              </div>
-              
-              <div className="relative">
-                <input
-                  type="url"
-                  placeholder={t('interface.enterClientWebsitePlaceholder', 'Enter website URL (optional)...')}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                  value={clientWebsite}
-                  onChange={e => setClientWebsite(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
                 />
               </div>
