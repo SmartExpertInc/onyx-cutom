@@ -236,9 +236,6 @@ Edit Mode Rules:
 5. **PRESERVE ORIGINAL LANGUAGE**: The edited content MUST be in the same language as the original content. Do NOT translate table headers, field labels, or any text unless explicitly requested in the edit prompt. If the original content has Ukrainian headers like "Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань", preserve these EXACTLY.
 6. **PRESERVE MODULE ID FORMATS**: If you see module headers like "## #1: Title", "## mod3: Title", or any non-standard format, preserve the EXACT ID format (#1, mod3, etc.) in your output. Do NOT convert to standard "Module X" format.
 7. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
-5. **PRESERVE ORIGINAL LANGUAGE**: The edited content MUST be in the same language as the original content. Do NOT translate table headers, field labels, or any text unless explicitly requested in the edit prompt. If the original content has Ukrainian headers like "Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань", preserve these EXACTLY.
-6. **PRESERVE MODULE ID FORMATS**: If you see module headers like "## #1: Title", "## mod3: Title", or any non-standard format, preserve the EXACT ID format (#1, mod3, etc.) in your output. Do NOT convert to standard "Module X" format.
-7. **CRITICAL: Only make the changes specifically requested in the edit prompt. Do NOT modify anything else.**
    - **PRESERVE MODULE IDs EXACTLY**: When you see module headers like "## Module 3: Advanced AI Applications", you MUST preserve the EXACT format and numbering in your output. If you see "Module 3", output "Module 3". If you see "Module 61", output "Module 61". Do NOT renumber or change the module identifier format unless explicitly asked.
    - **PRESERVE ORIGINAL ID FORMAT**: If the original content uses a specific module ID format (like "#1", "Module 3", etc.), maintain that EXACT format in your edited output.
    - If the user asks to change creation hours, ONLY change the creation hours - preserve all module IDs, lesson names, completion times, content coverage percentages, knowledge assessment values, and information sources exactly as they are
@@ -1105,6 +1102,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
 - **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
+- **NEW TEMPLATE PRIORITY**: When both `timeline` and `event-dates` could apply, ALWAYS choose `event-dates` for project schedules, milestones, and event dates
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
 - **For `leftContent` and `rightContent`**: Use flowing paragraph text, NOT lists
