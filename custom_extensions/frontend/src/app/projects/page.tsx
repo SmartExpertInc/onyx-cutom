@@ -417,18 +417,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
       <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          placeholder={t('interface.jumpTo', 'Jump to')}
-          className="w-full bg-gray-100 rounded-md pl-8 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">{t('interface.keyboardShortcut', '⌘+K')}</div>
+        <div className="w-full bg-gray-100 rounded-md px-4 py-2 flex items-center justify-center">
+          <span className="text-gray-700 font-semibold text-sm">ContentBuilder</span>
+        </div>
       </div>
       <nav className="flex flex-col gap-1">
         <Link 
           href="/projects" 
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => onFolderSelect(null)}
         >
           <Home size={18} />
@@ -464,7 +460,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             placeholder={t('interface.searchClients', 'Search clients...')}
             value={clientSearchTerm}
             onChange={(e) => setClientSearchTerm(e.target.value)}
-            className="w-full bg-gray-50 rounded-md pl-8 pr-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white"
+            className="w-full bg-gray-50 rounded-md pl-8 pr-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white text-black placeholder-gray-500"
           />
         </div>
         
