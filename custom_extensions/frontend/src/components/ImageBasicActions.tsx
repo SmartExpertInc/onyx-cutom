@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { ImageBlock } from '@/types/textPresentation';
 import { Settings, ChevronDown, Edit3, ZoomIn, Move, Palette, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -10,15 +9,13 @@ interface ImageBasicActionsProps {
   imageBlock: ImageBlock;
   onImageChange: (updatedBlock: ImageBlock) => void;
   onOpenAdvancedSettings: () => void;
-  imageRef?: React.RefObject<HTMLImageElement | null>;
 }
 
 const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   imageBlock,
   onImageChange,
-  onOpenAdvancedSettings,
-  imageRef
-}: ImageBasicActionsProps) => {
+  onOpenAdvancedSettings
+}) => {
   const [showMenu, setShowMenu] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -73,16 +70,15 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
       </button>
       
       {/* Basic Actions Dropdown */}
-      {showMenu && imageRef?.current && createPortal(
+      {showMenu && (
         <div 
           ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
           onMouseEnter={(e: React.MouseEvent) => e.stopPropagation()}
           onMouseLeave={(e: React.MouseEvent) => e.stopPropagation()}
-          className="fixed w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] max-h-96 overflow-y-auto"
+          className="absolute left-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
           style={{
-            left: imageRef.current.getBoundingClientRect().right - 224, // 224px = 56 * 4 (w-56)
-            top: imageRef.current.getBoundingClientRect().top + 8,
+            transform: 'translateY(0)',
             maxHeight: 'calc(100vh - 100px)'
           }}
         >
@@ -183,8 +179,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
               </div>
             </div>
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );
