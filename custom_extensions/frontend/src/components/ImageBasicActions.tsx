@@ -61,20 +61,17 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     {
       value: 'standalone',
       icon: ImageIcon,
-      label: 'Окремо',
-      preview: '🖼️'
+      label: 'Окремо'
     },
     {
       value: 'inline-left',
       icon: Layout,
-      label: 'Зліва від тексту',
-      preview: '🖼️ 📄'
+      label: 'Зліва від тексту'
     },
     {
       value: 'inline-right',
       icon: Layout,
-      label: 'Справа від тексту',
-      preview: '📄 🖼️'
+      label: 'Справа від тексту'
     },
     // {
     //   value: 'side-by-side-left',
@@ -161,11 +158,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 <div className="flex items-center gap-2">
                   <Layout className="w-3 h-3" />
                   <span className="font-medium">{t('interface.imageSettings.layoutOptions', 'Layout Options')}</span>
-                  {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
-                    <span className="text-xs text-blue-600 bg-blue-100 px-1 py-0.5 rounded">
-                      🖼️📄
-                    </span>
-                  )}
                 </div>
                 <ChevronRight className={`w-3 h-3 transition-transform duration-200 ${showLayoutOptions ? 'rotate-90' : ''}`} />
               </button>
@@ -196,7 +188,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                           }`}
                           title={option.label}
                         >
-                          <span className="text-sm">{option.preview}</span>
                           <div className="flex-1">
                             <div className="font-medium">{option.label}</div>
                           </div>
