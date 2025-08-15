@@ -5,7 +5,8 @@ import { ImageBlock } from '@/types/textPresentation';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
   Settings, X, RotateCcw, ZoomIn, ZoomOut, Move, Crop, 
-  Palette, Type, Layout, Image as ImageIcon, ChevronDown, Edit3
+  Palette, Type, Layout, Image as ImageIcon, ChevronDown, Edit3,
+  AlignLeft, AlignCenter, AlignRight, MoreHorizontal
 } from 'lucide-react';
 
 interface WordStyleImageEditorProps {
@@ -73,9 +74,9 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
   ];
 
   const alignmentOptions = [
-    { value: 'left', icon: '⬅️', label: t('interface.imageSettings.left') },
-    { value: 'center', icon: '⬆️', label: t('interface.imageSettings.center') },
-    { value: 'right', icon: '➡️', label: t('interface.imageSettings.right') }
+    { value: 'left', icon: AlignLeft, label: t('interface.imageSettings.left') },
+    { value: 'center', icon: AlignCenter, label: t('interface.imageSettings.center') },
+    { value: 'right', icon: AlignRight, label: t('interface.imageSettings.right') }
   ];
 
   if (!isOpen) return null;
@@ -97,12 +98,22 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
               <p className="text-blue-100 text-sm">{t('interface.blockSettings.customizeContent')}</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Advanced Settings Button - Top Right */}
+            <button
+              onClick={() => setActiveTab('effects')}
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+              title={t('interface.imageSettings.advancedSettings')}
+            >
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-1 overflow-hidden">
@@ -141,7 +152,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Palette className="w-4 h-4" />
-                      {t('interface.imageSettings.quickSizeControls')}
+                      {t('interface.imageSettings.quickStyles')}
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
                       {quickSizePresets.map((preset) => (
@@ -163,7 +174,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           }`}
                         >
                           <div className="text-sm font-medium text-gray-900">{preset.name}</div>
-                          <div className="text-xs text-gray-500">{preset.width}px</div>
+                          <div className="text-xs text-gray-500">{preset.width}</div>
                         </button>
                       ))}
                     </div>
@@ -176,22 +187,25 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                       {t('interface.imageSettings.alignment')}
                     </h3>
                     <div className="flex gap-2">
-                      {alignmentOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => updateImageProperty('alignment', option.value)}
-                          className={`flex-1 p-3 border rounded-lg transition-colors ${
-                            localImageBlock.alignment === option.value
-                              ? 'border-[#2b579a] bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <div className="text-center">
-                            <div className="text-lg mb-1">{option.icon}</div>
-                            <div className="text-xs text-gray-600">{option.label}</div>
-                          </div>
-                        </button>
-                      ))}
+                      {alignmentOptions.map((option) => {
+                        const IconComponent = option.icon;
+                        return (
+                          <button
+                            key={option.value}
+                            onClick={() => updateImageProperty('alignment', option.value)}
+                            className={`flex-1 p-3 border rounded-lg transition-colors ${
+                              localImageBlock.alignment === option.value
+                                ? 'border-[#2b579a] bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="text-center">
+                              <IconComponent className="w-5 h-5 mx-auto mb-1 text-gray-700" />
+                              <div className="text-xs text-gray-600">{option.label}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 

@@ -464,6 +464,7 @@ export const uk = {
       proportionImageMuchSmaller: "30% - 70% (Зображення набагато менше)",
       // Quick size controls
       quickSizeControls: "Швидкі елементи керування розміром",
+      quickStyles: "Швидкі стилі",
       smaller: "Менше",
       larger: "Більше",
       resetToDefaultSize: "Скинути до розміру за замовчуванням",
@@ -533,7 +534,8 @@ export const uk = {
       additionalContentPlaceholder: "Додатковий контент з вашого документа продовжиться тут, показуючи як зображення інтегрується з навколишнім текстом та макетом.",
       previewDescription: "Попередній перегляд демонструє зміни стилю зображення в реальному часі та як це впливає на загальну презентацію документа.",
       // Basic actions dropdown
-      openAdvancedSettings: "Відкрити розширені налаштування"
+      openAdvancedSettings: "Відкрити розширені налаштування",
+      advancedSettings: "Розширені налаштування"
     },
     
     // Quality tiers
