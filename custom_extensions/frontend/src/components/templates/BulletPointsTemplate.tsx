@@ -615,6 +615,15 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
         updateData.heightPx = payload.imageSize.height;
       }
       
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.objectFit = payload.objectFit;
+        console.log('BulletPointsTemplate: objectFit update', { 
+          slideId, 
+          objectFit: payload.objectFit 
+        });
+      }
+      
       onUpdate(updateData);
     }
   };

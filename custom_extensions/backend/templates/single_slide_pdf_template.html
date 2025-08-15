@@ -1698,7 +1698,15 @@
                             {% if slide.props.leftImagePath %}
                                 <img src="{{ slide.props.leftImagePath }}" 
                                      alt="Uploaded image" 
-                                     style="width: 100%; max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; object-fit: cover; border-radius: 8px; "
+                                     style="
+                                        width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '100%' }};
+                                        height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else 'auto' }};
+                                        max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale if slide.props.leftImageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
@@ -1736,7 +1744,15 @@
                             {% if slide.props.rightImagePath %}
                                 <img src="{{ slide.props.rightImagePath }}" 
                                      alt="Uploaded image" 
-                                     style="width: 100%; max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; object-fit: cover; border-radius: 8px; "
+                                     style="
+                                        width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '100%' }};
+                                        height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else 'auto' }};
+                                        max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale if slide.props.rightImageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>

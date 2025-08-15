@@ -45,6 +45,10 @@ logger.setLevel(logging.INFO)
 html_logger = logging.getLogger('pdf_html_debug')
 html_logger.setLevel(logging.INFO)
 
+# Create a separate logger for image fit debugging
+image_fit_logger = logging.getLogger('pdf_image_fit_debug')
+image_fit_logger.setLevel(logging.INFO)
+
 PDF_CACHE_DIR = Path("/tmp/pdf_cache")
 PDF_CACHE_DIR.mkdir(exist_ok=True)
 
@@ -195,7 +199,7 @@ def timeout_wrapper(timeout_seconds: int):
 
 # Enhanced logging functions for debugging
 async def log_slide_data_structure(slide_data: dict, slide_index: int = None, template_id: str = None):
-    """Log detailed information about slide data structure."""
+    """Log detailed slide data structure for debugging."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
     template_info = f" ({template_id})" if template_id else ""
     
@@ -238,8 +242,108 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             for key, value in props.items():
                 if key not in ['bullets', 'title', 'content']:
                     logger.info(f"Additional prop '{key}': type={type(value)}, value={value}")
+        
+        # Log specific properties for big image templates
+        if template_id in ['big-image-left', 'big-image-top']:
+            logger.info("=== BIG IMAGE TEMPLATE ANALYSIS ===")
+            
+            # Log image-related properties
+            image_props = ['imagePath', 'imageUrl', 'imageAlt', 'imagePrompt']
+            size_props = ['widthPx', 'heightPx', 'objectFit', 'imageScale', 'imageOffset']
+            
+            for prop_name in image_props:
+                value = props.get(prop_name)
+                logger.info(f"Image prop '{prop_name}': type={type(value)}, value={value}")
+            
+            for prop_name in size_props:
+                value = props.get(prop_name)
+                logger.info(f"Size prop '{prop_name}': type={type(value)}, value={value}")
+            
+            # Log title and subtitle
+            logger.info(f"Title: {props.get('title', 'No title')}")
+            logger.info(f"Subtitle: {props.get('subtitle', 'No subtitle')}")
     
     logger.info(f"=== END SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
+
+async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log image fit properties specifically for debugging fit styles in PDF."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    image_fit_logger.info(f"=== IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
+    
+    if isinstance(slide_data, dict):
+        template_id = slide_data.get('templateId', 'Unknown')
+        props = slide_data.get('props', {})
+        
+        # Check if this is a template with images
+        if template_id in ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']:
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log image path
+            image_path = props.get('imagePath')
+            image_fit_logger.info(f"Image path: {image_path}")
+            
+            # Log size and fit properties
+            width_px = props.get('widthPx')
+            height_px = props.get('heightPx')
+            object_fit = props.get('objectFit')
+            image_scale = props.get('imageScale')
+            image_offset = props.get('imageOffset')
+            
+            image_fit_logger.info(f"Width: {width_px}px")
+            image_fit_logger.info(f"Height: {height_px}px")
+            image_fit_logger.info(f"Object fit: {object_fit}")
+            image_fit_logger.info(f"Image scale: {image_scale}")
+            image_fit_logger.info(f"Image offset: {image_offset}")
+            
+            # Check if objectFit is missing
+            if object_fit is None:
+                image_fit_logger.warning(f"⚠️ OBJECT FIT IS MISSING for {slide_info}{template_info}")
+                image_fit_logger.warning(f"⚠️ This will cause PDF to use default 'cover' instead of user-selected fit style")
+            else:
+                image_fit_logger.info(f"✅ Object fit is present: {object_fit}")
+            
+            # Log what the PDF template will receive
+            pdf_object_fit = object_fit if object_fit else 'cover'
+            image_fit_logger.info(f"PDF template will use object-fit: {pdf_object_fit}")
+            
+        elif template_id == 'two-column':
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log left image properties
+            left_image_path = props.get('leftImagePath')
+            left_object_fit = props.get('leftObjectFit')
+            left_width_px = props.get('leftWidthPx')
+            left_height_px = props.get('leftHeightPx')
+            
+            image_fit_logger.info(f"Left image path: {left_image_path}")
+            image_fit_logger.info(f"Left object fit: {left_object_fit}")
+            image_fit_logger.info(f"Left width: {left_width_px}px")
+            image_fit_logger.info(f"Left height: {left_height_px}px")
+            
+            if left_object_fit is None:
+                image_fit_logger.warning(f"⚠️ LEFT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Left object fit is present: {left_object_fit}")
+            
+            # Log right image properties
+            right_image_path = props.get('rightImagePath')
+            right_object_fit = props.get('rightObjectFit')
+            right_width_px = props.get('rightWidthPx')
+            right_height_px = props.get('rightHeightPx')
+            
+            image_fit_logger.info(f"Right image path: {right_image_path}")
+            image_fit_logger.info(f"Right object fit: {right_object_fit}")
+            image_fit_logger.info(f"Right width: {right_width_px}px")
+            image_fit_logger.info(f"Right height: {right_height_px}px")
+            
+            if right_object_fit is None:
+                image_fit_logger.warning(f"⚠️ RIGHT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Right object fit is present: {right_object_fit}")
+    
+    image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
 
 async def log_html_content(html_content: str, slide_index: int = None, template_id: str = None):
     """Log HTML content for debugging."""
@@ -1253,6 +1357,9 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             logger.info(f"DEBUG: Template data for {slide_info}{template_info}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
             if safe_slide_data.get('props', {}).get('items'):
                 logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
+            
+            # ✅ NEW: Log image fit properties before template rendering
+            await log_image_fit_properties(safe_slide_data, slide_index, template_id)
             
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)

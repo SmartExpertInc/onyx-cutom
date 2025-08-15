@@ -177,6 +177,7 @@ export interface TwoColumnProps extends BaseTemplateProps {
   // Optional size/transform fields for left placeholder image
   leftWidthPx?: number;
   leftHeightPx?: number;
+  leftObjectFit?: 'contain' | 'cover' | 'fill';
   leftImageScale?: number;
   leftImageOffset?: { x: number; y: number };
   rightTitle: string;
@@ -188,6 +189,7 @@ export interface TwoColumnProps extends BaseTemplateProps {
   // Optional size/transform fields for right placeholder image
   rightWidthPx?: number;
   rightHeightPx?: number;
+  rightObjectFit?: 'contain' | 'cover' | 'fill';
   rightImageScale?: number;
   rightImageOffset?: { x: number; y: number };
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';

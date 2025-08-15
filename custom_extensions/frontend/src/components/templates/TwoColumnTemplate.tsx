@@ -268,6 +268,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
         updateData.leftHeightPx = payload.imageSize.height;
       }
       
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.leftObjectFit = payload.objectFit;
+        console.log('TwoColumnTemplate: left objectFit update', { 
+          objectFit: payload.objectFit 
+        });
+      }
+      
       onUpdate(updateData);
     }
   };
@@ -284,6 +292,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       if (payload.imageSize) {
         updateData.rightWidthPx = payload.imageSize.width;
         updateData.rightHeightPx = payload.imageSize.height;
+      }
+      
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.rightObjectFit = payload.objectFit;
+        console.log('TwoColumnTemplate: right objectFit update', { 
+          objectFit: payload.objectFit 
+        });
       }
       
       onUpdate(updateData);
@@ -608,7 +624,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                     setEditingRightContent(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover-border-opacity-50' : ''}
               >
                 {rightContent || 'Click to add right content'}
               </p>

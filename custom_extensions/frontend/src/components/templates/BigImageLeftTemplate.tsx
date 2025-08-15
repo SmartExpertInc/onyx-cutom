@@ -337,6 +337,15 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       updateData.heightPx = payload.imageSize.height;
     }
     
+    // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+    if (payload.objectFit) {
+      updateData.objectFit = payload.objectFit;
+      log('BigImageLeftTemplate', 'objectFit_update', { 
+        slideId, 
+        objectFit: payload.objectFit 
+      });
+    }
+    
     // Use debounced update for size/transform changes
     handleUpdate(updateData);
   };

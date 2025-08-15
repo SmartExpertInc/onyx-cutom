@@ -320,6 +320,15 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
         updateData.heightPx = payload.imageSize.height;
       }
       
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.objectFit = payload.objectFit;
+        log('BigImageTopTemplate', 'objectFit_update', { 
+          slideId, 
+          objectFit: payload.objectFit 
+        });
+      }
+      
       onUpdate(updateData);
     }
   };
