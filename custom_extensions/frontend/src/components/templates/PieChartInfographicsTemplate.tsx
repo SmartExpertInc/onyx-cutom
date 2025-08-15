@@ -112,8 +112,7 @@ function InlineEditor({
         outline: 'none',
         boxShadow: 'none',
         width: '100%',
-        boxSizing: 'border-box',
-        display: 'block'
+        boxSizing: 'border-box'
       }}
     />
   );
@@ -154,6 +153,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingSegmentDesc, setEditingSegmentDesc] = useState<number | null>(null);
   const [editingDescText, setEditingDescText] = useState(false);
   const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
+  const [editingColor, setEditingColor] = useState<number | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -201,7 +201,16 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingSegment(null);
     const newMonthlyData = [...monthlyData];
     newMonthlyData[segmentIndex] = { ...newMonthlyData[segmentIndex], month: newValue };
-    const newData = { title, chartData, monthlyData: newMonthlyData, descriptionText };
+    
+    const newSegments = [...chartData.segments];
+    newSegments[segmentIndex] = { ...newSegments[segmentIndex], label: newValue };
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData: newMonthlyData, 
+      descriptionText 
+    };
     scheduleAutoSave(newData);
   };
 
@@ -213,7 +222,16 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingSegmentDesc(null);
     const newMonthlyData = [...monthlyData];
     newMonthlyData[segmentIndex] = { ...newMonthlyData[segmentIndex], description: newValue };
-    const newData = { title, chartData, monthlyData: newMonthlyData, descriptionText };
+    
+    const newSegments = [...chartData.segments];
+    newSegments[segmentIndex] = { ...newSegments[segmentIndex], description: newValue };
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData: newMonthlyData, 
+      descriptionText 
+    };
     scheduleAutoSave(newData);
   };
 
@@ -228,8 +246,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     const newSegments = [...chartData.segments];
     newSegments[segmentIndex] = {
       ...newSegments[segmentIndex],
-      percentage: newPercentage,
-      label: `Сегмент ${segmentIndex + 1}`
+      percentage: newPercentage
     };
     
     const newMonthlyData = [...monthlyData];
@@ -251,6 +268,34 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingPercentage(null);
   };
 
+  const handleColorSave = (segmentIndex: number, newColor: string) => {
+    setEditingColor(null);
+    
+    const newSegments = [...chartData.segments];
+    newSegments[segmentIndex] = {
+      ...newSegments[segmentIndex],
+      color: newColor
+    };
+    
+    const newMonthlyData = [...monthlyData];
+    newMonthlyData[segmentIndex] = {
+      ...newMonthlyData[segmentIndex],
+      color: newColor
+    };
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData: newMonthlyData,
+      descriptionText
+    };
+    scheduleAutoSave(newData);
+  };
+
+  const handleColorCancel = (segmentIndex: number) => {
+    setEditingColor(null);
+  };
+
   const startEditingTitle = () => {
     setEditingTitle(true);
   };
@@ -269,6 +314,10 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
 
   const startEditingPercentage = (index: number) => {
     setEditingPercentage(index);
+  };
+
+  const startEditingColor = (index: number) => {
+    setEditingColor(index);
   };
 
   // Create conic gradient for pie chart
@@ -356,10 +405,15 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             {monthlyData.slice(0, 3).map((item, index) => (
               <div key={index} className="flex flex-col gap-3 max-w-xs">
                 <div className="flex items-center gap-3">
+                  {/* Color indicator - clickable for editing */}
                   <div 
-                    className="w-4 h-4 rounded-full"
+                    className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
                     style={{ backgroundColor: item.color }}
+                    onClick={() => isEditable && startEditingColor(index)}
+                    title="Click to change color"
                   />
+                  
+                  {/* Segment name */}
                   <div 
                     className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1"
                     style={{ backgroundColor: item.color }}
@@ -385,6 +439,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       </span>
                     )}
                   </div>
+                  
+                  {/* Percentage */}
                   <div className="text-lg font-bold" style={{ color: themeContent }}>
                     {editingPercentage === index && isEditable ? (
                       <InlineEditor
@@ -409,6 +465,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     )}
                   </div>
                 </div>
+                
+                {/* Description */}
                 <div className="text-base leading-relaxed ml-7">
                   {editingSegmentDesc === index && isEditable ? (
                     <InlineEditor
@@ -465,10 +523,15 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
               return (
                 <div key={actualIndex} className="flex flex-col gap-3 max-w-xs">
                   <div className="flex items-center gap-3">
+                    {/* Color indicator - clickable for editing */}
                     <div 
-                      className="w-4 h-4 rounded-full"
+                      className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
                       style={{ backgroundColor: item.color }}
+                      onClick={() => isEditable && startEditingColor(actualIndex)}
+                      title="Click to change color"
                     />
+                    
+                    {/* Segment name */}
                     <div 
                       className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1"
                       style={{ backgroundColor: item.color }}
@@ -494,6 +557,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                         </span>
                       )}
                     </div>
+                    
+                    {/* Percentage */}
                     <div className="text-lg font-bold" style={{ color: themeContent }}>
                       {editingPercentage === actualIndex && isEditable ? (
                         <InlineEditor
@@ -518,6 +583,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       )}
                     </div>
                   </div>
+                  
+                  {/* Description */}
                   <div className="text-base leading-relaxed ml-7">
                     {editingSegmentDesc === actualIndex && isEditable ? (
                       <InlineEditor
@@ -547,6 +614,34 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           </div>
         </div>
       </div>
+      
+      {/* Color picker modal for editing colors */}
+      {editingColor !== null && isEditable && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-bold mb-4">Выберите цвет для сегмента</h3>
+            <div className="grid grid-cols-6 gap-2 mb-4">
+              {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#67E8F9', '#0891B2', '#F97316', '#FB923C', '#FBBF24', '#34D399', '#10B981', '#059669', '#047857', '#F87171', '#EF4444', '#DC2626', '#B91C1C', '#A855F7', '#8B5CF6', '#7C3AED', '#6D28D9', '#F472B6', '#EC4899', '#DB2777', '#BE185D'].map((color) => (
+                <button
+                  key={color}
+                  className="w-8 h-8 rounded border-2 border-gray-300 hover:border-gray-500 transition-colors"
+                  style={{ backgroundColor: color }}
+                  onClick={() => handleColorSave(editingColor, color)}
+                  title={color}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                onClick={() => handleColorCancel(editingColor)}
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
