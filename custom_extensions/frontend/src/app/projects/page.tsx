@@ -420,7 +420,19 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-blue-600 font-bold text-lg">CB</span>
+              {/* SVG Logo Placeholder - Replace with your actual logo */}
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-blue-600"
+              >
+                {/* Placeholder logo - replace this with your actual SVG */}
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
             </div>
             <div className="text-white">
               <div className="font-bold text-sm leading-tight">Content</div>
