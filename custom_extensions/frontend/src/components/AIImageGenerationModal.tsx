@@ -17,16 +17,20 @@ interface AIImageGenerationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onImageGenerated: (imagePath: string) => void;
+  onGenerationStarted: () => void; // NEW: Callback when generation starts
   placeholderDimensions?: { width: number; height: number };
   title?: string;
+  preFilledPrompt?: string; // NEW: Pre-filled prompt from AI
 }
 
 const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
   isOpen,
   onClose,
   onImageGenerated,
+  onGenerationStarted,
   placeholderDimensions = { width: 1024, height: 1024 },
-  title = "Generate AI Image"
+  title = "Generate AI Image",
+  preFilledPrompt
 }) => {
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -57,8 +61,14 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       setPrompt('');
       setError(null);
       setGenerating(false);
+    } else if (preFilledPrompt) {
+      // Pre-fill prompt when modal opens
+      setPrompt(preFilledPrompt);
+      log('AIImageGenerationModal', 'preFillPrompt', { 
+        preFilledPrompt: preFilledPrompt.substring(0, 50) + '...'
+      });
     }
-  }, [isOpen]);
+  }, [isOpen, preFilledPrompt]);
 
   const generateImage = async () => {
     if (!prompt.trim()) {
@@ -73,9 +83,11 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       style
     });
 
-    setGenerating(true);
-    setError(null);
-    
+    // ✅ NEW: Close modal immediately and notify parent
+    onGenerationStarted();
+    onClose();
+
+    // ✅ NEW: Continue generation in background
     try {
       // ✅ FIX: Ensure we send valid DALL-E 3 dimensions
       let width = 1024;
@@ -120,7 +132,6 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       });
 
       onImageGenerated(result.file_path);
-      onClose();
       
     } catch (err: any) {
       const errorMessage = err.message || 'AI image generation failed';
@@ -128,12 +139,8 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
         error: errorMessage,
         errorObject: err
       });
-      setError(errorMessage);
-    } finally {
-      setGenerating(false);
-      log('AIImageGenerationModal', 'generateImage_finished', { 
-        hadError: !!error
-      });
+      // ✅ NEW: Handle error by calling onImageGenerated with null to indicate failure
+      onImageGenerated(null as any);
     }
   };
 
