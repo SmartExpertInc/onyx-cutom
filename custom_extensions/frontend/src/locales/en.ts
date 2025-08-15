@@ -353,6 +353,8 @@ export const en = {
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Shared with you",
     folders: "Folders",
+    clients: "Clients",
+    noClientsYet: "No clients yet",
     createOrJoinFolder: "Create or join a folder",
     organizeProducts: "Organize your products by topic and share them with your team",
     templates: "Templates",

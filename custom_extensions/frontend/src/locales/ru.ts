@@ -336,6 +336,8 @@ export const ru = {
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Поделились с вами",
     folders: "Папки",
+    clients: "Клиенты",
+    noClientsYet: "Пока нет клиентов",
     createOrJoinFolder: "Создать или присоединиться к папке",
     organizeProducts: "Организуйте свои продукты по темам и делитесь ими с командой",
     templates: "Шаблоны",

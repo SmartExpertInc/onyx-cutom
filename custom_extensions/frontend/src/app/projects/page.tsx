@@ -423,6 +423,55 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
         </Link>
       </nav>
+
+      {/* Clients Section */}
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('interface.clients', 'Clients')}</h3>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
+            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            title={t('interface.addClient', 'Add Client')}
+          >
+            <Plus size={14} />
+          </button>
+        </div>
+        
+        <div className="space-y-1">
+          {folders.length === 0 ? (
+            <div className="text-xs text-gray-500 px-2 py-1">
+              {t('interface.noClientsYet', 'No clients yet')}
+            </div>
+          ) : (
+            folders.map((folder) => {
+              const projectCount = folderProjects[folder.id]?.length || 0;
+              return (
+                <button
+                  key={folder.id}
+                  onClick={() => onFolderSelect(folder.id)}
+                  className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-colors ${
+                    selectedFolderId === folder.id
+                      ? 'bg-green-50 text-green-700 font-medium'
+                      : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, folder.id)}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                >
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="truncate text-sm">{folder.name}</span>
+                  </div>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                    {projectCount}
+                  </span>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <LayoutTemplate size={18} />

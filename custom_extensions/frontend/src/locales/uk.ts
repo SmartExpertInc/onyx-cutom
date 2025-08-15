@@ -322,6 +322,8 @@ export const uk = {
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Поділилися з вами",
     folders: "Папки",
+    clients: "Клієнти",
+    noClientsYet: "Поки немає клієнтів",
     createOrJoinFolder: "Створити або приєднатися до папки",
     organizeProducts: "Організуйте свої продукти за темами та діліться ними з командою",
     templates: "Шаблони",
