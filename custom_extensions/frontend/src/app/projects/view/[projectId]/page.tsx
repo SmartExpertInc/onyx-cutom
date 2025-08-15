@@ -923,6 +923,7 @@ export default function ProjectInstanceViewPage() {
         
         // Reset count after opening preview
         setPdfDownloadCount(0);
+    }
   };
 
   const handleToggleEdit = () => {
@@ -1351,8 +1352,8 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
             
-                         {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-                   <button
+            {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
+              <button
                      onClick={() => {
                        console.log('🔍 Download PDF button clicked');
                        handlePdfDownload();
