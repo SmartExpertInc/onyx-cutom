@@ -226,9 +226,9 @@
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
                                 <td style="text-align:center;">
-                                    {% if project.total_completion_time > 0 %}
-                                        {% set h = project.total_completion_time // 60 %}
-                                        {% set m = project.total_completion_time % 60 %}
+                                        {% if project.total_completion_time > 0 %}
+                                            {% set h = project.total_completion_time // 60 %}
+                                            {% set m = project.total_completion_time % 60 %}
                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                     {% else %}-{% endif %}
                                     </td>
@@ -239,7 +239,7 @@
                     {% endif %}
                 {% if not folders and not unassigned_projects %}
                     <tr><td colspan="4" style="text-align:center; color:#888;">No projects found.</td></tr>
-                {% endif %}
+                    {% endif %}
                 </tbody>
             </table>
     </div>

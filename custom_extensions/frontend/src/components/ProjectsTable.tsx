@@ -973,7 +973,7 @@ const FolderRow: React.FC<{
             {/* Loading state for folder projects */}
             {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
                 <tr>
-                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 1} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + (columnVisibility.customOffer ? 2 : 1)} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                         Loading projects...
                     </td>
                 </tr>
@@ -1209,16 +1209,18 @@ const ClientRow: React.FC<{
                         })()}
                     </td>
                 )}
-                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                    <button
-                        onClick={() => handleClientPdfDownload(folder.id, folder.name, folderProjectsList)}
-                        className="flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
-                        title={t('common.downloadPdf', 'Download PDF')}
-                    >
-                        <ArrowDownToLine size={14} />
-                        {t('common.downloadPdf', 'Download PDF')}
-                    </button>
-                </td>
+                {columnVisibility.customOffer && (
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button
+                            onClick={() => handleClientPdfDownload(folder.id, folder.name, folderProjectsList)}
+                            className="flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
+                            title={t('common.downloadPdf', 'Download PDF')}
+                        >
+                            <ArrowDownToLine size={14} />
+                            {t('common.downloadPdf', 'Download PDF')}
+                        </button>
+                    </td>
+                )}
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                     <FolderRowMenu 
                         folder={folder} 
@@ -1351,8 +1353,10 @@ const ClientRow: React.FC<{
                             </td>
                         )}
                         {/* Empty cell to align with client PDF download button column */}
-                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        </td>
+                        {columnVisibility.customOffer && (
+                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            </td>
+                        )}
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                             <ProjectRowMenu 
                                 project={p} 
@@ -1371,7 +1375,7 @@ const ClientRow: React.FC<{
             {/* Loading state for client projects */}
             {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
                 <tr>
-                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 3} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + (columnVisibility.customOffer ? 3 : 2)} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                         Loading projects...
                     </td>
                 </tr>
