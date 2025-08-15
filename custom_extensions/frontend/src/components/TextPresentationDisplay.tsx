@@ -198,7 +198,6 @@ interface RenderBlockProps {
   isFirstBlock?: boolean;
   isLastBlock?: boolean;
   documentContent?: string;
-  dataToDisplay?: TextPresentationData | null;
   onDragStart?: (e: React.DragEvent, index: number) => void;
   onDragOver?: (e: React.DragEvent, index: number) => void;
   onDragLeave?: (e: React.DragEvent) => void;
@@ -803,7 +802,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
     onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
-    documentContent, dataToDisplay, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
+    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
@@ -1636,7 +1635,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                       });
                     }}
                     onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
-                    dataToDisplay={dataToDisplay}
                   />
                 </div>
               )}
@@ -1668,55 +1666,41 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           </div>
         );
       } else if (layoutMode === 'side-by-side-left' || layoutMode === 'side-by-side-right') {
-        // Side-by-side layout - справжня реалізація
-        const isImageLeft = layoutMode === 'side-by-side-left';
-        
-        // Розраховуємо пропорції на основі layoutProportion
-        let imageWidth = '50%';
-        let contentWidth = '50%';
-        
-        if (layoutProportion) {
-          const [imagePercent, contentPercent] = layoutProportion.split('-').map(Number);
-          imageWidth = `${imagePercent}%`;
-          contentWidth = `${contentPercent}%`;
-        }
-        
+        // Side-by-side layout - this will be handled by the parent component
+        // For now, render as standalone but with layout info
         return (
-          <div 
-            draggable={isEditing}
-            onDragStart={(e) => {
-              if (isEditing && contentBlockIndex !== undefined && onDragStart) {
-                onDragStart(e, contentBlockIndex);
-              }
-            }}
-            onDragOver={(e) => {
-              if (isEditing && contentBlockIndex !== undefined && onDragOver) {
-                onDragOver(e, contentBlockIndex);
-              }
-            }}
-            onDragLeave={(e) => {
-              if (isEditing && onDragLeave) {
-                onDragLeave(e);
-              }
-            }}
-            onDrop={(e) => {
-              if (isEditing && contentBlockIndex !== undefined && onDrop) {
-                onDrop(e, contentBlockIndex);
-              }
-            }}
-            onDragEnd={() => {
-              if (isEditing && onDragEnd) {
-                onDragEnd();
-              }
-            }}
-            className={`my-4 group relative side-by-side-container ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
-            style={{
-              display: 'flex',
-              flexDirection: isImageLeft ? 'row' : 'row-reverse',
-              alignItems: 'flex-start',
-              gap: '16px'
-            }}
-          >
+                      <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+              data-layout-mode={layoutMode} 
+              data-partner-index={layoutPartnerIndex} 
+              data-proportion={layoutProportion}
+            >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -1743,33 +1727,58 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </div>
             )}
             
-            {/* Image container */}
+            {/* Image with overlay button */}
             <div 
-              className="relative group/image side-by-side-image"
-              style={{ width: imageWidth, flexShrink: 0 }}
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`inline-block relative group/image w-full ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
             >
-              <img 
-                src={imageSrc} 
-                alt={alt || 'Image'} 
-                className="rounded-lg w-full h-auto"
-                style={{
-                  maxWidth: '100%',
-                  width: '100%',
-                  height: 'auto',
-                  borderRadius: borderRadius || '8px',
-                  display: 'block',
+            <img 
+              src={imageSrc} 
+              alt={alt || 'Image'} 
+                className="rounded-lg w-full"
+              style={{
+                maxWidth: maxWidth || '100%',
+                width: width || 'auto',
+                height: height || 'auto',
+                borderRadius: borderRadius || '8px',
+                display: 'block',
                   boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
                   border: (block as ImageBlock).border || 'none',
                   opacity: (block as ImageBlock).opacity || 1,
                   transform: (block as ImageBlock).transform || 'none'
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'block';
-                }}
-              />
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
               
               {/* Basic Actions Button - appears on image hover */}
               {isEditing && (
@@ -1784,47 +1793,15 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                       });
                     }}
                     onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
-                    dataToDisplay={dataToDisplay}
                   />
                 </div>
               )}
             </div>
-            
-            {/* Content from layoutPartnerIndex */}
-            <div 
-              className="flex-1 side-by-side-content"
-              style={{ width: contentWidth }}
-            >
-              {layoutPartnerIndex !== undefined && dataToDisplay?.contentBlocks && dataToDisplay.contentBlocks[layoutPartnerIndex] ? (
-                <RenderBlock
-                  block={dataToDisplay.contentBlocks[layoutPartnerIndex]}
-                  depth={0}
-                  isEditing={isEditing}
-                  onTextChange={onTextChange}
-                  basePath={['contentBlocks', layoutPartnerIndex]}
-                  contentBlockIndex={layoutPartnerIndex}
-                  onMoveBlockUp={onMoveBlockUp}
-                  onMoveBlockDown={onMoveBlockDown}
-                  isFirstBlock={layoutPartnerIndex === 0}
-                  isLastBlock={layoutPartnerIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                  documentContent={documentContent}
-                  dataToDisplay={dataToDisplay}
-                />
-              ) : (
-                <div className="bg-gray-100 rounded-lg p-4 text-gray-500 text-sm italic">
-                  {layoutPartnerIndex !== undefined ? 'Контент не знайдено' : 'Виберіть контент для side-by-side режиму'}
-                </div>
-              )}
-            </div>
-            
-            {/* Error fallback */}
             <div style={{ display: 'none', padding: '20px', border: '2px dashed #ccc', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
               {alt || 'Image not available'}
             </div>
-            
-            {/* Caption */}
             {caption && (
-              <p style={{ fontSize: '10px', color: '#666', textAlign: 'center', margin: '8px 0 0 0', fontStyle: 'italic' }}>
+              <p style={{ fontSize: '10px', color: '#666', textAlign: alignment as 'left' | 'center' | 'right', margin: '8px 0 0 0', fontStyle: 'italic' }}>
                 {caption}
               </p>
             )}
@@ -1836,6 +1813,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               imageBlock={block as ImageBlock}
               documentContent={documentContent}
               onImageChange={(updatedBlock) => {
+                // Update all properties of the image block
                 Object.keys(updatedBlock).forEach(key => {
                   if (key !== 'type' && key !== 'src') {
                     onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
@@ -1971,7 +1949,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     });
                   }}
                   onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
-                  dataToDisplay={dataToDisplay}
                 />
               </div>
             )}
@@ -2484,7 +2461,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           onDragEnd={handleDragEnd}
                           isDraggedOver={dragOverIndex === originalHeadlineIndex}
                           documentContent={documentContent}
-                          dataToDisplay={dataToDisplay}
                         />
                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
@@ -2514,7 +2490,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
                                   documentContent={documentContent}
-                                  dataToDisplay={dataToDisplay}
                                 />
                                 <RenderBlock
                                   block={subItem.list}
@@ -2534,7 +2509,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniListIndex}
                                   documentContent={documentContent}
-                                  dataToDisplay={dataToDisplay}
                                 />
                               </div>
                             );
@@ -2559,7 +2533,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                               onDragEnd={handleDragEnd}
                               isDraggedOver={dragOverIndex === originalSubIndex}
                               documentContent={documentContent}
-                              dataToDisplay={dataToDisplay}
                             />;
                           }
                         })}
@@ -2589,7 +2562,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         isFirstBlock={originalHeadlineIndex === 0}
                         isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                         documentContent={documentContent}
-                        dataToDisplay={dataToDisplay}
                       />
                       <RenderBlock
                         block={item.list}
@@ -2609,7 +2581,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onDragEnd={handleDragEnd}
                         isDraggedOver={dragOverIndex === originalListIndex}
                         documentContent={documentContent}
-                        dataToDisplay={dataToDisplay}
                       />
                     </div>
                   </div>
@@ -2633,7 +2604,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       isFirstBlock={originalIndex === 0}
                       isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                       documentContent={documentContent}
-                      dataToDisplay={dataToDisplay}
                       onDragStart={handleDragStart}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
@@ -2673,41 +2643,5 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     </div>
   );
 };
-
-// CSS стилі для side-by-side layout
-const sideBySideStyles = `
-  @media (max-width: 768px) {
-    .side-by-side-container {
-      flex-direction: column !important;
-      gap: 12px !important;
-    }
-    
-    .side-by-side-image {
-      width: 100% !important;
-      flex-shrink: 1 !important;
-    }
-    
-    .side-by-side-content {
-      width: 100% !important;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .side-by-side-container {
-      gap: 8px !important;
-    }
-  }
-`;
-
-// Додаємо стилі до head
-if (typeof document !== 'undefined') {
-  const styleId = 'side-by-side-styles';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = sideBySideStyles;
-    document.head.appendChild(style);
-  }
-}
 
 export default TextPresentationDisplay; 

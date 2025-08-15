@@ -9,14 +9,12 @@ interface ImageBasicActionsProps {
   imageBlock: ImageBlock;
   onImageChange: (updatedBlock: ImageBlock) => void;
   onOpenAdvancedSettings: () => void;
-  dataToDisplay?: any;
 }
 
 const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
   imageBlock,
   onImageChange,
-  onOpenAdvancedSettings,
-  dataToDisplay
+  onOpenAdvancedSettings
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showLayoutOptions, setShowLayoutOptions] = useState(false);
@@ -233,53 +231,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                           >
                             <div className="font-medium">{option.label}</div>
                             <div className="text-gray-500">{option.description}</div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Вибір контенту для side-by-side режимів */}
-                  {(imageBlock.layoutMode === 'side-by-side-left' || imageBlock.layoutMode === 'side-by-side-right') && dataToDisplay?.contentBlocks && (
-                    <div className="px-3 py-2">
-                      <div className="text-xs font-medium text-gray-600 mb-2">Content Selection</div>
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateImageProperty('layoutPartnerIndex', undefined);
-                          }}
-                          className={`w-full px-2 py-1 text-left text-xs rounded transition-colors ${
-                            imageBlock.layoutPartnerIndex === undefined
-                              ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                              : 'hover:bg-blue-50'
-                          }`}
-                        >
-                          <div className="font-medium">No content</div>
-                          <div className="text-gray-500">Show placeholder</div>
-                        </button>
-                        {dataToDisplay.contentBlocks.map((block: any, index: number) => (
-                          <button
-                            key={index}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateImageProperty('layoutPartnerIndex', index);
-                            }}
-                            className={`w-full px-2 py-1 text-left text-xs rounded transition-colors ${
-                              imageBlock.layoutPartnerIndex === index
-                                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                                : 'hover:bg-blue-50'
-                            }`}
-                          >
-                            <div className="font-medium">
-                              {block.type === 'headline' ? block.text?.slice(0, 30) + '...' :
-                               block.type === 'paragraph' ? block.text?.slice(0, 30) + '...' :
-                               block.type === 'bullet_list' ? `List (${block.items?.length || 0} items)` :
-                               block.type === 'numbered_list' ? `List (${block.items?.length || 0} items)` :
-                               block.type === 'alert' ? block.text?.slice(0, 30) + '...' :
-                               `Block ${index + 1}`}
-                            </div>
-                            <div className="text-gray-500 capitalize">{block.type}</div>
                           </button>
                         ))}
                       </div>
