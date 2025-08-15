@@ -154,7 +154,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingDescText, setEditingDescText] = useState(false);
   const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
   const [editingColor, setEditingColor] = useState<number | null>(null);
-  // Убираем состояние для модального окна редактирования сегментов
+  const [editingPieChart, setEditingPieChart] = useState<number | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -321,7 +321,39 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingColor(index);
   };
 
-  // Убираем функции для модального окна редактирования сегментов
+  const startEditingPieChart = (segmentIndex: number) => {
+    setEditingPieChart(segmentIndex);
+  };
+
+  const handlePieChartSave = (segmentIndex: number, newPercentage: number) => {
+    setEditingPieChart(null);
+    
+    const newSegments = [...chartData.segments];
+    const newMonthlyData = [...monthlyData];
+    
+    // Update the specific segment
+    newSegments[segmentIndex] = {
+      ...newSegments[segmentIndex],
+      percentage: newPercentage
+    };
+    
+    newMonthlyData[segmentIndex] = {
+      ...newMonthlyData[segmentIndex],
+      percentage: `${newPercentage.toFixed(1)}%`
+    };
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData: newMonthlyData,
+      descriptionText
+    };
+    scheduleAutoSave(newData);
+  };
+
+  const handlePieChartCancel = () => {
+    setEditingPieChart(null);
+  };
 
   // Create conic gradient for pie chart
   const createConicGradient = () => {
@@ -509,7 +541,35 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 boxShadow: '0 12px 32px rgba(0,0,0,0.15)'
               }}
             >
-              {/* Убираем кликабельные сегменты */}
+              {/* Clickable segments overlay */}
+              {isEditable && chartData.segments.map((segment, index) => {
+                const totalPercentage = chartData.segments.reduce((sum, s) => sum + s.percentage, 0);
+                let cumulativePercentage = 0;
+                
+                // Calculate start and end angles for this segment
+                for (let i = 0; i < index; i++) {
+                  cumulativePercentage += chartData.segments[i].percentage;
+                }
+                
+                const startAngle = (cumulativePercentage / totalPercentage) * 360;
+                const endAngle = ((cumulativePercentage + segment.percentage) / totalPercentage) * 360;
+                
+                // Create clip path for this segment
+                const clipPath = `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos(startAngle * Math.PI / 180)}% ${50 + 50 * Math.sin(startAngle * Math.PI / 180)}%, ${50 + 50 * Math.cos(endAngle * Math.PI / 180)}% ${50 + 50 * Math.sin(endAngle * Math.PI / 180)}%)`;
+                
+                return (
+                  <div
+                    key={index}
+                    className="absolute inset-0 cursor-pointer hover:opacity-80 transition-opacity"
+                    style={{
+                      clipPath: clipPath,
+                      WebkitClipPath: clipPath
+                    }}
+                    onClick={() => startEditingPieChart(index)}
+                    title={`Кликните для редактирования сегмента "${segment.label}"`}
+                  />
+                );
+              })}
               
               {/* Inner circle - much smaller */}
               <div 
@@ -521,7 +581,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             </div>
                             {isEditable && (
                   <p className="text-sm text-gray-500 mt-2 text-center">
-                    Редактируйте проценты в полях рядом с названиями сегментов
+                    Кликните на сегмент или поле для редактирования процентов
                   </p>
                 )}
           </div>
@@ -634,7 +694,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-bold mb-4">Выберите цвет для сегмента</h3>
             <div className="grid grid-cols-6 gap-2 mb-4">
-              {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#67E8F9', '#0891B2', '#F97316', '#FB923C', '#FBBF24', '#34D399', '#10B981', '#059669', '#047857', '#F87171', '#EF4444', '#DC2626', '#B91C1C', '#A855F7', '#8B5CF6', '#7C3AED', '#6D28D9', '#F472B6', '#EC4899', '#DB2777', '#BE185D'].map((color) => (
+              {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#67E8F9', '#0891B2', '#F97316', '#FB923C', '#FBBF24', '#34D399', '#059669', '#047857', '#F87171', '#DC2626', '#B91C1C', '#A855F7', '#7C3AED', '#6D28D9', '#F472B6', '#DB2777', '#BE185D', '#6366F1', '#8B5CF6', '#A855F7', '#7C3AED'].map((color) => (
                 <button
                   key={color}
                   className="w-8 h-8 rounded border-2 border-gray-300 hover:border-gray-500 transition-colors"
@@ -656,7 +716,67 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
         </div>
       )}
 
-      {/* Убираем модальное окно редактирования сегментов */}
+      {/* Pie Chart Editor Modal - без фона */}
+      {editingPieChart !== null && isEditable && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl border border-gray-200">
+            <h3 className="text-lg font-bold mb-4 text-gray-900">Редактирование сегмента</h3>
+            <p className="text-sm text-gray-700 mb-4">Измените процент для выбранного сегмента.</p>
+            
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: chartData.segments[editingPieChart].color }}
+              />
+              <span className="flex-1 text-sm font-medium text-gray-900">{chartData.segments[editingPieChart].label}</span>
+            </div>
+            
+            <div className="flex items-center gap-3 mb-4">
+              <label className="text-sm font-medium text-gray-900">Процент:</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-gray-900"
+                value={chartData.segments[editingPieChart].percentage}
+                onChange={(e) => {
+                  const newValue = parseFloat(e.target.value) || 0;
+                  const newSegments = [...chartData.segments];
+                  newSegments[editingPieChart] = { ...newSegments[editingPieChart], percentage: newValue };
+                  
+                  // Update the chart data immediately for preview
+                  const newData = { 
+                    title, 
+                    chartData: { segments: newSegments }, 
+                    monthlyData,
+                    descriptionText
+                  };
+                  if (onUpdate) {
+                    onUpdate(newData);
+                  }
+                }}
+              />
+              <span className="text-sm text-gray-700">%</span>
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                onClick={() => handlePieChartSave(editingPieChart, chartData.segments[editingPieChart].percentage)}
+              >
+                Сохранить
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 transition-colors"
+                onClick={handlePieChartCancel}
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
