@@ -39,6 +39,18 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     }
   }, [showMenu]);
 
+  // Скидати showProportionMenu при зміні зображення
+  useEffect(() => {
+    setShowProportionMenu(false);
+  }, [imageBlock.layoutMode]);
+
+  // Скидати showProportionMenu при закритті основного меню
+  useEffect(() => {
+    if (!showMenu) {
+      setShowProportionMenu(false);
+    }
+  }, [showMenu]);
+
   const updateImageProperty = (property: keyof ImageBlock, value: any) => {
     const updatedBlock = { ...imageBlock, [property]: value };
     onImageChange(updatedBlock);
