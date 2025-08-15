@@ -257,10 +257,9 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       onImageChange(updatedBlock);
                       // Don't close menu automatically - let user make multiple changes
                     }}
-                    className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
+                    className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-center"
                   >
                     <span>{preset.name}</span>
-                    <span className="text-gray-500">{preset.width}px</span>
                   </button>
                 ))}
               </div>
@@ -281,7 +280,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       updateImageProperty('alignment', option.value);
                       // Don't close menu automatically
                     }}
-                    className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors flex items-center justify-center gap-1 ${
+                    className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors flex items-center justify-center ${
                       imageBlock.alignment === option.value 
                         ? 'bg-blue-100 text-blue-700' 
                         : 'hover:bg-blue-50'
@@ -289,7 +288,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     title={option.label}
                   >
                     <option.icon className="w-3 h-3" />
-                    <span className="hidden sm:inline">{option.label}</span>
                   </button>
                 ))}
               </div>
