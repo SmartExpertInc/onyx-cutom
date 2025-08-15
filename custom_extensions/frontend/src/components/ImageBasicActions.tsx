@@ -270,10 +270,13 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
             </div>
 
             {/* Alignment Actions */}
-            <div className="px-3 py-2 border-b border-gray-100">
+            <div className={`px-3 py-2 border-b border-gray-100 ${imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'opacity-50' : ''}`}>
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
                 <Move className="w-3 h-3" />
                 {t('interface.imageSettings.alignment')}
+                {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
+                  <span className="text-xs text-gray-400 ml-1">(недоступно для inline)</span>
+                )}
               </div>
               <div className="flex gap-1">
                 {alignmentOptions.map((option) => (
@@ -281,6 +284,10 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     key={option.value}
                     onClick={(e) => {
                       e.stopPropagation();
+                      // Блокуємо клік якщо вибрано inline режим
+                      if (imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone') {
+                        return;
+                      }
                       updateImageProperty('alignment', option.value);
                       // Don't close menu automatically
                     }}
@@ -288,8 +295,9 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       imageBlock.alignment === option.value 
                         ? 'bg-blue-100 text-blue-700' 
                         : 'hover:bg-blue-50'
-                    }`}
-                    title={option.label}
+                    } ${imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                    title={imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'Вирівнювання недоступне для inline режимів' : option.label}
+                    disabled={imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone'}
                   >
                     <option.icon className="w-3 h-3" />
                   </button>
