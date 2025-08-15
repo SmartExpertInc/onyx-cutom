@@ -240,15 +240,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
     if (!componentDeck) return;
 
-    // ✅ NEW: Debug logging for slide updates
-    console.log('🔍 SmartSlideDeckViewer: Slide update received', {
-      slideId: updatedSlide.slideId,
-      templateId: updatedSlide.templateId,
-      hasElementPositions: !!updatedSlide.metadata?.elementPositions,
-      elementPositions: updatedSlide.metadata?.elementPositions,
-      hasProps: !!updatedSlide.props
-    });
-
     const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
       slide.slideId === updatedSlide.slideId ? updatedSlide : slide
     );
@@ -257,12 +248,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       ...componentDeck,
       slides: updatedSlides
     };
-
-    console.log('🔍 SmartSlideDeckViewer: Saving updated deck', {
-      deckSlidesCount: updatedDeck.slides.length,
-      updatedSlideId: updatedSlide.slideId,
-      hasOnSave: !!onSave
-    });
 
     setComponentDeck(updatedDeck);
     onSave?.(updatedDeck);

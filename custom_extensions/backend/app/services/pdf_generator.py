@@ -49,10 +49,6 @@ html_logger.setLevel(logging.INFO)
 image_fit_logger = logging.getLogger('pdf_image_fit_debug')
 image_fit_logger.setLevel(logging.INFO)
 
-# Create a separate logger for text positioning debugging
-text_position_logger = logging.getLogger('pdf_text_position_debug')
-text_position_logger.setLevel(logging.INFO)
-
 PDF_CACHE_DIR = Path("/tmp/pdf_cache")
 PDF_CACHE_DIR.mkdir(exist_ok=True)
 
@@ -269,96 +265,45 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
     
     logger.info(f"=== END SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
 
-async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
+async def log_image_fit_properties(slide_data: dict, slide_index: int, template_id: str):
     """Log image fit properties for debugging"""
     try:
-        slide_props = slide_data.get('props', {})
-        slide_metadata = slide_data.get('metadata', {})
-        
-        image_fit_logger.info(f"=== IMAGE FIT ANALYSIS for slide {slide_index} ({template_id}) ===")
-        image_fit_logger.info(f"Template: {template_id}")
-        
-        # Check for image properties
-        image_path = slide_props.get('imagePath')
-        if image_path:
-            image_fit_logger.info(f"Image path: {image_path}")
-            image_fit_logger.info(f"Width: {slide_props.get('widthPx')}")
-            image_fit_logger.info(f"Height: {slide_props.get('heightPx')}")
-            image_fit_logger.info(f"Object fit: {slide_props.get('objectFit')}")
-            image_fit_logger.info(f"Image scale: {slide_props.get('imageScale')}")
-            image_fit_logger.info(f"Image offset: {slide_props.get('imageOffset')}")
-        else:
-            image_fit_logger.info("No image path found")
-            
-        # Check for two-column image properties
-        left_image_path = slide_props.get('leftImagePath')
-        right_image_path = slide_props.get('rightImagePath')
-        
-        if left_image_path:
-            image_fit_logger.info(f"Left image path: {left_image_path}")
-            image_fit_logger.info(f"Left width: {slide_props.get('leftWidthPx')}")
-            image_fit_logger.info(f"Left height: {slide_props.get('leftHeightPx')}")
-            image_fit_logger.info(f"Left object fit: {slide_props.get('leftObjectFit')}")
-            
-        if right_image_path:
-            image_fit_logger.info(f"Right image path: {right_image_path}")
-            image_fit_logger.info(f"Right width: {slide_props.get('rightWidthPx')}")
-            image_fit_logger.info(f"Right height: {slide_props.get('rightHeightPx')}")
-            image_fit_logger.info(f"Right object fit: {slide_props.get('rightObjectFit')}")
-            
-        if not image_path and not left_image_path and not right_image_path:
-            image_fit_logger.info("No images found in slide")
-            
-    except Exception as e:
-        image_fit_logger.error(f"Error logging image fit properties: {e}")
+        slide = slide_data.get('slides', [])[slide_index] if slide_index < len(slide_data.get('slides', [])) else None
+        if not slide:
+            image_fit_logger.warning(f"Slide {slide_index} not found in slide data")
+            return
 
-async def log_text_position_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
-    """Log text positioning properties for debugging"""
-    try:
-        slide_props = slide_data.get('props', {})
-        slide_metadata = slide_data.get('metadata', {})
-        slide_id = slide_data.get('slideId', 'unknown')
+        props = slide.get('props', {})
         
-        text_position_logger.info(f"=== TEXT POSITION ANALYSIS for slide {slide_index} ({template_id}) ===")
-        text_position_logger.info(f"Template: {template_id}")
-        text_position_logger.info(f"Slide ID: {slide_id}")
+        # Log image-related properties
+        image_fit_logger.info(f"Slide {slide_index} ({template_id}) - Image properties:")
+        image_fit_logger.info(f"  Image path: {props.get('imagePath', 'None')}")
+        image_fit_logger.info(f"  Width: {props.get('widthPx', 'None')}")
+        image_fit_logger.info(f"  Height: {props.get('heightPx', 'None')}")
+        image_fit_logger.info(f"  Object fit: {props.get('objectFit', 'None')}")
+        image_fit_logger.info(f"  Image scale: {props.get('imageScale', 'None')}")
+        image_fit_logger.info(f"  Image offset: {props.get('imageOffset', 'None')}")
         
-        # Check for text content
-        title = slide_props.get('title')
-        subtitle = slide_props.get('subtitle')
+        # ✅ NEW: Log text positioning data
+        metadata = slide.get('metadata', {})
+        element_positions = metadata.get('elementPositions', {})
         
-        text_position_logger.info(f"Title: {title[:50] + '...' if title and len(title) > 50 else title}")
-        text_position_logger.info(f"Subtitle: {subtitle[:50] + '...' if subtitle and len(subtitle) > 50 else subtitle}")
+        image_fit_logger.info(f"Slide {slide_index} ({template_id}) - Text positioning data:")
+        image_fit_logger.info(f"  Has metadata: {bool(metadata)}")
+        image_fit_logger.info(f"  Has elementPositions: {bool(element_positions)}")
+        image_fit_logger.info(f"  ElementPositions keys: {list(element_positions.keys()) if element_positions else 'None'}")
         
-        # Check for element positions in metadata
-        element_positions = slide_metadata.get('elementPositions', {})
-        text_position_logger.info(f"Element positions found: {len(element_positions)}")
-        
-        # Log specific element positions for big-image-left template
-        if template_id == 'big-image-left':
-            title_id = f'draggable-{slide_id}-0'
-            subtitle_id = f'draggable-{slide_id}-1'
-            
-            title_position = element_positions.get(title_id)
-            subtitle_position = element_positions.get(subtitle_id)
-            
-            text_position_logger.info(f"Title ID: {title_id}")
-            text_position_logger.info(f"Title position: {title_position}")
-            text_position_logger.info(f"Subtitle ID: {subtitle_id}")
-            text_position_logger.info(f"Subtitle position: {subtitle_position}")
-            
-            # Check if positions are missing
-            if not title_position and title:
-                text_position_logger.warning(f"Title position missing for ID: {title_id}")
-            if not subtitle_position and subtitle:
-                text_position_logger.warning(f"Subtitle position missing for ID: {subtitle_id}")
-                
-        # Log all element positions for debugging
+        # Log specific text element positions
         for element_id, position in element_positions.items():
-            text_position_logger.info(f"Element {element_id}: {position}")
-            
+            image_fit_logger.info(f"  {element_id}: x={position.get('x', 'None')}, y={position.get('y', 'None')}")
+        
+        # Log text content for context
+        image_fit_logger.info(f"Slide {slide_index} ({template_id}) - Text content:")
+        image_fit_logger.info(f"  Title: {props.get('title', 'None')}")
+        image_fit_logger.info(f"  Subtitle: {props.get('subtitle', 'None')}")
+        
     except Exception as e:
-        text_position_logger.error(f"Error logging text position properties: {e}")
+        image_fit_logger.error(f"Error logging image fit properties for slide {slide_index}: {str(e)}")
 
 async def log_html_content(html_content: str, slide_index: int = None, template_id: str = None):
     """Log HTML content for debugging."""
@@ -1366,6 +1311,12 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                     else:
                         logger.info(f"PDF GEN: {prop_name} - Already data URL or empty: {original_src}")
         
+        # Log slide data structure for debugging
+        await log_slide_data_structure(safe_slide_data, slide_index, template_id)
+        
+        # Log image fit properties specifically
+        await log_image_fit_properties(safe_slide_data, slide_index, template_id)
+        
         # Render the single slide template
         try:
             # Debug logging to see the data structure
@@ -1374,10 +1325,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
             
             # ✅ NEW: Log image fit properties before template rendering
-            await log_image_fit_properties(safe_slide_data, slide_index, template_id)
-            
-            # ✅ NEW: Log text position properties before template rendering
-            await log_text_position_properties(safe_slide_data, slide_index, template_id)
+            # await log_image_fit_properties(safe_slide_data, slide_index, template_id) # This line is now redundant as it's called above
             
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)

@@ -1421,7 +1421,12 @@
                                     {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                     {% if slide.metadata.elementPositions[titleId] %}
                                         style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                        <!-- LOG: Title positioned at {{ slide.metadata.elementPositions[titleId].x }}, {{ slide.metadata.elementPositions[titleId].y }} -->
+                                    {% else %}
+                                        <!-- LOG: Title position not found for {{ titleId }} -->
                                     {% endif %}
+                                {% else %}
+                                    <!-- LOG: No elementPositions metadata for title -->
                                 {% endif %}
                             >{{ slide.props.title }}</h1>
                         {% endif %}
@@ -1431,7 +1436,12 @@
                                     {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
                                     {% if slide.metadata.elementPositions[subtitleId] %}
                                         style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
+                                        <!-- LOG: Subtitle positioned at {{ slide.metadata.elementPositions[subtitleId].x }}, {{ slide.metadata.elementPositions[subtitleId].y }} -->
+                                    {% else %}
+                                        <!-- LOG: Subtitle position not found for {{ subtitleId }} -->
                                     {% endif %}
+                                {% else %}
+                                    <!-- LOG: No elementPositions metadata for subtitle -->
                                 {% endif %}
                             >{{ slide.props.subtitle }}</div>
                         {% endif %}

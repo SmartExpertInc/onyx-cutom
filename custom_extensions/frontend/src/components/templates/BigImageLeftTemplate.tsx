@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/BigImageLeftTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
@@ -188,17 +188,79 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     });
   }, [slideId, objectFit, imagePath, widthPx, heightPx, imageScale, imageOffset, onUpdate]);
   
-  // ✅ NEW: Debug logging for text positioning
+  // ✅ NEW: Text positioning diagnostic logging
   useEffect(() => {
-    console.log('🔍 BigImageLeftTemplate: Text positioning debug', {
+    if (!titleRef.current || !subtitleRef.current) return;
+    
+    const titleElement = titleRef.current;
+    const subtitleElement = subtitleRef.current;
+    
+    // Get browser bounding boxes
+    const titleRect = titleElement.getBoundingClientRect();
+    const subtitleRect = subtitleElement.getBoundingClientRect();
+    
+    // Get computed styles for text properties
+    const titleStyles = window.getComputedStyle(titleElement);
+    const subtitleStyles = window.getComputedStyle(subtitleElement);
+    
+    console.log('🔍 [TextPositioning] Browser DOM measurements', {
       slideId,
-      title: title?.substring(0, 50) + (title && title.length > 50 ? '...' : ''),
-      subtitle: subtitle?.substring(0, 50) + (subtitle && subtitle.length > 50 ? '...' : ''),
-      titleRefExists: !!titleRef.current,
-      subtitleRefExists: !!subtitleRef.current,
-      hasOnUpdate: !!onUpdate
+      timestamp: Date.now(),
+      title: {
+        boundingBox: {
+          left: titleRect.left,
+          top: titleRect.top,
+          width: titleRect.width,
+          height: titleRect.height
+        },
+        computedStyles: {
+          fontSize: titleStyles.fontSize,
+          fontFamily: titleStyles.fontFamily,
+          lineHeight: titleStyles.lineHeight,
+          whiteSpace: titleStyles.whiteSpace,
+          wordWrap: titleStyles.wordWrap,
+          textAlign: titleStyles.textAlign,
+          margin: titleStyles.margin,
+          padding: titleStyles.padding
+        },
+        content: title?.substring(0, 50) + (title && title.length > 50 ? '...' : '')
+      },
+      subtitle: {
+        boundingBox: {
+          left: subtitleRect.left,
+          top: subtitleRect.top,
+          width: subtitleRect.width,
+          height: subtitleRect.height
+        },
+        computedStyles: {
+          fontSize: subtitleStyles.fontSize,
+          fontFamily: subtitleStyles.fontFamily,
+          lineHeight: subtitleStyles.lineHeight,
+          whiteSpace: subtitleStyles.whiteSpace,
+          wordWrap: subtitleStyles.wordWrap,
+          textAlign: subtitleStyles.textAlign,
+          margin: subtitleStyles.margin,
+          padding: subtitleStyles.padding
+        },
+        content: subtitle?.substring(0, 50) + (subtitle && subtitle.length > 50 ? '...' : '')
+      }
     });
-  }, [slideId, title, subtitle, onUpdate]);
+  }, [slideId, title, subtitle, titleRef.current, subtitleRef.current]);
+  
+  // ✅ NEW: Log when text positioning should be captured
+  useEffect(() => {
+    console.log('🔍 [TextPositioning] Template render state', {
+      slideId,
+      isEditable,
+      hasTitleRef: !!titleRef.current,
+      hasSubtitleRef: !!subtitleRef.current,
+      titleElementId: `${slideId}-title`,
+      subtitleElementId: `${slideId}-subtitle`,
+      timestamp: Date.now()
+    });
+  }, [slideId, isEditable, titleRef.current, subtitleRef.current]);
+  
+
   
   // Debounced update function to prevent infinite autosaves
   const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
@@ -219,6 +281,114 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       }
     }, 300); // 300ms debounce
   };
+  
+  // ✅ NEW: Capture text positioning data
+  const captureTextPositions = useCallback(() => {
+    if (!titleRef.current || !subtitleRef.current) {
+      console.log('🔍 [TextPositioning] Cannot capture positions - refs not ready', {
+        slideId,
+        hasTitleRef: !!titleRef.current,
+        hasSubtitleRef: !!subtitleRef.current
+      });
+      return {};
+    }
+    
+    const titleElement = titleRef.current;
+    const subtitleElement = subtitleRef.current;
+    
+    // Get container bounds for relative positioning
+    const container = slideContainerRef.current;
+    const containerRect = container?.getBoundingClientRect();
+    
+    if (!containerRect) {
+      console.log('🔍 [TextPositioning] Cannot get container bounds', { slideId });
+      return {};
+    }
+    
+    // Get element bounds
+    const titleRect = titleElement.getBoundingClientRect();
+    const subtitleRect = subtitleElement.getBoundingClientRect();
+    
+    // Calculate relative positions
+    const titlePosition = {
+      x: titleRect.left - containerRect.left,
+      y: titleRect.top - containerRect.top
+    };
+    
+    const subtitlePosition = {
+      x: subtitleRect.left - containerRect.left,
+      y: subtitleRect.top - containerRect.top
+    };
+    
+    // Get computed styles for text properties
+    const titleStyles = window.getComputedStyle(titleElement);
+    const subtitleStyles = window.getComputedStyle(subtitleElement);
+    
+    const textPositions = {
+      [`draggable-${slideId}-0`]: titlePosition, // Title
+      [`draggable-${slideId}-1`]: subtitlePosition // Subtitle
+    };
+    
+    console.log('🔍 [TextPositioning] Captured positions', {
+      slideId,
+      timestamp: Date.now(),
+      containerBounds: {
+        left: containerRect.left,
+        top: containerRect.top,
+        width: containerRect.width,
+        height: containerRect.height
+      },
+      titlePosition,
+      subtitlePosition,
+      titleStyles: {
+        fontSize: titleStyles.fontSize,
+        fontFamily: titleStyles.fontFamily,
+        lineHeight: titleStyles.lineHeight,
+        whiteSpace: titleStyles.whiteSpace,
+        wordWrap: titleStyles.wordWrap,
+        textAlign: titleStyles.textAlign,
+        margin: titleStyles.margin,
+        padding: titleStyles.padding
+      },
+      subtitleStyles: {
+        fontSize: subtitleStyles.fontSize,
+        fontFamily: subtitleStyles.fontFamily,
+        lineHeight: subtitleStyles.lineHeight,
+        whiteSpace: subtitleStyles.whiteSpace,
+        wordWrap: subtitleStyles.wordWrap,
+        textAlign: subtitleStyles.textAlign,
+        margin: subtitleStyles.margin,
+        padding: subtitleStyles.padding
+      }
+    });
+    
+    return textPositions;
+  }, [slideId]);
+  
+  // ✅ NEW: Enhanced update function that includes text positioning
+  const handleUpdateWithTextPositions = useCallback((updates: any) => {
+    // Capture current text positions
+    const textPositions = captureTextPositions();
+    
+    // Combine updates with text positioning data
+    const enhancedUpdates = {
+      ...updates,
+      metadata: {
+        elementPositions: textPositions
+      }
+    };
+    
+    console.log('🔍 [TextPositioning] Enhanced update payload', {
+      slideId,
+      originalUpdates: updates,
+      textPositions,
+      enhancedUpdates,
+      timestamp: Date.now()
+    });
+    
+    // Use the original handleUpdate
+    handleUpdate(enhancedUpdates);
+  }, [captureTextPositions, handleUpdate, slideId]);
   
   log('BigImageLeftTemplate', 'render', { 
     slideId, 
@@ -310,7 +480,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
-      onUpdate({ title: newTitle });
+      handleUpdateWithTextPositions({ title: newTitle });
     }
     setEditingTitle(false);
   };
@@ -322,7 +492,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   // Handle subtitle editing
   const handleSubtitleSave = (newSubtitle: string) => {
     if (onUpdate) {
-      onUpdate({ subtitle: newSubtitle });
+      handleUpdateWithTextPositions({ subtitle: newSubtitle });
     }
     setEditingSubtitle(false);
   };
@@ -341,7 +511,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
     // Use immediate update for image upload to prevent delays
     if (onUpdate) {
-      onUpdate({ imagePath: newImagePath });
+      handleUpdateWithTextPositions({ imagePath: newImagePath });
     }
   };
 
@@ -373,9 +543,35 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
       });
     }
     
-    // Use debounced update for size/transform changes
-    handleUpdate(updateData);
+    // Use enhanced update for size/transform changes to include text positioning
+    handleUpdateWithTextPositions(updateData);
   };
+  
+  // ✅ NEW: Periodic text positioning capture
+  useEffect(() => {
+    if (!isEditable || !onUpdate) return;
+    
+    // Capture text positions periodically to ensure they're saved
+    const interval = setInterval(() => {
+      const textPositions = captureTextPositions();
+      if (Object.keys(textPositions).length > 0) {
+        console.log('🔍 [TextPositioning] Periodic position capture', {
+          slideId,
+          textPositions,
+          timestamp: Date.now()
+        });
+        
+        // Only update if we have valid positions
+        handleUpdate({
+          metadata: {
+            elementPositions: textPositions
+          }
+        });
+      }
+    }, 5000); // Capture every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [isEditable, onUpdate, captureTextPositions, handleUpdate, slideId]);
 
   // Handle crop mode change
   const handleCropModeChange = (mode: 'cover' | 'contain' | 'fill') => {

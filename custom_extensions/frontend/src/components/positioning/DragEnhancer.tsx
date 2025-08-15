@@ -30,29 +30,11 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
     if (!container) return;
 
     const elements = container.querySelectorAll('[data-draggable="true"]');
-    
-    // ✅ NEW: Debug logging for text positioning
-    console.log('🔍 DragEnhancer: Found draggable elements', {
-      slideId,
-      elementsCount: elements.length,
-      savedPositions: savedPositions,
-      isEnabled
-    });
 
     elements.forEach((element, index) => {
       const htmlElement = element as HTMLElement;
       const elementId = htmlElement.id || `draggable-${slideId}-${index}`;
       if (!htmlElement.id) htmlElement.id = elementId;
-      
-      // ✅ NEW: Debug logging for each element
-      console.log('🔍 DragEnhancer: Processing element', {
-        slideId,
-        elementId,
-        index,
-        hasId: !!htmlElement.id,
-        elementType: htmlElement.tagName,
-        elementText: htmlElement.textContent?.substring(0, 50) + (htmlElement.textContent && htmlElement.textContent.length > 50 ? '...' : '')
-      });
 
       htmlElement.style.cursor = 'move';
       htmlElement.style.transition = 'transform 0.1s ease-out, box-shadow 0.2s ease';
@@ -70,17 +52,6 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const savedPos = savedPositions?.[elementId] || dragStateRef.current.get(elementId) || { x: 0, y: 0 };
       let currentX = savedPos.x;
       let currentY = savedPos.y;
-      
-      // ✅ NEW: Debug logging for position application
-      console.log('🔍 DragEnhancer: Applying position', {
-        slideId,
-        elementId,
-        savedPos,
-        currentX,
-        currentY,
-        hasSavedPosition: !!(savedPositions?.[elementId])
-      });
-      
       if (currentX !== 0 || currentY !== 0) {
         // Only apply transform, don't change position property to avoid layout issues
         htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
@@ -219,14 +190,6 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             document.removeEventListener('click', suppressNextClick, true);
           }, 450);
 
-          // ✅ NEW: Debug logging for position change
-          console.log('🔍 DragEnhancer: Position changed', {
-            slideId,
-            elementId,
-            newPosition: { x: currentX, y: currentY },
-            hasCallback: !!onPositionChange
-          });
-          
           if (onPositionChange) onPositionChange(elementId, { x: currentX, y: currentY });
           return;
         }
