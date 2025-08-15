@@ -137,7 +137,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
           <div className="py-1">
             {/* Header with Advanced Settings button */}
             <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('interface.imageSettings.quickSizeControls')}</div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Масштаб</div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -170,15 +170,18 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     </span>
                   )}
                 </div>
-                <ChevronRight className={`w-3 h-3 transition-transform ${showLayoutOptions ? 'rotate-90' : ''}`} />
+                <ChevronRight className={`w-3 h-3 transition-transform duration-200 ${showLayoutOptions ? 'rotate-90' : ''}`} />
               </button>
 
-              {/* Вкладений контент Layout Options */}
-              {showLayoutOptions && (
+              {/* Вкладений контент Layout Options з плавною анімацією */}
+              <div 
+                className={`overflow-hidden transition-all duration-200 ease-in-out ${
+                  showLayoutOptions ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
                 <div className="bg-gray-50 border-t border-gray-100">
                   {/* Layout режими */}
                   <div className="px-3 py-2 border-b border-gray-200">
-                    <div className="text-xs font-medium text-gray-600 mb-2">Layout Mode</div>
                     <div className="space-y-1">
                       {layoutOptions.map((option) => (
                         <button
@@ -271,14 +274,14 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     </div>
                   )}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Quick Size Actions */}
             <div className="px-3 py-2 border-b border-gray-100">
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
                 <ZoomIn className="w-3 h-3" />
-                {t('interface.imageSettings.quickSizeControls', 'Size')}
+                Масштаб
               </div>
               <div className="grid grid-cols-2 gap-1">
                 {quickSizePresets.map((preset) => (
@@ -298,7 +301,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
                   >
                     <span>{preset.name}</span>
-                    <span className="text-gray-500">{preset.width}px</span>
                   </button>
                 ))}
               </div>
@@ -327,7 +329,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     title={option.label}
                   >
                     <option.icon className="w-3 h-3" />
-                    <span className="hidden sm:inline">{option.label}</span>
                   </button>
                 ))}
               </div>
