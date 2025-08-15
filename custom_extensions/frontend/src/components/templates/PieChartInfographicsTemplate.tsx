@@ -607,7 +607,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     <div 
                       className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
                       style={{ backgroundColor: item.color }}
-                      onClick={() => isEditable && startEditingColor(actualIndex)}
+                      onClick={(e) => isEditable && startEditingColor(actualIndex, e)}
                       title="Click to change color"
                     />
                     
