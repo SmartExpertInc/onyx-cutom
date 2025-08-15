@@ -805,46 +805,6 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
-  const handleToggleEdit = () => {
-    if (!projectInstanceData) { alert(t('interface.projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }
-    const editableComponentTypes = [
-      COMPONENT_NAME_PDF_LESSON,
-      COMPONENT_NAME_TRAINING_PLAN,
-      COMPONENT_NAME_SLIDE_DECK,
-      COMPONENT_NAME_VIDEO_LESSON,
-      COMPONENT_NAME_QUIZ,
-      COMPONENT_NAME_TEXT_PRESENTATION,
-    ];
-    if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
-      alert(`${t('interface.projectView.contentEditingSupported', 'Content editing is currently supported for')} ${editableComponentTypes.join(', ')} ${t('interface.projectView.typesOnThisPage', 'types on this page.')}`);
-      return;
-    }
-
-    if (isEditing) {
-      handleSave();
-    } else {
-      const lang = projectInstanceData.details?.detectedLanguage || 'en';
-      if (projectInstanceData.details) {
-        setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
-      } else { 
-        if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-          setEditableData({ mainTitle: projectInstanceData.name || t('interface.projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });
-        } else if (projectInstanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
-          setEditableData({ lessonTitle: projectInstanceData.name || t('interface.projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang });
-        } else if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
-          setEditableData({ textTitle: projectInstanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
-        } else if (projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
-          setEditableData({ mainPresentationTitle: projectInstanceData.name || t('interface.projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang });
-        } else if (projectInstanceData.component_name === COMPONENT_NAME_QUIZ) {
-          setEditableData({ quizTitle: projectInstanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
-        } else {
-          setEditableData(null);
-        }
-      }
-      setIsEditing(true);
-    }
-  };
-
   const handlePdfDownload = async () => {
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
         alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
@@ -937,6 +897,46 @@ export default function ProjectInstanceViewPage() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  const handleToggleEdit = () => {
+    if (!projectInstanceData) { alert(t('interface.projectView.projectDataNotLoaded', 'Project data not loaded yet.')); return; }
+    const editableComponentTypes = [
+      COMPONENT_NAME_PDF_LESSON,
+      COMPONENT_NAME_TRAINING_PLAN,
+      COMPONENT_NAME_SLIDE_DECK,
+      COMPONENT_NAME_VIDEO_LESSON,
+      COMPONENT_NAME_QUIZ,
+      COMPONENT_NAME_TEXT_PRESENTATION,
+    ];
+    if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
+      alert(`${t('interface.projectView.contentEditingSupported', 'Content editing is currently supported for')} ${editableComponentTypes.join(', ')} ${t('interface.projectView.typesOnThisPage', 'types on this page.')}`);
+      return;
+    }
+
+    if (isEditing) {
+      handleSave();
+    } else {
+      const lang = projectInstanceData.details?.detectedLanguage || 'en';
+      if (projectInstanceData.details) {
+        setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
+      } else { 
+        if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
+          setEditableData({ mainTitle: projectInstanceData.name || t('interface.projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });
+        } else if (projectInstanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
+          setEditableData({ lessonTitle: projectInstanceData.name || t('interface.projectView.newPdfLessonTitle', 'New PDF Lesson'), contentBlocks: [], detectedLanguage: lang });
+        } else if (projectInstanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
+          setEditableData({ textTitle: projectInstanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
+        } else if (projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON) {
+          setEditableData({ mainPresentationTitle: projectInstanceData.name || t('interface.projectView.newVideoLessonTitle', 'New Video Lesson'), slides: [], detectedLanguage: lang });
+        } else if (projectInstanceData.component_name === COMPONENT_NAME_QUIZ) {
+          setEditableData({ quizTitle: projectInstanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
+        } else {
+          setEditableData(null);
+        }
+      }
+      setIsEditing(true);
+    }
   };
 
   // Theme management for slide decks
