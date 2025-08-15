@@ -615,9 +615,23 @@
       {% set img_style = img_style + " margin: 16px 0 16px 16px;" %}
     {% endif %}
   {% elif block_data.layoutMode in ['side-by-side-left', 'side-by-side-right'] %}
-    <!-- Side-by-side layout - for PDF, treat as centered for now -->
-    <!-- TODO: Implement proper side-by-side rendering when partner content is available -->
-    {% set img_style = img_style + " display: block; margin-left: auto; margin-right: auto;" %}
+    <!-- Side-by-side layout - реалізація для PDF -->
+    {% set is_image_left = block_data.layoutMode == 'side-by-side-left' %}
+    {% set image_width = '50%' %}
+    {% set content_width = '50%' %}
+    
+    {% if block_data.layoutProportion %}
+      {% set proportions = block_data.layoutProportion.split('-') %}
+      {% set image_width = proportions[0] + '%' %}
+      {% set content_width = proportions[1] + '%' %}
+    {% endif %}
+    
+    {% set img_style = img_style + " width: " + image_width + "; max-width: " + image_width + "; display: block;" %}
+    {% if is_image_left %}
+      {% set img_style = img_style + " float: left; margin: 0 16px 16px 0;" %}
+    {% else %}
+      {% set img_style = img_style + " float: right; margin: 0 0 16px 16px;" %}
+    {% endif %}
   {% else %}
     <!-- Standalone layout -->
     {% set img_style = img_style + " display: block; margin-left: auto; margin-right: auto;" %}
@@ -693,9 +707,21 @@
                 {% set is_inline_image = current_block_item is mapping and current_block_item.get('type') == 'image' and current_block_item.get('layoutMode') in ['inline-left', 'inline-right'] %}
                 {% set has_wrapping_content = next_block_item is mapping and next_block_item.get('type') in ['paragraph', 'bullet_list', 'numbered_list'] %}
                 
+                {# Check for side-by-side image layout #}
+                {% set is_side_by_side_image = current_block_item is mapping and current_block_item.get('type') == 'image' and current_block_item.get('layoutMode') in ['side-by-side-left', 'side-by-side-right'] %}
+                {% set has_partner_content = next_block_item is mapping and next_block_item.get('type') in ['paragraph', 'bullet_list', 'numbered_list', 'headline'] %}
+                
                 {% if is_inline_image and has_wrapping_content %}
                     {# Render inline image with wrapping content #}
                     <div class="content-block-wrapper inline-layout-container" style="overflow: hidden; margin-bottom: calc(var(--space-sm) * var(--dynamic-spacing-multiplier));">
+                        {{ render_single_block_recursive_macro(current_block_item, 0) }}
+                        {{ render_single_block_recursive_macro(next_block_item, 0) }}
+                        <div style="clear: both;"></div>
+                    </div>
+                    {% set _ = skip_next_block.pop() %}{% set _ = skip_next_block.append(true) %}
+                {% elif is_side_by_side_image and has_partner_content %}
+                    {# Render side-by-side image with partner content #}
+                    <div class="content-block-wrapper side-by-side-layout-container" style="overflow: hidden; margin-bottom: calc(var(--space-sm) * var(--dynamic-spacing-multiplier));">
                         {{ render_single_block_recursive_macro(current_block_item, 0) }}
                         {{ render_single_block_recursive_macro(next_block_item, 0) }}
                         <div style="clear: both;"></div>

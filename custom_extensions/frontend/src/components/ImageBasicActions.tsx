@@ -236,43 +236,6 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       </div>
                     </div>
                   )}
-
-                  {/* Layout Preview - показує поточний стан */}
-                  {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
-                    <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-200">
-                      <div className="text-center">
-                        <div className="text-blue-600 text-xs font-medium mb-1">
-                          {t('interface.imageSettings.layoutPreview', 'Layout Preview')}
-                        </div>
-                        <div className="flex items-center justify-center space-x-1 text-xs">
-                          {imageBlock.layoutMode === 'side-by-side-left' && (
-                            <>
-                              <div className="bg-blue-200 px-1 py-0.5 rounded text-xs">🖼️</div>
-                              <div className="text-blue-400">|</div>
-                              <div className="bg-green-200 px-1 py-0.5 rounded text-xs">📄</div>
-                            </>
-                          )}
-                          {imageBlock.layoutMode === 'side-by-side-right' && (
-                            <>
-                              <div className="bg-green-200 px-1 py-0.5 rounded text-xs">📄</div>
-                              <div className="text-blue-400">|</div>
-                              <div className="bg-blue-200 px-1 py-0.5 rounded text-xs">🖼️</div>
-                            </>
-                          )}
-                          {(imageBlock.layoutMode === 'inline-left' || imageBlock.layoutMode === 'inline-right') && (
-                            <div className="text-blue-600 text-xs">
-                              {imageBlock.layoutMode === 'inline-left' ? '🖼️ 📄' : '📄 🖼️'}
-                            </div>
-                          )}
-                        </div>
-                        {imageBlock.layoutProportion && (
-                          <div className="text-xs text-blue-500 mt-1">
-                            {t('interface.imageSettings.space', 'Space')}: {imageBlock.layoutProportion}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
