@@ -70,6 +70,12 @@ export default function VideoEditorHeader() {
     setEmailInputs(prev => [...prev, { id: newId, email: '', role: 'editor' }]);
   };
 
+  const deleteEmailInput = (id: string) => {
+    // Don't allow deleting the first input
+    if (id === '1') return;
+    setEmailInputs(prev => prev.filter(input => input.id !== id));
+  };
+
   // Envelope icon component
   const EnvelopeIcon = () => (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-400">
@@ -116,6 +122,40 @@ export default function VideoEditorHeader() {
       />
       <path
         d="M9.5 6.5C9.16667 6.16667 8.83333 6 8.5 6H7.5C6.5 6 5.5 7 5.5 8C5.5 9 6.5 10 7.5 10H8.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // Garbage bin icon component
+  const GarbageIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-400 hover:text-red-500">
+      <path
+        d="M2 4h12"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.33 4V2.67a1.33 1.33 0 0 1 1.34-1.34h2.66a1.33 1.33 0 0 1 1.34 1.34V4M12.67 4v9.33a1.33 1.33 0 0 1-1.34 1.34H4.67a1.33 1.33 0 0 1-1.34-1.34V4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6.67 7.33v4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.33 7.33v4"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
@@ -359,6 +399,17 @@ export default function VideoEditorHeader() {
                             <DropdownIcon />
                           </div>
                         </div>
+
+                        {/* Delete button - only show for inputs other than the first one */}
+                        {emailInput.id !== '1' && (
+                          <button
+                            onClick={() => deleteEmailInput(emailInput.id)}
+                            className="p-2 hover:bg-red-50 rounded transition-colors"
+                            title="Delete this email input"
+                          >
+                            <GarbageIcon />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
