@@ -360,7 +360,7 @@ export const en = {
     
     // Main content
     all: "All",
-    other: "Other",
+    other: "Not Assigned",
     trainingPlans: "Training Plans",
     pdfLessons: "PDF Lessons",
     videoLessons: "Video Lessons",
@@ -392,6 +392,8 @@ export const en = {
     deletePermanently: "Delete Permanently",
     moveToFolder: "Move to Folder",
     settings: "Settings",
+    addClient: "Add Client",
+    customOffer: "Custom Offer",
     
     // Folder actions
     folderSettings: "Folder Settings",

@@ -1032,6 +1032,7 @@ const ClientRow: React.FC<{
     handleDeleteFolder: (folderId: number) => void;
     allFolders: Folder[];
     isOtherSection?: boolean;
+    handleClientPdfDownload: (folderId: number, clientName: string, projects: Project[]) => void;
 }> = ({ 
     folder, 
     level, 
@@ -1060,7 +1061,8 @@ const ClientRow: React.FC<{
     handleDeletePermanently,
     handleDeleteFolder,
     allFolders,
-    isOtherSection = false
+    isOtherSection = false,
+    handleClientPdfDownload
 }) => {
     const { t } = useLanguage();
 
@@ -1193,6 +1195,18 @@ const ClientRow: React.FC<{
                         })()}
                     </td>
                 )}
+                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    {!isOtherSection && (
+                        <button
+                            onClick={() => handleClientPdfDownload(folder.id, folder.name, folderProjectsList)}
+                            className="flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
+                            title={t('common.downloadPdf', 'Download PDF')}
+                        >
+                            <ArrowDownToLine size={14} />
+                            {t('common.downloadPdf', 'Download PDF')}
+                        </button>
+                    )}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                     {!isOtherSection && (
                         <FolderRowMenu 
@@ -1338,7 +1352,7 @@ const ClientRow: React.FC<{
             {/* Loading state for client projects */}
             {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
                 <tr>
-                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 1} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 2} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                         Loading projects...
                     </td>
                 </tr>
@@ -1375,6 +1389,7 @@ const ClientRow: React.FC<{
                     handleDeletePermanently={handleDeletePermanently}
                     handleDeleteFolder={handleDeleteFolder}
                     allFolders={allFolders}
+                    handleClientPdfDownload={handleClientPdfDownload}
                 />
             ))}
         </>
@@ -3603,6 +3618,39 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         setShowClientNameModal(true);
     };
 
+    // Handle client-specific PDF download
+    const handleClientPdfDownload = (folderId: number, clientName: string, projects: Project[]) => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        
+        // Add folder_id
+        queryParams.append('folder_id', folderId.toString());
+        
+        // Add column visibility settings
+        queryParams.append('column_visibility', JSON.stringify(columnVisibility));
+        
+        // Add column widths settings
+        queryParams.append('column_widths', JSON.stringify(columnWidths));
+        
+        // Add client name
+        queryParams.append('client_name', clientName);
+        
+        // Add project IDs for this client
+        const projectIds = projects.map(p => p.id);
+        queryParams.append('selected_projects', JSON.stringify(projectIds));
+        
+        // Build the PDF URL
+        let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/projects-list`;
+        if (queryParams.toString()) {
+            pdfUrl += `?${queryParams.toString()}`;
+        }
+        
+        // Open PDF in new tab
+        window.open(pdfUrl, '_blank');
+    };
+
     // Handle client name confirmation
     const handleClientNameConfirm = (clientName: string | null, selectedFolders: number[], selectedProjects: number[]) => {
         setShowClientNameModal(false);
@@ -3767,15 +3815,15 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                         )}
                     </div>
                     
-                    {/* PDF Download Button - only show in list view */}
+                    {/* Add Client Button - only show in list view */}
                     {viewMode === 'list' && (
                         <button
-                            onClick={handlePdfDownload}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                            title={t('interface.downloadPDF', 'Download projects list as PDF')}
+                            onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors"
+                            title={t('interface.addClient', 'Add Client')}
                         >
-                            <ArrowDownToLine size={16} />
-                            {t('common.downloadPdf', 'Download PDF')}
+                            <Plus size={16} />
+                            {t('interface.addClient', 'Add Client')}
                         </button>
                     )}
                     
@@ -3901,42 +3949,44 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             />
                                         </th>
                                     )}
+                                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '120px' }}>{t('interface.customOffer', 'Custom Offer')}</th>
                                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '80px' }}>{t('interface.actions', 'Actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
                                 {/* Show folders as "Clients" when not viewing a specific folder */}
                                 {!trashMode && folderId === null && buildFolderTree(folders).map((folder, folderIndex) => (
-                                    <ClientRow
-                                        key={`client-${folder.id}`}
-                                        folder={folder}
-                                        level={0}
-                                        index={folderIndex}
-                                        trashMode={trashMode}
-                                        columnVisibility={columnVisibility}
-                                        columnWidths={columnWidths}
-                                        expandedFolders={expandedFolders}
-                                        folderProjects={filteredFolderProjects}
-                                        lessonDataCache={lessonDataCache}
-                                        draggedFolder={draggedFolder}
-                                        draggedProject={draggedProject}
-                                        dragOverIndex={dragOverIndex}
-                                        isDragging={isDragging}
-                                        isReordering={isReordering}
-                                        formatDate={formatDate}
-                                        formatCompletionTime={formatCompletionTimeLocalized}
-                                        toggleFolder={toggleFolder}
-                                        handleDragStart={handleDragStart}
-                                        handleDragOver={handleDragOver}
-                                        handleDragLeave={handleDragLeave}
-                                        handleDrop={handleDrop}
-                                        handleDragEnd={handleDragEnd}
-                                        handleDeleteProject={handleDeleteProject}
-                                        handleRestoreProject={handleRestoreProject}
-                                        handleDeletePermanently={handleDeletePermanently}
-                                        handleDeleteFolder={handleDeleteFolder}
-                                        allFolders={folders}
-                                    />
+                                                                    <ClientRow
+                                    key={`client-${folder.id}`}
+                                    folder={folder}
+                                    level={0}
+                                    index={folderIndex}
+                                    trashMode={trashMode}
+                                    columnVisibility={columnVisibility}
+                                    columnWidths={columnWidths}
+                                    expandedFolders={expandedFolders}
+                                    folderProjects={filteredFolderProjects}
+                                    lessonDataCache={lessonDataCache}
+                                    draggedFolder={draggedFolder}
+                                    draggedProject={draggedProject}
+                                    dragOverIndex={dragOverIndex}
+                                    isDragging={isDragging}
+                                    isReordering={isReordering}
+                                    formatDate={formatDate}
+                                    formatCompletionTime={formatCompletionTimeLocalized}
+                                    toggleFolder={toggleFolder}
+                                    handleDragStart={handleDragStart}
+                                    handleDragOver={handleDragOver}
+                                    handleDragLeave={handleDragLeave}
+                                    handleDrop={handleDrop}
+                                    handleDragEnd={handleDragEnd}
+                                    handleDeleteProject={handleDeleteProject}
+                                    handleRestoreProject={handleRestoreProject}
+                                    handleDeletePermanently={handleDeletePermanently}
+                                    handleDeleteFolder={handleDeleteFolder}
+                                    allFolders={folders}
+                                    handleClientPdfDownload={handleClientPdfDownload}
+                                />
                                 ))}
                                 
                                 {/* Show "Other" section for unassigned projects when not viewing a specific folder */}
@@ -3981,6 +4031,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         handleDeleteFolder={handleDeleteFolder}
                                         allFolders={folders}
                                         isOtherSection={true}
+                                        handleClientPdfDownload={handleClientPdfDownload}
                                     />
                                 )}
                                 
