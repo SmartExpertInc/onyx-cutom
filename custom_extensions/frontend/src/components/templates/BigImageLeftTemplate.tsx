@@ -609,7 +609,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode={objectFit || 'contain'}
+          cropMode={objectFit || 'cover'}
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}

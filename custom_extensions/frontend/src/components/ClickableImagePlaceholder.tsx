@@ -58,7 +58,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   onSizeTransformChange,
   elementId,
   elementRef,
-  cropMode = 'contain',
+  cropMode = 'cover',
   onCropModeChange,
   slideContainerRef,
   savedImagePosition,

@@ -1428,7 +1428,7 @@
                                 {% else %}
                                     <!-- LOG: No elementPositions metadata for title -->
                                 {% endif %}
-                            >{{ slide.props.title }}</h1>
+                            >{{ slide.props.title|safe }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
                             <div class="content-text positioned-element"
@@ -1443,7 +1443,7 @@
                                 {% else %}
                                     <!-- LOG: No elementPositions metadata for subtitle -->
                                 {% endif %}
-                            >{{ slide.props.subtitle }}</div>
+                            >{{ slide.props.subtitle|safe }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -1747,7 +1747,7 @@
                                             style="transform: translate({{ slide.metadata.elementPositions[leftContentId].x }}px, {{ slide.metadata.elementPositions[leftContentId].y }}px);"
                                         {% endif %}
                                     {% endif %}
-                                >{{ slide.props.leftContent }}</p>
+                                >{{ slide.props.leftContent|safe }}</p>
                             {% endif %}
                         </div>
                         <div class="column">
@@ -1783,7 +1783,7 @@
                                             style="transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px);"
                                         {% endif %}
                                     {% endif %}
-                                >{{ slide.props.rightTitle }}</h2>
+                                >{{ slide.props.rightTitle|safe }}</h2>
                             {% endif %}
                             {% if slide.props.rightContent and slide.props.rightContent != 'Click to add right content' %}
                                 <p class="column-content positioned-element"
@@ -1793,7 +1793,7 @@
                                             style="transform: translate({{ slide.metadata.elementPositions[rightContentId].x }}px, {{ slide.metadata.elementPositions[rightContentId].y }}px);"
                                         {% endif %}
                                     {% endif %}
-                                >{{ slide.props.rightContent }}</p>
+                                >{{ slide.props.rightContent|safe }}</p>
                             {% endif %}
                         </div>
                     </div>

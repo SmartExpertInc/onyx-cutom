@@ -32,6 +32,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
         props: { ...slide.props, ...newProps },
         metadata: {
           ...slide.metadata,
+          ...newProps.metadata, // ✅ NEW: Preserve metadata from updates (including elementPositions)
           updatedAt: new Date().toISOString()
         }
       };
