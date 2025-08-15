@@ -618,6 +618,7 @@ interface ColumnVisibility {
     numberOfLessons: boolean;
     estCreationTime: boolean;
     estCompletionTime: boolean;
+    customOffer: boolean;
 }
 
 interface ColumnWidths {
@@ -627,6 +628,7 @@ interface ColumnWidths {
     numberOfLessons: number;
     estCreationTime: number;
     estCompletionTime: number;
+    customOffer: number;
 }
 
 // Recursive folder row component for nested display in list view
@@ -816,6 +818,12 @@ const FolderRow: React.FC<{
                         })()}
                     </td>
                 )}
+                {columnVisibility.customOffer && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        {/* Custom Offer content - placeholder for now */}
+                        -
+                    </td>
+                )}
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                     <FolderRowMenu 
                         folder={folder} 
@@ -939,6 +947,12 @@ const FolderRow: React.FC<{
                                     const lessonData = lessonDataCache[p.id];
                                     return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                 })()}
+                            </td>
+                        )}
+                        {columnVisibility.customOffer && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                {/* Custom Offer content - placeholder for now */}
+                                -
                             </td>
                         )}
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
@@ -1328,6 +1342,12 @@ const ClientRow: React.FC<{
                                     const lessonData = lessonDataCache[p.id];
                                     return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                 })()}
+                            </td>
+                        )}
+                        {columnVisibility.customOffer && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                {/* Custom Offer content - placeholder for now */}
+                                -
                             </td>
                         )}
                         {/* Empty cell to align with client PDF download button column */}
@@ -2660,6 +2680,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         numberOfLessons: true,
         estCreationTime: true,
         estCompletionTime: true,
+        customOffer: true,
     });
     const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
         title: 40,
@@ -2668,6 +2689,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         numberOfLessons: 13,
         estCreationTime: 13.5,
         estCompletionTime: 13.5,
+        customOffer: 15,
     });
     const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
     const [resizingColumn, setResizingColumn] = useState<string | null>(null);
@@ -3787,7 +3809,8 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         { key: 'creator', label: t('interface.creator', 'Creator') },
                                         { key: 'numberOfLessons', label: t('interface.numberOfLessonsShort', 'Number of lessons') },
                                         { key: 'estCreationTime', label: t('interface.estCreationTimeShort', 'Est. creation time') },
-                                        { key: 'estCompletionTime', label: t('interface.estCompletionTimeShort', 'Est. completion time') }
+                                        { key: 'estCompletionTime', label: t('interface.estCompletionTimeShort', 'Est. completion time') },
+                                        { key: 'customOffer', label: t('interface.customOffer', 'Custom Offer') }
                                     ].map((column) => (
                                         <label key={column.key} className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer">
                                             {columnVisibility[column.key as keyof ColumnVisibility] ? (
@@ -3948,7 +3971,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             />
                                         </th>
                                     )}
-                                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '120px' }}>{t('interface.customOffer', 'Custom Offer')}</th>
+                                    {columnVisibility.customOffer && (
+                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '120px' }}>{t('interface.customOffer', 'Custom Offer')}</th>
+                                    )}
                                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50" style={{ width: '80px' }}>&nbsp;</th>
                                 </tr>
                             </thead>
@@ -4147,6 +4172,12 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                     const lessonData = lessonDataCache[p.id];
                                                     return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.customOffer && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                {/* Custom Offer content - placeholder for now */}
+                                                -
                                             </td>
                                         )}
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
