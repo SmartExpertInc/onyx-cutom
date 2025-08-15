@@ -16595,38 +16595,59 @@ async def download_projects_list_pdf(
         # Calculate summary statistics
         summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
 
-        # Fetch real analytics data for pie charts
+        # Collect all project IDs that are actually included in the filtered PDF data
+        included_project_ids = set()
+        
+        # Add projects from filtered folders
+        for folder_id_key, projects in folder_projects.items():
+            for project in projects:
+                included_project_ids.add(project['id'])
+        
+        # Add filtered unassigned projects
+        for project in unassigned_projects:
+            included_project_ids.add(project['id'])
+        
+        logger.info(f"[PDF_ANALYTICS] Found {len(included_project_ids)} projects included in PDF: {list(included_project_ids)}")
+
+        # Fetch real analytics data for pie charts using only the projects actually included in the PDF
         product_distribution = None
         quality_distribution = None
         
-        logger.info(f"[PDF_ANALYTICS] Starting analytics data fetch for user: {onyx_user_id}, folder_id: {folder_id}")
+        logger.info(f"[PDF_ANALYTICS] Starting analytics data fetch for user: {onyx_user_id}, included projects: {len(included_project_ids)}")
         
         try:
             # Use a new connection for analytics queries since the original conn might be released
             async with pool.acquire() as analytics_conn:
                 # Get product distribution data - since lessons don't have pre-computed recommendations,
                 # we'll generate them on-the-fly using Python logic
-                lessons_query = """
-                    SELECT 
-                        lesson->>'title' as lesson_title,
-                        lesson->>'quality_tier' as lesson_quality_tier,
-                        p.quality_tier as project_quality_tier,
-                        pf.quality_tier as folder_quality_tier
-                    FROM projects p
-                    LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                    LEFT JOIN project_folders pf ON p.folder_id = pf.id
-                    CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
-                    CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
-                    WHERE p.onyx_user_id = $1
-                    AND p.microproduct_content IS NOT NULL
-                    AND p.microproduct_content->>'sections' IS NOT NULL
-                    AND dt.component_name = 'TrainingPlanTable'
-                """
-                product_params = [onyx_user_id]
-                
-                if folder_id is not None:
-                    lessons_query += " AND p.folder_id = $2"
-                    product_params.append(folder_id)
+                if included_project_ids:
+                    # Convert project IDs to a format suitable for SQL IN clause
+                    project_ids_list = list(included_project_ids)
+                    project_ids_placeholder = ','.join(['$' + str(i+2) for i in range(len(project_ids_list))])
+                    
+                    lessons_query = f"""
+                        SELECT 
+                            p.id as project_id,
+                            lesson->>'title' as lesson_title,
+                            lesson->>'quality_tier' as lesson_quality_tier,
+                            p.quality_tier as project_quality_tier,
+                            pf.quality_tier as folder_quality_tier
+                        FROM projects p
+                        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                        LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                        CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        WHERE p.onyx_user_id = $1
+                        AND p.id IN ({project_ids_placeholder})
+                        AND p.microproduct_content IS NOT NULL
+                        AND p.microproduct_content->>'sections' IS NOT NULL
+                        AND dt.component_name = 'TrainingPlanTable'
+                    """
+                    product_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    lessons_query = "SELECT NULL as project_id, NULL as lesson_title, NULL as lesson_quality_tier, NULL as project_quality_tier, NULL as folder_quality_tier WHERE FALSE"
+                    product_params = []
                 
                 logger.info(f"[PDF_ANALYTICS] Lessons query: {lessons_query}")
                 logger.info(f"[PDF_ANALYTICS] Lessons params: {product_params}")
@@ -16707,40 +16728,40 @@ async def download_projects_list_pdf(
                 
                 logger.info(f"[PDF_ANALYTICS] Final product distribution: {product_distribution}")
                 
-                # Get quality distribution data
-                quality_query = """
-                    WITH lesson_quality_tiers AS (
+                # Get quality distribution data using the same project filtering
+                if included_project_ids:
+                    # Use the same project IDs that were included in the product analysis
+                    quality_query = f"""
+                        WITH lesson_quality_tiers AS (
+                            SELECT 
+                                COALESCE(
+                                    lesson->>'quality_tier',
+                                    section->>'quality_tier', 
+                                    p.quality_tier,
+                                    pf.quality_tier,
+                                    'interactive'
+                                ) as effective_quality_tier
+                            FROM projects p
+                            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                            CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                            WHERE p.onyx_user_id = $1
+                            AND p.id IN ({project_ids_placeholder})
+                            AND p.microproduct_content IS NOT NULL
+                            AND p.microproduct_content->>'sections' IS NOT NULL
+                        )
                         SELECT 
-                            COALESCE(
-                                lesson->>'quality_tier',
-                                section->>'quality_tier', 
-                                p.quality_tier,
-                                pf.quality_tier,
-                                'interactive'
-                            ) as effective_quality_tier
-                        FROM projects p
-                        LEFT JOIN project_folders pf ON p.folder_id = pf.id
-                        CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
-                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
-                        WHERE p.onyx_user_id = $1
-                        AND p.microproduct_content IS NOT NULL
-                        AND p.microproduct_content->>'sections' IS NOT NULL
-                """
-                quality_params = [onyx_user_id]
-                
-                if folder_id is not None:
-                    quality_query += " AND p.folder_id = $2"
-                    quality_params.append(folder_id)
-                
-                quality_query += """
-                    )
-                    SELECT 
-                        LOWER(effective_quality_tier) as quality_tier,
-                        COUNT(*) as count
-                    FROM lesson_quality_tiers
-                    GROUP BY LOWER(effective_quality_tier)
-                    ORDER BY count DESC
-                """
+                            LOWER(effective_quality_tier) as quality_tier,
+                            COUNT(*) as count
+                        FROM lesson_quality_tiers
+                        GROUP BY LOWER(effective_quality_tier)
+                        ORDER BY count DESC
+                    """
+                    quality_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    quality_query = "SELECT NULL as quality_tier, 0 as count WHERE FALSE"
+                    quality_params = []
                 
                 logger.info(f"[PDF_ANALYTICS] Quality query: {quality_query}")
                 logger.info(f"[PDF_ANALYTICS] Quality params: {quality_params}")
