@@ -6412,6 +6412,13 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
 
+            # Add website field to project_folders table
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS website TEXT;")
+                logger.info("Added website column to project_folders table.")
+            except Exception as e:
+                logger.warning(f"Error adding website column (may already exist): {e}")
+
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -14969,6 +14976,7 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
 # --- Folders API Models ---
 class ProjectFolderCreateRequest(BaseModel):
     name: str
+    website: Optional[str] = None
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
@@ -14978,6 +14986,7 @@ class ProjectFolderCreateRequest(BaseModel):
 class ProjectFolderResponse(BaseModel):
     id: int
     name: str
+    website: Optional[str] = None
     created_at: datetime
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
