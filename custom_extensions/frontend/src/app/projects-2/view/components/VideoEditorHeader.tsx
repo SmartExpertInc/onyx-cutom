@@ -99,35 +99,39 @@ export default function VideoEditorHeader() {
   const resizeOptions = [
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
           <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
         </svg>
       ),
-      text: "16:9 Desktop video, Youtube"
+      ratio: "16:9",
+      description: "Desktop video, Youtube"
     },
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
           <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
         </svg>
       ),
-      text: "9:16 Instagram story"
+      ratio: "9:16",
+      description: "Instagram story"
     },
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
           <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
         </svg>
       ),
-      text: "1:1 Square, instagram post"
+      ratio: "1:1",
+      description: "Square, instagram post"
     },
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
           <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" fill="none"/>
         </svg>
       ),
-      text: "Custom set a custom size"
+      ratio: "Custom",
+      description: "set a custom size"
     }
   ];
 
@@ -202,10 +206,13 @@ export default function VideoEditorHeader() {
                         setIsResizePopupOpen(false);
                       }}
                     >
-                      <div className="text-gray-600">
+                      <div>
                         {option.icon}
                       </div>
-                      <span className="text-sm text-gray-700">{option.text}</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm text-black">{option.ratio}</span>
+                        <span className="text-sm text-gray-500">{option.description}</span>
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -316,19 +323,24 @@ export default function VideoEditorHeader() {
                     ))}
                   </div>
                   
-                  {/* Horizontal line */}
-                  <div className="border-t border-gray-200 mb-4"></div>
-                  
-                  {/* Bottom section */}
-                  <div className="flex justify-start">
-                    <button
-                      onClick={addEmailInput}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-                    >
-                      <span className="text-base">+</span>
-                      <span>add another</span>
-                    </button>
-                  </div>
+                                     {/* Warning text */}
+                   <div className="bg-amber-50 text-amber-800 text-xs p-3 rounded-md mb-4">
+                     Existing content on the scene will not be reorganised automatically.
+                   </div>
+                   
+                   {/* Horizontal line */}
+                   <div className="border-t border-gray-200 mb-4"></div>
+                   
+                   {/* Bottom section */}
+                   <div className="flex justify-start">
+                     <button
+                       onClick={addEmailInput}
+                       className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                     >
+                       <span className="text-base">+</span>
+                       <span>add another</span>
+                     </button>
+                   </div>
                 </div>
               )}
             </div>
