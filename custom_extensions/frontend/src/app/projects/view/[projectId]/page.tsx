@@ -725,6 +725,22 @@ export default function ProjectInstanceViewPage() {
         }
       }
       
+      // ✅ NEW: Debug logging for text positioning data
+      if (slideDeckData?.slides) {
+        slideDeckData.slides.forEach((slide: any, index: number) => {
+          if (slide.templateId === 'big-image-left') {
+            console.log('🔍 Auto-save: BigImageLeft slide data', {
+              slideId: slide.slideId,
+              slideIndex: index,
+              hasElementPositions: !!slide.metadata?.elementPositions,
+              elementPositions: slide.metadata?.elementPositions,
+              title: slide.props?.title?.substring(0, 50) + (slide.props?.title && slide.props.title.length > 50 ? '...' : ''),
+              subtitle: slide.props?.subtitle?.substring(0, 50) + (slide.props?.subtitle && slide.props.subtitle.length > 50 ? '...' : '')
+            });
+          }
+        });
+      }
+      
       console.log('🔍 Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),

@@ -168,6 +168,16 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
 
   // Handle position changes from drag enhancer
   const handlePositionChange = useCallback((elementId: string, position: { x: number; y: number }) => {
+    // ✅ NEW: Debug logging for position change handling
+    console.log('🔍 HybridTemplateBase: Position change received', {
+      slideId,
+      elementId,
+      position,
+      hasSlide: !!slide,
+      hasOnSlideUpdate: !!onSlideUpdate,
+      currentElementPositions: slide?.metadata?.elementPositions
+    });
+    
     // Save position changes to slide data if needed
     if (slide && onSlideUpdate) {
       const updatedSlide: ComponentBasedSlide = {
@@ -181,6 +191,14 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
           updatedAt: new Date().toISOString()
         }
       };
+      
+      console.log('🔍 HybridTemplateBase: Saving updated slide', {
+        slideId,
+        elementId,
+        newPosition: position,
+        updatedElementPositions: updatedSlide.metadata?.elementPositions
+      });
+      
       onSlideUpdate(updatedSlide);
     }
   }, [slide, onSlideUpdate]);

@@ -188,6 +188,18 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     });
   }, [slideId, objectFit, imagePath, widthPx, heightPx, imageScale, imageOffset, onUpdate]);
   
+  // ✅ NEW: Debug logging for text positioning
+  useEffect(() => {
+    console.log('🔍 BigImageLeftTemplate: Text positioning debug', {
+      slideId,
+      title: title?.substring(0, 50) + (title && title.length > 50 ? '...' : ''),
+      subtitle: subtitle?.substring(0, 50) + (subtitle && subtitle.length > 50 ? '...' : ''),
+      titleRefExists: !!titleRef.current,
+      subtitleRefExists: !!subtitleRef.current,
+      hasOnUpdate: !!onUpdate
+    });
+  }, [slideId, title, subtitle, onUpdate]);
+  
   // Debounced update function to prevent infinite autosaves
   const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
   const handleUpdate = (updates: any) => {
