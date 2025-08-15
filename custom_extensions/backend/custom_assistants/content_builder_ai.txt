@@ -1086,13 +1086,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **For grouped concepts**: Use `four-box-grid` (not content-slide)
 - **For explanatory text only**: Use `content-slide` (maximum 2-3 times per presentation)
 - **For section breaks**: Use `title-slide` (maximum 2 times per presentation)
-- **For event schedules and milestones**: Use `event-dates` for timeline-based presentations
-- **For six key ideas or concepts**: Use `six-ideas-list` for organized idea presentation
-- **For medical/product contraindications**: Use `contraindications-indications` for safety information
-- **For detailed analytics**: Use `metrics-analytics` for comprehensive performance data
-- **For market analysis**: Use `market-share` for competitive positioning data
-- **For structured data tables**: Use `table-dark` or `table-light` for organized information
-- **For data distribution**: Use `pie-chart-infographics` for percentage-based visualizations
+- **PRIORITY: For event schedules, project timelines, and important dates**: Use `event-dates` (NOT `timeline`)
+- **PRIORITY: For six key ideas or concepts**: Use `six-ideas-list` for organized idea presentation
+- **PRIORITY: For medical/product contraindications**: Use `contraindications-indications` for safety information
+- **PRIORITY: For detailed analytics**: Use `metrics-analytics` for comprehensive performance data
+- **PRIORITY: For market analysis**: Use `market-share` for competitive positioning data
+- **PRIORITY: For structured data tables**: Use `table-dark` or `table-light` for organized information
+- **PRIORITY: For data distribution**: Use `pie-chart-infographics` for percentage-based visualizations
 
 **CRITICAL TEMPLATE USAGE RULES:**
 - **NEVER use `content-slide` for any content with bullet points or lists** - use `bullet-points` or `bullet-points-right` instead
@@ -1102,6 +1102,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
 - **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
+- **NEW TEMPLATE PRIORITY**: When both `timeline` and `event-dates` could apply, ALWAYS choose `event-dates` for project schedules, milestones, and event dates
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
 - **For `leftContent` and `rightContent`**: Use flowing paragraph text, NOT lists
@@ -1441,8 +1442,9 @@ Our project follows a structured timeline with critical milestones that ensure s
 - **CRITICAL:** Use this template for event schedules, project timelines, and important dates. Always use the exact format shown above.
 - The first line after the title is the subtitle.
 - Use bold dates followed by event descriptions.
-- **Trigger words:** If the slide involves "timeline", "schedule", "milestones", "events", "dates", "deadlines", use `event-dates`.
-- Example use cases: "Project Timeline", "Event Schedule", "Key Milestones", "Important Dates".
+- **Trigger words:** If the slide involves "project timeline", "event schedule", "key milestones", "important dates", "deadlines", "project schedule", "event dates", "timeline events", use `event-dates`.
+- **PRIORITY TRIGGER:** The word "timeline" ALWAYS triggers `event-dates` for project schedules and milestones (NOT the old `timeline` template)
+- Example use cases: "Project Timeline", "Event Schedule", "Key Milestones", "Important Dates", "Project Deadlines".
 
 **Six Ideas List Slides** (`six-ideas-list`):
 ```
