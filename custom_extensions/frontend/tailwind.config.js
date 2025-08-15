@@ -6,8 +6,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'brand-primary': '#0076FF', // richer primary blue from Figma
-        'brand-primary-hover': '#005FDD',
+        'brand-primary': '#000000', // Changed from blue to black
+        'brand-primary-hover': '#333333', // Darker black for hover
         'brand-accent': '#00A2FF',
       },
       backgroundImage: {

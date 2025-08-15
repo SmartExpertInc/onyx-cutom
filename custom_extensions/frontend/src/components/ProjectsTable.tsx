@@ -53,21 +53,22 @@ import { useLanguage } from "../contexts/LanguageContext";
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
   const iconSize = 16;
+  const iconClass = "text-black"; // Add black color class
 
   switch (type) {
     case "Training Plan":
-      return <ClipboardCheck size={iconSize} />;
+      return <ClipboardCheck size={iconSize} className={iconClass} />;
     case "Quiz":
-      return <HelpCircle size={iconSize} />;
+      return <HelpCircle size={iconSize} className={iconClass} />;
     case "Slide Deck":
-      return <BookText size={iconSize} />;
+      return <BookText size={iconSize} className={iconClass} />;
     case "Video Lesson Presentation":
-      return <Video size={iconSize} />;
+      return <Video size={iconSize} className={iconClass} />;
     case "Text Presentation":
-      return <FileText size={iconSize} />;
+      return <FileText size={iconSize} className={iconClass} />;
     default:
       // Default icon for unknown types
-      return <FileText size={iconSize} />;
+      return <FileText size={iconSize} className={iconClass} />;
   }
 };
 
