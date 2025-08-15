@@ -50,7 +50,7 @@ export default function VideoEditorHeader() {
                 alt="Resize"
                 className="w-[22px] h-4"
               />
-              <span className="text-editor-resize-text text-xl font-normal">Resize</span>
+              <span className="text-editor-resize-text text-lg font-normal">Resize</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
@@ -84,7 +84,7 @@ export default function VideoEditorHeader() {
         {/* Center section - Create video text (hidden on mobile) */}
         <div className="hidden lg:flex flex-1 justify-center">
           <div className="flex items-center gap-3">
-            <span className="text-editor-gray-text text-[20.7px] font-medium whitespace-nowrap">Create your first AI video</span>
+            <span className="text-editor-gray-text text-lg font-medium whitespace-nowrap">Create your first AI video</span>
             <img
               src="https://api.builder.io/api/v1/image/assets/TEMP/0dfa92304b25765dd8a203dc550f8d5fac95163b?width=42"
               alt="AI"
@@ -108,14 +108,14 @@ export default function VideoEditorHeader() {
             <button
               className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[11px] px-4 lg:px-6 py-2 h-[48px] border"
             >
-              <span className="text-xl font-normal">Share</span>
+              <span className="text-lg font-normal">Share</span>
             </button>
 
             {/* Generate button */}
             <button
               className="bg-editor-dark text-editor-light-text hover:bg-gray-800 rounded-[7px] px-4 lg:px-6 py-2 h-[48px]"
             >
-              <span className="text-xl font-normal">Generate</span>
+              <span className="text-lg font-normal">Generate</span>
             </button>
           </div>
         </div>
