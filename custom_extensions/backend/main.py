@@ -16604,57 +16604,17 @@ async def download_projects_list_pdf(
         try:
             # Use a new connection for analytics queries since the original conn might be released
             async with pool.acquire() as analytics_conn:
-                # Get product distribution data - count lesson products within training plans
-                product_query = """
-                    WITH lesson_products AS (
-                        SELECT 
-                            lesson->'recommended_content_types'->'primary' as primary_types
-                        FROM projects p
-                        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                        CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
-                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
-                        WHERE p.onyx_user_id = $1
-                        AND p.microproduct_content IS NOT NULL
-                        AND p.microproduct_content->>'sections' IS NOT NULL
-                        AND dt.component_name = 'TrainingPlanTable'
-                """
-                product_params = [onyx_user_id]
-                
-                if folder_id is not None:
-                    product_query += " AND p.folder_id = $2"
-                    product_params.append(folder_id)
-                
-                product_query += """
-                    ),
-                    expanded_products AS (
-                        SELECT 
-                            value::text as product_type
-                        FROM lesson_products
-                        CROSS JOIN LATERAL jsonb_array_elements_text(primary_types) AS value
-                        WHERE primary_types IS NOT NULL
-                        AND jsonb_typeof(primary_types) = 'array'
-                    )
-                    SELECT 
-                        REPLACE(product_type, '"', '') as product_type, 
-                        COUNT(*) as count
-                    FROM expanded_products
-                    WHERE product_type IS NOT NULL
-                    GROUP BY product_type
-                    ORDER BY count DESC
-                """
-                
-                logger.info(f"[PDF_ANALYTICS] Product query: {product_query}")
-                logger.info(f"[PDF_ANALYTICS] Product params: {product_params}")
-                
-                # First, let's debug what's actually in the lesson data
-                debug_query = """
+                # Get product distribution data - since lessons don't have pre-computed recommendations,
+                # we'll generate them on-the-fly using Python logic
+                lessons_query = """
                     SELECT 
                         lesson->>'title' as lesson_title,
-                        lesson->'recommended_content_types' as recommended_types,
-                        lesson->'recommended_content_types'->'primary' as primary_types,
-                        jsonb_pretty(lesson) as full_lesson_data
+                        lesson->>'quality_tier' as lesson_quality_tier,
+                        p.quality_tier as project_quality_tier,
+                        pf.quality_tier as folder_quality_tier
                     FROM projects p
                     LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                    LEFT JOIN project_folders pf ON p.folder_id = pf.id
                     CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
                     CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
                     WHERE p.onyx_user_id = $1
@@ -16662,51 +16622,62 @@ async def download_projects_list_pdf(
                     AND p.microproduct_content->>'sections' IS NOT NULL
                     AND dt.component_name = 'TrainingPlanTable'
                 """
-                debug_params = [onyx_user_id]
+                product_params = [onyx_user_id]
+                
                 if folder_id is not None:
-                    debug_query += " AND p.folder_id = $2"
-                    debug_params.append(folder_id)
-                debug_query += " LIMIT 3"
+                    lessons_query += " AND p.folder_id = $2"
+                    product_params.append(folder_id)
                 
-                debug_rows = await analytics_conn.fetch(debug_query, *debug_params)
-                logger.info(f"[PDF_ANALYTICS] Debug: Found {len(debug_rows)} lessons to examine")
-                for i, row in enumerate(debug_rows):
-                    logger.info(f"[PDF_ANALYTICS] Debug lesson {i+1}:")
-                    logger.info(f"[PDF_ANALYTICS]   Title: {row['lesson_title']}")
-                    logger.info(f"[PDF_ANALYTICS]   Recommended types: {row['recommended_types']}")
-                    logger.info(f"[PDF_ANALYTICS]   Primary types: {row['primary_types']}")
-                    logger.info(f"[PDF_ANALYTICS]   Full lesson data: {row['full_lesson_data'][:500]}...")  # First 500 chars
+                logger.info(f"[PDF_ANALYTICS] Lessons query: {lessons_query}")
+                logger.info(f"[PDF_ANALYTICS] Lessons params: {product_params}")
                 
-                product_rows = await analytics_conn.fetch(product_query, *product_params)
-                logger.info(f"[PDF_ANALYTICS] Product query returned {len(product_rows)} rows")
+                lessons_rows = await analytics_conn.fetch(lessons_query, *product_params)
+                logger.info(f"[PDF_ANALYTICS] Found {len(lessons_rows)} lessons for product analysis")
                 
-                # Process product distribution
+                # Generate recommendations for each lesson using the existing function
                 product_counts = {}
                 total_products = 0
                 
-                for row in product_rows:
-                    product_type_str = row['product_type']
-                    count = row['count']
-                    total_products += count
-                    logger.info(f"[PDF_ANALYTICS] Raw product type: {product_type_str}, count: {count}")
+                for row in lessons_rows:
+                    lesson_title = row['lesson_title'] or ''
+                    # Determine effective quality tier
+                    quality_tier = (
+                        row['lesson_quality_tier'] or 
+                        row['project_quality_tier'] or 
+                        row['folder_quality_tier'] or 
+                        'interactive'
+                    )
                     
-                    # Map string to ProductType enum
-                    product_type_mapping = {
-                        'one_pager': ProductType.ONE_PAGER,
-                        'presentation': ProductType.PRESENTATION,
-                        'quiz': ProductType.QUIZ,
-                        'video_lesson': ProductType.VIDEO_LESSON
-                    }
+                    logger.info(f"[PDF_ANALYTICS] Processing lesson: '{lesson_title}' (quality: {quality_tier})")
                     
-                    product_type = product_type_mapping.get(product_type_str)
-                    logger.info(f"[PDF_ANALYTICS] Mapped {product_type_str} -> {product_type}")
-                    if product_type:
-                        if product_type not in product_counts:
-                            product_counts[product_type] = 0
-                        product_counts[product_type] += count
-                        logger.info(f"[PDF_ANALYTICS] Added {count} to {product_type}, total now: {product_counts[product_type]}")
-                    else:
-                        logger.warning(f"[PDF_ANALYTICS] No mapping found for product type: {product_type_str}")
+                    # Generate recommendations using the existing function
+                    recommendations = analyze_lesson_content_recommendations(lesson_title, quality_tier)
+                    primary_types = recommendations.get('primary', [])
+                    
+                    logger.info(f"[PDF_ANALYTICS] Generated recommendations: {primary_types}")
+                    
+                    # Count each recommended product type
+                    for product_type_str in primary_types:
+                        total_products += 1
+                        
+                        # Map to our ProductType enum
+                        product_type_mapping = {
+                            'one-pager': ProductType.ONE_PAGER,
+                            'presentation': ProductType.PRESENTATION,
+                            'quiz': ProductType.QUIZ,
+                            'video-lesson': ProductType.VIDEO_LESSON
+                        }
+                        
+                        product_type = product_type_mapping.get(product_type_str)
+                        if product_type:
+                            if product_type not in product_counts:
+                                product_counts[product_type] = 0
+                            product_counts[product_type] += 1
+                            logger.info(f"[PDF_ANALYTICS] Added {product_type_str} -> {product_type}, count now: {product_counts[product_type]}")
+                        else:
+                            logger.warning(f"[PDF_ANALYTICS] Unknown product type: {product_type_str}")
+                
+                # We've already computed product_counts and total_products above using Python logic
                 
                 logger.info(f"[PDF_ANALYTICS] Total products: {total_products}")
                 logger.info(f"[PDF_ANALYTICS] Product counts: {product_counts}")
