@@ -214,11 +214,14 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${showProportionMenu ? 'rotate-90' : ''}`} />
                   </button>
                   
-                  {/* Dropdown меню для пропорцій */}
+                  {/* Dropdown меню для пропорцій - ВИПРАВЛЕНО ПОЗИЦІОНУВАННЯ */}
                   {showProportionMenu && (
                     <div 
                       ref={proportionRef}
-                      className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10"
+                      className="absolute left-full top-0 ml-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20"
+                      style={{
+                        minWidth: '200px'
+                      }}
                     >
                       <div className="py-1">
                         {proportionOptions.map((option) => (
