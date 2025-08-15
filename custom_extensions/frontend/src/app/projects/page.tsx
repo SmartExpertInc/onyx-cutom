@@ -444,7 +444,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             </div>
           ) : (
             folders.map((folder) => {
-              const projectCount = folderProjects[folder.id]?.length || 0;
+              const projectCount = folderProjects?.[folder.id]?.length || 0;
               return (
                 <button
                   key={folder.id}
