@@ -626,6 +626,20 @@
             padding: 0;
         }
         
+        /* FIX: Positioned elements override for big-image-left */
+        .big-image-left .positioned-element {
+            position: absolute !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            /* Compensate for 40px container padding */
+            left: 40px !important;
+            top: 40px !important;
+        }
+        
+        .big-image-left .content-container {
+            position: relative !important;
+        }
+        
         .big-image-left .image-container {
             flex: 0 0 40%; /* Exact frontend match */
             display: flex;

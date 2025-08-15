@@ -1394,7 +1394,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.info(f"=== GENERATED HTML ANALYSIS for {slide_info}{template_info} ===")
                 
                 # Extract the big-image-left section from the HTML
-                big_image_left_pattern = r'<div class="big-image-left">(.*?)</div>\s*</div>\s*</div>'
+                big_image_left_pattern = r'<div class="big-image-left">(.*?)</div>'
                 match = re.search(big_image_left_pattern, html_content, re.DOTALL)
                 
                 if match:
