@@ -89,7 +89,7 @@ export default function Toolbar() {
                         style={{
                           color: '#000000',
                           fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                          fontSize: '14px',
+                          fontSize: '12px',
 
                           lineHeight: 'normal'
                         }}
@@ -126,7 +126,7 @@ export default function Toolbar() {
                     style={{
                       color: '#000000',
                       fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       lineHeight: 'normal'
                     }}
                   >
