@@ -1330,6 +1330,9 @@ const ClientRow: React.FC<{
                                 })()}
                             </td>
                         )}
+                        {/* Empty cell to align with client PDF download button column */}
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                             <ProjectRowMenu 
                                 project={p} 
@@ -1348,7 +1351,7 @@ const ClientRow: React.FC<{
             {/* Loading state for client projects */}
             {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
                 <tr>
-                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 2} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 3} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                         Loading projects...
                     </td>
                 </tr>
