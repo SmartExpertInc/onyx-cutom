@@ -1383,7 +1383,10 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             await log_image_fit_properties(safe_slide_data, slide_index, template_id)
             
             # ✅ NEW: Detailed logging for text positioning in big-image-left template
-            if safe_slide_data.get('templateId') == 'big-image-left':
+            template_id_from_data = safe_slide_data.get('templateId')
+            logger.info(f"DEBUG: Template ID check - template_id_from_data: '{template_id_from_data}', template_id param: '{template_id}'")
+            
+            if template_id_from_data == 'big-image-left' or template_id == 'big-image-left':
                 logger.info(f"=== TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
                 props = safe_slide_data.get('props', {})
                 
@@ -1433,6 +1436,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.info(f"  metadata keys: {list(metadata.keys()) if metadata else 'None'}")
                 
                 logger.info(f"=== END TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
+            else:
+                logger.info(f"DEBUG: Not a big-image-left template. Template ID: '{template_id_from_data}'")
             
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
