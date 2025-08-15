@@ -1,15 +1,6 @@
 export default function Sidebar() {
   return (
     <div className="h-full bg-white relative overflow-hidden w-full">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <img
-          src="https://api.builder.io/api/v1/image/assets/TEMP/69675e0798cd95775a6565ff56e20b10b33f8d5b?width=1462"
-          alt=""
-          className="w-full h-full object-cover object-center"
-        />
-      </div>
-
       {/* Content Container */}
       <div className="relative z-10 flex flex-col items-start justify-start px-4 py-8 sm:px-8 md:px-12 lg:px-20 md:py-16 lg:py-24">
 
