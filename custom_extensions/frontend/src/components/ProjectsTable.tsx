@@ -2287,6 +2287,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     
     // Client name modal state
     const [showClientNameModal, setShowClientNameModal] = useState(false);
+    const [pdfDownloadCount, setPdfDownloadCount] = useState(0);
 
     // Column resizing functionality
     const handleColumnResize = (columnKey: string, newWidth: number) => {
@@ -3220,12 +3221,24 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     // Add PDF download function
     const handlePdfDownload = () => {
-        // Open PDF preview page in new tab
-        const previewUrl = `/projects/pdf-preview?folderId=${folderId || ''}`;
-        window.open(previewUrl, '_blank');
+        // Increment download count
+        const newCount = pdfDownloadCount + 1;
+        setPdfDownloadCount(newCount);
         
-        // Show client name modal for PDF download
-        setShowClientNameModal(true);
+        // First click: download PDF
+        if (newCount === 1) {
+            console.log('🔍 First click: Downloading PDF...');
+            // Show client name modal for PDF download
+            setShowClientNameModal(true);
+        } else {
+            // Second click: open React preview page
+            console.log('🔍 Second click: Opening PDF preview page...');
+            const previewUrl = `/projects/pdf-preview?folderId=${folderId || ''}`;
+            window.open(previewUrl, '_blank');
+            
+            // Reset count after opening preview
+            setPdfDownloadCount(0);
+        }
     };
 
     // Handle client name confirmation
@@ -3276,6 +3289,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        
+        // Show message that PDF is downloaded and next click will open preview
+        alert(t('interface.projectView.pdfDownloadedClickAgainForPreview', 'PDF downloaded! Click "Download PDF" again to open preview page.'));
     };
 
     // Add these just before the render block
@@ -3397,10 +3413,17 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                         <button
                             onClick={handlePdfDownload}
                             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                            title={t('interface.downloadPDF', 'Download projects list as PDF')}
+                            title={
+                                pdfDownloadCount === 0 
+                                    ? t('interface.downloadPDF', 'Download projects list as PDF')
+                                    : t('interface.projectView.openPreview', 'Open preview page')
+                            }
                         >
                             <ArrowDownToLine size={16} />
-                            {t('common.downloadPdf', 'Download PDF')}
+                            {pdfDownloadCount === 0 
+                                ? t('common.downloadPdf', 'Download PDF')
+                                : t('interface.projectView.openPreview', 'Open Preview')
+                            }
                         </button>
                     )}
                     

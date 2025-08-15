@@ -145,8 +145,9 @@ export default function ProjectInstanceViewPage() {
     estCompletionTime: true,
     qualityTier: false, // Hidden by default
   });
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
-  
+    const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [pdfDownloadCount, setPdfDownloadCount] = useState(0);
+   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
   
@@ -809,6 +810,7 @@ export default function ProjectInstanceViewPage() {
     console.log('🔍 handlePdfDownload called');
     console.log('🔍 projectInstanceData:', projectInstanceData);
     console.log('🔍 projectId:', projectId);
+    console.log('🔍 pdfDownloadCount:', pdfDownloadCount);
     
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
         console.error('🔍 Error: Project data or ID not available');
@@ -816,96 +818,111 @@ export default function ProjectInstanceViewPage() {
         return;
     }
     
-    console.log('🔍 Opening PDF preview page...');
-    // Open PDF preview page in new tab
-    const previewUrl = `/projects/view/${projectId}/pdf-preview`;
-    console.log('🔍 Preview URL:', previewUrl);
-    window.open(previewUrl, '_blank');
+    // Increment download count
+    const newCount = pdfDownloadCount + 1;
+    setPdfDownloadCount(newCount);
     
-    // Special handling for slide decks and video lesson presentations  
-    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
-        projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
-        const slideDeckData = editableData as ComponentBasedSlideDeck;
-        const theme = slideDeckData?.theme || 'dark-purple';
+    // First click: download PDF
+    if (newCount === 1) {
+        console.log('🔍 First click: Downloading PDF...');
         
-        // Show loading modal
-        setIsExportingPdf(true);
-        
-        try {
-            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`, {
-                method: 'GET',
-                credentials: 'same-origin'
-            });
-
-            if (!response.ok) {
-                throw new Error(`PDF generation failed: ${response.status}`);
-            }
-
-            // Get the blob from the response
-            const blob = await response.blob();
+        // Special handling for slide decks and video lesson presentations  
+        if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
+            projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
+            const slideDeckData = editableData as ComponentBasedSlideDeck;
+            const theme = slideDeckData?.theme || 'dark-purple';
             
-            // Create a download link
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
-        } finally {
-            // Hide loading modal
-            setIsExportingPdf(false);
+            // Show loading modal
+            setIsExportingPdf(true);
+            
+            try {
+                const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`, {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`PDF generation failed: ${response.status}`);
+                }
+
+                // Get the blob from the response
+                const blob = await response.blob();
+                
+                // Create a download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+            } finally {
+                // Hide loading modal
+                setIsExportingPdf(false);
+            }
+            return;
         }
-        return;
-    }
-    
-    // Original PDF download logic for other component types
-    const nameForSlug = projectInstanceData.name || 'document';
-    const docNameSlug = slugify(nameForSlug);
-    const pdfProjectId = projectInstanceData.project_id;
+        
+        // Original PDF download logic for other component types
+        const nameForSlug = projectInstanceData.name || 'document';
+        const docNameSlug = slugify(nameForSlug);
+        const pdfProjectId = projectInstanceData.project_id;
 
-    const parentProjectName = searchParams?.get('parentProjectName');
-    const lessonNumber = searchParams?.get('lessonNumber');
+        const parentProjectName = searchParams?.get('parentProjectName');
+        const lessonNumber = searchParams?.get('lessonNumber');
 
-    let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/${pdfProjectId}/${docNameSlug}`;
-    
-    const queryParams = new URLSearchParams();
-    if (parentProjectName) {
-        queryParams.append('parentProjectName', parentProjectName);
-    }
-    const details = projectInstanceData.details;
-    if (details && 'lessonNumber' in details && typeof details.lessonNumber === 'number') {
-       queryParams.append('lessonNumber', details.lessonNumber.toString());
-    }
-    
-    // Add column visibility settings for Training Plan PDFs
-    if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-        queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
-        queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
-        queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
-        queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
-        queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
-        queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
-    }
-    
-    if (queryParams.toString()) {
-        pdfUrl += `?${queryParams.toString()}`;
-    }
+        let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/${pdfProjectId}/${docNameSlug}`;
+        
+        const queryParams = new URLSearchParams();
+        if (parentProjectName) {
+            queryParams.append('parentProjectName', parentProjectName);
+        }
+        const details = projectInstanceData.details;
+        if (details && 'lessonNumber' in details && typeof details.lessonNumber === 'number') {
+           queryParams.append('lessonNumber', details.lessonNumber.toString());
+        }
+        
+        // Add column visibility settings for Training Plan PDFs
+        if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
+            queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
+            queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
+            queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
+            queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
+            queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
+            queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
+        }
+        
+        if (queryParams.toString()) {
+            pdfUrl += `?${queryParams.toString()}`;
+        }
 
-    // Download PDF in background
-    console.log('🔍 Downloading PDF from URL:', pdfUrl);
-    const a = document.createElement('a');
-    a.href = pdfUrl;
-    a.download = `${projectInstanceData.name || 'document'}_${new Date().toISOString().split('T')[0]}.pdf`;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    console.log('🔍 PDF download initiated');
+        // Download PDF in background
+        console.log('🔍 Downloading PDF from URL:', pdfUrl);
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = `${projectInstanceData.name || 'document'}_${new Date().toISOString().split('T')[0]}.pdf`;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        console.log('🔍 PDF download initiated');
+        
+        // Show message that PDF is downloaded and next click will open preview
+        alert(t('interface.projectView.pdfDownloadedClickAgainForPreview', 'PDF downloaded! Click "Download PDF" again to open preview page.'));
+        
+    } else {
+        // Second click: open React preview page
+        console.log('🔍 Second click: Opening PDF preview page...');
+        const previewUrl = `/projects/view/${projectId}/pdf-preview`;
+        console.log('🔍 Preview URL:', previewUrl);
+        window.open(previewUrl, '_blank');
+        
+        // Reset count after opening preview
+        setPdfDownloadCount(0);
   };
 
   const handleToggleEdit = () => {
@@ -1334,27 +1351,31 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
             
-            {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-                  <button
-                    onClick={() => {
-                      console.log('🔍 Download PDF button clicked');
-                      handlePdfDownload();
-                    }}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title={
-                      projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
-                        : t('interface.projectView.downloadPdf', 'Download content as PDF')
+                         {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
+                   <button
+                     onClick={() => {
+                       console.log('🔍 Download PDF button clicked');
+                       handlePdfDownload();
+                     }}
+                     disabled={isSaving}
+                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                     title={
+                       pdfDownloadCount === 0 
+                         ? (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
+                             ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
+                             : t('interface.projectView.downloadPdf', 'Download content as PDF'))
+                         : t('interface.projectView.openPreview', 'Open preview page')
+                     }
+                   >
+                    <Download size={16} className="mr-2" /> {
+                      pdfDownloadCount === 0
+                        ? (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
+                            ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
+                            : t('interface.projectView.downloadPdf', 'Download PDF'))
+                        : t('interface.projectView.openPreview', 'Open Preview')
                     }
-                  >
-                   <Download size={16} className="mr-2" /> {
-                     projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                       ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
-                       : t('interface.projectView.downloadPdf', 'Download PDF')
-                   }
-                  </button>
-            )}
+                   </button>
+             )}
             
             {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
