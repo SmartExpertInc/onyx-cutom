@@ -806,13 +806,20 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handlePdfDownload = async () => {
+    console.log('🔍 handlePdfDownload called');
+    console.log('🔍 projectInstanceData:', projectInstanceData);
+    console.log('🔍 projectId:', projectId);
+    
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
+        console.error('🔍 Error: Project data or ID not available');
         alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
         return;
     }
     
+    console.log('🔍 Opening PDF preview page...');
     // Open PDF preview page in new tab
     const previewUrl = `/projects/view/${projectId}/pdf-preview`;
+    console.log('🔍 Preview URL:', previewUrl);
     window.open(previewUrl, '_blank');
     
     // Special handling for slide decks and video lesson presentations  
@@ -890,6 +897,7 @@ export default function ProjectInstanceViewPage() {
     }
 
     // Download PDF in background
+    console.log('🔍 Downloading PDF from URL:', pdfUrl);
     const a = document.createElement('a');
     a.href = pdfUrl;
     a.download = `${projectInstanceData.name || 'document'}_${new Date().toISOString().split('T')[0]}.pdf`;
@@ -897,6 +905,7 @@ export default function ProjectInstanceViewPage() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    console.log('🔍 PDF download initiated');
   };
 
   const handleToggleEdit = () => {
@@ -1327,7 +1336,10 @@ export default function ProjectInstanceViewPage() {
             
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
                   <button
-                    onClick={handlePdfDownload}
+                    onClick={() => {
+                      console.log('🔍 Download PDF button clicked');
+                      handlePdfDownload();
+                    }}
                     disabled={isSaving}
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
                     title={
