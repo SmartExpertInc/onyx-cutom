@@ -1196,26 +1196,22 @@ const ClientRow: React.FC<{
                     </td>
                 )}
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                    {!isOtherSection && (
-                        <button
-                            onClick={() => handleClientPdfDownload(folder.id, folder.name, folderProjectsList)}
-                            className="flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
-                            title={t('common.downloadPdf', 'Download PDF')}
-                        >
-                            <ArrowDownToLine size={14} />
-                            {t('common.downloadPdf', 'Download PDF')}
-                        </button>
-                    )}
+                    <button
+                        onClick={() => handleClientPdfDownload(folder.id, folder.name, folderProjectsList)}
+                        className="flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
+                        title={t('common.downloadPdf', 'Download PDF')}
+                    >
+                        <ArrowDownToLine size={14} />
+                        {t('common.downloadPdf', 'Download PDF')}
+                    </button>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
-                    {!isOtherSection && (
-                        <FolderRowMenu 
-                            folder={folder} 
-                            formatDate={formatDate} 
-                            trashMode={trashMode}
-                            onDeleteFolder={handleDeleteFolder}
-                        />
-                    )}
+                    <FolderRowMenu 
+                        folder={folder} 
+                        formatDate={formatDate} 
+                        trashMode={trashMode}
+                        onDeleteFolder={handleDeleteFolder}
+                    />
                 </td>
             </tr>
             

@@ -13,7 +13,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
   const [folderName, setFolderName] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
+
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
   const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null);
   const { t } = useLanguage();
@@ -114,7 +114,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
     }
   };
 
-  const filteredFolders = existingFolders.filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredFolders = existingFolders;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/50" onClick={handleBackdropClick}>
@@ -151,7 +151,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                   placeholder={t('interface.enterClientNamePlaceholder', 'Enter client name...')}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   value={folderName}
-                  onChange={e => { setFolderName(e.target.value); setSearch(e.target.value); }}
+                  onChange={e => setFolderName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
                 />
               </div>
@@ -207,16 +207,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                 <h3 className="font-semibold text-gray-900">{t('interface.existingClients', 'Existing Clients')}</h3>
               </div>
               
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={t('interface.searchClients', 'Search clients...')}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                />
-                <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
+
               
               <div className="max-h-48 overflow-y-auto space-y-2">
                 {filteredFolders.length === 0 && (
