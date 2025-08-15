@@ -41,15 +41,19 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
 
   // Скидати showProportionMenu при зміні зображення
   useEffect(() => {
-    setShowProportionMenu(false);
-  }, [imageBlock.layoutMode]);
+    if (showProportionMenu) {
+      console.log('Resetting proportion menu due to layoutMode change');
+      setShowProportionMenu(false);
+    }
+  }, [imageBlock.layoutMode, showProportionMenu]);
 
   // Скидати showProportionMenu при закритті основного меню
   useEffect(() => {
-    if (!showMenu) {
+    if (!showMenu && showProportionMenu) {
+      console.log('Resetting proportion menu due to main menu close');
       setShowProportionMenu(false);
     }
-  }, [showMenu]);
+  }, [showMenu, showProportionMenu]);
 
   const updateImageProperty = (property: keyof ImageBlock, value: any) => {
     const updatedBlock = { ...imageBlock, [property]: value };
@@ -207,7 +211,9 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowProportionMenu(!showProportionMenu);
+                    const newState = !showProportionMenu;
+                    console.log(`Toggling proportion menu: ${showProportionMenu} -> ${newState}`);
+                    setShowProportionMenu(newState);
                   }}
                   className="w-full text-left text-xs hover:bg-gray-50 rounded transition-colors flex items-center justify-between py-2"
                 >
