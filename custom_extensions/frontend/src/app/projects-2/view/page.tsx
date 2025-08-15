@@ -7,6 +7,7 @@ import React from 'react';
 // import { Timeline } from '../components/Timeline';
 import VideoEditorHeader from './components/VideoEditorHeader';
 import Toolbar from './components/Toolbar';
+import Sidebar from './components/Sidebar';
 
 export default function Projects2ViewPage() {
   return (
@@ -17,18 +18,27 @@ export default function Projects2ViewPage() {
       {/* Toolbar */}
       <Toolbar />
       
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Left Sidebar - Hidden on mobile, shown on desktop */}
-        {/* <div className="hidden lg:block">
-          <LeftSidebar />
-        </div> */}
+      {/* Main Content Area - Horizontal layout under toolbar */}
+      <div className="flex-1 flex gap-4 overflow-hidden">
+        {/* Sidebar - 20% width */}
+        <div className="w-[20%] h-full">
+          <Sidebar />
+        </div>
 
-        {/* Main Video Area */}
-        {/* <div className="flex-1 flex flex-col min-h-0">
-          <VideoPreview />
-          <Timeline />
-        </div> */}
+        {/* Main Container - 80% width */}
+        <div className="w-[80%] h-full flex flex-col gap-4 bg-gray-50 p-4">
+          {/* Top Container - 80% height */}
+          <div className="h-[80%] bg-gray-200 rounded-lg shadow-sm border border-gray-300 p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Top Content Area (80% height)</h2>
+            <p className="text-gray-600">This is the top container taking 80% of the main container's height.</p>
+          </div>
+
+          {/* Bottom Container - 20% height */}
+          <div className="h-[20%] bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">Bottom Content Area (20% height)</h2>
+            <p className="text-gray-600">This is the bottom container taking 20% of the main container's height.</p>
+          </div>
+        </div>
       </div>
     </div>
   );

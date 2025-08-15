@@ -60,13 +60,9 @@ export default function Toolbar() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Main toolbar container - matches Figma dimensions exactly */}
-      <div className="w-full bg-white relative" style={{ height: '187px' }}>
-        {/* Toolbar positioned like in Figma */}
-        <div className="absolute top-[84px] left-0 w-full" style={{ height: '103px' }}>
-          {/* Desktop layout */}
-          <div className="flex items-start justify-between px-2 max-w-full h-full">
+    <div className="w-full bg-white" style={{ height: '103px' }}>
+      {/* Toolbar container */}
+      <div className="flex items-start justify-between px-2 max-w-full h-full">
             {/* Left side - all tools except Default */}
             <div className="flex items-start gap-4">
               {tools.filter(tool => tool.id !== 'default').map((tool) => {
@@ -150,8 +146,6 @@ export default function Toolbar() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
       </div>
     </div>
   );
