@@ -10,10 +10,11 @@ interface FolderModalProps {
 }
 
 const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreated, existingFolders }) => {
-  const [folderName, setFolderName] = useState('');
+    const [folderName, setFolderName] = useState('');
+  const [website, setWebsite] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
-
+ 
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
   const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null);
   const { t } = useLanguage();
@@ -53,6 +54,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           name: folderName.trim(),
+          website: website.trim() || null,
           parent_id: selectedParentId,
           quality_tier: 'interactive'
         })
@@ -61,6 +63,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
       const data = await res.json();
       onFolderCreated(data);
       setFolderName('');
+      setWebsite('');
       setSelectedParentId(null);
       if (typeof window !== 'undefined') (window as any).__modalOpen = false;
       
@@ -145,14 +148,32 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
             </div>
             
             <div className="space-y-3">
-              <div className="relative">
+              <div>
+                <label htmlFor="folder-name" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('interface.clientName', 'Client Name')} *
+                </label>
                 <input
+                  id="folder-name"
                   type="text"
                   placeholder={t('interface.enterClientNamePlaceholder', 'Enter client name...')}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   value={folderName}
                   onChange={e => setFolderName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="website" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('interface.website', 'Website')} <span className="text-gray-500 font-normal">({t('interface.optional', 'optional')})</span>
+                </label>
+                <input
+                  id="website"
+                  type="url"
+                  placeholder={t('interface.enterWebsitePlaceholder', 'https://example.com')}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                  value={website}
+                  onChange={e => setWebsite(e.target.value)}
                 />
               </div>
               
@@ -199,51 +220,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
             </div>
           )}
 
-          {/* Existing Clients Section */}
-          {existingFolders.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Search size={16} className="text-gray-600" />
-                <h3 className="font-semibold text-gray-900">{t('interface.existingClients', 'Existing Clients')}</h3>
-              </div>
-              
 
-              
-              <div className="max-h-48 overflow-y-auto space-y-2">
-                {filteredFolders.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Users size={32} className="mx-auto mb-2 text-gray-300" />
-                    <p className="text-sm">{t('interface.noClientsFound', 'No clients found')}</p>
-                  </div>
-                )}
-                {filteredFolders.map(folder => (
-                  <div key={folder.id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">{folder.name[0]?.toUpperCase()}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-900">{folder.name}</span>
-                        <p className="text-xs text-gray-500">{t('interface.addClient', 'Client')}</p>
-                      </div>
-                    </div>
-                    <button 
-                      className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
-                      disabled={deletingFolderId === folder.id}
-                      onClick={() => handleDeleteFolder(folder.id)}
-                      title={t('interface.deleteClient', 'Delete client')}
-                    >
-                      {deletingFolderId === folder.id ? (
-                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                      ) : (
-                        <Trash2 size={16} />
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="flex justify-end mt-8 pt-6 border-t border-gray-200">

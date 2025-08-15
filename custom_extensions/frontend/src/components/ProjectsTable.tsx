@@ -602,6 +602,7 @@ interface Folder {
   total_completion_time: number;
   parent_id?: number | null;
   quality_tier?: string;
+  website?: string | null;
   children?: Folder[];
 }
 
@@ -618,6 +619,7 @@ interface ColumnVisibility {
     numberOfLessons: boolean;
     estCreationTime: boolean;
     estCompletionTime: boolean;
+    website: boolean;
 }
 
 interface ColumnWidths {
@@ -627,6 +629,7 @@ interface ColumnWidths {
     numberOfLessons: number;
     estCreationTime: number;
     estCompletionTime: number;
+    website: number;
 }
 
 // Recursive folder row component for nested display in list view
@@ -1193,6 +1196,28 @@ const ClientRow: React.FC<{
                             const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
                             return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
                         })()}
+                    </td>
+                )}
+                {columnVisibility.website && (
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                        {folder.website ? (
+                            <a
+                                href={folder.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition-colors"
+                                title={folder.website}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M2 12h20"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+                            </a>
+                        ) : (
+                            '-'
+                        )}
                     </td>
                 )}
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
@@ -2657,14 +2682,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         numberOfLessons: true,
         estCreationTime: true,
         estCompletionTime: true,
+        website: false,
     });
     const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
-        title: 48,
+        title: 42,
         created: 15,
         creator: 15,
         numberOfLessons: 13,
         estCreationTime: 13.5,
         estCompletionTime: 13.5,
+        website: 6,
     });
     const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
     const [resizingColumn, setResizingColumn] = useState<string | null>(null);
@@ -3784,7 +3811,8 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                         { key: 'creator', label: t('interface.creator', 'Creator') },
                                         { key: 'numberOfLessons', label: t('interface.numberOfLessonsShort', 'Number of lessons') },
                                         { key: 'estCreationTime', label: t('interface.estCreationTimeShort', 'Est. creation time') },
-                                        { key: 'estCompletionTime', label: t('interface.estCompletionTimeShort', 'Est. completion time') }
+                                        { key: 'estCompletionTime', label: t('interface.estCompletionTimeShort', 'Est. completion time') },
+                                        { key: 'website', label: t('interface.website', 'Website') }
                                     ].map((column) => (
                                         <label key={column.key} className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer">
                                             {columnVisibility[column.key as keyof ColumnVisibility] ? (
@@ -3942,6 +3970,18 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.website && (
+                                        <th 
+                                            className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.website}%` }}
+                                        >
+                                            {t('interface.website', 'Website')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'website')}
                                             />
                                         </th>
                                     )}
