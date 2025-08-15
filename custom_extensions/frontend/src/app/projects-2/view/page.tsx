@@ -11,7 +11,7 @@ import Sidebar from './components/Sidebar';
 
 export default function Projects2ViewPage() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col p-2">
       {/* Header */}
       <VideoEditorHeader />
 
@@ -19,24 +19,21 @@ export default function Projects2ViewPage() {
       <Toolbar />
       
       {/* Main Content Area - Horizontal layout under toolbar */}
-      <div className="flex-1 flex gap-4 overflow-hidden">
-        {/* Sidebar - 30% width */}
+      {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
+      <div className="flex gap-4 overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
+        {/* Sidebar - 30% width, full height of available space */}
         <div className="w-[30%] h-full bg-white border border-gray-300">
           <Sidebar />
         </div>
 
-        {/* Main Container - 70% width */}
-        <div className="w-[70%] h-full flex flex-col gap-4">
-          {/* Top Container - Fixed height */}
-          <div className="h-[400px] flex-shrink-0 bg-gray-200 rounded-lg shadow-sm border border-gray-300 p-6">
-            <h2 className="text-sm font-semibold text-gray-800 mb-4">Top Content Area (Fixed 400px height)</h2>
-            <p className="text-sm text-gray-600">This is the top container with a fixed height of 400px.</p>
+        {/* Main Container - 70% width, full height of available space */}
+        <div className="w-[70%] h-full flex flex-col gap-4 p-4">
+          {/* Top Container - Takes 70% of main container height */}
+          <div className="bg-gray-200 rounded-lg shadow-sm border border-gray-300 overflow-auto" style={{ height: '70%' }}>
           </div>
 
-          {/* Bottom Container - Fixed height */}
-          <div className="h-[200px] flex-shrink-0 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-sm font-semibold text-gray-800 mb-2">Bottom Content Area (Fixed 200px height)</h2>
-            <p className="text-sm text-gray-600">This is the bottom container with a fixed height of 200px.</p>
+          {/* Bottom Container - Takes 30% of main container height */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-auto" style={{ height: '30%' }}>
           </div>
         </div>
       </div>
