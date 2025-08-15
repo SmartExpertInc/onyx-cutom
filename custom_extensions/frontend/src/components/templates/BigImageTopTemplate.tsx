@@ -158,7 +158,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   widthPx,
   heightPx,
   imageScale,
-  imageOffset
+  imageOffset,
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -369,7 +370,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode="contain"
+          cropMode={objectFit || 'contain'}
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}

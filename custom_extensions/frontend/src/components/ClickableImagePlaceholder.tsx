@@ -96,6 +96,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       instanceId,
       displayedImage: !!displayedImage,
       isEditable,
+      cropMode,
       timestamp: Date.now()
     });
     
@@ -106,7 +107,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         timestamp: Date.now()
       });
     };
-  }, [elementId, instanceId, displayedImage, isEditable]);
+  }, [elementId, instanceId, displayedImage, isEditable, cropMode]);
 
   const sizeClasses = {
     'LARGE': 'h-48 md:h-64',
@@ -131,6 +132,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       imagePath,
       hasImagePath: !!imagePath,
       currentDisplayedImage: displayedImage,
+      cropMode,
       timestamp: Date.now()
     });
     
@@ -140,6 +142,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         elementId,
         instanceId,
         imagePath,
+        cropMode,
         timestamp: Date.now()
       });
     } else {
@@ -148,11 +151,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       console.log('🔍 [ImageSync] Cleared displayed image', {
         elementId,
         instanceId,
-        reason: 'imagePath is empty/null/undefined',
+        cropMode,
         timestamp: Date.now()
       });
     }
-  }, [imagePath, elementId, instanceId, displayedImage]);
+  }, [imagePath, elementId, instanceId, displayedImage, cropMode]);
 
   // Apply saved position and size when component mounts or saved values change
   useEffect(() => {
@@ -238,6 +241,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       // Call onSizeTransformChange with position update
       onSizeTransformChange?.({
         imagePosition: { x, y },
+        objectFit: cropMode,
         elementId: elementId
       });
     }
@@ -255,6 +259,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       
       onSizeTransformChange?.({
         imagePosition: { x, y },
+        objectFit: cropMode,
         elementId: elementId,
         final: true
       });
@@ -293,6 +298,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onSizeTransformChange?.({
       imagePosition: { x, y },
       imageSize: { width, height },
+      objectFit: cropMode,
       elementId: elementId,
       final: true
     });
@@ -524,6 +530,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onSizeTransformChange?.({
             imagePosition: { x, y },
             imageSize: { width: e.width, height: e.height },
+            objectFit: cropMode,
             elementId: elementId
           });
         }}

@@ -156,7 +156,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   widthPx,
   heightPx,
   imageScale,
-  imageOffset
+  imageOffset,
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -172,6 +173,20 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const titleRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
+  
+  // ✅ NEW: Debug logging to see what props are received
+  useEffect(() => {
+    console.log('🔍 BigImageLeftTemplate: Received props', {
+      slideId,
+      objectFit,
+      imagePath,
+      widthPx,
+      heightPx,
+      imageScale,
+      imageOffset,
+      hasOnUpdate: !!onUpdate
+    });
+  }, [slideId, objectFit, imagePath, widthPx, heightPx, imageScale, imageOffset, onUpdate]);
   
   // Debounced update function to prevent infinite autosaves
   const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
@@ -386,7 +401,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode="contain"
+          cropMode={objectFit || 'contain'}
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}

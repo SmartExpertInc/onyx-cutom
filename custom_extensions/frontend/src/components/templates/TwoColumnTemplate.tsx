@@ -154,6 +154,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   rightHeightPx,
   rightImageScale,
   rightImageOffset,
+  leftObjectFit,
+  rightObjectFit,
   columnRatio,
   theme,
   onUpdate,
@@ -428,6 +430,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               style={leftPlaceholderStyles}
               onSizeTransformChange={handleLeftSizeTransformChange}
               elementId="left-image"
+              cropMode={leftObjectFit || 'contain'}
               slideContainerRef={slideContainerRef}
               savedImagePosition={leftImageOffset}
               savedImageSize={leftWidthPx && leftHeightPx ? { width: leftWidthPx, height: leftHeightPx } : undefined}
@@ -536,6 +539,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               style={rightPlaceholderStyles}
               onSizeTransformChange={handleRightSizeTransformChange}
               elementId="right-image"
+              cropMode={rightObjectFit || 'contain'}
               slideContainerRef={slideContainerRef}
               savedImagePosition={rightImageOffset}
               savedImageSize={rightWidthPx && rightHeightPx ? { width: rightWidthPx, height: rightHeightPx } : undefined}
