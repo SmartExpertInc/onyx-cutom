@@ -27,6 +27,7 @@ interface SmartDriveAccess {
   username: string;
   user_exists: boolean;
   nextcloud_url: string;
+  error?: string;
 }
 
 const SmartDriveTab: React.FC<SmartDriveTabProps> = ({ currentUser }) => {
@@ -95,7 +96,7 @@ const SmartDriveTab: React.FC<SmartDriveTabProps> = ({ currentUser }) => {
           console.log('Connected to existing SmartDrive account');
         }
       } else {
-        setError(data.error || 'Failed to connect to SmartDrive');
+        setError(data.error || 'Failed to connect to SmartDrive. Please check your credentials and try again.');
       }
     } catch (err) {
       console.error('SmartDrive connection error:', err);
