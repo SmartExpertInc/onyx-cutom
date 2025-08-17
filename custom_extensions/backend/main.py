@@ -33,6 +33,13 @@ import inspect
 import openai
 from openai import AsyncOpenAI
 from uuid import uuid4
+
+# SmartDrive imports
+try:
+    from app.utils.smartdrive import SmartDriveManager
+except ImportError:
+    logger.warning("Could not import SmartDriveManager from 'app' module. SmartDrive endpoints will not be available.")
+    SmartDriveManager = None
 # NEW: PDF manipulation imports
 try:
     from PyPDF2 import PdfMerger
@@ -18497,3 +18504,116 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     status_code=500, 
                     detail=f"Failed to duplicate project: {str(e)}"
                 )
+
+# SmartDrive Endpoints
+@app.post("/api/custom/smartdrive/access")
+async def get_smartdrive_access(request: Request):
+    """Get SmartDrive (Nextcloud) access for the current user"""
+    if SmartDriveManager is None:
+        raise HTTPException(
+            status_code=503,
+            detail="SmartDrive service is not available"
+        )
+    
+    try:
+        body = await request.json()
+        user_email = body.get("email")
+        user_password = body.get("password")
+        display_name = body.get("display_name")
+        
+        if not user_email or not user_password:
+            raise HTTPException(
+                status_code=400,
+                detail="Email and password are required"
+            )
+        
+        smartdrive_manager = SmartDriveManager()
+        result = smartdrive_manager.ensure_user_access(
+            user_email=user_email,
+            user_password=user_password,
+            display_name=display_name
+        )
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "iframe_url": result["iframe_url"],
+                "username": result["username"],
+                "user_exists": result["user_exists"],
+                "nextcloud_url": result["nextcloud_url"]
+            }
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=result["error"]
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in get_smartdrive_access: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
+
+@app.get("/api/custom/smartdrive/health")
+async def smartdrive_health():
+    """Check SmartDrive (Nextcloud) service health"""
+    if SmartDriveManager is None:
+        return {
+            "healthy": False,
+            "service": "Nextcloud SmartDrive",
+            "error": "SmartDrive service is not available"
+        }
+    
+    try:
+        smartdrive_manager = SmartDriveManager()
+        is_healthy = smartdrive_manager.health_check()
+        
+        return {
+            "healthy": is_healthy,
+            "service": "Nextcloud SmartDrive",
+            "url": smartdrive_manager.nextcloud_service.nextcloud_url
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in smartdrive_health: {e}")
+        return {
+            "healthy": False,
+            "service": "Nextcloud SmartDrive",
+            "error": "Health check failed"
+        }
+
+@app.get("/api/custom/smartdrive/user/{username}")
+async def get_smartdrive_user(username: str):
+    """Get SmartDrive user information"""
+    if SmartDriveManager is None:
+        raise HTTPException(
+            status_code=503,
+            detail="SmartDrive service is not available"
+        )
+    
+    try:
+        smartdrive_manager = SmartDriveManager()
+        user_info = smartdrive_manager.get_user_info(username)
+        
+        if user_info:
+            return {
+                "success": True,
+                "user_info": user_info
+            }
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in get_smartdrive_user: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
