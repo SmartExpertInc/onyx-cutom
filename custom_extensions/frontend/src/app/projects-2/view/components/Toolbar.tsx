@@ -221,8 +221,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                 <div key={tool.id} className="relative">
                   <div
                     ref={defaultButtonRef}
-                    onClick={() => handleToolClick(tool.id)}
-                    className={`flex items-center gap-3 cursor-pointer transition-all duration-200 p-2 ${
+                    onClick={handleChevronClick}
+                    className={`flex items-center gap-1 cursor-pointer transition-all duration-200 px-2 py-2 ${
                       activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
                     }`}
                   >
@@ -248,12 +248,9 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
 
                     {/* Right side - Chevron */}
                     {tool.chevron && (
-                      <div 
-                        className="flex items-center justify-center hover:bg-gray-100 rounded p-1 cursor-pointer"
-                        onClick={handleChevronClick}
-                      >
+                      <div className="flex items-center justify-center">
                         {React.createElement(tool.chevron, {
-                          size: 14,
+                          size: 16,
                           className: "text-gray-600"
                         })}
                       </div>
@@ -263,8 +260,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   {/* Language Variants Popup */}
                   {isLanguagePopupOpen && (
                     <div 
-                      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[280px] z-50"
-                      style={{ marginRight: '0px' }} // Position at the right border
+                      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[350px] z-50"
+                      style={{ marginRight: '-30px' }} // Position closer to the right edge
                     >
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
@@ -284,7 +281,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                           className="font-semibold text-gray-500"
                           style={{
                             fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                            fontSize: '12px',
+                            fontSize: '14px',
                             letterSpacing: '0.05em'
                           }}
                         >
@@ -315,7 +312,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                           className="text-black font-normal"
                           style={{
                             fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                            fontSize: '12px'
+                            fontSize: '14px'
                           }}
                         >
                           English
@@ -326,7 +323,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                           className="text-gray-500 bg-gray-100 px-2 py-1 rounded text-xs font-normal"
                           style={{
                             fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                            fontSize: '10px',
+                            fontSize: '12px',
                             letterSpacing: '0.05em'
                           }}
                         >
@@ -347,7 +344,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                           className="text-gray-600 font-normal"
                           style={{
                             fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                            fontSize: '12px'
+                            fontSize: '14px'
                           }}
                         >
                           Add new language variant

@@ -80,19 +80,22 @@ export default function Projects2ViewPage() {
           </div>
 
           {/* Bottom Container - Takes 30% of main container height */}
-          <div className="bg-white rounded-md border border-gray-200 overflow-auto p-4" style={{ height: '20%' }}>
+          <div className="bg-white rounded-md border border-gray-200 overflow-auto p-4" style={{ height: 'calc(20% + 5px)' }}>
             <div className="flex items-center gap-4">
-              {/* Play Button */}
-              <button className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
-                <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
-              </button>
+              {/* Play Button with Time */}
+              <div className="flex flex-col items-center justify-center h-16 gap-1">
+                <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
+                  <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                </button>
+                <span className="text-sm text-gray-600">00:00</span>
+              </div>
 
               {/* Scene 1 Rectangle */}
-              <div className="flex flex-col">
-                <div className="w-24 h-16 bg-gray-100 border border-gray-300 rounded-md mb-2 flex items-center justify-center">
+              <div className="relative">
+                <div className="w-24 h-16 bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center">
                   <div className="w-8 h-8 bg-blue-500 rounded"></div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="absolute top-full left-0 mt-2 flex items-center gap-2">
                   <span className="text-sm font-medium">Scene 1</span>
                   <svg 
                     className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 

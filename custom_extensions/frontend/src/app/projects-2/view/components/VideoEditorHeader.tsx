@@ -366,7 +366,7 @@ export default function VideoEditorHeader() {
               {isSharePopupOpen && (
                 <div 
                   ref={sharePopupRef}
-                  className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
+                  className="absolute top-full -right-4 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
                 >
                   {/* Title */}
                   <h3 className="text-sm font-medium text-gray-700 mb-4">Invite team members</h3>
