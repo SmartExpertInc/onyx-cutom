@@ -340,7 +340,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
       <div style={{
         flex: '1 1 auto',
         width: '100%',
-        height: '400px',
+        height: '500px',
         borderRadius: '8px',
         overflow: 'hidden'
       }}>

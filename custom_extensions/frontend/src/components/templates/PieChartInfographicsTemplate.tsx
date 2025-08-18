@@ -120,26 +120,26 @@ function InlineEditor({
 
 export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplateProps> = ({
   slideId,
-  title = 'Круговая диаграмма',
+  title = 'Revenue Distribution Analysis',
   chartData = {
     segments: [
-      { label: 'Сегмент 1', percentage: 16.67, color: '#3B82F6', description: 'Первый сегмент диаграммы' },
-      { label: 'Сегмент 2', percentage: 16.67, color: '#10B981', description: 'Второй сегмент диаграммы' },
-      { label: 'Сегмент 3', percentage: 16.67, color: '#F59E0B', description: 'Третий сегмент диаграммы' },
-      { label: 'Сегмент 4', percentage: 16.67, color: '#EF4444', description: 'Четвертый сегмент диаграммы' },
-      { label: 'Сегмент 5', percentage: 16.67, color: '#8B5CF6', description: 'Пятый сегмент диаграммы' },
-      { label: 'Сегмент 6', percentage: 16.67, color: '#EC4899', description: 'Шестой сегмент диаграммы' }
+      { label: 'Cloud Services', percentage: 35, color: '#3B82F6', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.' },
+      { label: 'Mobile Applications', percentage: 28, color: '#10B981', description: 'Mobile app development showing consistent growth and expanding market penetration.' },
+      { label: 'Data Analytics', percentage: 22, color: '#F59E0B', description: 'Data analytics services contributing substantial recurring revenue streams.' },
+      { label: 'AI Solutions', percentage: 15, color: '#EF4444', description: 'AI and machine learning solutions providing additional revenue diversification.' },
+      { label: 'Security Tools', percentage: 12, color: '#8B5CF6', description: 'Cybersecurity tools and services addressing critical market needs.' },
+      { label: 'Integration Services', percentage: 8, color: '#EC4899', description: 'System integration and consulting services rounding out our portfolio.' }
     ]
   },
   monthlyData = [
-    { month: 'Сегмент 1', description: 'Описание первого сегмента диаграммы', color: '#3B82F6', percentage: '16.7%' },
-    { month: 'Сегмент 2', description: 'Описание второго сегмента диаграммы', color: '#10B981', percentage: '16.7%' },
-    { month: 'Сегмент 3', description: 'Описание третьего сегмента диаграммы', color: '#F59E0B', percentage: '16.7%' },
-    { month: 'Сегмент 4', description: 'Описание четвертого сегмента диаграммы', color: '#EF4444', percentage: '16.7%' },
-    { month: 'Сегмент 5', description: 'Описание пятого сегмента диаграммы', color: '#8B5CF6', percentage: '16.7%' },
-    { month: 'Сегмент 6', description: 'Описание шестого сегмента диаграммы', color: '#EC4899', percentage: '16.7%' }
+    { month: 'Cloud Services', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.', color: '#3B82F6', percentage: '35%' },
+    { month: 'Mobile Applications', description: 'Mobile app development showing consistent growth and expanding market penetration.', color: '#10B981', percentage: '28%' },
+    { month: 'Data Analytics', description: 'Data analytics services contributing substantial recurring revenue streams.', color: '#F59E0B', percentage: '22%' },
+    { month: 'AI Solutions', description: 'AI and machine learning solutions providing additional revenue diversification.', color: '#EF4444', percentage: '15%' },
+    { month: 'Security Tools', description: 'Cybersecurity tools and services addressing critical market needs.', color: '#8B5CF6', percentage: '12%' },
+    { month: 'Integration Services', description: 'System integration and consulting services rounding out our portfolio.', color: '#EC4899', percentage: '8%' }
   ],
-  descriptionText = 'Нажмите на элементы для редактирования данных диаграммы',
+  descriptionText = 'Click on elements to edit chart data and customize the visualization',
   theme,
   onUpdate,
   isEditable = false
@@ -600,7 +600,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       WebkitClipPath: clipPath
                     }}
                     onClick={(e) => startEditingPieChart(index, e)}
-                    title={`Кликните для редактирования сегмента "${segment.label}"`}
+                    title={`Click to edit segment "${segment.label}"`}
                   />
                 );
               })}
@@ -625,7 +625,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   zIndex: 51
                 }}
               >
-                <h3 className="text-lg font-bold mb-4">Выберите цвет для сегмента</h3>
+                <h3 className="text-lg font-bold mb-4">Choose color for segment</h3>
                 <div className="grid grid-cols-6 gap-2 mb-4">
                   {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#67E8F9', '#0891B2', '#F97316', '#FB923C', '#FBBF24', '#34D399', '#059669', '#047857', '#F87171', '#DC2626', '#B91C1C', '#A855F7', '#7C3AED', '#6D28D9', '#F472B6', '#DB2777', '#BE185D', '#6366F1', '#8B5CF6', '#A855F7', '#7C3AED'].map((color) => (
                     <button
@@ -642,7 +642,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
                     onClick={() => handleColorCancel(editingColor.index)}
                   >
-                    Отмена
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -659,8 +659,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   zIndex: 51
                 }}
               >
-                <h3 className="text-lg font-bold mb-4 text-gray-900">Редактирование сегмента</h3>
-                <p className="text-sm text-gray-700 mb-4">Измените процент для выбранного сегмента.</p>
+                <h3 className="text-lg font-bold mb-4 text-gray-900">Edit Segment</h3>
+                <p className="text-sm text-gray-700 mb-4">Change the percentage for the selected segment.</p>
                 
                 <div className="flex items-center gap-3 mb-4">
                   <div 
@@ -671,7 +671,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 </div>
                 
                 <div className="flex items-center gap-3 mb-4">
-                  <label className="text-sm font-medium text-gray-900">Процент:</label>
+                  <label className="text-sm font-medium text-gray-900">Percentage:</label>
                   <input
                     type="number"
                     min="0"
@@ -704,13 +704,13 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                     onClick={() => handlePieChartSave(editingPieChart.index, chartData.segments[editingPieChart.index].percentage)}
                   >
-                    Сохранить
+                    Save
                   </button>
                   <button
                     className="px-4 py-2 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 transition-colors"
                     onClick={handlePieChartCancel}
                   >
-                    Отмена
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -718,7 +718,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             
             {isEditable && (
               <p className="text-sm text-gray-500 mt-2 text-center">
-                Кликните на сегмент или поле для редактирования процентов
+                Click on segment or field to edit percentages
               </p>
             )}
           </div>

@@ -126,21 +126,21 @@ def test_pie_chart_structure():
         "title": "Revenue Distribution Analysis",
         "chartData": {
             "segments": [
-                {"label": "Cloud Services", "percentage": 35, "color": "#3B82F6", "description": "Cloud services revenue"},
-                {"label": "Mobile Applications", "percentage": 28, "color": "#10B981", "description": "Mobile app revenue"},
-                {"label": "Data Analytics", "percentage": 22, "color": "#F59E0B", "description": "Analytics services revenue"},
+                {"label": "Cloud Services", "percentage": 30, "color": "#3B82F6", "description": "Cloud services revenue"},
+                {"label": "Mobile Applications", "percentage": 25, "color": "#10B981", "description": "Mobile app revenue"},
+                {"label": "Data Analytics", "percentage": 20, "color": "#F59E0B", "description": "Analytics services revenue"},
                 {"label": "AI Solutions", "percentage": 15, "color": "#EF4444", "description": "AI solutions revenue"},
-                {"label": "Security Tools", "percentage": 12, "color": "#8B5CF6", "description": "Security tools revenue"},
-                {"label": "Integration Services", "percentage": 8, "color": "#6B7280", "description": "Integration services revenue"}
+                {"label": "Security Tools", "percentage": 8, "color": "#8B5CF6", "description": "Security tools revenue"},
+                {"label": "Integration Services", "percentage": 2, "color": "#6B7280", "description": "Integration services revenue"}
             ]
         },
         "monthlyData": [
-            {"month": "Cloud Services", "description": "Cloud services revenue", "color": "#3B82F6", "percentage": "35%"},
-            {"month": "Mobile Applications", "description": "Mobile app revenue", "color": "#10B981", "percentage": "28%"},
-            {"month": "Data Analytics", "description": "Analytics services revenue", "color": "#F59E0B", "percentage": "22%"},
+            {"month": "Cloud Services", "description": "Cloud services revenue", "color": "#3B82F6", "percentage": "30%"},
+            {"month": "Mobile Applications", "description": "Mobile app revenue", "color": "#10B981", "percentage": "25%"},
+            {"month": "Data Analytics", "description": "Analytics services revenue", "color": "#F59E0B", "percentage": "20%"},
             {"month": "AI Solutions", "description": "AI solutions revenue", "color": "#EF4444", "percentage": "15%"},
-            {"month": "Security Tools", "description": "Security tools revenue", "color": "#8B5CF6", "percentage": "12%"},
-            {"month": "Integration Services", "description": "Integration services revenue", "color": "#6B7280", "percentage": "8%"}
+            {"month": "Security Tools", "description": "Security tools revenue", "color": "#8B5CF6", "percentage": "8%"},
+            {"month": "Integration Services", "description": "Integration services revenue", "color": "#6B7280", "percentage": "2%"}
         ]
     }
     
