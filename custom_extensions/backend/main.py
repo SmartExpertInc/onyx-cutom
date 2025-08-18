@@ -18947,8 +18947,8 @@ async def get_all_nextcloud_files(nextcloud_user_id: str, base_path: str = "/") 
     
     try:
         webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_user_id}{base_path}"
-                    nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
-            auth = (nextcloud_user_id, nextcloud_password)  # TODO: Use encrypted credentials
+        nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
+        auth = (nextcloud_user_id, nextcloud_password)  # TODO: Use encrypted credentials
         
         async with httpx.AsyncClient() as client:
             response = await client.request(
