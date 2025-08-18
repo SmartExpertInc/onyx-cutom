@@ -1,6 +1,19 @@
 "use client";
 
 import { useState, useRef } from 'react';
+import { 
+  FileText, 
+  User, 
+  Image, 
+  Shapes, 
+  Type, 
+  Music, 
+  ArrowRightLeft, 
+  MousePointer, 
+  MessageCircle, 
+  Settings,
+  ChevronDown
+} from 'lucide-react';
 
 interface ToolbarProps {
   onActiveToolChange?: (toolId: string) => void;
@@ -15,58 +28,58 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'script',
       label: 'Script',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/938b59e2c0325ef5e4e47fd23bfe23fdfed31200?width=54'
+      icon: FileText
     },
     {
       id: 'avatar',
       label: 'Avatar',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/9c1741292fbcf3b4862d22074643d72d0c36e71f?width=40'
+      icon: User
     },
     {
       id: 'background',
       label: 'Background',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/8e4491ad76d9db0eae15b60d5216d1273b670e81?width=48'
+      icon: Image
     },
     {
       id: 'shapes',
       label: 'Shapes',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/f8fbcbd7ed83115a6edbff112313712a757f6608?width=54'
+      icon: Shapes
     },
     {
       id: 'media',
       label: 'Media',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/f0bfbc987a1645ed029a1c3292cbca28e436d02d?width=48'
+      icon: Image
     },
     {
       id: 'text',
       label: 'Text',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/82d167e32c88ee8b47e6a0f690289e846de2b40b?width=54'
+      icon: Type
     },
     {
       id: 'music',
       label: 'Music',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/9953019089c548b87a939243996b460f3a5c7568?width=46'
+      icon: Music
     },
     {
       id: 'transition',
       label: 'Transition',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/0f2a43eb4a1de2af1e3e13c484d876bf1eddeb46?width=54'
+      icon: ArrowRightLeft
     },
     {
       id: 'interaction',
       label: 'Interaction',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/4698a6bd3738fe5d573643dc4616d69f6c9aff67?width=36'
+      icon: MousePointer
     },
     {
       id: 'comments',
       label: 'Comments',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/e9ae7d5d6f3792c90db574ba1b512427c3cbc99c?width=58'
+      icon: MessageCircle
     },
     {
       id: 'default',
       label: 'Default',
-      icon: 'https://api.builder.io/api/v1/image/assets/TEMP/9ea1710a702c96371536cdb0e31e384e5aa4a9da?width=74',
-      chevron: 'https://api.builder.io/api/v1/image/assets/TEMP/bce9e1a7d3f2817c31d0c49a3cf34108a9fbabb5?width=30'
+      icon: Settings,
+      chevron: ChevronDown
     }
   ];
 
@@ -103,11 +116,10 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                     }`}
                   >
                     {/* Icon */}
-                    <div className="flex items-center justify-center mb-1 w-5 h-5">
-                      <img
-                        src={tool.icon}
-                        alt={tool.label}
-                        className="object-contain w-full h-full"
+                    <div className="flex items-center justify-center mb-3 w-4 h-4">
+                      <tool.icon
+                        size={16}
+                        className="text-gray-700"
                       />
                     </div>
 
@@ -141,11 +153,10 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   }`}
                 >
                   {/* Icon */}
-                  <div className="flex items-center justify-center mb-1 w-5 h-5">
-                    <img
-                      src={tool.icon}
-                      alt={tool.label}
-                      className="object-contain w-full h-full"
+                  <div className="flex items-center justify-center mb-3 w-4 h-4">
+                    <tool.icon
+                      size={16}
+                      className="text-gray-700"
                     />
                   </div>
 
@@ -165,10 +176,9 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   {/* Chevron */}
                   {tool.chevron && (
                     <div className="flex items-center justify-center mt-0.5">
-                      <img
-                        src={tool.chevron}
-                        alt="expand"
-                        className="object-contain w-3 h-1.5"
+                      <tool.chevron
+                        size={12}
+                        className="text-gray-600"
                       />
                     </div>
                   )}
