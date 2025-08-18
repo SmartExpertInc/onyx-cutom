@@ -12,6 +12,7 @@ export NEXTCLOUD_SSL_VERIFY="${NEXTCLOUD_SSL_VERIFY:-off}"
 
 echo "Using API server host: $ONYX_BACKEND_API_HOST"
 echo "Using web server host: $ONYX_WEB_SERVER_HOST"
+echo "Using Nextcloud Port: $NEXTCLOUD_EXTERNAL_PORT"
 
 envsubst '$DOMAIN $SSL_CERT_FILE_NAME $SSL_CERT_KEY_FILE_NAME $ONYX_BACKEND_API_HOST $ONYX_WEB_SERVER_HOST' < "/etc/nginx/conf.d/$1" > /etc/nginx/conf.d/app.conf
 
