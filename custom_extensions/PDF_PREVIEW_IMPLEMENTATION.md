@@ -29,6 +29,17 @@ This document describes the implementation of the PDF preview functionality that
 - **Issue**: basePath `/custom-projects-ui` was not included in preview URLs
 - **Fix**: Updated URLs to include full path: `${window.location.origin}/custom-projects-ui/projects/view/${projectId}/pdf-preview`
 - **Debug**: Added console logging for troubleshooting
+
+### 5. API Endpoint Fix
+- **Issue**: Wrong API endpoint `/project-instances/${projectId}` was used in preview page
+- **Fix**: Changed to correct endpoint `/projects/view/${projectId}` (same as main page)
+- **Headers**: Added proper headers including `X-Dev-Onyx-User-ID` for development
+- **Error Handling**: Improved error handling to match main page implementation
+
+### 6. Component Constants Fix
+- **Issue**: Wrong component name constants were used in preview page
+- **Fix**: Updated to use same constants as main page
+- **Testing**: Added SimplePreview component for testing all component types
   - Handles different component types (Slide Deck, Training Plan, etc.)
 
 ### 4. Preview Page
