@@ -1,18 +1,20 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
-  FileText, 
+  MessageSquareText, 
   User, 
-  Image, 
+  MoveDiagonal2, 
   Shapes, 
-  Type, 
+  AlignLeft, 
   Music, 
-  ArrowRightLeft, 
-  MousePointer, 
+  Layers, 
+  Zap, 
   MessageCircle, 
-  Settings,
-  ChevronDown
+  Flag,
+  ChevronDown,
+  LucideIcon,
+  FileImage
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -20,15 +22,34 @@ interface ToolbarProps {
   onTextButtonClick?: (position: { x: number; y: number }) => void;
 }
 
+interface Tool {
+  id: string;
+  label: string;
+  icon: LucideIcon | 'custom-flag';
+  chevron?: LucideIcon;
+}
+
 export default function Toolbar({ onActiveToolChange, onTextButtonClick }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const textButtonRef = useRef<HTMLDivElement>(null);
 
-  const tools = [
+  // Custom flag icon with EN text
+  const renderCustomFlag = () => (
+    <div className="relative inline-block">
+      <Flag size={16} className="text-gray-700" />
+      <span 
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-[6px] font-bold leading-none"
+      >
+        EN
+      </span>
+    </div>
+  );
+
+  const tools: Tool[] = [
     {
       id: 'script',
       label: 'Script',
-      icon: FileText
+      icon: MessageSquareText
     },
     {
       id: 'avatar',
@@ -38,7 +59,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'background',
       label: 'Background',
-      icon: Image
+      icon: MoveDiagonal2
     },
     {
       id: 'shapes',
@@ -48,12 +69,12 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'media',
       label: 'Media',
-      icon: Image
+      icon: FileImage
     },
     {
       id: 'text',
       label: 'Text',
-      icon: Type
+      icon: AlignLeft
     },
     {
       id: 'music',
@@ -63,12 +84,12 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'transition',
       label: 'Transition',
-      icon: ArrowRightLeft
+      icon: Layers
     },
     {
       id: 'interaction',
       label: 'Interaction',
-      icon: MousePointer
+      icon: Zap
     },
     {
       id: 'comments',
@@ -78,7 +99,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'default',
       label: 'Default',
-      icon: Settings,
+      icon: 'custom-flag',
       chevron: ChevronDown
     }
   ];
@@ -117,10 +138,13 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   >
                     {/* Icon */}
                     <div className="flex items-center justify-center mb-3 w-4 h-4">
-                      <tool.icon
-                        size={16}
-                        className="text-gray-700"
-                      />
+                      {tool.icon === 'custom-flag' 
+                        ? renderCustomFlag()
+                        : React.createElement(tool.icon, {
+                            size: 16,
+                            className: "text-gray-700"
+                          })
+                      }
                     </div>
 
                     {/* Label with exact font styling */}
@@ -154,10 +178,13 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                 >
                   {/* Icon */}
                   <div className="flex items-center justify-center mb-3 w-4 h-4">
-                    <tool.icon
-                      size={16}
-                      className="text-gray-700"
-                    />
+                    {tool.icon === 'custom-flag' 
+                      ? renderCustomFlag()
+                      : React.createElement(tool.icon, {
+                          size: 16,
+                          className: "text-gray-700"
+                        })
+                    }
                   </div>
 
                   {/* Label */}
@@ -176,10 +203,10 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   {/* Chevron */}
                   {tool.chevron && (
                     <div className="flex items-center justify-center mt-0.5">
-                      <tool.chevron
-                        size={12}
-                        className="text-gray-600"
-                      />
+                      {React.createElement(tool.chevron, {
+                        size: 12,
+                        className: "text-gray-600"
+                      })}
                     </div>
                   )}
                 </div>
