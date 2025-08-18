@@ -137,6 +137,12 @@ Before selecting any template, check these rules in order:
 **CRITICAL DATA GENERATION RULES:**
 When generating content for the problematic templates, you MUST provide the data in the exact JSON props format shown in each template's **PROPS FORMAT** section. The data will be automatically inserted into the React components through props, NOT as static template content.
 
+**CRITICAL LANGUAGE RULE FOR PIE CHARTS:**
+- **ALWAYS use English labels** for pie chart segments, regardless of presentation language
+- **NEVER use Russian labels** like "Сегмент 1", "Сегмент 2" - this is STRICTLY FORBIDDEN
+- **NEVER use generic labels** like "Segment 1", "Category A" - use specific business terms
+- **ONLY use professional business categories** like "Cloud Services", "Mobile Applications", etc.
+
 **MANDATORY:** Always include the JSON props structure when generating content for:
 - `six-ideas-list` - Include `title` and `ideas` array with `number` and `text` properties
 - `table-dark` - Include `title` and `tableData` with `headers` and `rows` arrays
@@ -1841,55 +1847,79 @@ Understanding how our revenue is distributed across different business segments 
   "chartData": {
     "segments": [
       {
-        "label": "Product A Revenue",
+        "label": "Cloud Services",
         "percentage": 35,
         "color": "#3B82F6",
-        "description": "Our flagship product continues to drive significant revenue with strong market demand and customer satisfaction."
+        "description": "Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction."
       },
       {
-        "label": "Product B Revenue", 
+        "label": "Mobile Applications", 
         "percentage": 28,
         "color": "#10B981",
-        "description": "Secondary product line showing consistent growth and expanding market penetration."
+        "description": "Mobile app development showing consistent growth and expanding market penetration."
       },
       {
-        "label": "Service Revenue",
+        "label": "Data Analytics",
         "percentage": 22,
         "color": "#F59E0B",
-        "description": "Professional services and consulting contributing substantial recurring revenue streams."
+        "description": "Data analytics services contributing substantial recurring revenue streams."
       },
       {
-        "label": "Licensing Revenue",
+        "label": "AI Solutions",
         "percentage": 15,
         "color": "#EF4444",
-        "description": "Technology licensing and partnerships providing additional revenue diversification."
+        "description": "AI and machine learning solutions providing additional revenue diversification."
+      },
+      {
+        "label": "Security Tools",
+        "percentage": 12,
+        "color": "#8B5CF6",
+        "description": "Cybersecurity tools and services addressing critical market needs."
+      },
+      {
+        "label": "Integration Services",
+        "percentage": 8,
+        "color": "#6B7280",
+        "description": "System integration and consulting services rounding out our portfolio."
       }
     ]
   },
   "monthlyData": [
     {
-      "month": "Product A Revenue",
-      "description": "Our flagship product continues to drive significant revenue with strong market demand and customer satisfaction.",
+      "month": "Cloud Services",
+      "description": "Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.",
       "color": "#3B82F6",
       "percentage": "35%"
     },
     {
-      "month": "Product B Revenue",
-      "description": "Secondary product line showing consistent growth and expanding market penetration.",
+      "month": "Mobile Applications",
+      "description": "Mobile app development showing consistent growth and expanding market penetration.",
       "color": "#10B981", 
       "percentage": "28%"
     },
     {
-      "month": "Service Revenue",
-      "description": "Professional services and consulting contributing substantial recurring revenue streams.",
+      "month": "Data Analytics",
+      "description": "Data analytics services contributing substantial recurring revenue streams.",
       "color": "#F59E0B",
       "percentage": "22%"
     },
     {
-      "month": "Licensing Revenue",
-      "description": "Technology licensing and partnerships providing additional revenue diversification.",
+      "month": "AI Solutions",
+      "description": "AI and machine learning solutions providing additional revenue diversification.",
       "color": "#EF4444",
       "percentage": "15%"
+    },
+    {
+      "month": "Security Tools",
+      "description": "Cybersecurity tools and services addressing critical market needs.",
+      "color": "#8B5CF6",
+      "percentage": "12%"
+    },
+    {
+      "month": "Integration Services",
+      "description": "System integration and consulting services rounding out our portfolio.",
+      "color": "#6B7280",
+      "percentage": "8%"
     }
   ]
 }
@@ -1918,6 +1948,8 @@ When generating content for `pie-chart-infographics`, you MUST:
 3. **ALWAYS ensure percentages total 100%** (or close to it)
 4. **ALWAYS provide detailed descriptions** for each segment
 5. **ALWAYS use the exact JSON structure** shown above
+6. **NEVER use Russian labels** like "Сегмент 1", "Сегмент 2" - ONLY use English business terms
+7. **NEVER use generic labels** like "Segment 1", "Category A", "Part 1" - ONLY use specific business categories
 
 **MANDATORY PIE CHART CONTENT REQUIREMENTS:**
 - **EXACTLY 6 segments** with meaningful category names
@@ -1926,8 +1958,25 @@ When generating content for `pie-chart-infographics`, you MUST:
 - **Real-world context** and practical insights for each segment
 - **Professional category names** like "Enterprise Solutions", "SMB Market", "Consumer Products", etc.
 
-**NEVER USE:** Generic names like "Сегмент 1", "Segment 1", "Category A", "Part 1"
-**ALWAYS USE:** Specific, meaningful names like "Cloud Services", "Mobile Applications", "Data Analytics", "AI Solutions", "Security Tools", "Integration Services"
+**ABSOLUTELY FORBIDDEN LABELS:**
+- ❌ "Сегмент 1", "Сегмент 2", "Сегмент 3", "Сегмент 4", "Сегмент 5", "Сегмент 6"
+- ❌ "Segment 1", "Segment 2", "Segment 3", "Segment 4", "Segment 5", "Segment 6"
+- ❌ "Category A", "Category B", "Category C", "Category D", "Category E", "Category F"
+- ❌ "Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6"
+- ❌ Any generic numbered labels
+
+**MANDATORY BUSINESS CATEGORIES TO USE:**
+- ✅ "Cloud Services", "Mobile Applications", "Data Analytics", "AI Solutions", "Security Tools", "Integration Services"
+- ✅ "Enterprise Solutions", "SMB Market", "Consumer Products", "Professional Services", "Hardware Sales", "Software Licenses"
+- ✅ "North America", "Europe", "Asia Pacific", "Latin America", "Middle East", "Africa"
+- ✅ "Q1 Revenue", "Q2 Revenue", "Q3 Revenue", "Q4 Revenue", "Annual Growth", "Market Expansion"
+- ✅ "Product Development", "Marketing", "Sales", "Customer Support", "Operations", "Administration"
+- ✅ "Direct Sales", "Channel Partners", "Online Sales", "Consulting", "Training", "Maintenance"
+
+**CRITICAL LANGUAGE ENFORCEMENT:**
+- **ENGLISH ONLY:** All labels MUST be in English, regardless of the presentation language
+- **BUSINESS TERMS:** Use professional business terminology, not generic labels
+- **SPECIFIC CATEGORIES:** Each segment must represent a real business category or metric
 
 - **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "distribution", "percentages", "percentage", "proportion", "share", "allocation", "split", "division", "composition", "breakdown", "distribution of", "percentage of", "proportion of", "share of", "allocation of", "split of", "division of", "composition of", "breakdown of", "pie chart", "pie", "segments", "sectors", "parts", "slices"
 - **ABSOLUTE REQUIREMENT:** Use this template for percentage-based data visualization. NEVER use bullet-points or content-slide for distribution data.
