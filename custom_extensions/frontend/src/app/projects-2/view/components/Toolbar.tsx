@@ -128,7 +128,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     if (toolId === 'text' && onTextButtonClick && textButtonRef.current) {
       const rect = textButtonRef.current.getBoundingClientRect();
       const position = {
-        x: rect.left,
+        x: rect.left + (rect.width / 2) - 100, // Center popup (assuming 200px popup width)
         y: rect.bottom + 5 // Position popup 5px below the button
       };
       onTextButtonClick(position);
@@ -164,7 +164,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                         ? renderCustomBackground()
                         : React.createElement(tool.icon, {
                             size: 18,
-                            className: tool.id === 'transition' ? "text-gray-700 -rotate-[30deg]" : "text-gray-700"
+                            className: tool.id === 'transition' ? "text-gray-700 -rotate-[90deg]" : "text-gray-700"
                           })
                       }
                     </div>

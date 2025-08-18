@@ -27,13 +27,13 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
           top: position.y,
         }}
       >
-        <div className="space-y-3">
+        <div className="space-y-1">
           {/* Title */}
           <div className="cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
             <span 
-              className="font-bold"
+              className="font-normal"
               style={{
-                fontSize: '18px',
+                fontSize: '20px',
                 lineHeight: '1.2',
                 color: '#000000',
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
@@ -46,9 +46,9 @@ export default function TextPopup({ isOpen, onClose, position }: TextPopupProps)
           {/* Subtitle */}
           <div className="cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
             <span 
-              className="font-semibold"
+              className="font-normal"
               style={{
-                fontSize: '14px',
+                fontSize: '16px',
                 lineHeight: '1.3',
                 color: '#333333',
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
