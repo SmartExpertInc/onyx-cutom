@@ -1076,6 +1076,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 21. `table-dark` - Dark-themed data tables for presenting structured information
 22. `table-light` - Light-themed data tables for presenting structured information
 23. `pie-chart-infographics` - Pie chart visualizations for data distribution and percentages
+24. `event-list` - Event lists and milestone tracking with dates and descriptions
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
@@ -1093,6 +1094,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **PRIORITY: For market analysis**: Use `market-share` for competitive positioning data
 - **PRIORITY: For structured data tables**: Use `table-dark` or `table-light` for organized information
 - **PRIORITY: For data distribution**: Use `pie-chart-infographics` for percentage-based visualizations
+- **PRIORITY: For event lists and milestones**: Use `event-list` for event tracking and milestone presentation
 
 **CRITICAL TEMPLATE USAGE RULES:**
 - **NEVER use `content-slide` for any content with bullet points or lists** - use `bullet-points` or `bullet-points-right` instead
@@ -1103,6 +1105,13 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
 - **NEW TEMPLATE PRIORITY**: When both `timeline` and `event-dates` could apply, ALWAYS choose `event-dates` for project schedules, milestones, and event dates
+- **PRIORITY TEMPLATE RULES**: 
+  * When content mentions "six" or "6" items → ALWAYS use `six-ideas-list` (NOT bullet-points)
+  * When content mentions "table" or "data comparison" → ALWAYS use `table-dark` or `table-light` (NOT content-slide)
+  * When content mentions "distribution" or "percentages" → ALWAYS use `pie-chart-infographics` (NOT bullet-points)
+  * When content mentions "analytics" or "metrics" → ALWAYS use `metrics-analytics` (NOT big-numbers)
+  * When content mentions "market share" or "competitive" → ALWAYS use `market-share` (NOT table-dark)
+  * When content mentions "events" or "milestones" → ALWAYS use `event-list` (NOT event-dates for simple lists)
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
 - **For `leftContent` and `rightContent`**: Use flowing paragraph text, NOT lists
@@ -1442,9 +1451,33 @@ Our project follows a structured timeline with critical milestones that ensure s
 - **CRITICAL:** Use this template for event schedules, project timelines, and important dates. Always use the exact format shown above.
 - The first line after the title is the subtitle.
 - Use bold dates followed by event descriptions.
-- **Trigger words:** If the slide involves "project timeline", "event schedule", "key milestones", "important dates", "deadlines", "project schedule", "event dates", "timeline events", use `event-dates`.
-- **PRIORITY TRIGGER:** The word "timeline" ALWAYS triggers `event-dates` for project schedules and milestones (NOT the old `timeline` template)
-- Example use cases: "Project Timeline", "Event Schedule", "Key Milestones", "Important Dates", "Project Deadlines".
+- **MANDATORY FORMAT:** Each entry must follow the pattern: "**Date** - Event description with context and details."
+- **CONTENT REQUIREMENTS:** Include 3-6 events with specific dates and substantial descriptions (2-3 sentences each).
+- **Trigger words:** If the slide involves "project timeline", "event schedule", "key milestones", "important dates", "deadlines", "project schedule", "event dates", "timeline events", "milestones", "schedule", "calendar", "events", use `event-dates`.
+- **PRIORITY TRIGGER:** The word "timeline" or "schedule" ALWAYS triggers `event-dates` for project schedules and milestones (NOT the old `timeline` template)
+- Example use cases: "Project Timeline", "Event Schedule", "Key Milestones", "Important Dates", "Project Deadlines", "Event Calendar".
+
+**Event List Slides** (`event-list`):
+```
+---
+**Slide 10: Key Events and Milestones** `event-list`
+
+## Key Events and Milestones
+Important events and milestones that shape our project timeline and strategic objectives.
+
+**April 14** - Project Kickoff and Team Assembly
+**June 6** - Phase 1 Completion and Initial Deliverables  
+**July 12** - Mid-Project Review and Stakeholder Feedback
+**September 30** - Final Implementation and Project Launch
+```
+- **CRITICAL:** Use this template for event lists and milestone tracking. Always use the exact format shown above.
+- The first line after the title is the subtitle.
+- Use bold dates followed by event descriptions.
+- **MANDATORY FORMAT:** Each entry must follow the pattern: "**Date** - Event description with context and details."
+- **CONTENT REQUIREMENTS:** Include 3-6 events with dates and substantial descriptions (2-3 sentences each).
+- **Trigger words:** If the slide involves "events", "milestones", "key events", "important dates", "event list", "milestone tracking", "project events", "key dates", "event timeline", use `event-list`.
+- **PRIORITY TRIGGER:** The word "events" or "milestones" ALWAYS triggers `event-list` for event tracking and milestone presentation.
+- Example use cases: "Key Events", "Project Milestones", "Important Dates", "Event Timeline", "Milestone Tracking".
 
 **Six Ideas List Slides** (`six-ideas-list`):
 ```
@@ -1464,8 +1497,11 @@ Implementing these proven strategies will significantly enhance your project out
 - **CRITICAL:** Use this template for presenting exactly six key ideas, concepts, or recommendations. Always use the exact numbered list format shown above.
 - The first line after the title is the subtitle.
 - Use a numbered list with exactly 6 items, each with a bold heading and detailed description.
-- **Trigger words:** If the slide involves "six", "6", "strategies", "ideas", "concepts", "recommendations", use `six-ideas-list`.
-- Example use cases: "Six Key Strategies", "Six Ideas for Innovation", "Six Recommendations", "Six Core Concepts".
+- **MANDATORY FORMAT:** Each item must follow the pattern: "**Bold Heading** - Detailed description with practical examples and actionable insights."
+- **CONTENT REQUIREMENTS:** Each description must be substantial (2-3 sentences) with practical examples and real-world applications.
+- **Trigger words:** If the slide involves "six", "6", "strategies", "ideas", "concepts", "recommendations", "principles", "approaches", "methods", "techniques", "best practices", use `six-ideas-list`.
+- **PRIORITY TRIGGER:** The word "six" or "6" ALWAYS triggers `six-ideas-list` for exactly 6 items (NOT bullet-points or other list templates).
+- Example use cases: "Six Key Strategies", "Six Ideas for Innovation", "Six Recommendations", "Six Core Concepts", "Six Best Practices", "Six Principles".
 
 **Contraindications & Indications Slides** (`contraindications-indications`):
 ```
@@ -1511,8 +1547,11 @@ Comprehensive data analysis reveals key insights into our operational efficiency
 - **CRITICAL:** Use this template for detailed analytics and performance metrics. Always use the exact format shown above.
 - The first line after the title is the subtitle.
 - Use bold metric names with values and trend indicators.
-- **Trigger words:** If the slide involves "analytics", "metrics", "performance", "data", "insights", "dashboard", use `metrics-analytics`.
-- Example use cases: "Performance Analytics", "Data Insights", "Metrics Dashboard", "Analytics Report".
+- **MANDATORY FORMAT:** Each metric must follow the pattern: "**Metric Name:** Value (↑/↓ % change from period)"
+- **CONTENT REQUIREMENTS:** Include 4-6 key performance indicators with specific values and trend indicators (↑/↓ arrows).
+- **Trigger words:** If the slide involves "analytics", "metrics", "performance", "data", "insights", "dashboard", "KPIs", "key performance indicators", "analytics report", "performance metrics", "business metrics", "operational metrics", use `metrics-analytics`.
+- **PRIORITY TRIGGER:** The word "analytics" or "metrics" ALWAYS triggers `metrics-analytics` for performance data presentation.
+- Example use cases: "Performance Analytics", "Data Insights", "Metrics Dashboard", "Analytics Report", "KPI Overview", "Business Metrics".
 
 **Market Share Slides** (`market-share`):
 ```
@@ -1532,8 +1571,11 @@ Understanding our position in the market landscape is essential for strategic pl
 - **CRITICAL:** Use this template for market analysis and competitive positioning. Always use the exact format shown above.
 - The first line after the title is the subtitle.
 - Use bold competitor names with market share percentages and positioning notes.
-- **Trigger words:** If the slide involves "market share", "competitive", "market analysis", "positioning", "competitors", use `market-share`.
-- Example use cases: "Market Share Analysis", "Competitive Landscape", "Market Position", "Competitor Analysis".
+- **MANDATORY FORMAT:** Each entry must follow the pattern: "**Competitor Name:** XX.X% (Positioning Description)"
+- **CONTENT REQUIREMENTS:** Include 4-6 market players with percentages that total approximately 100% and strategic positioning notes.
+- **Trigger words:** If the slide involves "market share", "competitive", "market analysis", "positioning", "competitors", "market landscape", "competitive analysis", "market position", "competitor landscape", "market share analysis", "competitive positioning", use `market-share`.
+- **PRIORITY TRIGGER:** The word "market share" or "competitive" ALWAYS triggers `market-share` for competitive market analysis.
+- Example use cases: "Market Share Analysis", "Competitive Landscape", "Market Position", "Competitor Analysis", "Market Share Overview", "Competitive Positioning".
 
 **Table Dark Slides** (`table-dark`):
 ```
@@ -1553,8 +1595,11 @@ Comprehensive overview of our financial metrics and performance indicators acros
 - **CRITICAL:** Use this template for dark-themed data tables. Always use the exact table format shown above.
 - The first line after the title is the subtitle.
 - Use proper markdown table formatting with headers and data rows.
-- **Trigger words:** If the slide involves "table", "data", "comparison", "summary", "dark theme", use `table-dark`.
-- Example use cases: "Financial Summary", "Data Comparison", "Performance Table", "Results Summary".
+- **MANDATORY FORMAT:** Use standard markdown table syntax with | separators and proper alignment.
+- **CONTENT REQUIREMENTS:** Include 3-5 data rows with meaningful metrics, percentages, or comparative data.
+- **Trigger words:** If the slide involves "table", "data", "comparison", "summary", "dark theme", "metrics table", "performance table", "comparison table", "data summary", "results table", "statistics table", use `table-dark`.
+- **PRIORITY TRIGGER:** The word "table" combined with data/comparison/summary ALWAYS triggers `table-dark` for structured data presentation.
+- Example use cases: "Financial Summary", "Data Comparison", "Performance Table", "Results Summary", "Metrics Comparison", "Statistical Data".
 
 **Table Light Slides** (`table-light`):
 ```
@@ -1594,8 +1639,11 @@ Understanding how our revenue is distributed across different business segments 
 - **CRITICAL:** Use this template for pie chart visualizations and data distribution. Always use the exact format shown above.
 - The first line after the title is the subtitle.
 - Use bold category names with percentages and detailed descriptions.
-- **Trigger words:** If the slide involves "distribution", "pie chart", "percentages", "breakdown", "segments", use `pie-chart-infographics`.
-- Example use cases: "Revenue Distribution", "Market Breakdown", "Data Segmentation", "Percentage Analysis".
+- **MANDATORY FORMAT:** Each item must follow the pattern: "**Category Name:** XX% - Detailed description with context and insights."
+- **CONTENT REQUIREMENTS:** Include 3-6 segments with percentages that total 100% and substantial descriptions (2-3 sentences each).
+- **Trigger words:** If the slide involves "distribution", "pie chart", "percentages", "breakdown", "segments", "proportion", "share", "allocation", "split", "division", "composition", use `pie-chart-infographics`.
+- **PRIORITY TRIGGER:** The word "distribution" or "percentages" ALWAYS triggers `pie-chart-infographics` for percentage-based data visualization.
+- Example use cases: "Revenue Distribution", "Market Breakdown", "Data Segmentation", "Percentage Analysis", "Budget Allocation", "Market Share Distribution".
 
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):

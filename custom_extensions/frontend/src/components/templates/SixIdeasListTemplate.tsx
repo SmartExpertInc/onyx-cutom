@@ -200,12 +200,12 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
       {/* Top Section - Text Content */}
       <div style={{ 
         flex: '0 0 auto',
-        padding: '40px',
+        padding: '30px',
         borderRadius: '8px',
         marginBottom: '20px'
       }}>
         {/* Title */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={title}
@@ -244,7 +244,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '1fr 1fr', 
-          gap: '40px'
+          gap: '30px'
         }}>
           {ideas.map((idea, index) => (
             <div key={index} style={{ 
@@ -256,7 +256,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                marginBottom: '12px',
+                marginBottom: '10px',
                 width: '100%'
               }}>
                 {isEditable && editingIdeas[index]?.number ? (
@@ -340,7 +340,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
       <div style={{
         flex: '1 1 auto',
         width: '100%',
-        height: '300px',
+        height: '400px',
         borderRadius: '8px',
         overflow: 'hidden'
       }}>
