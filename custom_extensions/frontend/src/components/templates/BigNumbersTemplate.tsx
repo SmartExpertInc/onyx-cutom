@@ -158,6 +158,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -298,7 +303,12 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   return (
     <div className="big-numbers-template" style={slideStyles}>
       {/* Title - wrapped */}
-      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block', width: '100%' }}
+      >
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title || ''}
@@ -348,7 +358,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
           items.slice(0, 3).map((item: BigNumberItem, idx: number) => (
             <div key={idx} style={itemStyles}>
               {/* Item Value */}
-              <div data-draggable="true" style={{ width: '100%' }}>
+              <div 
+                data-moveable-element={`${slideId}-item-${idx}-value`}
+                data-draggable="true" 
+                style={{ width: '100%' }}
+              >
                 {isEditable && editingItemValues.includes(idx) ? (
                   <InlineEditor
                     initialValue={item.value || ''}
@@ -394,7 +408,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
               </div>
 
               {/* Item Label */}
-              <div data-draggable="true" style={{ width: '100%' }}>
+              <div 
+                data-moveable-element={`${slideId}-item-${idx}-label`}
+                data-draggable="true" 
+                style={{ width: '100%' }}
+              >
                 {isEditable && editingItemLabels.includes(idx) ? (
                   <InlineEditor
                     initialValue={item.label || ''}
@@ -440,7 +458,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
               </div>
 
               {/* Item Description */}
-              <div data-draggable="true" style={{ width: '100%' }}>
+              <div 
+                data-moveable-element={`${slideId}-item-${idx}-description`}
+                data-draggable="true" 
+                style={{ width: '100%' }}
+              >
                 {isEditable && editingItemDescriptions.includes(idx) ? (
                   <InlineEditor
                     initialValue={item.description || ''}

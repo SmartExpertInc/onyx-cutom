@@ -153,6 +153,11 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   const [editingBoxTexts, setEditingBoxTexts] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -270,7 +275,12 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   return (
     <div className="four-box-grid-template" style={slideStyles}>
       {/* Title - wrapped */}
-      <div data-draggable="true" style={{ display: 'inline-block' }}>
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block' }}
+      >
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title || ''}
@@ -318,7 +328,12 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
       <div style={gridStyles}>
         {Array.isArray(boxes) && boxes.length >= 4 ? (
           boxes.slice(0, 4).map((box: any, idx: number) => (
-            <div key={idx} style={boxStyles} data-draggable="true">
+            <div 
+              key={idx} 
+              data-moveable-element={`${slideId}-box-${idx}`}
+              data-draggable="true"
+              style={boxStyles}
+            >
               {/* Box Heading */}
               {isEditable && editingBoxHeadings.includes(idx) ? (
                 <InlineEditor

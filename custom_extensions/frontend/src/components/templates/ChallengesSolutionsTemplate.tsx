@@ -153,6 +153,11 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   const [editingSolutions, setEditingSolutions] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -342,7 +347,12 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   return (
     <div className="challenges-solutions-template" style={slideStyles}>
       {/* Main Title - wrapped */}
-      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block', width: '100%' }}
+      >
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title || ''}
@@ -390,7 +400,11 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
       {/* Two Column Grid */}
       <div style={gridStyles}>
         {/* Challenges Column */}
-        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)} data-draggable="true">
+        <div 
+          data-moveable-element={`${slideId}-challenges`}
+          data-draggable="true"
+          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
+        >
           <div style={headerStyles}>
             <XMarkIcon />
             {isEditable && editingChallengesTitle ? (
@@ -492,7 +506,11 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
         </div>
 
         {/* Solutions Column */}
-        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)} data-draggable="true">
+        <div 
+          data-moveable-element={`${slideId}-solutions`}
+          data-draggable="true"
+          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
+        >
           <div style={headerStyles}>
             <CheckIcon />
             {isEditable && editingSolutionsTitle ? (

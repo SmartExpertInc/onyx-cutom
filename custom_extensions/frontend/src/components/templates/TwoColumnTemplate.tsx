@@ -173,6 +173,15 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const leftTitleRef = useRef<HTMLDivElement>(null);
+  const leftContentRef = useRef<HTMLDivElement>(null);
+  const rightTitleRef = useRef<HTMLDivElement>(null);
+  const rightContentRef = useRef<HTMLDivElement>(null);
+  
+  // Generate slideId for element positioning (following Big Image Left pattern)
+  const slideId = `two-column-${Date.now()}`;
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -436,7 +445,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               savedImageSize={leftWidthPx && leftHeightPx ? { width: leftWidthPx, height: leftHeightPx } : undefined}
             />
           {/* Left Mini title */}
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
+          <div 
+            ref={leftTitleRef}
+            data-moveable-element={`${slideId}-leftTitle`}
+            data-draggable="true" 
+            style={{ display: 'inline-block' }}
+          >
             {isEditable && editingLeftTitle ? (
               <InlineEditor
                 initialValue={leftTitle || ''}
@@ -481,7 +495,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             )}
           </div>
           {/* Left Main text */}
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
+          <div 
+            ref={leftContentRef}
+            data-moveable-element={`${slideId}-leftContent`}
+            data-draggable="true" 
+            style={{ display: 'inline-block' }}
+          >
             {isEditable && editingLeftContent ? (
               <InlineEditor
                 initialValue={leftContent || ''}
@@ -545,7 +564,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               savedImageSize={rightWidthPx && rightHeightPx ? { width: rightWidthPx, height: rightHeightPx } : undefined}
             />
           {/* Right Mini title */}
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
+          <div 
+            ref={rightTitleRef}
+            data-moveable-element={`${slideId}-rightTitle`}
+            data-draggable="true" 
+            style={{ display: 'inline-block' }}
+          >
             {isEditable && editingRightTitle ? (
               <InlineEditor
                 initialValue={rightTitle || ''}
@@ -590,7 +614,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             )}
           </div>
           {/* Right Main text */}
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
+          <div 
+            ref={rightContentRef}
+            data-moveable-element={`${slideId}-rightContent`}
+            data-draggable="true" 
+            style={{ display: 'inline-block' }}
+          >
             {isEditable && editingRightContent ? (
               <InlineEditor
                 initialValue={rightContent || ''}

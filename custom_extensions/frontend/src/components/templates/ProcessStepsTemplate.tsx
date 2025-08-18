@@ -140,6 +140,12 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   const [editingSteps, setEditingSteps] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Generate slideId for element positioning (following Big Image Left pattern)
+  const slideId = `process-steps-${Date.now()}`;
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -219,7 +225,12 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
       }}
     >
       {/* Title - wrapped */}
-      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block', width: '100%' }}
+      >
         {props.isEditable && editingTitle ? (
           <InlineEditor
             initialValue={props.title || ''}
@@ -278,6 +289,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
           return (
             <div
               key={index}
+              data-moveable-element={`${slideId}-step-${index}`}
+              data-draggable="true"
               style={{
                 textAlign: 'center',
                 maxWidth: '220px',
@@ -285,7 +298,6 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                 borderRadius: '12px',
                 padding: '24px 16px',
               }}
-              data-draggable="true"
             >
               <div
                 style={{
