@@ -61,7 +61,7 @@ const ConnectorsPage: React.FC = () => {
 
   const loadConnectors = async () => {
     try {
-      const response = await fetch('/api/custom-smartdrive/connectors/', {
+      const response = await fetch('/api/custom-projects-backend/connectors/', {
         credentials: 'same-origin',
       });
       if (response.ok) {
