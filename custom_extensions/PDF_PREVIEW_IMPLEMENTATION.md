@@ -54,6 +54,7 @@ This document describes the implementation of the PDF preview functionality that
   - Applied to headers, icons, and chart backgrounds
   - Enhanced visual appeal of PDF documents
   - Handles different component types (Slide Deck, Training Plan, etc.)
+  - **Project Name Section**: Applied gradient to folder icons in project name sections
 
 ### 4. Preview Page
 - **Location**: `frontend/src/app/projects/view/[projectId]/pdf-preview/page.tsx`
