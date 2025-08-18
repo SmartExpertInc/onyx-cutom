@@ -1,6 +1,6 @@
 export default function Script() {
   return (
-    <div className="h-full bg-white relative overflow-hidden w-full">
+    <div className="h-full bg-white border-gray-300 rounded-md relative overflow-hidden w-full">
       {/* Content Container */}
       <div className="relative z-10 flex flex-col items-start justify-start px-4 py-8 sm:px-8 md:px-12 lg:px-20 md:py-16 lg:py-24">
 
