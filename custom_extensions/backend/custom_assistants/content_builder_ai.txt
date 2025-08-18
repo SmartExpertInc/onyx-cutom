@@ -1798,12 +1798,12 @@ Comprehensive overview of our financial metrics and performance indicators acros
 **MANDATORY PROPS STRUCTURE:**
 - `title`: String - The main title of the slide
 - `tableData`: Object with:
-  - `headers`: Array of strings - Column headers (excluding first column)
-  - `rows`: Array of arrays - Each row is an array where first element is row label, rest are data cells
+  - `headers`: Array of strings - Column headers
+  - `rows`: Array of arrays of strings - Each row must have the same number of cells as headers
 ```
 - **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison"
 - **ABSOLUTE REQUIREMENT:** Use this template for structured data presentation. NEVER use content-slide or bullet-points for tabular data.
-- **MANDATORY FORMAT:** Use standard markdown table syntax with | separators and proper alignment.
+- **MANDATORY FORMAT:** Provide data ONLY as JSON props in `tableData.headers` and `tableData.rows`. Do NOT use markdown tables.
 - **CONTENT REQUIREMENTS:** Include 3-5 data rows with meaningful metrics, percentages, or comparative data.
 - **Trigger words:** If the slide involves "table", "data", "comparison", "summary", "dark theme", "metrics table", "performance table", "comparison table", "data summary", "results table", "statistics table", use `table-dark`.
 - **PRIORITY TRIGGER:** The word "table" combined with data/comparison/summary ALWAYS triggers `table-dark` for structured data presentation.
@@ -1818,17 +1818,25 @@ Comprehensive overview of our financial metrics and performance indicators acros
 ## Product Feature Comparison
 Detailed comparison of our product features against competitive offerings in the market.
 
-| Feature | Our Product | Competitor A | Competitor B |
-|---------|-------------|--------------|--------------|
-| Core Functionality | ✓ Advanced | ✓ Basic | ✓ Standard |
-| Integration Options | ✓ Multiple APIs | ✗ Limited | ✓ Standard |
-| Security Features | ✓ Enterprise-grade | ✓ Basic | ✓ Advanced |
-| Support Quality | ✓ 24/7 Premium | ✗ Business Hours | ✓ Extended Hours |
-| Pricing Model | ✓ Flexible | ✗ Fixed | ✓ Tiered |
+**PROPS FORMAT:**
+```json
+{
+  "title": "Product Feature Comparison",
+  "tableData": {
+    "headers": ["Feature", "Our Product", "Competitor A", "Competitor B"],
+    "rows": [
+      ["Core Functionality", "✓ Advanced", "✓ Basic", "✓ Standard"],
+      ["Integration Options", "✓ Multiple APIs", "✗ Limited", "✓ Standard"],
+      ["Security Features", "✓ Enterprise-grade", "✓ Basic", "✓ Advanced"],
+      ["Support Quality", "✓ 24/7 Premium", "✗ Business Hours", "✓ Extended Hours"],
+      ["Pricing Model", "✓ Flexible", "✗ Fixed", "✓ Tiered"]
+    ]
+  }
+}
 ```
-- **CRITICAL:** Use this template for light-themed data tables. Always use the exact table format shown above.
-- The first line after the title is the subtitle.
-- Use proper markdown table formatting with headers and data rows.
+```
+- **CRITICAL:** Use this template for light-themed data tables. Always provide `tableData.headers` and `tableData.rows`.
+- Do NOT use markdown table formatting. JSON props only.
 - **Trigger words:** If the slide involves "table", "comparison", "features", "light theme", "data", use `table-light`.
 - Example use cases: "Feature Comparison", "Product Analysis", "Data Table", "Comparison Chart".
 

@@ -8149,7 +8149,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Assign templateId based on the content structure of each slide:
             - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
             - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "comparison-slide"
+            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
+            - If slide contains structured/tabular comparison data (headers with rows) → use "table-dark" or "table-light" and provide props with tableData.headers and tableData.rows
             - If slide has numbered steps → use "process-steps"
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has metrics/statistics → use "big-numbers"
@@ -8260,7 +8261,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Assign templateId based on the content structure of each slide:
             - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
             - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "comparison-slide"
+            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
+            - If slide contains structured/tabular comparison data (headers with rows) → use "table-dark" or "table-light" and provide props with tableData.headers and tableData.rows
             - If slide has numbered steps → use "process-steps"
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has metrics/statistics → use "big-numbers"
@@ -8354,14 +8356,14 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            7. **`comparison-slide`** - Before/after comparison:
+            7. **`two-column-diversity`** - Two columns with emphasized lists/bullets:
             ```json
             "props": {
-              "title": "Comparison Analysis",
-              "beforeTitle": "Before",
-              "beforeContent": "- Key characteristic 1 of old/current state\\n- Key characteristic 2 of old/current state\\n- Key characteristic 3 of old/current state",
-              "afterTitle": "After",
-              "afterContent": "- Key characteristic 1 of new/improved state\\n- Key characteristic 2 of new/improved state\\n- Key characteristic 3 of new/improved state"
+              "title": "Comparison",
+              "leftTitle": "Left",
+              "leftContent": "- Point A\\n- Point B\\n- Point C",
+              "rightTitle": "Right",
+              "rightContent": "- Item 1\\n- Item 2\\n- Item 3"
             }
             ```
 
@@ -8473,6 +8475,39 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 { "heading": "Middle Level", "description": "Description of the intermediate level" },
                 { "heading": "Base Level", "description": "Description of the foundational level" }
               ]
+            }
+            ```
+
+            16. **`table-dark`** - Dark-themed data table with checkmarks support:
+            ```json
+            "props": {
+              "title": "Technology Platforms Comparison",
+              "tableData": {
+                "headers": ["Platform", "Performance", "Security", "Cost"],
+                "rows": [
+                  ["Cloud A", "High", "Strong encryption", "$200/month"],
+                  ["Cloud B", "Moderate", "Standard security", "$150/month"],
+                  ["On-Premise", "Very High", "Customizable", "$500/month"],
+                  ["Hybrid", "High", "Balanced approach", "$300/month"]
+                ]
+              },
+              "showCheckmarks": true
+            }
+            ```
+
+            17. **`table-light`** - Light-themed data table:
+            ```json
+            "props": {
+              "title": "Q1-Q4 2024 Financial Performance",
+              "tableData": {
+                "headers": ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"],
+                "rows": [
+                  ["Revenue", "$2.5M", "$3.2M", "$3.8M", "$4.1M"],
+                  ["Profit Margin", "15%", "18%", "20%", "22%"],
+                  ["Operating Costs", "$1.8M", "$2.1M", "$2.3M", "$2.4M"],
+                  ["Growth Rate", "8%", "12%", "15%", "18%"]
+                ]
+              }
             }
             ```
 
