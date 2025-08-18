@@ -15,7 +15,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ onSync }) => {
   const handleSyncToOnyx = async () => {
     setIsSyncing(true);
     try {
-      const response = await fetch('/api/custom-smartdrive/import-new', {
+      const response = await fetch('/api/custom-projects-backend/smartdrive/import-new', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {

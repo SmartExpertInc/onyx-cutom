@@ -79,7 +79,7 @@ const ConnectorsPage: React.FC = () => {
   const loadProviders = async () => {
     try {
       // Get actual connector types from Onyx
-      const response = await fetch('/api/custom-smartdrive/connector-types', {
+      const response = await fetch('/api/custom-projects-backend/smartdrive/connector-types', {
         credentials: 'same-origin',
       });
       
