@@ -1950,10 +1950,15 @@ When generating content for `pie-chart-infographics`, you MUST:
    - **NEVER use random percentages** that don't add up to 100%
    - **ALWAYS verify:** Segment 1% + Segment 2% + Segment 3% + Segment 4% + Segment 5% + Segment 6% = 100%
    - **Example correct calculation:** 35% + 25% + 20% + 12% + 6% + 2% = 100%
+   - **MANDATORY VERIFICATION:** Before generating, calculate: 35+25+20+12+6+2 = 100
 4. **ALWAYS provide detailed descriptions** for each segment
 5. **ALWAYS use the exact JSON structure** shown above
 6. **NEVER use Russian labels** like "Сегмент 1", "Сегмент 2" - ONLY use English business terms
 7. **NEVER use generic labels** like "Segment 1", "Category A", "Part 1" - ONLY use specific business categories
+8. **MANDATORY PERCENTAGE PATTERNS:** Use these exact patterns:
+   - Pattern 1: 35% + 25% + 20% + 12% + 6% + 2% = 100%
+   - Pattern 2: 40% + 30% + 20% + 6% + 3% + 1% = 100%
+   - Pattern 3: 30% + 25% + 20% + 15% + 8% + 2% = 100%
 
 **MANDATORY PIE CHART CONTENT REQUIREMENTS:**
 - **EXACTLY 6 segments** with meaningful category names
