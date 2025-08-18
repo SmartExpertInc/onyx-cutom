@@ -13,7 +13,7 @@ upstream web_server {
 }
 
 upstream nextcloud_server {
-    server ${NEXTCLOUD_EXTERNAL_HOST}:${NEXTCLOUD_EXTERNAL_PORT:-443} fail_timeout=0;
+    server ${NEXTCLOUD_EXTERNAL_HOST}:${NEXTCLOUD_EXTERNAL_PORT:-8080} fail_timeout=0;
 }
 
 upstream custom_frontend_server {
