@@ -469,19 +469,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           ref={titleRef}
           data-moveable-element={`${slideId}-title`}
           data-draggable="true" 
-          data-instance-id={`${slideId}-title-${Math.random().toString(36).substr(2, 9)}`}
-          data-debug-slide={slideId}
-          data-debug-element={`${slideId}-title`}
-          className={`
-            relative
-            ${isEditable ? 'cursor-pointer' : ''}
-          `}
-          style={{ 
-            display: 'inline-block',
-            position: 'relative',
-            transformOrigin: 'center center',
-            zIndex: 1
-          }}
+          style={{ display: 'inline-block' }}
         >
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -537,19 +525,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           ref={subtitleRef}
           data-moveable-element={`${slideId}-subtitle`}
           data-draggable="true" 
-          data-instance-id={`${slideId}-subtitle-${Math.random().toString(36).substr(2, 9)}`}
-          data-debug-slide={slideId}
-          data-debug-element={`${slideId}-subtitle`}
-          className={`
-            relative
-            ${isEditable ? 'cursor-pointer' : ''}
-          `}
-          style={{ 
-            display: 'inline-block',
-            position: 'relative',
-            transformOrigin: 'center center',
-            zIndex: 1
-          }}
+          style={{ display: 'inline-block' }}
         >
           {isEditable && editingSubtitle ? (
             <InlineEditor

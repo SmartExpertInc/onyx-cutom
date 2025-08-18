@@ -48,17 +48,18 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       htmlElement.addEventListener('mouseenter', handleMouseEnter);
       htmlElement.addEventListener('mouseleave', handleMouseLeave);
 
-      // ✅ FIXED: Apply saved position using exact same logic as images
+      // Position state - FIXED: Don't apply position: relative unless actually dragging
       const savedPos = savedPositions?.[elementId] || dragStateRef.current.get(elementId) || { x: 0, y: 0 };
       let currentX = savedPos.x;
       let currentY = savedPos.y;
       if (currentX !== 0 || currentY !== 0) {
-        // Apply transform exactly like images do
+        // Only apply transform, don't change position property to avoid layout issues
         htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        // Don't set position: relative here - only set it when actually dragging
         dragStateRef.current.set(elementId, { x: currentX, y: currentY });
       }
 
-      // ✅ FIXED: Copy exact image positioning logic
+      // Drag control vars
       let isDragging = false;
       let isMouseDown = false;
       let dragDistance = 0;
@@ -70,61 +71,14 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const DRAG_THRESHOLD = 5; // px
       const DRAG_DELAY_MS = 250; // delay before starting drag on hold
 
-      // ✅ FIXED: Copy exact image drag start logic
-      const handleDragStart = () => {
+      const startDrag = (e: MouseEvent) => {
+        if (isDragging) return;
         isDragging = true;
+        // FIXED: Only set position: relative when actually dragging to avoid layout issues
         htmlElement.style.position = 'relative';
         htmlElement.style.zIndex = '1000';
         htmlElement.style.userSelect = 'none';
         htmlElement.classList.add('dragging');
-      };
-
-      // ✅ FIXED: Copy exact image drag logic
-      const handleDrag = (e: any) => {
-        e.target.style.transform = e.transform;
-        
-        // Extract position from transform exactly like images do
-        const transformMatch = e.transform.match(/translate\(([^)]+)\)/);
-        if (transformMatch) {
-          const [, translate] = transformMatch;
-          const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
-          
-          // Update current position
-          currentX = x;
-          currentY = y;
-          dragStateRef.current.set(elementId, { x: currentX, y: currentY });
-          
-          // Call position change callback exactly like images do
-          if (onPositionChange) {
-            onPositionChange(elementId, { x: currentX, y: currentY });
-          }
-        }
-      };
-
-      // ✅ FIXED: Copy exact image drag end logic
-      const handleDragEnd = (e: any) => {
-        isDragging = false;
-        
-        // Final position update after drag ends exactly like images do
-        const transformMatch = e.target.style.transform.match(/translate\(([^)]+)\)/);
-        if (transformMatch) {
-          const [, translate] = transformMatch;
-          const [x, y] = translate.split(',').map((v: string) => parseFloat(v.replace('px', '')));
-          
-          currentX = x;
-          currentY = y;
-          dragStateRef.current.set(elementId, { x: currentX, y: currentY });
-          
-          // Call position change callback with final flag exactly like images do
-          if (onPositionChange) {
-            onPositionChange(elementId, { x: currentX, y: currentY });
-          }
-        }
-      };
-
-      const startDrag = (e: MouseEvent) => {
-        if (isDragging) return;
-        handleDragStart();
         // Prevent propagation only when we actually start dragging
         e.preventDefault();
         e.stopPropagation();
@@ -181,6 +135,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseMove = (e: MouseEvent) => {
         if (!isMouseDown) return;
 
+        const newX = e.clientX - startOffsetX;
+        const newY = e.clientY - startOffsetY;
         const dx = Math.abs(e.clientX - startPageX);
         const dy = Math.abs(e.clientY - startPageY);
         dragDistance = Math.sqrt(dx * dx + dy * dy);
@@ -191,26 +147,12 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           startDrag(e);
         }
 
-        // ✅ FIXED: Use exact image positioning logic instead of custom text logic
         if (isDragging) {
-          // Simulate the exact same transform that images get from Moveable
-          const newX = e.clientX - startOffsetX;
-          const newY = e.clientY - startOffsetY;
-          const transform = `translate(${newX}px, ${newY}px)`;
-          
-          // Apply transform exactly like images do
-          htmlElement.style.transform = transform;
-          
-          // Update current position
           currentX = newX;
           currentY = newY;
+          htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+          // Position is already set to relative when dragging started
           dragStateRef.current.set(elementId, { x: currentX, y: currentY });
-          
-          // Call position change callback exactly like images do
-          if (onPositionChange) {
-            onPositionChange(elementId, { x: currentX, y: currentY });
-          }
-          
           e.stopPropagation();
         }
       };
@@ -230,9 +172,6 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           htmlElement.style.userSelect = '';
           htmlElement.classList.remove('dragging');
 
-          // ✅ FIXED: Call drag end logic exactly like images do
-          handleDragEnd({ target: htmlElement });
-
           // Suppress the very next click to avoid entering edit after drag
           htmlElement.setAttribute('data-just-dragged', 'true');
           setTimeout(() => {
@@ -251,6 +190,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             document.removeEventListener('click', suppressNextClick, true);
           }, 450);
 
+          if (onPositionChange) onPositionChange(elementId, { x: currentX, y: currentY });
           return;
         }
 
