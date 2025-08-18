@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff, Play } from 'lucide-react';
+import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
 
 interface EmailInput {
   id: string;
@@ -226,15 +226,11 @@ export default function VideoEditorHeader() {
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-3 lg:gap-4">
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
-                <path fill="none" stroke="currentColor" strokeWidth="2" d="M8 3L3 8l5 5m4 7h3a6 6 0 1 0 0-12H4"/>
-              </svg>
+              <Undo2 className="w-3 h-3" />
             </button>
 
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3 rotate-180">
-                <path fill="none" stroke="currentColor" strokeWidth="2" d="M8 3L3 8l5 5m4 7h3a6 6 0 1 0 0-12H4"/>
-              </svg>
+              <Redo2 className="w-3 h-3" />
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -292,15 +288,9 @@ export default function VideoEditorHeader() {
 
             {/* Grid tool - hidden on smaller screens */}
             <div className="hidden lg:flex items-center gap-2">
-              <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/2d90825e49d8a04eeafdd5bea6924bcd90f97ef3?width=44"
-                alt="Grid"
-                className="w-3 h-3"
-              />
-              <span className="text-editor-icon-text text-xs font-normal">Grid</span>
               <button 
                 onClick={handleEyeToggle}
-                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center ml-2"
+                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center"
               >
                 {isEyeVisible ? (
                   <Eye className="w-3 h-3" />
@@ -308,6 +298,7 @@ export default function VideoEditorHeader() {
                   <EyeOff className="w-3 h-3" />
                 )}
               </button>
+              <span className="text-editor-icon-text text-xs font-normal">Grid</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
@@ -316,11 +307,7 @@ export default function VideoEditorHeader() {
             <button
               className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
             >
-              <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/e6fe4a219f32df67b6826887f30a0297ba8af2db?width=40"
-                alt="Crown"
-                className="w-3 h-3"
-              />
+              <Gem className="w-3 h-3 text-purple-700" />
               <span className="text-xs font-normal">Upgrade</span>
             </button>
           </div>
