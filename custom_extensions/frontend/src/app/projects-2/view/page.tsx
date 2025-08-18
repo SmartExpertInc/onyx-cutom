@@ -9,10 +9,13 @@ import Music from './components/Music';
 import Transition from './components/Transition';
 import Comments from './components/Comments';
 import Media from './components/Media';
+import TextPopup from './components/TextPopup';
 
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
+  const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
+  const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleActiveToolChange = (toolId: string) => {
     if (toolId === 'media') {
@@ -21,6 +24,15 @@ export default function Projects2ViewPage() {
       setActiveComponent(toolId);
       setIsMediaPopupOpen(false);
     }
+    // Close text popup when switching tools
+    setIsTextPopupOpen(false);
+  };
+
+  const handleTextButtonClick = (position: { x: number; y: number }) => {
+    setTextPopupPosition(position);
+    setIsTextPopupOpen(true);
+    // Close media popup if open
+    setIsMediaPopupOpen(false);
   };
 
   const renderSidebarComponent = () => {
@@ -46,7 +58,10 @@ export default function Projects2ViewPage() {
       <VideoEditorHeader />
 
       {/* Toolbar */}
-      <Toolbar onActiveToolChange={handleActiveToolChange} />
+      <Toolbar 
+        onActiveToolChange={handleActiveToolChange} 
+        onTextButtonClick={handleTextButtonClick}
+      />
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
@@ -120,7 +135,14 @@ export default function Projects2ViewPage() {
         onClose={() => setIsMediaPopupOpen(false)} 
         title="Media Library"
         displayMode="popup"
-        className="top-20 left-1/2 transform -translate-x-1/2 w-[800px] h-[500px]"
+        className="top-[140px] left-2 w-[800px] h-[500px]"
+      />
+
+      {/* Text Popup */}
+      <TextPopup 
+        isOpen={isTextPopupOpen} 
+        onClose={() => setIsTextPopupOpen(false)} 
+        position={textPopupPosition}
       />
     </div>
   );

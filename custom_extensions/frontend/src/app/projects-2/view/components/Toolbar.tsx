@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface ToolbarProps {
   onActiveToolChange?: (toolId: string) => void;
+  onTextButtonClick?: (position: { x: number; y: number }) => void;
 }
 
-export default function Toolbar({ onActiveToolChange }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
+  const textButtonRef = useRef<HTMLDivElement>(null);
 
   const tools = [
     {
@@ -68,7 +70,17 @@ export default function Toolbar({ onActiveToolChange }: ToolbarProps) {
     }
   ];
 
-  const handleToolClick = (toolId: string) => {
+  const handleToolClick = (toolId: string, event?: React.MouseEvent<HTMLDivElement>) => {
+    if (toolId === 'text' && onTextButtonClick && textButtonRef.current) {
+      const rect = textButtonRef.current.getBoundingClientRect();
+      const position = {
+        x: rect.left,
+        y: rect.bottom + 5 // Position popup 5px below the button
+      };
+      onTextButtonClick(position);
+      return;
+    }
+    
     setActiveToolId(toolId);
     onActiveToolChange?.(toolId);
   };
@@ -84,7 +96,8 @@ export default function Toolbar({ onActiveToolChange }: ToolbarProps) {
                 return (
                   <div
                     key={tool.id}
-                    onClick={() => handleToolClick(tool.id)}
+                    ref={tool.id === 'text' ? textButtonRef : undefined}
+                    onClick={(event) => handleToolClick(tool.id, event)}
                     className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-2 ${
                       activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
                     }`}
