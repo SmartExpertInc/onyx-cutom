@@ -39,7 +39,7 @@ upstream web_server {
 }
 
 upstream nextcloud_server {
-    server ${NEXTCLOUD_EXTERNAL_HOST}:8080 fail_timeout=0;
+    server nc1.contentbuilder.ai:8080 fail_timeout=0;
 }
 
 server {
