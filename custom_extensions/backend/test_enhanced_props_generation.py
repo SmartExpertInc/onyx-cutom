@@ -68,31 +68,31 @@ def test_pie_chart_props_generation():
                 },
                 {
                     "label": "Mobile Applications",
-                    "percentage": 28,
+                    "percentage": 25,
                     "color": "#10B981",
                     "description": "Mobile app development showing consistent growth and expanding market penetration."
                 },
                 {
                     "label": "Data Analytics",
-                    "percentage": 22,
+                    "percentage": 20,
                     "color": "#F59E0B",
                     "description": "Data analytics services contributing substantial recurring revenue streams."
                 },
                 {
                     "label": "AI Solutions",
-                    "percentage": 15,
+                    "percentage": 12,
                     "color": "#EF4444",
                     "description": "AI and machine learning solutions providing additional revenue diversification."
                 },
                 {
                     "label": "Security Tools",
-                    "percentage": 12,
+                    "percentage": 6,
                     "color": "#8B5CF6",
                     "description": "Cybersecurity tools and services addressing critical market needs."
                 },
                 {
                     "label": "Integration Services",
-                    "percentage": 8,
+                    "percentage": 2,
                     "color": "#6B7280",
                     "description": "System integration and consulting services rounding out our portfolio."
                 }
@@ -109,31 +109,31 @@ def test_pie_chart_props_generation():
                 "month": "Mobile Applications",
                 "description": "Mobile app development showing consistent growth and expanding market penetration.",
                 "color": "#10B981",
-                "percentage": "28%"
+                "percentage": "25%"
             },
             {
                 "month": "Data Analytics",
                 "description": "Data analytics services contributing substantial recurring revenue streams.",
                 "color": "#F59E0B",
-                "percentage": "22%"
+                "percentage": "20%"
             },
             {
                 "month": "AI Solutions",
                 "description": "AI and machine learning solutions providing additional revenue diversification.",
                 "color": "#EF4444",
-                "percentage": "15%"
+                "percentage": "12%"
             },
             {
                 "month": "Security Tools",
                 "description": "Cybersecurity tools and services addressing critical market needs.",
                 "color": "#8B5CF6",
-                "percentage": "12%"
+                "percentage": "6%"
             },
             {
                 "month": "Integration Services",
                 "description": "System integration and consulting services rounding out our portfolio.",
                 "color": "#6B7280",
-                "percentage": "8%"
+                "percentage": "2%"
             }
         ]
     }
