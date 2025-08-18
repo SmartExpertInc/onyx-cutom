@@ -45,6 +45,14 @@ This document describes the implementation of the PDF preview functionality that
 - **Issue**: TypeScript error in API route parameters
 - **Fix**: Updated params type to `Promise<{ projectId: string }>` and awaited params
 - **Benefits**: Proper TypeScript compliance for Next.js App Router
+
+### 8. PDF Green Color Enhancement
+- **Issue**: Plain green color in PDF documents
+- **Fix**: Replaced solid green with beautiful gradient
+- **Changes**: 
+  - Updated `#2D7C21` to `linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%)`
+  - Applied to headers, icons, and chart backgrounds
+  - Enhanced visual appeal of PDF documents
   - Handles different component types (Slide Deck, Training Plan, etc.)
 
 ### 4. Preview Page
