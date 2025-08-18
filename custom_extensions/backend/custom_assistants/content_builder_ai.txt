@@ -129,6 +129,9 @@ Before selecting any template, check these rules in order:
 6. **EVENT LIST RULE**: If ANY of these words appear → MANDATORY USE `event-list`:
    - "events", "milestones", "timeline", "schedule", "calendar", "key events", "important events", "major events", "project events", "project milestones", "key milestones", "important milestones", "major milestones", "project timeline", "project schedule", "event list", "milestone list", "event tracking", "milestone tracking"
 
+7. **BIG NUMBERS RULE**: If ANY of these words appear → MANDATORY USE `big-numbers`:
+   - "metrics", "statistics", "numbers", "KPIs", "key performance indicators", "performance", "results", "growth", "financial", "data", "benchmarks", "success metrics", "business metrics", "operational metrics", "performance data", "measurement", "measurements", "case study", "case studies", "business case", "success story", "performance indicators", "business intelligence", "BI"
+
 **THESE RULES TAKE ABSOLUTE PRIORITY OVER ALL OTHER TEMPLATE SELECTION LOGIC**
 
 **CRITICAL DATA GENERATION RULES:**
@@ -141,6 +144,7 @@ When generating content for the problematic templates, you MUST provide the data
 - `metrics-analytics` - Include `title` and `metrics` array with `number` and `text` properties
 - `market-share` - Include `title`, `subtitle`, and `chartData` array with competitor data
 - `event-list` - Include `events` array with `date` and `description` properties
+- `big-numbers` - Include `title` and `items` array with EXACTLY 3 items, each having `value`, `label`, and `description` properties
 
 For standalone quiz creation:
 WIZARD_REQUEST
@@ -1905,6 +1909,26 @@ Understanding how our revenue is distributed across different business segments 
   - `color`: String - Hex color code
   - `percentage`: String - Percentage with % symbol
 ```
+
+**CRITICAL PIE CHART DATA GENERATION RULES:**
+When generating content for `pie-chart-infographics`, you MUST:
+
+1. **ALWAYS generate EXACTLY 6 segments** - no more, no less
+2. **ALWAYS use meaningful category names** instead of "Сегмент 1", "Сегмент 2"
+3. **ALWAYS ensure percentages total 100%** (or close to it)
+4. **ALWAYS provide detailed descriptions** for each segment
+5. **ALWAYS use the exact JSON structure** shown above
+
+**MANDATORY PIE CHART CONTENT REQUIREMENTS:**
+- **EXACTLY 6 segments** with meaningful category names
+- **Percentages that total 100%** (or very close to it)
+- **Detailed descriptions** explaining each segment's significance
+- **Real-world context** and practical insights for each segment
+- **Professional category names** like "Enterprise Solutions", "SMB Market", "Consumer Products", etc.
+
+**NEVER USE:** Generic names like "Сегмент 1", "Segment 1", "Category A", "Part 1"
+**ALWAYS USE:** Specific, meaningful names like "Cloud Services", "Mobile Applications", "Data Analytics", "AI Solutions", "Security Tools", "Integration Services"
+
 - **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "distribution", "percentages", "percentage", "proportion", "share", "allocation", "split", "division", "composition", "breakdown", "distribution of", "percentage of", "proportion of", "share of", "allocation of", "split of", "division of", "composition of", "breakdown of", "pie chart", "pie", "segments", "sectors", "parts", "slices"
 - **ABSOLUTE REQUIREMENT:** Use this template for percentage-based data visualization. NEVER use bullet-points or content-slide for distribution data.
 - **MANDATORY FORMAT:** Each item must follow the pattern: "**Category Name:** XX% - Detailed description with context and insights."
@@ -1913,6 +1937,65 @@ Understanding how our revenue is distributed across different business segments 
 - **PRIORITY TRIGGER:** The word "distribution" or "percentages" ALWAYS triggers `pie-chart-infographics` for percentage-based data visualization.
 - **NEVER USE:** bullet-points, content-slide, or any other template for distribution data
 - Example use cases: "Revenue Distribution", "Market Breakdown", "Data Segmentation", "Percentage Analysis", "Budget Allocation", "Market Share Distribution".
+
+**Big Numbers Slides** (`big-numbers`):
+```
+---
+**Slide 6: Performance Metrics and Success Indicators** `big-numbers`
+
+## Performance Metrics and Success Indicators
+Key performance indicators that demonstrate the success of our AI implementation strategy.
+
+**PROPS FORMAT:**
+```json
+{
+  "title": "Performance Metrics and Success Indicators",
+  "items": [
+    {
+      "value": "85%",
+      "label": "Accuracy Improvement",
+      "description": "Average accuracy improvement reported across all AI models deployed in production environments"
+    },
+    {
+      "value": "40%",
+      "label": "Cost Reduction",
+      "description": "Significant reduction in operational costs achieved through automated AI-driven processes"
+    },
+    {
+      "value": "3.2x",
+      "label": "Efficiency Gain",
+      "description": "Measurable increase in processing speed and workflow efficiency across all departments"
+    }
+  ]
+}
+```
+
+**MANDATORY PROPS STRUCTURE:**
+- `title`: String - The main title of the slide
+- `items`: Array of EXACTLY 3 objects with:
+  - `value`: String - The metric value (can include symbols like %, x, etc.)
+  - `label`: String - The metric name/label
+  - `description`: String - Detailed description of the metric and its significance
+
+**CRITICAL BIG NUMBERS DATA GENERATION RULES:**
+When generating content for `big-numbers`, you MUST:
+
+1. **ALWAYS generate EXACTLY 3 items** - no more, no less
+2. **ALWAYS use meaningful metric names** instead of generic labels
+3. **ALWAYS provide detailed descriptions** explaining the significance of each metric
+4. **ALWAYS use the exact JSON structure** shown above
+5. **ALWAYS ensure metrics are relevant** to the presentation topic
+
+**MANDATORY FORMAT:** Each item must follow the pattern: "**Value** - **Label** - Detailed description explaining the metric's significance and impact."
+
+**CONTENT REQUIREMENTS:** Include exactly 3 key performance indicators with specific values, clear labels, and detailed descriptions explaining their significance.
+
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "metrics", "statistics", "numbers", "KPIs", "key performance indicators", "performance", "results", "growth", "financial", "data", "benchmarks", "success metrics", "business metrics", "operational metrics", "performance data", "measurement", "measurements", "case study", "case studies", "business case", "success story", "performance indicators", "business intelligence", "BI"
+- **ABSOLUTE REQUIREMENT:** Use this template for presenting exactly 3 key performance indicators or success metrics. NEVER use metrics-analytics or content-slide for case study data.
+- **Trigger words:** If the slide involves "metrics", "statistics", "numbers", "performance", "results", "case study", "success story", "business case", use `big-numbers`.
+- **PRIORITY TRIGGER:** The word "case study" or "success story" ALWAYS triggers `big-numbers` for exactly 3 items.
+- **NEVER USE:** metrics-analytics, content-slide, or any other template for case study data
+- Example use cases: "Case Study Results", "Success Metrics", "Performance Numbers", "Business Case Results", "Success Story Metrics".
 
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):
