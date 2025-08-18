@@ -1634,7 +1634,7 @@
                             {% if stepText and stepText != 'Click to add step description' %}
                                 <div class="process-step positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set stepId = slide.slideId + '-step-' + loop.index0|string %}
+                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
                                         {% if slide.metadata.elementPositions[stepId] %}
                                             style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
                                         {% endif %}
