@@ -29,29 +29,28 @@ export default function Background() {
 
   return (
     <div className="h-full bg-white relative w-full border-0 overflow-y-auto">
-      <div className="relative z-10 flex flex-col items-start justify-start w-full px-2 py-4">
-        
-        {/* Selected color preview */}
-        {selectedColor && (
-          <div className="w-full bg-gray-100 rounded-lg p-4 mb-6 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div 
-                className="w-8 h-8 rounded-md"
-                style={{ backgroundColor: selectedColor }}
-              ></div>
-              <span className="font-medium" style={{ color: '#616161' }}>Color</span>
-            </div>
-            <button 
-              onClick={() => setSelectedColor(null)}
-              className="p-2 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
+      {/* Selected color preview positioned at top */}
+      {selectedColor && (
+        <div className="absolute top-0 left-0 right-0 z-20 bg-gray-100 p-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div 
+              className="w-8 h-8 rounded-md"
+              style={{ backgroundColor: selectedColor }}
+            ></div>
+            <span className="font-medium" style={{ color: '#616161' }}>Color</span>
           </div>
-        )}
-        
+          <button 
+            onClick={() => setSelectedColor(null)}
+            className="p-2 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
+          >
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      )}
+      
+      <div className={`relative z-10 flex flex-col items-start justify-start w-full px-2 ${selectedColor ? 'pt-20' : 'py-4'}`}>
         {/* Media upload section */}
         <div 
           className="w-full border border-gray-300 rounded-lg p-6 mb-6 flex flex-row items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
