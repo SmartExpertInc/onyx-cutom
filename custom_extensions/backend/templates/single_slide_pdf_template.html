@@ -1520,15 +1520,15 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="bullets-container positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set bulletsId = slide.slideId + '-bullets' %}
-                                {% if slide.metadata.elementPositions[bulletsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
+                        <div class="bullets-container">
+                            <ul class="bullet-list positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set bulletsId = slide.slideId + '-bullets' %}
+                                    {% if slide.metadata.elementPositions[bulletsId] %}
+                                        style="position: absolute; transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        >
-                            <ul class="bullet-list">
+                            >
                                 {% for bullet in slide.props.bullets %}
                                     {% if bullet and bullet != 'Click to add bullet point' %}
                                         <li class="bullet-item">
@@ -1565,14 +1565,7 @@
                     
                     <div class="content-row">
                     
-                        <div class="bullets-container positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set bulletsId = slide.slideId + '-bullets' %}
-                                {% if slide.metadata.elementPositions[bulletsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
+                        <div class="bullets-container">
                             {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
                                 <div class="content-text positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
@@ -1583,7 +1576,14 @@
                                     {% endif %}
                                 >{{ slide.props.subtitle }}</div>
                             {% endif %}
-                            <ul class="bullet-list">
+                            <ul class="bullet-list positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set bulletsId = slide.slideId + '-bullets' %}
+                                    {% if slide.metadata.elementPositions[bulletsId] %}
+                                        style="position: absolute; transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 {% for bullet in slide.props.bullets %}
                                     {% if bullet and bullet != 'Click to add bullet point' %}
                                         <li class="bullet-item">
