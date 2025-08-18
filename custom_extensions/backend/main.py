@@ -4,8 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-
-
 from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
 from pydantic import BaseModel, Field, RootModel
 import re
@@ -6459,6 +6457,73 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
 
+            # ============================
+            # SMART DRIVE DATABASE MIGRATIONS
+            # ============================
+            
+            # SmartDrive Accounts: Per-user SmartDrive linkage and cursors
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS smartdrive_accounts (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL UNIQUE,
+                    nextcloud_user_id VARCHAR(255) NOT NULL,
+                    sync_cursor JSONB DEFAULT '{}',
+                    credentials_encrypted TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT idx_smartdrive_accounts_onyx_user UNIQUE (onyx_user_id)
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_accounts_nextcloud_user ON smartdrive_accounts(nextcloud_user_id);")
+            logger.info("'smartdrive_accounts' table ensured.")
+
+            # SmartDrive Imports: Maps SmartDrive files to Onyx files with etags/checksums
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS smartdrive_imports (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL,
+                    smartdrive_path VARCHAR(1000) NOT NULL,
+                    onyx_file_id VARCHAR(255) NOT NULL,
+                    etag VARCHAR(255),
+                    checksum VARCHAR(255),
+                    file_size BIGINT,
+                    mime_type VARCHAR(255),
+                    imported_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    last_modified TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT idx_smartdrive_imports_user_path UNIQUE (onyx_user_id, smartdrive_path)
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_imports_onyx_user_id ON smartdrive_imports(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_imports_onyx_file_id ON smartdrive_imports(onyx_file_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_imports_imported_at ON smartdrive_imports(imported_at);")
+            logger.info("'smartdrive_imports' table ensured.")
+
+            # User Connectors: Per-user connector configs and encrypted tokens
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_connectors (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    source VARCHAR(100) NOT NULL,
+                    config JSONB DEFAULT '{}',
+                    credentials_encrypted TEXT,
+                    status VARCHAR(50) DEFAULT 'active',
+                    last_sync_at TIMESTAMP WITH TIME ZONE,
+                    last_error TEXT,
+                    total_docs_indexed INTEGER DEFAULT 0,
+                    onyx_connector_id INTEGER,
+                    onyx_credential_id INTEGER,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_onyx_user_id ON user_connectors(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_source ON user_connectors(source);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_status ON user_connectors(status);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_created_at ON user_connectors(created_at);")
+            logger.info("'user_connectors' table ensured.")
+
+            logger.info("Smart Drive database migrations completed successfully.")
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -18500,346 +18565,444 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     detail=f"Failed to duplicate project: {str(e)}"
                 )
 
-# Smart Drive Endpoints
+# ============================
+# SMART DRIVE API ENDPOINTS
+# ============================
 
 @app.post("/api/custom/smartdrive/session")
-async def create_smartdrive_session(request: Request):
-    """Initialize SmartDrive session for the current user"""
+async def bootstrap_smartdrive_session(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Bootstrap SmartDrive access for the current user"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        pool = await get_db_pool()
-        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Bootstrapping SmartDrive session for user: {onyx_user_id}")
+
         async with pool.acquire() as conn:
-            # Create SmartDrive account if it doesn't exist
-            await conn.execute("""
-                INSERT INTO smartdrive_accounts (user_id, created_at, last_sync_at)
-                VALUES ($1, $2, $2)
-                ON CONFLICT (user_id) DO NOTHING
-            """, user_id, datetime.now(timezone.utc))
+            # Check if user already has SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
             
-        return {"status": "success", "message": "SmartDrive session initialized"}
+            if not account:
+                # Create new SmartDrive account entry
+                await conn.execute(
+                    """
+                    INSERT INTO smartdrive_accounts (onyx_user_id, nextcloud_user_id, sync_cursor, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4, $5)
+                    """,
+                    onyx_user_id,
+                    onyx_user_id,  # Use Onyx user ID as Nextcloud user ID for simplicity
+                    '{}',  # Empty JSON cursor
+                    datetime.now(timezone.utc),
+                    datetime.now(timezone.utc)
+                )
+                logger.info(f"Created SmartDrive account for user: {onyx_user_id}")
+            else:
+                logger.info(f"SmartDrive account already exists for user: {onyx_user_id}")
+
+        return {"success": True, "message": "SmartDrive session initialized"}
+        
     except Exception as e:
-        logger.error(f"Failed to initialize SmartDrive session: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to initialize SmartDrive session"
-        )
+        logger.error(f"Error bootstrapping SmartDrive session: {e}")
+        raise HTTPException(status_code=500, detail="Failed to initialize SmartDrive session")
 
 @app.get("/api/custom/smartdrive/list")
-async def list_smartdrive_files(request: Request, path: str = "/"):
-    """List files from SmartDrive (Nextcloud)"""
+async def list_smartdrive_files(
+    request: Request,
+    path: str = Query("/", description="Path to list files from"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """List files/folders in the user's SmartDrive"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        
-        # For now, return mock data - implement actual Nextcloud WebDAV later
-        return [
-            {
-                "name": "example.pdf",
-                "path": "/example.pdf",
-                "type": "file",
-                "size": 1024,
-                "modified": "2024-01-01T00:00:00Z"
-            },
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Listing SmartDrive files for user: {onyx_user_id}, path: {path}")
+
+        # TODO: Implement actual Nextcloud API integration
+        # For now, return mock data for testing
+        mock_files = [
             {
                 "name": "Documents",
                 "path": "/Documents",
-                "type": "folder",
-                "size": 0,
-                "modified": "2024-01-01T00:00:00Z"
+                "type": "directory",
+                "size": None,
+                "modified": "2024-01-15T10:30:00Z"
+            },
+            {
+                "name": "Training_Materials.pdf",
+                "path": "/Training_Materials.pdf",
+                "type": "file",
+                "size": 2048576,
+                "modified": "2024-01-14T15:45:00Z",
+                "mime_type": "application/pdf"
+            },
+            {
+                "name": "Project_Notes.docx",
+                "path": "/Project_Notes.docx",
+                "type": "file",
+                "size": 1024000,
+                "modified": "2024-01-13T09:20:00Z",
+                "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             }
         ]
+
+        return {
+            "files": mock_files,
+            "path": path,
+            "total_count": len(mock_files)
+        }
+        
     except Exception as e:
-        logger.error(f"Failed to list SmartDrive files: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to list SmartDrive files"
-        )
+        logger.error(f"Error listing SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list SmartDrive files")
 
 @app.post("/api/custom/smartdrive/import")
-async def import_smartdrive_files(request: Request):
-    """Import files from SmartDrive"""
+async def import_smartdrive_files(
+    request: Request,
+    file_paths: List[str] = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Stream files into Onyx; returns fileIds"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        data = await request.json()
-        paths = data.get("paths", [])
-        
-        if not paths:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No file paths provided"
-            )
-        
-        pool = await get_db_pool()
-        file_ids = []
+        if file_paths is None:
+            payload = await request.json()
+            file_paths = payload.get('paths', [])
+            
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Importing SmartDrive files for user: {onyx_user_id}, paths: {file_paths}")
+
+        imported_file_ids = []
         
         async with pool.acquire() as conn:
-            for path in paths:
-                # Create import record
-                import_id = await conn.fetchval("""
-                    INSERT INTO smartdrive_imports (user_id, file_path, status, created_at)
-                    VALUES ($1, $2, 'processing', $3)
+            for file_path in file_paths:
+                # TODO: Implement actual file import from Nextcloud
+                # For now, create mock import records
+                file_id = await conn.fetchval(
+                    """
+                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                    VALUES ($1, $2, $3, $4, $5, $6)
                     RETURNING id
-                """, user_id, path, datetime.now(timezone.utc))
-                file_ids.append(import_id)
+                    """,
+                    onyx_user_id,
+                    file_path,
+                    f"mock_file_{hash(file_path) % 1000000}",  # Mock Onyx file ID
+                    f"etag_{hash(file_path)}",
+                    f"sha256_{hash(file_path)}",
+                    datetime.now(timezone.utc)
+                )
+                imported_file_ids.append(file_id)
+                logger.info(f"Created import record for {file_path} with ID: {file_id}")
+
+        return {
+            "success": True,
+            "fileIds": imported_file_ids,
+            "imported_count": len(imported_file_ids)
+        }
         
-        return {"fileIds": file_ids}
     except Exception as e:
-        logger.error(f"Failed to import SmartDrive files: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to import SmartDrive files"
-        )
+        logger.error(f"Error importing SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to import SmartDrive files")
 
 @app.post("/api/custom/smartdrive/import-new")
-async def import_new_smartdrive_files(request: Request):
-    """Import new files since last sync"""
+async def import_new_smartdrive_files(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Import new/updated files since the last sync"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        pool = await get_db_pool()
-        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Importing new SmartDrive files for user: {onyx_user_id}")
+
         async with pool.acquire() as conn:
-            # Update last sync time
-            await conn.execute("""
-                UPDATE smartdrive_accounts 
-                SET last_sync_at = $1 
-                WHERE user_id = $2
-            """, datetime.now(timezone.utc), user_id)
+            # Get user's SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
             
-        return {"status": "success", "message": "New files imported successfully"}
+            if not account:
+                raise HTTPException(status_code=404, detail="SmartDrive account not found")
+
+            # TODO: Implement actual sync logic with Nextcloud API
+            # For now, simulate importing new files
+            new_files = [
+                "/New_Document.pdf",
+                "/Updated_Presentation.pptx"
+            ]
+            
+            imported_count = 0
+            for file_path in new_files:
+                # Check if already imported
+                existing = await conn.fetchrow(
+                    "SELECT id FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path = $2",
+                    onyx_user_id, file_path
+                )
+                
+                if not existing:
+                    await conn.execute(
+                        """
+                        INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                        VALUES ($1, $2, $3, $4, $5, $6)
+                        """,
+                        onyx_user_id,
+                        file_path,
+                        f"mock_file_{hash(file_path) % 1000000}",
+                        f"etag_{hash(file_path)}",
+                        f"sha256_{hash(file_path)}",
+                        datetime.now(timezone.utc)
+                    )
+                    imported_count += 1
+
+            # Update sync cursor
+            await conn.execute(
+                "UPDATE smartdrive_accounts SET sync_cursor = $1, updated_at = $2 WHERE onyx_user_id = $3",
+                json.dumps({"last_sync": datetime.now(timezone.utc).isoformat()}),
+                datetime.now(timezone.utc),
+                onyx_user_id
+            )
+
+        return {
+            "success": True,
+            "imported_count": imported_count,
+            "message": f"Imported {imported_count} new files"
+        }
+        
     except Exception as e:
-        logger.error(f"Failed to import new SmartDrive files: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to import new SmartDrive files"
-        )
+        logger.error(f"Error importing new SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to import new SmartDrive files")
 
 @app.post("/api/custom/smartdrive/webhook")
-async def handle_smartdrive_webhook(request: Request):
-    """Handle webhooks from Nextcloud Flow for file changes"""
+async def smartdrive_webhook(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Handle Nextcloud webhooks for file changes"""
     try:
-        body = await request.body()
-        headers = request.headers
-        
-        # TODO: Implement proper webhook signature validation
-        data = await request.json()
-        
-        # Log webhook for now
-        logger.info(f"Received SmartDrive webhook: {data}")
-        
-        return {"status": "success"}
-    except Exception as e:
-        logger.error(f"Failed to handle SmartDrive webhook: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to handle webhook"
-        )
+        payload = await request.json()
+        logger.info(f"Received SmartDrive webhook: {payload}")
 
-@app.get("/api/custom/smartdrive/connectors")
-async def list_user_connectors(request: Request):
-    """List user's connectors"""
+        # TODO: Implement webhook processing
+        # This would handle notifications from Nextcloud about file changes
+        
+        return {"success": True, "message": "Webhook processed"}
+        
+    except Exception as e:
+        logger.error(f"Error processing SmartDrive webhook: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process webhook")
+
+# ============================
+# PER-USER CONNECTORS API
+# ============================
+
+@app.get("/api/custom/smartdrive/connectors/")
+async def list_user_connectors(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """List connectors for the current user"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        pool = await get_db_pool()
+        onyx_user_id = await get_current_onyx_user_id(request)
         
         async with pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT id, name, provider, status, config, created_at
+            rows = await conn.fetch(
+                """
+                SELECT id, name, source, config, status, last_sync_at, total_docs_indexed, created_at
                 FROM user_connectors 
-                WHERE user_id = $1
+                WHERE onyx_user_id = $1 
                 ORDER BY created_at DESC
-            """, user_id)
+                """,
+                onyx_user_id
+            )
             
             connectors = []
             for row in rows:
                 connectors.append({
                     "id": row["id"],
                     "name": row["name"],
-                    "provider": row["provider"],
+                    "source": row["source"],
                     "status": row["status"],
-                    "config": json.loads(row["config"]) if row["config"] else {},
-                    "created_at": row["created_at"].isoformat() if row["created_at"] else None
+                    "last_sync": row["last_sync_at"].isoformat() if row["last_sync_at"] else None,
+                    "total_docs": row["total_docs_indexed"] or 0,
+                    "created_at": row["created_at"].isoformat()
                 })
-                
-        return connectors
-    except Exception as e:
-        logger.error(f"Failed to list user connectors: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to list connectors"
-        )
-
-@app.post("/api/custom/smartdrive/connectors")
-async def create_user_connector(request: Request):
-    """Create a new connector"""
-    try:
-        user_id = await get_current_onyx_user_id(request)
-        data = await request.json()
-        provider = data.get("provider")
-        name = data.get("name")
-        config = data.get("config", {})
-        
-        if not provider or not name:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Provider and name are required"
-            )
-        
-        pool = await get_db_pool()
-        async with pool.acquire() as conn:
-            connector_id = await conn.fetchval("""
-                INSERT INTO user_connectors (user_id, name, provider, config, status, created_at)
-                VALUES ($1, $2, $3, $4, 'active', $5)
-                RETURNING id
-            """, user_id, name, provider, json.dumps(config), datetime.now(timezone.utc))
             
-        return {
-            "id": connector_id,
-            "name": name,
-            "provider": provider,
-            "status": "active",
-            "config": config
-        }
+            return connectors
+        
     except Exception as e:
-        logger.error(f"Failed to create user connector: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create connector"
-        )
+        logger.error(f"Error listing user connectors: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list connectors")
+
+@app.post("/api/custom/smartdrive/connectors/")
+async def create_user_connector(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a connector for the current user"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        payload = await request.json()
+        
+        name = payload.get('name')
+        source = payload.get('source')
+        config = payload.get('config', {})
+        
+        if not name or not source:
+            raise HTTPException(status_code=400, detail="Name and source are required")
+        
+        async with pool.acquire() as conn:
+            connector_id = await conn.fetchval(
+                """
+                INSERT INTO user_connectors (onyx_user_id, name, source, config, status, created_at, updated_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING id
+                """,
+                onyx_user_id,
+                name,
+                source,
+                json.dumps(config),
+                'active',
+                datetime.now(timezone.utc),
+                datetime.now(timezone.utc)
+            )
+            
+            logger.info(f"Created connector {connector_id} for user {onyx_user_id}: {name} ({source})")
+            
+            # TODO: Create actual Onyx connector with AccessType.PRIVATE
+            
+            return {
+                "id": connector_id,
+                "name": name,
+                "source": source,
+                "status": "active",
+                "message": "Connector created successfully"
+            }
+        
+    except Exception as e:
+        logger.error(f"Error creating user connector: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create connector")
 
 @app.put("/api/custom/smartdrive/connectors/{connector_id}")
-async def update_user_connector(connector_id: int, request: Request):
-    """Update a connector"""
+async def update_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Update the connector"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        data = await request.json()
-        pool = await get_db_pool()
+        onyx_user_id = await get_current_onyx_user_id(request)
+        payload = await request.json()
         
         async with pool.acquire() as conn:
             # Verify ownership
-            owner = await conn.fetchval("""
-                SELECT user_id FROM user_connectors WHERE id = $1
-            """, connector_id)
+            existing = await conn.fetchrow(
+                "SELECT id FROM user_connectors WHERE id = $1 AND onyx_user_id = $2",
+                connector_id, onyx_user_id
+            )
             
-            if owner != user_id:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Connector not found"
-                )
+            if not existing:
+                raise HTTPException(status_code=404, detail="Connector not found")
             
             # Update connector
-            await conn.execute("""
+            await conn.execute(
+                """
                 UPDATE user_connectors 
                 SET name = $1, config = $2, updated_at = $3
-                WHERE id = $4 AND user_id = $5
-            """, data.get("name"), json.dumps(data.get("config", {})), 
-                datetime.now(timezone.utc), connector_id, user_id)
+                WHERE id = $4
+                """,
+                payload.get('name'),
+                json.dumps(payload.get('config', {})),
+                datetime.now(timezone.utc),
+                connector_id
+            )
             
-        return {"status": "success", "message": "Connector updated"}
+            return {"success": True, "message": "Connector updated successfully"}
+        
     except Exception as e:
-        logger.error(f"Failed to update user connector: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update connector"
-        )
+        logger.error(f"Error updating user connector: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update connector")
 
 @app.delete("/api/custom/smartdrive/connectors/{connector_id}")
-async def delete_user_connector(connector_id: int, request: Request):
-    """Delete a connector"""
+async def delete_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Delete the connector"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        pool = await get_db_pool()
+        onyx_user_id = await get_current_onyx_user_id(request)
         
         async with pool.acquire() as conn:
             # Verify ownership and delete
-            result = await conn.execute("""
-                DELETE FROM user_connectors 
-                WHERE id = $1 AND user_id = $2
-            """, connector_id, user_id)
+            result = await conn.execute(
+                "DELETE FROM user_connectors WHERE id = $1 AND onyx_user_id = $2",
+                connector_id, onyx_user_id
+            )
             
             if result == "DELETE 0":
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Connector not found"
-                )
+                raise HTTPException(status_code=404, detail="Connector not found")
             
-        return {"status": "success", "message": "Connector deleted"}
+            # TODO: Delete actual Onyx connector
+            
+            return {"success": True, "message": "Connector deleted successfully"}
+        
     except Exception as e:
-        logger.error(f"Failed to delete user connector: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete connector"
-        )
+        logger.error(f"Error deleting user connector: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete connector")
 
 @app.post("/api/custom/smartdrive/connectors/{connector_id}/sync")
-async def sync_user_connector(connector_id: int, request: Request):
-    """Trigger a sync job for the specified connector"""
+async def sync_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Trigger a sync job"""
     try:
-        user_id = await get_current_onyx_user_id(request)
-        pool = await get_db_pool()
+        onyx_user_id = await get_current_onyx_user_id(request)
         
         async with pool.acquire() as conn:
             # Verify ownership
-            owner = await conn.fetchval("""
-                SELECT user_id FROM user_connectors WHERE id = $1
-            """, connector_id)
+            connector = await conn.fetchrow(
+                "SELECT * FROM user_connectors WHERE id = $1 AND onyx_user_id = $2",
+                connector_id, onyx_user_id
+            )
             
-            if owner != user_id:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Connector not found"
-                )
+            if not connector:
+                raise HTTPException(status_code=404, detail="Connector not found")
             
-            # Create sync job
-            await conn.execute("""
-                INSERT INTO connector_sync_jobs (user_id, connector_id, status, created_at)
-                VALUES ($1, $2, 'pending', $3)
-            """, user_id, connector_id, datetime.now(timezone.utc))
+            # Update sync status
+            await conn.execute(
+                """
+                UPDATE user_connectors 
+                SET status = $1, last_sync_at = $2, updated_at = $3
+                WHERE id = $4
+                """,
+                'syncing',
+                datetime.now(timezone.utc),
+                datetime.now(timezone.utc),
+                connector_id
+            )
             
-        return {"status": "success", "message": "Connector sync started"}
-    except Exception as e:
-        logger.error(f"Failed to sync user connector: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to sync connector"
-        )
-
-@app.get("/api/custom/smartdrive/connector-types")
-async def get_available_connector_types(request: Request):
-    """Get available connector types"""
-    try:
-        user_id = await get_current_onyx_user_id(request)
+            # TODO: Trigger actual Onyx connector sync job
+            
+            # Simulate sync completion
+            await asyncio.sleep(1)  # Simulate processing time
+            
+            await conn.execute(
+                """
+                UPDATE user_connectors 
+                SET status = $1, total_docs_indexed = $2, updated_at = $3
+                WHERE id = $4
+                """,
+                'active',
+                (connector.get('total_docs_indexed') or 0) + 1,  # Simulate new doc
+                datetime.now(timezone.utc),
+                connector_id
+            )
+            
+            return {"success": True, "message": "Sync completed successfully"}
         
-        # Return mock connector types for now
-        # TODO: Integrate with Onyx's actual connector system
-        return {
-            "google_drive": {
-                "display_name": "Google Drive",
-                "source": "google_drive",
-                "category": "cloud_storage",
-                "oauth_required": True
-            },
-            "notion": {
-                "display_name": "Notion",
-                "source": "notion", 
-                "category": "productivity",
-                "oauth_required": True
-            },
-            "slack": {
-                "display_name": "Slack",
-                "source": "slack",
-                "category": "communication", 
-                "oauth_required": True
-            },
-            "confluence": {
-                "display_name": "Confluence",
-                "source": "confluence",
-                "category": "documentation",
-                "oauth_required": True
-            }
-        }
     except Exception as e:
-        logger.error(f"Failed to get connector types: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get connector types"
-        )
+        logger.error(f"Error syncing user connector: {e}")
+        raise HTTPException(status_code=500, detail="Failed to sync connector")

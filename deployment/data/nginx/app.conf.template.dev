@@ -12,16 +12,16 @@ upstream web_server {
     server ${ONYX_WEB_SERVER_HOST}:3000 fail_timeout=0;
 }
 
-upstream nextcloud_server {
-    server nc1.contentbuilder.ai:8080 fail_timeout=0;
-}
-
 upstream custom_frontend_server {
     server custom_frontend:3001 fail_timeout=0; 
 }
 
 upstream custom_backend_server {
     server custom_backend:8001 fail_timeout=0;
+}
+
+upstream nextcloud_server {
+    server ${NEXTCLOUD_UPSTREAM_URL} fail_timeout=0;
 }
 
 server {
@@ -63,6 +63,52 @@ server {
         # Add appropriate caching headers for images if desired in production
         # expires 1M; 
         # add_header Cache-Control "public";
+    }
+
+    # Location for Smart Drive (Nextcloud integration)
+    location ^~ /smartdrive/ {
+        proxy_pass http://nextcloud_server/;
+        
+        # Proper headers for embedding
+        proxy_set_header Host nc1.contentbuilder.ai;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        # WebSocket support for real-time updates
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        # Large file upload support
+        client_max_body_size 10G;
+        proxy_request_buffering off;
+        proxy_buffering off;
+        
+        # Extended timeouts for large uploads
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+        
+        # Override frame options to allow embedding
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Content-Security-Policy;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Content-Security-Policy "frame-ancestors 'self' https://$host" always;
+        
+        proxy_redirect off;
+        proxy_pass_request_headers on;
+    }
+
+    # DAV .well-known redirects for SmartDrive
+    location = /.well-known/carddav {
+        return 301 $scheme://$host/smartdrive/remote.php/dav;
+    }
+    
+    location = /.well-known/caldav {
+        return 301 $scheme://$host/smartdrive/remote.php/dav;
     }
 
     # Location for Custom Backend API

@@ -84,27 +84,21 @@ export interface DocumentsContextType {
   handleUpload: (files: File[]) => Promise<void>;
   getFilesIndexingStatus: (fileIds: number[]) => Promise<Record<number, boolean>>;
   createFileFromLink: (url: string, folderId: number | null) => Promise<FileResponse[]>;
-  // SmartDrive methods
+  // Smart Drive methods
   ensureSmartDriveSession: () => Promise<void>;
-  listSmartDrive: (path?: string) => Promise<any[]>;
+  listSmartDrive: (path?: string) => Promise<any>;
   importSmartDriveFiles: (paths: string[]) => Promise<{ fileIds: number[] }>;
-  importSmartDriveNewSinceLastSync: () => Promise<void>;
+  importSmartDriveNewSinceLastSync: () => Promise<any>;
+  // User Connectors methods
   listUserConnectors: () => Promise<any[]>;
-  createUserConnector: (provider: string, config: any) => Promise<any>;
-  updateUserConnector: (id: number, config: any) => Promise<any>;
+  createUserConnector: (connector: any) => Promise<any>;
+  updateUserConnector: (id: number, connector: any) => Promise<any>;
   deleteUserConnector: (id: number) => Promise<void>;
-  syncUserConnector: (id: number) => Promise<void>;
+  syncUserConnector: (id: number) => Promise<any>;
 }
 
 // Optimized documents service
 class DocumentsService {
-  private getApiUrl(path: string): string {
-    // Ensure we use the same protocol as the current page to avoid mixed content issues
-    const protocol = window.location.protocol;
-    const host = window.location.host;
-    return `${protocol}//${host}${path}`;
-  }
-
   async fetchFolders(): Promise<FolderResponse[]> {
     const response = await fetch("/api/user/folder");
     if (!response.ok) {
@@ -207,21 +201,19 @@ class DocumentsService {
     }
   }
 
-  // SmartDrive methods
+  // Smart Drive methods
   async ensureSmartDriveSession(): Promise<void> {
-    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/session"), {
+    const response = await fetch("/api/custom-smartdrive/session", {
       method: "POST",
-      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
     });
     if (!response.ok) {
       throw new Error("Failed to initialize SmartDrive session");
     }
   }
 
-  async listSmartDrive(path: string = "/"): Promise<any[]> {
-    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/list?path=${encodeURIComponent(path)}`), {
-      credentials: "same-origin",
-    });
+  async listSmartDrive(path: string = "/"): Promise<any> {
+    const response = await fetch(`/api/custom-smartdrive/list?path=${encodeURIComponent(path)}`);
     if (!response.ok) {
       throw new Error("Failed to list SmartDrive files");
     }
@@ -229,10 +221,9 @@ class DocumentsService {
   }
 
   async importSmartDriveFiles(paths: string[]): Promise<{ fileIds: number[] }> {
-    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/import"), {
+    const response = await fetch("/api/custom-smartdrive/import", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
       body: JSON.stringify({ paths }),
     });
     if (!response.ok) {
@@ -241,32 +232,31 @@ class DocumentsService {
     return response.json();
   }
 
-  async importSmartDriveNewSinceLastSync(): Promise<void> {
-    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/import-new"), {
+  async importSmartDriveNewSinceLastSync(): Promise<any> {
+    const response = await fetch("/api/custom-smartdrive/import-new", {
       method: "POST",
-      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
     });
     if (!response.ok) {
       throw new Error("Failed to import new SmartDrive files");
     }
+    return response.json();
   }
 
+  // User Connectors methods
   async listUserConnectors(): Promise<any[]> {
-    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/connectors"), {
-      credentials: "same-origin",
-    });
+    const response = await fetch("/api/custom-smartdrive/connectors/");
     if (!response.ok) {
       throw new Error("Failed to list user connectors");
     }
     return response.json();
   }
 
-  async createUserConnector(provider: string, config: any): Promise<any> {
-    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/connectors"), {
+  async createUserConnector(connector: any): Promise<any> {
+    const response = await fetch("/api/custom-smartdrive/connectors/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ provider, config }),
+      body: JSON.stringify(connector),
     });
     if (!response.ok) {
       throw new Error("Failed to create user connector");
@@ -274,12 +264,11 @@ class DocumentsService {
     return response.json();
   }
 
-  async updateUserConnector(id: number, config: any): Promise<any> {
-    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/connectors/${id}`), {
+  async updateUserConnector(id: number, connector: any): Promise<any> {
+    const response = await fetch(`/api/custom-smartdrive/connectors/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ config }),
+      body: JSON.stringify(connector),
     });
     if (!response.ok) {
       throw new Error("Failed to update user connector");
@@ -288,23 +277,23 @@ class DocumentsService {
   }
 
   async deleteUserConnector(id: number): Promise<void> {
-    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/connectors/${id}`), {
+    const response = await fetch(`/api/custom-smartdrive/connectors/${id}`, {
       method: "DELETE",
-      credentials: "same-origin",
     });
     if (!response.ok) {
       throw new Error("Failed to delete user connector");
     }
   }
 
-  async syncUserConnector(id: number): Promise<void> {
-    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/connectors/${id}/sync`), {
+  async syncUserConnector(id: number): Promise<any> {
+    const response = await fetch(`/api/custom-smartdrive/connectors/${id}/sync`, {
       method: "POST",
-      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
     });
     if (!response.ok) {
       throw new Error("Failed to sync user connector");
     }
+    return response.json();
   }
 }
 
@@ -564,6 +553,44 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
     [refreshFolders, folderDetails, currentFolder, getFolderDetails]
   );
 
+  // Smart Drive methods
+  const ensureSmartDriveSession = useCallback(async () => {
+    return await new DocumentsService().ensureSmartDriveSession();
+  }, []);
+
+  const listSmartDrive = useCallback(async (path?: string) => {
+    return await new DocumentsService().listSmartDrive(path);
+  }, []);
+
+  const importSmartDriveFiles = useCallback(async (paths: string[]) => {
+    return await new DocumentsService().importSmartDriveFiles(paths);
+  }, []);
+
+  const importSmartDriveNewSinceLastSync = useCallback(async () => {
+    return await new DocumentsService().importSmartDriveNewSinceLastSync();
+  }, []);
+
+  // User Connectors methods
+  const listUserConnectors = useCallback(async () => {
+    return await new DocumentsService().listUserConnectors();
+  }, []);
+
+  const createUserConnector = useCallback(async (connector: any) => {
+    return await new DocumentsService().createUserConnector(connector);
+  }, []);
+
+  const updateUserConnector = useCallback(async (id: number, connector: any) => {
+    return await new DocumentsService().updateUserConnector(id, connector);
+  }, []);
+
+  const deleteUserConnector = useCallback(async (id: number) => {
+    return await new DocumentsService().deleteUserConnector(id);
+  }, []);
+
+  const syncUserConnector = useCallback(async (id: number) => {
+    return await new DocumentsService().syncUserConnector(id);
+  }, []);
+
   return (
     <DocumentsContext.Provider
       value={{
@@ -600,16 +627,17 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
         handleUpload,
         getFilesIndexingStatus: async (fileIds: number[]) => await new DocumentsService().getFilesIndexingStatus(fileIds),
         createFileFromLink,
-        // SmartDrive methods
-        ensureSmartDriveSession: async () => await new DocumentsService().ensureSmartDriveSession(),
-        listSmartDrive: async (path?: string) => await new DocumentsService().listSmartDrive(path),
-        importSmartDriveFiles: async (paths: string[]) => await new DocumentsService().importSmartDriveFiles(paths),
-        importSmartDriveNewSinceLastSync: async () => await new DocumentsService().importSmartDriveNewSinceLastSync(),
-        listUserConnectors: async () => await new DocumentsService().listUserConnectors(),
-        createUserConnector: async (provider: string, config: any) => await new DocumentsService().createUserConnector(provider, config),
-        updateUserConnector: async (id: number, config: any) => await new DocumentsService().updateUserConnector(id, config),
-        deleteUserConnector: async (id: number) => await new DocumentsService().deleteUserConnector(id),
-        syncUserConnector: async (id: number) => await new DocumentsService().syncUserConnector(id),
+        // Smart Drive methods
+        ensureSmartDriveSession,
+        listSmartDrive,
+        importSmartDriveFiles,
+        importSmartDriveNewSinceLastSync,
+        // User Connectors methods
+        listUserConnectors,
+        createUserConnector,
+        updateUserConnector,
+        deleteUserConnector,
+        syncUserConnector,
       }}
     >
       {children}

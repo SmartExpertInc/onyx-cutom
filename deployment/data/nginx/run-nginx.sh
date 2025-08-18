@@ -1,20 +1,16 @@
 # fill in the template
 export ONYX_BACKEND_API_HOST="${ONYX_BACKEND_API_HOST:-api_server}"
 export ONYX_WEB_SERVER_HOST="${ONYX_WEB_SERVER_HOST:-web_server}"
+export NEXTCLOUD_UPSTREAM_URL="${NEXTCLOUD_UPSTREAM_URL:-http://nc1.contentbuilder.ai:8080}"
 
 export SSL_CERT_FILE_NAME="${SSL_CERT_FILE_NAME:-ssl.crt}"
 export SSL_CERT_KEY_FILE_NAME="${SSL_CERT_KEY_FILE_NAME:-ssl.key}"
 
-export NEXTCLOUD_EXTERNAL_HOST="${NEXTCLOUD_EXTERNAL_HOST:-nc1.contentbuilder.ai}"
-export NEXTCLOUD_EXTERNAL_PORT="${NEXTCLOUD_EXTERNAL_PORT:-8080}"
-export NEXTCLOUD_EXTERNAL_URL="${NEXTCLOUD_EXTERNAL_URL:-http://nc1.contentbuilder.ai:8080}"
-export NEXTCLOUD_SSL_VERIFY="${NEXTCLOUD_SSL_VERIFY:-off}"
-
 echo "Using API server host: $ONYX_BACKEND_API_HOST"
 echo "Using web server host: $ONYX_WEB_SERVER_HOST"
-echo "Using Nextcloud Port: $NEXTCLOUD_EXTERNAL_PORT"
+echo "Using Nextcloud upstream: $NEXTCLOUD_UPSTREAM_URL"
 
-envsubst '$DOMAIN $SSL_CERT_FILE_NAME $SSL_CERT_KEY_FILE_NAME $ONYX_BACKEND_API_HOST $ONYX_WEB_SERVER_HOST' < "/etc/nginx/conf.d/$1" > /etc/nginx/conf.d/app.conf
+envsubst '$DOMAIN $SSL_CERT_FILE_NAME $SSL_CERT_KEY_FILE_NAME $ONYX_BACKEND_API_HOST $ONYX_WEB_SERVER_HOST $NEXTCLOUD_UPSTREAM_URL' < "/etc/nginx/conf.d/$1" > /etc/nginx/conf.d/app.conf
 
 # wait for the api_server to be ready
 echo "Waiting for API server to boot up; this may take a minute or two..."
