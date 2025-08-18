@@ -263,7 +263,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   {/* Language Variants Popup */}
                   {isLanguagePopupOpen && (
                     <div 
-                      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[200px] z-50"
+                      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[280px] z-50"
                       style={{ marginRight: '0px' }} // Position at the right border
                     >
                       {/* Header */}
@@ -335,7 +335,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                       </div>
 
                       {/* Horizontal Line */}
-                      <div className="border-t border-gray-300 my-2"></div>
+                      <div className="border-t border-gray-300 my-2 -mx-4"></div>
 
                       {/* Add New Language Variant Row */}
                       <div className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer">

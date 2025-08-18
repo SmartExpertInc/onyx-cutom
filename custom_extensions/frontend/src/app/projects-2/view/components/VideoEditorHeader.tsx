@@ -444,7 +444,7 @@ export default function VideoEditorHeader() {
                   
                    
                    {/* Horizontal line */}
-                   <div className="border-t border-gray-200 mb-4"></div>
+                   <div className="border-t border-gray-200 mb-4 -mx-4"></div>
                    
                                       {/* Bottom section */}
                    <div className="flex justify-between items-center">
