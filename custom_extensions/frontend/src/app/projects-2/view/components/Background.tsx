@@ -14,26 +14,158 @@ function Modal({ isOpen, onClose, title, children }: ModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Dark background overlay */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-50"
+        className="absolute inset-0 bg-black bg-opacity-20"
         onClick={onClose}
       ></div>
       
       {/* Modal content */}
-      <div className="relative bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 z-10">
-        <div className="flex justify-between items-center mb-4">
+      <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 z-10 h-[600px]">
+        {/* Header */}
+        <div className="p-6 border-b">
           <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-          <button 
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
         
-        {/* Modal content */}
-        {children}
+        {/* Main content area with sidebar */}
+        <div className="flex h-full">
+          {/* Sidebar */}
+          <div className="w-64 bg-gray-50 p-4 flex flex-col">
+            {/* My assets section */}
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">My assets</h4>
+              <div className="flex items-center p-3 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                {/* Folder icon */}
+                <svg className="w-5 h-5 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                <span className="text-sm text-gray-700">Library</span>
+              </div>
+            </div>
+
+            {/* Stock assets section */}
+            <div className="mb-6 flex-1">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Stock assets</h4>
+              
+              {/* Image option */}
+              <div className="flex items-center p-3 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-2">
+                <svg className="w-5 h-5 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm text-gray-700">Image</span>
+              </div>
+
+              {/* Video option */}
+              <div className="flex items-center p-3 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-2">
+                <svg className="w-5 h-5 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm text-gray-700">Video</span>
+              </div>
+
+              {/* AI image option */}
+              <div className="flex items-center p-3 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors">
+                <svg className="w-5 h-5 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                <span className="text-sm text-gray-700">AI image</span>
+              </div>
+            </div>
+
+            {/* Bottom buttons */}
+            <div className="space-y-3">
+              {/* Upload button */}
+              <button className="w-full flex items-center justify-center p-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span className="text-sm text-gray-700">Upload</span>
+              </button>
+
+              {/* Record button */}
+              <button className="w-full flex items-center justify-center p-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="8" />
+                </svg>
+                <span className="text-sm text-gray-700">Record</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Vertical divider */}
+          <div className="w-px bg-gray-300"></div>
+
+          {/* Main content area */}
+          <div className="flex-1 flex flex-col">
+            {/* Tabs */}
+            <div className="relative border-b border-gray-200">
+              <div className="flex px-6 pt-6">
+                <button className="relative px-4 py-2 text-sm font-medium text-gray-900 mr-8">
+                  Media library
+                  {/* Active tab indicator */}
+                  <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-black"></div>
+                </button>
+                <button className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                  Brand kit
+                </button>
+              </div>
+                        </div>
+            
+            {/* Search bar and upload button */}
+            <div className="flex items-center gap-4 px-6 py-4">
+              {/* Search bar */}
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  {/* Magnifying glass icon */}
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search media library"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-400 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              {/* Upload button */}
+              <button className="flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span className="text-sm font-medium">Upload to Library</span>
+              </button>
+            </div>
+            
+            {/* Tab content */}
+            <div className="flex-1 p-6">
+              {/* Demo rectangles in three columns */}
+              <div className="grid grid-cols-3 gap-4">
+                {/* Column 1 */}
+                <div className="space-y-4">
+                  <div className="bg-gray-200 rounded-lg h-32"></div>
+                  <div className="bg-gray-200 rounded-lg h-24"></div>
+                  <div className="bg-gray-200 rounded-lg h-40"></div>
+                  <div className="bg-gray-200 rounded-lg h-28"></div>
+                </div>
+                
+                {/* Column 2 */}
+                <div className="space-y-4">
+                  <div className="bg-gray-200 rounded-lg h-36"></div>
+                  <div className="bg-gray-200 rounded-lg h-32"></div>
+                  <div className="bg-gray-200 rounded-lg h-20"></div>
+                  <div className="bg-gray-200 rounded-lg h-44"></div>
+                </div>
+                
+                {/* Column 3 */}
+                <div className="space-y-4">
+                  <div className="bg-gray-200 rounded-lg h-28"></div>
+                  <div className="bg-gray-200 rounded-lg h-36"></div>
+                  <div className="bg-gray-200 rounded-lg h-24"></div>
+                  <div className="bg-gray-200 rounded-lg h-32"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -65,7 +197,7 @@ export default function Background() {
   ];
 
   return (
-    <div className="h-full bg-white relative overflow-hidden w-full">
+    <div className="h-full bg-white relative w-full border-0 overflow-y-auto">
       <div className="relative z-10 flex flex-col items-start justify-start w-full p-4">
         
         {/* Selected color preview */}
@@ -91,10 +223,10 @@ export default function Background() {
         
         {/* Media upload section */}
         <div 
-          className="w-full border border-gray-300 rounded-lg p-8 mb-6 flex flex-row items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+          className="w-full border border-gray-300 rounded-lg p-4 mb-6 flex flex-row items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
           onClick={() => setIsModalOpen(true)}
         >
-          <svg className="w-8 h-8 text-black mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-black mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <span className="font-medium" style={{ color: '#494949' }}>Choose media</span>
@@ -121,8 +253,8 @@ export default function Background() {
               <span className="text-sm text-center" style={{ color: '#616161' }}>Custom</span>
             </div>
             
-            {/* Color rectangles for first column */}
-            {rectangleData.slice(0, Math.ceil(rectangleData.length / 2)).map((item, index) => (
+            {/* Color rectangles for first column - alternate items (0, 2, 4, 6, 8) */}
+            {rectangleData.filter((_, index) => index % 2 === 0).map((item, index) => (
               <div key={`col1-${index}`} className="flex flex-col items-center">
                 <div
                   className="w-full h-12 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
@@ -139,8 +271,8 @@ export default function Background() {
 
           {/* Second column */}
           <div className="flex flex-col space-y-4">
-            {/* Color rectangles for second column */}
-            {rectangleData.slice(Math.ceil(rectangleData.length / 2)).map((item, index) => (
+            {/* Color rectangles for second column - alternate items (1, 3, 5, 7) */}
+            {rectangleData.filter((_, index) => index % 2 === 1).map((item, index) => (
               <div key={`col2-${index}`} className="flex flex-col items-center">
                 <div
                   className="w-full h-12 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
@@ -163,14 +295,13 @@ export default function Background() {
         onClose={() => setIsModalOpen(false)} 
         title="Choose Media"
       >
+        <div className="flex items-center justify-center h-full">
         <div className="text-center py-8">
           <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          <p className="text-gray-600 mb-4">Upload your media files here</p>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-            Select Files
-          </button>
+            <p className="text-gray-600 mb-4">Select a category from the sidebar to browse media</p>
+          </div>
         </div>
       </Modal>
     </div>
