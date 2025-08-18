@@ -21,11 +21,12 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
       
       {/* Popup */}
       <div 
-        className="fixed bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"
+        className="fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: '420px'
+          width: '420px',
+          padding: '16px'
         }}
       >
         {/* Content */}
