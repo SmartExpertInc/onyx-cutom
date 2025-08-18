@@ -23,6 +23,12 @@ This document describes the implementation of the PDF preview functionality that
 - **Behavior**: 
   - Downloads PDF file
   - **Simultaneously opens preview in new tab**
+  - **Fallback**: If popup is blocked, offers to open preview in same window
+
+### 4. URL Configuration Fix
+- **Issue**: basePath `/custom-projects-ui` was not included in preview URLs
+- **Fix**: Updated URLs to include full path: `${window.location.origin}/custom-projects-ui/projects/view/${projectId}/pdf-preview`
+- **Debug**: Added console logging for troubleshooting
   - Handles different component types (Slide Deck, Training Plan, etc.)
 
 ### 4. Preview Page

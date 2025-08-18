@@ -99,6 +99,7 @@ export const en = {
     ready: "Ready",
     failed: "Failed",
     popupBlocked: "Popup was blocked. Please allow popups for this site to view the preview.",
+    popupBlockedConfirm: "Popup was blocked. Would you like to open the preview in this window instead?",
     processing: "Processing",
     pleaseWait: "Please wait..."
   },

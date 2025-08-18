@@ -32,17 +32,23 @@ export default function PdfPreviewPage() {
     const fetchProjectData = async () => {
       try {
         setLoading(true);
+        console.log('🔍 PDF Preview: Fetching project data for ID:', projectId);
+        console.log('🔍 PDF Preview: Using backend URL:', CUSTOM_BACKEND_URL);
         
         // Fetch project instance data
         const response = await fetch(`${CUSTOM_BACKEND_URL}/project-instances/${projectId}`, {
           credentials: 'same-origin'
         });
 
+        console.log('🔍 PDF Preview: Response status:', response.status);
+        console.log('🔍 PDF Preview: Response ok:', response.ok);
+
         if (!response.ok) {
           throw new Error(`Failed to fetch project: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log('🔍 PDF Preview: Received data:', data);
         setProjectInstanceData(data);
         
         // Set editable data based on component type
@@ -51,7 +57,7 @@ export default function PdfPreviewPage() {
         }
         
       } catch (err: any) {
-        console.error('Error fetching project data:', err);
+        console.error('🔍 PDF Preview: Error fetching project data:', err);
         setError(err.message);
       } finally {
         setLoading(false);

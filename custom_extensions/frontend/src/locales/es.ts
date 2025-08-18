@@ -98,6 +98,7 @@ export const es = {
     ready: "Listo",
     failed: "Falló",
     popupBlocked: "La ventana emergente fue bloqueada. Por favor, permita ventanas emergentes para este sitio para ver la vista previa.",
+    popupBlockedConfirm: "La ventana emergente fue bloqueada. ¿Le gustaría abrir la vista previa en esta ventana en su lugar?",
     processing: "Procesando",
     pleaseWait: "Por favor espera..."
   },

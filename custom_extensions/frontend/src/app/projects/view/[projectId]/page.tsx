@@ -864,13 +864,16 @@ export default function ProjectInstanceViewPage() {
             document.body.removeChild(a);
             
             // Simultaneously open HTML preview page
-            const previewUrl = `/projects/view/${projectId}/pdf-preview`;
+            const previewUrl = `${window.location.origin}/custom-projects-ui/projects/view/${projectId}/pdf-preview`;
+            console.log('🔍 Opening PDF preview URL:', previewUrl);
             try {
               const previewWindow = window.open(previewUrl, '_blank');
               if (!previewWindow) {
                 console.warn('🔍 Popup blocked by browser. Please allow popups for this site.');
-                // Fallback: show notification to user
-                alert(t('interface.projectView.popupBlocked', 'Popup was blocked. Please allow popups for this site to view the preview.'));
+                // Fallback: try to navigate in the same window
+                if (confirm(t('interface.projectView.popupBlockedConfirm', 'Popup was blocked. Would you like to open the preview in this window instead?'))) {
+                  window.location.href = previewUrl;
+                }
               } else {
                 console.log('🔍 PDF preview opened successfully');
               }
@@ -938,13 +941,16 @@ export default function ProjectInstanceViewPage() {
     console.log('🔍 PDF download initiated');
     
     // Simultaneously open HTML preview page
-    const previewUrl = `/projects/view/${projectId}/pdf-preview`;
+    const previewUrl = `${window.location.origin}/custom-projects-ui/projects/view/${projectId}/pdf-preview`;
+    console.log('🔍 Opening PDF preview URL:', previewUrl);
     try {
       const previewWindow = window.open(previewUrl, '_blank');
       if (!previewWindow) {
         console.warn('🔍 Popup blocked by browser. Please allow popups for this site.');
-        // Fallback: show notification to user
-        alert(t('interface.projectView.popupBlocked', 'Popup was blocked. Please allow popups for this site to view the preview.'));
+        // Fallback: try to navigate in the same window
+        if (confirm(t('interface.projectView.popupBlockedConfirm', 'Popup was blocked. Would you like to open the preview in this window instead?'))) {
+          window.location.href = previewUrl;
+        }
       } else {
         console.log('🔍 PDF preview opened successfully');
       }
