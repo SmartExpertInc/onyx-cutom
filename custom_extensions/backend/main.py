@@ -954,6 +954,43 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "Test and validate results"
         ]
       }
+    },
+    {
+      "slideId": "slide_5_table",
+      "slideNumber": 5,
+      "slideTitle": "Technology Comparison",
+      "templateId": "table-dark",
+      "props": {
+        "title": "Technology Platforms Comparison",
+        "tableData": {
+          "headers": ["Platform", "Performance", "Security", "Cost"],
+          "rows": [
+            ["Cloud A", "High", "Strong encryption", "$200/month"],
+            ["Cloud B", "Moderate", "Standard security", "$150/month"],
+            ["On-Premise", "Very High", "Customizable", "$500/month"],
+            ["Hybrid", "High", "Balanced approach", "$300/month"]
+          ]
+        },
+        "showCheckmarks": true
+      }
+    },
+    {
+      "slideId": "slide_6_table_light",
+      "slideNumber": 6,
+      "slideTitle": "Financial Performance",
+      "templateId": "table-light",
+      "props": {
+        "title": "Q1-Q4 2024 Financial Performance",
+        "tableData": {
+          "headers": ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"],
+          "rows": [
+            ["Revenue", "$2.5M", "$3.2M", "$3.8M", "$4.1M"],
+            ["Profit Margin", "15%", "18%", "20%", "22%"],
+            ["Operating Costs", "$1.8M", "$2.1M", "$2.3M", "$2.4M"],
+            ["Growth Rate", "8%", "12%", "15%", "18%"]
+          ]
+        }
+      }
     }
   ],
   "currentSlideId": "slide_1_intro",
@@ -1025,6 +1062,45 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
           "Implement core functionality",
           "Test and validate results"
         ]
+      }
+    },
+    {
+      "slideId": "slide_5_table",
+      "slideNumber": 5,
+      "slideTitle": "Technology Comparison",
+      "templateId": "table-dark",
+      "voiceoverText": "Now let's examine the technology landscape through this comprehensive comparison table. This data shows us the key differences between various platforms, helping you understand the trade-offs between performance, security, and cost. Pay attention to how each option balances these critical factors.",
+      "props": {
+        "title": "Technology Platforms Comparison",
+        "tableData": {
+          "headers": ["Platform", "Performance", "Security", "Cost"],
+          "rows": [
+            ["Cloud A", "High", "Strong encryption", "$200/month"],
+            ["Cloud B", "Moderate", "Standard security", "$150/month"],
+            ["On-Premise", "Very High", "Customizable", "$500/month"],
+            ["Hybrid", "High", "Balanced approach", "$300/month"]
+          ]
+        },
+        "showCheckmarks": true
+      }
+    },
+    {
+      "slideId": "slide_6_table_light",
+      "slideNumber": 6,
+      "slideTitle": "Financial Performance",
+      "templateId": "table-light",
+      "voiceoverText": "Let's analyze our financial performance across the quarters. This table reveals important trends in our revenue growth, profit margins, and operational efficiency. Notice how our strategic investments have led to consistent improvements in key metrics over time.",
+      "props": {
+        "title": "Q1-Q4 2024 Financial Performance",
+        "tableData": {
+          "headers": ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"],
+          "rows": [
+            ["Revenue", "$2.5M", "$3.2M", "$3.8M", "$4.1M"],
+            ["Profit Margin", "15%", "18%", "20%", "22%"],
+            ["Operating Costs", "$1.8M", "$2.1M", "$2.3M", "$2.4M"],
+            ["Growth Rate", "8%", "12%", "15%", "18%"]
+          ]
+        }
       }
     }
   ],

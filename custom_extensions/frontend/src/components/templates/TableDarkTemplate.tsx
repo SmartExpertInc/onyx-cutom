@@ -176,7 +176,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   const addRow = () => {
     const newRows = [...tableData.rows];
-    const newRow = new Array(tableData.headers.length + 1).fill('');
+    const newRow = new Array((tableData.headers || []).length + 1).fill('');
     newRow[0] = `Task ${newRows.length + 1}`;
     for (let i = 1; i < newRow.length; i++) {
       newRow[i] = i % 2 === 1 ? '✓' : '✗';
@@ -190,8 +190,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const addColumn = () => {
-    const newHeaders = [...tableData.headers, `Column ${tableData.headers.length + 1}`];
-    const newRows = tableData.rows.map(row => [...row, '✓']);
+          const newHeaders = [...(tableData.headers || []), `Column ${(tableData.headers || []).length + 1}`];
+    const newRows = (tableData.rows || []).map(row => [...row, '✓']);
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
@@ -209,8 +209,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const removeColumn = (colIndex: number) => {
-    const newHeaders = tableData.headers.filter((_, index) => index !== colIndex);
-    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex + 1));
+          const newHeaders = (tableData.headers || []).filter((_, index) => index !== colIndex);
+    const newRows = (tableData.rows || []).map(row => row.filter((_, index) => index !== colIndex + 1));
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
@@ -320,7 +320,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 >
                   {/* Empty corner cell */}
                 </th>
-                {tableData.headers.map((header, index) => (
+                {(tableData.headers || []).map((header, index) => (
                   <th 
                     key={index}
                     className="p-4 text-center font-bold border-r-2 last:border-r-0 relative group"
@@ -378,7 +378,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
             {/* Body */}
             <tbody>
-              {tableData.rows.map((row, rowIndex) => (
+              {(tableData.rows || []).map((row, rowIndex) => (
                 <tr 
                   key={rowIndex}
                   className="border-b-2 hover:bg-opacity-10 hover:bg-white transition-colors group"
@@ -389,7 +389,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                     printColorAdjust: 'exact'
                   }}
                 >
-                  {row.map((cell, colIndex) => {
+                  {(row || []).map((cell, colIndex) => {
                     const isFirstColumn = colIndex === 0;
                     const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
                     
