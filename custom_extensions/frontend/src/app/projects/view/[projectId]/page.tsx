@@ -864,7 +864,7 @@ export default function ProjectInstanceViewPage() {
             document.body.removeChild(a);
             
             // Simultaneously open HTML preview page
-            const previewUrl = `${window.location.origin}/custom-projects-ui/pdf-preview?projectId=${projectId}`;
+            const previewUrl = `${window.location.origin}/custom-projects-ui/projects/view/${projectId}/pdf-preview`;
             console.log('🔍 Opening PDF preview URL:', previewUrl);
             try {
               const previewWindow = window.open(previewUrl, '_blank');
@@ -941,7 +941,7 @@ export default function ProjectInstanceViewPage() {
     console.log('🔍 PDF download initiated');
     
     // Simultaneously open HTML preview page
-    const previewUrl = `${window.location.origin}/custom-projects-ui/pdf-preview?projectId=${projectId}`;
+    const previewUrl = `${window.location.origin}/custom-projects-ui/projects/view/${projectId}/pdf-preview`;
     console.log('🔍 Opening PDF preview URL:', previewUrl);
     try {
       const previewWindow = window.open(previewUrl, '_blank');

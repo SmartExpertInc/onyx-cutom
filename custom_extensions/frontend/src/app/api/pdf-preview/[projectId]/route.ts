@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
-  const projectId = params.projectId;
+  const { projectId } = await params;
   
   // Create a simple HTML page that will redirect to the correct preview page
   const html = `

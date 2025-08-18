@@ -41,11 +41,10 @@ This document describes the implementation of the PDF preview functionality that
 - **Fix**: Updated to use same constants as main page
 - **Testing**: Added SimplePreview component for testing all component types
 
-### 7. Routing Fix
-- **Issue**: Dynamic routes with basePath were not working correctly
-- **Fix**: Created static route `/pdf-preview` with query parameters
-- **URL**: Changed to `/custom-projects-ui/pdf-preview?projectId=${projectId}`
-- **Benefits**: More reliable routing, easier to debug
+### 7. API Route Fix
+- **Issue**: TypeScript error in API route parameters
+- **Fix**: Updated params type to `Promise<{ projectId: string }>` and awaited params
+- **Benefits**: Proper TypeScript compliance for Next.js App Router
   - Handles different component types (Slide Deck, Training Plan, etc.)
 
 ### 4. Preview Page
