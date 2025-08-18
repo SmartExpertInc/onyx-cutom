@@ -22,6 +22,7 @@ interface ToolbarProps {
   onActiveToolChange?: (toolId: string) => void;
   onTextButtonClick?: (position: { x: number; y: number }) => void;
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
+  onInteractionButtonClick?: (position: { x: number; y: number }) => void;
 }
 
 interface Tool {
@@ -31,11 +32,12 @@ interface Tool {
   chevron?: LucideIcon;
 }
 
-export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const textButtonRef = useRef<HTMLDivElement>(null);
   const shapesButtonRef = useRef<HTMLDivElement>(null);
+  const interactionButtonRef = useRef<HTMLDivElement>(null);
   const defaultButtonRef = useRef<HTMLDivElement>(null);
 
   // Custom flag icon with EN text
@@ -153,6 +155,16 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
       return;
     }
     
+    if (toolId === 'interaction' && onInteractionButtonClick && interactionButtonRef.current) {
+      const rect = interactionButtonRef.current.getBoundingClientRect();
+      const position = {
+        x: rect.left + (rect.width / 2) - 250, // Center popup horizontally (assuming 500px popup width)
+        y: rect.bottom + 8 // Position popup 8px below the button
+      };
+      onInteractionButtonClick(position);
+      return;
+    }
+    
     onActiveToolChange?.(toolId);
   };
 
@@ -189,7 +201,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
                 return (
                   <div
                     key={tool.id}
-                    ref={tool.id === 'text' ? textButtonRef : tool.id === 'shapes' ? shapesButtonRef : undefined}
+                    ref={tool.id === 'text' ? textButtonRef : tool.id === 'shapes' ? shapesButtonRef : tool.id === 'interaction' ? interactionButtonRef : undefined}
                     onClick={(event) => handleToolClick(tool.id, event)}
                     className={`flex flex-col items-center cursor-pointer transition-all duration-200 p-2 ${
                       activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''

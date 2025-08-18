@@ -23,22 +23,22 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
     {
       id: 'black-square',
       name: 'Square',
-      icon: <Square size={40} fill="black" stroke="black" />
+      icon: <Square size={60} fill="black" stroke="black" />
     },
     {
       id: 'black-circle',
       name: 'Circle',
-      icon: <Circle size={40} fill="black" stroke="black" />
+      icon: <Circle size={60} fill="black" stroke="black" />
     },
     {
       id: 'black-triangle',
       name: 'Triangle',
-      icon: <Triangle size={40} fill="black" stroke="black" />
+      icon: <Triangle size={60} fill="black" stroke="black" />
     },
     {
       id: 'black-star',
       name: 'Star',
-      icon: <Star size={40} fill="black" stroke="black" />
+      icon: <Star size={60} fill="black" stroke="black" />
     }
   ];
 
@@ -47,22 +47,22 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
     {
       id: 'white-square',
       name: 'Square',
-      icon: <Square size={40} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Square size={60} fill="white" stroke="black" strokeWidth={2} />
     },
     {
       id: 'white-circle',
       name: 'Circle',
-      icon: <Circle size={40} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Circle size={60} fill="white" stroke="black" strokeWidth={2} />
     },
     {
       id: 'white-triangle',
       name: 'Triangle',
-      icon: <Triangle size={40} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Triangle size={60} fill="white" stroke="black" strokeWidth={2} />
     },
     {
       id: 'white-star',
       name: 'Star',
-      icon: <Star size={40} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Star size={60} fill="white" stroke="black" strokeWidth={2} />
     }
   ];
 
@@ -74,30 +74,19 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
 
   return (
     <div
-      className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-6 z-50 w-[360px]"
+      className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50 w-[420px]"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-800">Shapes</h3>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <X size={18} className="text-gray-600" />
-        </button>
-      </div>
-
       {/* First Row - Black Shapes */}
       <div className="grid grid-cols-4 gap-4 mb-4">
         {blackShapes.map((shape) => (
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 cursor-pointer transition-all duration-200 group"
+            className="flex items-center justify-center p-6 cursor-pointer transition-all duration-200 group hover:bg-gray-50 rounded-lg"
           >
             <div className="group-hover:scale-110 transition-transform duration-200">
               {shape.icon}
@@ -112,20 +101,13 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 cursor-pointer transition-all duration-200 group"
+            className="flex items-center justify-center p-6 cursor-pointer transition-all duration-200 group hover:bg-gray-50 rounded-lg"
           >
             <div className="group-hover:scale-110 transition-transform duration-200">
               {shape.icon}
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-6 pt-3 border-t border-gray-200">
-        <p className="text-xs text-gray-500 text-center">
-          Click on a shape to add it to your project
-        </p>
       </div>
     </div>
   );

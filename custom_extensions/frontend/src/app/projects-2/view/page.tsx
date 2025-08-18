@@ -11,14 +11,17 @@ import Comments from './components/Comments';
 import Media from './components/Media';
 import TextPopup from './components/TextPopup';
 import ShapesPopup from './components/ShapesPopup';
+import InteractionPopup from './components/InteractionPopup';
 
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
+  const [isInteractionPopupOpen, setIsInteractionPopupOpen] = useState<boolean>(false);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [interactionPopupPosition, setInteractionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleActiveToolChange = (toolId: string) => {
     if (toolId === 'media') {
@@ -27,9 +30,10 @@ export default function Projects2ViewPage() {
       setActiveComponent(toolId);
       setIsMediaPopupOpen(false);
     }
-    // Close text and shapes popups when switching tools
+    // Close text, shapes, and interaction popups when switching tools
     setIsTextPopupOpen(false);
     setIsShapesPopupOpen(false);
+    setIsInteractionPopupOpen(false);
   };
 
   const handleTextButtonClick = (position: { x: number; y: number }) => {
@@ -38,6 +42,7 @@ export default function Projects2ViewPage() {
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsShapesPopupOpen(false);
+    setIsInteractionPopupOpen(false);
   };
 
   const handleShapesButtonClick = (position: { x: number; y: number }) => {
@@ -46,6 +51,16 @@ export default function Projects2ViewPage() {
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
+    setIsInteractionPopupOpen(false);
+  };
+
+  const handleInteractionButtonClick = (position: { x: number; y: number }) => {
+    setInteractionPopupPosition(position);
+    setIsInteractionPopupOpen(true);
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsTextPopupOpen(false);
+    setIsShapesPopupOpen(false);
   };
 
   const renderSidebarComponent = () => {
@@ -76,6 +91,7 @@ export default function Projects2ViewPage() {
           onActiveToolChange={handleActiveToolChange} 
           onTextButtonClick={handleTextButtonClick}
           onShapesButtonClick={handleShapesButtonClick}
+          onInteractionButtonClick={handleInteractionButtonClick}
         />
       </div>
       
@@ -169,6 +185,13 @@ export default function Projects2ViewPage() {
         isOpen={isShapesPopupOpen} 
         onClose={() => setIsShapesPopupOpen(false)} 
         position={shapesPopupPosition}
+      />
+
+      {/* Interaction Popup */}
+      <InteractionPopup 
+        isOpen={isInteractionPopupOpen} 
+        onClose={() => setIsInteractionPopupOpen(false)} 
+        position={interactionPopupPosition}
       />
     </div>
   );
