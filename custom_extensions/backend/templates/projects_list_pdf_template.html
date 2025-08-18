@@ -49,9 +49,10 @@
         .table-container {
             background: white;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             margin: 0 0 24px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
         /* Table */
@@ -64,7 +65,7 @@
         
         /* Table Header */
         .table-header {
-            background: #2D7C21;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
             border-bottom: 2px solid #e2e8f0;
         }
         
@@ -93,7 +94,7 @@
         
         /* Folder Rows */
         .folder-row {
-            background: #E6F2EB;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
             border-bottom: 1px solid #e2e8f0;
         }
         
@@ -314,26 +315,26 @@
             line-height: 1.2;
         }
         
-        /* Quality tier colors - matching lesson settings modal */
+        /* Quality tier colors - enhanced green theme */
         .tier-basic { 
-            color: #059669; 
-            background-color: #f0fdf4; 
-            border: 1px solid #bbf7d0; 
+            color: #15803d; 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); 
+            border: 1px solid #86efac; 
         }
         .tier-interactive { 
             color: #ea580c; 
-            background-color: #fff7ed; 
-            border: 1px solid #fed7aa; 
+            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); 
+            border: 1px solid #fdba74; 
         }
         .tier-advanced { 
             color: #7c3aed; 
-            background-color: #faf5ff; 
-            border: 1px solid #e9d5ff; 
+            background: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%); 
+            border: 1px solid #d8b4fe; 
         }
         .tier-immersive { 
             color: #2563eb; 
-            background-color: #eff6ff; 
-            border: 1px solid #bfdbfe; 
+            background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%); 
+            border: 1px solid #93c5fd; 
         }
 
         /* Consistent grey color for all dashes */
@@ -422,7 +423,7 @@
         
         <!-- Mini Summary Table -->
         {% if folders or unassigned_projects %}
-        <div class="mini-summary-container" style="margin-bottom: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-left: 0; margin-right: 0;">
+        <div class="mini-summary-container" style="margin-bottom: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-left: 0; margin-right: 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
             <table class="mini-summary-table" style="width: 100%; border-collapse: collapse; background: white; font-size: 13px;">
                 <thead style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%); border-bottom: 2px solid #e2e8f0;">
                     <tr>
@@ -458,7 +459,7 @@
                         <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
                             <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                                 {% if summary_stats and summary_stats.total_creation_time is defined and summary_stats.total_creation_time > 0 %}
-                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <svg style="width: 16px; height: 16px; color: #16a34a; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                                         <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
@@ -471,7 +472,7 @@
                         <td style="padding: 16px; text-align: center; font-weight: 600; color: #1e293b; font-size: 14px; border: none;">
                             <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                                 {% if summary_stats and summary_stats.total_completion_time is defined and summary_stats.total_completion_time > 0 %}
-                                    <svg style="width: 16px; height: 16px; color: #2D7C21; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <svg style="width: 16px; height: 16px; color: #16a34a; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                                         <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
@@ -769,7 +770,7 @@
         {% if folders or unassigned_projects %}
         <div style="margin-top: 32px; display: flex; gap: 24px;">
             <!-- Products Distribution Pie Chart -->
-            <div class="pie-chart-container" style="width: 50%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <div class="pie-chart-container" style="width: 50%; background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
                 <div class="pie-chart-header" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%); padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
                     <h3 style="font-size: 16px; font-weight: 600; color: #ffffff; margin: 0;">Products Distribution</h3>
                     <p style="font-size: 12px; color: #dcfce7; margin: 4px 0 0 0;">Distribution of product types across all lessons</p>
@@ -819,7 +820,7 @@
                 <!-- Legend -->
                 <div class="pie-chart-legend" style="display: flex; flex-direction: column; gap: 8px;">
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #9333ea; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">One-pager</div>
                             <div style="color: #64748b; font-size: 10px;">{{ one_pager_count }} ({{ one_pager_percentage }}%)</div>
@@ -827,7 +828,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #2563eb; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Presentation</div>
                             <div style="color: #64748b; font-size: 10px;">{{ presentation_count }} ({{ presentation_percentage }}%)</div>
@@ -835,7 +836,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #16a34a; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Quiz</div>
                             <div style="color: #64748b; font-size: 10px;">{{ quiz_count }} ({{ quiz_percentage }}%)</div>
@@ -843,7 +844,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #ea580c; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Video Lesson</div>
                             <div style="color: #64748b; font-size: 10px;">{{ video_lesson_count }} ({{ video_lesson_percentage }}%)</div>
@@ -854,7 +855,7 @@
         </div>
             
             <!-- Quality Tiers Pie Chart -->
-            <div class="pie-chart-container" style="width: 50%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <div class="pie-chart-container" style="width: 50%; background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
                 <div class="pie-chart-header" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%); padding: 16px 24px; border-bottom: 1px solid #e2e8f0;">
                     <h3 style="font-size: 16px; font-weight: 600; color: #ffffff; margin: 0;">Quality Tiers</h3>
                     <p style="font-size: 12px; color: #dcfce7; margin: 4px 0 0 0;">Distribution of lesson quality tiers</p>
@@ -904,7 +905,7 @@
                 <!-- Legend -->
                 <div class="pie-chart-legend" style="display: flex; flex-direction: column; gap: 8px;">
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #16a34a; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Basic</div>
                             <div style="color: #64748b; font-size: 10px;">{{ basic_count }} ({{ basic_percentage }}%)</div>
@@ -912,7 +913,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #ea580c; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Interactive</div>
                             <div style="color: #64748b; font-size: 10px;">{{ interactive_count }} ({{ interactive_percentage }}%)</div>
@@ -920,7 +921,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #7c3aed; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Advanced</div>
                             <div style="color: #64748b; font-size: 10px;">{{ advanced_count }} ({{ advanced_percentage }}%)</div>
@@ -928,7 +929,7 @@
                     </div>
                     
                     <div class="legend-item" style="display: flex; align-items: center;">
-                        <div class="legend-color" style="width: 12px; height: 12px; background: #2563eb; border-radius: 2px; margin-right: 8px; flex-shrink: 0;"></div>
+                        <div class="legend-color" style="width: 12px; height: 12px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border-radius: 4px; margin-right: 8px; flex-shrink: 0;"></div>
                         <div class="legend-text">
                             <div style="font-weight: 600; color: #1e293b; font-size: 12px;">Immersive</div>
                             <div style="color: #64748b; font-size: 10px;">{{ immersive_count }} ({{ immersive_percentage }}%)</div>
