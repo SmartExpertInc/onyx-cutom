@@ -12,4 +12,5 @@ python-dotenv # To load .env variables
 python-multipart
 tiktoken
 openai
+reportlab # For fallback PDF generation
 

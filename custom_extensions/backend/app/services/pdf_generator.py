@@ -21,8 +21,10 @@ try:
     from pyppeteer import launch
     from pyppeteer.page import Page
     from pyppeteer.browser import Browser
+    PYPPETEER_AVAILABLE = True
 except ImportError:
     pyppeteer = None
+    PYPPETEER_AVAILABLE = False
     logging.warning("pyppeteer not available. PDF generation will not work.")
 
 try:
@@ -36,6 +38,20 @@ except ImportError:
         PDF_MERGE_AVAILABLE = False
         logging.warning("PDF merging library not available. Install PyPDF2 or pypdf.")
 
+# Fallback PDF generation using reportlab
+try:
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
+    logging.warning("reportlab not available for fallback PDF generation.")
+
 from jinja2 import Environment, FileSystemLoader, Template
 
 # Configure logging
@@ -45,7 +61,7 @@ logger = logging.getLogger(__name__)
 PDF_MIN_SLIDE_HEIGHT = 600      # Minimum slide height in pixels
 PDF_MAX_SLIDE_HEIGHT = 3000     # Maximum slide height in pixels
 PDF_HEIGHT_SAFETY_MARGIN = 40   # Safety margin to prevent content cutoff
-PDF_GENERATION_TIMEOUT = 30000  # Timeout for PDF generation (30 seconds)
+PDF_GENERATION_TIMEOUT = 60000  # Increased timeout for PDF generation (60 seconds)
 PDF_WIDTH = 1200                # Standard slide width
 PDF_DPI = 96                   # Standard DPI for web rendering
 
@@ -63,6 +79,9 @@ async def get_browser_instance() -> Browser:
     
     if _browser_instance is None:
         try:
+            logger.info("Creating new browser instance for PDF generation...")
+            
+            # More robust browser launch options
             _browser_instance = await launch(
                 headless=True,
                 args=[
@@ -78,7 +97,38 @@ async def get_browser_instance() -> Browser:
                     '--disable-renderer-backgrounding',
                     '--disable-features=TranslateUI',
                     '--disable-ipc-flooding-protection',
-                ]
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--disable-extensions',
+                    '--disable-plugins',
+                    '--disable-images',  # Disable images for faster rendering
+                    '--disable-javascript',  # Disable JS for static content
+                    '--disable-default-apps',
+                    '--disable-sync',
+                    '--disable-translate',
+                    '--hide-scrollbars',
+                    '--mute-audio',
+                    '--no-default-browser-check',
+                    '--safebrowsing-disable-auto-update',
+                    '--disable-client-side-phishing-detection',
+                    '--disable-component-update',
+                    '--disable-domain-reliability',
+                    '--disable-features=AudioServiceOutOfProcess',
+                    '--disable-hang-monitor',
+                    '--disable-prompt-on-repost',
+                    '--disable-background-networking',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-features=TranslateUI',
+                    '--disable-ipc-flooding-protection',
+                    '--disable-renderer-backgrounding',
+                    '--disable-features=TranslateUI',
+                    '--disable-ipc-flooding-protection',
+                ],
+                timeout=PDF_GENERATION_TIMEOUT,
+                ignoreHTTPSErrors=True,
+                dumpio=True  # Enable logging for debugging
             )
             logger.info("Browser instance created successfully")
         except Exception as e:
@@ -127,13 +177,91 @@ def create_slide_html(slide_data: Dict[str, Any], theme: str, slide_height: int)
     
     return template.render(context)
 
+def generate_fallback_pdf(slides_data: List[Dict[str, Any]], theme: str, output_path: str) -> bool:
+    """
+    Fallback PDF generation using reportlab when pyppeteer fails
+    """
+    if not REPORTLAB_AVAILABLE:
+        logger.error("Reportlab not available for fallback PDF generation")
+        return False
+    
+    try:
+        logger.info("Using fallback PDF generation with reportlab")
+        
+        # Create PDF document
+        doc = SimpleDocTemplate(output_path, pagesize=A4)
+        styles = getSampleStyleSheet()
+        
+        # Create custom styles for slides
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            spaceAfter=20,
+            alignment=TA_CENTER
+        )
+        
+        content_style = ParagraphStyle(
+            'CustomContent',
+            parent=styles['Normal'],
+            fontSize=12,
+            spaceAfter=12,
+            alignment=TA_LEFT
+        )
+        
+        # Build content for each slide
+        story = []
+        
+        for i, slide in enumerate(slides_data):
+            # Add slide title
+            title = slide.get('props', {}).get('title', f'Slide {i + 1}')
+            story.append(Paragraph(title, title_style))
+            
+            # Add slide content based on template
+            template_id = slide.get('templateId', 'unknown')
+            props = slide.get('props', {})
+            
+            if template_id == 'title-slide':
+                if props.get('subtitle'):
+                    story.append(Paragraph(props['subtitle'], content_style))
+                if props.get('author'):
+                    story.append(Paragraph(f"Author: {props['author']}", content_style))
+                if props.get('date'):
+                    story.append(Paragraph(f"Date: {props['date']}", content_style))
+            
+            elif template_id == 'content-slide':
+                if props.get('content'):
+                    story.append(Paragraph(props['content'], content_style))
+            
+            elif template_id == 'bullet-points':
+                if props.get('bullets'):
+                    for bullet in props['bullets']:
+                        story.append(Paragraph(f"• {bullet}", content_style))
+            
+            elif template_id == 'big-image-left':
+                if props.get('subtitle'):
+                    story.append(Paragraph(props['subtitle'], content_style))
+            
+            # Add spacing between slides
+            story.append(Spacer(1, 30))
+        
+        # Build PDF
+        doc.build(story)
+        
+        logger.info(f"Fallback PDF generated successfully: {output_path}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error in fallback PDF generation: {e}")
+        return False
+
 async def calculate_slide_dimensions(slide_data: Dict[str, Any], theme: str, browser: Optional[Browser] = None) -> int:
     """
     Calculate the exact height needed for a slide based on its content
     Uses Pyppeteer to render the slide and measure its actual height
     """
     
-    if not pyppeteer:
+    if not PYPPETEER_AVAILABLE:
         logger.warning("Pyppeteer not available, using fallback height")
         return PDF_MIN_SLIDE_HEIGHT
     
@@ -156,11 +284,11 @@ async def calculate_slide_dimensions(slide_data: Dict[str, Any], theme: str, bro
         # Create HTML with minimum height for initial measurement
         html_content = create_slide_html(slide_data, theme, PDF_MIN_SLIDE_HEIGHT)
         
-        # Set content and wait for rendering
-        await page.setContent(html_content, waitUntil='networkidle0')
+        # Set content and wait for rendering with increased timeout
+        await page.setContent(html_content, waitUntil='domcontentloaded', timeout=30000)
         
         # Wait a bit for any dynamic content to settle
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
         
         # Measure the actual content height using JavaScript
         height_script = """
@@ -218,7 +346,7 @@ async def generate_single_slide_pdf(
     Generate a single slide PDF with exact dimensions
     """
     
-    if not pyppeteer:
+    if not PYPPETEER_AVAILABLE:
         logger.error("Pyppeteer not available for PDF generation")
         return False
     
@@ -241,11 +369,11 @@ async def generate_single_slide_pdf(
         # Create HTML with exact height
         html_content = create_slide_html(slide_data, theme, slide_height)
         
-        # Set content and wait for rendering
-        await page.setContent(html_content, waitUntil='networkidle0')
+        # Set content and wait for rendering with increased timeout
+        await page.setContent(html_content, waitUntil='domcontentloaded', timeout=30000)
         
         # Wait for any dynamic content to settle
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
         
         # Generate PDF with exact dimensions
         pdf_options = {
@@ -345,59 +473,93 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     
     logger.info(f"Generating slide deck PDF with {len(slides_data)} slides")
     
-    # Get browser instance
-    async with _browser_lock:
-        browser = await get_browser_instance()
-    
-    try:
-        # Calculate heights for all slides
-        logger.info("Calculating slide heights...")
-        slide_heights = []
-        
-        for i, slide in enumerate(slides_data):
-            logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)}")
-            height = await calculate_slide_dimensions(slide, theme, browser)
-            slide_heights.append(height)
-        
-        # Generate individual PDFs for each slide
-        logger.info("Generating individual slide PDFs...")
-        temp_pdf_paths = []
-        
-        for i, (slide, height) in enumerate(zip(slides_data, slide_heights)):
-            temp_filename = f"slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
-            temp_path = os.path.join(output_dir, temp_filename)
+    # Try browser-based generation first
+    if PYPPETEER_AVAILABLE:
+        try:
+            # Check if pyppeteer is available
+            if not PYPPETEER_AVAILABLE:
+                raise PDFGenerationError("Pyppeteer not available")
             
-            logger.info(f"Generating PDF for slide {i + 1}/{len(slides_data)}")
-            success = await generate_single_slide_pdf(slide, theme, height, temp_path, browser)
-            
-            if success:
-                temp_pdf_paths.append(temp_path)
-            else:
-                logger.error(f"Failed to generate PDF for slide {i + 1}")
-        
-        if not temp_pdf_paths:
-            raise PDFGenerationError("No slide PDFs were generated successfully")
-        
-        # Merge all PDFs into final document
-        logger.info("Merging PDFs into final document...")
-        success = await merge_pdfs(temp_pdf_paths, output_path)
-        
-        if not success:
-            raise PDFGenerationError("Failed to merge PDFs")
-        
-        # Clean up temporary files
-        for temp_path in temp_pdf_paths:
+            # Get browser instance
             try:
-                os.remove(temp_path)
+                async with _browser_lock:
+                    browser = await get_browser_instance()
             except Exception as e:
-                logger.warning(f"Failed to clean up temp file {temp_path}: {e}")
-        
-        logger.info(f"Slide deck PDF generated successfully: {output_path}")
-        return output_path
-        
-    except Exception as e:
-        logger.error(f"Error generating slide deck PDF: {e}")
-        raise PDFGenerationError(f"PDF generation failed: {e}")
+                logger.error(f"Failed to initialize browser: {e}")
+                raise PDFGenerationError(f"Browser initialization failed: {e}")
+            
+            try:
+                # Calculate heights for all slides
+                logger.info("Calculating slide heights...")
+                slide_heights = []
+                
+                for i, slide in enumerate(slides_data):
+                    logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)}")
+                    try:
+                        height = await calculate_slide_dimensions(slide, theme, browser)
+                        slide_heights.append(height)
+                    except Exception as e:
+                        logger.error(f"Failed to calculate height for slide {i + 1}: {e}")
+                        slide_heights.append(PDF_MIN_SLIDE_HEIGHT)
+                
+                # Generate individual PDFs for each slide
+                logger.info("Generating individual slide PDFs...")
+                temp_pdf_paths = []
+                
+                for i, (slide, height) in enumerate(zip(slides_data, slide_heights)):
+                    temp_filename = f"slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
+                    temp_path = os.path.join(output_dir, temp_filename)
+                    
+                    logger.info(f"Generating PDF for slide {i + 1}/{len(slides_data)}")
+                    try:
+                        success = await generate_single_slide_pdf(slide, theme, height, temp_path, browser)
+                        
+                        if success:
+                            temp_pdf_paths.append(temp_path)
+                        else:
+                            logger.error(f"Failed to generate PDF for slide {i + 1}")
+                    except Exception as e:
+                        logger.error(f"Exception generating PDF for slide {i + 1}: {e}")
+                
+                if not temp_pdf_paths:
+                    raise PDFGenerationError("No slide PDFs were generated successfully")
+                
+                # Merge all PDFs into final document
+                logger.info("Merging PDFs into final document...")
+                success = await merge_pdfs(temp_pdf_paths, output_path)
+                
+                if not success:
+                    raise PDFGenerationError("Failed to merge PDFs")
+                
+                # Clean up temporary files
+                for temp_path in temp_pdf_paths:
+                    try:
+                        os.remove(temp_path)
+                    except Exception as e:
+                        logger.warning(f"Failed to clean up temp file {temp_path}: {e}")
+                
+                logger.info(f"Slide deck PDF generated successfully: {output_path}")
+                return output_path
+                
+            except Exception as e:
+                logger.error(f"Browser-based PDF generation failed: {e}")
+                # Fall through to fallback method
+                
+        except Exception as e:
+            logger.error(f"Browser-based PDF generation failed: {e}")
+            # Fall through to fallback method
+    
+    # Fallback to reportlab-based generation
+    logger.info("Attempting fallback PDF generation...")
+    if REPORTLAB_AVAILABLE:
+        success = generate_fallback_pdf(slides_data, theme, output_path)
+        if success:
+            logger.info(f"Fallback PDF generated successfully: {output_path}")
+            return output_path
+        else:
+            raise PDFGenerationError("Both browser-based and fallback PDF generation failed")
+    else:
+        raise PDFGenerationError("No PDF generation method available. Install pyppeteer or reportlab.")
 
 async def test_all_slides_individually(slides_data: List[Dict[str, Any]], theme: str) -> Dict[str, Any]:
     """
@@ -411,8 +573,16 @@ async def test_all_slides_individually(slides_data: List[Dict[str, Any]], theme:
         'slide_details': []
     }
     
-    async with _browser_lock:
-        browser = await get_browser_instance()
+    if not PYPPETEER_AVAILABLE:
+        results['error'] = 'Pyppeteer not available'
+        return results
+    
+    try:
+        async with _browser_lock:
+            browser = await get_browser_instance()
+    except Exception as e:
+        results['error'] = f'Browser initialization failed: {e}'
+        return results
     
     try:
         for i, slide in enumerate(slides_data):
