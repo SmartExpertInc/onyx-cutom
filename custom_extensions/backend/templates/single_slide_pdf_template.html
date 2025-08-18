@@ -1653,7 +1653,7 @@
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = slide.slideId + '-title' %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
@@ -1663,7 +1663,7 @@
                     <div class="grid">
                         <div class="callout-box positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set challengesId = slide.slideId + '-challenges' %}
+                                {% set challengesId = 'draggable-' + slide.slideId + '-1' %}
                                 {% if slide.metadata.elementPositions[challengesId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[challengesId].x }}px, {{ slide.metadata.elementPositions[challengesId].y }}px);"
                                 {% endif %}
@@ -1686,7 +1686,7 @@
                         </div>
                         <div class="callout-box positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set solutionsId = slide.slideId + '-solutions' %}
+                                {% set solutionsId = 'draggable-' + slide.slideId + '-2' %}
                                 {% if slide.metadata.elementPositions[solutionsId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[solutionsId].x }}px, {{ slide.metadata.elementPositions[solutionsId].y }}px);"
                                 {% endif %}
@@ -1824,7 +1824,7 @@
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = slide.slideId + '-title' %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
@@ -1840,7 +1840,7 @@
                                         {% if item.value and item.value != 'Click to add value' %}
                                             <div class="number-value positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
-                                                    {% set valueId = slide.slideId + '-item-' + loop.index0|string + '-value' %}
+                                                    {% set valueId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 1)|string %}
                                                     {% if slide.metadata.elementPositions[valueId] %}
                                                         style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
                                                     {% endif %}
@@ -1850,7 +1850,7 @@
                                         {% if item.label and item.label != 'Click to add label' %}
                                             <div class="number-label positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
-                                                    {% set labelId = slide.slideId + '-item-' + loop.index0|string + '-label' %}
+                                                    {% set labelId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 2)|string %}
                                                     {% if slide.metadata.elementPositions[labelId] %}
                                                         style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
                                                     {% endif %}
@@ -1860,7 +1860,7 @@
                                         {% if item.description and item.description != 'Click to add description' %}
                                             <div class="number-description positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
-                                                    {% set descriptionId = slide.slideId + '-item-' + loop.index0|string + '-description' %}
+                                                    {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 3)|string %}
                                                     {% if slide.metadata.elementPositions[descriptionId] %}
                                                         style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
                                                     {% endif %}
@@ -1898,7 +1898,7 @@
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = slide.slideId + '-title' %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
@@ -1910,7 +1910,7 @@
                             {% if (box.heading and box.heading != 'Click to add heading') or (box.text and box.text != 'Click to add text') %}
                                 <div class="box-item positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set boxId = slide.slideId + '-box-' + loop.index0|string %}
+                                        {% set boxId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
                                         {% if slide.metadata.elementPositions[boxId] %}
                                             style="transform: translate({{ slide.metadata.elementPositions[boxId].x }}px, {{ slide.metadata.elementPositions[boxId].y }}px);"
                                         {% endif %}
@@ -1953,7 +1953,7 @@
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = slide.slideId + '-title' %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
@@ -1966,7 +1966,7 @@
                             {% if (step.heading and step.heading != 'Click to add heading') or (step.description and step.description != 'Click to add description') %}
                                 <div class="step-wrapper positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set stepId = slide.slideId + '-step-' + loop.index0|string %}
+                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
                                         {% if slide.metadata.elementPositions[stepId] %}
                                             style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
                                         {% endif %}
@@ -2181,7 +2181,14 @@
                             {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
                                 {% for item in slide.props.items %}
                                     {% if loop.index0 < 3 and ((item.heading and item.heading != 'Click to add heading') or (item.description and item.description != 'Click to add description')) %}
-                                        <div class="item-wrapper level-{{ loop.index0 }}">
+                                        <div class="item-wrapper level-{{ loop.index0 }} positioned-element"
+                                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                                {% set itemId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 2)|string %}
+                                                {% if slide.metadata.elementPositions[itemId] %}
+                                                    style="transform: translate({{ slide.metadata.elementPositions[itemId].x }}px, {{ slide.metadata.elementPositions[itemId].y }}px);"
+                                                {% endif %}
+                                            {% endif %}
+                                        >
                                             {% if item.heading and item.heading != 'Click to add heading' %}
                                                 <div class="item-heading">{{ item.heading }}</div>
                                             {% endif %}
