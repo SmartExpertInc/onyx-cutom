@@ -54,8 +54,8 @@
         
         /* Dynamic positioning support for PDF */
         .positioned-element {
-            position: absolute;
-            z-index: 1;
+            /* Keep elements in their natural flexbox flow while allowing transforms */
+            /* Removed position: absolute to prevent positioning conflicts */
         }
         
         /* Hide empty content in PDF */
@@ -1387,7 +1387,7 @@
                     {% endif %}
                 </div>
                 
-                {% elif slide.templateId == 'big-image-left' %}
+            {% elif slide.templateId == 'big-image-left' %}
                 <div class="big-image-left">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
