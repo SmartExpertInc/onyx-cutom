@@ -98,6 +98,7 @@ export const en = {
     tokens: "tokens",
     ready: "Ready",
     failed: "Failed",
+    popupBlocked: "Popup was blocked. Please allow popups for this site to view the preview.",
     processing: "Processing",
     pleaseWait: "Please wait..."
   },

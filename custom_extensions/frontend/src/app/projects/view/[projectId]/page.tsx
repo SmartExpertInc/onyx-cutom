@@ -865,7 +865,18 @@ export default function ProjectInstanceViewPage() {
             
             // Simultaneously open HTML preview page
             const previewUrl = `/projects/view/${projectId}/pdf-preview`;
-            window.open(previewUrl, '_blank');
+            try {
+              const previewWindow = window.open(previewUrl, '_blank');
+              if (!previewWindow) {
+                console.warn('🔍 Popup blocked by browser. Please allow popups for this site.');
+                // Fallback: show notification to user
+                alert(t('interface.projectView.popupBlocked', 'Popup was blocked. Please allow popups for this site to view the preview.'));
+              } else {
+                console.log('🔍 PDF preview opened successfully');
+              }
+            } catch (error) {
+              console.error('🔍 Error opening preview:', error);
+            }
             
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -928,7 +939,18 @@ export default function ProjectInstanceViewPage() {
     
     // Simultaneously open HTML preview page
     const previewUrl = `/projects/view/${projectId}/pdf-preview`;
-    window.open(previewUrl, '_blank');
+    try {
+      const previewWindow = window.open(previewUrl, '_blank');
+      if (!previewWindow) {
+        console.warn('🔍 Popup blocked by browser. Please allow popups for this site.');
+        // Fallback: show notification to user
+        alert(t('interface.projectView.popupBlocked', 'Popup was blocked. Please allow popups for this site to view the preview.'));
+      } else {
+        console.log('🔍 PDF preview opened successfully');
+      }
+    } catch (error) {
+      console.error('🔍 Error opening preview:', error);
+    }
   };
 
   const handleToggleEdit = () => {

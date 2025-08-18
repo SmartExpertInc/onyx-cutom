@@ -65,10 +65,11 @@ export default function PdfPreviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading PDF preview...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-gray-700 mb-2">Loading PDF preview...</p>
+          <p className="text-sm text-gray-500">Please wait while we prepare your content</p>
         </div>
       </div>
     );
@@ -76,11 +77,22 @@ export default function PdfPreviewPage() {
 
   if (error || !projectInstanceData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-xl mb-4">⚠️</div>
-          <p className="text-gray-600">Failed to load PDF preview</p>
-          <p className="text-sm text-gray-500 mt-2">{error}</p>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Failed to load PDF preview</h2>
+          <p className="text-gray-600 mb-4">We couldn't load the preview for this project.</p>
+          {error && (
+            <div className="bg-red-100 border border-red-300 rounded-lg p-3 mb-4">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+          <button
+            onClick={() => window.close()}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Close Preview
+          </button>
         </div>
       </div>
     );
@@ -118,34 +130,49 @@ export default function PdfPreviewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto p-8">
-        <div className="mb-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {projectInstanceData.name}
-            </h1>
-            <p className="text-sm text-gray-500">
-              PDF Preview - {projectInstanceData.component_name.replace(/_/g, ' ')}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => window.print()}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Print Preview
-            </button>
-            <button
-              onClick={() => window.close()}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Close Preview
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="max-w-5xl mx-auto p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {projectInstanceData.name}
+              </h1>
+              <p className="text-sm text-gray-500 mb-2">
+                PDF Preview - {projectInstanceData.component_name.replace(/_/g, ' ')}
+              </p>
+              <p className="text-xs text-gray-400">
+                Generated on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
+              </p>
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Print Preview
+              </button>
+              <button
+                onClick={() => window.close()}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Close Preview
+              </button>
+            </div>
           </div>
         </div>
         
-        {renderComponent()}
+        {/* Content */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {renderComponent()}
+        </div>
       </div>
     </div>
   );
