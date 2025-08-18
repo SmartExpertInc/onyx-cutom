@@ -46,21 +46,22 @@ This document describes the implementation of the PDF preview functionality that
 - **Fix**: Updated params type to `Promise<{ projectId: string }>` and awaited params
 - **Benefits**: Proper TypeScript compliance for Next.js App Router
 
-### 8. PDF Green Color Enhancement
+### 8. PDF Material Design Color Enhancement
 - **Issue**: Plain green color in PDF documents
-- **Fix**: Replaced all gradients with consistent solid green color `#078448`
+- **Fix**: Implemented Material Design color scheme with soft gradients and improved visual harmony
 - **Changes**: 
-  - Updated all `linear-gradient` elements to solid color `#078448`
-  - Applied to headers, folder rows, icons, and chart backgrounds
-  - Enhanced visual appeal of PDF documents with consistent color scheme
+  - Updated all elements with Material Design color palette
+  - Applied soft gradients instead of harsh solid colors
+  - Enhanced visual appeal with proper color contrast and shadows
   - Handles different component types (Slide Deck, Training Plan, etc.)
-  - **Project Name Section**: Applied solid green color to folder icons in project name sections
+  - **Project Name Section**: Applied Material Design gradients to folder icons
   - **Enhanced Design Elements**:
-    - Added modern shadows and rounded corners to all containers
-    - Updated folder row backgrounds to solid green with white text
-    - Enhanced quality tier badges with solid green backgrounds
-    - Updated all legend colors to solid green for consistent visual appeal
-    - Improved overall color harmony with unified green theme
+    - Added Material Design shadows and rounded corners to all containers
+    - Updated folder row backgrounds with soft green gradients
+    - Enhanced quality tier badges with Material Design gradients and shadows
+    - Updated all legend colors with proper Material Design color scheme
+    - Improved overall color harmony with Material Design principles
+    - Added subtle box-shadows for depth and modern appearance
 
 ### 4. Preview Page
 - **Location**: `frontend/src/app/projects/view/[projectId]/pdf-preview/page.tsx`
