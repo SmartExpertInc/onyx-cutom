@@ -1268,9 +1268,9 @@
 .timeline-container {
     position: relative;
     width: 100%;
-    height: 350px;                    /* FIXED: Changed from flex: 1 to fixed height: 350px */
+    flex: 1;                          /* FIXED: Changed from fixed height: 350px to flex: 1 to fill remaining space */
     display: flex;
-    /* REMOVED: min-height: 400px; */
+    min-height: 350px;                /* Keep minimum height for content */
 }
 
 .timeline-line {
@@ -1960,18 +1960,18 @@
                             {% endif %}
                         >{{ slide.props.title }}</h1>
                     {% endif %}
-                    <div class="timeline-container positioned-element"
-                        {% if slide.metadata and slide.metadata.elementPositions %}
-                            {% set timelineId = 'draggable-' + slide.slideId + '-1' %}
-                            {% if slide.metadata.elementPositions[timelineId] %}
-                                style="transform: translate({{ slide.metadata.elementPositions[timelineId].x }}px, {{ slide.metadata.elementPositions[timelineId].y }}px);"
-                            {% endif %}
-                        {% endif %}
-                    >
+                    <div class="timeline-container">
                         <div class="timeline-line"></div>
                         {% for step in slide.props.steps %}
                             {% if (step.heading and step.heading != 'Click to add heading') or (step.description and step.description != 'Click to add description') %}
-                                <div class="step-wrapper"
+                                <div class="step-wrapper positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
+                                        {% if slide.metadata.elementPositions[stepId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >
                                     <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
                                         <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
                                             {% if step.heading and step.heading != 'Click to add heading' %}
@@ -1989,7 +1989,6 @@
                                 </div>
                             {% endif %}
                         {% endfor %}
-                    </div>
                         {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
                             <div class="step-wrapper">
                                 <div class="milestone-content" style="top: calc(50% - 20px);">
