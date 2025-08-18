@@ -84,6 +84,16 @@ export interface DocumentsContextType {
   handleUpload: (files: File[]) => Promise<void>;
   getFilesIndexingStatus: (fileIds: number[]) => Promise<Record<number, boolean>>;
   createFileFromLink: (url: string, folderId: number | null) => Promise<FileResponse[]>;
+  // SmartDrive methods
+  ensureSmartDriveSession: () => Promise<void>;
+  listSmartDrive: (path?: string) => Promise<any[]>;
+  importSmartDriveFiles: (paths: string[]) => Promise<{ fileIds: number[] }>;
+  importSmartDriveNewSinceLastSync: () => Promise<void>;
+  listUserConnectors: () => Promise<any[]>;
+  createUserConnector: (provider: string, config: any) => Promise<any>;
+  updateUserConnector: (id: number, config: any) => Promise<any>;
+  deleteUserConnector: (id: number) => Promise<void>;
+  syncUserConnector: (id: number) => Promise<void>;
 }
 
 // Optimized documents service
@@ -187,6 +197,106 @@ class DocumentsService {
     } catch (error) {
       console.error("Error fetching indexing status:", error);
       return {};
+    }
+  }
+
+  // SmartDrive methods
+  async ensureSmartDriveSession(): Promise<void> {
+    const response = await fetch("/api/custom-smartdrive/session", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to initialize SmartDrive session");
+    }
+  }
+
+  async listSmartDrive(path: string = "/"): Promise<any[]> {
+    const response = await fetch(`/api/custom-smartdrive/list?path=${encodeURIComponent(path)}`, {
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to list SmartDrive files");
+    }
+    return response.json();
+  }
+
+  async importSmartDriveFiles(paths: string[]): Promise<{ fileIds: number[] }> {
+    const response = await fetch("/api/custom-smartdrive/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ paths }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to import SmartDrive files");
+    }
+    return response.json();
+  }
+
+  async importSmartDriveNewSinceLastSync(): Promise<void> {
+    const response = await fetch("/api/custom-smartdrive/import-new", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to import new SmartDrive files");
+    }
+  }
+
+  async listUserConnectors(): Promise<any[]> {
+    const response = await fetch("/api/custom-smartdrive/connectors/", {
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to list user connectors");
+    }
+    return response.json();
+  }
+
+  async createUserConnector(provider: string, config: any): Promise<any> {
+    const response = await fetch("/api/custom-smartdrive/connectors/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ provider, config }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to create user connector");
+    }
+    return response.json();
+  }
+
+  async updateUserConnector(id: number, config: any): Promise<any> {
+    const response = await fetch(`/api/custom-smartdrive/connectors/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ config }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update user connector");
+    }
+    return response.json();
+  }
+
+  async deleteUserConnector(id: number): Promise<void> {
+    const response = await fetch(`/api/custom-smartdrive/connectors/${id}`, {
+      method: "DELETE",
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to delete user connector");
+    }
+  }
+
+  async syncUserConnector(id: number): Promise<void> {
+    const response = await fetch(`/api/custom-smartdrive/connectors/${id}/sync`, {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to sync user connector");
     }
   }
 }
@@ -483,6 +593,16 @@ export const DocumentsProvider: React.FC<DocumentsProviderProps> = ({
         handleUpload,
         getFilesIndexingStatus: async (fileIds: number[]) => await new DocumentsService().getFilesIndexingStatus(fileIds),
         createFileFromLink,
+        // SmartDrive methods
+        ensureSmartDriveSession: async () => await new DocumentsService().ensureSmartDriveSession(),
+        listSmartDrive: async (path?: string) => await new DocumentsService().listSmartDrive(path),
+        importSmartDriveFiles: async (paths: string[]) => await new DocumentsService().importSmartDriveFiles(paths),
+        importSmartDriveNewSinceLastSync: async () => await new DocumentsService().importSmartDriveNewSinceLastSync(),
+        listUserConnectors: async () => await new DocumentsService().listUserConnectors(),
+        createUserConnector: async (provider: string, config: any) => await new DocumentsService().createUserConnector(provider, config),
+        updateUserConnector: async (id: number, config: any) => await new DocumentsService().updateUserConnector(id, config),
+        deleteUserConnector: async (id: number) => await new DocumentsService().deleteUserConnector(id),
+        syncUserConnector: async (id: number) => await new DocumentsService().syncUserConnector(id),
       }}
     >
       {children}

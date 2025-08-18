@@ -23,14 +23,15 @@ import {
   MessageSquare,
   ChevronRight,
   LayoutTemplate,
-  Cloud // Add Cloud icon for SmartDrive
+  HardDrive
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
-import SmartDriveTab from '../../components/SmartDriveTab';
+import SmartDriveCards from '../../components/SmartDrive/SmartDriveCards';
+import SmartDriveFrame from '../../components/SmartDrive/SmartDriveFrame';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -212,6 +213,8 @@ interface Folder {
   children?: Folder[];
 }
 
+
+
 // Recursive folder component for nested display
 const FolderItem: React.FC<{
   folder: Folder;
@@ -319,21 +322,21 @@ const FolderItem: React.FC<{
       </div>
       {hasChildren && isExpanded && (
         <div>
-          {folder.children!.map((child) => (
-            <FolderItem
-              key={child.id}
-              folder={child}
-              level={level + 1}
-              selectedFolderId={selectedFolderId}
-              onFolderSelect={onFolderSelect}
-              onDragOver={onDragOver}
-              onDrop={onDrop}
-              onDragEnter={onDragEnter}
-              onDragLeave={onDragLeave}
-              folderProjects={folderProjects}
-              allFolders={allFolders}
-            />
-          ))}
+                      {folder.children!.map((child) => (
+              <FolderItem
+                key={child.id}
+                folder={child}
+                level={level + 1}
+                selectedFolderId={selectedFolderId}
+                onFolderSelect={onFolderSelect}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
+                onDragEnter={onDragEnter}
+                onDragLeave={onDragLeave}
+                folderProjects={folderProjects}
+                allFolders={allFolders}
+              />
+            ))}
         </div>
       )}
     </div>
@@ -419,13 +422,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <Home size={18} />
           <span>{t('interface.products', 'Products')}</span>
         </Link>
-        <Link 
-          href="/projects?tab=smartdrive" 
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smartdrive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-        >
-          <Cloud size={18} />
-          <span>{t('interface.smartdrive', 'SmartDrive')}</span>
-        </Link>
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Users size={18} />
           <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
@@ -470,6 +466,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <Palette size={18} />
           <span>{t('interface.themes', 'Themes')}</span>
         </Link>
+        <Link href="/projects?tab=smart-drive" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
+          <HardDrive size={18} />
+          <span>{t('interface.smartDrive', 'Smart Drive')}</span>
+        </Link>
         <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
           <Trash2 size={18} />
           <span>{t('interface.trash', 'Trash')}</span>
@@ -479,7 +479,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash }: { isTrash: boolean }) => {
+const Header = ({ isTrash, isSmartDrive }: { isTrash: boolean; isSmartDrive: boolean }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
   
@@ -507,7 +507,11 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
 
   return (
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? t('interface.trash', 'Trash') : t('interface.products', 'Products')}</h1>
+      <h1 className="text-3xl font-bold text-gray-900">
+        {isTrash ? t('interface.trash', 'Trash') : 
+         isSmartDrive ? t('interface.smartDrive', 'Smart Drive') : 
+         t('interface.products', 'Products')}
+      </h1>
       <div className="flex items-center gap-4">
         <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
           <Sparkles size={16} className="text-yellow-500" />
@@ -531,13 +535,14 @@ const ProjectsPageInner: React.FC = () => {
   const { t } = useLanguage();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
-  const isSmartDrive = currentTab === 'smartdrive';
+  const isSmartDrive = currentTab === 'smart-drive';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
   const [folderProjects, setFolderProjects] = useState<Record<number, any[]>>({});
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSmartDriveFrame, setShowSmartDriveFrame] = useState(false);
 
   // Clear lesson context when user visits the projects page
   useEffect(() => {
@@ -762,10 +767,15 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} />
         <main className="flex-1 overflow-y-auto p-8">
-          {currentTab === 'smartdrive' ? (
-            <SmartDriveTab />
+          {isSmartDrive ? (
+            <div>
+              <SmartDriveCards onBrowseClick={() => setShowSmartDriveFrame(true)} />
+              {showSmartDriveFrame && (
+                <SmartDriveFrame onSync={() => {/* Handle sync refresh */}} />
+              )}
+            </div>
           ) : (
             <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
           )}
@@ -791,4 +801,4 @@ export default function ProjectsPage() {
       <ProjectsPageInner />
     </Suspense>
   );
-} 
+}

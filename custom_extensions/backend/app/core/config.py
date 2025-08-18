@@ -14,8 +14,3 @@ class Settings(BaseSettings):
         extra = 'ignore' # Ignore extra environment variables
 
 settings = Settings()
-
-# Nextcloud SmartDrive Configuration
-NEXTCLOUD_URL = os.getenv("NEXTCLOUD_URL", "https://nc1.contentbuilder.ai")
-NEXTCLOUD_ADMIN_USERNAME = os.getenv("NEXTCLOUD_ADMIN_USERNAME", "admin")
-NEXTCLOUD_ADMIN_PASSWORD = os.getenv("NEXTCLOUD_ADMIN_PASSWORD", "")

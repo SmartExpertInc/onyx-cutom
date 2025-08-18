@@ -12,10 +12,13 @@ import {
   Plus,
   Home as HomeIcon,
   Link as LinkIcon,
+  HardDrive,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 import { useDocumentsContext, FileResponse } from "../../../../components/documents/DocumentsContext";
 import { useLanguage } from "../../../../contexts/LanguageContext";
+import SmartDrivePickerModal from "../../../../components/SmartDrive/SmartDrivePickerModal";
 
 interface CreateFromFolderContentProps {
   folderId: number;
@@ -187,13 +190,15 @@ const ALLOWED_FILE_TYPES = [
 const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folderId }) => {
   const router = useRouter();
   const { t } = useLanguage();
-  const { folders, files, isLoading, error, getFolderDetails, folderDetails, handleUpload, uploadProgress, setCurrentFolder, createFileFromLink } = useDocumentsContext();
+  const { folders, files, isLoading, error, getFolderDetails, folderDetails, handleUpload, uploadProgress, setCurrentFolder, createFileFromLink, importSmartDriveFiles } = useDocumentsContext();
   const [selectedFileIds, setSelectedFileIds] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
+  const [showSmartDrivePicker, setShowSmartDrivePicker] = useState(false);
+  const [showSourceOptions, setShowSourceOptions] = useState(false);
    
   const currentFolder = folderDetails;
   const folderFiles = currentFolder?.files || [];
@@ -266,6 +271,30 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
     const params = new URLSearchParams();
     params.set('fromFiles', 'true');
     params.set('fileIds', selectedFileIds.join(','));
+    
+    router.push(`/create/generate?${params.toString()}`);
+  };
+
+  const handleSmartDriveFilesSelected = async (filePaths: string[]) => {
+    try {
+      const result = await importSmartDriveFiles(filePaths);
+      setShowSmartDrivePicker(false);
+      
+      // Navigate to generation with the imported file IDs
+      const params = new URLSearchParams();
+      params.set('fromFiles', 'true');
+      params.set('fileIds', result.fileIds.join(','));
+      
+      router.push(`/create/generate?${params.toString()}`);
+    } catch (error) {
+      console.error('Failed to import SmartDrive files:', error);
+      alert(t('smartdrive.importError', 'Failed to import files from Smart Drive'));
+    }
+  };
+
+  const handleUseKnowledgeBase = () => {
+    const params = new URLSearchParams();
+    params.set('useKb', 'true');
     
     router.push(`/create/generate?${params.toString()}`);
   };
@@ -510,8 +539,69 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
 
       {/* Content */}
       <div className="flex-1 px-6 pb-6" style={{ paddingBottom: selectedFileIds.length > 0 ? '100px' : '24px' }}>
-        {/* Add Website + File Upload Side-by-Side */}
-        <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Source Selection */}
+        {!showSourceOptions ? (
+          <div className="mb-8">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                {t('create.selectSource', 'Select Content Source')}
+              </h2>
+              <p className="text-gray-600 mb-6">
+                {t('create.selectSourceDesc', 'Choose where you want to select files from to create your content')}
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => setShowSmartDrivePicker(true)}
+                  className="flex items-center gap-4 p-4 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <HardDrive className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">{t('create.selectSpecificFiles', 'Select specific files')}</h3>
+                    <p className="text-sm text-gray-600">{t('create.selectSpecificFilesDesc', 'Choose individual files from Smart Drive')}</p>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={handleUseKnowledgeBase}
+                  className="flex items-center gap-4 p-4 border border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Search className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">{t('create.useKnowledgeBase', 'Use knowledge base')}</h3>
+                    <p className="text-sm text-gray-600">{t('create.useKnowledgeBaseDesc', 'Use Onyx Search assistant with all available content')}</p>
+                  </div>
+                </button>
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowSourceOptions(true)}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  {t('create.advancedOptions', 'Show traditional upload options')} →
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <button
+                onClick={() => setShowSourceOptions(false)}
+                className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {t('create.backToSourceSelection', 'Back to source selection')}
+              </button>
+            </div>
+            
+            {/* Traditional Upload Options */}
+            <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add Website Section */}
           <div className="border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg p-6 text-center transition-all">
             <LinkIcon className="h-10 w-10 text-gray-400 mx-auto mb-4" />
@@ -605,66 +695,70 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             </div>
           </div>
         </div>
+          </>
+        )}
 
-        {/* Files Section */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-6 border-b">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">{t('actions.filesInThisFolder', 'Files in this folder')}</h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {t('actions.totalFilesReady', '{total} total files, {ready} ready for content creation').replace('{total}', folderFiles.length.toString()).replace('{ready}', readyFiles.length.toString())}
-                  {folderFiles.length > readyFiles.length && (
-                    <span className="text-yellow-600 ml-1">
-                      {t('actions.stillProcessing', '({processing} still processing)').replace('{processing}', (folderFiles.length - readyFiles.length).toString())}
-                    </span>
-                  )}
-                </p>
+        {/* Files Section - Only show in traditional mode */}
+        {showSourceOptions && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">{t('actions.filesInThisFolder', 'Files in this folder')}</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {t('actions.totalFilesReady', '{total} total files, {ready} ready for content creation').replace('{total}', folderFiles.length.toString()).replace('{ready}', readyFiles.length.toString())}
+                    {folderFiles.length > readyFiles.length && (
+                      <span className="text-yellow-600 ml-1">
+                        {t('actions.stillProcessing', '({processing} still processing)').replace('{processing}', (folderFiles.length - readyFiles.length).toString())}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                {readyFiles.length > 0 && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSelectAll}
+                      className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                    >
+                      {t('actions.selectAll', 'Select All')}
+                    </button>
+                    <button
+                      onClick={handleDeselectAll}
+                      className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                    >
+                      {t('actions.clear', 'Clear')}
+                    </button>
+                  </div>
+                )}
               </div>
-              {readyFiles.length > 0 && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleSelectAll}
-                    className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                  >
-                    {t('actions.selectAll', 'Select All')}
-                  </button>
-                  <button
-                    onClick={handleDeselectAll}
-                    className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                  >
-                    {t('actions.clear', 'Clear')}
-                  </button>
+            </div>
+
+            <div className="p-6">
+              {folderFiles.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">{t('actions.noFilesInFolder', 'No files in this folder yet')}</p>
+                  <p className="text-sm text-gray-500 mt-1">{t('actions.uploadSomeDocuments', 'Upload some documents to get started')}</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {folderFiles.map((file) => (
+                    <FileItem
+                      key={file.id}
+                      file={file}
+                      isSelected={selectedFileIds.includes(file.id)}
+                      onToggleSelect={() => handleToggleFile(file.id)}
+                    />
+                  ))}
                 </div>
               )}
             </div>
           </div>
-
-          <div className="p-6">
-            {folderFiles.length === 0 ? (
-              <div className="text-center py-8">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">{t('actions.noFilesInFolder', 'No files in this folder yet')}</p>
-                <p className="text-sm text-gray-500 mt-1">{t('actions.uploadSomeDocuments', 'Upload some documents to get started')}</p>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {folderFiles.map((file) => (
-                  <FileItem
-                    key={file.id}
-                    file={file}
-                    isSelected={selectedFileIds.includes(file.id)}
-                    onToggleSelect={() => handleToggleFile(file.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Fixed Bottom Action Bar */}
-      {selectedFileIds.length > 0 && (
+      {/* Fixed Bottom Action Bar - Only show in traditional mode */}
+      {showSourceOptions && selectedFileIds.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
@@ -687,6 +781,13 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
           </div>
         </div>
       )}
+
+      {/* SmartDrive Picker Modal */}
+      <SmartDrivePickerModal
+        isOpen={showSmartDrivePicker}
+        onClose={() => setShowSmartDrivePicker(false)}
+        onFilesSelected={handleSmartDriveFilesSelected}
+      />
     </main>
   );
 };
