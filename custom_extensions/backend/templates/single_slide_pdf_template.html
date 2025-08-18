@@ -434,7 +434,8 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 400px;
+            flex: 1;                          /* FIXED: Changed from fixed height: 400px to flex: 1 to fill remaining space */
+            min-height: 400px;                /* Keep minimum height for content */
         }
         
         .pyramid-template .item-wrapper {
@@ -1089,13 +1090,14 @@
         /* Big Numbers Template - EXACT FRONTEND MATCH */
         .big-numbers {
             width: 100%;
-            height: 100%;
-            min-height: 600px;
+            height: 100%; /* Fill the entire slide content area */
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
             padding: 40px;
+            position: relative;
             font-family: var(--content-font);
         }
         
