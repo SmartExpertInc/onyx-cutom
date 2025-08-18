@@ -16,6 +16,7 @@ export default function VideoEditorHeader() {
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
     { id: '1', email: '', role: 'editor' }
   ]);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const sharePopupRef = useRef<HTMLDivElement>(null);
@@ -34,18 +35,27 @@ export default function VideoEditorHeader() {
         
         if (!isClickInButton && !isClickInPopup) {
           setIsSharePopupOpen(false);
+          setOpenDropdownId(null); // Close any open dropdown when share popup closes
+        }
+      }
+      
+      // Close dropdown when clicking outside
+      if (openDropdownId) {
+        const dropdownElement = document.getElementById(`dropdown-${openDropdownId}`);
+        if (dropdownElement && !dropdownElement.contains(event.target as Node)) {
+          setOpenDropdownId(null);
         }
       }
     };
 
-    if (isResizePopupOpen || isSharePopupOpen) {
+    if (isResizePopupOpen || isSharePopupOpen || openDropdownId) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isResizePopupOpen, isSharePopupOpen]);
+  }, [isResizePopupOpen, isSharePopupOpen, openDropdownId]);
 
   const handleResizeClick = () => {
     setIsResizePopupOpen(!isResizePopupOpen);
@@ -80,6 +90,15 @@ export default function VideoEditorHeader() {
     // Don't allow deleting the first input
     if (id === '1') return;
     setEmailInputs(prev => prev.filter(input => input.id !== id));
+  };
+
+  const handleDropdownToggle = (id: string) => {
+    setOpenDropdownId(openDropdownId === id ? null : id);
+  };
+
+  const handleRoleSelect = (id: string, role: 'viewer' | 'editor' | 'admin') => {
+    handleRoleChange(id, role);
+    setOpenDropdownId(null);
   };
 
   // Envelope icon component
@@ -118,21 +137,8 @@ export default function VideoEditorHeader() {
 
   // Link icon component
   const LinkIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-600">
-      <path
-        d="M6.5 9.5C6.83333 9.83333 7.16667 10 7.5 10H8.5C9.5 10 10.5 9 10.5 8C10.5 7 9.5 6 8.5 6H7.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9.5 6.5C9.16667 6.16667 8.83333 6 8.5 6H7.5C6.5 6 5.5 7 5.5 8C5.5 9 6.5 10 7.5 10H8.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-gray-600">
+      <path fill="currentColor" fillRule="evenodd" d="M9.929 3.132a2.078 2.078 0 1 1 2.94 2.94l-.65.648a.75.75 0 0 0 1.061 1.06l.649-.648a3.579 3.579 0 0 0-5.06-5.06L6.218 4.72a3.578 3.578 0 0 0 0 5.06a.75.75 0 0 0 1.061-1.06a2.078 2.078 0 0 1 0-2.94L9.93 3.132Zm-.15 3.086a.75.75 0 0 0-1.057 1.064c.816.81.818 2.13.004 2.942l-2.654 2.647a2.08 2.08 0 0 1-2.94-2.944l.647-.647a.75.75 0 0 0-1.06-1.06l-.648.647a3.58 3.58 0 0 0 5.06 5.066l2.654-2.647a3.575 3.575 0 0 0-.007-5.068Z" clipRule="evenodd"/>
     </svg>
   );
 
@@ -347,7 +353,7 @@ export default function VideoEditorHeader() {
               {isSharePopupOpen && (
                 <div 
                   ref={sharePopupRef}
-                  className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-96 p-4"
+                  className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
                 >
                   {/* Title */}
                   <h3 className="text-xs font-medium text-gray-700 mb-4">Invite team members</h3>
@@ -366,31 +372,51 @@ export default function VideoEditorHeader() {
                             value={emailInput.email}
                             onChange={(e) => handleEmailChange(emailInput.id, e.target.value)}
                             placeholder="Work email e.g. john@company.com"
-                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-black focus:border-[3px]"
+                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-black focus:border-[2px]"
                           />
                         </div>
                         
                         {/* Role dropdown */}
-                        <div className="relative">
-                          <select
-                            value={emailInput.role}
-                            onChange={(e) => handleRoleChange(emailInput.id, e.target.value as 'viewer' | 'editor' | 'admin')}
-                            className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:border-black focus:border-[3px] cursor-pointer"
+                        <div className="relative" id={`dropdown-${emailInput.id}`}>
+                          <button
+                            type="button"
+                            onClick={() => handleDropdownToggle(emailInput.id)}
+                            className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-3 pr-8 text-sm focus:outline-none focus:border-black focus:border-[2px] cursor-pointer w-full text-left flex items-center justify-between"
                           >
-                            <option value="viewer">Viewer</option>
-                            <option value="editor">Editor</option>
-                            <option value="admin">Admin</option>
-                          </select>
-                          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <span className="capitalize">{emailInput.role}</span>
                             <DropdownIcon />
-                          </div>
+                          </button>
+                          
+                          {/* Custom dropdown menu */}
+                          {openDropdownId === emailInput.id && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                              {(['viewer', 'editor', 'admin'] as const).map((role) => (
+                                <button
+                                  key={role}
+                                  type="button"
+                                  onClick={() => handleRoleSelect(emailInput.id, role)}
+                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors capitalize ${
+                                    emailInput.role === role ? 'bg-gray-50 text-black' : 'text-gray-700'
+                                  } ${role === 'viewer' ? 'rounded-t-md' : role === 'admin' ? 'rounded-b-md' : ''}`}
+                                >
+                                  {role}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
-                        {/* Delete button - only show for inputs other than the first one */}
-                        {emailInput.id !== '1' && (
+                        {/* Delete button or placeholder space */}
+                        {emailInput.id === '1' ? (
+                          emailInputs.length > 1 ? (
+                            <div className="w-10 h-10 flex items-center justify-center">
+                              {/* Empty placeholder to maintain consistent spacing when multiple inputs exist */}
+                            </div>
+                          ) : null
+                        ) : (
                           <button
                             onClick={() => deleteEmailInput(emailInput.id)}
-                            className="p-2 hover:bg-red-50 rounded transition-colors"
+                            className="w-10 h-10 p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center"
                             title="Delete this email input"
                           >
                             <GarbageIcon />

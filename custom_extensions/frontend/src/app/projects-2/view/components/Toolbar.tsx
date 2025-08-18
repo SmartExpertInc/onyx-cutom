@@ -125,6 +125,9 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
   ];
 
   const handleToolClick = (toolId: string, event?: React.MouseEvent<HTMLDivElement>) => {
+    // Always set the active tool ID first
+    setActiveToolId(toolId);
+    
     if (toolId === 'text' && onTextButtonClick && textButtonRef.current) {
       const rect = textButtonRef.current.getBoundingClientRect();
       const position = {
@@ -135,7 +138,6 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
       return;
     }
     
-    setActiveToolId(toolId);
     onActiveToolChange?.(toolId);
   };
 
