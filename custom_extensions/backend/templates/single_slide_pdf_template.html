@@ -1621,7 +1621,7 @@
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = slide.slideId + '-title' %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
