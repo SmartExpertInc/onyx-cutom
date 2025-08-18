@@ -242,11 +242,9 @@ export default function VideoEditorHeader() {
                 onClick={handleResizeClick}
                 className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors"
               >
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/8574a9b72f54dd9d3d4b47f6ff7ae4fd1526bd0a?width=44"
-                  alt="Resize"
-                  className="w-3 h-3"
-                />
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
+                  <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
+                </svg>
                 <span className="text-editor-resize-text text-xs font-normal">Resize</span>
               </button>
 

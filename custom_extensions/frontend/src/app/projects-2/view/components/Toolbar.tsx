@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { 
   MessageSquareText, 
   User, 
-  Hash, 
+  Sparkles, 
   Shapes, 
   Type, 
   Music, 
@@ -25,7 +25,7 @@ interface ToolbarProps {
 interface Tool {
   id: string;
   label: string;
-  icon: LucideIcon | 'custom-flag';
+  icon: LucideIcon | 'custom-flag' | 'custom-background';
   chevron?: LucideIcon;
 }
 
@@ -45,6 +45,26 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     </div>
   );
 
+  // Custom background icon from user's SVG
+  const renderCustomBackground = () => (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="16" 
+      height="16" 
+      viewBox="0 0 24 24"
+      className="text-gray-700"
+    >
+      <path 
+        fill="none" 
+        stroke="currentColor" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        strokeWidth="2" 
+        d="m4 8l4-4m6 0L4 14m0 6L20 4m0 6L10 20m10-4l-4 4"
+      />
+    </svg>
+  );
+
   const tools: Tool[] = [
     {
       id: 'script',
@@ -59,7 +79,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'background',
       label: 'Background',
-      icon: Hash
+      icon: 'custom-background'
     },
     {
       id: 'shapes',
@@ -132,7 +152,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                     key={tool.id}
                     ref={tool.id === 'text' ? textButtonRef : undefined}
                     onClick={(event) => handleToolClick(tool.id, event)}
-                    className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-2 ${
+                    className={`flex flex-col items-center cursor-pointer transition-all duration-200 p-2 ${
                       activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
                     }`}
                   >
@@ -140,6 +160,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                     <div className="flex items-center justify-center mb-3 w-4 h-4">
                       {tool.icon === 'custom-flag' 
                         ? renderCustomFlag()
+                        : tool.icon === 'custom-background'
+                        ? renderCustomBackground()
                         : React.createElement(tool.icon, {
                             size: 16,
                             className: "text-gray-700"
@@ -172,7 +194,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                 <div
                   key={tool.id}
                   onClick={() => handleToolClick(tool.id)}
-                  className={`flex flex-col items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 p-2 ${
+                  className={`flex flex-col items-center cursor-pointer transition-all duration-200 p-2 ${
                     activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
                   }`}
                 >
