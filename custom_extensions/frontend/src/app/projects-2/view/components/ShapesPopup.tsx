@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { X, Circle, Square, Triangle, Star, Heart, Diamond, Hexagon } from 'lucide-react';
 
 interface ShapesPopupProps {
@@ -16,6 +16,25 @@ interface Shape {
 }
 
 export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupProps) {
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  // Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   // First row: Black filled shapes
@@ -74,6 +93,7 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
 
   return (
     <div
+      ref={popupRef}
       className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50 w-[420px]"
       style={{
         left: `${position.x}px`,

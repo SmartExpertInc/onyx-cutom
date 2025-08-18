@@ -244,11 +244,11 @@ export default function VideoEditorHeader() {
 
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-3 lg:gap-4">
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
+            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
               <Undo2 className="w-4 h-4" />
             </button>
 
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
+            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
               <Redo2 className="w-4 h-4" />
             </button>
 
@@ -259,12 +259,12 @@ export default function VideoEditorHeader() {
               <button
                 ref={resizeButtonRef}
                 onClick={handleResizeClick}
-                className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors"
+                className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4">
                   <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
                 </svg>
-                <span className="text-editor-resize-text text-base font-normal">Resize</span>
+                <span className="text-editor-resize-text text-sm font-normal">Resize</span>
               </button>
 
               {/* Resize popup */}
@@ -274,7 +274,7 @@ export default function VideoEditorHeader() {
                     {resizeOptions.map((option, index) => (
                       <button
                         key={index}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer"
                         onClick={() => {
                           // Handle resize option selection here
                           setIsResizePopupOpen(false);
@@ -291,11 +291,9 @@ export default function VideoEditorHeader() {
                     ))}
                   </div>
                   
-                  {/* Warning text */}
-                  <div className="px-4 pb-3">
-                    <div className="bg-amber-50 text-amber-800 text-xs p-3 rounded-md">
-                      Existing content on the scene will not be reorganised automatically.
-                    </div>
+                  {/* Warning text - extends to popup borders */}
+                  <div className="bg-amber-50 text-amber-800 text-xs p-3 rounded-b-lg -mx-px -mb-px">
+                    Existing content on the scene will not be reorganised automatically.
                   </div>
                 </div>
               )}
@@ -307,7 +305,7 @@ export default function VideoEditorHeader() {
             <div className="hidden lg:flex items-center gap-2">
               <button 
                 onClick={handleEyeToggle}
-                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center"
+                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer"
               >
                 {isEyeVisible ? (
                   <Eye className="w-4 h-4" />
@@ -315,17 +313,17 @@ export default function VideoEditorHeader() {
                   <EyeOff className="w-4 h-4" />
                 )}
               </button>
-              <span className="text-editor-icon-text text-base font-normal">Grid</span>
+              <span className="text-editor-icon-text text-sm font-normal">Grid</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
 
             {/* Upgrade button */}
             <button
-              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
+              className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 cursor-pointer"
             >
               <Gem className="w-4 h-4 text-purple-700" />
-              <span className="text-base font-normal">Upgrade</span>
+              <span className="text-sm font-normal">Upgrade</span>
             </button>
           </div>
         </div>
@@ -333,7 +331,7 @@ export default function VideoEditorHeader() {
         {/* Center section - Create video text (hidden on mobile) */}
         <div className="hidden lg:flex flex-1 justify-center">
           <div className="flex items-center gap-3">
-            <span className="text-editor-gray-text text-base font-medium whitespace-nowrap">Create your first AI video</span>
+            <span className="text-editor-gray-text text-sm font-medium whitespace-nowrap">Create your first AI video</span>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4">
               <g fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path strokeLinecap="round" d="M4 22h16"/>
@@ -346,7 +344,7 @@ export default function VideoEditorHeader() {
         {/* Right section - Share and Generate buttons */}
         <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
-            <button className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8">
+            <button className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer">
               <Play className="w-4 h-4" />
             </button>
 
@@ -357,9 +355,9 @@ export default function VideoEditorHeader() {
               <button
                 ref={shareButtonRef}
                 onClick={handleShareClick}
-                className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8"
+                className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
               >
-                <span className="text-base font-normal">Share</span>
+                <span className="text-sm font-normal">Share</span>
               </button>
 
               {/* Share popup */}
@@ -410,7 +408,7 @@ export default function VideoEditorHeader() {
                                   key={role}
                                   type="button"
                                   onClick={() => handleRoleSelect(emailInput.id, role)}
-                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors capitalize ${
+                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors capitalize cursor-pointer ${
                                     emailInput.role === role ? 'bg-gray-50 text-black' : 'text-gray-700'
                                   } ${role === 'viewer' ? 'rounded-t-md' : role === 'admin' ? 'rounded-b-md' : ''}`}
                                 >
@@ -431,7 +429,7 @@ export default function VideoEditorHeader() {
                         ) : (
                           <button
                             onClick={() => deleteEmailInput(emailInput.id)}
-                            className="w-10 h-10 p-2 hover:bg-gray-200 rounded-full transition-colors flex items-center justify-center"
+                            className="w-10 h-10 p-2 hover:bg-gray-200 rounded-full transition-colors flex items-center justify-center cursor-pointer"
                             title="Delete this email input"
                           >
                             <GarbageIcon />
@@ -450,7 +448,7 @@ export default function VideoEditorHeader() {
                    <div className="flex justify-between items-center">
                      <button
                        onClick={addEmailInput}
-                       className="text-black hover:text-gray-800 text-sm font-medium flex items-center gap-1 border border-gray-300 hover:border-gray-400 rounded px-3 py-2 transition-colors"
+                       className="text-black hover:text-gray-800 text-sm font-medium flex items-center gap-1 border border-gray-300 hover:border-gray-400 rounded px-3 py-2 transition-colors cursor-pointer"
                      >
                        <PlusIcon />
                        <span>Add another</span>
@@ -458,10 +456,10 @@ export default function VideoEditorHeader() {
                      
                      {/* Right side container with link and invite buttons */}
                      <div className="flex items-center gap-2">
-                       <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                       <button className="p-2 hover:bg-gray-100 rounded transition-colors cursor-pointer">
                          <LinkIcon />
                        </button>
-                       <button className="bg-black text-white hover:bg-gray-800 rounded px-4 py-2 text-sm font-medium transition-colors">
+                       <button className="bg-black text-white hover:bg-gray-800 rounded px-4 py-2 text-sm font-medium transition-colors cursor-pointer">
                          Invite
                        </button>
                      </div>
@@ -473,9 +471,9 @@ export default function VideoEditorHeader() {
 
             {/* Generate button */}
             <button
-              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border"
+              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
             >
-              <span className="text-base font-normal">Generate</span>
+              <span className="text-sm font-normal">Generate</span>
             </button>
           </div>
         </div>
