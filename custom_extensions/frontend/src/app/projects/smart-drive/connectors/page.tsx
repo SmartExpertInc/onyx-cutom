@@ -61,7 +61,11 @@ const ConnectorsPage: React.FC = () => {
 
   const loadConnectors = async () => {
     try {
-      const response = await fetch('/api/custom-projects-backend/smartdrive/connectors/', {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const apiUrl = `${protocol}//${host}/api/custom-projects-backend/smartdrive/connectors`;
+      
+      const response = await fetch(apiUrl, {
         credentials: 'same-origin',
       });
       if (response.ok) {
@@ -79,7 +83,11 @@ const ConnectorsPage: React.FC = () => {
   const loadProviders = async () => {
     try {
       // Get actual connector types from Onyx
-      const response = await fetch('/api/custom-projects-backend/smartdrive/connector-types', {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const apiUrl = `${protocol}//${host}/api/custom-projects-backend/smartdrive/connector-types`;
+      
+      const response = await fetch(apiUrl, {
         credentials: 'same-origin',
       });
       

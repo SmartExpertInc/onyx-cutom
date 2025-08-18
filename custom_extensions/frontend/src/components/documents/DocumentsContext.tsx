@@ -98,6 +98,13 @@ export interface DocumentsContextType {
 
 // Optimized documents service
 class DocumentsService {
+  private getApiUrl(path: string): string {
+    // Ensure we use the same protocol as the current page to avoid mixed content issues
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    return `${protocol}//${host}${path}`;
+  }
+
   async fetchFolders(): Promise<FolderResponse[]> {
     const response = await fetch("/api/user/folder");
     if (!response.ok) {
@@ -202,7 +209,7 @@ class DocumentsService {
 
   // SmartDrive methods
   async ensureSmartDriveSession(): Promise<void> {
-    const response = await fetch("/api/custom-projects-backend/smartdrive/session", {
+    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/session"), {
       method: "POST",
       credentials: "same-origin",
     });
@@ -212,7 +219,7 @@ class DocumentsService {
   }
 
   async listSmartDrive(path: string = "/"): Promise<any[]> {
-    const response = await fetch(`/api/custom-projects-backend/smartdrive/list?path=${encodeURIComponent(path)}`, {
+    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/list?path=${encodeURIComponent(path)}`), {
       credentials: "same-origin",
     });
     if (!response.ok) {
@@ -222,7 +229,7 @@ class DocumentsService {
   }
 
   async importSmartDriveFiles(paths: string[]): Promise<{ fileIds: number[] }> {
-    const response = await fetch("/api/custom-projects-backend/smartdrive/import", {
+    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/import"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
@@ -235,7 +242,7 @@ class DocumentsService {
   }
 
   async importSmartDriveNewSinceLastSync(): Promise<void> {
-    const response = await fetch("/api/custom-projects-backend/smartdrive/import-new", {
+    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/import-new"), {
       method: "POST",
       credentials: "same-origin",
     });
@@ -245,7 +252,7 @@ class DocumentsService {
   }
 
   async listUserConnectors(): Promise<any[]> {
-    const response = await fetch("/api/custom-projects-backend/smartdrive/connectors", {
+    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/connectors"), {
       credentials: "same-origin",
     });
     if (!response.ok) {
@@ -255,7 +262,7 @@ class DocumentsService {
   }
 
   async createUserConnector(provider: string, config: any): Promise<any> {
-    const response = await fetch("/api/custom-projects-backend/smartdrive/connectors", {
+    const response = await fetch(this.getApiUrl("/api/custom-projects-backend/smartdrive/connectors"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
@@ -268,7 +275,7 @@ class DocumentsService {
   }
 
   async updateUserConnector(id: number, config: any): Promise<any> {
-    const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${id}`, {
+    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/connectors/${id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
@@ -281,7 +288,7 @@ class DocumentsService {
   }
 
   async deleteUserConnector(id: number): Promise<void> {
-    const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${id}`, {
+    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/connectors/${id}`), {
       method: "DELETE",
       credentials: "same-origin",
     });
@@ -291,7 +298,7 @@ class DocumentsService {
   }
 
   async syncUserConnector(id: number): Promise<void> {
-    const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${id}/sync`, {
+    const response = await fetch(this.getApiUrl(`/api/custom-projects-backend/smartdrive/connectors/${id}/sync`), {
       method: "POST",
       credentials: "same-origin",
     });
