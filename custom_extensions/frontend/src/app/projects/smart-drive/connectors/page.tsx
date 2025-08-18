@@ -27,6 +27,11 @@ const ConnectorsPage: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingConnector, setEditingConnector] = useState<Connector | null>(null);
   const [syncingConnectors, setSyncingConnectors] = useState<Set<number>>(new Set());
+  const [formData, setFormData] = useState<ConnectorFormData>({
+    name: '',
+    source: '',
+    config: {}
+  });
 
   useEffect(() => {
     loadConnectors();
@@ -157,7 +162,10 @@ const ConnectorsPage: React.FC = () => {
               </div>
             </div>
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setFormData({ name: '', source: '', config: {} });
+                setShowAddModal(true);
+              }}
               className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
               <Plus className="w-4 h-4" />
@@ -177,7 +185,10 @@ const ConnectorsPage: React.FC = () => {
               Connect your personal data sources to automatically sync content with Onyx
             </p>
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setFormData({ name: '', source: '', config: {} });
+                setShowAddModal(true);
+              }}
               className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mx-auto"
             >
               <Plus className="w-4 h-4" />
@@ -264,18 +275,95 @@ const ConnectorsPage: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
                   type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="My Personal Drive"
+                  required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Source Type</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">Select a source...</option>
-                  <option value="google_drive">Google Drive</option>
-                  <option value="dropbox">Dropbox</option>
-                  <option value="slack">Slack</option>
-                  <option value="notion">Notion</option>
+                <select
+                  value={formData.source}
+                  onChange={(e) => setFormData({...formData, source: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select a connector type...</option>
+                  
+                  {/* Popular Cloud Storage */}
+                  <optgroup label="📁 Cloud Storage">
+                    <option value="google_drive">Google Drive</option>
+                    <option value="dropbox">Dropbox</option>
+                    <option value="sharepoint">SharePoint</option>
+                    <option value="s3">Amazon S3</option>
+                    <option value="google_cloud_storage">Google Cloud Storage</option>
+                    <option value="r2">Cloudflare R2</option>
+                    <option value="oci_storage">Oracle Cloud Storage</option>
+                    <option value="egnyte">Egnyte</option>
+                  </optgroup>
+
+                  {/* Communication & Collaboration */}
+                  <optgroup label="💬 Communication">
+                    <option value="slack">Slack</option>
+                    <option value="teams">Microsoft Teams</option>
+                    <option value="discord">Discord</option>
+                    <option value="gmail">Gmail</option>
+                    <option value="zulip">Zulip</option>
+                  </optgroup>
+
+                  {/* Documentation & Knowledge */}
+                  <optgroup label="📚 Documentation">
+                    <option value="confluence">Confluence</option>
+                    <option value="notion">Notion</option>
+                    <option value="gitbook">GitBook</option>
+                    <option value="slab">Slab</option>
+                    <option value="bookstack">BookStack</option>
+                    <option value="guru">Guru</option>
+                    <option value="document360">Document360</option>
+                    <option value="mediawiki">MediaWiki</option>
+                    <option value="wikipedia">Wikipedia</option>
+                  </optgroup>
+
+                  {/* Development & Code */}
+                  <optgroup label="⚡ Development">
+                    <option value="github">GitHub</option>
+                    <option value="gitlab">GitLab</option>
+                    <option value="linear">Linear</option>
+                    <option value="jira">Jira</option>
+                    <option value="asana">Asana</option>
+                    <option value="clickup">ClickUp</option>
+                  </optgroup>
+
+                  {/* CRM & Sales */}
+                  <optgroup label="🏢 Business & CRM">
+                    <option value="salesforce">Salesforce</option>
+                    <option value="hubspot">HubSpot</option>
+                    <option value="gong">Gong</option>
+                    <option value="loopio">Loopio</option>
+                    <option value="productboard">Productboard</option>
+                    <option value="airtable">Airtable</option>
+                    <option value="highspot">Highspot</option>
+                  </optgroup>
+
+                  {/* Support & Forums */}
+                  <optgroup label="🎧 Support & Forums">
+                    <option value="zendesk">Zendesk</option>
+                    <option value="freshdesk">Freshdesk</option>
+                    <option value="discourse">Discourse</option>
+                    <option value="xenforo">XenForo</option>
+                    <option value="axero">Axero</option>
+                  </optgroup>
+
+                  {/* Other */}
+                  <optgroup label="🌐 Other">
+                    <option value="web">Web Scraping</option>
+                    <option value="file">Local Files</option>
+                    <option value="google_sites">Google Sites</option>
+                    <option value="fireflies">Fireflies</option>
+                    <option value="requesttracker">Request Tracker</option>
+                  </optgroup>
                 </select>
               </div>
             </div>
@@ -285,6 +373,7 @@ const ConnectorsPage: React.FC = () => {
                 onClick={() => {
                   setShowAddModal(false);
                   setEditingConnector(null);
+                  setFormData({ name: '', source: '', config: {} });
                 }}
                 className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
               >
@@ -292,11 +381,14 @@ const ConnectorsPage: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  // TODO: Implement actual save logic
+                  // TODO: Implement actual save logic with formData
+                  console.log('Saving connector:', formData);
                   setShowAddModal(false);
                   setEditingConnector(null);
+                  setFormData({ name: '', source: '', config: {} });
                 }}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={!formData.name || !formData.source}
               >
                 {editingConnector ? 'Update' : 'Create'}
               </button>

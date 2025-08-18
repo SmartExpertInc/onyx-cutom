@@ -138,7 +138,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
       <div className="relative" style={{ height: '600px' }}>
         <iframe
           key={iframeKey}
-          src="/smartdrive/"
+          src={`${window.location.protocol}//${window.location.host}/smartdrive/`}
           className="w-full h-full border-0"
           title="Smart Drive File Browser"
           sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
