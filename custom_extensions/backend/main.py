@@ -4,6 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
+# Smart Drive Router Import
+from app.api.custom_smartdrive import router as smartdrive_router
+
 from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
 from pydantic import BaseModel, Field, RootModel
 import re
@@ -350,6 +353,9 @@ async def get_db_pool():
     return DB_POOL
 
 app = FastAPI(title="Custom Extension Backend")
+
+# Include Smart Drive Router
+app.include_router(smartdrive_router)
 
 app.mount(f"/{STATIC_DESIGN_IMAGES_DIR}", StaticFiles(directory=STATIC_DESIGN_IMAGES_DIR), name="static_design_images")
 
