@@ -13,17 +13,18 @@ export default function Background() {
     const b = Math.max(0, Math.floor((num & 0x0000FF) * (1 - amount)));
     return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
   };
-  // Generate color styles and names for the rectangles
+  // Generate color styles and names for the rectangles with IDs
   const rectangleData = [
-    { color: '#A0BD86', name: 'Green screen' },
-    { color: '#F1F1F1', name: 'Off-white' }, 
-    { color: '#616F70', name: 'Dark gray' },
-    { color: '#EBE7EA', name: 'Light pink' },
-    { color: '#B3A3AC', name: 'Dark pink' },
-    { color: '#E4E7EC', name: 'Light blue' },
-    { color: '#A0ACC4', name: 'Dark blue' },
-    { color: '#F0E6DD', name: 'Light gold' },
-    { color: '#DDBA92', name: 'Dark gold' }
+    { id: 'custom', color: '#F5F5F5', name: 'Custom', isCustomButton: true },
+    { id: 'green-screen', color: '#A0BD86', name: 'Green screen' },
+    { id: 'off-white', color: '#F1F1F1', name: 'Off-white' }, 
+    { id: 'dark-gray', color: '#616F70', name: 'Dark gray' },
+    { id: 'light-pink', color: '#EBE7EA', name: 'Light pink' },
+    { id: 'dark-pink', color: '#B3A3AC', name: 'Dark pink' },
+    { id: 'light-blue', color: '#E4E7EC', name: 'Light blue' },
+    { id: 'dark-blue', color: '#A0ACC4', name: 'Dark blue' },
+    { id: 'light-gold', color: '#F0E6DD', name: 'Light gold' },
+    { id: 'dark-gold', color: '#DDBA92', name: 'Dark gold' }
   ];
 
   return (
@@ -71,51 +72,81 @@ export default function Background() {
           </div>
         </div>
 
-        {/* Two columns with color options */}
-        <div className="w-full grid grid-cols-2 gap-4">
-          {/* First column */}
-          <div className="flex flex-col space-y-4">
-            {/* Inactive + button with label */}
-            <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
-                <span className="text-4xl text-gray-400 font-light">+</span>
-              </div>
-              <span className="text-sm text-center" style={{ color: '#616161' }}>Custom</span>
+        {/* Color options in rows using flexbox */}
+        <div className="w-full flex flex-col space-y-4">
+          {/* Create rows of 2 items each */}
+          {Array.from({ length: Math.ceil(rectangleData.length / 2) }, (_, rowIndex) => (
+            <div key={`row-${rowIndex}`} className="flex flex-row gap-4">
+              {/* First item in row */}
+              {rectangleData[rowIndex * 2] && (
+                <div className="flex-1 flex flex-col items-center">
+                  {rectangleData[rowIndex * 2].isCustomButton ? (
+                    // Custom button
+                    <>
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
+                        <span className="text-4xl text-gray-400 font-light">+</span>
+                      </div>
+                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                        {rectangleData[rowIndex * 2].name}
+                      </span>
+                    </>
+                  ) : (
+                    // Color rectangle
+                    <>
+                      <div
+                        className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
+                        style={{ 
+                          backgroundColor: rectangleData[rowIndex * 2].color,
+                          border: selectedColor === rectangleData[rowIndex * 2].color ? `5px solid ${darkenColor(rectangleData[rowIndex * 2].color)}` : 'none'
+                        }}
+                        onClick={() => setSelectedColor(rectangleData[rowIndex * 2].color)}
+                      ></div>
+                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                        {rectangleData[rowIndex * 2].name}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              {/* Second item in row */}
+              {rectangleData[rowIndex * 2 + 1] && (
+                <div className="flex-1 flex flex-col items-center">
+                  {rectangleData[rowIndex * 2 + 1].isCustomButton ? (
+                    // Custom button
+                    <>
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
+                        <span className="text-4xl text-gray-400 font-light">+</span>
+                      </div>
+                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                        {rectangleData[rowIndex * 2 + 1].name}
+                      </span>
+                    </>
+                  ) : (
+                    // Color rectangle
+                    <>
+                      <div
+                        className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
+                        style={{ 
+                          backgroundColor: rectangleData[rowIndex * 2 + 1].color,
+                          border: selectedColor === rectangleData[rowIndex * 2 + 1].color ? `5px solid ${darkenColor(rectangleData[rowIndex * 2 + 1].color)}` : 'none'
+                        }}
+                        onClick={() => setSelectedColor(rectangleData[rowIndex * 2 + 1].color)}
+                      ></div>
+                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                        {rectangleData[rowIndex * 2 + 1].name}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              {/* Empty space if odd number of items in last row */}
+              {!rectangleData[rowIndex * 2 + 1] && (
+                <div className="flex-1"></div>
+              )}
             </div>
-            
-            {/* Color rectangles for first column - even indices (0, 2, 4, 6, 8) */}
-            {rectangleData.filter((_, index) => index % 2 === 0).map((item, originalIndex) => (
-              <div key={`col1-${originalIndex}`} className="flex flex-col items-center">
-                <div
-                  className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
-                  style={{ 
-                    backgroundColor: item.color,
-                    border: selectedColor === item.color ? `5px solid ${darkenColor(item.color)}` : 'none'
-                  }}
-                  onClick={() => setSelectedColor(item.color)}
-                ></div>
-                <span className="text-sm text-center" style={{ color: '#616161' }}>{item.name}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Second column */}
-          <div className="flex flex-col space-y-4">
-            {/* Color rectangles for second column - odd indices (1, 3, 5, 7) */}
-            {rectangleData.filter((_, index) => index % 2 === 1).map((item, originalIndex) => (
-              <div key={`col2-${originalIndex}`} className="flex flex-col items-center">
-                <div
-                  className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
-                  style={{ 
-                    backgroundColor: item.color,
-                    border: selectedColor === item.color ? `5px solid ${darkenColor(item.color)}` : 'none'
-                  }}
-                  onClick={() => setSelectedColor(item.color)}
-                ></div>
-                <span className="text-sm text-center" style={{ color: '#616161' }}>{item.name}</span>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
       

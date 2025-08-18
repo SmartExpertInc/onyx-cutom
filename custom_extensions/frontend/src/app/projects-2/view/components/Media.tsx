@@ -39,7 +39,7 @@ export default function Media({
   const content = (
     <div className="flex h-full">
       {/* Sidebar */}
-      <div className="w-64 bg-white p-4 flex flex-col" style={{ borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
+      <div className="w-64 bg-white p-4 flex flex-col">
         {/* My assets section */}
         <div className="mb-3 pt-0">
           <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">My assets</h4>
@@ -103,7 +103,7 @@ export default function Media({
       <div className="w-px bg-gray-200"></div>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
+      <div className="flex-1 flex flex-col">
         {/* Tabs */}
         <div className="relative border-b border-gray-200">
           <div className="flex px-6 pt-4">
@@ -219,7 +219,7 @@ export default function Media({
     return (
       <div 
         ref={popupRef}
-        className={`absolute z-50 bg-white shadow-xl border border-gray-200 ${className}`} 
+        className={`absolute z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
         style={{ borderRadius: '12px' }}
       >
         {/* Main content area with sidebar */}
