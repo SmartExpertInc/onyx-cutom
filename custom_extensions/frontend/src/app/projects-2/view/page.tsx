@@ -80,14 +80,14 @@ export default function Projects2ViewPage() {
           </div>
 
           {/* Bottom Container - Takes 30% of main container height */}
-          <div className="bg-white rounded-md border border-gray-200 overflow-auto p-4" style={{ height: 'calc(20% + 5px)' }}>
+          <div className="bg-white rounded-md overflow-auto p-4" style={{ height: 'calc(20% + 10px)' }}>
             <div className="flex items-center gap-4">
               {/* Play Button with Time */}
-              <div className="flex flex-col items-center justify-center h-16 gap-1">
+              <div className="relative flex items-center justify-center h-16">
                 <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
                   <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
                 </button>
-                <span className="text-sm text-gray-600">00:00</span>
+                <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-sm text-gray-600">00:00</span>
               </div>
 
               {/* Scene 1 Rectangle */}

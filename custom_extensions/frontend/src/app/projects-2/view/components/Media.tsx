@@ -200,7 +200,7 @@ export default function Media({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[500px] ${className}`}
+          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[500px] overflow-hidden ${className}`}
           style={{ borderRadius: '12px' }}
         >
           {/* Header */}

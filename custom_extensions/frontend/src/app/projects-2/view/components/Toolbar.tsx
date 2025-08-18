@@ -261,7 +261,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   {isLanguagePopupOpen && (
                     <div 
                       className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[350px] z-50"
-                      style={{ marginRight: '-30px' }} // Position closer to the right edge
+                      style={{ marginRight: '10px' }} // Keep popup within page boundaries
                     >
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
@@ -281,7 +281,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                           className="font-semibold text-gray-500"
                           style={{
                             fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                            fontSize: '14px',
+                            fontSize: '12px',
                             letterSpacing: '0.05em'
                           }}
                         >
