@@ -8219,13 +8219,19 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Assign templateId based on the content structure of each slide:
             - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
             - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "comparison-slide"
+            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
             - If slide has numbered steps → use "process-steps"
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has metrics/statistics → use "big-numbers"
             - If slide has hierarchical content → use "pyramid"
             - If slide has timeline content → use "timeline"
             - For standard content → use "content-slide"
+            
+            **CRITICAL TABLE RULE:**
+            - If ANY of these words appear in the prompt or slide content → MANDATORY USE `table-dark` or `table-light`:
+              "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison", "таблица", "сравнение", "сравнительная таблица", "данные", "метрики", "результаты", "статистика", "анализ", "сопоставление", "против", "по сравнению", "сравнительный анализ", "табличные данные", "структурированные данные"
+            - Tables MUST use JSON props format with `tableData.headers` and `tableData.rows` arrays
+            - NEVER use markdown tables or other formats for table content
 
             **Content Parsing Instructions:**
             - Extract slide titles from headings or "**Slide N: Title**" format
@@ -8330,13 +8336,19 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Assign templateId based on the content structure of each slide:
             - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
             - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "comparison-slide"
+            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
             - If slide has numbered steps → use "process-steps"
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has metrics/statistics → use "big-numbers"
             - If slide has hierarchical content → use "pyramid"
             - If slide has timeline content → use "timeline"
             - For standard content → use "content-slide"
+            
+            **CRITICAL TABLE RULE:**
+            - If ANY of these words appear in the prompt or slide content → MANDATORY USE `table-dark` or `table-light`:
+              "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison", "таблица", "сравнение", "сравнительная таблица", "данные", "метрики", "результаты", "статистика", "анализ", "сопоставление", "против", "по сравнению", "сравнительный анализ", "табличные данные", "структурированные данные"
+            - Tables MUST use JSON props format with `tableData.headers` and `tableData.rows` arrays
+            - NEVER use markdown tables or other formats for table content
 
             **Available Template IDs and their Props (must match exactly):**
 

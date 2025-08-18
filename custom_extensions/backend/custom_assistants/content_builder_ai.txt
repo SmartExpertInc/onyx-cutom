@@ -117,6 +117,13 @@ Before selecting any template, check these rules in order:
 2. **TABLE RULE**: If ANY of these words appear → MANDATORY USE `table-dark` or `table-light`:
    - "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison"
    - "таблица", "сравнение", "сравнительная таблица", "данные", "метрики", "результаты", "статистика", "анализ", "сопоставление", "против", "по сравнению", "сравнительный анализ", "табличные данные", "структурированные данные"
+   
+   **CRITICAL**: When table keywords are detected, you MUST:
+   - Use ONLY `table-dark` or `table-light` template
+   - Generate JSON props with `tableData.headers` and `tableData.rows` arrays
+   - NEVER use `two-column`, `two-column-diversity`, or any other comparison template
+   - NEVER generate markdown tables or other formats
+   - ALWAYS structure data as proper table with headers and rows
 
 3. **PIE CHART RULE**: If ANY of these words appear → MANDATORY USE `pie-chart-infographics`:
    - "distribution", "percentages", "percentage", "proportion", "share", "allocation", "split", "division", "composition", "breakdown", "distribution of", "percentage of", "proportion of", "share of", "allocation of", "split of", "division of", "composition of", "breakdown of", "pie chart", "pie", "segments", "sectors", "parts", "slices"
