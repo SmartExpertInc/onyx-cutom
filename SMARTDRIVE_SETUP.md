@@ -58,10 +58,11 @@ The following tables are automatically created on startup:
 - The form data is being sent correctly to the backend
 - Try disabling browser extensions or use incognito mode
 
-### Issue: Files don't appear after sync (401 Unauthorized)
-- ✅ **Fixed**: Now uses shared Nextcloud account approach
+### Issue: Files don't appear after sync (401 Unauthorized / 404 Not Found)
+- ✅ **Fixed**: Now uses shared Nextcloud account approach with auto-folder creation
 - Verify `NEXTCLOUD_USERNAME` and `NEXTCLOUD_PASSWORD` are correct for the shared account
 - Each Onyx user gets their own folder within the shared Nextcloud account (e.g., `/smart_drive_user/{onyx_user_id}/`)
+- User folders are automatically created when first accessed
 - Check that the shared Nextcloud account has proper permissions
 - Look for import errors in backend logs
 
@@ -74,10 +75,12 @@ The following tables are automatically created on startup:
 - All OAuth flows and connector configurations work exactly like admin connectors
 
 ### Issue: Connectors created through Smart Drive are not private
-- ✅ **Fixed**: Modified Onyx's connector creation endpoints to force `AccessType.PRIVATE`
+- ✅ **Fixed**: Implemented proper user group linking for private connectors
 - Smart Drive connector links include `smart_drive=true` parameter
-- Backend detects this parameter and automatically sets access_type to PRIVATE
-- Connectors are now truly private and only visible to the user who created them
+- Backend creates a personal user group for each user (`smart_drive_user_{user_id}`)
+- Connectors are linked to the user's personal group, enabling proper access control
+- Documents are now truly private and only searchable by the user who created the connector
+- Smart Drive UI filters connectors to only show user's private Smart Drive connectors
 
 ## Next Steps for Production
 

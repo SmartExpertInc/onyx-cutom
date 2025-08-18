@@ -133,6 +133,42 @@ from onyx.utils.variable_functionality import fetch_ee_implementation_or_noop
 
 logger = setup_logger()
 
+
+def get_or_create_user_group_for_smart_drive(user: User, db_session: Session) -> int:
+    """Get or create a personal user group for Smart Drive connectors"""
+    from onyx.db.models import UserGroup, User__UserGroup
+    
+    # Check if user already has a personal Smart Drive group
+    group_name = f"smart_drive_user_{user.id}"
+    
+    existing_group = db_session.query(UserGroup).filter(
+        UserGroup.name == group_name
+    ).first()
+    
+    if existing_group:
+        return existing_group.id
+    
+    # Create new personal group for this user
+    new_group = UserGroup(
+        name=group_name,
+        is_up_to_date=False,
+    )
+    db_session.add(new_group)
+    db_session.flush()  # Get the ID
+    
+    # Link user to the group
+    user_group_link = User__UserGroup(
+        user_id=user.id,
+        user_group_id=new_group.id,
+        is_curator=True,  # User is curator of their own group
+    )
+    db_session.add(user_group_link)
+    db_session.commit()
+    
+    logger.info(f"Created Smart Drive user group {group_name} for user {user.id}")
+    return new_group.id
+
+
 _GMAIL_CREDENTIAL_ID_COOKIE_NAME = "gmail_credential_id"
 _GOOGLE_DRIVE_CREDENTIAL_ID_COOKIE_NAME = "google_drive_credential_id"
 
@@ -885,7 +921,9 @@ def create_connector_from_model(
     # Force PRIVATE access for Smart Drive connectors
     if request and request.headers.get("x-smart-drive-connector") == "true":
         connector_data.access_type = AccessType.PRIVATE
-        connector_data.groups = []  # Clear any groups for private connectors
+        # Get or create a personal user group for this user
+        user_group_id = get_or_create_user_group_for_smart_drive(user, db_session)
+        connector_data.groups = [user_group_id]  # Link to user's personal group
 
     try:
         _validate_connector_allowed(connector_data.source)
@@ -929,7 +967,9 @@ def create_connector_with_mock_credential(
     # Force PRIVATE access for Smart Drive connectors
     if request and request.headers.get("x-smart-drive-connector") == "true":
         connector_data.access_type = AccessType.PRIVATE
-        connector_data.groups = []  # Clear any groups for private connectors
+        # Get or create a personal user group for this user
+        user_group_id = get_or_create_user_group_for_smart_drive(user, db_session)
+        connector_data.groups = [user_group_id]  # Link to user's personal group
     tenant_id = get_current_tenant_id()
 
     fetch_ee_implementation_or_noop(

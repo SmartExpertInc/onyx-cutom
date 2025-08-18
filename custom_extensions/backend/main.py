@@ -18637,6 +18637,10 @@ async def list_smartdrive_files(
             
             # Create user-specific folder path within the shared account
             nextcloud_user_folder = account['nextcloud_user_id']  # This becomes the folder name
+            
+            # Ensure user folder exists
+            await ensure_user_folder_exists(nextcloud_username, nextcloud_password, nextcloud_user_folder)
+            
             webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{path}"
             
             auth = (nextcloud_username, nextcloud_password)
@@ -18946,6 +18950,34 @@ async def import_new_smartdrive_files(
     except Exception as e:
         logger.error(f"Error importing new SmartDrive files: {e}")
         raise HTTPException(status_code=500, detail="Failed to import new SmartDrive files")
+
+async def ensure_user_folder_exists(nextcloud_username: str, nextcloud_password: str, user_folder: str):
+    """Ensure the user's folder exists in Nextcloud, create if it doesn't"""
+    try:
+        folder_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{user_folder}/"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient() as client:
+            # Check if folder exists
+            response = await client.request("PROPFIND", folder_url, auth=auth, headers={"Depth": "0"})
+            
+            if response.status_code == 404:
+                # Folder doesn't exist, create it
+                logger.info(f"Creating Nextcloud folder for user: {user_folder}")
+                create_response = await client.request("MKCOL", folder_url, auth=auth)
+                
+                if create_response.status_code in [201, 405]:  # 201 = Created, 405 = Already exists
+                    logger.info(f"Successfully created/verified folder: {user_folder}")
+                else:
+                    logger.error(f"Failed to create folder {user_folder}: {create_response.status_code}")
+            elif response.status_code == 207:
+                # Folder exists
+                logger.debug(f"User folder already exists: {user_folder}")
+            else:
+                logger.warning(f"Unexpected response checking folder {user_folder}: {response.status_code}")
+                
+    except Exception as e:
+        logger.error(f"Error ensuring user folder exists: {e}")
 
 async def get_all_nextcloud_files(nextcloud_user_folder: str, base_path: str = "/") -> List[Dict]:
     """Recursively get all files from Nextcloud using shared account"""

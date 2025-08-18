@@ -21,25 +21,59 @@ const ConnectorsPage: React.FC = () => {
   const loadConnectors = async () => {
     try {
       setLoading(true);
-      // Instead of our custom endpoint, query Onyx's actual connector tables for private connectors
-      const response = await fetch('/api/manage/admin/connector', {
-        credentials: 'same-origin',
-      });
+      
+      // Get connectors and credential pairs
+      const [connectorsResponse, ccPairsResponse] = await Promise.all([
+        fetch('/api/manage/admin/connector', { credentials: 'same-origin' }),
+        fetch('/api/manage/admin/connector-credential-pair', { credentials: 'same-origin' })
+      ]);
 
-      if (response.ok) {
-        const allConnectors = await response.json();
-        // Filter to only show private connectors for this user
-        const userConnectors = allConnectors.filter((c: any) => 
-          c.access_type === 'private' && c.is_user_owned === true
-        );
+      if (connectorsResponse.ok && ccPairsResponse.ok) {
+        const allConnectors = await connectorsResponse.json();
+        const allCCPairs = await ccPairsResponse.json();
+        
+        // Filter to only show private connectors created through Smart Drive
+        const smartDriveConnectors = allConnectors.filter((connector: any) => {
+          // Find associated CC pairs for this connector
+          const associatedCCPairs = allCCPairs.filter((pair: any) => 
+            pair.connector.id === connector.id && pair.access_type === 'private'
+          );
+          
+          return associatedCCPairs.length > 0 && 
+                 (connector.name?.toLowerCase().includes('smart') || 
+                  associatedCCPairs.some((pair: any) => 
+                    pair.user_groups?.some((group: any) => 
+                      group.name?.includes('smart_drive_user_')
+                    )
+                  )
+                 );
+        });
+        
+        // Map to our interface
+        const userConnectors = smartDriveConnectors.map((connector: any) => {
+          const ccPair = allCCPairs.find((pair: any) => 
+            pair.connector.id === connector.id && pair.access_type === 'private'
+          );
+          
+          return {
+            id: connector.id,
+            name: connector.name,
+            source: connector.source,
+            status: ccPair?.status || 'unknown',
+            last_sync_at: ccPair?.last_time_synced,
+            total_docs_indexed: ccPair?.documents_indexed || 0,
+            last_error: ccPair?.last_index_attempt?.error_msg,
+          };
+        });
+        
         setConnectors(userConnectors);
       } else {
-        console.error('Failed to load connectors:', response.statusText);
-        setConnectors([]); // Fallback to empty list
+        console.error('Failed to load connectors or CC pairs');
+        setConnectors([]);
       }
     } catch (err) {
       console.error('Error loading connectors:', err);
-      setConnectors([]); // Fallback to empty list
+      setConnectors([]);
     } finally {
       setLoading(false);
     }
