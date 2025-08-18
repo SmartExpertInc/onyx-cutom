@@ -105,7 +105,7 @@ export default function VideoEditorHeader() {
 
   // Dropdown icon component
   const DropdownIcon = () => (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="w-3 h-3 text-gray-500">
+    <svg width="16" height="16" viewBox="0 0 12 12" fill="none" className="w-4 h-4 text-gray-500">
       <path
         d="M3 4.5L6 7.5L9 4.5"
         stroke="currentColor"
@@ -226,11 +226,11 @@ export default function VideoEditorHeader() {
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-3 lg:gap-4">
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <Undo2 className="w-3 h-3" />
+              <Undo2 className="w-4 h-4" />
             </button>
 
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <Redo2 className="w-3 h-3" />
+              <Redo2 className="w-4 h-4" />
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -242,10 +242,10 @@ export default function VideoEditorHeader() {
                 onClick={handleResizeClick}
                 className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4">
                   <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
                 </svg>
-                <span className="text-editor-resize-text text-xs font-normal">Resize</span>
+                <span className="text-editor-resize-text text-base font-normal">Resize</span>
               </button>
 
               {/* Resize popup */}
@@ -291,12 +291,12 @@ export default function VideoEditorHeader() {
                 className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center"
               >
                 {isEyeVisible ? (
-                  <Eye className="w-3 h-3" />
+                  <Eye className="w-4 h-4" />
                 ) : (
-                  <EyeOff className="w-3 h-3" />
+                  <EyeOff className="w-4 h-4" />
                 )}
               </button>
-              <span className="text-editor-icon-text text-xs font-normal">Grid</span>
+              <span className="text-editor-icon-text text-base font-normal">Grid</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
@@ -305,8 +305,8 @@ export default function VideoEditorHeader() {
             <button
               className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8"
             >
-              <Gem className="w-3 h-3 text-purple-700" />
-              <span className="text-xs font-normal">Upgrade</span>
+              <Gem className="w-4 h-4 text-purple-700" />
+              <span className="text-base font-normal">Upgrade</span>
             </button>
           </div>
         </div>
@@ -314,8 +314,8 @@ export default function VideoEditorHeader() {
         {/* Center section - Create video text (hidden on mobile) */}
         <div className="hidden lg:flex flex-1 justify-center">
           <div className="flex items-center gap-3">
-            <span className="text-editor-gray-text text-xs font-medium whitespace-nowrap">Create your first AI video</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
+            <span className="text-editor-gray-text text-base font-medium whitespace-nowrap">Create your first AI video</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4">
               <g fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path strokeLinecap="round" d="M4 22h16"/>
                 <path d="m13.888 3.663l.742-.742a3.146 3.146 0 1 1 4.449 4.45l-.742.74m-4.449-4.448s.093 1.576 1.483 2.966c1.39 1.39 2.966 1.483 2.966 1.483m-4.449-4.45L7.071 10.48c-.462.462-.693.692-.891.947a5.24 5.24 0 0 0-.599.969c-.139.291-.242.601-.449 1.22l-.875 2.626m14.08-8.13l-6.817 6.817c-.462.462-.692.692-.947.891c-.3.234-.625.435-.969.599c-.291.139-.601.242-1.22.448l-2.626.876m0 0l-.641.213a.848.848 0 0 1-1.073-1.073l.213-.641m1.501 1.5l-1.5-1.5"/>
@@ -328,7 +328,7 @@ export default function VideoEditorHeader() {
         <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
             <button className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8">
-              <Play className="w-3 h-3" />
+              <Play className="w-4 h-4" />
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -340,7 +340,7 @@ export default function VideoEditorHeader() {
                 onClick={handleShareClick}
                 className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8"
               >
-                <span className="text-xs font-normal">Share</span>
+                <span className="text-base font-normal">Share</span>
               </button>
 
               {/* Share popup */}
@@ -433,7 +433,7 @@ export default function VideoEditorHeader() {
             <button
               className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border"
             >
-              <span className="text-xs font-normal">Generate</span>
+              <span className="text-base font-normal">Generate</span>
             </button>
           </div>
         </div>

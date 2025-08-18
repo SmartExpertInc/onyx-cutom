@@ -58,10 +58,12 @@ export default function Projects2ViewPage() {
       <VideoEditorHeader />
 
       {/* Toolbar */}
-      <Toolbar 
-        onActiveToolChange={handleActiveToolChange} 
-        onTextButtonClick={handleTextButtonClick}
-      />
+      <div className="-mt-1">
+        <Toolbar 
+          onActiveToolChange={handleActiveToolChange} 
+          onTextButtonClick={handleTextButtonClick}
+        />
+      </div>
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}

@@ -78,7 +78,7 @@ export default function Background() {
             {/* Inactive + button with label */}
             <div className="flex flex-col items-center">
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
-                <span className="text-2xl text-gray-400 font-light">+</span>
+                <span className="text-4xl text-gray-400 font-light">+</span>
               </div>
               <span className="text-sm text-center" style={{ color: '#616161' }}>Custom</span>
             </div>
@@ -87,7 +87,7 @@ export default function Background() {
             {rectangleData.slice(0, Math.ceil(rectangleData.length / 2)).map((item, index) => (
               <div key={`col1-${index}`} className="flex flex-col items-center">
                 <div
-                  className="w-full h-12 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
+                  className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
                   style={{ 
                     backgroundColor: item.color,
                     border: selectedColor === item.color ? `5px solid ${darkenColor(item.color)}` : 'none'
@@ -105,7 +105,7 @@ export default function Background() {
             {rectangleData.slice(Math.ceil(rectangleData.length / 2)).map((item, index) => (
               <div key={`col2-${index}`} className="flex flex-col items-center">
                 <div
-                  className="w-full h-12 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
+                  className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
                   style={{ 
                     backgroundColor: item.color,
                     border: selectedColor === item.color ? `5px solid ${darkenColor(item.color)}` : 'none'

@@ -36,9 +36,9 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
   // Custom flag icon with EN text
   const renderCustomFlag = () => (
     <div className="relative inline-block">
-      <Flag size={16} className="text-gray-700" />
+      <Flag size={18} className="text-gray-700" />
       <span 
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-[6px] font-bold leading-none"
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-[7px] font-bold leading-none"
       >
         EN
       </span>
@@ -49,8 +49,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
   const renderCustomBackground = () => (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
-      width="16" 
-      height="16" 
+      width="18" 
+      height="18" 
       viewBox="0 0 24 24"
       className="text-gray-700"
     >
@@ -140,7 +140,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
   };
 
   return (
-    <div className="w-full bg-white px-6 py-3" style={{ height: '72px' }}>
+    <div className="w-full bg-white px-2 py-3" style={{ height: '72px' }}>
       {/* Toolbar container */}
       <div className="flex items-start justify-between max-w-full h-full">
             {/* Left side - all tools except Default */}
@@ -163,8 +163,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                         : tool.icon === 'custom-background'
                         ? renderCustomBackground()
                         : React.createElement(tool.icon, {
-                            size: 16,
-                            className: "text-gray-700"
+                            size: 18,
+                            className: tool.id === 'transition' ? "text-gray-700 -rotate-[30deg]" : "text-gray-700"
                           })
                       }
                     </div>
@@ -175,7 +175,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                         style={{
                           color: '#000000',
                           fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                          fontSize: '10px',
+                          fontSize: '12px',
 
                           lineHeight: 'normal'
                         }}
@@ -203,7 +203,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                     {tool.icon === 'custom-flag' 
                       ? renderCustomFlag()
                       : React.createElement(tool.icon, {
-                          size: 16,
+                          size: 18,
                           className: "text-gray-700"
                         })
                     }
@@ -215,7 +215,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                     style={{
                       color: '#000000',
                       fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                      fontSize: '10px',
+                      fontSize: '12px',
                       lineHeight: 'normal'
                     }}
                   >
@@ -226,7 +226,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   {tool.chevron && (
                     <div className="flex items-center justify-center mt-0.5">
                       {React.createElement(tool.chevron, {
-                        size: 12,
+                        size: 14,
                         className: "text-gray-600"
                       })}
                     </div>

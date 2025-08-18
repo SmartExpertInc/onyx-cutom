@@ -41,7 +41,7 @@ export default function Media({
       {/* Sidebar */}
       <div className="w-64 bg-white p-4 flex flex-col" style={{ borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
         {/* My assets section */}
-        <div className="mb-3 pt-6">
+        <div className="mb-3 pt-0">
           <h4 className="text-sm font-medium text-black mb-1 px-3">My assets</h4>
           <div className="flex items-center px-3 py-2 bg-gray-200 rounded-lg cursor-pointer transition-colors">
                           <Folder className="w-3 h-3 text-black mr-3" />
@@ -106,7 +106,7 @@ export default function Media({
       <div className="flex-1 flex flex-col">
         {/* Tabs */}
         <div className="relative border-b border-gray-200">
-          <div className="flex px-6 pt-6">
+          <div className="flex px-6 pt-4">
             <button className="relative px-4 py-2 text-sm font-medium text-gray-900 mr-8">
               Media library
               {/* Active tab indicator */}
@@ -146,9 +146,9 @@ export default function Media({
         </div>
         
         {/* Tab content */}
-        <div className="flex-1 p-6 pb-12 overflow-y-auto">
+        <div className="flex-1 px-6 pt-0 pb-4 overflow-y-auto">
           {/* Demo rectangles in three columns */}
-          <div className="grid grid-cols-3 gap-4 pb-8">
+          <div className="grid grid-cols-3 gap-4 pb-0">
             {/* Column 1 */}
             <div className="space-y-4">
               <div className="bg-gray-200 rounded-lg h-32"></div>
