@@ -260,25 +260,13 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                   {/* Language Variants Popup */}
                   {isLanguagePopupOpen && (
                     <div 
-                      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[350px] z-50"
+                      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[380px] z-50"
                       style={{ marginRight: '10px' }} // Keep popup within page boundaries
                     >
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          width="16" 
-                          height="16" 
-                          viewBox="0 0 32 32"
-                          className="text-gray-500"
-                        >
-                          <path 
-                            fill="currentColor" 
-                            d="M16 1.466C7.973 1.466 1.466 7.973 1.466 16c0 8.027 6.507 14.534 14.534 14.534c8.027 0 14.534-6.507 14.534-14.534c0-8.027-6.507-14.534-14.534-14.534zM14.757 8h2.42v2.574h-2.42V8zm4.005 15.622H16.1c-1.034 0-1.475-.44-1.475-1.496V15.26c0-.33-.176-.483-.484-.483h-.88V12.4h2.663c1.035 0 1.474.462 1.474 1.496v6.887c0 .31.176.484.484.484h.88v2.355z"
-                          />
-                        </svg>
                         <span 
-                          className="font-semibold text-gray-500"
+                          className="font-semibold text-gray-400"
                           style={{
                             fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
                             fontSize: '12px',
@@ -287,6 +275,18 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                         >
                           LANGUAGE VARIANTS
                         </span>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          width="16" 
+                          height="16" 
+                          viewBox="0 0 32 32"
+                          className="text-gray-400"
+                        >
+                          <path 
+                            fill="currentColor" 
+                            d="M16 1.466C7.973 1.466 1.466 7.973 1.466 16c0 8.027 6.507 14.534 14.534 14.534c8.027 0 14.534-6.507 14.534-14.534c0-8.027-6.507-14.534-14.534-14.534zM14.757 8h2.42v2.574h-2.42V8zm4.005 15.622H16.1c-1.034 0-1.475-.44-1.475-1.496V15.26c0-.33-.176-.483-.484-.483h-.88V12.4h2.663c1.035 0 1.474.462 1.474 1.496v6.887c0 .31.176.484.484.484h.88v2.355z"
+                          />
+                        </svg>
                       </div>
 
                       {/* English Language Row */}

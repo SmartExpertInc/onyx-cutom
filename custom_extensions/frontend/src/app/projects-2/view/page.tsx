@@ -67,14 +67,14 @@ export default function Projects2ViewPage() {
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
-      <div className="flex gap-4 overflow-hidden" style={{ height: 'calc(100vh - 140px)' }}>
+      <div className="flex gap-4 overflow-hidden mt-[5px]" style={{ height: 'calc(100vh - 145px)' }}>
         {/* Sidebar - 30% width, full height of available space */}
         <div className="w-[30%] h-full">
           {renderSidebarComponent()}
         </div>
 
         {/* Main Container - 70% width, full height of available space */}
-        <div className="w-[70%] h-full flex flex-col gap-4">
+        <div className="w-[70%] h-full flex flex-col gap-2">
           {/* Top Container - Takes 70% of main container height */}
           <div className="bg-gray-200 rounded-md overflow-auto" style={{ height: '80%' }}>
           </div>

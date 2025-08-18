@@ -2,7 +2,7 @@ export default function Script() {
   return (
     <div className="h-full bg-white border-gray-300 rounded-md relative overflow-hidden w-full">
       {/* Content Container */}
-      <div className="relative z-10 flex flex-col items-start justify-start px-4 py-8 sm:px-8 md:px-12 lg:px-20 md:py-16 lg:py-24">
+      <div className="relative z-10 flex flex-col items-start justify-start px-4 py-8 md:py-16 lg:py-24">
 
         {/* Top Section with Avatar and Selector */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16 w-full">

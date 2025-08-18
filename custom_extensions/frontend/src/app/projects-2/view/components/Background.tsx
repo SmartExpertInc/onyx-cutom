@@ -29,7 +29,7 @@ export default function Background() {
 
   return (
     <div className="h-full bg-white relative w-full border-0 overflow-y-auto">
-      <div className="relative z-10 flex flex-col items-start justify-start w-full p-4">
+      <div className="relative z-10 flex flex-col items-start justify-start w-full px-2 py-4">
         
         {/* Selected color preview */}
         {selectedColor && (
@@ -54,7 +54,7 @@ export default function Background() {
         
         {/* Media upload section */}
         <div 
-          className="w-full border border-gray-300 rounded-lg p-4 mb-6 flex flex-row items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+          className="w-full border border-gray-300 rounded-lg p-6 mb-6 flex flex-row items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
           onClick={() => setIsModalOpen(true)}
         >
           <svg className="w-5 h-5 text-black mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
