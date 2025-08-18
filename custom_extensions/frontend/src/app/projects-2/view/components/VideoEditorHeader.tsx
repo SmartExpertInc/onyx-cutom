@@ -157,7 +157,7 @@ export default function VideoEditorHeader() {
 
   // Garbage bin icon component
   const GarbageIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-400 hover:text-red-500">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-black">
       <path
         d="M2 4h12"
         stroke="currentColor"
@@ -396,7 +396,7 @@ export default function VideoEditorHeader() {
                           <button
                             type="button"
                             onClick={() => handleDropdownToggle(emailInput.id)}
-                            className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-3 pr-8 text-sm focus:outline-none focus:border-black focus:border-[2px] cursor-pointer w-full text-left flex items-center justify-between"
+                            className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-3 pr-2 text-sm focus:outline-none focus:border-black focus:border-[2px] cursor-pointer w-24 text-left flex items-center justify-between"
                           >
                             <span className="capitalize">{emailInput.role}</span>
                             <DropdownIcon />
@@ -431,7 +431,7 @@ export default function VideoEditorHeader() {
                         ) : (
                           <button
                             onClick={() => deleteEmailInput(emailInput.id)}
-                            className="w-10 h-10 p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center"
+                            className="w-10 h-10 p-2 hover:bg-gray-200 rounded-full transition-colors flex items-center justify-center"
                             title="Delete this email input"
                           >
                             <GarbageIcon />
