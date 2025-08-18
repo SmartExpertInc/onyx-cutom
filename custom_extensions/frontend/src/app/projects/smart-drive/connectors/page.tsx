@@ -34,7 +34,7 @@ const ConnectorsPage: React.FC = () => {
 
   const loadConnectors = async () => {
     try {
-      const response = await fetch('/api/custom-smartdrive/connectors/', {
+      const response = await fetch('/api/custom-projects-backend/smartdrive/connectors/', {
         credentials: 'same-origin',
       });
 
@@ -55,7 +55,7 @@ const ConnectorsPage: React.FC = () => {
     setSyncingConnectors(prev => new Set(prev).add(connectorId));
 
     try {
-      const response = await fetch(`/api/custom-smartdrive/connectors/${connectorId}/sync`, {
+      const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${connectorId}/sync`, {
         method: 'POST',
         credentials: 'same-origin',
       });
@@ -83,7 +83,7 @@ const ConnectorsPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/api/custom-smartdrive/connectors/${connectorId}`, {
+      const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${connectorId}`, {
         method: 'DELETE',
         credentials: 'same-origin',
       });

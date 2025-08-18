@@ -38,7 +38,7 @@ const SmartDrivePickerModal: React.FC<SmartDrivePickerModalProps> = ({
   const loadFiles = async (path: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/custom-smartdrive/list?path=${encodeURIComponent(path)}`, {
+      const response = await fetch(`/api/custom-projects-backend/smartdrive/list?path=${encodeURIComponent(path)}`, {
         credentials: 'same-origin',
       });
 

@@ -203,7 +203,7 @@ class DocumentsService {
 
   // Smart Drive methods
   async ensureSmartDriveSession(): Promise<void> {
-    const response = await fetch("/api/custom-smartdrive/session", {
+          const response = await fetch("/api/custom-projects-backend/smartdrive/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
@@ -213,15 +213,15 @@ class DocumentsService {
   }
 
   async listSmartDrive(path: string = "/"): Promise<any> {
-    const response = await fetch(`/api/custom-smartdrive/list?path=${encodeURIComponent(path)}`);
-    if (!response.ok) {
+          const response = await fetch(`/api/custom-projects-backend/smartdrive/list?path=${encodeURIComponent(path)}`);
+      if (!response.ok) {
       throw new Error("Failed to list SmartDrive files");
     }
     return response.json();
   }
 
   async importSmartDriveFiles(paths: string[]): Promise<{ fileIds: number[] }> {
-    const response = await fetch("/api/custom-smartdrive/import", {
+          const response = await fetch("/api/custom-projects-backend/smartdrive/import", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ paths }),
@@ -233,7 +233,7 @@ class DocumentsService {
   }
 
   async importSmartDriveNewSinceLastSync(): Promise<any> {
-    const response = await fetch("/api/custom-smartdrive/import-new", {
+          const response = await fetch("/api/custom-projects-backend/smartdrive/import-new", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
@@ -245,7 +245,7 @@ class DocumentsService {
 
   // User Connectors methods
   async listUserConnectors(): Promise<any[]> {
-    const response = await fetch("/api/custom-smartdrive/connectors/");
+          const response = await fetch("/api/custom-projects-backend/smartdrive/connectors/");
     if (!response.ok) {
       throw new Error("Failed to list user connectors");
     }
@@ -253,7 +253,7 @@ class DocumentsService {
   }
 
   async createUserConnector(connector: any): Promise<any> {
-    const response = await fetch("/api/custom-smartdrive/connectors/", {
+          const response = await fetch("/api/custom-projects-backend/smartdrive/connectors/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(connector),
@@ -265,7 +265,7 @@ class DocumentsService {
   }
 
   async updateUserConnector(id: number, connector: any): Promise<any> {
-    const response = await fetch(`/api/custom-smartdrive/connectors/${id}`, {
+    const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(connector),
@@ -277,7 +277,7 @@ class DocumentsService {
   }
 
   async deleteUserConnector(id: number): Promise<void> {
-    const response = await fetch(`/api/custom-smartdrive/connectors/${id}`, {
+    const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -286,7 +286,7 @@ class DocumentsService {
   }
 
   async syncUserConnector(id: number): Promise<any> {
-    const response = await fetch(`/api/custom-smartdrive/connectors/${id}/sync`, {
+    const response = await fetch(`/api/custom-projects-backend/smartdrive/connectors/${id}/sync`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });

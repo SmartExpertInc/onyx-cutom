@@ -17,7 +17,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
   useEffect(() => {
     const initializeSession = async () => {
       try {
-        const response = await fetch('/api/custom-smartdrive/session', {
+        const response = await fetch('/api/custom-projects-backend/smartdrive/session', {
           method: 'POST',
           credentials: 'same-origin',
           headers: {
@@ -41,7 +41,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
     setSyncStatus('syncing');
 
     try {
-      const response = await fetch('/api/custom-smartdrive/import-new', {
+      const response = await fetch('/api/custom-projects-backend/smartdrive/import-new', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
