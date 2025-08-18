@@ -18631,12 +18631,15 @@ async def list_smartdrive_files(
                 raise HTTPException(status_code=404, detail="SmartDrive account not found")
 
             # Use Nextcloud WebDAV API to list files
-            nextcloud_user_id = account['nextcloud_user_id']
-            webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_user_id}{path}"
+            # Use a shared Nextcloud account for all Smart Drive access
+            nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+            nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
             
-            # Basic auth for Nextcloud (in production, use proper OAuth or app passwords)
-            nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
-            auth = (nextcloud_user_id, nextcloud_password)
+            # Create user-specific folder path within the shared account
+            nextcloud_user_folder = account['nextcloud_user_id']  # This becomes the folder name
+            webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{path}"
+            
+            auth = (nextcloud_username, nextcloud_password)
             
             try:
                 async with httpx.AsyncClient() as client:
@@ -18841,7 +18844,8 @@ async def import_new_smartdrive_files(
             last_sync = sync_cursor.get('last_sync') if sync_cursor else None
             
             # Get list of all files from Nextcloud
-            all_files = await get_all_nextcloud_files(nextcloud_user_id, "/")
+            nextcloud_user_folder = account['nextcloud_user_id']  # User's folder within shared account
+            all_files = await get_all_nextcloud_files(nextcloud_user_folder, "/")
             
             imported_count = 0
             imported_files = []
@@ -18870,7 +18874,7 @@ async def import_new_smartdrive_files(
                 # Try to import the file into Onyx
                 try:
                     onyx_file_id = await import_file_to_onyx(
-                        nextcloud_user_id, 
+                        nextcloud_user_folder, 
                         file_path, 
                         file_info, 
                         onyx_user_id
@@ -18943,14 +18947,17 @@ async def import_new_smartdrive_files(
         logger.error(f"Error importing new SmartDrive files: {e}")
         raise HTTPException(status_code=500, detail="Failed to import new SmartDrive files")
 
-async def get_all_nextcloud_files(nextcloud_user_id: str, base_path: str = "/") -> List[Dict]:
-    """Recursively get all files from Nextcloud"""
+async def get_all_nextcloud_files(nextcloud_user_folder: str, base_path: str = "/") -> List[Dict]:
+    """Recursively get all files from Nextcloud using shared account"""
     all_files = []
     
     try:
-        webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_user_id}{base_path}"
-        nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
-        auth = (nextcloud_user_id, nextcloud_password)  # TODO: Use encrypted credentials
+        # Use shared Nextcloud account
+        nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+        nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+        
+        webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{base_path}"
+        auth = (nextcloud_username, nextcloud_password)
         
         async with httpx.AsyncClient() as client:
             response = await client.request(
@@ -18982,13 +18989,15 @@ async def get_all_nextcloud_files(nextcloud_user_id: str, base_path: str = "/") 
         
     return all_files
 
-async def import_file_to_onyx(nextcloud_user_id: str, file_path: str, file_info: Dict, onyx_user_id: str) -> str:
+async def import_file_to_onyx(nextcloud_user_folder: str, file_path: str, file_info: Dict, onyx_user_id: str) -> str:
     """Download file from Nextcloud and upload to Onyx"""
     try:
-        # Download file from Nextcloud
-        download_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_user_id}{file_path}"
-        nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
-        auth = (nextcloud_user_id, nextcloud_password)
+        # Download file from Nextcloud using shared account
+        nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+        nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+        
+        download_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{file_path}"
+        auth = (nextcloud_username, nextcloud_password)
         
         async with httpx.AsyncClient(timeout=60.0) as client:
             download_response = await client.get(download_url, auth=auth)

@@ -9,9 +9,9 @@ Add these environment variables to your `.env` file in `deployment/docker_compos
 
 ### Required for Smart Drive
 ```bash
-# Nextcloud Integration
-NEXTCLOUD_BASE_URL=http://nc1.contentbuilder.ai:8080
-NEXTCLOUD_DEFAULT_PASSWORD=your_actual_nextcloud_password
+# Nextcloud Integration (UPDATED - uses shared account approach)
+NEXTCLOUD_USERNAME=smart_drive_user
+NEXTCLOUD_PASSWORD=your_nextcloud_shared_account_password
 
 # Smart Drive Database (if not already set)
 CUSTOM_PROJECTS_DATABASE_URL=postgresql://custom_user:custom_password@custom_projects_db:5432/custom_projects_db
@@ -58,10 +58,11 @@ The following tables are automatically created on startup:
 - The form data is being sent correctly to the backend
 - Try disabling browser extensions or use incognito mode
 
-### Issue: Files don't appear after sync
-- Check Nextcloud connection in logs
-- Verify `NEXTCLOUD_DEFAULT_PASSWORD` is correct
-- Check that files are actually in the Nextcloud instance
+### Issue: Files don't appear after sync (401 Unauthorized)
+- ✅ **Fixed**: Now uses shared Nextcloud account approach
+- Verify `NEXTCLOUD_USERNAME` and `NEXTCLOUD_PASSWORD` are correct for the shared account
+- Each Onyx user gets their own folder within the shared Nextcloud account (e.g., `/smart_drive_user/{onyx_user_id}/`)
+- Check that the shared Nextcloud account has proper permissions
 - Look for import errors in backend logs
 
 ### Issue: Mixed content HTTPS/HTTP errors  
@@ -71,6 +72,12 @@ The following tables are automatically created on startup:
 - ✅ **Fixed**: Now using Onyx's native connector system with `AccessType.PRIVATE`
 - Users are redirected to proper Onyx connector creation and management pages
 - All OAuth flows and connector configurations work exactly like admin connectors
+
+### Issue: Connectors created through Smart Drive are not private
+- ✅ **Fixed**: Modified Onyx's connector creation endpoints to force `AccessType.PRIVATE`
+- Smart Drive connector links include `smart_drive=true` parameter
+- Backend detects this parameter and automatically sets access_type to PRIVATE
+- Connectors are now truly private and only visible to the user who created them
 
 ## Next Steps for Production
 

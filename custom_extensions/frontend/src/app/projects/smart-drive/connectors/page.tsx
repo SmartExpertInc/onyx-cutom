@@ -113,11 +113,11 @@ const ConnectorsPage: React.FC = () => {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {connectorSources.map((source) => (
-              <a
-                key={source.id}
-                href={`/admin/connectors/${source.id}?access_type=private&return_url=${encodeURIComponent('/projects/smart-drive/connectors')}`}
-                className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
-              >
+                             <a
+                 key={source.id}
+                 href={`/admin/connectors/${source.id}?access_type=private&smart_drive=true&return_url=${encodeURIComponent('/projects/smart-drive/connectors')}`}
+                 className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
+               >
                 <span className="text-2xl">{source.icon}</span>
                 <div>
                   <div className="font-medium text-gray-900">{source.name}</div>

@@ -878,8 +878,14 @@ def create_connector_from_model(
     connector_data: ConnectorUpdateRequest,
     user: User = Depends(current_curator_or_admin_user),
     db_session: Session = Depends(get_session),
+    request: Request = None,
 ) -> ObjectCreationIdResponse:
     tenant_id = get_current_tenant_id()
+
+    # Force PRIVATE access for Smart Drive connectors
+    if request and request.headers.get("x-smart-drive-connector") == "true":
+        connector_data.access_type = AccessType.PRIVATE
+        connector_data.groups = []  # Clear any groups for private connectors
 
     try:
         _validate_connector_allowed(connector_data.source)
@@ -918,7 +924,12 @@ def create_connector_with_mock_credential(
     connector_data: ConnectorUpdateRequest,
     user: User = Depends(current_curator_or_admin_user),
     db_session: Session = Depends(get_session),
+    request: Request = None,
 ) -> StatusResponse:
+    # Force PRIVATE access for Smart Drive connectors
+    if request and request.headers.get("x-smart-drive-connector") == "true":
+        connector_data.access_type = AccessType.PRIVATE
+        connector_data.groups = []  # Clear any groups for private connectors
     tenant_id = get_current_tenant_id()
 
     fetch_ee_implementation_or_noop(
