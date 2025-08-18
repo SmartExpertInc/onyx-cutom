@@ -25,15 +25,15 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: '500px'
+          width: '600px'
         }}
       >
         {/* Content */}
         <div className="flex gap-8 justify-center">
           {/* Multiple Choice Option */}
           <div className="flex flex-col items-center cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors">
-            <div className="mb-4">
-              <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-40 h-32 flex items-center justify-center">
+              <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
                   {`.light { fill: #e6e6e6; }
                    .dark { fill: url(#grad); }
@@ -72,8 +72,8 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
 
           {/* Branching Option */}
           <div className="flex flex-col items-center cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors">
-            <div className="mb-4">
-              <svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-40 h-32 flex items-center justify-center">
+              <svg width="120" height="60" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
                   {`.node {
                      fill: url(#grad2);

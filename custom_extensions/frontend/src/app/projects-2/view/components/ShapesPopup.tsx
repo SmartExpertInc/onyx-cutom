@@ -94,7 +94,7 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
   return (
     <div
       ref={popupRef}
-      className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50 w-[420px]"
+      className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50 w-[480px]"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -106,11 +106,9 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center p-6 cursor-pointer transition-all duration-200 group hover:bg-gray-50 rounded-lg"
+            className="flex items-center justify-center p-8 cursor-pointer transition-all duration-200 hover:bg-gray-200 rounded-lg"
           >
-            <div className="group-hover:scale-110 transition-transform duration-200">
-              {shape.icon}
-            </div>
+            {shape.icon}
           </div>
         ))}
       </div>
@@ -121,11 +119,9 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center p-6 cursor-pointer transition-all duration-200 group hover:bg-gray-50 rounded-lg"
+            className="flex items-center justify-center p-8 cursor-pointer transition-all duration-200 hover:bg-gray-200 rounded-lg"
           >
-            <div className="group-hover:scale-110 transition-transform duration-200">
-              {shape.icon}
-            </div>
+            {shape.icon}
           </div>
         ))}
       </div>

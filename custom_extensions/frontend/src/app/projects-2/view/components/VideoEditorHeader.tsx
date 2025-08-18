@@ -192,7 +192,7 @@ export default function VideoEditorHeader() {
   const resizeOptions = [
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
           <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
         </svg>
       ),
@@ -201,7 +201,7 @@ export default function VideoEditorHeader() {
     },
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
           <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
         </svg>
       ),
@@ -210,7 +210,7 @@ export default function VideoEditorHeader() {
     },
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
           <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
         </svg>
       ),
@@ -219,7 +219,7 @@ export default function VideoEditorHeader() {
     },
     {
       icon: (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-500">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
           <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" fill="none"/>
         </svg>
       ),
@@ -269,7 +269,7 @@ export default function VideoEditorHeader() {
 
               {/* Resize popup */}
               {isResizePopupOpen && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64">
+                <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80">
                   <div className="py-2">
                     {resizeOptions.map((option, index) => (
                       <button
@@ -291,9 +291,11 @@ export default function VideoEditorHeader() {
                     ))}
                   </div>
                   
-                  {/* Warning text - extends to popup borders */}
-                  <div className="bg-amber-50 text-amber-800 text-xs p-3 rounded-b-lg -mx-px -mb-px">
-                    Existing content on the scene will not be reorganised automatically.
+                  {/* Warning text with small spacing from bottom */}
+                  <div className="px-4 pb-3">
+                    <div className="bg-amber-50 text-amber-800 text-sm p-3 rounded-md">
+                      Existing content on the scene will not be reorganised automatically.
+                    </div>
                   </div>
                 </div>
               )}
