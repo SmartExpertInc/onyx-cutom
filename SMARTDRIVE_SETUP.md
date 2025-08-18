@@ -39,10 +39,11 @@ The following tables are automatically created on startup:
 
 ### ✅ Implemented
 - **Smart Drive Tab**: Browse and sync files from Nextcloud
-- **File Listing**: WebDAV integration to list actual Nextcloud files
+- **File Listing**: WebDAV integration to list actual Nextcloud files  
 - **File Import**: Downloads from Nextcloud and uploads to Onyx
 - **Sync Tracking**: Tracks imported files and prevents duplicates
-- **User Connectors**: Create personal connectors for 40+ data sources
+- **Native Onyx Connectors**: Users create private connectors using Onyx's existing system
+- **OAuth Support**: Full OAuth integration via Onyx's connector forms
 - **HTTPS Support**: Proper mixed content handling
 
 ### 🔧 Current Limitations
@@ -66,6 +67,11 @@ The following tables are automatically created on startup:
 ### Issue: Mixed content HTTPS/HTTP errors  
 - ✅ **Fixed**: iframe now uses same protocol as parent page
 
+### Issue: Custom connector endpoints returning 410 errors
+- ✅ **Fixed**: Now using Onyx's native connector system with `AccessType.PRIVATE`
+- Users are redirected to proper Onyx connector creation and management pages
+- All OAuth flows and connector configurations work exactly like admin connectors
+
 ## Next Steps for Production
 
 1. **Secure Authentication**: Replace basic auth with Nextcloud OAuth or app passwords
@@ -81,9 +87,10 @@ The following tables are automatically created on startup:
 - `GET /api/custom-projects-backend/smartdrive/list` - List files from Nextcloud
 - `POST /api/custom-projects-backend/smartdrive/import-new` - Sync new/updated files
 
-### User Connectors  
-- `GET /api/custom-projects-backend/smartdrive/connectors/` - List user connectors
-- `POST /api/custom-projects-backend/smartdrive/connectors/` - Create connector
-- `PUT /api/custom-projects-backend/smartdrive/connectors/{id}` - Update connector
-- `DELETE /api/custom-projects-backend/smartdrive/connectors/{id}` - Delete connector
-- `POST /api/custom-projects-backend/smartdrive/connectors/{id}/sync` - Sync connector 
+### User Connectors (Using Onyx's Native System)
+- **Create**: `/admin/connectors/{source}?access_type=private` - Onyx's connector creation forms with OAuth
+- **List**: `/api/manage/admin/connector` - Onyx's connector API (filter for private connectors)  
+- **Manage**: `/admin/connector/{id}` - Onyx's connector management UI
+- **Sync**: `/api/manage/admin/connector/{id}/index` - Onyx's connector sync API
+
+*Previous custom endpoints at `/api/custom-projects-backend/smartdrive/connectors/` are deprecated and return HTTP 410 with redirect information.* 

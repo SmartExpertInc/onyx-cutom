@@ -18836,7 +18836,9 @@ async def import_new_smartdrive_files(
                 raise HTTPException(status_code=404, detail="SmartDrive account not found")
 
             nextcloud_user_id = account['nextcloud_user_id']
-            last_sync = account['sync_cursor'].get('last_sync') if account['sync_cursor'] else None
+            # Parse JSON cursor from database
+            sync_cursor = json.loads(account['sync_cursor']) if account['sync_cursor'] else {}
+            last_sync = sync_cursor.get('last_sync') if sync_cursor else None
             
             # Get list of all files from Nextcloud
             all_files = await get_all_nextcloud_files(nextcloud_user_id, "/")
@@ -19052,95 +19054,54 @@ async def smartdrive_webhook(
         raise HTTPException(status_code=500, detail="Failed to process webhook")
 
 # ============================
-# PER-USER CONNECTORS API
+# PER-USER CONNECTORS API (DEPRECATED)
 # ============================
+# 
+# NOTE: We now use Onyx's native connector system with AccessType.PRIVATE
+# instead of our custom connector implementation. The frontend redirects users
+# to /admin/connectors/{source}?access_type=private to create connectors using
+# Onyx's existing OAuth-enabled forms and configuration system.
+#
+# Users' private connectors are managed through:
+# - Creation: /admin/connectors/{source} with access_type=private
+# - Listing: /api/manage/admin/connector (filtered for private connectors)
+# - Management: /admin/connector/{id} (Onyx's existing connector management UI)
+# - Syncing: /api/manage/admin/connector/{id}/index (Onyx's existing sync API)
+#
+# This gives users the full Onyx connector experience (including OAuth support)
+# while keeping connectors private to each user.
 
+# Legacy endpoint stub (kept for backwards compatibility)
 @app.get("/api/custom/smartdrive/connectors/")
 async def list_user_connectors(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """List connectors for the current user"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT id, name, source, config, status, last_sync_at, total_docs_indexed, created_at
-                FROM user_connectors 
-                WHERE onyx_user_id = $1 
-                ORDER BY created_at DESC
-                """,
-                onyx_user_id
-            )
-            
-            connectors = []
-            for row in rows:
-                connectors.append({
-                    "id": row["id"],
-                    "name": row["name"],
-                    "source": row["source"],
-                    "status": row["status"],
-                    "last_sync": row["last_sync_at"].isoformat() if row["last_sync_at"] else None,
-                    "total_docs": row["total_docs_indexed"] or 0,
-                    "created_at": row["created_at"].isoformat()
-                })
-            
-            return connectors
-        
-    except Exception as e:
-        logger.error(f"Error listing user connectors: {e}")
-        raise HTTPException(status_code=500, detail="Failed to list connectors")
+    """DEPRECATED: Use Onyx's native connector system instead"""
+    return {
+        "message": "This endpoint is deprecated. Use Onyx's native connector system with AccessType.PRIVATE",
+        "redirect_url": "/admin/connectors/",
+        "api_endpoint": "/api/manage/admin/connector",
+        "connectors": []
+    }
 
 @app.post("/api/custom/smartdrive/connectors/")
 async def create_user_connector(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Create a connector for the current user"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        payload = await request.json()
-        
-        name = payload.get('name')
-        source = payload.get('source')
-        config = payload.get('config', {})
-        
-        if not name or not source:
-            raise HTTPException(status_code=400, detail="Name and source are required")
-        
-        async with pool.acquire() as conn:
-            connector_id = await conn.fetchval(
-                """
-                INSERT INTO user_connectors (onyx_user_id, name, source, config, status, created_at, updated_at)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
-                RETURNING id
-                """,
-                onyx_user_id,
-                name,
-                source,
-                json.dumps(config),
-                'active',
-                datetime.now(timezone.utc),
-                datetime.now(timezone.utc)
-            )
-            
-            logger.info(f"Created connector {connector_id} for user {onyx_user_id}: {name} ({source})")
-            
-            # TODO: Create actual Onyx connector with AccessType.PRIVATE
-            
-            return {
-                "id": connector_id,
-                "name": name,
-                "source": source,
-                "status": "active",
-                "message": "Connector created successfully"
-            }
-        
-    except Exception as e:
-        logger.error(f"Error creating user connector: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create connector")
+    """DEPRECATED: Use /admin/connectors/{source}?access_type=private instead"""
+    payload = await request.json()
+    source = payload.get('source', 'unknown')
+    
+    raise HTTPException(
+        status_code=410,  # Gone
+        detail={
+            "message": "This endpoint is deprecated. Create connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connectors/{source}?access_type=private",
+            "instructions": "Visit the connector creation page to set up your private connector with OAuth support."
+        }
+    )
 
 @app.put("/api/custom/smartdrive/connectors/{connector_id}")
 async def update_user_connector(
@@ -19148,39 +19109,15 @@ async def update_user_connector(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Update the connector"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        payload = await request.json()
-        
-        async with pool.acquire() as conn:
-            # Verify ownership
-            existing = await conn.fetchrow(
-                "SELECT id FROM user_connectors WHERE id = $1 AND onyx_user_id = $2",
-                connector_id, onyx_user_id
-            )
-            
-            if not existing:
-                raise HTTPException(status_code=404, detail="Connector not found")
-            
-            # Update connector
-            await conn.execute(
-                """
-                UPDATE user_connectors 
-                SET name = $1, config = $2, updated_at = $3
-                WHERE id = $4
-                """,
-                payload.get('name'),
-                json.dumps(payload.get('config', {})),
-                datetime.now(timezone.utc),
-                connector_id
-            )
-            
-            return {"success": True, "message": "Connector updated successfully"}
-        
-    except Exception as e:
-        logger.error(f"Error updating user connector: {e}")
-        raise HTTPException(status_code=500, detail="Failed to update connector")
+    """DEPRECATED: Use /admin/connector/{connector_id} instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Manage connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connector/{connector_id}",
+            "instructions": "Visit the connector management page to update your connector configuration."
+        }
+    )
 
 @app.delete("/api/custom/smartdrive/connectors/{connector_id}")
 async def delete_user_connector(
@@ -19188,27 +19125,15 @@ async def delete_user_connector(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Delete the connector"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        async with pool.acquire() as conn:
-            # Verify ownership and delete
-            result = await conn.execute(
-                "DELETE FROM user_connectors WHERE id = $1 AND onyx_user_id = $2",
-                connector_id, onyx_user_id
-            )
-            
-            if result == "DELETE 0":
-                raise HTTPException(status_code=404, detail="Connector not found")
-            
-            # TODO: Delete actual Onyx connector
-            
-            return {"success": True, "message": "Connector deleted successfully"}
-        
-    except Exception as e:
-        logger.error(f"Error deleting user connector: {e}")
-        raise HTTPException(status_code=500, detail="Failed to delete connector")
+    """DEPRECATED: Use /admin/connector/{connector_id} instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Manage connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connector/{connector_id}",
+            "instructions": "Visit the connector management page to delete your connector."
+        }
+    )
 
 @app.post("/api/custom/smartdrive/connectors/{connector_id}/sync")
 async def sync_user_connector(
@@ -19216,52 +19141,12 @@ async def sync_user_connector(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Trigger a sync job"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        
-        async with pool.acquire() as conn:
-            # Verify ownership
-            connector = await conn.fetchrow(
-                "SELECT * FROM user_connectors WHERE id = $1 AND onyx_user_id = $2",
-                connector_id, onyx_user_id
-            )
-            
-            if not connector:
-                raise HTTPException(status_code=404, detail="Connector not found")
-            
-            # Update sync status
-            await conn.execute(
-                """
-                UPDATE user_connectors 
-                SET status = $1, last_sync_at = $2, updated_at = $3
-                WHERE id = $4
-                """,
-                'syncing',
-                datetime.now(timezone.utc),
-                datetime.now(timezone.utc),
-                connector_id
-            )
-            
-            # TODO: Trigger actual Onyx connector sync job
-            
-            # Simulate sync completion
-            await asyncio.sleep(1)  # Simulate processing time
-            
-            await conn.execute(
-                """
-                UPDATE user_connectors 
-                SET status = $1, total_docs_indexed = $2, updated_at = $3
-                WHERE id = $4
-                """,
-                'active',
-                (connector.get('total_docs_indexed') or 0) + 1,  # Simulate new doc
-                datetime.now(timezone.utc),
-                connector_id
-            )
-            
-            return {"success": True, "message": "Sync completed successfully"}
-        
-    except Exception as e:
-        logger.error(f"Error syncing user connector: {e}")
-        raise HTTPException(status_code=500, detail="Failed to sync connector")
+    """DEPRECATED: Use /api/manage/admin/connector/{connector_id}/index instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Sync connectors using Onyx's native API.",
+            "api_endpoint": f"/api/manage/admin/connector/{connector_id}/index",
+            "instructions": "Use Onyx's connector sync API or the connector management UI."
+        }
+    )
