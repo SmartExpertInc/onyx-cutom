@@ -40,6 +40,12 @@ This document describes the implementation of the PDF preview functionality that
 - **Issue**: Wrong component name constants were used in preview page
 - **Fix**: Updated to use same constants as main page
 - **Testing**: Added SimplePreview component for testing all component types
+
+### 7. Routing Fix
+- **Issue**: Dynamic routes with basePath were not working correctly
+- **Fix**: Created static route `/pdf-preview` with query parameters
+- **URL**: Changed to `/custom-projects-ui/pdf-preview?projectId=${projectId}`
+- **Benefits**: More reliable routing, easier to debug
   - Handles different component types (Slide Deck, Training Plan, etc.)
 
 ### 4. Preview Page
