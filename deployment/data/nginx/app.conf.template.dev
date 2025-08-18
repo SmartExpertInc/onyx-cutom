@@ -21,7 +21,7 @@ upstream custom_backend_server {
 }
 
 upstream nextcloud_server {
-    server ${NEXTCLOUD_UPSTREAM_URL} fail_timeout=0;
+    server ${NEXTCLOUD_UPSTREAM_HOST} fail_timeout=0;
 }
 
 server {
