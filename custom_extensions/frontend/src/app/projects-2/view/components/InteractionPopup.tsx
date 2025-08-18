@@ -32,7 +32,7 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
         <div className="flex gap-2">
           {/* Multiple Choice Option */}
           <div className="flex flex-col items-center cursor-pointer">
-            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-24 flex items-center justify-center">
+            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-32 flex items-center justify-center">
               <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
                   {`.light { fill: white; }
@@ -72,7 +72,7 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
 
           {/* Branching Option */}
           <div className="flex flex-col items-center cursor-pointer">
-            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-24 flex items-center justify-center">
+            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-32 flex items-center justify-center">
               <svg width="120" height="60" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
                   {`.node {

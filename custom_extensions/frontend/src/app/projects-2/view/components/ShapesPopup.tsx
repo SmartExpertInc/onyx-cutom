@@ -42,22 +42,22 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
     {
       id: 'black-square',
       name: 'Square',
-      icon: <Square size={80} fill="black" stroke="black" />
+      icon: <Square size={96} fill="black" stroke="black" />
     },
     {
       id: 'black-circle',
       name: 'Circle',
-      icon: <Circle size={80} fill="black" stroke="black" />
+      icon: <Circle size={96} fill="black" stroke="black" />
     },
     {
       id: 'black-triangle',
       name: 'Triangle',
-      icon: <Triangle size={80} fill="black" stroke="black" />
+      icon: <Triangle size={96} fill="black" stroke="black" />
     },
     {
       id: 'black-star',
       name: 'Star',
-      icon: <Star size={80} fill="black" stroke="black" />
+      icon: <Star size={96} fill="black" stroke="black" />
     }
   ];
 
@@ -66,22 +66,22 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
     {
       id: 'white-square',
       name: 'Square',
-      icon: <Square size={80} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Square size={96} fill="white" stroke="black" strokeWidth={2} />
     },
     {
       id: 'white-circle',
       name: 'Circle',
-      icon: <Circle size={80} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Circle size={96} fill="white" stroke="black" strokeWidth={2} />
     },
     {
       id: 'white-triangle',
       name: 'Triangle',
-      icon: <Triangle size={80} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Triangle size={96} fill="white" stroke="black" strokeWidth={2} />
     },
     {
       id: 'white-star',
       name: 'Star',
-      icon: <Star size={80} fill="white" stroke="black" strokeWidth={2} />
+      icon: <Star size={96} fill="white" stroke="black" strokeWidth={2} />
     }
   ];
 
@@ -101,12 +101,12 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
       }}
     >
       {/* First Row - Black Shapes */}
-      <div className="grid grid-cols-4 gap-4 mb-2">
+      <div className="grid grid-cols-4 gap-1 mb-1">
         {blackShapes.map((shape) => (
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center px-12 py-6 cursor-pointer transition-all duration-200 hover:bg-gray-200 rounded-lg"
+            className="flex items-center justify-center px-12 py-3 cursor-pointer transition-all duration-200 hover:bg-gray-200 rounded-lg"
           >
             {shape.icon}
           </div>
@@ -114,12 +114,12 @@ export default function ShapesPopup({ isOpen, onClose, position }: ShapesPopupPr
       </div>
 
       {/* Second Row - White Shapes with Black Border */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-1">
         {whiteShapes.map((shape) => (
           <div
             key={shape.id}
             onClick={() => handleShapeClick(shape.id)}
-            className="flex items-center justify-center px-12 py-6 cursor-pointer transition-all duration-200 hover:bg-gray-200 rounded-lg"
+            className="flex items-center justify-center px-12 py-3 cursor-pointer transition-all duration-200 hover:bg-gray-200 rounded-lg"
           >
             {shape.icon}
           </div>
