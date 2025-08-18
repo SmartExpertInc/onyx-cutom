@@ -291,9 +291,9 @@ export default function VideoEditorHeader() {
                     ))}
                   </div>
                   
-                  {/* Warning text with small spacing from bottom */}
-                  <div className="px-4 pb-3">
-                    <div className="bg-amber-50 text-amber-800 text-sm p-3 rounded-md">
+                  {/* Warning text - extends to side borders with bottom spacing */}
+                  <div className="pb-3">
+                    <div className="bg-amber-50 text-amber-800 text-sm p-3 mx-0">
                       Existing content on the scene will not be reorganised automatically.
                     </div>
                   </div>

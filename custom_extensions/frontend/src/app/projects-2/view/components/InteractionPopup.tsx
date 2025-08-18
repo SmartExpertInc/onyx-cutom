@@ -21,21 +21,21 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
       
       {/* Popup */}
       <div 
-        className="fixed bg-white border border-gray-200 rounded-lg shadow-lg p-6 z-50"
+        className="fixed bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: '600px'
+          width: '420px'
         }}
       >
         {/* Content */}
-        <div className="flex gap-8 justify-center">
+        <div className="flex gap-2">
           {/* Multiple Choice Option */}
-          <div className="flex flex-col items-center cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors">
-            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-40 h-32 flex items-center justify-center">
+          <div className="flex flex-col items-center cursor-pointer">
+            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-24 flex items-center justify-center">
               <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
-                  {`.light { fill: #e6e6e6; }
+                  {`.light { fill: white; }
                    .dark { fill: url(#grad); }
                    .check {
                      stroke: white;
@@ -71,8 +71,8 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
           </div>
 
           {/* Branching Option */}
-          <div className="flex flex-col items-center cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors">
-            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-40 h-32 flex items-center justify-center">
+          <div className="flex flex-col items-center cursor-pointer">
+            <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-24 flex items-center justify-center">
               <svg width="120" height="60" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
                   {`.node {
