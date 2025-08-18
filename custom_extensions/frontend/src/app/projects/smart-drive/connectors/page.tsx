@@ -380,12 +380,39 @@ const ConnectorsPage: React.FC = () => {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  // TODO: Implement actual save logic with formData
-                  console.log('Saving connector:', formData);
-                  setShowAddModal(false);
-                  setEditingConnector(null);
-                  setFormData({ name: '', source: '', config: {} });
+                onClick={async () => {
+                  try {
+                    console.log('Saving connector:', formData);
+                    
+                    const response = await fetch('/api/custom-projects-backend/smartdrive/connectors/', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      credentials: 'same-origin',
+                      body: JSON.stringify(formData),
+                    });
+
+                    if (response.ok) {
+                      const newConnector = await response.json();
+                      console.log('Connector created successfully:', newConnector);
+                      
+                      // Refresh the connectors list
+                      await loadConnectors();
+                      
+                      // Close modal and reset form
+                      setShowAddModal(false);
+                      setEditingConnector(null);
+                      setFormData({ name: '', source: '', config: {} });
+                    } else {
+                      const errorData = await response.json();
+                      console.error('Failed to create connector:', errorData);
+                      alert(`Failed to create connector: ${errorData.detail || 'Unknown error'}`);
+                    }
+                  } catch (error) {
+                    console.error('Error creating connector:', error);
+                    alert('Failed to create connector. Please try again.');
+                  }
                 }}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 disabled={!formData.name || !formData.source}

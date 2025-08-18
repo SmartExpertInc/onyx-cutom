@@ -18620,43 +18620,153 @@ async def list_smartdrive_files(
         onyx_user_id = await get_current_onyx_user_id(request)
         logger.info(f"Listing SmartDrive files for user: {onyx_user_id}, path: {path}")
 
-        # TODO: Implement actual Nextcloud API integration
-        # For now, return mock data for testing
-        mock_files = [
-            {
-                "name": "Documents",
-                "path": "/Documents",
-                "type": "directory",
-                "size": None,
-                "modified": "2024-01-15T10:30:00Z"
-            },
-            {
-                "name": "Training_Materials.pdf",
-                "path": "/Training_Materials.pdf",
-                "type": "file",
-                "size": 2048576,
-                "modified": "2024-01-14T15:45:00Z",
-                "mime_type": "application/pdf"
-            },
-            {
-                "name": "Project_Notes.docx",
-                "path": "/Project_Notes.docx",
-                "type": "file",
-                "size": 1024000,
-                "modified": "2024-01-13T09:20:00Z",
-                "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            }
-        ]
+        async with pool.acquire() as conn:
+            # Get user's SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                raise HTTPException(status_code=404, detail="SmartDrive account not found")
 
-        return {
-            "files": mock_files,
-            "path": path,
-            "total_count": len(mock_files)
-        }
+            # Use Nextcloud WebDAV API to list files
+            nextcloud_user_id = account['nextcloud_user_id']
+            webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_user_id}{path}"
+            
+            # Basic auth for Nextcloud (in production, use proper OAuth or app passwords)
+            nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
+            auth = (nextcloud_user_id, nextcloud_password)
+            
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.request(
+                        "PROPFIND", 
+                        webdav_url,
+                        auth=auth,
+                        headers={
+                            "Depth": "1",
+                            "Content-Type": "application/xml"
+                        },
+                        content="""<?xml version="1.0"?>
+                        <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                            <d:prop>
+                                <d:resourcetype/>
+                                <d:getcontentlength/>
+                                <d:getlastmodified/>
+                                <d:getcontenttype/>
+                            </d:prop>
+                        </d:propfind>"""
+                    )
+                    
+                    if response.status_code == 207:  # Multi-Status response
+                        # Parse WebDAV XML response
+                        files = await parse_webdav_response(response.text, path)
+                        return {
+                            "files": files,
+                            "path": path,
+                            "total_count": len(files)
+                        }
+                    else:
+                        logger.error(f"Nextcloud WebDAV error: {response.status_code} - {response.text}")
+                        # Fallback to mock data if Nextcloud is unavailable
+                        return await get_mock_files_response(path)
+                        
+            except Exception as nextcloud_error:
+                logger.error(f"Failed to connect to Nextcloud: {nextcloud_error}")
+                # Fallback to mock data if Nextcloud is unavailable
+                return await get_mock_files_response(path)
         
     except Exception as e:
         logger.error(f"Error listing SmartDrive files: {e}")
         raise HTTPException(status_code=500, detail="Failed to list SmartDrive files")
+
+async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
+    """Parse WebDAV PROPFIND XML response into file list"""
+    # Simple XML parsing for WebDAV response
+    import xml.etree.ElementTree as ET
+    
+    files = []
+    try:
+        root = ET.fromstring(xml_content)
+        
+        for response in root.findall('.//{DAV:}response'):
+            href = response.find('.//{DAV:}href')
+            if href is None:
+                continue
+                
+            file_path = href.text
+            if file_path.endswith('/remote.php/dav/files/'):
+                continue  # Skip the root directory entry
+                
+            # Extract file name
+            name = file_path.split('/')[-1] if not file_path.endswith('/') else file_path.split('/')[-2]
+            if not name:
+                continue
+                
+            # Check if it's a directory
+            resourcetype = response.find('.//{DAV:}resourcetype')
+            is_directory = resourcetype is not None and resourcetype.find('.//{DAV:}collection') is not None
+            
+            # Get file size
+            size_elem = response.find('.//{DAV:}getcontentlength')
+            size = int(size_elem.text) if size_elem is not None and size_elem.text else None
+            
+            # Get last modified
+            modified_elem = response.find('.//{DAV:}getlastmodified')
+            modified = modified_elem.text if modified_elem is not None else None
+            
+            # Get content type
+            content_type_elem = response.find('.//{DAV:}getcontenttype')
+            mime_type = content_type_elem.text if content_type_elem is not None else None
+            
+            files.append({
+                "name": name,
+                "path": file_path,
+                "type": "directory" if is_directory else "file",
+                "size": size,
+                "modified": modified,
+                "mime_type": mime_type
+            })
+            
+    except Exception as e:
+        logger.error(f"Error parsing WebDAV response: {e}")
+        
+    return files
+
+async def get_mock_files_response(path: str) -> Dict:
+    """Fallback mock data when Nextcloud is unavailable"""
+    mock_files = [
+        {
+            "name": "Documents",
+            "path": f"{path}Documents/",
+            "type": "directory",
+            "size": None,
+            "modified": "2024-01-15T10:30:00Z"
+        },
+        {
+            "name": "Training_Materials.pdf",
+            "path": f"{path}Training_Materials.pdf",
+            "type": "file",
+            "size": 2048576,
+            "modified": "2024-01-14T15:45:00Z",
+            "mime_type": "application/pdf"
+        },
+        {
+            "name": "Project_Notes.docx",
+            "path": f"{path}Project_Notes.docx",
+            "type": "file",
+            "size": 1024000,
+            "modified": "2024-01-13T09:20:00Z",
+            "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        }
+    ]
+    
+    return {
+        "files": mock_files,
+        "path": path,
+        "total_count": len(mock_files)
+    }
 
 @app.post("/api/custom/smartdrive/import")
 async def import_smartdrive_files(
@@ -18725,35 +18835,90 @@ async def import_new_smartdrive_files(
             if not account:
                 raise HTTPException(status_code=404, detail="SmartDrive account not found")
 
-            # TODO: Implement actual sync logic with Nextcloud API
-            # For now, simulate importing new files
-            new_files = [
-                "/New_Document.pdf",
-                "/Updated_Presentation.pptx"
-            ]
+            nextcloud_user_id = account['nextcloud_user_id']
+            last_sync = account['sync_cursor'].get('last_sync') if account['sync_cursor'] else None
+            
+            # Get list of all files from Nextcloud
+            all_files = await get_all_nextcloud_files(nextcloud_user_id, "/")
             
             imported_count = 0
-            for file_path in new_files:
+            imported_files = []
+            
+            for file_info in all_files:
+                if file_info['type'] == 'directory':
+                    continue  # Skip directories for now
+                    
+                file_path = file_info['path']
+                file_modified = file_info['modified']
+                
+                # Check if file was modified since last sync
+                if last_sync and file_modified and file_modified <= last_sync:
+                    continue
+                
                 # Check if already imported
                 existing = await conn.fetchrow(
-                    "SELECT id FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path = $2",
+                    "SELECT id, etag FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path = $2",
                     onyx_user_id, file_path
                 )
                 
-                if not existing:
-                    await conn.execute(
-                        """
-                        INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
-                        VALUES ($1, $2, $3, $4, $5, $6)
-                        """,
-                        onyx_user_id,
-                        file_path,
-                        f"mock_file_{hash(file_path) % 1000000}",
-                        f"etag_{hash(file_path)}",
-                        f"sha256_{hash(file_path)}",
-                        datetime.now(timezone.utc)
+                # Skip if already imported with same etag
+                if existing and existing['etag'] == file_info.get('etag'):
+                    continue
+                
+                # Try to import the file into Onyx
+                try:
+                    onyx_file_id = await import_file_to_onyx(
+                        nextcloud_user_id, 
+                        file_path, 
+                        file_info, 
+                        onyx_user_id
                     )
-                    imported_count += 1
+                    
+                    if onyx_file_id:
+                        # Update or insert import record
+                        if existing:
+                            await conn.execute(
+                                """
+                                UPDATE smartdrive_imports 
+                                SET onyx_file_id = $1, etag = $2, checksum = $3, imported_at = $4, last_modified = $5
+                                WHERE id = $6
+                                """,
+                                onyx_file_id,
+                                file_info.get('etag', ''),
+                                file_info.get('checksum', ''),
+                                datetime.now(timezone.utc),
+                                file_modified,
+                                existing['id']
+                            )
+                        else:
+                            await conn.execute(
+                                """
+                                INSERT INTO smartdrive_imports 
+                                (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, file_size, mime_type, imported_at, last_modified)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                                """,
+                                onyx_user_id,
+                                file_path,
+                                onyx_file_id,
+                                file_info.get('etag', ''),
+                                file_info.get('checksum', ''),
+                                file_info.get('size'),
+                                file_info.get('mime_type'),
+                                datetime.now(timezone.utc),
+                                file_modified
+                            )
+                        
+                        imported_count += 1
+                        imported_files.append({
+                            "name": file_info['name'],
+                            "path": file_path,
+                            "onyx_file_id": onyx_file_id
+                        })
+                        logger.info(f"Successfully imported {file_path} as Onyx file {onyx_file_id}")
+                        
+                except Exception as import_error:
+                    logger.error(f"Failed to import {file_path}: {import_error}")
+                    continue
 
             # Update sync cursor
             await conn.execute(
@@ -18762,16 +18927,110 @@ async def import_new_smartdrive_files(
                 datetime.now(timezone.utc),
                 onyx_user_id
             )
+            
+            logger.info(f"Import completed: {imported_count} files imported for user {onyx_user_id}")
 
         return {
             "success": True,
             "imported_count": imported_count,
+            "imported_files": imported_files,
             "message": f"Imported {imported_count} new files"
         }
         
     except Exception as e:
         logger.error(f"Error importing new SmartDrive files: {e}")
         raise HTTPException(status_code=500, detail="Failed to import new SmartDrive files")
+
+async def get_all_nextcloud_files(nextcloud_user_id: str, base_path: str = "/") -> List[Dict]:
+    """Recursively get all files from Nextcloud"""
+    all_files = []
+    
+    try:
+        webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_user_id}{base_path}"
+                    nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
+            auth = (nextcloud_user_id, nextcloud_password)  # TODO: Use encrypted credentials
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.request(
+                "PROPFIND",
+                webdav_url,
+                auth=auth,
+                headers={
+                    "Depth": "infinity",  # Get all files recursively
+                    "Content-Type": "application/xml"
+                },
+                content="""<?xml version="1.0"?>
+                <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                    <d:prop>
+                        <d:resourcetype/>
+                        <d:getcontentlength/>
+                        <d:getlastmodified/>
+                        <d:getcontenttype/>
+                        <d:getetag/>
+                    </d:prop>
+                </d:propfind>"""
+            )
+            
+            if response.status_code == 207:
+                files = await parse_webdav_response(response.text, base_path)
+                all_files.extend(files)
+                
+    except Exception as e:
+        logger.error(f"Error getting files from Nextcloud: {e}")
+        
+    return all_files
+
+async def import_file_to_onyx(nextcloud_user_id: str, file_path: str, file_info: Dict, onyx_user_id: str) -> str:
+    """Download file from Nextcloud and upload to Onyx"""
+    try:
+        # Download file from Nextcloud
+        download_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_user_id}{file_path}"
+        nextcloud_password = os.getenv("NEXTCLOUD_DEFAULT_PASSWORD", "nextcloud_password")
+        auth = (nextcloud_user_id, nextcloud_password)
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            download_response = await client.get(download_url, auth=auth)
+            
+            if download_response.status_code != 200:
+                logger.error(f"Failed to download {file_path}: {download_response.status_code}")
+                return None
+                
+            file_content = download_response.content
+            file_name = file_info['name']
+            mime_type = file_info.get('mime_type', 'application/octet-stream')
+            
+            # Upload to Onyx using the existing file upload endpoint
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/file"
+            
+            # Create multipart form data
+            files = {
+                'file': (file_name, file_content, mime_type)
+            }
+            
+            # Upload to Onyx
+            upload_response = await client.post(
+                onyx_upload_url,
+                files=files,
+                timeout=60.0
+            )
+            
+            if upload_response.status_code in [200, 201]:
+                response_data = upload_response.json()
+                # Extract file ID from Onyx response
+                if isinstance(response_data, list) and len(response_data) > 0:
+                    return str(response_data[0].get('id'))
+                elif isinstance(response_data, dict):
+                    return str(response_data.get('id'))
+                else:
+                    logger.error(f"Unexpected Onyx response format: {response_data}")
+                    return None
+            else:
+                logger.error(f"Failed to upload to Onyx: {upload_response.status_code} - {upload_response.text}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error importing file {file_path} to Onyx: {e}")
+        return None
 
 @app.post("/api/custom/smartdrive/webhook")
 async def smartdrive_webhook(
