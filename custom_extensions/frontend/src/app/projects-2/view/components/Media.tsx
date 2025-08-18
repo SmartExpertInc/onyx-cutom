@@ -42,7 +42,7 @@ export default function Media({
       <div className="w-64 bg-white p-4 flex flex-col" style={{ borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
         {/* My assets section */}
         <div className="mb-3 pt-0">
-          <h4 className="text-sm font-medium text-black mb-1 px-3">My assets</h4>
+          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">My assets</h4>
           <div className="flex items-center px-3 py-2 bg-gray-200 rounded-lg cursor-pointer transition-colors">
                           <Folder className="w-3 h-3 text-black mr-3" />
             <span className="text-sm text-black">Library</span>
@@ -51,16 +51,16 @@ export default function Media({
 
         {/* Stock assets section */}
         <div className="mb-6 flex-1">
-          <h4 className="text-sm font-medium text-black mb-1 px-3">Stock assets</h4>
+          <h4 className="text-xs font-medium text-gray-600 mb-1 px-3">Stock assets</h4>
           
           {/* Image option */}
-          <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-2">
+          <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-1">
             <Image className="w-3 h-3 text-black mr-3" />
             <span className="text-sm text-black">Image</span>
           </div>
 
                       {/* Video option */}
-            <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-2">
+            <div className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-1">
               <svg className="w-3 h-3 text-black mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                 <g fill="currentColor">
                   <path d="M23.5 16.866a1 1 0 0 0 0-1.732l-12-6.928a1 1 0 0 0-1.5.866v13.856a1 1 0 0 0 1.5.866l12-6.928Z"/>
@@ -81,7 +81,7 @@ export default function Media({
         <div className="space-y-3">
           {/* Upload button */}
           <button className="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <svg className="w-3 h-3 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10" strokeWidth="2" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l0 8M8 12l4-4 4 4" />
             </svg>
@@ -90,7 +90,7 @@ export default function Media({
 
           {/* Record button */}
           <button className="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <svg className="w-3 h-3 mr-2" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10" fill="white" stroke="#ef4444" strokeWidth="1" />
               <circle cx="12" cy="12" r="6" fill="#ef4444" />
             </svg>
@@ -103,7 +103,7 @@ export default function Media({
       <div className="w-px bg-gray-200"></div>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
         {/* Tabs */}
         <div className="relative border-b border-gray-200">
           <div className="flex px-6 pt-4">
@@ -137,7 +137,7 @@ export default function Media({
           
           {/* Upload button */}
           <button className="flex items-center px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
-            <svg className="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10" strokeWidth="2" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8l0 8M8 12l4-4 4 4" />
             </svg>
@@ -146,7 +146,7 @@ export default function Media({
         </div>
         
         {/* Tab content */}
-        <div className="flex-1 px-6 pt-0 pb-4 overflow-y-auto">
+        <div className="flex-1 px-6 pt-0 pb-6 overflow-y-auto">
           {/* Demo rectangles in three columns */}
           <div className="grid grid-cols-3 gap-4 pb-0">
             {/* Column 1 */}

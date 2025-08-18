@@ -83,9 +83,9 @@ export default function Background() {
               <span className="text-sm text-center" style={{ color: '#616161' }}>Custom</span>
             </div>
             
-            {/* Color rectangles for first column - first half of items */}
-            {rectangleData.slice(0, Math.ceil(rectangleData.length / 2)).map((item, index) => (
-              <div key={`col1-${index}`} className="flex flex-col items-center">
+            {/* Color rectangles for first column - even indices (0, 2, 4, 6, 8) */}
+            {rectangleData.filter((_, index) => index % 2 === 0).map((item, originalIndex) => (
+              <div key={`col1-${originalIndex}`} className="flex flex-col items-center">
                 <div
                   className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
                   style={{ 
@@ -101,9 +101,9 @@ export default function Background() {
 
           {/* Second column */}
           <div className="flex flex-col space-y-4">
-            {/* Color rectangles for second column - second half of items */}
-            {rectangleData.slice(Math.ceil(rectangleData.length / 2)).map((item, index) => (
-              <div key={`col2-${index}`} className="flex flex-col items-center">
+            {/* Color rectangles for second column - odd indices (1, 3, 5, 7) */}
+            {rectangleData.filter((_, index) => index % 2 === 1).map((item, originalIndex) => (
+              <div key={`col2-${originalIndex}`} className="flex flex-col items-center">
                 <div
                   className="w-full h-20 rounded-lg cursor-pointer hover:opacity-80 transition-all mb-2"
                   style={{ 
