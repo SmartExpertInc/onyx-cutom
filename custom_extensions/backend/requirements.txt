@@ -13,4 +13,5 @@ python-multipart
 tiktoken
 openai
 Pillow # For pie chart image generation
+sqlalchemy
 
