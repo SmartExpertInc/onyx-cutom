@@ -142,6 +142,19 @@ export default function VideoEditorHeader() {
     </svg>
   );
 
+  // Plus icon component
+  const PlusIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-current">
+      <path
+        d="M8 3v10M3 8h10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
   // Garbage bin icon component
   const GarbageIcon = () => (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-4 h-4 text-gray-400 hover:text-red-500">
@@ -356,10 +369,12 @@ export default function VideoEditorHeader() {
                   className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
                 >
                   {/* Title */}
-                  <h3 className="text-xs font-medium text-gray-700 mb-4">Invite team members</h3>
+                  <h3 className="text-sm font-medium text-gray-700 mb-4">Invite team members</h3>
                   
-                  {/* Top section */}
-                  <div className="space-y-3 mb-4">
+                  {/* Content wrapper with grey rounded borders */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    {/* Top section */}
+                    <div className="space-y-3 mb-4">
                     {emailInputs.map((emailInput) => (
                       <div key={emailInput.id} className="flex items-center gap-2">
                         {/* Email input with envelope icon */}
@@ -437,8 +452,8 @@ export default function VideoEditorHeader() {
                        onClick={addEmailInput}
                        className="text-black hover:text-gray-800 text-sm font-medium flex items-center gap-1 border border-gray-300 hover:border-gray-400 rounded px-3 py-2 transition-colors"
                      >
-                       <span className="text-base">+</span>
-                       <span>add another</span>
+                       <PlusIcon />
+                       <span>Add another</span>
                      </button>
                      
                      {/* Right side container with link and invite buttons */}
@@ -451,6 +466,7 @@ export default function VideoEditorHeader() {
                        </button>
                      </div>
                    </div>
+                  </div>
                 </div>
               )}
             </div>
