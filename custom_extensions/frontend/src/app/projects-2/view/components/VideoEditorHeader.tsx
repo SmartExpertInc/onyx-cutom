@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface EmailInput {
   id: string;
@@ -11,6 +12,7 @@ interface EmailInput {
 export default function VideoEditorHeader() {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
+  const [isEyeVisible, setIsEyeVisible] = useState(true);
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
     { id: '1', email: '', role: 'editor' }
   ]);
@@ -51,6 +53,10 @@ export default function VideoEditorHeader() {
 
   const handleShareClick = () => {
     setIsSharePopupOpen(!isSharePopupOpen);
+  };
+
+  const handleEyeToggle = () => {
+    setIsEyeVisible(!isEyeVisible);
   };
 
   const handleEmailChange = (id: string, email: string) => {
@@ -220,29 +226,28 @@ export default function VideoEditorHeader() {
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-3 lg:gap-4">
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/60296c8d8172d9ab8392adf60a696e5288c8807d?width=40"
-                alt="Tool"
-                className="w-3 h-3"
-              />
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
+                <path fill="none" stroke="currentColor" strokeWidth="2" d="M8 3L3 8l5 5m4 7h3a6 6 0 1 0 0-12H4"/>
+              </svg>
             </button>
 
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/2b3f3c7afc27ca26f9322d487e50a8435d666ff4?width=40"
-                alt="Tool"
-                className="w-3 h-3"
-              />
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
+                <path fill="none" stroke="currentColor" strokeWidth="2" d="M8 3L3 8l5 5m4 7h3a6 6 0 1 0 0-12H4"/>
+              </svg>
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
 
-            <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/22e7f5026e7be941193d1729124a7ba85fb26df7?width=46"
-                alt="Tool"
-                className="w-3 h-3"
-              />
+            <button 
+              onClick={handleEyeToggle}
+              className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center"
+            >
+              {isEyeVisible ? (
+                <Eye className="w-3 h-3" />
+              ) : (
+                <EyeOff className="w-3 h-3" />
+              )}
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -328,11 +333,12 @@ export default function VideoEditorHeader() {
         <div className="hidden lg:flex flex-1 justify-center">
           <div className="flex items-center gap-3">
             <span className="text-editor-gray-text text-xs font-medium whitespace-nowrap">Create your first AI video</span>
-            <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/0dfa92304b25765dd8a203dc550f8d5fac95163b?width=42"
-              alt="AI"
-              className="w-3 h-3"
-            />
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
+              <g fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" d="M4 22h16"/>
+                <path d="m13.888 3.663l.742-.742a3.146 3.146 0 1 1 4.449 4.45l-.742.74m-4.449-4.448s.093 1.576 1.483 2.966c1.39 1.39 2.966 1.483 2.966 1.483m-4.449-4.45L7.071 10.48c-.462.462-.693.692-.891.947a5.24 5.24 0 0 0-.599.969c-.139.291-.242.601-.449 1.22l-.875 2.626m14.08-8.13l-6.817 6.817c-.462.462-.692.692-.947.891c-.3.234-.625.435-.969.599c-.291.139-.601.242-1.22.448l-2.626.876m0 0l-.641.213a.848.848 0 0 1-1.073-1.073l.213-.641m1.501 1.5l-1.5-1.5"/>
+              </g>
+            </svg>
           </div>
         </div>
 

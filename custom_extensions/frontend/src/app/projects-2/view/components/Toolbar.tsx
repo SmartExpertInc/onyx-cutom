@@ -4,9 +4,9 @@ import React, { useState, useRef } from 'react';
 import { 
   MessageSquareText, 
   User, 
-  MoveDiagonal2, 
+  Sparkles, 
   Shapes, 
-  AlignLeft, 
+  Type, 
   Music, 
   Layers, 
   Zap, 
@@ -59,7 +59,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'background',
       label: 'Background',
-      icon: MoveDiagonal2
+      icon: Sparkles
     },
     {
       id: 'shapes',
@@ -74,7 +74,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
     {
       id: 'text',
       label: 'Text',
-      icon: AlignLeft
+      icon: Type
     },
     {
       id: 'music',
