@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Play } from 'lucide-react';
 
 interface EmailInput {
   id: string;
@@ -219,7 +219,7 @@ export default function VideoEditorHeader() {
             <img
               src="https://api.builder.io/api/v1/image/assets/TEMP/9b71665e2dee95dc0f540b8501037f291f63ef3c?width=96"
               alt="Logo"
-              className="w-12 h-6"
+              className="h-8 w-auto object-contain"
             />
           </div>
 
@@ -232,22 +232,9 @@ export default function VideoEditorHeader() {
             </button>
 
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="w-3 h-3 rotate-180">
                 <path fill="none" stroke="currentColor" strokeWidth="2" d="M8 3L3 8l5 5m4 7h3a6 6 0 1 0 0-12H4"/>
               </svg>
-            </button>
-
-            <div className="w-0.5 h-[18px] bg-gray-300"></div>
-
-            <button 
-              onClick={handleEyeToggle}
-              className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center"
-            >
-              {isEyeVisible ? (
-                <Eye className="w-3 h-3" />
-              ) : (
-                <EyeOff className="w-3 h-3" />
-              )}
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -311,6 +298,16 @@ export default function VideoEditorHeader() {
                 className="w-3 h-3"
               />
               <span className="text-editor-icon-text text-xs font-normal">Grid</span>
+              <button 
+                onClick={handleEyeToggle}
+                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center ml-2"
+              >
+                {isEyeVisible ? (
+                  <Eye className="w-3 h-3" />
+                ) : (
+                  <EyeOff className="w-3 h-3" />
+                )}
+              </button>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
@@ -345,11 +342,9 @@ export default function VideoEditorHeader() {
         {/* Right section - Share and Generate buttons */}
         <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
-            <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/3ff68570baf0004ced57daf86b108cb061230776?width=32"
-              alt="Profile"
-              className="w-3 h-3"
-            />
+            <button className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8">
+              <Play className="w-3 h-3" />
+            </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
 
@@ -358,7 +353,7 @@ export default function VideoEditorHeader() {
               <button
                 ref={shareButtonRef}
                 onClick={handleShareClick}
-                className="bg-editor-light-bg border-editor-border text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8"
+                className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8"
               >
                 <span className="text-xs font-normal">Share</span>
               </button>

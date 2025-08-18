@@ -135,7 +135,7 @@ export default function Projects2ViewPage() {
         onClose={() => setIsMediaPopupOpen(false)} 
         title="Media Library"
         displayMode="popup"
-        className="top-[140px] left-2 w-[800px] h-[500px]"
+        className="top-[160px] left-2 w-[800px] h-[400px]"
       />
 
       {/* Text Popup */}
