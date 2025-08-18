@@ -10,12 +10,15 @@ import Transition from './components/Transition';
 import Comments from './components/Comments';
 import Media from './components/Media';
 import TextPopup from './components/TextPopup';
+import ShapesPopup from './components/ShapesPopup';
 
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
+  const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleActiveToolChange = (toolId: string) => {
     if (toolId === 'media') {
@@ -24,15 +27,25 @@ export default function Projects2ViewPage() {
       setActiveComponent(toolId);
       setIsMediaPopupOpen(false);
     }
-    // Close text popup when switching tools
+    // Close text and shapes popups when switching tools
     setIsTextPopupOpen(false);
+    setIsShapesPopupOpen(false);
   };
 
   const handleTextButtonClick = (position: { x: number; y: number }) => {
     setTextPopupPosition(position);
     setIsTextPopupOpen(true);
-    // Close media popup if open
+    // Close other popups if open
     setIsMediaPopupOpen(false);
+    setIsShapesPopupOpen(false);
+  };
+
+  const handleShapesButtonClick = (position: { x: number; y: number }) => {
+    setShapesPopupPosition(position);
+    setIsShapesPopupOpen(true);
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsTextPopupOpen(false);
   };
 
   const renderSidebarComponent = () => {
@@ -62,6 +75,7 @@ export default function Projects2ViewPage() {
         <Toolbar 
           onActiveToolChange={handleActiveToolChange} 
           onTextButtonClick={handleTextButtonClick}
+          onShapesButtonClick={handleShapesButtonClick}
         />
       </div>
       
@@ -148,6 +162,13 @@ export default function Projects2ViewPage() {
         isOpen={isTextPopupOpen} 
         onClose={() => setIsTextPopupOpen(false)} 
         position={textPopupPosition}
+      />
+
+      {/* Shapes Popup */}
+      <ShapesPopup 
+        isOpen={isShapesPopupOpen} 
+        onClose={() => setIsShapesPopupOpen(false)} 
+        position={shapesPopupPosition}
       />
     </div>
   );

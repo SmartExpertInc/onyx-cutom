@@ -21,6 +21,7 @@ import {
 interface ToolbarProps {
   onActiveToolChange?: (toolId: string) => void;
   onTextButtonClick?: (position: { x: number; y: number }) => void;
+  onShapesButtonClick?: (position: { x: number; y: number }) => void;
 }
 
 interface Tool {
@@ -30,10 +31,11 @@ interface Tool {
   chevron?: LucideIcon;
 }
 
-export default function Toolbar({ onActiveToolChange, onTextButtonClick }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const textButtonRef = useRef<HTMLDivElement>(null);
+  const shapesButtonRef = useRef<HTMLDivElement>(null);
   const defaultButtonRef = useRef<HTMLDivElement>(null);
 
   // Custom flag icon with EN text
@@ -141,6 +143,16 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
       return;
     }
     
+    if (toolId === 'shapes' && onShapesButtonClick && shapesButtonRef.current) {
+      const rect = shapesButtonRef.current.getBoundingClientRect();
+      const position = {
+        x: 8, // Position popup close to the left side of the page (8px from left border)
+        y: rect.bottom + 8 // Position popup 8px below the button
+      };
+      onShapesButtonClick(position);
+      return;
+    }
+    
     onActiveToolChange?.(toolId);
   };
 
@@ -177,7 +189,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick }: Toolb
                 return (
                   <div
                     key={tool.id}
-                    ref={tool.id === 'text' ? textButtonRef : undefined}
+                    ref={tool.id === 'text' ? textButtonRef : tool.id === 'shapes' ? shapesButtonRef : undefined}
                     onClick={(event) => handleToolClick(tool.id, event)}
                     className={`flex flex-col items-center cursor-pointer transition-all duration-200 p-2 ${
                       activeToolId === tool.id ? 'bg-gray-200 rounded-lg' : ''
