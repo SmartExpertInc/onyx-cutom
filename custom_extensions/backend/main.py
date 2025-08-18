@@ -956,38 +956,35 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_5_table",
+      "slideId": "slide_5_table_dark",
       "slideNumber": 5,
       "slideTitle": "Technology Comparison",
       "templateId": "table-dark",
       "props": {
-        "title": "Technology Platforms Comparison",
+        "title": "Technology Comparison",
         "tableData": {
-          "headers": ["Platform", "Performance", "Security", "Cost"],
+          "headers": ["Technology", "Performance", "Security", "Cost"],
           "rows": [
-            ["Cloud A", "High", "Strong encryption", "$200/month"],
-            ["Cloud B", "Moderate", "Standard security", "$150/month"],
-            ["On-Premise", "Very High", "Customizable", "$500/month"],
-            ["Hybrid", "High", "Balanced approach", "$300/month"]
+            ["React", "High", "Good", "Free"],
+            ["Vue.js", "Medium", "Excellent", "Free"],
+            ["Angular", "High", "Excellent", "Free"]
           ]
-        },
-        "showCheckmarks": true
+        }
       }
     },
     {
       "slideId": "slide_6_table_light",
       "slideNumber": 6,
-      "slideTitle": "Financial Performance",
+      "slideTitle": "Product Features",
       "templateId": "table-light",
       "props": {
-        "title": "Q1-Q4 2024 Financial Performance",
+        "title": "Product Features Comparison",
         "tableData": {
-          "headers": ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"],
+          "headers": ["Feature", "Basic Plan", "Pro Plan", "Enterprise"],
           "rows": [
-            ["Revenue", "$2.5M", "$3.2M", "$3.8M", "$4.1M"],
-            ["Profit Margin", "15%", "18%", "20%", "22%"],
-            ["Operating Costs", "$1.8M", "$2.1M", "$2.3M", "$2.4M"],
-            ["Growth Rate", "8%", "12%", "15%", "18%"]
+            ["Storage", "10GB", "100GB", "Unlimited"],
+            ["Users", "5", "25", "Unlimited"],
+            ["Support", "Email", "Priority", "24/7"]
           ]
         }
       }
@@ -1065,40 +1062,37 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_5_table",
+      "slideId": "slide_5_table_dark",
       "slideNumber": 5,
       "slideTitle": "Technology Comparison",
       "templateId": "table-dark",
-      "voiceoverText": "Now let's examine the technology landscape through this comprehensive comparison table. This data shows us the key differences between various platforms, helping you understand the trade-offs between performance, security, and cost. Pay attention to how each option balances these critical factors.",
+      "voiceoverText": "Let's examine the technology comparison table. This table shows us the key differences between various technologies in terms of performance, security, and cost. Understanding these comparisons helps us make informed decisions.",
       "props": {
-        "title": "Technology Platforms Comparison",
+        "title": "Technology Comparison",
         "tableData": {
-          "headers": ["Platform", "Performance", "Security", "Cost"],
+          "headers": ["Technology", "Performance", "Security", "Cost"],
           "rows": [
-            ["Cloud A", "High", "Strong encryption", "$200/month"],
-            ["Cloud B", "Moderate", "Standard security", "$150/month"],
-            ["On-Premise", "Very High", "Customizable", "$500/month"],
-            ["Hybrid", "High", "Balanced approach", "$300/month"]
+            ["React", "High", "Good", "Free"],
+            ["Vue.js", "Medium", "Excellent", "Free"],
+            ["Angular", "High", "Excellent", "Free"]
           ]
-        },
-        "showCheckmarks": true
+        }
       }
     },
     {
       "slideId": "slide_6_table_light",
       "slideNumber": 6,
-      "slideTitle": "Financial Performance",
+      "slideTitle": "Product Features",
       "templateId": "table-light",
-      "voiceoverText": "Let's analyze our financial performance across the quarters. This table reveals important trends in our revenue growth, profit margins, and operational efficiency. Notice how our strategic investments have led to consistent improvements in key metrics over time.",
+      "voiceoverText": "Now let's look at the product features comparison. This table clearly shows the differences between our various subscription plans, helping you understand what each tier offers.",
       "props": {
-        "title": "Q1-Q4 2024 Financial Performance",
+        "title": "Product Features Comparison",
         "tableData": {
-          "headers": ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"],
+          "headers": ["Feature", "Basic Plan", "Pro Plan", "Enterprise"],
           "rows": [
-            ["Revenue", "$2.5M", "$3.2M", "$3.8M", "$4.1M"],
-            ["Profit Margin", "15%", "18%", "20%", "22%"],
-            ["Operating Costs", "$1.8M", "$2.1M", "$2.3M", "$2.4M"],
-            ["Growth Rate", "8%", "12%", "15%", "18%"]
+            ["Storage", "10GB", "100GB", "Unlimited"],
+            ["Users", "5", "25", "Unlimited"],
+            ["Support", "Email", "Priority", "24/7"]
           ]
         }
       }
@@ -8225,8 +8219,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Assign templateId based on the content structure of each slide:
             - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
             - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
-            - If slide contains structured/tabular comparison data (headers with rows) → use "table-dark" or "table-light" and provide props with tableData.headers and tableData.rows
+            - If slide has two distinct sections → use "two-column" or "comparison-slide"
             - If slide has numbered steps → use "process-steps"
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has metrics/statistics → use "big-numbers"
@@ -8337,8 +8330,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Assign templateId based on the content structure of each slide:
             - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
             - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
-            - If slide contains structured/tabular comparison data (headers with rows) → use "table-dark" or "table-light" and provide props with tableData.headers and tableData.rows
+            - If slide has two distinct sections → use "two-column" or "comparison-slide"
             - If slide has numbered steps → use "process-steps"
             - If slide has 4 distinct points → use "four-box-grid"
             - If slide has metrics/statistics → use "big-numbers"
@@ -8432,14 +8424,14 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            7. **`two-column-diversity`** - Two columns with emphasized lists/bullets:
+            7. **`comparison-slide`** - Before/after comparison:
             ```json
             "props": {
-              "title": "Comparison",
-              "leftTitle": "Left",
-              "leftContent": "- Point A\\n- Point B\\n- Point C",
-              "rightTitle": "Right",
-              "rightContent": "- Item 1\\n- Item 2\\n- Item 3"
+              "title": "Comparison Analysis",
+              "beforeTitle": "Before",
+              "beforeContent": "- Key characteristic 1 of old/current state\\n- Key characteristic 2 of old/current state\\n- Key characteristic 3 of old/current state",
+              "afterTitle": "After",
+              "afterContent": "- Key characteristic 1 of new/improved state\\n- Key characteristic 2 of new/improved state\\n- Key characteristic 3 of new/improved state"
             }
             ```
 
@@ -8551,39 +8543,6 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
                 { "heading": "Middle Level", "description": "Description of the intermediate level" },
                 { "heading": "Base Level", "description": "Description of the foundational level" }
               ]
-            }
-            ```
-
-            16. **`table-dark`** - Dark-themed data table with checkmarks support:
-            ```json
-            "props": {
-              "title": "Technology Platforms Comparison",
-              "tableData": {
-                "headers": ["Platform", "Performance", "Security", "Cost"],
-                "rows": [
-                  ["Cloud A", "High", "Strong encryption", "$200/month"],
-                  ["Cloud B", "Moderate", "Standard security", "$150/month"],
-                  ["On-Premise", "Very High", "Customizable", "$500/month"],
-                  ["Hybrid", "High", "Balanced approach", "$300/month"]
-                ]
-              },
-              "showCheckmarks": true
-            }
-            ```
-
-            17. **`table-light`** - Light-themed data table:
-            ```json
-            "props": {
-              "title": "Q1-Q4 2024 Financial Performance",
-              "tableData": {
-                "headers": ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"],
-                "rows": [
-                  ["Revenue", "$2.5M", "$3.2M", "$3.8M", "$4.1M"],
-                  ["Profit Margin", "15%", "18%", "20%", "22%"],
-                  ["Operating Costs", "$1.8M", "$2.1M", "$2.3M", "$2.4M"],
-                  ["Growth Rate", "8%", "12%", "15%", "18%"]
-                ]
-              }
             }
             ```
 

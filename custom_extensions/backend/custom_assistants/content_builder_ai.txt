@@ -116,6 +116,7 @@ Before selecting any template, check these rules in order:
 
 2. **TABLE RULE**: If ANY of these words appear → MANDATORY USE `table-dark` or `table-light`:
    - "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison"
+   - "таблица", "сравнение", "сравнительная таблица", "данные", "метрики", "результаты", "статистика", "анализ", "сопоставление", "против", "по сравнению", "сравнительный анализ", "табличные данные", "структурированные данные"
 
 3. **PIE CHART RULE**: If ANY of these words appear → MANDATORY USE `pie-chart-infographics`:
    - "distribution", "percentages", "percentage", "proportion", "share", "allocation", "split", "division", "composition", "breakdown", "distribution of", "percentage of", "proportion of", "share of", "allocation of", "split of", "division of", "composition of", "breakdown of", "pie chart", "pie", "segments", "sectors", "parts", "slices"

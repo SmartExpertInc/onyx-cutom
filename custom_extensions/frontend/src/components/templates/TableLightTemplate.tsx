@@ -214,7 +214,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   const addColumn = () => {
     const newHeaders = [...tableData.headers, `Team ${String.fromCharCode(65 + tableData.headers.length)}`];
-    const newRows = (tableData.rows || []).map(row => [...row, 'XX']);
+    const newRows = tableData.rows.map(row => [...row, 'XX']);
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
@@ -233,7 +233,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   const removeColumn = (colIndex: number) => {
     const newHeaders = tableData.headers.filter((_, index) => index !== colIndex);
-    const newRows = (tableData.rows || []).map(row => row.filter((_, index) => index !== colIndex + 1));
+    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex + 1));
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
@@ -306,7 +306,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 >
                   {/* Empty corner cell */}
                 </th>
-                {(tableData.headers || []).map((header, index) => (
+                {tableData.headers.map((header, index) => (
                   <th 
                     key={index}
                     className="p-4 text-center font-bold border-r last:border-r-0 relative group"
@@ -364,13 +364,13 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
             {/* Body */}
             <tbody>
-              {(tableData.rows || []).map((row, rowIndex) => (
+              {tableData.rows.map((row, rowIndex) => (
                 <tr 
                   key={rowIndex}
                   className="border-b hover:bg-gray-50 transition-colors group"
                   style={{ borderColor: tableBorderColor }}
                 >
-                  {(row || []).map((cell, colIndex) => {
+                  {row.map((cell, colIndex) => {
                     const isFirstColumn = colIndex === 0;
                     const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
                     
