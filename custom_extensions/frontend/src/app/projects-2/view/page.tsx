@@ -8,12 +8,19 @@ import Background from './components/Background';
 import Music from './components/Music';
 import Transition from './components/Transition';
 import Comments from './components/Comments';
+import Media from './components/Media';
 
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
+  const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
 
   const handleActiveToolChange = (toolId: string) => {
-    setActiveComponent(toolId);
+    if (toolId === 'media') {
+      setIsMediaPopupOpen(true);
+    } else {
+      setActiveComponent(toolId);
+      setIsMediaPopupOpen(false);
+    }
   };
 
   const renderSidebarComponent = () => {
@@ -34,7 +41,7 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col p-2">
+    <div className="h-screen bg-background flex flex-col p-2 relative">
       {/* Header */}
       <VideoEditorHeader />
 
@@ -106,6 +113,15 @@ export default function Projects2ViewPage() {
           </div>
         </div>
       </div>
+
+      {/* Media Popup */}
+      <Media 
+        isOpen={isMediaPopupOpen} 
+        onClose={() => setIsMediaPopupOpen(false)} 
+        title="Media Library"
+        displayMode="popup"
+        className="top-20 left-1/2 transform -translate-x-1/2 w-[800px] h-[500px]"
+      />
     </div>
   );
 }
