@@ -1888,7 +1888,85 @@
                             <!-- No items available -->
                         {% endif %}
                         {% if not slide.props.items or slide.props.items is not iterable or slide.props.items is callable or slide.props.items|length == 0 %}
-                            <!-- No items available - show empty state -->
+                            <!-- Fallback items when no data is available -->
+                            <div class="number-item">
+                                <div class="number-value positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set valueId = 'draggable-' + slide.slideId + '-item-0-value' %}
+                                        {% if slide.metadata.elementPositions[valueId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >100+</div>
+                                <div class="number-label positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set labelId = 'draggable-' + slide.slideId + '-item-0-label' %}
+                                        {% if slide.metadata.elementPositions[labelId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >Countries Served</div>
+                                <div class="number-description positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set descriptionId = 'draggable-' + slide.slideId + '-item-0-description' %}
+                                        {% if slide.metadata.elementPositions[descriptionId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >We have expanded our operations to over 100 countries worldwide.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set valueId = 'draggable-' + slide.slideId + '-item-1-value' %}
+                                        {% if slide.metadata.elementPositions[valueId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >5</div>
+                                <div class="number-label positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set labelId = 'draggable-' + slide.slideId + '-item-1-label' %}
+                                        {% if slide.metadata.elementPositions[labelId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >Years in Business</div>
+                                <div class="number-description positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set descriptionId = 'draggable-' + slide.slideId + '-item-1-description' %}
+                                        {% if slide.metadata.elementPositions[descriptionId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >Celebrating over 5 years of successful operations.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set valueId = 'draggable-' + slide.slideId + '-item-2-value' %}
+                                        {% if slide.metadata.elementPositions[valueId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >20%</div>
+                                <div class="number-label positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set labelId = 'draggable-' + slide.slideId + '-item-2-label' %}
+                                        {% if slide.metadata.elementPositions[labelId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >Employee Satisfaction Rate</div>
+                                <div class="number-description positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set descriptionId = 'draggable-' + slide.slideId + '-item-2-description' %}
+                                        {% if slide.metadata.elementPositions[descriptionId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >Our employee satisfaction rate stands at an impressive 20%.</div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
@@ -1926,7 +2004,51 @@
                             {% endif %}
                         {% endfor %}
                         {% if not slide.props.boxes or slide.props.boxes is not iterable or slide.props.boxes is callable or slide.props.boxes|length == 0 %}
-                            <!-- No boxes available - show empty state -->
+                            <!-- Fallback boxes when no data is available -->
+                            <div class="box-item positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set boxId = 'draggable-' + slide.slideId + '-1' %}
+                                    {% if slide.metadata.elementPositions[boxId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[boxId].x }}px, {{ slide.metadata.elementPositions[boxId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
+                            </div>
+                            <div class="box-item positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set boxId = 'draggable-' + slide.slideId + '-2' %}
+                                    {% if slide.metadata.elementPositions[boxId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[boxId].x }}px, {{ slide.metadata.elementPositions[boxId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
+                            </div>
+                            <div class="box-item positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set boxId = 'draggable-' + slide.slideId + '-3' %}
+                                    {% if slide.metadata.elementPositions[boxId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[boxId].x }}px, {{ slide.metadata.elementPositions[boxId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">The teamwork culture makes every project enjoyable and successful.</div>
+                            </div>
+                            <div class="box-item positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set boxId = 'draggable-' + slide.slideId + '-4' %}
+                                    {% if slide.metadata.elementPositions[boxId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[boxId].x }}px, {{ slide.metadata.elementPositions[boxId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Our commitment to customer focus is evident in everything we do.</div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
