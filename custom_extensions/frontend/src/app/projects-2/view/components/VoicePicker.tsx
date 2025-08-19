@@ -6,9 +6,10 @@ import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight } from
 interface VoicePickerProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectVoice?: (voice: any) => void;
 }
 
-export default function VoicePicker({ isOpen, onClose }: VoicePickerProps) {
+export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePickerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [accentDropdownOpen, setAccentDropdownOpen] = useState(false);
   const [ageDropdownOpen, setAgeDropdownOpen] = useState(false);
@@ -18,8 +19,19 @@ export default function VoicePicker({ isOpen, onClose }: VoicePickerProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Light background overlay */}
+      <div 
+        className="absolute inset-0"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+        onClick={onClose}
+      ></div>
+      
+      {/* Modal content */}
+      <div 
+        className="relative bg-white shadow-xl w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden z-10"
+        style={{ borderRadius: '12px' }}
+      >
         
         {/* Row 1: Title */}
         <div className="p-6 pb-4">
