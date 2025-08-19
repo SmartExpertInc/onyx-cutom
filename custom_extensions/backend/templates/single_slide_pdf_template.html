@@ -2197,19 +2197,26 @@
                             {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
                                 {% for item in slide.props.items %}
                                     {% if loop.index0 < 3 and ((item.heading and item.heading != 'Click to add heading') or (item.description and item.description != 'Click to add description')) %}
-                                        <div class="item-wrapper level-{{ loop.index0 }} positioned-element"
-                                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                                {% set itemId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 2)|string %}
-                                                {% if slide.metadata.elementPositions[itemId] %}
-                                                    style="transform: translate({{ slide.metadata.elementPositions[itemId].x }}px, {{ slide.metadata.elementPositions[itemId].y }}px);"
-                                                {% endif %}
-                                            {% endif %}
-                                        >
+                                        <div class="item-wrapper level-{{ loop.index0 }}">
                                             {% if item.heading and item.heading != 'Click to add heading' %}
-                                                <div class="item-heading">{{ item.heading }}</div>
+                                                <div class="item-heading positioned-element"
+                                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                                        {% set headingId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 3)|string %}
+                                                        {% if slide.metadata.elementPositions[headingId] %}
+                                                            style="transform: translate({{ slide.metadata.elementPositions[headingId].x }}px, {{ slide.metadata.elementPositions[headingId].y }}px);"
+                                                        {% endif %}
+                                                    {% endif %}
+                                                >{{ item.heading }}</div>
                                             {% endif %}
                                             {% if item.description and item.description != 'Click to add description' %}
-                                                <div class="item-description">{{ item.description }}</div>
+                                                <div class="item-description positioned-element"
+                                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                                        {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 4)|string %}
+                                                        {% if slide.metadata.elementPositions[descriptionId] %}
+                                                            style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                                        {% endif %}
+                                                    {% endif %}
+                                                >{{ item.description }}</div>
                                             {% endif %}
                                         </div>
                                     {% endif %}
