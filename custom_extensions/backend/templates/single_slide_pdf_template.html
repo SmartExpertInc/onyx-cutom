@@ -1886,25 +1886,7 @@
                                     </div>
                                 {% endif %}
                             {% endfor %}
-                        {% else %}
-                            <!-- DEBUG: items is not iterable or is callable, using fallback -->
-                        {% endif %}
-                        {% if not slide.props.items or slide.props.items is not iterable or slide.props.items is callable or slide.props.items|length == 0 %}
-                            <div class="number-item">
-                                <div class="number-value">100+</div>
-                                <div class="number-label">Countries Served</div>
-                                <div class="number-description">We have expanded our operations to over 100 countries worldwide.</div>
-                            </div>
-                            <div class="number-item">
-                                <div class="number-value">5</div>
-                                <div class="number-label">Years in Business</div>
-                                <div class="number-description">Celebrating over 5 years of successful operations.</div>
-                            </div>
-                            <div class="number-item">
-                                <div class="number-value">20%</div>
-                                <div class="number-label">Employee Satisfaction Rate</div>
-                                <div class="number-description">Our employee satisfaction rate stands at an impressive 20%.</div>
-                            </div>
+                     
                         {% endif %}
                     </div>
                 </div>
