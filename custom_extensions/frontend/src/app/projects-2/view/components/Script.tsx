@@ -59,7 +59,9 @@ export default function Script() {
                   
                   {/* Row 3: Narration only */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                    <MessageSquare size={16} className="text-black" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-black">
+                      <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
+                    </svg>
                     <span className="text-sm text-black">Narration only</span>
                   </button>
                   
@@ -100,7 +102,7 @@ export default function Script() {
 
         {/* Main Content Text */}
         <div className="w-full max-w-[615px] lg:max-w-[650px]">
-          <p className="text-[#5F5F5F] text-sm leading-relaxed font-normal">
+          <p className="text-[#5F5F5F] text-sm leading-loose font-normal">
             Create dynamic, powerful and informative videos with an
             avatar as your host. Instantly translate your video into over
             eighty languages, use engaging media to grab your

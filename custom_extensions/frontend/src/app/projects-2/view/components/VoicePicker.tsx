@@ -277,7 +277,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[92vh] flex flex-col z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[80vh] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
         
@@ -554,26 +554,26 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               <div 
                 className="rounded-lg p-4 flex items-center justify-between cursor-pointer"
                 style={{ 
-                  backgroundColor: 'rgba(59, 130, 246, 0.2)' 
+                  backgroundColor: '#EFF7FE' 
                 }}
               >
                 <div className="flex items-center gap-3">
                   {/* White circle with radio wave icon */}
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-blue-500">
-                    <RadioWaveIcon size={20} className="text-blue-500" />
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border" style={{ borderColor: '#6D8DC3' }}>
+                    <RadioWaveIcon size={20} style={{ color: '#6D8DC3' }} />
                   </div>
                   
                   {/* Text and badge */}
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-600 font-medium">Create a custom voice</span>
-                    <span className="px-2 py-1 bg-blue-600 text-blue-200 text-xs font-medium rounded-full">
+                    <span className="font-medium" style={{ color: '#6D8DC3' }}>Create a custom voice</span>
+                    <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ backgroundColor: '#6D8DC3', color: '#EFF7FE' }}>
                       NEW
                     </span>
                   </div>
                 </div>
                 
                 {/* Right chevron */}
-                <ChevronRight size={20} className="text-blue-500" />
+                <ChevronRight size={20} style={{ color: '#6D8DC3' }} />
               </div>
             </div>
 
@@ -598,7 +598,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
@@ -645,7 +645,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
@@ -692,7 +692,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
@@ -739,7 +739,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
@@ -786,7 +786,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
@@ -901,7 +901,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="mb-2">
               <span className="text-sm text-gray-700">Apply new voice to</span>
             </div>
-            <div className="bg-gray-200 rounded-lg p-1 flex w-80">
+            <div className="bg-gray-200 rounded-lg px-1 py-0.5 flex w-96">
               <button
                 onClick={() => setApplyTo('block')}
                 className={`px-6 py-1.5 text-sm rounded transition-colors ${
