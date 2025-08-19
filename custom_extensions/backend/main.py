@@ -18984,6 +18984,9 @@ async def import_new_smartdrive_files(
     try:
         onyx_user_id = await get_current_onyx_user_id(request)
         logger.info(f"Importing new SmartDrive files for user: {onyx_user_id}")
+        
+        # Extract session cookies for Onyx authentication
+        session_cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
 
         async with pool.acquire() as conn:
             # Get user's SmartDrive account
@@ -19037,13 +19040,17 @@ async def import_new_smartdrive_files(
                 
                 # Try to import the file into Onyx
                 try:
+                    # Extract session cookies for Onyx authentication from the request object
+                    session_cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+                    
                     onyx_file_id = await import_file_to_onyx_individual(
                         nextcloud_username,
                         nextcloud_password,
                         nextcloud_base_url, 
                         file_path, 
                         file_info, 
-                        onyx_user_id
+                        onyx_user_id,
+                        session_cookies
                     )
                     
                     if onyx_file_id:
@@ -19298,7 +19305,8 @@ async def import_file_to_onyx_individual(
     nextcloud_base_url: str, 
     file_path: str, 
     file_info: Dict, 
-    onyx_user_id: str
+    onyx_user_id: str,
+    session_cookies: Dict[str, str]
 ) -> str:
     """Download file from individual Nextcloud account and upload to Onyx"""
     try:
@@ -19325,10 +19333,11 @@ async def import_file_to_onyx_individual(
                 'file': (file_name, file_content, mime_type)
             }
             
-            # Upload to Onyx
+            # Upload to Onyx with session authentication
             upload_response = await client.post(
                 onyx_upload_url,
                 files=files,
+                cookies=session_cookies,
                 timeout=60.0
             )
             
