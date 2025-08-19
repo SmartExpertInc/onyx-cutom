@@ -2,56 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ExternalLink, Upload, Settings } from 'lucide-react';
+import { ChevronDown, ExternalLink, Upload, Settings, Globe, FileText, MessageSquare, Database, Code, Shield, Users, Calendar, BookOpen, FolderOpen, Cloud, Server, Mail, MessageCircle, GitBranch, GitPullRequest, File } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
-
-// Import connector icons from the main Onyx icon library
-import {
-  GoogleDriveIcon,
-  DropboxIcon,
-  SlackIcon,
-  NotionIcon,
-  ColorDiscordIcon,
-  GitbookIcon,
-  ZendeskIcon,
-  AsanaIcon,
-  S3Icon,
-  AirtableIcon,
-  ConfluenceIcon,
-  JiraIcon,
-  GithubIcon,
-  GitlabIcon,
-  GmailIcon,
-  SharepointIcon,
-  TeamsIcon,
-  SalesforceIcon,
-  DiscourseIcon,
-  AxeroIcon,
-  WikipediaIcon,
-  MediaWikiIcon,
-  ClickupIcon,
-  R2Icon,
-  GoogleStorageIcon,
-  OCIStorageIcon,
-  XenforoIcon,
-  FreshdeskIcon,
-  FirefliesIcon,
-  EgnyteIcon,
-  HighspotIcon,
-  GuruIcon,
-  LinearIcon,
-  HubSpotIcon,
-  Document360Icon,
-  GoogleSitesIcon,
-  ZulipIcon,
-  ProductboardIcon,
-  SlabIcon,
-  LoopioIcon,
-  BookstackIcon,
-  GlobeIcon2,
-  FileIcon2,
-  GongIcon
-} from '../../../../../web/src/components/icons/icons';
 
 interface ConnectorConfig {
   id: string;
@@ -94,7 +46,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       id: 'google_drive',
       name: 'Google Drive',
       description: 'Connect to your Google Drive account',
-      icon: GoogleDriveIcon,
+      icon: Cloud,
       category: 'Storage',
       oauthSupported: true
     },
@@ -102,56 +54,56 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       id: 'dropbox',
       name: 'Dropbox',
       description: 'Connect to your Dropbox account',
-      icon: DropboxIcon,
+      icon: FolderOpen,
       category: 'Storage'
     },
     {
       id: 's3',
       name: 'Amazon S3',
       description: 'Connect to Amazon S3 storage',
-      icon: S3Icon,
+      icon: Server,
       category: 'Storage'
     },
     {
       id: 'r2',
       name: 'Cloudflare R2',
       description: 'Connect to Cloudflare R2 storage',
-      icon: R2Icon,
+      icon: Cloud,
       category: 'Storage'
     },
     {
       id: 'google_cloud_storage',
       name: 'Google Cloud Storage',
       description: 'Connect to Google Cloud Storage',
-      icon: GoogleStorageIcon,
+      icon: Cloud,
       category: 'Storage'
     },
     {
       id: 'oci_storage',
       name: 'Oracle Cloud Storage',
       description: 'Connect to Oracle Cloud Storage',
-      icon: OCIStorageIcon,
+      icon: Server,
       category: 'Storage'
     },
     {
       id: 'sharepoint',
       name: 'SharePoint',
       description: 'Connect to Microsoft SharePoint',
-      icon: SharepointIcon,
+      icon: FolderOpen,
       category: 'Storage'
     },
     {
       id: 'egnyte',
       name: 'Egnyte',
       description: 'Connect to Egnyte file sharing',
-      icon: EgnyteIcon,
+      icon: FolderOpen,
       category: 'Storage'
     },
     {
       id: 'slack',
       name: 'Slack',
       description: 'Connect to your Slack workspace',
-      icon: SlackIcon,
+      icon: MessageSquare,
       category: 'Messaging',
       oauthSupported: true
     },
@@ -159,49 +111,49 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       id: 'discord',
       name: 'Discord',
       description: 'Connect to your Discord server',
-      icon: ColorDiscordIcon,
+      icon: MessageCircle,
       category: 'Messaging'
     },
     {
       id: 'teams',
       name: 'Microsoft Teams',
       description: 'Connect to Microsoft Teams',
-      icon: TeamsIcon,
+      icon: MessageSquare,
       category: 'Messaging'
     },
     {
       id: 'gmail',
       name: 'Gmail',
       description: 'Connect to your Gmail account',
-      icon: GmailIcon,
+      icon: Mail,
       category: 'Messaging'
     },
     {
       id: 'zulip',
       name: 'Zulip',
       description: 'Connect to Zulip chat',
-      icon: ZulipIcon,
+      icon: MessageCircle,
       category: 'Messaging'
     },
     {
       id: 'discourse',
       name: 'Discourse',
       description: 'Connect to Discourse forum',
-      icon: DiscourseIcon,
+      icon: MessageSquare,
       category: 'Messaging'
     },
     {
       id: 'notion',
       name: 'Notion',
       description: 'Connect to your Notion workspace',
-      icon: NotionIcon,
+      icon: FileText,
       category: 'Wiki'
     },
     {
       id: 'confluence',
       name: 'Confluence',
       description: 'Connect to Atlassian Confluence',
-      icon: ConfluenceIcon,
+      icon: BookOpen,
       category: 'Wiki',
       oauthSupported: true
     },
@@ -209,196 +161,196 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       id: 'gitbook',
       name: 'GitBook',
       description: 'Connect to GitBook documentation',
-      icon: GitbookIcon,
+      icon: BookOpen,
       category: 'Wiki'
     },
     {
       id: 'axero',
       name: 'Axero',
       description: 'Connect to Axero knowledge base',
-      icon: AxeroIcon,
+      icon: FileText,
       category: 'Wiki'
     },
     {
       id: 'wikipedia',
       name: 'Wikipedia',
       description: 'Connect to Wikipedia articles',
-      icon: WikipediaIcon,
+      icon: Globe,
       category: 'Wiki'
     },
     {
       id: 'mediawiki',
       name: 'MediaWiki',
       description: 'Connect to MediaWiki sites',
-      icon: MediaWikiIcon,
+      icon: FileText,
       category: 'Wiki'
     },
     {
       id: 'bookstack',
       name: 'BookStack',
       description: 'Connect to BookStack documentation',
-      icon: BookstackIcon,
+      icon: BookOpen,
       category: 'Wiki'
     },
     {
       id: 'asana',
       name: 'Asana',
       description: 'Connect to your Asana workspace',
-      icon: AsanaIcon,
+      icon: Calendar,
       category: 'Project Management'
     },
     {
       id: 'jira',
       name: 'Jira',
       description: 'Connect to Atlassian Jira',
-      icon: JiraIcon,
+      icon: Shield,
       category: 'Project Management'
     },
     {
       id: 'clickup',
       name: 'ClickUp',
       description: 'Connect to ClickUp workspace',
-      icon: ClickupIcon,
+      icon: Calendar,
       category: 'Project Management'
     },
     {
       id: 'linear',
       name: 'Linear',
       description: 'Connect to Linear project management',
-      icon: LinearIcon,
+      icon: Calendar,
       category: 'Project Management'
     },
     {
       id: 'productboard',
       name: 'Productboard',
       description: 'Connect to Productboard',
-      icon: ProductboardIcon,
+      icon: Shield,
       category: 'Project Management'
     },
     {
       id: 'github',
       name: 'GitHub',
       description: 'Connect to GitHub repositories',
-      icon: GithubIcon,
+      icon: GitBranch,
       category: 'Code Repository'
     },
     {
       id: 'gitlab',
       name: 'GitLab',
       description: 'Connect to GitLab repositories',
-      icon: GitlabIcon,
+      icon: GitPullRequest,
       category: 'Code Repository'
     },
     {
       id: 'zendesk',
       name: 'Zendesk',
       description: 'Connect to Zendesk support',
-      icon: ZendeskIcon,
+      icon: MessageSquare,
       category: 'Customer Support'
     },
     {
       id: 'freshdesk',
       name: 'Freshdesk',
       description: 'Connect to Freshdesk support',
-      icon: FreshdeskIcon,
+      icon: MessageSquare,
       category: 'Customer Support'
     },
     {
       id: 'salesforce',
       name: 'Salesforce',
       description: 'Connect to Salesforce CRM',
-      icon: SalesforceIcon,
+      icon: Users,
       category: 'CRM'
     },
     {
       id: 'hubspot',
       name: 'HubSpot',
       description: 'Connect to HubSpot CRM',
-      icon: HubSpotIcon,
+      icon: Users,
       category: 'CRM'
     },
     {
       id: 'airtable',
       name: 'Airtable',
       description: 'Connect to Airtable databases',
-      icon: AirtableIcon,
+      icon: Database,
       category: 'Database'
     },
     {
       id: 'gong',
       name: 'Gong',
       description: 'Connect to Gong call recordings',
-      icon: GongIcon,
+      icon: MessageCircle,
       category: 'Communication'
     },
     {
       id: 'fireflies',
       name: 'Fireflies',
       description: 'Connect to Fireflies meeting recordings',
-      icon: FirefliesIcon,
+      icon: MessageCircle,
       category: 'Communication'
     },
     {
       id: 'highspot',
       name: 'Highspot',
       description: 'Connect to Highspot sales enablement',
-      icon: HighspotIcon,
+      icon: Users,
       category: 'Sales'
     },
     {
       id: 'guru',
       name: 'Guru',
       description: 'Connect to Guru knowledge base',
-      icon: GuruIcon,
+      icon: FileText,
       category: 'Knowledge Management'
     },
     {
       id: 'slab',
       name: 'Slab',
       description: 'Connect to Slab documentation',
-      icon: SlabIcon,
+      icon: FileText,
       category: 'Documentation'
     },
     {
       id: 'document360',
       name: 'Document360',
       description: 'Connect to Document360 knowledge base',
-      icon: Document360Icon,
+      icon: FileText,
       category: 'Documentation'
     },
     {
       id: 'google_sites',
       name: 'Google Sites',
       description: 'Connect to Google Sites',
-      icon: GoogleSitesIcon,
+      icon: Globe,
       category: 'Website'
     },
     {
       id: 'xenforo',
       name: 'XenForo',
       description: 'Connect to XenForo forum',
-      icon: XenforoIcon,
+      icon: MessageSquare,
       category: 'Forum'
     },
     {
       id: 'loopio',
       name: 'Loopio',
       description: 'Connect to Loopio RFP responses',
-      icon: LoopioIcon,
+      icon: FileText,
       category: 'RFP Management'
     },
     {
       id: 'web',
       name: 'Web Scraper',
       description: 'Scrape content from websites',
-      icon: GlobeIcon2,
+      icon: Globe,
       category: 'Web'
     },
     {
       id: 'file',
       name: 'File Upload',
       description: 'Upload files directly',
-      icon: FileIcon2,
+      icon: File,
       category: 'File'
     }
   ];
