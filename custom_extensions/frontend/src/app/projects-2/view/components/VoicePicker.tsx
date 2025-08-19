@@ -531,7 +531,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         </div>
 
         {/* Content Container with proper flex structure */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Row 5: Main Area Layout Headers - Fixed */}
           <div className="px-6 py-4 flex justify-between">
             {/* Left Zone */}
@@ -546,9 +546,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
 
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
-          <div className="px-6 pb-6 flex gap-6">
+          <div className="px-6 pb-6 flex gap-6 flex-1 min-h-0">
           {/* Left Panel - Voice List with its own scrolling */}
-          <div className="flex-1 overflow-y-auto max-h-[400px]">
+          <div className="flex-1 overflow-y-auto">
             {/* Create Custom Voice Row */}
             <div className="mb-3">
               <div 
@@ -817,7 +817,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
           
           {/* Right Panel - Voice Details with its own scrolling */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto max-h-[400px]">
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto">
             {/* Row 1: Maya title */}
             <div className="mb-2">
               <h3 className="text-xl text-gray-900">Maya</h3>
