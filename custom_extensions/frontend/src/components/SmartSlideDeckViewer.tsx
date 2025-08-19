@@ -79,6 +79,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const [overallGenerationProgress, setOverallGenerationProgress] = useState<{ total: number; completed: number; inProgress: number; failed: number; percentage: number }>({ total: 0, completed: 0, inProgress: 0, failed: 0, percentage: 0 });
   const [showGenerationProgress, setShowGenerationProgress] = useState(false);
   const progressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // ✅ NEW: Track if auto-generation has been completed for this presentation
+  const [autoGenerationCompleted, setAutoGenerationCompleted] = useState(false);
 
   // ✅ NEW: Debug logging utility
   const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -162,14 +165,26 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           
           // Update the appropriate image property based on template and element ID
           if (elementId === `${slideId}-image`) {
-            // Single image template
-            updatedSlide.props = { ...updatedSlide.props, imagePath };
+            // Single image template - set imagePath and force crop mode
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              imagePath,
+              objectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+            };
           } else if (elementId === `${slideId}-left-image`) {
             // Two-column template - left image
-            updatedSlide.props = { ...updatedSlide.props, leftImagePath: imagePath };
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              leftImagePath: imagePath,
+              leftObjectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+            };
           } else if (elementId === `${slideId}-right-image`) {
             // Two-column template - right image
-            updatedSlide.props = { ...updatedSlide.props, rightImagePath: imagePath };
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              rightImagePath: imagePath,
+              rightObjectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+            };
           }
           
           updatedSlides[slideIndex] = updatedSlide;
@@ -204,6 +219,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       successfulResults: results.filter(r => r.success).length,
       failedResults: results.filter(r => !r.success).length
     });
+
+    // ✅ NEW: Mark auto-generation as completed permanently
+    setAutoGenerationCompleted(true);
 
     // Hide progress indicator after a delay
     if (progressTimeoutRef.current) {
@@ -1110,10 +1128,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       />
 
       {/* Automatic Image Generation Manager */}
-      {enableAutomaticImageGeneration && (
+      {enableAutomaticImageGeneration && !autoGenerationCompleted && (
         <AutomaticImageGenerationManager
           deck={componentDeck}
-          enabled={enableAutomaticImageGeneration}
+          enabled={enableAutomaticImageGeneration && !autoGenerationCompleted}
           onGenerationStarted={handleGenerationStarted}
           onGenerationCompleted={handleGenerationCompleted}
           onGenerationFailed={handleGenerationFailed}

@@ -77,7 +77,7 @@ export const ExampleAutomaticImageGeneration: React.FC = () => {
     if (failedCount > 0) {
       setGenerationStatus(`✅ ${successCount} images generated, ❌ ${failedCount} failed`);
     } else {
-      setGenerationStatus(`✅ All ${successCount} images generated successfully!`);
+      setGenerationStatus(`✅ All ${successCount} images generated successfully! Auto-generation is now disabled for this presentation.`);
     }
     
     console.log('Generation completed:', results);
@@ -90,11 +90,11 @@ export const ExampleAutomaticImageGeneration: React.FC = () => {
     <div style={{ padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <div style={{ marginBottom: '20px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-          SmartSlideDeckViewer with Automatic AI Image Generation
+          SmartSlideDeckViewer with Enhanced Automatic AI Image Generation
         </h1>
         <p style={{ fontSize: '16px', color: '#6b7280', marginBottom: '16px' }}>
           This example demonstrates the enhanced SmartSlideDeckViewer with automatic AI image generation.
-          The presentation will automatically generate images for all placeholders using AI-generated prompts.
+          <strong>Key improvements:</strong> Auto-generation only happens once, and AI-generated images are automatically cropped.
         </p>
         
         {generationStatus && (
@@ -180,23 +180,23 @@ export const ExampleAutomaticImageGeneration: React.FC = () => {
         color: '#374151'
       }}>
         <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600' }}>
-          How It Works
+          Enhanced Behavior
         </h3>
         <ol style={{ margin: 0, paddingLeft: '20px' }}>
           <li style={{ marginBottom: '8px' }}>
-            <strong>Presentation Loads:</strong> The deck contains slides with empty imagePath but populated imagePrompt properties
+            <strong>One-Time Auto-Generation:</strong> Automatic generation only happens once during initial presentation creation
           </li>
           <li style={{ marginBottom: '8px' }}>
-            <strong>Automatic Detection:</strong> The system detects placeholders that need images generated
+            <strong>Auto-Cropped Images:</strong> AI-generated images are automatically cropped to fit placeholder dimensions
           </li>
           <li style={{ marginBottom: '8px' }}>
-            <strong>Batch Processing:</strong> Images are generated in batches of 3 to avoid API rate limits
+            <strong>New Slides:</strong> Adding new slides shows empty placeholders (no auto-generation)
           </li>
           <li style={{ marginBottom: '8px' }}>
-            <strong>Real-time Updates:</strong> Progress indicator shows generation status and images appear as they complete
+            <strong>Deleted Images:</strong> Deleting images shows empty placeholders (no auto-generation)
           </li>
           <li style={{ marginBottom: '8px' }}>
-            <strong>Automatic Saving:</strong> Generated images are automatically saved to the deck
+            <strong>Manual Uploads:</strong> Manual image uploads still show the crop/no-crop choice modal
           </li>
         </ol>
       </div>
