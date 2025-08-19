@@ -147,73 +147,9 @@
             font-weight: 500;
         }
 
-        .folder-row {
-            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
-            font-weight: 600;
-        }
-
-        .folder-row td {
-            color: #065f46;
-            font-weight: 600;
-        }
-
-        .product-row td {
-            color: #1e293b;
-        }
-
-        .product-name {
+        .course-name {
             font-weight: 600;
             color: #000;
-        }
-
-        .product-number {
-            background: linear-gradient(135deg, #6c6fcc 0%, #05267c 100%);
-            color: white;
-            font-size: 12px;
-            font-weight: 700;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            box-shadow: 0 4px 8px rgba(108, 111, 204, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .data-cell {
-            text-align: left;
-            color: #475569;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .data-cell.bold {
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .lesson-cell {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        .lesson-icon {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            color: #6c6fcc;
-        }
-
-        .timer-icon {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            color: #6c6fcc;
-            vertical-align: middle;
-            display: inline-block;
         }
 
         .subtotal {
@@ -275,142 +211,6 @@
             left: 0;
         }
 
-        /* Indentation */
-        .indent-0 { padding-left: 24px; }
-        .indent-1 { padding-left: 44px; }
-        .indent-2 { padding-left: 64px; }
-        .indent-3 { padding-left: 84px; }
-        .indent-4 { padding-left: 104px; }
-        .indent-5 { padding-left: 124px; }
-
-        /* Quality tier styling */
-        .quality-tier-cell {
-            text-align: center;
-            padding: 12px 8px;
-        }
-
-        .tier-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 9999px;
-            letter-spacing: 0.05em;
-            text-align: center;
-            line-height: 1.2;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .tier-basic { 
-            color: #065f46; 
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
-            border: 1px solid #6ee7b7; 
-        }
-        .tier-interactive { 
-            color: #c2410c; 
-            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); 
-            border: 1px solid #fdba74; 
-        }
-        .tier-advanced { 
-            color: #6b21a8; 
-            background: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%); 
-            border: 1px solid #c084fc; 
-        }
-        .tier-immersive { 
-            color: #1e40af; 
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
-            border: 1px solid #93c5fd; 
-        }
-
-        /* Charts Container */
-        .charts-container {
-            margin-top: 32px;
-            display: flex;
-            gap: 24px;
-        }
-
-        .chart-container {
-            width: 50%;
-            background: white;
-            border: 1px solid #d1fae5;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.1), 0 4px 10px -2px rgba(16, 185, 129, 0.05);
-        }
-
-        .chart-header {
-            background: linear-gradient(135deg, #6c6fcc 0%, #05267c 100%);
-            padding: 20px 24px;
-            border-bottom: 1px solid #d1fae5;
-        }
-
-        .chart-header h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #ffffff;
-            margin: 0;
-        }
-
-        .chart-header p {
-            font-size: 12px;
-            color: #dcfce7;
-            margin: 4px 0 0 0;
-        }
-
-        .chart-content {
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .chart-svg {
-            flex-shrink: 0;
-        }
-
-        .chart-legend {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 4px;
-            margin-right: 8px;
-            flex-shrink: 0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        .legend-text {
-            font-size: 12px;
-        }
-
-        .legend-text div:first-child {
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .legend-text div:last-child {
-            color: #64748b;
-            font-size: 10px;
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: #64748b;
-            font-style: italic;
-        }
-
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
@@ -441,14 +241,6 @@
             table {
                 min-width: 600px;
             }
-
-            .charts-container {
-                flex-direction: column;
-            }
-
-            .chart-container {
-                width: 100%;
-            }
         }
     </style>
 </head>
@@ -467,402 +259,117 @@
 
         <div class="content">
             <div class="block">
-                <h2 class="block-title">Block 1. Projects Overview</h2>
+                <h2 class="block-title">Block 1. Course Overview</h2>
                 <div class="table-container">
                     <table>
                         <thead class="table-header">
                             <tr>
-                                {% if column_visibility.title %}
-                                <th>Project Name</th>
-                                {% endif %}
-                                {% if column_visibility.quality_tier %}
-                                <th>Quality Tier</th>
-                                {% endif %}
-                                {% if column_visibility.numberOfLessons %}
+                                <th>Course Name</th>
+                                <th>Modules</th>
                                 <th>Lessons</th>
-                                {% endif %}
-                                {% if column_visibility.estCreationTime %}
-                                <th>Creation Time</th>
-                                {% endif %}
-                                {% if column_visibility.estCompletionTime %}
-                                <th>Completion Time</th>
-                                {% endif %}
+                                <th>Learning Duration (h)</th>
+                                <th>Production Time (h)</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% set product_counter = namespace(value=1) %}
+                            {% set total_lessons = 0 %}
+                            {% set total_hours = 0 %}
+                            {% set total_production_time = 0 %}
                             
                             {% if folders %}
                                 {% for folder in folders %}
-                                    <tr class="table-row folder-row">
-                                        {% if column_visibility.title %}
-                                        <td class="product-name" style="padding-left: {{ 24 + (folder.level * 20) }}px;">
-                                            <div class="product-title">
-                                                <div class="product-number">{{ loop.index }}</div>
-                                                📁 {{ folder.name }}
-                                            </div>
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.quality_tier %}
-                                        <td class="data-cell quality-tier-cell">
-                                            {% if folder.quality_tier %}
-                                                <span class="tier-badge tier-{{ folder.quality_tier.lower() }}">{{ folder.quality_tier.title() }}</span>
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.numberOfLessons %}
-                                        <td class="data-cell lesson-cell">
-                                            {% if folder.total_lessons > 0 %}
-                                                <svg class="lesson-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                {{ folder.total_lessons }}
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.estCreationTime %}
-                                        <td class="data-cell">
-                                            {% if folder.total_hours > 0 %}
-                                                <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                                    <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.estCompletionTime %}
-                                        <td class="data-cell">
-                                            {% if folder.total_completion_time > 0 %}
-                                                <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                                    <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                {% set h = folder.total_completion_time // 60 %}
-                                                {% set m = folder.total_completion_time % 60 %}
-                                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
+                                    <tr class="table-row">
+                                        <td class="course-name">{{ folder.name }}</td>
+                                        <td>{{ folder.projects|length if folder.projects else 0 }}</td>
+                                        <td>{{ folder.total_lessons if folder.total_lessons else 0 }}</td>
+                                        <td>{{ folder.total_hours if folder.total_hours else 0 }}</td>
+                                        <td>{{ (folder.total_hours * 300) if folder.total_hours else 0 }}</td>
                                     </tr>
+                                    {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons else 0) %}
+                                    {% set total_hours = total_hours + (folder.total_hours if folder.total_hours else 0) %}
+                                    {% set total_production_time = total_production_time + ((folder.total_hours * 300) if folder.total_hours else 0) %}
                                     
                                     {% if folder.projects %}
                                         {% for project in folder.projects %}
-                                            <tr class="table-row product-row">
-                                                {% if column_visibility.title %}
-                                                <td class="product-name" style="padding-left: {{ 44 + (folder.level * 20) }}px;">
-                                                    <div class="product-title">
-                                                        <div class="product-number">{{ product_counter.value }}</div>
-                                                        {% if project.design_microproduct_type == 'PdfLessonDisplay' %}📄{% elif project.design_microproduct_type == 'QuizDisplay' %}❓{% elif project.design_microproduct_type == 'VideoLessonDisplay' %}🎥{% else %}📊{% endif %}
-                                                        {{ project.project_name }}
-                                                    </div>
-                                                </td>
-                                                {% endif %}
-                                                {% if column_visibility.quality_tier %}
-                                                <td class="data-cell quality-tier-cell">
-                                                    {% if project.quality_tier %}
-                                                        <span class="tier-badge tier-{{ project.quality_tier.lower() }}">{{ project.quality_tier.title() }}</span>
-                                                    {% else %}
-                                                        <span class="dash">-</span>
-                                                    {% endif %}
-                                                </td>
-                                                {% endif %}
-                                                {% if column_visibility.numberOfLessons %}
-                                                <td class="data-cell lesson-cell">
-                                                    {% if project.total_lessons > 0 %}
-                                                        <svg class="lesson-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        {{ project.total_lessons }}
-                                                    {% else %}
-                                                        <span class="dash">-</span>
-                                                    {% endif %}
-                                                </td>
-                                                {% endif %}
-                                                {% if column_visibility.estCreationTime %}
-                                                <td class="data-cell">
-                                                    {% if project.total_hours > 0 %}
-                                                        <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                                            <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
-                                                    {% else %}
-                                                        <span class="dash">-</span>
-                                                    {% endif %}
-                                                </td>
-                                                {% endif %}
-                                                {% if column_visibility.estCompletionTime %}
-                                                <td class="data-cell">
-                                                    {% if project.total_completion_time > 0 %}
-                                                        <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                                            <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        {% set h = project.total_completion_time // 60 %}
-                                                        {% set m = project.total_completion_time % 60 %}
-                                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                                    {% else %}
-                                                        <span class="dash">-</span>
-                                                    {% endif %}
-                                                </td>
-                                                {% endif %}
+                                            <tr class="table-row">
+                                                <td class="course-name" style="padding-left: 20px;">{{ project.project_name }}</td>
+                                                <td>1</td>
+                                                <td>{{ project.total_lessons if project.total_lessons else 0 }}</td>
+                                                <td>{{ project.total_hours if project.total_hours else 0 }}</td>
+                                                <td>{{ (project.total_hours * 300) if project.total_hours else 0 }}</td>
                                             </tr>
-                                            {% set product_counter.value = product_counter.value + 1 %}
+                                            {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
+                                            {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
+                                            {% set total_production_time = total_production_time + ((project.total_hours * 300) if project.total_hours else 0) %}
                                         {% endfor %}
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
                             
                             {% if unassigned_projects %}
-                                <tr class="table-row folder-row">
-                                    <td colspan="{{ column_count }}" style="background: #fef3c7; padding: 16px 24px; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #92400e;">
-                                        📁 Unassigned Projects
-                                    </td>
-                                </tr>
                                 {% for project in unassigned_projects %}
-                                    <tr class="table-row product-row">
-                                        {% if column_visibility.title %}
-                                        <td class="product-name" style="padding-left: 44px;">
-                                            <div class="product-title">
-                                                <div class="product-number">{{ product_counter.value }}</div>
-                                                {% if project.design_microproduct_type == 'PdfLessonDisplay' %}📄{% elif project.design_microproduct_type == 'QuizDisplay' %}❓{% elif project.design_microproduct_type == 'VideoLessonDisplay' %}🎥{% else %}📊{% endif %}
-                                                {{ project.project_name }}
-                                            </div>
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.quality_tier %}
-                                        <td class="data-cell quality-tier-cell">
-                                            {% if project.quality_tier %}
-                                                <span class="tier-badge tier-{{ project.quality_tier.lower() }}">{{ project.quality_tier.title() }}</span>
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.numberOfLessons %}
-                                        <td class="data-cell lesson-cell">
-                                            {% if project.total_lessons > 0 %}
-                                                <svg class="lesson-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                {{ project.total_lessons }}
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.estCreationTime %}
-                                        <td class="data-cell">
-                                            {% if project.total_hours > 0 %}
-                                                <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                                    <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
-                                        {% if column_visibility.estCompletionTime %}
-                                        <td class="data-cell">
-                                            {% if project.total_completion_time > 0 %}
-                                                <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                                                    <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                {% set h = project.total_completion_time // 60 %}
-                                                {% set m = project.total_completion_time % 60 %}
-                                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                            {% else %}
-                                                <span class="dash">-</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endif %}
+                                    <tr class="table-row">
+                                        <td class="course-name">{{ project.project_name }}</td>
+                                        <td>1</td>
+                                        <td>{{ project.total_lessons if project.total_lessons else 0 }}</td>
+                                        <td>{{ project.total_hours if project.total_hours else 0 }}</td>
+                                        <td>{{ (project.total_hours * 300) if project.total_hours else 0 }}</td>
                                     </tr>
-                                    {% set product_counter.value = product_counter.value + 1 %}
+                                    {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
+                                    {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
+                                    {% set total_production_time = total_production_time + ((project.total_hours * 300) if project.total_hours else 0) %}
                                 {% endfor %}
                             {% endif %}
                         </tbody>
                     </table>
                     <div class="subtotal">
-                        Total Projects: {{ total_projects if total_projects else 0 }} | Total Lessons: {{ total_lessons if total_lessons else 0 }} | Total Creation Time: {{ total_hours if total_hours else 0 }}h
+                        Subtotal: {{ total_hours }}h of learning content → {{ total_production_time }}h production
                     </div>
                 </div>
             </div>
 
-            {% if folders or unassigned_projects %}
-            <div class="charts-container">
-                <!-- Products Distribution Pie Chart -->
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3>Products Distribution</h3>
-                        <p>Distribution of product types across all lessons</p>
-                    </div>
-                    <div class="chart-content">
-                        <div class="chart-svg">
-                            <svg width="140" height="140" viewBox="0 0 140 140" style="display: block;">
-                                {% set total_products = product_distribution.total_products if product_distribution else 0 %}
-                                {% set one_pager_count = product_distribution.one_pager_count if product_distribution else 0 %}
-                                {% set presentation_count = product_distribution.presentation_count if product_distribution else 0 %}
-                                {% set quiz_count = product_distribution.quiz_count if product_distribution else 0 %}
-                                {% set video_lesson_count = product_distribution.video_lesson_count if product_distribution else 0 %}
-                                
-                                {% set one_pager_percentage = product_distribution.one_pager_percentage if product_distribution else 0 %}
-                                {% set presentation_percentage = product_distribution.presentation_percentage if product_distribution else 0 %}
-                                {% set quiz_percentage = product_distribution.quiz_percentage if product_distribution else 0 %}
-                                {% set video_lesson_percentage = product_distribution.video_lesson_percentage if product_distribution else 0 %}
-
-                                <g transform="translate(70, 70)">
-                                    <!-- Video lesson (orange, smallest) -->
-                                    <path d="M -19.76 52.41 A 56 56 0 0 1 0 -56 L 0 -21 A 21 21 0 0 0 -7.41 19.66 Z" 
-                                          fill="#ea580c" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- Presentation (blue) -->
-                                    <path d="M 32.63 45.51 A 56 56 0 0 1 -19.76 52.41 L -7.41 19.66 A 21 21 0 0 0 12.24 17.07 Z" 
-                                          fill="#2563eb" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- Quiz (green) -->
-                                    <path d="M 54.36 -16.23 A 56 56 0 0 1 32.63 45.51 L 12.24 17.07 A 21 21 0 0 0 20.38 -6.08 Z" 
-                                          fill="#16a34a" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- One-pager (purple, largest) -->
-                                    <path d="M 0 -56 A 56 56 0 0 1 54.36 -16.23 L 20.38 -6.08 A 21 21 0 0 0 0 -21 Z" 
-                                          fill="#9333ea" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- Center circle -->
-                                    <circle cx="0" cy="0" r="18" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-                                    <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 10px; font-weight: 600; fill: #1e293b;">{{ total_products }}</text>
-                                    <text x="0" y="12" text-anchor="middle" style="font-size: 7px; fill: #64748b;">Total</text>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="chart-legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);"></div>
-                                <div class="legend-text">
-                                    <div>One-pager</div>
-                                    <div>{{ one_pager_count }} ({{ one_pager_percentage }}%)</div>
-                                </div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);"></div>
-                                <div class="legend-text">
-                                    <div>Presentation</div>
-                                    <div>{{ presentation_count }} ({{ presentation_percentage }}%)</div>
-                                </div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);"></div>
-                                <div class="legend-text">
-                                    <div>Quiz</div>
-                                    <div>{{ quiz_count }} ({{ quiz_percentage }}%)</div>
-                                </div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);"></div>
-                                <div class="legend-text">
-                                    <div>Video Lesson</div>
-                                    <div>{{ video_lesson_count }} ({{ video_lesson_percentage }}%)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Quality Tiers Pie Chart -->
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3>Quality Tiers</h3>
-                        <p>Distribution of lesson quality tiers</p>
-                    </div>
-                    <div class="chart-content">
-                        <div class="chart-svg">
-                            <svg width="140" height="140" viewBox="0 0 140 140" style="display: block;">
-                                {% set total_lessons = quality_distribution.total_lessons if quality_distribution else 0 %}
-                                {% set basic_count = quality_distribution.basic_count if quality_distribution else 0 %}
-                                {% set interactive_count = quality_distribution.interactive_count if quality_distribution else 0 %}
-                                {% set advanced_count = quality_distribution.advanced_count if quality_distribution else 0 %}
-                                {% set immersive_count = quality_distribution.immersive_count if quality_distribution else 0 %}
-                                
-                                {% set basic_percentage = quality_distribution.basic_percentage if quality_distribution else 0 %}
-                                {% set interactive_percentage = quality_distribution.interactive_percentage if quality_distribution else 0 %}
-                                {% set advanced_percentage = quality_distribution.advanced_percentage if quality_distribution else 0 %}
-                                {% set immersive_percentage = quality_distribution.immersive_percentage if quality_distribution else 0 %}
-
-                                <g transform="translate(70, 70)">
-                                    <!-- Immersive (blue, smallest) -->
-                                    <path d="M -22.09 51.46 A 56 56 0 0 1 0 -56 L 0 -21 A 21 21 0 0 0 -8.28 19.30 Z" 
-                                          fill="#2563eb" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- Advanced (purple) -->
-                                    <path d="M 22.09 51.46 A 56 56 0 0 1 -22.09 51.46 L -8.28 19.30 A 21 21 0 0 0 8.28 19.30 Z" 
-                                          fill="#7c3aed" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- Interactive (orange) -->
-                                    <path d="M 53.41 -17.30 A 56 56 0 0 1 22.09 51.46 L 8.28 19.30 A 21 21 0 0 0 20.03 -6.49 Z" 
-                                          fill="#ea580c" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- Basic (green, largest) -->
-                                    <path d="M 0 -56 A 56 56 0 0 1 53.41 -17.30 L 20.03 -6.49 A 21 21 0 0 0 0 -21 Z" 
-                                          fill="#16a34a" stroke="#ffffff" stroke-width="1"/>
-                                    
-                                    <!-- Center circle -->
-                                    <circle cx="0" cy="0" r="18" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-                                    <text x="0" y="0" text-anchor="middle" dy=".3em" style="font-size: 10px; font-weight: 600; fill: #1e293b;">{{ total_lessons }}</text>
-                                    <text x="0" y="12" text-anchor="middle" style="font-size: 7px; fill: #64748b;">Total</text>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="chart-legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);"></div>
-                                <div class="legend-text">
-                                    <div>Basic</div>
-                                    <div>{{ basic_count }} ({{ basic_percentage }}%)</div>
-                                </div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);"></div>
-                                <div class="legend-text">
-                                    <div>Interactive</div>
-                                    <div>{{ interactive_count }} ({{ interactive_percentage }}%)</div>
-                                </div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);"></div>
-                                <div class="legend-text">
-                                    <div>Advanced</div>
-                                    <div>{{ advanced_count }} ({{ advanced_percentage }}%)</div>
-                                </div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);"></div>
-                                <div class="legend-text">
-                                    <div>Immersive</div>
-                                    <div>{{ immersive_count }} ({{ immersive_percentage }}%)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="block">
+                <h2 class="block-title">Block 2. Production Hours by Quality Level</h2>
+                <div class="table-container">
+                    <table>
+                        <thead class="table-header">
+                            <tr>
+                                <th>Quality Level</th>
+                                <th>Learning Duration (h)</th>
+                                <th>Production Ratio (h prod / 1h learn)</th>
+                                <th>Production Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="course-name">Level 1 - Basic</td>
+                                <td>1</td>
+                                <td>200</td>
+                                <td>200</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="course-name">Level 2 - Interactive</td>
+                                <td>2</td>
+                                <td>400</td>
+                                <td>800</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="course-name">Level 3 - Advanced</td>
+                                <td>3</td>
+                                <td>600</td>
+                                <td>1,800</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="course-name">Level 4 - Immersive</td>
+                                <td>5</td>
+                                <td>800</td>
+                                <td>4,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            {% endif %}
 
             <div class="summary">
                 <div class="summary-title">
@@ -870,11 +377,9 @@
                     Summary:
                 </div>
                 <ul class="summary-list">
-                    <li>Total Projects: {{ total_projects if total_projects else 0 }}</li>
-                    <li>Total Lessons: {{ total_lessons if total_lessons else 0 }}</li>
-                    <li>Total Creation Time: {{ total_hours if total_hours else 0 }} hours</li>
-                    <li>Quality tiers distribution: Basic, Interactive, Advanced, and Immersive levels</li>
-                    <li>Project types include: One-pagers, Presentations, Quizzes, and Video Lessons</li>
+                    <li>Total: {{ total_hours }} hours of learning content</li>
+                    <li>Estimated Production Time: ≈ {{ total_production_time }} hours</li>
+                    <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                 </ul>
             </div>
         </div>
