@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, User, MessageSquare, UserMinus, UserPlus, Radio } from 'lucide-react';
+import VoicePicker from './VoicePicker';
 
 export default function Script() {
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
@@ -108,31 +109,15 @@ export default function Script() {
         </div>
       </div>
 
-      {/* Language Modal - Placeholder for future modifications */}
-      {isLanguageModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw]">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Language Settings</h2>
-              <button
-                onClick={() => setIsLanguageModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-            <p className="text-gray-600">Modal content will be modified later...</p>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setIsLanguageModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Voice Picker Modal */}
+      <VoicePicker
+        isOpen={isLanguageModalOpen}
+        onClose={() => setIsLanguageModalOpen(false)}
+        onSelectVoice={(voice) => {
+          console.log('Selected voice:', voice);
+          // Handle voice selection here
+        }}
+      />
     </div>
   );
 }
