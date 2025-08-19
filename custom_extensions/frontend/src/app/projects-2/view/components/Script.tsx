@@ -1,15 +1,22 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, User, MessageSquare, UserMinus, UserPlus } from 'lucide-react';
+import { ChevronDown, User, UserMinus, UserPlus } from 'lucide-react';
 import VoicePicker from './VoicePicker';
 
 export default function Script() {
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState(false);
+  const [isPausePopupOpen, setIsPausePopupOpen] = useState(false);
+  const [scriptContent, setScriptContent] = useState(
+    `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`
+  );
+  const [cursorPosition, setCursorPosition] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const aiPopupRef = useRef<HTMLDivElement>(null);
+  const pausePopupRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -20,16 +27,52 @@ export default function Script() {
       if (aiPopupRef.current && !aiPopupRef.current.contains(event.target as Node)) {
         setIsAiPopupOpen(false);
       }
+      if (pausePopupRef.current && !pausePopupRef.current.contains(event.target as Node)) {
+        setIsPausePopupOpen(false);
+      }
     };
 
-    if (isAvatarDropdownOpen || isAiPopupOpen) {
+    if (isAvatarDropdownOpen || isAiPopupOpen || isPausePopupOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isAvatarDropdownOpen, isAiPopupOpen]);
+  }, [isAvatarDropdownOpen, isAiPopupOpen, isPausePopupOpen]);
+
+  // Handle cursor position tracking
+  const handleTextAreaClick = () => {
+    if (textAreaRef.current) {
+      setCursorPosition(textAreaRef.current.selectionStart || 0);
+    }
+  };
+
+  const handleTextAreaKeyUp = () => {
+    if (textAreaRef.current) {
+      setCursorPosition(textAreaRef.current.selectionStart || 0);
+    }
+  };
+
+  // Function to insert move/animation marker at cursor position
+  const insertMoveMarker = () => {
+    const moveMarker = ` [🎬 MOVE] `;
+    const beforeCursor = scriptContent.substring(0, cursorPosition);
+    const afterCursor = scriptContent.substring(cursorPosition);
+    const newContent = beforeCursor + moveMarker + afterCursor;
+    
+    setScriptContent(newContent);
+    
+    // Focus back to textarea and set cursor after the inserted marker
+    setTimeout(() => {
+      if (textAreaRef.current) {
+        textAreaRef.current.focus();
+        const newCursorPosition = cursorPosition + moveMarker.length;
+        textAreaRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+        setCursorPosition(newCursorPosition);
+      }
+    }, 10);
+  };
   return (
     <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full">
       {/* Content Container */}
@@ -107,14 +150,15 @@ export default function Script() {
 
         {/* Main Content Text */}
         <div className="w-full max-w-[615px] lg:max-w-[650px]">
-          <p className="text-[#5F5F5F] text-sm leading-loose font-normal">
-            Create dynamic, powerful and informative videos with an
-            avatar as your host. Instantly translate your video into over
-            eighty languages, use engaging media to grab your
-            audiences attention, or even simulate conversations between
-            multiple avatars. All with an intuitive interface that anyone
-            can use!
-          </p>
+          <textarea
+            ref={textAreaRef}
+            value={scriptContent}
+            onChange={(e) => setScriptContent(e.target.value)}
+            onClick={handleTextAreaClick}
+            onKeyUp={handleTextAreaKeyUp}
+            className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none resize-none min-h-[120px] p-0"
+            placeholder="Enter your script content here..."
+          />
         </div>
       </div>
 
@@ -144,7 +188,7 @@ export default function Script() {
           
           {/* AI Popup */}
           {isAiPopupOpen && (
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+            <div className="absolute bottom-full left-0 mb-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
               <div className="p-4">
                 {/* Row 1: Header */}
                 <div className="text-sm text-black mb-3">
@@ -199,20 +243,81 @@ export default function Script() {
         </div>
 
         {/* Pause Button */}
-        <div className="relative group">
-          <button className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none">
+        <div className="relative group" ref={pausePopupRef}>
+          <button 
+            onClick={() => setIsPausePopupOpen(!isPausePopupOpen)}
+            className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
             </svg>
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Add a pause to the script
-          </div>
+          
+          {/* Pause Popup */}
+          {isPausePopupOpen && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              <div className="p-2">
+                {/* 0.5s pause */}
+                <button 
+                  onClick={() => setIsPausePopupOpen(false)}
+                  className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
+                  </svg>
+                  <span className="text-sm text-black">0.5s pause</span>
+                </button>
+                
+                {/* 1s pause */}
+                <button 
+                  onClick={() => setIsPausePopupOpen(false)}
+                  className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
+                  </svg>
+                  <span className="text-sm text-black">1s pause</span>
+                </button>
+                
+                {/* 2s pause */}
+                <button 
+                  onClick={() => setIsPausePopupOpen(false)}
+                  className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
+                  </svg>
+                  <span className="text-sm text-black">2s pause</span>
+                </button>
+                
+                {/* 5s pause */}
+                <button 
+                  onClick={() => setIsPausePopupOpen(false)}
+                  className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
+                  </svg>
+                  <span className="text-sm text-black">5s pause</span>
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Tooltip (only show when popup is closed) */}
+          {!isPausePopupOpen && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Add a pause to the script
+            </div>
+          )}
         </div>
 
         {/* Move Button */}
         <div className="relative group">
-          <button className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none">
+          <button 
+            onClick={insertMoveMarker}
+            className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
               <circle cx="18" cy="12" r="4" stroke="currentColor" strokeWidth="2"/>
               <line x1="3" y1="6" x2="10" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
