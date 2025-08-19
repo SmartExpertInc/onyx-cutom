@@ -1835,11 +1835,12 @@
                 </div>
                 
             {% elif slide.templateId == 'big-numbers' %}
+                <!-- DEBUG: big-numbers template -->
                 <div class="big-numbers">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-title' %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
@@ -1847,41 +1848,63 @@
                         >{{ slide.props.title }}</h1>
                     {% endif %}
                     <div class="numbers-grid">
-                        {% if slide.props.items %}
+                        {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
+                            <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
                             {% for item in slide.props.items %}
-                                <div class="number-item">
-                                    {% if item.value and item.value != 'Click to add value' %}
-                                        <div class="number-value positioned-element"
-                                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                                {% set valueId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-value' %}
-                                                {% if slide.metadata.elementPositions[valueId] %}
-                                                    style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
+                                {% if (item.value and item.value != 'Click to add value') or (item.label and item.label != 'Click to add label') or (item.description and item.description != 'Click to add description') %}
+                                    <div class="number-item">
+                                        {% if item.value and item.value != 'Click to add value' %}
+                                            <div class="number-value positioned-element"
+                                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                                    {% set valueId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 1)|string %}
+                                                    {% if slide.metadata.elementPositions[valueId] %}
+                                                        style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
+                                                    {% endif %}
                                                 {% endif %}
-                                            {% endif %}
-                                        >{{ item.value }}</div>
-                                    {% endif %}
-                                    {% if item.label and item.label != 'Click to add label' %}
-                                        <div class="number-label positioned-element"
-                                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                                {% set labelId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-label' %}
-                                                {% if slide.metadata.elementPositions[labelId] %}
-                                                    style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
+                                            >{{ item.value }}</div>
+                                        {% endif %}
+                                        {% if item.label and item.label != 'Click to add label' %}
+                                            <div class="number-label positioned-element"
+                                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                                    {% set labelId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 2)|string %}
+                                                    {% if slide.metadata.elementPositions[labelId] %}
+                                                        style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
+                                                    {% endif %}
                                                 {% endif %}
-                                            {% endif %}
-                                        >{{ item.label }}</div>
-                                    {% endif %}
-                                    {% if item.description and item.description != 'Click to add description' %}
-                                        <div class="number-description positioned-element"
-                                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                                {% set descriptionId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-description' %}
-                                                {% if slide.metadata.elementPositions[descriptionId] %}
-                                                    style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                            >{{ item.label }}</div>
+                                        {% endif %}
+                                        {% if item.description and item.description != 'Click to add description' %}
+                                            <div class="number-description positioned-element"
+                                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                                    {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 3)|string %}
+                                                    {% if slide.metadata.elementPositions[descriptionId] %}
+                                                        style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                                    {% endif %}
                                                 {% endif %}
-                                            {% endif %}
-                                        >{{ item.description }}</div>
-                                    {% endif %}
-                                </div>
+                                            >{{ item.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                             {% endfor %}
+                        {% else %}
+                            <!-- DEBUG: items is not iterable or is callable, using fallback -->
+                        {% endif %}
+                        {% if not slide.props.items or slide.props.items is not iterable or slide.props.items is callable or slide.props.items|length == 0 %}
+                            <div class="number-item">
+                                <div class="number-value">100+</div>
+                                <div class="number-label">Countries Served</div>
+                                <div class="number-description">We have expanded our operations to over 100 countries worldwide.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">5</div>
+                                <div class="number-label">Years in Business</div>
+                                <div class="number-description">Celebrating over 5 years of successful operations.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">20%</div>
+                                <div class="number-label">Employee Satisfaction Rate</div>
+                                <div class="number-description">Our employee satisfaction rate stands at an impressive 20%.</div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>

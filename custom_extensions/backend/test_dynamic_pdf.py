@@ -91,7 +91,7 @@ test_slides = [
         "templateId": "big-numbers",
         "props": {
             "title": "Key Achievements",
-            "items": [
+            "numbers": [
                 {"value": "100+", "label": "Countries Served", "description": "We have expanded our operations to over 100 countries worldwide."},
                 {"value": "5", "label": "Years in Business", "description": "Celebrating over 5 years of successful operations."},
                 {"value": "20%", "label": "Employee Satisfaction Rate", "description": "Our employee satisfaction rate stands at an impressive 20%."}

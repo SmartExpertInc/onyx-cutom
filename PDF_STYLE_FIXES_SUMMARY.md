@@ -125,14 +125,14 @@ This document summarizes all the style and content fixes implemented to ensure p
 ### Big Numbers Template
 ```html
 {% elif slide.templateId == 'big-numbers' %}
-    <div class="big-numbers">
+    <div class="slide">
         <h1 class="slide-title" style="text-align: left;">{{ slide.props.title }}</h1>
         <div class="numbers-grid">
-            {% for item in slide.props.items %}
+            {% for number in slide.props.numbers %}
                 <div class="number-item">
-                    <div class="number-value">{{ item.value }}</div>
-                    <div class="number-label">{{ item.label }}</div>
-                    <div class="number-description">{{ item.description }}</div>
+                    <div class="number-value">{{ number.value }}</div>
+                    <div class="number-label">{{ number.label }}</div>
+                    <div class="number-description">{{ number.description }}</div>
                 </div>
             {% endfor %}
         </div>
