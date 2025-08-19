@@ -1767,7 +1767,7 @@
                             {% if slide.props.leftTitle and slide.props.leftTitle != 'Click to add left title' %}
                                 <h2 class="column-title positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set leftTitleId = slide.slideId + '-leftTitle' %}
+                                        {% set leftTitleId = 'draggable-' + slide.slideId + '-1' %}
                                         {% if slide.metadata.elementPositions[leftTitleId] %}
                                             style="transform: translate({{ slide.metadata.elementPositions[leftTitleId].x }}px, {{ slide.metadata.elementPositions[leftTitleId].y }}px);"
                                         {% endif %}
@@ -1777,7 +1777,7 @@
                             {% if slide.props.leftContent and slide.props.leftContent != 'Click to add left content' %}
                                 <p class="column-content positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set leftContentId = slide.slideId + '-leftContent' %}
+                                        {% set leftContentId = 'draggable-' + slide.slideId + '-2' %}
                                         {% if slide.metadata.elementPositions[leftContentId] %}
                                             style="transform: translate({{ slide.metadata.elementPositions[leftContentId].x }}px, {{ slide.metadata.elementPositions[leftContentId].y }}px);"
                                         {% endif %}
@@ -1813,7 +1813,7 @@
                             {% if slide.props.rightTitle and slide.props.rightTitle != 'Click to add right title' %}
                                 <h2 class="column-title positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set rightTitleId = slide.slideId + '-rightTitle' %}
+                                        {% set rightTitleId = 'draggable-' + slide.slideId + '-3' %}
                                         {% if slide.metadata.elementPositions[rightTitleId] %}
                                             style="transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px);"
                                         {% endif %}
@@ -1823,7 +1823,7 @@
                             {% if slide.props.rightContent and slide.props.rightContent != 'Click to add right content' %}
                                 <p class="column-content positioned-element"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set rightContentId = slide.slideId + '-rightContent' %}
+                                        {% set rightContentId = 'draggable-' + slide.slideId + '-4' %}
                                         {% if slide.metadata.elementPositions[rightContentId] %}
                                             style="transform: translate({{ slide.metadata.elementPositions[rightContentId].x }}px, {{ slide.metadata.elementPositions[rightContentId].y }}px);"
                                         {% endif %}
