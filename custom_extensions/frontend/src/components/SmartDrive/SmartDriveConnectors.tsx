@@ -9,7 +9,6 @@ import SmartDriveFrame from './SmartDriveFrame';
 interface ConnectorConfig {
   id: string;
   name: string;
-  description: string;
   logoPath: string;
   category: string;
   oauthSupported?: boolean;
@@ -40,14 +39,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'browse_uploaded',
         name: 'Browse Uploaded',
-        description: 'Access your uploaded files and documents',
         logoPath: '/file.svg',
         category: 'Cloud Storage'
       },
       {
         id: 'google_drive',
         name: 'Google Drive',
-        description: 'Connect to your Google Drive account',
         logoPath: '/GoogleDrive.png',
         category: 'Cloud Storage',
         oauthSupported: true
@@ -55,49 +52,42 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'dropbox',
         name: 'Dropbox',
-        description: 'Connect to your Dropbox account',
         logoPath: '/Dropbox.png',
         category: 'Cloud Storage'
       },
       {
         id: 's3',
         name: 'Amazon S3',
-        description: 'Connect to Amazon S3 storage',
         logoPath: '/S3.png',
         category: 'Cloud Storage'
       },
       {
         id: 'r2',
         name: 'Cloudflare R2',
-        description: 'Connect to Cloudflare R2 storage',
         logoPath: '/r2.png',
         category: 'Cloud Storage'
       },
       {
         id: 'google_cloud_storage',
         name: 'Google Cloud Storage',
-        description: 'Connect to Google Cloud Storage',
         logoPath: '/GoogleCloudStorage.png',
         category: 'Cloud Storage'
       },
       {
         id: 'oci_storage',
         name: 'Oracle Cloud Storage',
-        description: 'Connect to Oracle Cloud Storage',
         logoPath: '/OCI.svg',
         category: 'Cloud Storage'
       },
       {
         id: 'sharepoint',
         name: 'SharePoint',
-        description: 'Connect to Microsoft SharePoint',
         logoPath: '/Sharepoint.png',
         category: 'Cloud Storage'
       },
       {
         id: 'egnyte',
         name: 'Egnyte',
-        description: 'Connect to Egnyte file sharing',
         logoPath: '/Egnyte.png',
         category: 'Cloud Storage'
       }
@@ -106,7 +96,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'slack',
         name: 'Slack',
-        description: 'Connect to your Slack workspace',
         logoPath: '/Slack.png',
         category: 'Communication & Messaging',
         oauthSupported: true
@@ -114,49 +103,42 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'discord',
         name: 'Discord',
-        description: 'Connect to your Discord server',
         logoPath: '/discord.png',
         category: 'Communication & Messaging'
       },
       {
         id: 'teams',
         name: 'Microsoft Teams',
-        description: 'Connect to Microsoft Teams',
         logoPath: '/Teams.png',
         category: 'Communication & Messaging'
       },
       {
         id: 'gmail',
         name: 'Gmail',
-        description: 'Connect to your Gmail account',
         logoPath: '/Gmail.png',
         category: 'Communication & Messaging'
       },
       {
         id: 'zulip',
         name: 'Zulip',
-        description: 'Connect to Zulip chat',
         logoPath: '/Zulip.png',
         category: 'Communication & Messaging'
       },
       {
         id: 'discourse',
         name: 'Discourse',
-        description: 'Connect to Discourse forum',
         logoPath: '/Discourse.png',
         category: 'Communication & Messaging'
       },
       {
         id: 'gong',
         name: 'Gong',
-        description: 'Connect to Gong call recordings',
         logoPath: '/Gong.png',
         category: 'Communication & Messaging'
       },
       {
         id: 'fireflies',
         name: 'Fireflies',
-        description: 'Connect to Fireflies meeting recordings',
         logoPath: '/Fireflies.png',
         category: 'Communication & Messaging'
       }
@@ -165,14 +147,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'notion',
         name: 'Notion',
-        description: 'Connect to your Notion workspace',
         logoPath: '/Notion.png',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'confluence',
         name: 'Confluence',
-        description: 'Connect to Atlassian Confluence',
         logoPath: '/Confluence.svg',
         category: 'Documentation & Knowledge',
         oauthSupported: true
@@ -180,56 +160,48 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'gitbook',
         name: 'GitBook',
-        description: 'Connect to GitBook documentation',
         logoPath: '/GitBookDark.png',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'axero',
         name: 'Axero',
-        description: 'Connect to Axero knowledge base',
         logoPath: '/Axero.jpeg',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'wikipedia',
         name: 'Wikipedia',
-        description: 'Connect to Wikipedia articles',
         logoPath: '/Wikipedia.png',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'mediawiki',
         name: 'MediaWiki',
-        description: 'Connect to MediaWiki sites',
         logoPath: '/MediaWiki.svg',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'bookstack',
         name: 'BookStack',
-        description: 'Connect to BookStack documentation',
         logoPath: '/GitBookLight.png',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'guru',
         name: 'Guru',
-        description: 'Connect to Guru knowledge base',
         logoPath: '/Guru.svg',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'slab',
         name: 'Slab',
-        description: 'Connect to Slab documentation',
         logoPath: '/SlabLogo.png',
         category: 'Documentation & Knowledge'
       },
       {
         id: 'document360',
         name: 'Document360',
-        description: 'Connect to Document360 knowledge base',
         logoPath: '/Document360.png',
         category: 'Documentation & Knowledge'
       }
@@ -238,35 +210,30 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'asana',
         name: 'Asana',
-        description: 'Connect to your Asana workspace',
         logoPath: '/Asana.png',
         category: 'Project Management'
       },
       {
         id: 'jira',
         name: 'Jira',
-        description: 'Connect to Atlassian Jira',
         logoPath: '/Jira.svg',
         category: 'Project Management'
       },
       {
         id: 'clickup',
         name: 'ClickUp',
-        description: 'Connect to ClickUp workspace',
         logoPath: '/Clickup.svg',
         category: 'Project Management'
       },
       {
         id: 'linear',
         name: 'Linear',
-        description: 'Connect to Linear project management',
         logoPath: '/Linear.png',
         category: 'Project Management'
       },
       {
         id: 'productboard',
         name: 'Productboard',
-        description: 'Connect to Productboard',
         logoPath: '/Productboard.png',
         category: 'Project Management'
       }
@@ -275,14 +242,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'github',
         name: 'GitHub',
-        description: 'Connect to GitHub repositories',
         logoPath: '/Github.png',
         category: 'Code Repositories'
       },
       {
         id: 'gitlab',
         name: 'GitLab',
-        description: 'Connect to GitLab repositories',
         logoPath: '/Gitlab.png',
         category: 'Code Repositories'
       }
@@ -291,14 +256,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'zendesk',
         name: 'Zendesk',
-        description: 'Connect to Zendesk support',
         logoPath: '/Zendesk.svg',
         category: 'Customer Support'
       },
       {
         id: 'freshdesk',
         name: 'Freshdesk',
-        description: 'Connect to Freshdesk support',
         logoPath: '/Freshdesk.png',
         category: 'Customer Support'
       }
@@ -307,21 +270,18 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'salesforce',
         name: 'Salesforce',
-        description: 'Connect to Salesforce CRM',
         logoPath: '/Salesforce.png',
         category: 'CRM & Sales'
       },
       {
         id: 'hubspot',
         name: 'HubSpot',
-        description: 'Connect to HubSpot CRM',
         logoPath: '/HubSpot.png',
         category: 'CRM & Sales'
       },
       {
         id: 'highspot',
         name: 'Highspot',
-        description: 'Connect to Highspot sales enablement',
         logoPath: '/Highspot.png',
         category: 'CRM & Sales'
       }
@@ -330,7 +290,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'airtable',
         name: 'Airtable',
-        description: 'Connect to Airtable databases',
         logoPath: '/Airtable.svg',
         category: 'Databases & Tools'
       }
@@ -339,28 +298,24 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'google_sites',
         name: 'Google Sites',
-        description: 'Connect to Google Sites',
         logoPath: '/GoogleSites.png',
         category: 'Web & Content'
       },
       {
         id: 'xenforo',
         name: 'XenForo',
-        description: 'Connect to XenForo forum',
         logoPath: '/Xenforo.svg',
         category: 'Web & Content'
       },
       {
         id: 'web',
         name: 'Web Scraper',
-        description: 'Scrape content from websites',
         logoPath: '/web.svg',
         category: 'Web & Content'
       },
       {
         id: 'file',
         name: 'File Upload',
-        description: 'Upload files directly',
         logoPath: '/file.svg',
         category: 'Web & Content'
       }
@@ -369,7 +324,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {
         id: 'loopio',
         name: 'Loopio',
-        description: 'Connect to Loopio RFP responses',
         logoPath: '/Loopio.png',
         category: 'Specialized Tools'
       }
@@ -519,9 +473,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-600 mb-4 line-clamp-2">
-                    {connector.description}
-                  </p>
+
 
                   <div className="flex gap-2">
                     <Link
