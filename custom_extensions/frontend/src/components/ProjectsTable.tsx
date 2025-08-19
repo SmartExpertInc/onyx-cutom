@@ -472,7 +472,7 @@ const PreviewModal: React.FC<{
 
                        {/* Content */}
              <div className="p-10">
-                                           {/* Block 1: Course Overview */}
+                                           {/* Block 1: Projects Overview */}
                             <div className="mb-10">
                               <h2 className="text-2xl font-semibold text-black mb-5 flex items-center gap-3" style={{ 
                                 fontSize: '1.5rem',
@@ -484,7 +484,7 @@ const PreviewModal: React.FC<{
                                   height: '24px',
                                   borderRadius: '2px'
                                 }}></div>
-                                Block 1. Course Overview
+                                Block 1. Projects Overview
                               </h2>
                               
                               <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-5" style={{
@@ -507,7 +507,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Course Name
+                                        Project Name
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -516,7 +516,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Modules
+                                        Type
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -525,7 +525,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Lessons
+                                        Created Date
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -534,7 +534,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Learning Duration (h)
+                                        Creator
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -543,151 +543,52 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Production Time (h)
+                                        Status
                                       </th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr className="bg-gradient-to-br from-gray-50 to-gray-100" style={{
-                                      background: 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
+                                    {data.projects.slice(0, 4).map((project, index) => (
+                                      <tr key={project.id} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                                        background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
+                                        transition: 'background-color 0.2s ease'
                                       }}>
-                                        AI for Healthcare
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        5
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        20
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        8
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        2,400
-                                      </td>
-                                    </tr>
-                                    <tr className="bg-white" style={{
-                                      background: 'white',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
-                                      }}>
-                                        AI for Financing
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        4
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        16
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        6
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        1,800
-                                      </td>
-                                    </tr>
-                                    <tr className="bg-gradient-to-br from-gray-50 to-gray-100" style={{
-                                      background: 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
-                                      }}>
-                                        Compliance Training
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        3
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        12
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        4
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        1,200
-                                      </td>
-                                    </tr>
-                                    <tr className="bg-white" style={{
-                                      background: 'white',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
-                                      }}>
-                                        Onboarding Program
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        2
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        8
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        3
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        900
-                                      </td>
-                                    </tr>
+                                        <td className="p-4 font-semibold text-black" style={{
+                                          padding: '16px 20px',
+                                          fontWeight: '600'
+                                        }}>
+                                          {project.title || 'Untitled Project'}
+                                        </td>
+                                        <td className="p-4 font-medium text-black" style={{
+                                          padding: '16px 20px',
+                                          fontWeight: '500'
+                                        }}>
+                                          {project.designMicroproductType || '—'}
+                                        </td>
+                                        <td className="p-4 font-medium text-black" style={{
+                                          padding: '16px 20px',
+                                          fontWeight: '500'
+                                        }}>
+                                          {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                          }) : '—'}
+                                        </td>
+                                        <td className="p-4 font-medium text-black" style={{
+                                          padding: '16px 20px',
+                                          fontWeight: '500'
+                                        }}>
+                                          {project.createdBy || '—'}
+                                        </td>
+                                        <td className="p-4 font-medium text-black" style={{
+                                          padding: '16px 20px',
+                                          fontWeight: '500'
+                                        }}>
+                                          Active
+                                        </td>
+                                      </tr>
+                                    ))}
                                   </tbody>
                                 </table>
                                 <div className="text-center font-semibold text-lg py-4 text-white" style={{
@@ -696,12 +597,12 @@ const PreviewModal: React.FC<{
                                   fontWeight: '600',
                                   fontSize: '1.1rem'
                                 }}>
-                                  Subtotal: 21h of learning content → 6,300h production
+                                  Subtotal: {data.projects.length} projects total
                                 </div>
                               </div>
                             </div>
                 
-                            {/* Block 2: Production Hours by Quality Level */}
+                            {/* Block 2: Project Statistics by Type */}
                             <div className="mb-10">
                               <h2 className="text-2xl font-semibold text-black mb-5 flex items-center gap-3" style={{ 
                                 fontSize: '1.5rem',
@@ -713,7 +614,7 @@ const PreviewModal: React.FC<{
                                   height: '24px',
                                   borderRadius: '2px'
                                 }}></div>
-                                Block 2. Production Hours by Quality Level
+                                Block 2. Project Statistics by Type
                               </h2>
                               
                               <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-5" style={{
@@ -736,7 +637,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Quality Level
+                                        Project Type
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -745,7 +646,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Learning Duration (h)
+                                        Count
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -754,7 +655,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Production Ratio (h prod / 1h learn)
+                                        Percentage
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -763,127 +664,64 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Production Hours
+                                        Latest Created
                                       </th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr className="bg-gradient-to-br from-gray-50 to-gray-100" style={{
-                                      background: 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
-                                      }}>
-                                        Level 1 - Basic
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        1
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        200
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        200
-                                      </td>
-                                    </tr>
-                                    <tr className="bg-white" style={{
-                                      background: 'white',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
-                                      }}>
-                                        Level 2 - Interactive
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        2
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        400
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        800
-                                      </td>
-                                    </tr>
-                                    <tr className="bg-gradient-to-br from-gray-50 to-gray-100" style={{
-                                      background: 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
-                                      }}>
-                                        Level 3 - Advanced
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        3
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        600
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        1,800
-                                      </td>
-                                    </tr>
-                                    <tr className="bg-white" style={{
-                                      background: 'white',
-                                      transition: 'background-color 0.2s ease'
-                                    }}>
-                                      <td className="p-4 font-semibold text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600'
-                                      }}>
-                                        Level 4 - Immersive
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        5
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        800
-                                      </td>
-                                      <td className="p-4 font-medium text-black" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '500'
-                                      }}>
-                                        4,000
-                                      </td>
-                                    </tr>
+                                    {(() => {
+                                      const typeStats = data.projects.reduce((acc, project) => {
+                                        const type = project.designMicroproductType || 'Unknown';
+                                        if (!acc[type]) {
+                                          acc[type] = { count: 0, latestDate: null };
+                                        }
+                                        acc[type].count++;
+                                        const projectDate = new Date(project.createdAt);
+                                        if (!acc[type].latestDate || projectDate > acc[type].latestDate) {
+                                          acc[type].latestDate = projectDate;
+                                        }
+                                        return acc;
+                                      }, {} as Record<string, { count: number; latestDate: Date | null }>);
+
+                                      const totalProjects = data.projects.length;
+                                      const sortedTypes = Object.entries(typeStats).sort((a, b) => b[1].count - a[1].count);
+
+                                      return sortedTypes.slice(0, 4).map(([type, stats], index) => (
+                                        <tr key={type} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                                          background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
+                                          transition: 'background-color 0.2s ease'
+                                        }}>
+                                          <td className="p-4 font-semibold text-black" style={{
+                                            padding: '16px 20px',
+                                            fontWeight: '600'
+                                          }}>
+                                            {type}
+                                          </td>
+                                          <td className="p-4 font-medium text-black" style={{
+                                            padding: '16px 20px',
+                                            fontWeight: '500'
+                                          }}>
+                                            {stats.count}
+                                          </td>
+                                          <td className="p-4 font-medium text-black" style={{
+                                            padding: '16px 20px',
+                                            fontWeight: '500'
+                                          }}>
+                                            {((stats.count / totalProjects) * 100).toFixed(1)}%
+                                          </td>
+                                          <td className="p-4 font-medium text-black" style={{
+                                            padding: '16px 20px',
+                                            fontWeight: '500'
+                                          }}>
+                                            {stats.latestDate ? stats.latestDate.toLocaleDateString('en-US', {
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric'
+                                            }) : '—'}
+                                          </td>
+                                        </tr>
+                                      ));
+                                    })()}
                                   </tbody>
                                 </table>
                               </div>
@@ -917,7 +755,7 @@ const PreviewModal: React.FC<{
                                   paddingLeft: '20px'
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
-                                  Total: 21 hours of learning content
+                                  Total: {data.projects.length} projects in the portfolio
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 
                                   padding: '8px 0',
@@ -927,7 +765,10 @@ const PreviewModal: React.FC<{
                                   paddingLeft: '20px'
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
-                                  Estimated Production Time: ≈ 6,300 hours
+                                  Project Types: {(() => {
+                                    const types = [...new Set(data.projects.map(p => p.designMicroproductType).filter(Boolean))];
+                                    return types.length > 0 ? types.join(', ') : 'Various types';
+                                  })()}
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 
                                   padding: '8px 0',
@@ -937,7 +778,15 @@ const PreviewModal: React.FC<{
                                   paddingLeft: '20px'
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
-                                  Production scaling depends on chosen quality tier (200-800h per 1h learning).
+                                  Date Range: {(() => {
+                                    const dates = data.projects.map(p => new Date(p.createdAt)).sort((a, b) => a.getTime() - b.getTime());
+                                    if (dates.length > 0) {
+                                      const oldest = dates[0];
+                                      const newest = dates[dates.length - 1];
+                                      return `${oldest.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - ${newest.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+                                    }
+                                    return 'Various dates';
+                                  })()}
                                 </li>
                               </ul>
                             </div>
