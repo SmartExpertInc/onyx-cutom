@@ -414,7 +414,7 @@ const PreviewModal: React.FC<{
   data: {
     clientName: string | null;
     managerName: string | null;
-    projects: Project[];
+    projects: (Project | BackendProject)[];
   } | null;
 }> = ({ isOpen, onClose, data }) => {
   const { t } = useLanguage();
@@ -551,7 +551,11 @@ const PreviewModal: React.FC<{
                                     {(() => {
                                       // Calculate course statistics from projects using real data from backend
                                       const courseStats = data.projects.reduce((acc, project) => {
-                                        const type = project.design_microproduct_type || 'Unknown';
+                                        // Handle both Project and BackendProject types
+                                        const type = 'design_microproduct_type' in project 
+                                          ? project.design_microproduct_type 
+                                          : project.designMicroproductType || 'Unknown';
+                                        
                                         if (!acc[type]) {
                                           acc[type] = {
                                             name: type,
@@ -564,8 +568,24 @@ const PreviewModal: React.FC<{
                                         
                                         // Add real project data from backend
                                         acc[type].modules += 1;
-                                        acc[type].lessons += project.total_lessons || 0;
-                                        acc[type].learningDuration += project.total_hours || 0;
+                                        
+                                        // Check if this is a BackendProject with real data
+                                        if ('total_lessons' in project && 'total_hours' in project) {
+                                          // Use real data from backend
+                                          acc[type].lessons += project.total_lessons || 0;
+                                          acc[type].learningDuration += project.total_hours || 0;
+                                        } else {
+                                          // Use lessonDataCache for frontend Project data or fallback to defaults
+                                          const lessonData = (window as any).__lessonDataCache?.[project.id];
+                                          if (lessonData) {
+                                            acc[type].lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
+                                            acc[type].learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
+                                          } else {
+                                            // Fallback to default values if no cache data
+                                            acc[type].lessons += 5; // Default lesson count
+                                            acc[type].learningDuration += 3; // Default hours
+                                          }
+                                        }
                                         
                                         return acc;
                                       }, {} as Record<string, any>);
@@ -1042,6 +1062,22 @@ interface Project {
   instanceName?: string;
   folderId?: number | null;
   order?: number;
+}
+
+// Interface for backend project data
+interface BackendProject {
+  id: number;
+  title: string;
+  created_at: string;
+  created_by: string;
+  design_microproduct_type?: string;
+  folder_id?: number | null;
+  order?: number;
+  microproduct_content?: any;
+  quality_tier?: string;
+  total_lessons: number;
+  total_hours: number;
+  total_completion_time: number;
 }
 
 interface Folder {
@@ -3752,7 +3788,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 const backendData = await response.json();
                 
                 // Filter projects based on selection
-                const filteredProjects = backendData.projects.filter((project: any) => 
+                const filteredProjects = backendData.projects.filter((project: BackendProject) => 
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
                 );
                 
