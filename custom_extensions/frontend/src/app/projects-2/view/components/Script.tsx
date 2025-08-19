@@ -125,6 +125,7 @@ export default function Script() {
 
       {/* Bottom Controls */}
       <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-3 px-8">
+        <div className="flex items-center gap-1 border border-gray-200 rounded-lg px-2 py-1">
         {/* AI Button */}
         <div className="relative group">
           <button className="flex items-center justify-center w-10 h-10 hover:bg-gray-100 rounded-lg transition-colors border-none">
@@ -145,37 +146,34 @@ export default function Script() {
             </svg>
           </button>
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Pause
+            Add a pause to the script
           </div>
         </div>
 
         {/* Move Button */}
         <div className="relative group">
           <button className="flex items-center justify-center w-10 h-10 hover:bg-gray-100 rounded-lg transition-colors border-none">
-            <svg width="16" height="10" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg" fill="none">
-              <circle cx="150" cy="40" r="24" stroke="black" strokeWidth="4"/>
-              <line x1="10" y1="20" x2="110" y2="20" stroke="black" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="10" y1="40" x2="110" y2="40" stroke="black" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="10" y1="60" x2="110" y2="60" stroke="black" strokeWidth="4" strokeLinecap="round"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+              <circle cx="18" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+              <line x1="3" y1="6" x2="12" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="3" y1="12" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="3" y1="18" x2="12" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </button>
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Move
+            Add animation marker to the script
           </div>
         </div>
 
         {/* Hand Button */}
         <div className="relative group">
           <button className="flex items-center justify-center w-10 h-10 hover:bg-gray-100 rounded-lg transition-colors border-none">
-            <svg width="16" height="10" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg" fill="none">
-              <circle cx="150" cy="40" r="24" stroke="black" strokeWidth="4"/>
-              <line x1="10" y1="20" x2="110" y2="20" stroke="black" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="10" y1="40" x2="110" y2="40" stroke="black" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="10" y1="60" x2="110" y2="60" stroke="black" strokeWidth="4" strokeLinecap="round"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-400">
+              <path fill="currentColor" d="M18.634 2.322a.75.75 0 0 1 1.044-.188c.808.561 1.478 1.544 1.898 2.627c.424 1.094.63 2.384.413 3.618a.75.75 0 1 1-1.478-.258c.16-.913.013-1.924-.334-2.818c-.35-.906-.869-1.6-1.355-1.937a.75.75 0 0 1-.188-1.044Zm-9.046.551a2.048 2.048 0 0 0-3.721 1.13a2.015 2.015 0 0 0-1.929 2.649l1.96 5.921a4.794 4.794 0 0 0-1.788.2a3.906 3.906 0 0 0-1.764 1.154a1.41 1.41 0 0 0-.271 1.42c.153.433.494.78.911.97c1.415.642 4.274 2.118 6.752 4.487c1.025.98 2.521 1.473 3.963 1.042l2.587-.775a2.665 2.665 0 0 0 1.892-2.183c.144-1.051.32-2.641.32-4.138c0-1.764-.456-3.708-1-5.41a37.425 37.425 0 0 0-1.625-4.151a2.051 2.051 0 0 0-2.277-1.142c-.29.058-.551.171-.778.326l-.155-.486a2 2 0 0 0-3.077-1.014Zm-1.156 1l.404 1.176c.01.033.02.066.032.1l1.673 4.846a.75.75 0 0 0 1.166.35l.016-.013a.75.75 0 0 0 .236-.827L10.272 4.61a.5.5 0 0 1 .964-.265l.724 2.267c.012.05.026.1.042.151l.87 2.703l.163.513a.75.75 0 1 0 1.43-.457l-.165-.513l-.89-2.786a.61.61 0 0 1 .482-.704a.552.552 0 0 1 .62.299c.41.889 1.037 2.346 1.559 3.98c.525 1.643.93 3.416.93 4.953c0 1.396-.166 2.91-.307 3.935c-.06.44-.381.813-.836.949l-2.588.774c-.844.253-1.796-.02-2.495-.688c-2.65-2.535-5.681-4.094-7.169-4.77a.279.279 0 0 1-.098-.072c.232-.255.572-.52 1.059-.676c.51-.163 1.233-.224 2.244.038a.75.75 0 0 0 .9-.962L5.362 6.181a.515.515 0 0 1 .979-.324l1.438 4.346l.258.785a.75.75 0 1 0 1.426-.474l-.259-.781l-1.81-5.51a.547.547 0 0 1 1.038-.35Zm9.867.366A.75.75 0 0 0 17.2 5.26c.418.449.799.99.799 1.99a.75.75 0 0 0 1.5 0c0-1.502-.623-2.391-1.201-3.012Z"/>
             </svg>
           </button>
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Hand gestures
+            No avatar selected
           </div>
         </div>
 
@@ -187,12 +185,12 @@ export default function Script() {
             </svg>
           </button>
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Translate
+            Pronounciations
           </div>
         </div>
 
         {/* Grey Vertical Line */}
-        <div className="h-8 w-px bg-gray-300 mx-2"></div>
+        <div className="h-8 w-px bg-gray-300 mx-1"></div>
 
         {/* Play Button */}
         <div className="relative group">
@@ -202,8 +200,9 @@ export default function Script() {
             </svg>
           </button>
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Play
+            Play audio
           </div>
+        </div>
         </div>
       </div>
     </div>
