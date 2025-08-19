@@ -1,0 +1,480 @@
+/* Material Green Theme for PDF Documents */
+/* Enhanced design with better typography, colors, and visual hierarchy */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+
+/* Base Material Design Colors */
+:root {
+    --material-green-50: #f0fdf4;
+    --material-green-100: #dcfce7;
+    --material-green-200: #bbf7d0;
+    --material-green-300: #86efac;
+    --material-green-400: #4ade80;
+    --material-green-500: #22c55e;
+    --material-green-600: #16a34a;
+    --material-green-700: #15803d;
+    --material-green-800: #166534;
+    --material-green-900: #14532d;
+    --material-green-950: #052e16;
+    
+    --material-gray-50: #f8fafc;
+    --material-gray-100: #f1f5f9;
+    --material-gray-200: #e2e8f0;
+    --material-gray-300: #cbd5e1;
+    --material-gray-400: #94a3b8;
+    --material-gray-500: #64748b;
+    --material-gray-600: #475569;
+    --material-gray-700: #334155;
+    --material-gray-800: #1e293b;
+    --material-gray-900: #0f172a;
+    
+    --material-white: #ffffff;
+    --material-black: #000000;
+    
+    /* Typography */
+    --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-family-secondary: 'Roboto', sans-serif;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    
+    /* Border radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Green shadows */
+    --shadow-green-sm: 0 1px 3px rgba(16, 185, 129, 0.1);
+    --shadow-green-md: 0 4px 6px rgba(16, 185, 129, 0.1);
+    --shadow-green-lg: 0 8px 25px -5px rgba(16, 185, 129, 0.1), 0 4px 10px -2px rgba(16, 185, 129, 0.05);
+}
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--material-gray-800);
+    background: var(--material-gray-50);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced PDF Container */
+.pdf-container {
+    max-width: 1000px;
+    margin: var(--spacing-xl) auto;
+    padding: 0 var(--spacing-xl);
+    background: var(--material-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Material Design Header */
+.pdf-header {
+    background: linear-gradient(135deg, var(--material-green-500) 0%, var(--material-green-600) 50%, var(--material-green-700) 100%);
+    color: var(--material-white);
+    padding: var(--spacing-xl) var(--spacing-xl);
+    margin: calc(-1 * var(--spacing-xl)) calc(-1 * var(--spacing-xl)) var(--spacing-xl) calc(-1 * var(--spacing-xl));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.pdf-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.pdf-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Table Container */
+.table-container {
+    background: var(--material-white);
+    border: 1px solid var(--material-green-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 0 0 var(--spacing-xl) 0;
+    box-shadow: var(--shadow-green-lg);
+    transition: all 0.3s ease;
+}
+
+/* Enhanced Table */
+.projects-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--material-white);
+    font-size: 14px;
+}
+
+/* Enhanced Table Header */
+.table-header {
+    background: linear-gradient(135deg, var(--material-green-500) 0%, var(--material-green-600) 50%, var(--material-green-700) 100%);
+    border-bottom: 2px solid var(--material-green-200);
+    position: relative;
+}
+
+.table-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="headerGrain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23headerGrain)"/></svg>');
+    opacity: 0.2;
+}
+
+.table-header th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--material-white);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Folder Rows */
+.folder-row {
+    background: linear-gradient(135deg, var(--material-green-50) 0%, var(--material-green-100) 50%, var(--material-green-200) 100%);
+    border-bottom: 1px solid var(--material-green-200);
+    position: relative;
+}
+
+.folder-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="folderGrain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="0.5" fill="rgba(16,185,129,0.1)"/><circle cx="80" cy="80" r="0.5" fill="rgba(16,185,129,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23folderGrain)"/></svg>');
+    opacity: 0.3;
+}
+
+.folder-row td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    vertical-align: middle;
+    border: none;
+    position: relative;
+    z-index: 1;
+}
+
+.folder-title {
+    font-weight: 700;
+    color: var(--material-green-800);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    text-shadow: 0 1px 2px rgba(16, 185, 129, 0.1);
+}
+
+.folder-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.2));
+}
+
+/* Enhanced Project Rows */
+.product-row {
+    border-bottom: 1px solid var(--material-gray-200);
+    transition: background-color 0.2s ease;
+}
+
+.product-row:hover {
+    background: linear-gradient(135deg, var(--material-green-50) 0%, var(--material-green-100) 100%);
+}
+
+.product-row td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    vertical-align: middle;
+    border: none;
+}
+
+.product-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--material-gray-800);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.product-number {
+    background: linear-gradient(135deg, var(--material-green-500) 0%, var(--material-green-600) 50%, var(--material-green-700) 100%);
+    color: var(--material-white);
+    font-size: 12px;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-green-md);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced Data Cells */
+.data-cell {
+    text-align: left;
+    color: var(--material-gray-600);
+    font-weight: 500;
+    font-size: 14px;
+    padding-left: var(--spacing-lg);
+}
+
+.data-cell.bold {
+    font-weight: 700;
+    color: var(--material-gray-800);
+}
+
+.folder-row .data-cell {
+    color: var(--material-green-800);
+    font-weight: 600;
+}
+
+/* Enhanced Icons */
+.lesson-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: var(--spacing-sm);
+    color: var(--material-green-500);
+    filter: drop-shadow(0 1px 2px rgba(16, 185, 129, 0.2));
+}
+
+.timer-icon {
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: var(--spacing-sm);
+    color: var(--material-green-500);
+    vertical-align: middle;
+    display: inline-block;
+    filter: drop-shadow(0 1px 2px rgba(16, 185, 129, 0.2));
+}
+
+/* Enhanced Quality Tier Badges */
+.tier-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 9999px;
+    letter-spacing: 0.05em;
+    text-align: center;
+    line-height: 1.2;
+    box-shadow: var(--shadow-sm);
+}
+
+.tier-basic { 
+    color: var(--material-green-800); 
+    background: linear-gradient(135deg, var(--material-green-100) 0%, var(--material-green-200) 100%); 
+    border: 1px solid var(--material-green-300); 
+    box-shadow: var(--shadow-green-sm);
+}
+
+.tier-interactive { 
+    color: #c2410c; 
+    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); 
+    border: 1px solid #fdba74; 
+    box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+}
+
+.tier-advanced { 
+    color: #6b21a8; 
+    background: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%); 
+    border: 1px solid #d8b4fe; 
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+}
+
+.tier-immersive { 
+    color: #1e40af; 
+    background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%); 
+    border: 1px solid #93c5fd; 
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Enhanced Mini Summary */
+.mini-summary-container {
+    margin-bottom: var(--spacing-xl);
+    background: var(--material-white);
+    border: 1px solid var(--material-green-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-green-lg);
+}
+
+.mini-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--material-white);
+    font-size: 14px;
+}
+
+.mini-summary-table thead {
+    background: linear-gradient(135deg, var(--material-green-500) 0%, var(--material-green-600) 50%, var(--material-green-700) 100%);
+    border-bottom: 2px solid var(--material-green-200);
+}
+
+.mini-summary-table th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--material-white);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.mini-summary-table td {
+    padding: var(--spacing-lg);
+    text-align: center;
+    font-weight: 600;
+    color: var(--material-gray-800);
+    font-size: 15px;
+    border: none;
+}
+
+.mini-summary-table .summary-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--material-green-500);
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(16, 185, 129, 0.2));
+}
+
+/* Enhanced Charts */
+.pie-chart-container {
+    background: var(--material-white);
+    border: 1px solid var(--material-green-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-green-lg);
+}
+
+.pie-chart-header {
+    background: linear-gradient(135deg, var(--material-green-500) 0%, var(--material-green-600) 50%, var(--material-green-700) 100%);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--material-green-200);
+}
+
+.pie-chart-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--material-white);
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.pie-chart-header p {
+    font-size: 12px;
+    color: var(--material-green-100);
+    margin: 4px 0 0 0;
+}
+
+.pie-chart-content {
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+}
+
+/* Enhanced Legend */
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-sm);
+    margin-right: var(--spacing-sm);
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.legend-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--material-gray-800);
+}
+
+.legend-text .percentage {
+    color: var(--material-gray-500);
+    font-size: 10px;
+    font-weight: 400;
+}
+
+/* Utility Classes */
+.dash {
+    color: var(--material-gray-500) !important;
+}
+
+.folder-row .dash {
+    color: var(--material-green-800) !important;
+}
+
+/* Print optimizations */
+@media print {
+    .pdf-container {
+        padding: 0 var(--spacing-xl);
+        box-shadow: none;
+        margin: 0;
+    }
+    
+    .table-container,
+    .mini-summary-container,
+    .pie-chart-container {
+        margin-left: 0;
+        margin-right: 0;
+        box-shadow: none;
+    }
+} 
