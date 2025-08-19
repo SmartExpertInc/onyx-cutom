@@ -429,7 +429,7 @@ const PreviewModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
-      <div className="bg-white shadow-2xl w-full max-w-5xl max-h-[95vh] relative overflow-hidden" style={{ aspectRatio: '8.5/11' }}>
+      <div className="bg-white shadow-2xl w-full max-w-6xl max-h-[95vh] relative overflow-hidden rounded-xl">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 z-10" 
           onClick={onClose}
@@ -439,96 +439,210 @@ const PreviewModal: React.FC<{
           </svg>
         </button>
         
-        {/* PDF Document Content */}
-        <div className="h-full overflow-y-auto p-12" style={{ fontFamily: 'Times New Roman, serif' }}>
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-black mb-2" style={{ fontSize: '24pt', fontWeight: 'bold' }}>
-              Projects List Report
-            </h1>
-            <div className="text-sm text-gray-700 space-y-1" style={{ fontSize: '12pt' }}>
-              {data.clientName && <p><strong>Client:</strong> {data.clientName}</p>}
-              {data.managerName && <p><strong>Manager:</strong> {data.managerName}</p>}
-              <p><strong>Generated:</strong> {new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</p>
-              <p><strong>Total Projects:</strong> {data.projects.length}</p>
+        {/* PDF Document Content - Matching testPageForVitaliy.html exactly */}
+        <div className="h-full overflow-y-auto" style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
+          {/* Header with gradient and noise texture */}
+          <div className="relative overflow-hidden" style={{
+            background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+            color: 'white',
+            padding: '40px'
+          }}>
+            <div className="absolute inset-0 opacity-30" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E")`
+            }}></div>
+            <div className="relative z-10">
+              <h1 className="text-4xl font-bold mb-5" style={{ 
+                fontSize: '2.5rem',
+                fontWeight: '700',
+                letterSpacing: '-0.5px'
+              }}>
+                Projects List Report
+              </h1>
+              <div className="flex gap-10 text-lg opacity-95" style={{ fontSize: '1.1rem' }}>
+                {data.clientName && <span><strong>Client:</strong> {data.clientName}</span>}
+                {data.managerName && <span><strong>Manager:</strong> {data.managerName}</span>}
+                <span><strong>Date:</strong> {new Date().toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
+              </div>
             </div>
           </div>
-          
-          {/* Table */}
-          <div className="mt-8">
-            <table className="w-full border-collapse" style={{ fontSize: '11pt' }}>
-              <thead>
-                <tr className="border-b-2 border-black">
-                  <th className="text-left py-3 px-4 font-bold text-black" style={{ 
-                    fontWeight: 'bold', 
-                    borderBottom: '2px solid black',
-                    padding: '8px'
+
+          {/* Content */}
+          <div className="p-10">
+            {/* Block 1: Projects Overview */}
+            <div className="mb-10">
+              <h2 className="text-2xl font-semibold text-black mb-5 flex items-center gap-3" style={{ 
+                fontSize: '1.5rem',
+                fontWeight: '600'
+              }}>
+                <div className="w-1 h-6 rounded-sm" style={{
+                  background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+                  width: '4px',
+                  height: '24px',
+                  borderRadius: '2px'
+                }}></div>
+                Block 1. Projects Overview
+              </h2>
+              
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-5" style={{
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(76, 175, 80, 0.1)'
+              }}>
+                <table className="w-full border-collapse">
+                  <thead className="relative overflow-hidden" style={{
+                    background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+                    color: 'white'
                   }}>
-                    Project Title
-                  </th>
-                  <th className="text-left py-3 px-4 font-bold text-black" style={{ 
-                    fontWeight: 'bold', 
-                    borderBottom: '2px solid black',
-                    padding: '8px'
-                  }}>
-                    Created Date
-                  </th>
-                  <th className="text-left py-3 px-4 font-bold text-black" style={{ 
-                    fontWeight: 'bold', 
-                    borderBottom: '2px solid black',
-                    padding: '8px'
-                  }}>
-                    Creator
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.projects.map((project, index) => (
-                  <tr key={project.id} className="border-b border-gray-300" style={{ 
-                    borderBottom: '1px solid #ccc',
-                    pageBreakInside: 'avoid'
-                  }}>
-                    <td className="py-2 px-4 text-black" style={{ 
-                      padding: '6px 8px',
-                      fontWeight: 'normal'
-                    }}>
-                      {project.title || 'Untitled Project'}
-                    </td>
-                    <td className="py-2 px-4 text-black" style={{ 
-                      padding: '6px 8px',
-                      fontWeight: 'normal'
-                    }}>
-                      {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      }) : 'N/A'}
-                    </td>
-                    <td className="py-2 px-4 text-black" style={{ 
-                      padding: '6px 8px',
-                      fontWeight: 'normal'
-                    }}>
-                      You
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Footer */}
-          <div className="mt-8 pt-4 border-t border-gray-300 text-center text-sm text-gray-600" style={{ 
-            fontSize: '10pt',
-            borderTop: '1px solid #ccc',
-            marginTop: '32px',
-            paddingTop: '16px'
-          }}>
-            <p>Document generated by ContentBuilder AI</p>
-            <p>Page 1 of 1</p>
+                    <div className="absolute inset-0 opacity-20" style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E")`
+                    }}></div>
+                    <tr className="relative z-10">
+                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                        padding: '16px 20px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        fontSize: '0.9rem',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Project Name
+                      </th>
+                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                        padding: '16px 20px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        fontSize: '0.9rem',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Created Date
+                      </th>
+                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                        padding: '16px 20px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        fontSize: '0.9rem',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Creator
+                      </th>
+                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                        padding: '16px 20px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        fontSize: '0.9rem',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.projects.map((project, index) => (
+                      <tr key={project.id} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                        background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
+                        transition: 'background-color 0.2s ease'
+                      }}>
+                        <td className="p-4 font-semibold text-black" style={{
+                          padding: '16px 20px',
+                          fontWeight: '600'
+                        }}>
+                          {project.title || 'Untitled Project'}
+                        </td>
+                        <td className="p-4 font-medium" style={{
+                          padding: '16px 20px',
+                          fontWeight: '500'
+                        }}>
+                          {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          }) : 'N/A'}
+                        </td>
+                        <td className="p-4 font-medium" style={{
+                          padding: '16px 20px',
+                          fontWeight: '500'
+                        }}>
+                          You
+                        </td>
+                        <td className="p-4 font-medium" style={{
+                          padding: '16px 20px',
+                          fontWeight: '500'
+                        }}>
+                          Active
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="text-center font-semibold text-lg py-4 text-white" style={{
+                  background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+                  padding: '16px 20px',
+                  fontWeight: '600',
+                  fontSize: '1.1rem'
+                }}>
+                  Subtotal: {data.projects.length} projects total
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Section */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 border-l-4" style={{
+              background: 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)',
+              borderRadius: '12px',
+              padding: '30px',
+              borderLeft: '4px solid',
+              borderImage: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%) 1'
+            }}>
+              <div className="flex items-center gap-3 mb-5" style={{ fontSize: '1.3rem', fontWeight: '600', color: '#4343bc' }}>
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold" style={{
+                  width: '24px',
+                  height: '24px',
+                  background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+                  borderRadius: '50%'
+                }}>
+                  ✓
+                </div>
+                Summary:
+              </div>
+              <ul className="space-y-2" style={{ listStyle: 'none' }}>
+                <li className="flex items-center gap-3 text-lg" style={{ 
+                  padding: '8px 0',
+                  fontSize: '1.1rem',
+                  color: '#333',
+                  position: 'relative',
+                  paddingLeft: '20px'
+                }}>
+                  <span className="text-blue-600 font-bold absolute left-0">•</span>
+                  Total: {data.projects.length} projects in the list
+                </li>
+                <li className="flex items-center gap-3 text-lg" style={{ 
+                  padding: '8px 0',
+                  fontSize: '1.1rem',
+                  color: '#333',
+                  position: 'relative',
+                  paddingLeft: '20px'
+                }}>
+                  <span className="text-blue-600 font-bold absolute left-0">•</span>
+                  Generated: {new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </li>
+                <li className="flex items-center gap-3 text-lg" style={{ 
+                  padding: '8px 0',
+                  fontSize: '1.1rem',
+                  color: '#333',
+                  position: 'relative',
+                  paddingLeft: '20px'
+                }}>
+                  <span className="text-blue-600 font-bold absolute left-0">•</span>
+                  Report includes all active projects and their details
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
