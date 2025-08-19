@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ExternalLink, Upload, Settings, Globe, FileText, MessageSquare, Database, Code, Shield, Users, Calendar, BookOpen, FolderOpen, Cloud, Server, Mail, MessageCircle, GitBranch, GitPullRequest, File } from 'lucide-react';
+import Image from 'next/image';
+import { ChevronDown, ExternalLink, Upload, Settings } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 
 interface ConnectorConfig {
   id: string;
   name: string;
   description: string;
-  icon: React.ComponentType<any>;
+  logoPath: string;
   category: string;
   oauthSupported?: boolean;
 }
@@ -33,327 +34,347 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [userConnectors, setUserConnectors] = useState<UserConnector[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Define all available connectors
-  const availableConnectors: ConnectorConfig[] = [
-    {
-      id: 'browse_uploaded',
-      name: 'Browse Uploaded',
-      description: 'Access your uploaded files and documents',
-      icon: Upload,
-      category: 'Storage'
-    },
-    {
-      id: 'google_drive',
-      name: 'Google Drive',
-      description: 'Connect to your Google Drive account',
-      icon: Cloud,
-      category: 'Storage',
-      oauthSupported: true
-    },
-    {
-      id: 'dropbox',
-      name: 'Dropbox',
-      description: 'Connect to your Dropbox account',
-      icon: FolderOpen,
-      category: 'Storage'
-    },
-    {
-      id: 's3',
-      name: 'Amazon S3',
-      description: 'Connect to Amazon S3 storage',
-      icon: Server,
-      category: 'Storage'
-    },
-    {
-      id: 'r2',
-      name: 'Cloudflare R2',
-      description: 'Connect to Cloudflare R2 storage',
-      icon: Cloud,
-      category: 'Storage'
-    },
-    {
-      id: 'google_cloud_storage',
-      name: 'Google Cloud Storage',
-      description: 'Connect to Google Cloud Storage',
-      icon: Cloud,
-      category: 'Storage'
-    },
-    {
-      id: 'oci_storage',
-      name: 'Oracle Cloud Storage',
-      description: 'Connect to Oracle Cloud Storage',
-      icon: Server,
-      category: 'Storage'
-    },
-    {
-      id: 'sharepoint',
-      name: 'SharePoint',
-      description: 'Connect to Microsoft SharePoint',
-      icon: FolderOpen,
-      category: 'Storage'
-    },
-    {
-      id: 'egnyte',
-      name: 'Egnyte',
-      description: 'Connect to Egnyte file sharing',
-      icon: FolderOpen,
-      category: 'Storage'
-    },
-    {
-      id: 'slack',
-      name: 'Slack',
-      description: 'Connect to your Slack workspace',
-      icon: MessageSquare,
-      category: 'Messaging',
-      oauthSupported: true
-    },
-    {
-      id: 'discord',
-      name: 'Discord',
-      description: 'Connect to your Discord server',
-      icon: MessageCircle,
-      category: 'Messaging'
-    },
-    {
-      id: 'teams',
-      name: 'Microsoft Teams',
-      description: 'Connect to Microsoft Teams',
-      icon: MessageSquare,
-      category: 'Messaging'
-    },
-    {
-      id: 'gmail',
-      name: 'Gmail',
-      description: 'Connect to your Gmail account',
-      icon: Mail,
-      category: 'Messaging'
-    },
-    {
-      id: 'zulip',
-      name: 'Zulip',
-      description: 'Connect to Zulip chat',
-      icon: MessageCircle,
-      category: 'Messaging'
-    },
-    {
-      id: 'discourse',
-      name: 'Discourse',
-      description: 'Connect to Discourse forum',
-      icon: MessageSquare,
-      category: 'Messaging'
-    },
-    {
-      id: 'notion',
-      name: 'Notion',
-      description: 'Connect to your Notion workspace',
-      icon: FileText,
-      category: 'Wiki'
-    },
-    {
-      id: 'confluence',
-      name: 'Confluence',
-      description: 'Connect to Atlassian Confluence',
-      icon: BookOpen,
-      category: 'Wiki',
-      oauthSupported: true
-    },
-    {
-      id: 'gitbook',
-      name: 'GitBook',
-      description: 'Connect to GitBook documentation',
-      icon: BookOpen,
-      category: 'Wiki'
-    },
-    {
-      id: 'axero',
-      name: 'Axero',
-      description: 'Connect to Axero knowledge base',
-      icon: FileText,
-      category: 'Wiki'
-    },
-    {
-      id: 'wikipedia',
-      name: 'Wikipedia',
-      description: 'Connect to Wikipedia articles',
-      icon: Globe,
-      category: 'Wiki'
-    },
-    {
-      id: 'mediawiki',
-      name: 'MediaWiki',
-      description: 'Connect to MediaWiki sites',
-      icon: FileText,
-      category: 'Wiki'
-    },
-    {
-      id: 'bookstack',
-      name: 'BookStack',
-      description: 'Connect to BookStack documentation',
-      icon: BookOpen,
-      category: 'Wiki'
-    },
-    {
-      id: 'asana',
-      name: 'Asana',
-      description: 'Connect to your Asana workspace',
-      icon: Calendar,
-      category: 'Project Management'
-    },
-    {
-      id: 'jira',
-      name: 'Jira',
-      description: 'Connect to Atlassian Jira',
-      icon: Shield,
-      category: 'Project Management'
-    },
-    {
-      id: 'clickup',
-      name: 'ClickUp',
-      description: 'Connect to ClickUp workspace',
-      icon: Calendar,
-      category: 'Project Management'
-    },
-    {
-      id: 'linear',
-      name: 'Linear',
-      description: 'Connect to Linear project management',
-      icon: Calendar,
-      category: 'Project Management'
-    },
-    {
-      id: 'productboard',
-      name: 'Productboard',
-      description: 'Connect to Productboard',
-      icon: Shield,
-      category: 'Project Management'
-    },
-    {
-      id: 'github',
-      name: 'GitHub',
-      description: 'Connect to GitHub repositories',
-      icon: GitBranch,
-      category: 'Code Repository'
-    },
-    {
-      id: 'gitlab',
-      name: 'GitLab',
-      description: 'Connect to GitLab repositories',
-      icon: GitPullRequest,
-      category: 'Code Repository'
-    },
-    {
-      id: 'zendesk',
-      name: 'Zendesk',
-      description: 'Connect to Zendesk support',
-      icon: MessageSquare,
-      category: 'Customer Support'
-    },
-    {
-      id: 'freshdesk',
-      name: 'Freshdesk',
-      description: 'Connect to Freshdesk support',
-      icon: MessageSquare,
-      category: 'Customer Support'
-    },
-    {
-      id: 'salesforce',
-      name: 'Salesforce',
-      description: 'Connect to Salesforce CRM',
-      icon: Users,
-      category: 'CRM'
-    },
-    {
-      id: 'hubspot',
-      name: 'HubSpot',
-      description: 'Connect to HubSpot CRM',
-      icon: Users,
-      category: 'CRM'
-    },
-    {
-      id: 'airtable',
-      name: 'Airtable',
-      description: 'Connect to Airtable databases',
-      icon: Database,
-      category: 'Database'
-    },
-    {
-      id: 'gong',
-      name: 'Gong',
-      description: 'Connect to Gong call recordings',
-      icon: MessageCircle,
-      category: 'Communication'
-    },
-    {
-      id: 'fireflies',
-      name: 'Fireflies',
-      description: 'Connect to Fireflies meeting recordings',
-      icon: MessageCircle,
-      category: 'Communication'
-    },
-    {
-      id: 'highspot',
-      name: 'Highspot',
-      description: 'Connect to Highspot sales enablement',
-      icon: Users,
-      category: 'Sales'
-    },
-    {
-      id: 'guru',
-      name: 'Guru',
-      description: 'Connect to Guru knowledge base',
-      icon: FileText,
-      category: 'Knowledge Management'
-    },
-    {
-      id: 'slab',
-      name: 'Slab',
-      description: 'Connect to Slab documentation',
-      icon: FileText,
-      category: 'Documentation'
-    },
-    {
-      id: 'document360',
-      name: 'Document360',
-      description: 'Connect to Document360 knowledge base',
-      icon: FileText,
-      category: 'Documentation'
-    },
-    {
-      id: 'google_sites',
-      name: 'Google Sites',
-      description: 'Connect to Google Sites',
-      icon: Globe,
-      category: 'Website'
-    },
-    {
-      id: 'xenforo',
-      name: 'XenForo',
-      description: 'Connect to XenForo forum',
-      icon: MessageSquare,
-      category: 'Forum'
-    },
-    {
-      id: 'loopio',
-      name: 'Loopio',
-      description: 'Connect to Loopio RFP responses',
-      icon: FileText,
-      category: 'RFP Management'
-    },
-    {
-      id: 'web',
-      name: 'Web Scraper',
-      description: 'Scrape content from websites',
-      icon: Globe,
-      category: 'Web'
-    },
-    {
-      id: 'file',
-      name: 'File Upload',
-      description: 'Upload files directly',
-      icon: File,
-      category: 'File'
-    }
-  ];
+  // Define all available connectors organized by category
+  const connectorCategories = {
+    'Cloud Storage': [
+      {
+        id: 'browse_uploaded',
+        name: 'Browse Uploaded',
+        description: 'Access your uploaded files and documents',
+        logoPath: '/file.svg',
+        category: 'Cloud Storage'
+      },
+      {
+        id: 'google_drive',
+        name: 'Google Drive',
+        description: 'Connect to your Google Drive account',
+        logoPath: '/GoogleDrive.png',
+        category: 'Cloud Storage',
+        oauthSupported: true
+      },
+      {
+        id: 'dropbox',
+        name: 'Dropbox',
+        description: 'Connect to your Dropbox account',
+        logoPath: '/Dropbox.png',
+        category: 'Cloud Storage'
+      },
+      {
+        id: 's3',
+        name: 'Amazon S3',
+        description: 'Connect to Amazon S3 storage',
+        logoPath: '/S3.png',
+        category: 'Cloud Storage'
+      },
+      {
+        id: 'r2',
+        name: 'Cloudflare R2',
+        description: 'Connect to Cloudflare R2 storage',
+        logoPath: '/r2.png',
+        category: 'Cloud Storage'
+      },
+      {
+        id: 'google_cloud_storage',
+        name: 'Google Cloud Storage',
+        description: 'Connect to Google Cloud Storage',
+        logoPath: '/GoogleCloudStorage.png',
+        category: 'Cloud Storage'
+      },
+      {
+        id: 'oci_storage',
+        name: 'Oracle Cloud Storage',
+        description: 'Connect to Oracle Cloud Storage',
+        logoPath: '/OCI.svg',
+        category: 'Cloud Storage'
+      },
+      {
+        id: 'sharepoint',
+        name: 'SharePoint',
+        description: 'Connect to Microsoft SharePoint',
+        logoPath: '/Sharepoint.png',
+        category: 'Cloud Storage'
+      },
+      {
+        id: 'egnyte',
+        name: 'Egnyte',
+        description: 'Connect to Egnyte file sharing',
+        logoPath: '/Egnyte.png',
+        category: 'Cloud Storage'
+      }
+    ],
+    'Communication & Messaging': [
+      {
+        id: 'slack',
+        name: 'Slack',
+        description: 'Connect to your Slack workspace',
+        logoPath: '/Slack.png',
+        category: 'Communication & Messaging',
+        oauthSupported: true
+      },
+      {
+        id: 'discord',
+        name: 'Discord',
+        description: 'Connect to your Discord server',
+        logoPath: '/discord.png',
+        category: 'Communication & Messaging'
+      },
+      {
+        id: 'teams',
+        name: 'Microsoft Teams',
+        description: 'Connect to Microsoft Teams',
+        logoPath: '/Teams.png',
+        category: 'Communication & Messaging'
+      },
+      {
+        id: 'gmail',
+        name: 'Gmail',
+        description: 'Connect to your Gmail account',
+        logoPath: '/Gmail.png',
+        category: 'Communication & Messaging'
+      },
+      {
+        id: 'zulip',
+        name: 'Zulip',
+        description: 'Connect to Zulip chat',
+        logoPath: '/Zulip.png',
+        category: 'Communication & Messaging'
+      },
+      {
+        id: 'discourse',
+        name: 'Discourse',
+        description: 'Connect to Discourse forum',
+        logoPath: '/Discourse.png',
+        category: 'Communication & Messaging'
+      },
+      {
+        id: 'gong',
+        name: 'Gong',
+        description: 'Connect to Gong call recordings',
+        logoPath: '/Gong.png',
+        category: 'Communication & Messaging'
+      },
+      {
+        id: 'fireflies',
+        name: 'Fireflies',
+        description: 'Connect to Fireflies meeting recordings',
+        logoPath: '/Fireflies.png',
+        category: 'Communication & Messaging'
+      }
+    ],
+    'Documentation & Knowledge': [
+      {
+        id: 'notion',
+        name: 'Notion',
+        description: 'Connect to your Notion workspace',
+        logoPath: '/Notion.png',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'confluence',
+        name: 'Confluence',
+        description: 'Connect to Atlassian Confluence',
+        logoPath: '/Confluence.svg',
+        category: 'Documentation & Knowledge',
+        oauthSupported: true
+      },
+      {
+        id: 'gitbook',
+        name: 'GitBook',
+        description: 'Connect to GitBook documentation',
+        logoPath: '/GitBookDark.png',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'axero',
+        name: 'Axero',
+        description: 'Connect to Axero knowledge base',
+        logoPath: '/Axero.jpeg',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'wikipedia',
+        name: 'Wikipedia',
+        description: 'Connect to Wikipedia articles',
+        logoPath: '/Wikipedia.png',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'mediawiki',
+        name: 'MediaWiki',
+        description: 'Connect to MediaWiki sites',
+        logoPath: '/MediaWiki.svg',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'bookstack',
+        name: 'BookStack',
+        description: 'Connect to BookStack documentation',
+        logoPath: '/GitBookLight.png',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'guru',
+        name: 'Guru',
+        description: 'Connect to Guru knowledge base',
+        logoPath: '/Guru.svg',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'slab',
+        name: 'Slab',
+        description: 'Connect to Slab documentation',
+        logoPath: '/SlabLogo.png',
+        category: 'Documentation & Knowledge'
+      },
+      {
+        id: 'document360',
+        name: 'Document360',
+        description: 'Connect to Document360 knowledge base',
+        logoPath: '/Document360.png',
+        category: 'Documentation & Knowledge'
+      }
+    ],
+    'Project Management': [
+      {
+        id: 'asana',
+        name: 'Asana',
+        description: 'Connect to your Asana workspace',
+        logoPath: '/Asana.png',
+        category: 'Project Management'
+      },
+      {
+        id: 'jira',
+        name: 'Jira',
+        description: 'Connect to Atlassian Jira',
+        logoPath: '/Jira.svg',
+        category: 'Project Management'
+      },
+      {
+        id: 'clickup',
+        name: 'ClickUp',
+        description: 'Connect to ClickUp workspace',
+        logoPath: '/Clickup.svg',
+        category: 'Project Management'
+      },
+      {
+        id: 'linear',
+        name: 'Linear',
+        description: 'Connect to Linear project management',
+        logoPath: '/Linear.png',
+        category: 'Project Management'
+      },
+      {
+        id: 'productboard',
+        name: 'Productboard',
+        description: 'Connect to Productboard',
+        logoPath: '/Productboard.png',
+        category: 'Project Management'
+      }
+    ],
+    'Code Repositories': [
+      {
+        id: 'github',
+        name: 'GitHub',
+        description: 'Connect to GitHub repositories',
+        logoPath: '/Github.png',
+        category: 'Code Repositories'
+      },
+      {
+        id: 'gitlab',
+        name: 'GitLab',
+        description: 'Connect to GitLab repositories',
+        logoPath: '/Gitlab.png',
+        category: 'Code Repositories'
+      }
+    ],
+    'Customer Support': [
+      {
+        id: 'zendesk',
+        name: 'Zendesk',
+        description: 'Connect to Zendesk support',
+        logoPath: '/Zendesk.svg',
+        category: 'Customer Support'
+      },
+      {
+        id: 'freshdesk',
+        name: 'Freshdesk',
+        description: 'Connect to Freshdesk support',
+        logoPath: '/Freshdesk.png',
+        category: 'Customer Support'
+      }
+    ],
+    'CRM & Sales': [
+      {
+        id: 'salesforce',
+        name: 'Salesforce',
+        description: 'Connect to Salesforce CRM',
+        logoPath: '/Salesforce.png',
+        category: 'CRM & Sales'
+      },
+      {
+        id: 'hubspot',
+        name: 'HubSpot',
+        description: 'Connect to HubSpot CRM',
+        logoPath: '/HubSpot.png',
+        category: 'CRM & Sales'
+      },
+      {
+        id: 'highspot',
+        name: 'Highspot',
+        description: 'Connect to Highspot sales enablement',
+        logoPath: '/Highspot.png',
+        category: 'CRM & Sales'
+      }
+    ],
+    'Databases & Tools': [
+      {
+        id: 'airtable',
+        name: 'Airtable',
+        description: 'Connect to Airtable databases',
+        logoPath: '/Airtable.svg',
+        category: 'Databases & Tools'
+      }
+    ],
+    'Web & Content': [
+      {
+        id: 'google_sites',
+        name: 'Google Sites',
+        description: 'Connect to Google Sites',
+        logoPath: '/GoogleSites.png',
+        category: 'Web & Content'
+      },
+      {
+        id: 'xenforo',
+        name: 'XenForo',
+        description: 'Connect to XenForo forum',
+        logoPath: '/Xenforo.svg',
+        category: 'Web & Content'
+      },
+      {
+        id: 'web',
+        name: 'Web Scraper',
+        description: 'Scrape content from websites',
+        logoPath: '/web.svg',
+        category: 'Web & Content'
+      },
+      {
+        id: 'file',
+        name: 'File Upload',
+        description: 'Upload files directly',
+        logoPath: '/file.svg',
+        category: 'Web & Content'
+      }
+    ],
+    'Specialized Tools': [
+      {
+        id: 'loopio',
+        name: 'Loopio',
+        description: 'Connect to Loopio RFP responses',
+        logoPath: '/Loopio.png',
+        category: 'Specialized Tools'
+      }
+    ]
+  };
 
   // Load user's existing connectors
   useEffect(() => {
@@ -455,108 +476,120 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-8 ${className}`}>
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Available Connectors</h2>
         <p className="text-gray-600">Connect your data sources to import content into your Smart Drive</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {availableConnectors.map((connector) => {
-          const IconComponent = connector.icon;
-          const userConnectorsForSource = getConnectorsBySource(connector.id);
-          const hasConnectors = userConnectorsForSource.length > 0;
-          const hasMultipleConnectors = userConnectorsForSource.length > 1;
+      {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
+        <div key={categoryName} className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-800 border-b border-gray-200 pb-2">
+            {categoryName}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {connectors.map((connector) => {
+              const userConnectorsForSource = getConnectorsBySource(connector.id);
+              const hasConnectors = userConnectorsForSource.length > 0;
+              const hasMultipleConnectors = userConnectorsForSource.length > 1;
 
-          return (
-            <div
-              key={connector.id}
-              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow ${
-                connector.id === 'browse_uploaded' ? 'cursor-pointer' : ''
-              }`}
-              onClick={connector.id === 'browse_uploaded' ? handleBrowseClick : undefined}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <IconComponent className="w-5 h-5 text-gray-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-gray-900 truncate">
-                    {connector.name}
-                  </h3>
-                  <p className="text-xs text-gray-500">{connector.category}</p>
-                </div>
-              </div>
-
-              <p className="text-xs text-gray-600 mb-4 line-clamp-2">
-                {connector.description}
-              </p>
-
-              <div className="flex gap-2">
-                <Link
-                  href={getCreateUrl(connector.id)}
-                  className={`flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors ${
-                    connector.id === 'browse_uploaded'
-                      ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                      : 'bg-green-100 text-green-700 hover:bg-green-200'
+              return (
+                <div
+                  key={connector.id}
+                  className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow ${
+                    connector.id === 'browse_uploaded' ? 'cursor-pointer' : ''
                   }`}
-                  onClick={(e) => {
-                    if (connector.id === 'browse_uploaded') {
-                      e.preventDefault();
-                      handleBrowseClick();
-                    }
-                  }}
+                  onClick={connector.id === 'browse_uploaded' ? handleBrowseClick : undefined}
                 >
-                  {connector.id === 'browse_uploaded' ? 'Browse' : 'Create'}
-                </Link>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                      <Image
+                        src={connector.logoPath}
+                        alt={`${connector.name} logo`}
+                        width={24}
+                        height={24}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-gray-900 truncate">
+                        {connector.name}
+                      </h3>
+                      <p className="text-xs text-gray-500">{connector.category}</p>
+                    </div>
+                  </div>
 
-                {hasConnectors && (
-                  <div className="relative">
-                    {hasMultipleConnectors ? (
+                  <p className="text-xs text-gray-600 mb-4 line-clamp-2">
+                    {connector.description}
+                  </p>
+
+                  <div className="flex gap-2">
+                    <Link
+                      href={getCreateUrl(connector.id)}
+                      className={`flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors ${
+                        connector.id === 'browse_uploaded'
+                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      }`}
+                      onClick={(e) => {
+                        if (connector.id === 'browse_uploaded') {
+                          e.preventDefault();
+                          handleBrowseClick();
+                        }
+                      }}
+                    >
+                      {connector.id === 'browse_uploaded' ? 'Browse' : 'Create'}
+                    </Link>
+
+                    {hasConnectors && (
                       <div className="relative">
-                        <button className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors">
-                          Manage
-                          <ChevronDown className="w-3 h-3" />
-                        </button>
-                        <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 hidden group-hover:block">
-                          {userConnectorsForSource.map((userConnector) => (
-                            <Link
-                              key={userConnector.id}
-                              href={`/admin/connectors/${userConnector.id}`}
-                              className="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                            >
-                              {userConnector.name}
-                            </Link>
-                          ))}
-                        </div>
+                        {hasMultipleConnectors ? (
+                          <div className="relative group">
+                            <button className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors">
+                              Manage
+                              <ChevronDown className="w-3 h-3" />
+                            </button>
+                            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 hidden group-hover:block">
+                              {userConnectorsForSource.map((userConnector) => (
+                                <Link
+                                  key={userConnector.id}
+                                  href={`/admin/connectors/${userConnector.id}`}
+                                  className="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                >
+                                  {userConnector.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <Link
+                            href={getManageUrl(connector.id)}
+                            className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
+                          >
+                            Manage
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        )}
                       </div>
-                    ) : (
-                      <Link
-                        href={getManageUrl(connector.id)}
-                        className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
-                      >
-                        Manage
-                        <ExternalLink className="w-3 h-3" />
-                      </Link>
                     )}
                   </div>
-                )}
-              </div>
 
-              {hasConnectors && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
-                    {userConnectorsForSource.some(c => c.status === 'active') && (
-                      <span className="text-green-600">● Active</span>
-                    )}
-                  </div>
+                  {hasConnectors && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
+                        {userConnectorsForSource.some(c => c.status === 'active') && (
+                          <span className="text-green-600">● Active</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
