@@ -19036,13 +19036,20 @@ async def import_new_smartdrive_files(
             imported_count = 0
             imported_files = []
             
+            logger.info(f"Processing {len(all_files)} items from Nextcloud")
+            
             for file_info in all_files:
+                logger.debug(f"Processing item: {file_info}")
+                
                 if file_info['type'] == 'directory':
+                    logger.debug(f"Skipping directory: {file_info['path']}")
                     continue  # Skip directories for now
                     
                 file_path = file_info['path']
                 file_modified = file_info['modified']
                 file_etag = file_info.get('etag')
+                
+                logger.info(f"Processing file: {file_path} (type: {file_info['type']}, etag: {file_etag}, modified: {file_modified})")
                 
                 # Check if already imported
                 existing = await conn.fetchrow(
@@ -19050,24 +19057,15 @@ async def import_new_smartdrive_files(
                     onyx_user_id, file_path
                 )
                 
-                # Skip if already imported with same etag
-                if existing and existing['etag'] and file_etag and existing['etag'] == file_etag:
-                    logger.debug(f"Skipping {file_path} - already imported with same etag: {file_etag}")
+                logger.info(f"Existing record for {file_path}: {existing}")
+                
+                # Skip if already imported with same etag (only if both etags exist and match)
+                if existing and existing.get('etag') and file_etag and existing['etag'] == file_etag:
+                    logger.info(f"Skipping {file_path} - already imported with same etag: {file_etag}")
                     continue
                 
-                # Check if file was modified since last sync (as fallback if no etag)
-                if last_sync and file_modified:
-                    try:
-                        file_modified_dt = parse_http_date(file_modified)
-                        last_sync_dt = datetime.fromisoformat(last_sync.replace('Z', '+00:00')) if isinstance(last_sync, str) else last_sync
-                        if file_modified_dt <= last_sync_dt:
-                            logger.debug(f"Skipping {file_path} - not modified since last sync")
-                            continue
-                    except Exception as date_error:
-                        logger.warning(f"Date comparison failed for {file_path}: {date_error}")
-                        # Continue with import if date comparison fails
-                
-                logger.info(f"Importing file: {file_path} (etag: {file_etag}, modified: {file_modified})")
+                # For debugging: let's import all files for now and check the etag logic later
+                logger.info(f"Will import file: {file_path} (etag: {file_etag}, existing_etag: {existing.get('etag') if existing else None})")
                 
                 # Try to import the file into Onyx
                 try:
