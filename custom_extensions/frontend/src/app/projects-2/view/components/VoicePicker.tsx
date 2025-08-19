@@ -277,7 +277,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[85vh] flex flex-col z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[90vh] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
         
@@ -546,7 +546,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
 
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
-          <div className="px-6 pb-6 flex gap-6 flex-1 min-h-0">
+          <div className="px-6 flex gap-6 flex-1 min-h-0">
           {/* Left Panel - Voice List with its own scrolling */}
           <div className="flex-1 overflow-y-auto">
             {/* Create Custom Voice Row */}
@@ -817,7 +817,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
           
           {/* Right Panel - Voice Details with its own scrolling */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto">
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0">
             {/* Row 1: Maya title */}
             <div className="mb-2">
               <h3 className="text-xl text-gray-900">Maya</h3>
@@ -904,7 +904,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="bg-gray-200 rounded-lg px-1 py-0.5 flex w-full max-w-lg">
               <button
                 onClick={() => setApplyTo('block')}
-                className={`px-4 py-1.5 text-sm rounded transition-colors ${
+                className={`px-4 py-1 text-sm rounded transition-colors ${
                   applyTo === 'block' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -914,7 +914,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
-                className={`px-4 py-1.5 text-sm rounded transition-colors ${
+                className={`px-4 py-1 text-sm rounded transition-colors ${
                   applyTo === 'scene' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -924,7 +924,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('all')}
-                className={`px-4 py-1.5 text-sm rounded transition-colors ${
+                className={`px-4 py-1 text-sm rounded transition-colors ${
                   applyTo === 'all' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -936,7 +936,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
 
           {/* Right side - Action buttons */}
-          <div className="flex gap-3">
+          <div className="flex justify-between gap-3 w-48">
             <button
               onClick={onClose}
               className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
