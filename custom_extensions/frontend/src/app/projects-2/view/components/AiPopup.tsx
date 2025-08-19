@@ -30,6 +30,21 @@ export default function AiPopup({ isOpen, onClose, position }: AiPopupProps) {
 
   if (!isOpen) return null;
 
+  // Calculate safe positioning to keep popup within viewport
+  const popupWidth = 384; // w-96 = 384px
+  const margin = 16; // 16px margin from viewport edges
+  
+  // Ensure popup doesn't go beyond left edge
+  const minLeft = margin;
+  // Ensure popup doesn't go beyond right edge
+  const maxLeft = window.innerWidth - popupWidth - margin;
+  
+  // Calculate ideal left position (centered on trigger)
+  const idealLeft = position.x - (popupWidth / 2);
+  
+  // Clamp the position within safe bounds
+  const safeLeft = Math.max(minLeft, Math.min(idealLeft, maxLeft));
+
   return (
     <>
       {/* Background overlay */}
@@ -43,9 +58,9 @@ export default function AiPopup({ isOpen, onClose, position }: AiPopupProps) {
         ref={popupRef}
         className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-96"
         style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: 'translate(-50%, -100%)', // Center horizontally, position above the trigger
+          left: `${safeLeft}px`,
+          top: `${position.y - 8}px`, // 8px margin above the trigger
+          transform: 'translateY(-100%)', // Position above the trigger
         }}
       >
         <div className="p-4">

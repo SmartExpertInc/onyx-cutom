@@ -231,7 +231,7 @@ export default function Script({ onAiButtonClick }: ScriptProps) {
 
       {/* Bottom Controls */}
       <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2 px-6">
-        <div className="flex items-center gap-0.5 border border-gray-200 rounded-lg px-1.5 py-0.5">
+        <div className="flex items-center gap-0.5 border border-gray-200 rounded-lg px-1.5 py-0.5 w-[320px] justify-center">
         {!isPlaying ? (
           // Default toolbar with all buttons
           <>

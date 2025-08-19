@@ -71,17 +71,17 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
       >
         
         {/* Header */}
-        <div className="p-6 pb-4">
+        <div className="p-6 pb-3">
           <h2 className="text-lg text-gray-900 font-medium">Add new word</h2>
         </div>
 
         {/* Content */}
-        <div className="p-6" style={{ overflow: 'visible' }}>
+        <div className="px-6 pb-6" style={{ overflow: 'visible' }}>
           {/* Table */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
+          <div className="border border-gray-200 rounded-lg overflow-hidden mb-4">
             {/* Table Header */}
             <div className="bg-gray-50 border-b border-gray-200">
-              <div className="grid grid-cols-3 px-4 py-3">
+              <div className="grid grid-cols-3 px-4 py-2">
                 <div className="text-sm font-medium text-gray-700">Written form</div>
                 <div className="text-sm font-medium text-gray-700">Phonetic spelling</div>
                 <div className="text-sm font-medium text-gray-700">Voice</div>
@@ -90,7 +90,7 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             
             {/* Input Row */}
             <div className="bg-white">
-              <div className="grid grid-cols-3 px-4 py-3 gap-4">
+              <div className="grid grid-cols-3 px-4 py-2 gap-3">
                 {/* Written form input */}
                 <div>
                   <input
@@ -127,7 +127,7 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                   
                   {/* Dropdown menu */}
                   {isVoiceDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+                    <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
                          style={{
                            zIndex: 999999
                          }}>
@@ -216,7 +216,7 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
           </div>
 
           {/* Row 2: Search bar + Add new word button */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center justify-between mb-6">
             {/* Search bar */}
             <div className="w-48 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -227,14 +227,14 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             
             {/* Add new word button */}
             <button 
               onClick={() => setIsAddWordModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-3.5 bg-white text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               <Plus size={16} />
               <span>Add new word</span>
@@ -246,9 +246,9 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
             {/* Table Header */}
             <div className="bg-gray-50 border-b border-gray-200">
               <div className="grid grid-cols-3 px-4 py-3">
-                <div className="text-sm font-medium text-gray-700">Written form</div>
-                <div className="text-sm font-medium text-gray-700">Phonetic spelling</div>
-                <div className="text-sm font-medium text-gray-700">Voice</div>
+                <div className="text-sm font-medium text-gray-700 pr-4 border-r border-gray-200">Written form</div>
+                <div className="text-sm font-medium text-gray-700 px-4 border-r border-gray-200">Phonetic spelling</div>
+                <div className="text-sm font-medium text-gray-700 pl-4">Voice</div>
               </div>
             </div>
             
@@ -257,20 +257,20 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
               {/* Sample row */}
               <div className="grid grid-cols-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50">
                 {/* Column 1: Written form */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 pr-4 border-r border-gray-200">
                   <span className="text-gray-900">conexwest</span>
-                  <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Plus size={12} className="text-blue-600" />
+                  <div className="w-5 h-5 bg-white border border-black rounded-full flex items-center justify-center">
+                    <Plus size={12} className="text-black" />
                   </div>
                 </div>
                 
                 {/* Column 2: Phonetic spelling */}
-                <div className="flex items-center">
+                <div className="flex items-center px-4 border-r border-gray-200">
                   <span className="text-gray-700">'conexwest</span>
                 </div>
                 
                 {/* Column 3: Voice */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pl-4">
                   <div className="flex items-center gap-2">
                     <USFlag size={16} />
                     <span className="text-gray-900">Bill</span>
