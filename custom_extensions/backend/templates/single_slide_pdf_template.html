@@ -176,37 +176,39 @@
         }
         
         /* Common slide styles - EXACT FRONTEND MATCH */
-        .slide {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            color: var(--content-color);
-            font-family: var(--content-font);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            position: relative;
-        }
+                 .slide {
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             background-color: var(--bg-color);
+             color: var(--content-color);
+             font-family: var(--content-font);
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             align-items: center;
+             padding: 40px;
+             position: relative;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         /* Content Slide Template - EXACT FRONTEND MATCH */
-        .content-slide {
-            width: 100%;
-            height: 100%;
-            min-height: 600px;
-            background-color: var(--bg-color);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            padding: 80px;
-            position: relative;
-            font-family: var(--content-font);
-        }
+                 .content-slide {
+             width: 100%;
+             height: 100%;
+             min-height: 600px;
+             background-color: var(--bg-color);
+             background-size: cover;
+             background-position: center;
+             background-repeat: no-repeat;
+             display: flex;
+             flex-direction: column;
+             justify-content: flex-start;
+             align-items: flex-start;
+             padding: 80px;
+             position: relative;
+             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .content-slide .slide-title {
             font-family: var(--title-font);
@@ -231,18 +233,19 @@
         }
         
         /* Big Image Top Template - EXACT FRONTEND MATCH */
-        .big-image-top {
-            min-height: 600px;
-            background-color: var(--bg-color);
-            font-family: var(--content-font);
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: space-between;
-            padding-bottom: 50px;
-            height: 100%;
-            width: 100%;
-        }
+                 .big-image-top {
+             min-height: 600px;
+             background-color: var(--bg-color);
+             font-family: var(--content-font);
+             display: flex;
+             flex-direction: column;
+             align-items: stretch;
+             justify-content: space-between;
+             padding-bottom: 50px;
+             height: 100%;
+             width: 100%;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .big-image-top .image-container {
             width: 100%;
@@ -381,16 +384,17 @@
         }
         
         /* Pyramid Template - EXACT FRONTEND MATCH */
-        .pyramid-template {
-            background-color: var(--bg-color);
-            padding: 64px;
-            display: flex;
-            flex-direction: column;
-            font-family: var(--content-font);
-            min-height: 600px;
-            width: 100%;
-            height: 100%;
-        }
+                 .pyramid-template {
+             background-color: var(--bg-color);
+             padding: 64px;
+             display: flex;
+             flex-direction: column;
+             font-family: var(--content-font);
+             min-height: 600px;
+             width: 100%;
+             height: 100%;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .pyramid-template .slide-title {
             color: var(--title-color);
@@ -573,17 +577,18 @@
         }
         
         /* Title Slide Template - EXACT FRONTEND MATCH */
-        .title-slide {
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            font-family: var(--content-font);
-        }
+                 .title-slide {
+             background-color: var(--bg-color);
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             align-items: center;
+             padding: 40px;
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .title-slide .slide-title {
             font-family: var(--title-font);
@@ -617,15 +622,16 @@
         }
         
         /* Big Image Left Template - EXACT FRONTEND MATCH */
-        .big-image-left {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            font-family: var(--content-font);
-            display: flex;
-            align-items: stretch;
-            padding: 0;
-        }
+                 .big-image-left {
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             background-color: var(--bg-color);
+             font-family: var(--content-font);
+             display: flex;
+             align-items: stretch;
+             padding: 0;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .big-image-left .image-container {
             flex: 0 0 40%; /* Exact frontend match */
@@ -683,18 +689,19 @@
         /* Bullet Points Template - EXACT FRONTEND MATCH */
         /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
          /* Bullet Points Template - EXACT FRONTEND MATCH */
-         .bullet-points {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
-            padding: 80px; /* Exact frontend match */
-            position: relative;
-            font-family: var(--content-font);
-        }
+                  .bullet-points {
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             background-color: var(--bg-color);
+             display: flex;
+             flex-direction: column;
+             justify-content: flex-start;
+             align-items: stretch;
+             padding: 80px; /* Exact frontend match */
+             position: relative;
+             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .bullet-points .slide-title {
             font-family: var(--title-font);
@@ -756,18 +763,19 @@
         }
         
         /* Bullet-Points-Right Template - Separate from regular bullet-points */
-        .bullet-points-right {
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
-            padding: 80px;
-            position: relative;
-            font-family: var(--content-font);
-        }
+                 .bullet-points-right {
+             width: 100%;
+             height: 100%;
+             background-color: var(--bg-color);
+             display: flex;
+             flex-direction: column;
+             justify-content: flex-start;
+             align-items: stretch;
+             padding: 80px;
+             position: relative;
+             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .bullet-points-right .slide-title {
             font-size: 45px;
@@ -860,16 +868,17 @@
             line-height: 1.6;
         }
         /* Process Steps Template - EXACT FRONTEND MATCH */
-        .process-steps {
-            padding: 40px; /* Exact frontend match */
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            font-family: var(--content-font);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+                 .process-steps {
+             padding: 40px; /* Exact frontend match */
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             background-color: var(--bg-color);
+             font-family: var(--content-font);
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .process-steps .slide-title {
             text-align: center;
@@ -913,17 +922,18 @@
         }
         
         /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
-        .challenges-solutions {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            padding: 60px;
-            position: relative;
-            font-family: var(--content-font);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+                 .challenges-solutions {
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             background-color: var(--bg-color);
+             padding: 60px;
+             position: relative;
+             font-family: var(--content-font);
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .challenges-solutions .slide-title {
             font-size: 45px; /* Exact frontend match */
@@ -1016,16 +1026,17 @@
         }
         
         /* Two Column Template - EXACT FRONTEND MATCH */
-        .two-column {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            font-family: var(--content-font);
-            display: flex;
-            flex-direction: column;
-            padding: 40px;
-            min-height: 600px;
-        }
+                 .two-column {
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             background-color: var(--bg-color);
+             font-family: var(--content-font);
+             display: flex;
+             flex-direction: column;
+             padding: 40px;
+             min-height: 600px;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .two-column .slide-title {
             text-align: left;
@@ -1088,18 +1099,19 @@
         }
         
         /* Big Numbers Template - EXACT FRONTEND MATCH */
-        .big-numbers {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 40px;
-            position: relative;
-            font-family: var(--content-font);
-        }
+                 .big-numbers {
+             width: 100%;
+             height: 100%; /* Fill the entire slide content area */
+             background-color: var(--bg-color);
+             display: flex;
+             flex-direction: column;
+             justify-content: flex-start;
+             align-items: center;
+             padding: 40px;
+             position: relative;
+             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .big-numbers .slide-title {
             font-size: 45px;
@@ -1153,17 +1165,18 @@
         }
         
         /* Four Box Grid Template - EXACT FRONTEND MATCH */
-        .four-box-grid {
-            width: 100%;
-            min-height: 600px;
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            padding: 40px;
-            font-family: var(--content-font);
-            height: 100%;
-        }
+                 .four-box-grid {
+             width: 100%;
+             min-height: 600px;
+             background-color: var(--bg-color);
+             display: flex;
+             flex-direction: column;
+             align-items: stretch;
+             padding: 40px;
+             font-family: var(--content-font);
+             height: 100%;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+         }
         
         .four-box-grid .slide-title {
             font-size: 45px;
@@ -1245,18 +1258,19 @@
         
         /* Timeline Template - EXACT FRONTEND MATCH */
         /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
-.timeline {
-    width: 100%;
-    height: 100%; /* Fill the entire slide content area */
-    background-color: var(--bg-color);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    padding: 64px;                    /* FIXED: Changed from 40px to 64px to match React */
-    position: relative;
-    font-family: var(--content-font);
-}
+ .timeline {
+     width: 100%;
+     height: 100%; /* Fill the entire slide content area */
+     background-color: var(--bg-color);
+     display: flex;
+     flex-direction: column;
+     justify-content: flex-start;
+     align-items: stretch;
+     padding: 64px;                    /* FIXED: Changed from 40px to 64px to match React */
+     position: relative;
+     font-family: var(--content-font);
+     overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+ }
 
 .timeline .slide-title {
     font-size: 45px;
