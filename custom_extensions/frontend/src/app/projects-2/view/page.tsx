@@ -12,6 +12,7 @@ import Media from './components/Media';
 import TextPopup from './components/TextPopup';
 import ShapesPopup from './components/ShapesPopup';
 import InteractionPopup from './components/InteractionPopup';
+import AiPopup from './components/AiPopup';
 
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
@@ -19,9 +20,11 @@ export default function Projects2ViewPage() {
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
   const [isInteractionPopupOpen, setIsInteractionPopupOpen] = useState<boolean>(false);
+  const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [interactionPopupPosition, setInteractionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [aiPopupPosition, setAiPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleActiveToolChange = (toolId: string) => {
     if (toolId === 'media') {
@@ -30,10 +33,11 @@ export default function Projects2ViewPage() {
       setActiveComponent(toolId);
       setIsMediaPopupOpen(false);
     }
-    // Close text, shapes, and interaction popups when switching tools
+    // Close text, shapes, interaction, and AI popups when switching tools
     setIsTextPopupOpen(false);
     setIsShapesPopupOpen(false);
     setIsInteractionPopupOpen(false);
+    setIsAiPopupOpen(false);
   };
 
   const handleTextButtonClick = (position: { x: number; y: number }) => {
@@ -43,6 +47,7 @@ export default function Projects2ViewPage() {
     setIsMediaPopupOpen(false);
     setIsShapesPopupOpen(false);
     setIsInteractionPopupOpen(false);
+    setIsAiPopupOpen(false);
   };
 
   const handleShapesButtonClick = (position: { x: number; y: number }) => {
@@ -52,6 +57,7 @@ export default function Projects2ViewPage() {
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
     setIsInteractionPopupOpen(false);
+    setIsAiPopupOpen(false);
   };
 
   const handleInteractionButtonClick = (position: { x: number; y: number }) => {
@@ -61,12 +67,23 @@ export default function Projects2ViewPage() {
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
     setIsShapesPopupOpen(false);
+    setIsAiPopupOpen(false);
+  };
+
+  const handleAiButtonClick = (position: { x: number; y: number }) => {
+    setAiPopupPosition(position);
+    setIsAiPopupOpen(true);
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsTextPopupOpen(false);
+    setIsShapesPopupOpen(false);
+    setIsInteractionPopupOpen(false);
   };
 
   const renderSidebarComponent = () => {
     switch (activeComponent) {
       case 'script':
-        return <Script />;
+        return <Script onAiButtonClick={handleAiButtonClick} />;
       case 'background':
         return <Background />;
       case 'music':
@@ -76,7 +93,7 @@ export default function Projects2ViewPage() {
       case 'comments':
         return <Comments />;
       default:
-        return <Script />;
+        return <Script onAiButtonClick={handleAiButtonClick} />;
     }
   };
 
@@ -192,6 +209,13 @@ export default function Projects2ViewPage() {
         isOpen={isInteractionPopupOpen} 
         onClose={() => setIsInteractionPopupOpen(false)} 
         position={interactionPopupPosition}
+      />
+
+      {/* AI Popup */}
+      <AiPopup 
+        isOpen={isAiPopupOpen} 
+        onClose={() => setIsAiPopupOpen(false)} 
+        position={aiPopupPosition}
       />
     </div>
   );
