@@ -18849,13 +18849,21 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             content_type_elem = response.find('.//{DAV:}getcontenttype')
             mime_type = content_type_elem.text if content_type_elem is not None else None
             
+            # Get ETag
+            etag_elem = response.find('.//{DAV:}getetag')
+            etag = etag_elem.text if etag_elem is not None else None
+            # Remove quotes from ETag if present
+            if etag and etag.startswith('"') and etag.endswith('"'):
+                etag = etag[1:-1]
+            
             files.append({
                 "name": name,
                 "path": relative_path,
                 "type": "directory" if is_directory else "file",
                 "size": size,
                 "modified": modified,
-                "mime_type": mime_type
+                "mime_type": mime_type,
+                "etag": etag
             })
             
     except Exception as e:
@@ -19034,10 +19042,7 @@ async def import_new_smartdrive_files(
                     
                 file_path = file_info['path']
                 file_modified = file_info['modified']
-                
-                # Check if file was modified since last sync
-                if last_sync and file_modified and file_modified <= last_sync:
-                    continue
+                file_etag = file_info.get('etag')
                 
                 # Check if already imported
                 existing = await conn.fetchrow(
@@ -19046,8 +19051,23 @@ async def import_new_smartdrive_files(
                 )
                 
                 # Skip if already imported with same etag
-                if existing and existing['etag'] == file_info.get('etag'):
+                if existing and existing['etag'] and file_etag and existing['etag'] == file_etag:
+                    logger.debug(f"Skipping {file_path} - already imported with same etag: {file_etag}")
                     continue
+                
+                # Check if file was modified since last sync (as fallback if no etag)
+                if last_sync and file_modified:
+                    try:
+                        file_modified_dt = parse_http_date(file_modified)
+                        last_sync_dt = datetime.fromisoformat(last_sync.replace('Z', '+00:00')) if isinstance(last_sync, str) else last_sync
+                        if file_modified_dt <= last_sync_dt:
+                            logger.debug(f"Skipping {file_path} - not modified since last sync")
+                            continue
+                    except Exception as date_error:
+                        logger.warning(f"Date comparison failed for {file_path}: {date_error}")
+                        # Continue with import if date comparison fails
+                
+                logger.info(f"Importing file: {file_path} (etag: {file_etag}, modified: {file_modified})")
                 
                 # Try to import the file into Onyx
                 try:
@@ -19183,7 +19203,22 @@ async def get_all_nextcloud_files_individual(nextcloud_username: str, nextcloud_
             logger.debug(f"Traversing directory: {path} (depth: {depth}, URL: {webdav_url})")
             
             async with httpx.AsyncClient() as client:
-                response = await client.request("PROPFIND", webdav_url, auth=auth, headers={"Depth": "1"})
+                response = await client.request(
+                    "PROPFIND", 
+                    webdav_url, 
+                    auth=auth, 
+                    headers={"Depth": "1", "Content-Type": "application/xml"},
+                    content="""<?xml version="1.0"?>
+                    <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                        <d:prop>
+                            <d:resourcetype/>
+                            <d:getcontentlength/>
+                            <d:getlastmodified/>
+                            <d:getcontenttype/>
+                            <d:getetag/>
+                        </d:prop>
+                    </d:propfind>"""
+                )
                 
                 if response.status_code == 404:
                     logger.warning(f"Directory not found: {path}")
