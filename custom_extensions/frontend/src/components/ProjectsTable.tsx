@@ -429,7 +429,7 @@ const PreviewModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] p-8 relative border border-gray-100 overflow-hidden">
+      <div className="bg-white shadow-2xl w-full max-w-5xl max-h-[95vh] relative overflow-hidden" style={{ aspectRatio: '8.5/11' }}>
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 z-10" 
           onClick={onClose}
@@ -439,55 +439,97 @@ const PreviewModal: React.FC<{
           </svg>
         </button>
         
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">Projects List Preview</h2>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            {data.clientName && <span>Client: {data.clientName}</span>}
-            {data.managerName && <span>Manager: {data.managerName}</span>}
-            <span>Total Projects: {data.projects.length}</span>
-            <span>Generated: {new Date().toLocaleDateString()}</span>
+        {/* PDF Document Content */}
+        <div className="h-full overflow-y-auto p-12" style={{ fontFamily: 'Times New Roman, serif' }}>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-black mb-2" style={{ fontSize: '24pt', fontWeight: 'bold' }}>
+              Projects List Report
+            </h1>
+            <div className="text-sm text-gray-700 space-y-1" style={{ fontSize: '12pt' }}>
+              {data.clientName && <p><strong>Client:</strong> {data.clientName}</p>}
+              {data.managerName && <p><strong>Manager:</strong> {data.managerName}</p>}
+              <p><strong>Generated:</strong> {new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</p>
+              <p><strong>Total Projects:</strong> {data.projects.length}</p>
+            </div>
           </div>
-        </div>
-        
-        <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
-          <div className="bg-gray-50 rounded-lg p-6">
-            <table className="w-full border-collapse">
+          
+          {/* Table */}
+          <div className="mt-8">
+            <table className="w-full border-collapse" style={{ fontSize: '11pt' }}>
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Title</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Created</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Creator</th>
+                <tr className="border-b-2 border-black">
+                  <th className="text-left py-3 px-4 font-bold text-black" style={{ 
+                    fontWeight: 'bold', 
+                    borderBottom: '2px solid black',
+                    padding: '8px'
+                  }}>
+                    Project Title
+                  </th>
+                  <th className="text-left py-3 px-4 font-bold text-black" style={{ 
+                    fontWeight: 'bold', 
+                    borderBottom: '2px solid black',
+                    padding: '8px'
+                  }}>
+                    Created Date
+                  </th>
+                  <th className="text-left py-3 px-4 font-bold text-black" style={{ 
+                    fontWeight: 'bold', 
+                    borderBottom: '2px solid black',
+                    padding: '8px'
+                  }}>
+                    Creator
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {data.projects.map((project, index) => (
-                  <tr key={project.id} className={`border-b border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    <td className="py-3 px-4 text-gray-900 font-medium">{project.title}</td>
-                    <td className="py-3 px-4 text-gray-600">
-                      {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : '-'}
+                  <tr key={project.id} className="border-b border-gray-300" style={{ 
+                    borderBottom: '1px solid #ccc',
+                    pageBreakInside: 'avoid'
+                  }}>
+                    <td className="py-2 px-4 text-black" style={{ 
+                      padding: '6px 8px',
+                      fontWeight: 'normal'
+                    }}>
+                      {project.title || 'Untitled Project'}
                     </td>
-                    <td className="py-3 px-4 text-gray-600">
-                      <span className="inline-flex items-center">
-                        <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                          <span className="text-xs font-bold text-gray-700">Y</span>
-                        </span>
-                        You
-                      </span>
+                    <td className="py-2 px-4 text-black" style={{ 
+                      padding: '6px 8px',
+                      fontWeight: 'normal'
+                    }}>
+                      {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      }) : 'N/A'}
+                    </td>
+                    <td className="py-2 px-4 text-black" style={{ 
+                      padding: '6px 8px',
+                      fontWeight: 'normal'
+                    }}>
+                      You
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-        
-        <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
-          >
-            Close
-          </button>
+          
+          {/* Footer */}
+          <div className="mt-8 pt-4 border-t border-gray-300 text-center text-sm text-gray-600" style={{ 
+            fontSize: '10pt',
+            borderTop: '1px solid #ccc',
+            marginTop: '32px',
+            paddingTop: '16px'
+          }}>
+            <p>Document generated by ContentBuilder AI</p>
+            <p>Page 1 of 1</p>
+          </div>
         </div>
       </div>
     </div>
