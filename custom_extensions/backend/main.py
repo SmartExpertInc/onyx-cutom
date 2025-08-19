@@ -18843,16 +18843,7 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             
             # Get last modified
             modified_elem = response.find('.//{DAV:}getlastmodified')
-        modified = modified_elem.text if modified_elem is not None else None
-        
-        # Parse HTTP date string to datetime object
-        if modified:
-            try:
-                from email.utils import parsedate_to_datetime
-                modified = parsedate_to_datetime(modified)
-            except Exception as e:
-                logger.warning(f"Failed to parse modified date '{modified}': {e}")
-                modified = None
+            modified = modified_elem.text if modified_elem is not None else None
             
             # Get content type
             content_type_elem = response.find('.//{DAV:}getcontenttype')
@@ -19020,15 +19011,6 @@ async def import_new_smartdrive_files(
             sync_cursor = json.loads(account['sync_cursor']) if account['sync_cursor'] else {}
             last_sync = sync_cursor.get('last_sync') if sync_cursor else None
             
-            # Parse last_sync from ISO string to datetime for comparison
-            if last_sync:
-                try:
-                    # Use standard library to parse ISO format datetime
-                    last_sync = datetime.fromisoformat(last_sync.replace('Z', '+00:00'))
-                except Exception as e:
-                    logger.warning(f"Failed to parse last_sync date '{last_sync}': {e}")
-                    last_sync = None
-            
             # Get list of all files from user's individual Nextcloud account
             all_files = await get_all_nextcloud_files_individual(nextcloud_username, nextcloud_password, nextcloud_base_url, "/")
             
@@ -19040,7 +19022,7 @@ async def import_new_smartdrive_files(
                     continue  # Skip directories for now
                     
                 file_path = file_info['path']
-                file_modified = file_info.get('modified')  # Use .get() to handle None safely
+                file_modified = file_info['modified']
                 
                 # Check if file was modified since last sync
                 if last_sync and file_modified and file_modified <= last_sync:
@@ -19290,8 +19272,9 @@ async def import_file_to_onyx(nextcloud_user_folder: str, file_path: str, file_i
             files = {
                 'files': (file_name, file_content, mime_type)
             }
-            # Don't specify folder_id to use default "Recent Documents" folder (ID -1)
-            data = {}
+            data = {
+                'folder_id': '-1'  # Use RECENT_DOCS_FOLDER_ID (default "Recent Documents" folder)
+            }
             
             # Upload to Onyx with session authentication
             upload_response = await client.post(
@@ -19353,8 +19336,9 @@ async def import_file_to_onyx_individual(
             files = {
                 'files': (file_name, file_content, mime_type)
             }
-            # Don't specify folder_id to use default "Recent Documents" folder (ID -1)
-            data = {}
+            data = {
+                'folder_id': '-1'  # Use RECENT_DOCS_FOLDER_ID (default "Recent Documents" folder)
+            }
             
             # Upload to Onyx with session authentication
             upload_response = await client.post(
