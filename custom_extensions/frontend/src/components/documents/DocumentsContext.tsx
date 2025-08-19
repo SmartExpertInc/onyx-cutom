@@ -221,7 +221,7 @@ class DocumentsService {
   }
 
   async importSmartDriveFiles(paths: string[]): Promise<{ fileIds: number[] }> {
-          const response = await fetch("/api/custom-projects-backend/smartdrive/import-new", {
+          const response = await fetch("/api/custom-projects-backend/smartdrive/import", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ paths }),

@@ -19077,7 +19077,7 @@ async def import_new_smartdrive_files(
                                 file_info.get('etag', ''),
                                 file_info.get('checksum', ''),
                                 datetime.now(timezone.utc),
-                                file_modified,
+                                parse_http_date(file_modified) if file_modified else None,
                                 existing['id']
                             )
                         else:
