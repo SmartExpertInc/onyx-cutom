@@ -19020,6 +19020,15 @@ async def import_new_smartdrive_files(
             sync_cursor = json.loads(account['sync_cursor']) if account['sync_cursor'] else {}
             last_sync = sync_cursor.get('last_sync') if sync_cursor else None
             
+            # Parse last_sync from ISO string to datetime for comparison
+            if last_sync:
+                try:
+                    # Use standard library to parse ISO format datetime
+                    last_sync = datetime.fromisoformat(last_sync.replace('Z', '+00:00'))
+                except Exception as e:
+                    logger.warning(f"Failed to parse last_sync date '{last_sync}': {e}")
+                    last_sync = None
+            
             # Get list of all files from user's individual Nextcloud account
             all_files = await get_all_nextcloud_files_individual(nextcloud_username, nextcloud_password, nextcloud_base_url, "/")
             
