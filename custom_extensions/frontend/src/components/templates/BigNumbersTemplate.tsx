@@ -10,7 +10,7 @@ export interface BigNumberItem {
 export interface BigNumbersTemplateProps {
   slideId: string;
   title: string;
-  items: BigNumberItem[];
+  steps: BigNumberItem[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -143,7 +143,7 @@ function InlineEditor({
 export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   slideId,
   title,
-  items,
+  steps,  // Changed from 'items' to 'steps'
   theme,
   onUpdate,
   isEditable = false
@@ -248,44 +248,44 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   // Handle item value editing
   const handleItemValueSave = (index: number, newValue: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], value: newValue };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], value: newValue };
+      onUpdate({ steps: updatedSteps });
     }
     setEditingItemValues(editingItemValues.filter(i => i !== index));
   };
 
   const handleItemValueCancel = (index: number) => {
-    setEditingItemValues(editingItemValues.filter((i: number) => i !== index));
+    setEditingItemValues(editingItemValues.filter(i => i !== index));
   };
 
   // Handle item label editing
   const handleItemLabelSave = (index: number, newLabel: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], label: newLabel };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], label: newLabel };
+      onUpdate({ steps: updatedSteps });
     }
-    setEditingItemLabels(editingItemLabels.filter((i: number) => i !== index));
+    setEditingItemLabels(editingItemLabels.filter(i => i !== index));
   };
 
   const handleItemLabelCancel = (index: number) => {
-    setEditingItemLabels(editingItemLabels.filter((i: number) => i !== index));
+    setEditingItemLabels(editingItemLabels.filter(i => i !== index));
   };
 
   // Handle item description editing
   const handleItemDescriptionSave = (index: number, newDescription: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], description: newDescription };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
+      onUpdate({ steps: updatedSteps });
     }
-    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
   };
 
   const handleItemDescriptionCancel = (index: number) => {
-    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
   };
 
   const startEditingItemValue = (index: number) => {
@@ -354,8 +354,8 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
       </div>
 
       <div style={gridStyles}>
-        {Array.isArray(items) && items.length >= 3 ? (
-          items.slice(0, 3).map((item: BigNumberItem, idx: number) => (
+        {Array.isArray(steps) && steps.length >= 3 ? (
+          steps.slice(0, 3).map((item: BigNumberItem, idx: number) => (
             <div key={idx} style={itemStyles}>
               {/* Item Value */}
               <div 
@@ -517,8 +517,8 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
             gridColumn: '1 / -1'
           }}>
             Error: This slide requires exactly 3 items with "value", "label", and "description" fields.
-            {!Array.isArray(items) && <div>Found: {typeof items}</div>}
-            {Array.isArray(items) && <div>Found {items.length} items (need 3)</div>}
+            {!Array.isArray(steps) && <div>Found: {typeof steps}</div>}
+            {Array.isArray(steps) && <div>Found {steps.length} items (need 3)</div>}
           </div>
         )}
       </div>

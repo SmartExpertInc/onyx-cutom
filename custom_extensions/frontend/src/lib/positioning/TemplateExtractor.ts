@@ -354,10 +354,10 @@ export class TemplateExtractor {
     }
 
     // Numbers
-    if (props.items && props.items.length > 0) {
-      const itemWidth = Math.floor((1080 - (props.items.length - 1) * 40) / props.items.length);
+    if (props.steps && props.steps.length > 0) {
+      const itemWidth = Math.floor((1080 - (props.steps.length - 1) * 40) / props.steps.length);
       
-      props.items.forEach((item, index) => {
+      props.steps.forEach((item, index) => {
         const x = 60 + index * (itemWidth + 40);
         const y = 200;
 

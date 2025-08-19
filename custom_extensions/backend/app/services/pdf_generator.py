@@ -1017,6 +1017,11 @@ async def generate_pdf_from_html_template(
             await browser.close()
             logger.info("Browser for HTML PDF closed.")
 
+
+
+
+
+
 async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None) -> int:
     """
     Calculate the exact height needed for a single slide.
@@ -1090,16 +1095,16 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         # Render the single slide template
         try:
             # Debug logging to see the data structure
-            logger.info(f"DEBUG: Template data for {template_id}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
-            if safe_slide_data.get('props', {}).get('items'):
-                logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
+            logger.info(f"DEBUG: Template data for {template_id}: slide.props.steps type = {type(safe_slide_data.get('props', {}).get('steps'))}")
+            if safe_slide_data.get('props', {}).get('steps'):
+                logger.info(f"DEBUG: slide.props.steps content = {safe_slide_data['props']['steps']}")
             
             # Additional debug logging for big-numbers template
             if template_id == 'big-numbers':
                 logger.info(f"=== BIG NUMBERS TEMPLATE DEBUG for {template_id} ===")
                 logger.info(f"Slide data: {safe_slide_data}")
                 logger.info(f"Props: {safe_slide_data.get('props', {})}")
-                logger.info(f"Items: {safe_slide_data.get('props', {}).get('items', [])}")
+                logger.info(f"Steps: {safe_slide_data.get('props', {}).get('steps', [])}")
                 logger.info(f"Title: {safe_slide_data.get('props', {}).get('title', 'NO TITLE')}")
                 logger.info(f"Metadata: {safe_slide_data.get('metadata', {})}")
                 logger.info(f"Element positions: {safe_slide_data.get('metadata', {}).get('elementPositions', {})}")

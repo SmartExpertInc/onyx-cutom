@@ -1,3 +1,214 @@
+front end logs:
+🔍 SmartSlideDeckViewer: handleSlideUpdate - onSave called with updated deck: {slideCount: 2, theme: 'dark-purple', updatedSlideId: 'slide-1755610802166-zpby21ndx', updatedSlideTemplate: 'big-numbers', bigImageLeftSlides: Array(0)}
+page-ec6b058355555abc.js:1 🔍 page.tsx: Received updated deck: {lessonTitle: 'Introduction to Real Estate Investment', slides: Array(2), currentSlideId: 'slide_1_introduction_to_real_estate_investment', lessonNumber: null, detectedLanguage: 'en', …}
+page-ec6b058355555abc.js:1 🔍 page.tsx: Triggering auto-save with updated data
+page-ec6b058355555abc.js:1 🔍 page.tsx: Sending updated deck to backend: {
+  "microProductContent": {
+    "lessonTitle": "Introduction to Real Estate Investment",
+    "slides": [
+      {
+        "slideId": "slide-1755605686329-jx2mgep70",
+        "slideNumber": 1,
+        "slideTitle": "Add title",
+        "templateId": "timeline",
+        "props": {
+          "steps": [
+            {
+              "heading": "asdf",
+              "description": "asdf"
+            },
+            {
+              "heading": "asdf",
+              "description": "asdf"
+            },
+            {
+              "heading": "Add step 3",
+              "description": "Add step description"
+            },
+            {
+              "heading": "Add step 4",
+              "description": "Add step description"
+            }
+          ],
+          "title": "Add title",
+          "content": "Add your content here..."
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-08-19T12:14:46.329Z",
+          "updatedAt": "2025-08-19T12:14:52.370Z"
+        }
+      },
+      {
+        "slideId": "slide-1755610802166-zpby21ndx",
+        "slideNumber": 2,
+        "slideTitle": "Add title",
+        "templateId": "big-numbers",
+        "props": {
+          "title": "Add titlefgsdfg",
+          "items": [
+            {
+              "value": "123",
+              "label": "hdfg",
+              "description": "dfgh"
+            },
+            {
+              "value": "53",
+              "label": "hdfg",
+              "description": "dfgh"
+            },
+            {
+              "value": "634",
+              "label": "dfgh",
+              "description": "dfgh"
+            }
+          ],
+          "content": "Add your content here..."
+        },
+        "metadata": {
+          "createdAt": "2025-08-19T13:40:02.166Z",
+          "updatedAt": "2025-08-19T13:40:27.502Z",
+          "elementPositions": {
+            "draggable-slide-1755610802166-zpby21ndx-5": {
+              "x": -9,
+              "y": 105
+            },
+            "draggable-slide-1755610802166-zpby21ndx-2": {
+              "x": 11,
+              "y": 134
+            },
+            "draggable-slide-1755610802166-zpby21ndx-1": {
+              "x": 692,
+              "y": -155
+            },
+            "draggable-slide-1755610802166-zpby21ndx-7": {
+              "x": -723,
+              "y": -13
+            }
+          }
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  }
+}
+page-ec6b058355555abc.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-ec6b058355555abc.js:1 📄 Slide 1 (timeline): {slideId: 'slide-1755605686329-jx2mgep70', templateId: 'timeline', props: {…}, metadata: {…}}
+page-ec6b058355555abc.js:1 📄 Slide 2 (big-numbers): {slideId: 'slide-1755610802166-zpby21ndx', templateId: 'big-numbers', props: {…}, metadata: {…}}
+page-ec6b058355555abc.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-ec6b058355555abc.js:1 🎨 Theme system initialized: {projectId: '26', currentTheme: 'dark-purple', slideDeckTheme: 'dark-purple', hasSlideDeck: true}
+page-ec6b058355555abc.js:1 🔍 page.tsx: Auto-save successful with updated data
+page-ec6b058355555abc.js:1 🔍 page.tsx: Auto-save response: {
+  "id": 26,
+  "onyx_user_id": "b9ad451e-4c02-4008-9965-d5931ff02aa0",
+  "project_name": "A guide to investing in real estate",
+  "product_type": "Slide Deck",
+  "microproduct_type": "Slide Deck",
+  "microproduct_name": "Slide Deck",
+  "microproduct_content": {
+    "lessonTitle": "Introduction to Real Estate Investment",
+    "slides": [
+      {
+        "slideId": "slide-1755605686329-jx2mgep70",
+        "slideNumber": 1,
+        "slideTitle": "Add title",
+        "templateId": "timeline",
+        "props": {
+          "steps": [
+            {
+              "heading": "asdf",
+              "description": "asdf"
+            },
+            {
+              "heading": "asdf",
+              "description": "asdf"
+            },
+            {
+              "heading": "Add step 3",
+              "description": "Add step description"
+            },
+            {
+              "heading": "Add step 4",
+              "description": "Add step description"
+            }
+          ],
+          "title": "Add title",
+          "content": "Add your content here..."
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-08-19T12:14:46.329Z",
+          "updatedAt": "2025-08-19T12:14:52.370Z"
+        }
+      },
+      {
+        "slideId": "slide-1755610802166-zpby21ndx",
+        "slideNumber": 2,
+        "slideTitle": "Add title",
+        "templateId": "big-numbers",
+        "props": {
+          "items": [
+            {
+              "label": "hdfg",
+              "value": "123",
+              "description": "dfgh"
+            },
+            {
+              "label": "hdfg",
+              "value": "53",
+              "description": "dfgh"
+            },
+            {
+              "label": "dfgh",
+              "value": "634",
+              "description": "dfgh"
+            }
+          ],
+          "title": "Add titlefgsdfg",
+          "content": "Add your content here..."
+        },
+        "voiceoverText": null,
+        "metadata": {
+          "createdAt": "2025-08-19T13:40:02.166Z",
+          "updatedAt": "2025-08-19T13:40:27.502Z",
+          "elementPositions": {
+            "draggable-slide-1755610802166-zpby21ndx-1": {
+              "x": 692,
+              "y": -155
+            },
+            "draggable-slide-1755610802166-zpby21ndx-2": {
+              "x": 11,
+              "y": 134
+            },
+            "draggable-slide-1755610802166-zpby21ndx-5": {
+              "x": -9,
+              "y": 105
+            },
+            "draggable-slide-1755610802166-zpby21ndx-7": {
+              "x": -723,
+              "y": -13
+            }
+          }
+        }
+      }
+    ],
+    "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+    "lessonNumber": null,
+    "detectedLanguage": "en",
+    "hasVoiceover": null,
+    "theme": "dark-purple"
+  },
+  "design_template_id": 1,
+  "created_at": "2025-08-19T11:11:05.450053Z",
+  "custom_rate": null,
+  "quality_tier": null
+}
+
+backend logs:
 custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
 custom_backend-1  | INFO:     Started server process [1]
 custom_backend-1  | INFO:     Waiting for application startup.
@@ -53,32 +264,78 @@ custom_backend-1  |     {
 custom_backend-1  |       "props": {
 custom_backend-1  |         "items": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "label": "Add labelfgh",
+custom_backend-1  |             "value": "412",
+custom_backend-1  |             "description": "Add descriptionfgfgh"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "label": "Add labelfg",
+custom_backend-1  |             "value": "6345",
+custom_backend-1  |             "description": "Add descriptionfgh"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "label": "Add labelf",
+custom_backend-1  |             "value": "345",
+custom_backend-1  |             "description": "Add descriptionfgh"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "gAdd title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605362046-96aanxq3u",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:11:23.502Z"
+custom_backend-1  |         "createdAt": "2025-08-19T12:09:22.046Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:10:01.316Z",
+custom_backend-1  |         "elementPositions": {
+custom_backend-1  |           "draggable-slide-1755605362046-96aanxq3u-1": {
+custom_backend-1  |             "x": 355,
+custom_backend-1  |             "y": 250
+custom_backend-1  |           },
+custom_backend-1  |           "draggable-slide-1755605362046-96aanxq3u-4": {
+custom_backend-1  |             "x": 37,
+custom_backend-1  |             "y": -139
+custom_backend-1  |           },
+custom_backend-1  |           "draggable-slide-1755605362046-96aanxq3u-7": {
+custom_backend-1  |             "x": 9,
+custom_backend-1  |             "y": 265
+custom_backend-1  |           }
+custom_backend-1  |         }
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "Add title",
 custom_backend-1  |       "templateId": "big-numbers",
 custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 2
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
@@ -92,32 +349,78 @@ custom_backend-1  |     {
 custom_backend-1  |       "props": {
 custom_backend-1  |         "items": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "label": "Add labelfgh",
+custom_backend-1  |             "value": "412",
+custom_backend-1  |             "description": "Add descriptionfgfgh"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "label": "Add labelfg",
+custom_backend-1  |             "value": "6345",
+custom_backend-1  |             "description": "Add descriptionfgh"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "label": "Add labelf",
+custom_backend-1  |             "value": "345",
+custom_backend-1  |             "description": "Add descriptionfgh"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "gAdd title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605362046-96aanxq3u",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:11:23.502Z"
+custom_backend-1  |         "createdAt": "2025-08-19T12:09:22.046Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:10:01.316Z",
+custom_backend-1  |         "elementPositions": {
+custom_backend-1  |           "draggable-slide-1755605362046-96aanxq3u-1": {
+custom_backend-1  |             "x": 355,
+custom_backend-1  |             "y": 250
+custom_backend-1  |           },
+custom_backend-1  |           "draggable-slide-1755605362046-96aanxq3u-4": {
+custom_backend-1  |             "x": 37,
+custom_backend-1  |             "y": -139
+custom_backend-1  |           },
+custom_backend-1  |           "draggable-slide-1755605362046-96aanxq3u-7": {
+custom_backend-1  |             "x": 9,
+custom_backend-1  |             "y": 265
+custom_backend-1  |           }
+custom_backend-1  |         }
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "Add title",
 custom_backend-1  |       "templateId": "big-numbers",
 custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 2
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
@@ -125,46 +428,1901 @@ custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_inv
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 26 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.11:59042 - "GET /api/custom/projects/view/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.11:41934 - "GET /api/custom/projects/view/26 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.11:59046 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.11:41948 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "templateId": "timeline",
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:55.058Z",
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:58358 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:02.166Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:02.166Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:43818 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:07.466Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:07.466Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:43834 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:12.814Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:12.814Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44720 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:14.021Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:14.021Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44730 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:15.076Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "Add value",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:15.076Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44734 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:16.332Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:16.332Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44742 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:17.147Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:17.147Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44752 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:17.918Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:17.918Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44758 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:18.538Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:18.538Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44690 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:19.162Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "Add description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:19.162Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44702 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:19.789Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Add label",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:19.789Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44710 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:20.931Z"
+custom_backend-1  |       }
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en",
+custom_backend-1  |   "theme": "dark-purple"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:20.931Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
+custom_backend-1  | INFO:     172.18.0.11:44726 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
+custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add title",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:22.109Z",
 custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       }
@@ -179,40 +2337,72 @@ custom_backend-1  |   "theme": "dark-purple",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:55.058Z",
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:22.109Z",
 custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "Add title",
 custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |       "slideNumber": 2
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
@@ -220,48 +2410,80 @@ custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_inv
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:59054 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.11:44742 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "templateId": "timeline",
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:56.030Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:23.346Z",
+custom_backend-1  |         "elementPositions": {
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
+custom_backend-1  |           },
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-2": {
+custom_backend-1  |             "x": 11,
+custom_backend-1  |             "y": 134
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       }
@@ -276,44 +2498,76 @@ custom_backend-1  |   "theme": "dark-purple",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:56.030Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:23.346Z",
+custom_backend-1  |         "elementPositions": {
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-2": {
+custom_backend-1  |             "x": 11,
+custom_backend-1  |             "y": 134
+custom_backend-1  |           },
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "Add title",
 custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |       "slideNumber": 2
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
@@ -321,52 +2575,84 @@ custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_inv
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:59060 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.11:44756 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "templateId": "timeline",
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:57.654Z",
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:25.186Z",
 custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-2": {
+custom_backend-1  |             "x": 11,
+custom_backend-1  |             "y": 134
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-1": {
+custom_backend-1  |             "x": 692,
+custom_backend-1  |             "y": -155
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       }
@@ -381,48 +2667,80 @@ custom_backend-1  |   "theme": "dark-purple",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:57.654Z",
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:25.186Z",
 custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-1": {
+custom_backend-1  |             "x": 692,
+custom_backend-1  |             "y": -155
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-2": {
+custom_backend-1  |             "x": 11,
+custom_backend-1  |             "y": 134
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "Add title",
 custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |       "slideNumber": 2
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
@@ -430,56 +2748,88 @@ custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_inv
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:59062 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.11:44762 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "templateId": "timeline",
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:58.694Z",
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       }
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:27.502Z",
 custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-2": {
+custom_backend-1  |             "x": 11,
+custom_backend-1  |             "y": 134
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-1": {
+custom_backend-1  |             "x": 692,
+custom_backend-1  |             "y": -155
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-7": {
+custom_backend-1  |             "x": -723,
+custom_backend-1  |             "y": -13
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       }
@@ -494,52 +2844,84 @@ custom_backend-1  |   "theme": "dark-purple",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
+custom_backend-1  |         "steps": [
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
+custom_backend-1  |             "heading": "asdf",
+custom_backend-1  |             "description": "asdf"
 custom_backend-1  |           },
 custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
+custom_backend-1  |             "heading": "Add step 3",
+custom_backend-1  |             "description": "Add step description"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "heading": "Add step 4",
+custom_backend-1  |             "description": "Add step description"
 custom_backend-1  |           }
 custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
+custom_backend-1  |         "title": "Add title",
 custom_backend-1  |         "content": "Add your content here..."
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
+custom_backend-1  |       "slideId": "slide-1755605686329-jx2mgep70",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:58.694Z",
+custom_backend-1  |         "createdAt": "2025-08-19T12:14:46.329Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T12:14:52.370Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "Add title",
+custom_backend-1  |       "templateId": "timeline",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "items": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "123",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "hdfg",
+custom_backend-1  |             "value": "53",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "dfgh",
+custom_backend-1  |             "value": "634",
+custom_backend-1  |             "description": "dfgh"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Add titlefgsdfg",
+custom_backend-1  |         "content": "Add your content here..."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1755610802166-zpby21ndx",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-19T13:40:02.166Z",
+custom_backend-1  |         "updatedAt": "2025-08-19T13:40:27.502Z",
 custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-1": {
+custom_backend-1  |             "x": 692,
+custom_backend-1  |             "y": -155
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-2": {
+custom_backend-1  |             "x": 11,
+custom_backend-1  |             "y": 134
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-5": {
+custom_backend-1  |             "x": -9,
+custom_backend-1  |             "y": 105
 custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
+custom_backend-1  |           "draggable-slide-1755610802166-zpby21ndx-7": {
+custom_backend-1  |             "x": -723,
+custom_backend-1  |             "y": -13
 custom_backend-1  |           }
 custom_backend-1  |         }
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "Add title",
 custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |       "slideNumber": 2
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
@@ -547,568 +2929,30 @@ custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_inv
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:42362 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.11:44770 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:59.518Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       }
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en",
-custom_backend-1  |   "theme": "dark-purple"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:28:59.518Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:42374 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:29:00.397Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-3": {
-custom_backend-1  |             "x": 56,
-custom_backend-1  |             "y": 39
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       }
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en",
-custom_backend-1  |   "theme": "dark-purple"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:29:00.397Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-3": {
-custom_backend-1  |             "x": 56,
-custom_backend-1  |             "y": 39
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:42388 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:29:01.174Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-3": {
-custom_backend-1  |             "x": 56,
-custom_backend-1  |             "y": 39
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-5": {
-custom_backend-1  |             "x": 132,
-custom_backend-1  |             "y": -43
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       }
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en",
-custom_backend-1  |   "theme": "dark-purple"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:29:01.174Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-3": {
-custom_backend-1  |             "x": 56,
-custom_backend-1  |             "y": 39
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-5": {
-custom_backend-1  |             "x": 132,
-custom_backend-1  |             "y": -43
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:42392 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 26 - Storing content to DB: {
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:29:03.846Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-3": {
-custom_backend-1  |             "x": 56,
-custom_backend-1  |             "y": 39
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-5": {
-custom_backend-1  |             "x": 132,
-custom_backend-1  |             "y": -43
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-6": {
-custom_backend-1  |             "x": -20,
-custom_backend-1  |             "y": 120
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       }
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en",
-custom_backend-1  |   "theme": "dark-purple"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 26 - Retrieved content from DB: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "items": [
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "1234",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "543",
-custom_backend-1  |             "description": "fghjfghj"
-custom_backend-1  |           },
-custom_backend-1  |           {
-custom_backend-1  |             "label": "fghj",
-custom_backend-1  |             "value": "654",
-custom_backend-1  |             "description": "fghj"
-custom_backend-1  |           }
-custom_backend-1  |         ],
-custom_backend-1  |         "title": "dhj",
-custom_backend-1  |         "content": "Add your content here..."
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755601873229-nxgnhhkju",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-19T11:11:13.229Z",
-custom_backend-1  |         "updatedAt": "2025-08-19T11:29:03.846Z",
-custom_backend-1  |         "elementPositions": {
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-1": {
-custom_backend-1  |             "x": -2,
-custom_backend-1  |             "y": 251
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-2": {
-custom_backend-1  |             "x": -44,
-custom_backend-1  |             "y": -131
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-3": {
-custom_backend-1  |             "x": 56,
-custom_backend-1  |             "y": 39
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-4": {
-custom_backend-1  |             "x": 4,
-custom_backend-1  |             "y": -140
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-5": {
-custom_backend-1  |             "x": 132,
-custom_backend-1  |             "y": -43
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-6": {
-custom_backend-1  |             "x": -20,
-custom_backend-1  |             "y": 120
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-7": {
-custom_backend-1  |             "x": -112,
-custom_backend-1  |             "y": 231
-custom_backend-1  |           },
-custom_backend-1  |           "draggable-slide-1755601873229-nxgnhhkju-9": {
-custom_backend-1  |             "x": -68,
-custom_backend-1  |             "y": -235
-custom_backend-1  |           }
-custom_backend-1  |         }
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "Add title",
-custom_backend-1  |       "templateId": "big-numbers",
-custom_backend-1  |       "slideNumber": 1
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "Introduction to Real Estate Investment",
-custom_backend-1  |   "currentSlideId": "slide_1_introduction_to_real_estate_investment",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 26 - About to validate with component: SlideDeckDisplay
-custom_backend-1  | INFO:     172.18.0.11:42398 - "PUT /api/custom/projects/update/26 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:Slide Deck PDF Gen (Project 26): Generating PDF with 1 slides, theme: dark-purple
+custom_backend-1  | INFO:main:Slide Deck PDF Gen (Project 26): Generating PDF with 2 slides, theme: dark-purple
 custom_backend-1  | INFO:main:=== SLIDE DATA ANALYSIS BEFORE PDF GENERATION ===
 custom_backend-1  | INFO:main:Project ID: 26
-custom_backend-1  | INFO:main:Total slides: 1
+custom_backend-1  | INFO:main:Total slides: 2
 custom_backend-1  | INFO:main:Theme: dark-purple
 custom_backend-1  | INFO:main:Total big-image-left slides found: 0
 custom_backend-1  | INFO:main:=== END SLIDE DATA ANALYSIS ===
-custom_backend-1  | INFO:app.services.pdf_generator:Generating slide deck PDF with 1 slides, theme: dark-purple
+custom_backend-1  | INFO:app.services.pdf_generator:Generating slide deck PDF with 2 slides, theme: dark-purple
 custom_backend-1  | INFO:app.services.pdf_generator:Calculating slide heights...
 custom_backend-1  | INFO:app.services.pdf_generator:Configuring browser launch options for optimal performance
-custom_backend-1  | INFO:pyppeteer.launcher:Browser listening on: ws://127.0.0.1:48555/devtools/browser/52c7cf3b-11db-4a54-a8a0-35d892c1b6af
-custom_backend-1  | INFO:app.services.pdf_generator:Calculating height for slide 1/1 (templateId: big-numbers)
+custom_backend-1  | INFO:pyppeteer.launcher:Browser listening on: ws://127.0.0.1:43343/devtools/browser/c1ab7738-e285-4556-b707-b43c90e50efe
+custom_backend-1  | INFO:app.services.pdf_generator:Calculating height for slide 1/2 (templateId: timeline)
+custom_backend-1  | INFO:app.services.pdf_generator:🎨 Generating embedded fonts CSS for PDF rendering...
+custom_backend-1  | INFO:app.services.pdf_generator:🔤 Loading font: /app/static/fonts/fonnts.com-Mont_Regular.ttf
+custom_backend-1  | INFO:app.services.pdf_generator:✅ Font fonnts.com-Mont_Regular.ttf embedded successfully (93324 bytes → 124458 chars)
+custom_backend-1  | INFO:app.services.pdf_generator:🔤 Loading font: /app/static/fonts/fonnts.com-Mont_Bold.ttf
+custom_backend-1  | INFO:app.services.pdf_generator:✅ Font fonnts.com-Mont_Bold.ttf embedded successfully (146812 bytes → 195778 chars)
+custom_backend-1  | INFO:app.services.pdf_generator:✅ Embedded fonts CSS generated successfully (320655 characters total)
+custom_backend-1  | INFO:app.services.pdf_generator:DEBUG: Template data for timeline: slide.props.items type = <class 'list'>
+custom_backend-1  | INFO:app.services.pdf_generator:Calculated height for timeline: 640px (original: 600px)
+custom_backend-1  | INFO:app.services.pdf_generator:✓ Slide 1 (timeline) height calculated: 640px
+custom_backend-1  | INFO:app.services.pdf_generator:Calculating height for slide 2/2 (templateId: big-numbers)
 custom_backend-1  | INFO:app.services.pdf_generator:🎨 Generating embedded fonts CSS for PDF rendering...
 custom_backend-1  | INFO:app.services.pdf_generator:🔤 Loading font: /app/static/fonts/fonnts.com-Mont_Regular.ttf
 custom_backend-1  | INFO:app.services.pdf_generator:✅ Font fonnts.com-Mont_Regular.ttf embedded successfully (93324 bytes → 124458 chars)
@@ -1116,34 +2960,44 @@ custom_backend-1  | INFO:app.services.pdf_generator:🔤 Loading font: /app/stat
 custom_backend-1  | INFO:app.services.pdf_generator:✅ Font fonnts.com-Mont_Bold.ttf embedded successfully (146812 bytes → 195778 chars)
 custom_backend-1  | INFO:app.services.pdf_generator:✅ Embedded fonts CSS generated successfully (320655 characters total)
 custom_backend-1  | INFO:app.services.pdf_generator:DEBUG: Template data for big-numbers: slide.props.items type = <class 'list'>
-custom_backend-1  | INFO:app.services.pdf_generator:DEBUG: slide.props.items content = [{'label': 'fghj', 'value': '1234', 'description': 'fghj'}, {'label': 'fghj', 'value': '543', 'description': 'fghjfghj'}, {'label': 'fghj', 'value': '654', 'description': 'fghj'}]
-custom_backend-1  | ERROR:app.services.pdf_generator:Template rendering error for big-numbers: expected token 'end of print statement', got 'slide'
+custom_backend-1  | INFO:app.services.pdf_generator:DEBUG: slide.props.items content = [{'label': 'hdfg', 'value': '123', 'description': 'dfgh'}, {'label': 'hdfg', 'value': '53', 'description': 'dfgh'}, {'label': 'dfgh', 'value': '634', 'description': 'dfgh'}]
+custom_backend-1  | INFO:app.services.pdf_generator:=== BIG NUMBERS TEMPLATE DEBUG for big-numbers ===
+custom_backend-1  | INFO:app.services.pdf_generator:Slide data: {'props': {'items': [{'label': 'hdfg', 'value': '123', 'description': 'dfgh'}, {'label': 'hdfg', 'value': '53', 'description': 'dfgh'}, {'label': 'dfgh', 'value': '634', 'description': 'dfgh'}], 'title': 'Add titlefgsdfg', 'content': 'Add your content here...', 'subtitle': '', 'bullets': [], 'steps': [], 'challenges': [], 'solutions': [], 'boxes': [], 'levels': [], 'events': []}, 'slideId': 'slide-1755610802166-zpby21ndx', 'metadata': {'createdAt': '2025-08-19T13:40:02.166Z', 'updatedAt': '2025-08-19T13:40:27.502Z', 'elementPositions': {'draggable-slide-1755610802166-zpby21ndx-1': {'x': 692, 'y': -155}, 'draggable-slide-1755610802166-zpby21ndx-2': {'x': 11, 'y': 134}, 'draggable-slide-1755610802166-zpby21ndx-5': {'x': -9, 'y': 105}, 'draggable-slide-1755610802166-zpby21ndx-7': {'x': -723, 'y': -13}}}, 'slideTitle': 'Add title', 'templateId': 'big-numbers', 'slideNumber': 2}
+custom_backend-1  | INFO:app.services.pdf_generator:Props: {'items': [{'label': 'hdfg', 'value': '123', 'description': 'dfgh'}, {'label': 'hdfg', 'value': '53', 'description': 'dfgh'}, {'label': 'dfgh', 'value': '634', 'description': 'dfgh'}], 'title': 'Add titlefgsdfg', 'content': 'Add your content here...', 'subtitle': '', 'bullets': [], 'steps': [], 'challenges': [], 'solutions': [], 'boxes': [], 'levels': [], 'events': []}
+custom_backend-1  | INFO:app.services.pdf_generator:Items: [{'label': 'hdfg', 'value': '123', 'description': 'dfgh'}, {'label': 'hdfg', 'value': '53', 'description': 'dfgh'}, {'label': 'dfgh', 'value': '634', 'description': 'dfgh'}]
+custom_backend-1  | INFO:app.services.pdf_generator:Title: Add titlefgsdfg
+custom_backend-1  | INFO:app.services.pdf_generator:Metadata: {'createdAt': '2025-08-19T13:40:02.166Z', 'updatedAt': '2025-08-19T13:40:27.502Z', 'elementPositions': {'draggable-slide-1755610802166-zpby21ndx-1': {'x': 692, 'y': -155}, 'draggable-slide-1755610802166-zpby21ndx-2': {'x': 11, 'y': 134}, 'draggable-slide-1755610802166-zpby21ndx-5': {'x': -9, 'y': 105}, 'draggable-slide-1755610802166-zpby21ndx-7': {'x': -723, 'y': -13}}}
+custom_backend-1  | INFO:app.services.pdf_generator:Element positions: {'draggable-slide-1755610802166-zpby21ndx-1': {'x': 692, 'y': -155}, 'draggable-slide-1755610802166-zpby21ndx-2': {'x': 11, 'y': 134}, 'draggable-slide-1755610802166-zpby21ndx-5': {'x': -9, 'y': 105}, 'draggable-slide-1755610802166-zpby21ndx-7': {'x': -723, 'y': -13}}
+custom_backend-1  | INFO:app.services.pdf_generator:=== END BIG NUMBERS TEMPLATE DEBUG ===
+custom_backend-1  | ERROR:app.services.pdf_generator:Template rendering error for big-numbers: 'builtin_function_or_method' object is not iterable
 custom_backend-1  | Traceback (most recent call last):
-custom_backend-1  |   File "/app/app/services/pdf_generator.py", line 1097, in calculate_slide_dimensions
-custom_backend-1  |     template = jinja_env.get_template("single_slide_pdf_template.html")
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 1016, in get_template
-custom_backend-1  |     return self._load_template(name, globals)
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 975, in _load_template
-custom_backend-1  |     template = self.loader.load(self, name, self.make_globals(globals))
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/loaders.py", line 138, in load
-custom_backend-1  |     code = environment.compile(source, name, filename)
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 771, in compile
-custom_backend-1  |     self.handle_exception(source=source_hint)
+custom_backend-1  |   File "/app/app/services/pdf_generator.py", line 1109, in calculate_slide_dimensions
+custom_backend-1  |     html_content = template.render(**context_data)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+custom_backend-1  |     self.environment.handle_exception()
 custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
 custom_backend-1  |     raise rewrite_traceback_stack(source=source)
-custom_backend-1  |   File "/app/templates/single_slide_pdf_template.html", line 1891, in template
-custom_backend-1  |     <!-- DEBUG: slide.props.items is iterable: {{ slide.props.items is iterable if slide.props.items else 'NO_ITEMS' }} -->
-custom_backend-1  | jinja2.exceptions.TemplateSyntaxError: expected token 'end of print statement', got 'slide'
+custom_backend-1  |   File "/app/templates/single_slide_pdf_template.html", line 1850, in top-level template code
+custom_backend-1  |     {% for item in slide.props.items %}
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/runtime.py", line 424, in __init__
+custom_backend-1  |     self._iterator = self._to_iterator(iterable)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/runtime.py", line 432, in _to_iterator
+custom_backend-1  |     return iter(iterable)
+custom_backend-1  | TypeError: 'builtin_function_or_method' object is not iterable
 custom_backend-1  | INFO:app.services.pdf_generator:Calculated height for big-numbers: 680px (original: 640px)
-custom_backend-1  | INFO:app.services.pdf_generator:✓ Slide 1 (big-numbers) height calculated: 680px
+custom_backend-1  | INFO:app.services.pdf_generator:✓ Slide 2 (big-numbers) height calculated: 680px
 custom_backend-1  | INFO:pyppeteer.launcher:terminate chrome process...
 custom_backend-1  | INFO:app.services.pdf_generator:Generating individual slide PDFs...
-custom_backend-1  | INFO:app.services.pdf_generator:Processing batch 1/1 (1 slides)
-custom_backend-1  | INFO:app.services.pdf_generator:  - Slide 1 (big-numbers): height=680px, output=/tmp/slide_0_12b2d9b8.pdf
+custom_backend-1  | INFO:app.services.pdf_generator:Processing batch 1/1 (2 slides)
+custom_backend-1  | INFO:app.services.pdf_generator:  - Slide 1 (timeline): height=640px, output=/tmp/slide_0_b65a0223.pdf
+custom_backend-1  | INFO:app.services.pdf_generator:  - Slide 2 (big-numbers): height=680px, output=/tmp/slide_1_bc0066d9.pdf
 custom_backend-1  | INFO:app.services.pdf_generator:Configuring browser launch options for optimal performance
-custom_backend-1  | INFO:pyppeteer.launcher:Browser listening on: ws://127.0.0.1:37195/devtools/browser/5c071cf1-6579-44ae-ac1e-66a091c938f4
+custom_backend-1  | INFO:pyppeteer.launcher:Browser listening on: ws://127.0.0.1:38149/devtools/browser/1dba6a02-f70e-41b4-ae84-ddc09d5f081e
 custom_backend-1  | INFO:app.services.pdf_generator:=== STARTING ENHANCED SINGLE SLIDE PDF GENERATION ===
-custom_backend-1  | INFO:app.services.pdf_generator:Starting PDF generation for slide (big-numbers) (height: 680px)
+custom_backend-1  | INFO:app.services.pdf_generator:Starting PDF generation for slide (timeline) (height: 640px)
+custom_backend-1  | INFO:app.services.pdf_generator:=== STARTING ENHANCED SINGLE SLIDE PDF GENERATION ===
+custom_backend-1  | INFO:app.services.pdf_generator:Starting PDF generation for slide 1 (big-numbers) (height: 680px)
+custom_backend-1  | INFO:app.services.pdf_generator:New page created
 custom_backend-1  | INFO:app.services.pdf_generator:New page created
 custom_backend-1  | INFO:app.services.pdf_generator:🎨 Generating embedded fonts CSS for PDF rendering...
 custom_backend-1  | INFO:app.services.pdf_generator:🔤 Loading font: /app/static/fonts/fonnts.com-Mont_Regular.ttf
@@ -1153,35 +3007,49 @@ custom_backend-1  | INFO:app.services.pdf_generator:✅ Font fonnts.com-Mont_Bol
 custom_backend-1  | INFO:app.services.pdf_generator:✅ Embedded fonts CSS generated successfully (320655 characters total)
 custom_backend-1  | INFO:app.services.pdf_generator:PDF GEN: Processing presentation slide images
 custom_backend-1  | INFO:app.services.pdf_generator:PDF GEN: Static images absolute path: /app/static_design_images
-custom_backend-1  | INFO:app.services.pdf_generator:DEBUG: Template data for slide (big-numbers): slide.props.items type = <class 'list'>
-custom_backend-1  | INFO:app.services.pdf_generator:DEBUG: slide.props.items content = [{'label': 'fghj', 'value': '1234', 'description': 'fghj'}, {'label': 'fghj', 'value': '543', 'description': 'fghjfghj'}, {'label': 'fghj', 'value': '654', 'description': 'fghj'}]
-custom_backend-1  | INFO:pdf_image_fit_debug:=== IMAGE FIT ANALYSIS for slide (big-numbers) ===
-custom_backend-1  | INFO:pdf_image_fit_debug:=== END IMAGE FIT ANALYSIS for slide (big-numbers) ===
-custom_backend-1  | INFO:app.services.pdf_generator:=== TEXT POSITIONING ANALYSIS for slide (big-numbers) ===
-custom_backend-1  | INFO:app.services.pdf_generator:=== END TEXT POSITIONING ANALYSIS for slide (big-numbers) ===
-custom_backend-1  | ERROR:app.services.pdf_generator:Template rendering error for slide (big-numbers): expected token 'end of print statement', got 'slide'
+custom_backend-1  | INFO:pdf_image_fit_debug:=== IMAGE FIT ANALYSIS for slide (timeline) ===
+custom_backend-1  | INFO:pdf_image_fit_debug:=== END IMAGE FIT ANALYSIS for slide (timeline) ===
+custom_backend-1  | INFO:app.services.pdf_generator:=== TEXT POSITIONING ANALYSIS for slide (timeline) ===
+custom_backend-1  | INFO:app.services.pdf_generator:=== END TEXT POSITIONING ANALYSIS for slide (timeline) ===
+custom_backend-1  | INFO:app.services.pdf_generator:Template rendered successfully
+custom_backend-1  | INFO:app.services.pdf_generator:Setting HTML content in page
+custom_backend-1  | INFO:app.services.pdf_generator:🎨 Generating embedded fonts CSS for PDF rendering...
+custom_backend-1  | INFO:app.services.pdf_generator:🔤 Loading font: /app/static/fonts/fonnts.com-Mont_Regular.ttf
+custom_backend-1  | INFO:app.services.pdf_generator:✅ Font fonnts.com-Mont_Regular.ttf embedded successfully (93324 bytes → 124458 chars)
+custom_backend-1  | INFO:app.services.pdf_generator:🔤 Loading font: /app/static/fonts/fonnts.com-Mont_Bold.ttf
+custom_backend-1  | INFO:app.services.pdf_generator:✅ Font fonnts.com-Mont_Bold.ttf embedded successfully (146812 bytes → 195778 chars)
+custom_backend-1  | INFO:app.services.pdf_generator:✅ Embedded fonts CSS generated successfully (320655 characters total)
+custom_backend-1  | INFO:app.services.pdf_generator:PDF GEN: Processing presentation slide images
+custom_backend-1  | INFO:app.services.pdf_generator:PDF GEN: Static images absolute path: /app/static_design_images
+custom_backend-1  | INFO:pdf_image_fit_debug:=== IMAGE FIT ANALYSIS for slide 1 (big-numbers) ===
+custom_backend-1  | INFO:pdf_image_fit_debug:=== END IMAGE FIT ANALYSIS for slide 1 (big-numbers) ===
+custom_backend-1  | INFO:app.services.pdf_generator:=== TEXT POSITIONING ANALYSIS for slide 1 (big-numbers) ===
+custom_backend-1  | INFO:app.services.pdf_generator:=== END TEXT POSITIONING ANALYSIS for slide 1 (big-numbers) ===
+custom_backend-1  | ERROR:app.services.pdf_generator:Template rendering error for slide 1 (big-numbers): 'builtin_function_or_method' object is not iterable
 custom_backend-1  | Traceback (most recent call last):
-custom_backend-1  |   File "/app/app/services/pdf_generator.py", line 1388, in generate_single_slide_pdf
-custom_backend-1  |     template = jinja_env.get_template("single_slide_pdf_template.html")
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 1016, in get_template
-custom_backend-1  |     return self._load_template(name, globals)
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 975, in _load_template
-custom_backend-1  |     template = self.loader.load(self, name, self.make_globals(globals))
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/loaders.py", line 138, in load
-custom_backend-1  |     code = environment.compile(source, name, filename)
-custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 771, in compile
-custom_backend-1  |     self.handle_exception(source=source_hint)
+custom_backend-1  |   File "/app/app/services/pdf_generator.py", line 1395, in generate_single_slide_pdf
+custom_backend-1  |     html_content = template.render(**context_data)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+custom_backend-1  |     self.environment.handle_exception()
 custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
 custom_backend-1  |     raise rewrite_traceback_stack(source=source)
-custom_backend-1  |   File "/app/templates/single_slide_pdf_template.html", line 1891, in template
-custom_backend-1  |     <!-- DEBUG: slide.props.items is iterable: {{ slide.props.items is iterable if slide.props.items else 'NO_ITEMS' }} -->
-custom_backend-1  | jinja2.exceptions.TemplateSyntaxError: expected token 'end of print statement', got 'slide'
+custom_backend-1  |   File "/app/templates/single_slide_pdf_template.html", line 1850, in top-level template code
+custom_backend-1  |     {% for item in slide.props.items %}
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/runtime.py", line 424, in __init__
+custom_backend-1  |     self._iterator = self._to_iterator(iterable)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/jinja2/runtime.py", line 432, in _to_iterator
+custom_backend-1  |     return iter(iterable)
+custom_backend-1  | TypeError: 'builtin_function_or_method' object is not iterable
 custom_backend-1  | INFO:app.services.pdf_generator:Setting HTML content in page
 custom_backend-1  | INFO:app.services.pdf_generator:Waiting for fonts to load
+custom_backend-1  | INFO:app.services.pdf_generator:Waiting for fonts to load
 custom_backend-1  | INFO:app.services.pdf_generator:Rendering delay completed
-custom_backend-1  | INFO:app.services.pdf_generator:✓ Generated PDF for slide (big-numbers): /tmp/slide_0_12b2d9b8.pdf
-custom_backend-1  | INFO:app.services.pdf_generator:✓ Successfully generated slide 1 (big-numbers)
+custom_backend-1  | INFO:app.services.pdf_generator:Rendering delay completed
+custom_backend-1  | INFO:app.services.pdf_generator:✓ Generated PDF for slide (timeline): /tmp/slide_0_b65a0223.pdf
+custom_backend-1  | INFO:app.services.pdf_generator:✓ Generated PDF for slide 1 (big-numbers): /tmp/slide_1_bc0066d9.pdf
+custom_backend-1  | INFO:app.services.pdf_generator:✓ Successfully generated slide 1 (timeline)
+custom_backend-1  | INFO:app.services.pdf_generator:✓ Successfully generated slide 2 (big-numbers)
 custom_backend-1  | INFO:pyppeteer.launcher:terminate chrome process...
-custom_backend-1  | INFO:app.services.pdf_generator:Merging 1 slide PDFs...
-custom_backend-1  | INFO:app.services.pdf_generator:Slide deck PDF generated successfully in 5.34s: /tmp/pdf_cache/slide_deck_26_3d7d0012e088.pdf
-custom_backend-1  | INFO:     172.18.0.11:42412 - "GET /api/custom/pdf/slide-deck/26?theme=dark-purple HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.pdf_generator:Merging 2 slide PDFs...
+custom_backend-1  | INFO:app.services.pdf_generator:Slide deck PDF generated successfully in 7.27s: /tmp/pdf_cache/slide_deck_26_3200c446b011.pdf
+custom_backend-1  | INFO:     172.18.0.11:59986 - "GET /api/custom/pdf/slide-deck/26?theme=dark-purple HTTP/1.1" 200 OK

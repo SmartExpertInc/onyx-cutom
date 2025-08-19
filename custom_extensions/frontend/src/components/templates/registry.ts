@@ -796,7 +796,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: BigNumbersTemplate,
     defaultProps: {
       title: 'Add title',
-      items: [
+      steps: [
         { value: 'Add value', label: 'Add label', description: 'Add description' },
         { value: 'Add value', label: 'Add label', description: 'Add description' },
         { value: 'Add value', label: 'Add label', description: 'Add description' },
@@ -804,7 +804,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
     propSchema: {
       title: { type: 'text', label: 'Title' },
-      items: { type: 'array', label: 'Big Numbers' },
+      steps: { type: 'array', label: 'Big Numbers' },
     },
   },
   'pyramid': {

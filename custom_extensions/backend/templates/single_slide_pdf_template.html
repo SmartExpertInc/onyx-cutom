@@ -1847,7 +1847,7 @@
                         >{{ slide.props.title }}</h1>
                     {% endif %}
                     <div class="numbers-grid">
-                        {% for item in slide.props.items %}
+                        {% for item in slide.props.steps %}
                             <div class="number-item positioned-element"
                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                     {% set itemId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}

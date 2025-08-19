@@ -285,7 +285,7 @@ export interface BigNumberItem {
 export interface BigNumbersTemplateProps {
   slideId: string;
   title: string;
-  items: BigNumberItem[];
+  steps: BigNumberItem[];
   theme?: SlideTheme;
 }
 
