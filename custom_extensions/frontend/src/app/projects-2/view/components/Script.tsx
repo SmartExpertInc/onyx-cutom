@@ -31,7 +31,7 @@ export default function Script() {
       <div className="relative z-10 flex flex-col items-start justify-start p-8">
 
         {/* Top Section with Avatar Dropdown and Selector */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-4 w-full">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 w-full">
           {/* Avatar Dropdown */}
           <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button

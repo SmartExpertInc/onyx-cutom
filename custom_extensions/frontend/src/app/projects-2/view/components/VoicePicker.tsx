@@ -530,9 +530,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <hr className="border-gray-200" />
         </div>
 
-        {/* Content Container */}
+        {/* Content Container with proper flex structure */}
         <div className="flex-1 flex flex-col">
-          {/* Row 5: Main Area Layout Headers */}
+          {/* Row 5: Main Area Layout Headers - Fixed */}
           <div className="px-6 py-4 flex justify-between">
             {/* Left Zone */}
             <div className="flex-1">
@@ -598,8 +598,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-800">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -645,8 +645,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-800">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -692,8 +692,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-800">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -739,8 +739,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-800">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -786,8 +786,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-800">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
