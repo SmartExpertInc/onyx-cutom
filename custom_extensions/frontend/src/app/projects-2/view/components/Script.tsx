@@ -16,7 +16,7 @@ export default function Script() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const aiPopupRef = useRef<HTMLDivElement>(null);
   const pausePopupRef = useRef<HTMLDivElement>(null);
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const textAreaRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -41,37 +41,33 @@ export default function Script() {
     };
   }, [isAvatarDropdownOpen, isAiPopupOpen, isPausePopupOpen]);
 
-  // Handle cursor position tracking
-  const handleTextAreaClick = () => {
-    if (textAreaRef.current) {
-      setCursorPosition(textAreaRef.current.selectionStart || 0);
-    }
-  };
-
-  const handleTextAreaKeyUp = () => {
-    if (textAreaRef.current) {
-      setCursorPosition(textAreaRef.current.selectionStart || 0);
-    }
-  };
-
   // Function to insert move/animation marker at cursor position
   const insertMoveMarker = () => {
-    const moveMarker = ` [🎬 MOVE] `;
-    const beforeCursor = scriptContent.substring(0, cursorPosition);
-    const afterCursor = scriptContent.substring(cursorPosition);
-    const newContent = beforeCursor + moveMarker + afterCursor;
-    
-    setScriptContent(newContent);
-    
-    // Focus back to textarea and set cursor after the inserted marker
-    setTimeout(() => {
-      if (textAreaRef.current) {
-        textAreaRef.current.focus();
-        const newCursorPosition = cursorPosition + moveMarker.length;
-        textAreaRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
-        setCursorPosition(newCursorPosition);
+    if (textAreaRef.current) {
+      const selection = window.getSelection();
+      const range = selection?.getRangeAt(0);
+      
+      if (range) {
+        // Create the SVG icon element
+        const iconElement = document.createElement('span');
+        iconElement.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" style="display: inline; vertical-align: middle; margin: 0 2px;"><circle cx="18" cy="12" r="4" stroke="currentColor" stroke-width="2"/><line x1="3" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="18" x2="9" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+        iconElement.setAttribute('contenteditable', 'false');
+        iconElement.style.backgroundColor = '#f3f4f6';
+        iconElement.style.borderRadius = '4px';
+        iconElement.style.padding = '2px 4px';
+        iconElement.style.color = '#666';
+        
+        // Insert at cursor position
+        range.deleteContents();
+        range.insertNode(iconElement);
+        
+        // Move cursor after the icon
+        range.setStartAfter(iconElement);
+        range.setEndAfter(iconElement);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
       }
-    }, 10);
+    }
   };
   return (
     <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full">
@@ -150,14 +146,13 @@ export default function Script() {
 
         {/* Main Content Text */}
         <div className="w-full max-w-[615px] lg:max-w-[650px]">
-          <textarea
+          <div
             ref={textAreaRef}
-            value={scriptContent}
-            onChange={(e) => setScriptContent(e.target.value)}
-            onClick={handleTextAreaClick}
-            onKeyUp={handleTextAreaKeyUp}
-            className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none resize-none min-h-[120px] p-0"
-            placeholder="Enter your script content here..."
+            contentEditable
+            suppressContentEditableWarning
+            className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none min-h-[400px] p-0"
+            style={{ whiteSpace: 'pre-wrap' }}
+            dangerouslySetInnerHTML={{ __html: scriptContent }}
           />
         </div>
       </div>
