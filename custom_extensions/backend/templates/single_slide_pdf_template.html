@@ -1835,7 +1835,6 @@
                 </div>
                 
             {% elif slide.templateId == 'big-numbers' %}
-                <!-- DEBUG: big-numbers template -->
                 <div class="big-numbers">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
@@ -1848,8 +1847,7 @@
                         >{{ slide.props.title }}</h1>
                     {% endif %}
                     <div class="numbers-grid">
-                        {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
-                            <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
+                        {% if slide.props.items %}
                             {% for item in slide.props.items %}
                                 <div class="number-item">
                                     {% if item.value and item.value != 'Click to add value' %}
@@ -1884,13 +1882,6 @@
                                     {% endif %}
                                 </div>
                             {% endfor %}
-                        {% else %}
-                            <!-- DEBUG: No items data available -->
-                            <!-- DEBUG: slide.props.items exists: {{ slide.props.items is defined }} -->
-                            <!-- DEBUG: slide.props.items type: {{ slide.props.items.__class__.__name__ if slide.props.items else 'NO_ITEMS' }} -->
-                            <!-- DEBUG: slide.props.items is iterable: {{ slide.props.items is iterable if slide.props.items else 'NO_ITEMS' }} -->
-                            <!-- DEBUG: slide.props.items is callable: {{ slide.props.items is callable if slide.props.items else 'NO_ITEMS' }} -->
-                            <!-- DEBUG: slide.props.items length: {{ slide.props.items|length if slide.props.items and slide.props.items is iterable else 'NOT_ITERABLE' }} -->
                         {% endif %}
                     </div>
                 </div>
