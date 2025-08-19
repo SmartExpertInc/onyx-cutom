@@ -418,6 +418,11 @@ export default function AddConnector({
         if (credentialActivated && isSuccess && response) {
           const credential =
             currentCredential || liveGDriveCredential || liveGmailCredential;
+          
+          // Check if this is a Smart Drive connector
+          const isSmartDriveConnector = typeof window !== 'undefined' && 
+            new URLSearchParams(window.location.search).get('smart_drive') === 'true';
+            
           const linkCredentialResponse = await linkCredential(
             response.id,
             credential?.id!,
