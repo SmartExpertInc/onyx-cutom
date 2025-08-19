@@ -1,7 +1,23 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check, RotateCcw } from 'lucide-react';
+import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check, RotateCcw } from 'lucide-react';
+
+// Custom Radio Wave Icon
+const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 256 256"
+    className={className}
+  >
+    <path 
+      fill="currentColor" 
+      d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"
+    />
+  </svg>
+);
 
 interface VoicePickerProps {
   isOpen: boolean;
@@ -200,7 +216,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[900px] max-w-[95vw] max-h-[90vh] flex flex-col z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[92vh] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
         
@@ -227,7 +243,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
 
         {/* Row 3: Dropdown Buttons */}
         <div className="px-6 pb-4">
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-3 items-center justify-between">
+            <div className="flex gap-3">
             {/* Accent Dropdown */}
             <div className="relative" ref={accentRef}>
               <button
@@ -338,7 +355,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Radio size={16} className="text-gray-600" />
+                  <RadioWaveIcon size={16} className="text-gray-600" />
                   <span className="text-sm font-medium text-gray-700">Tone</span>
                 </div>
                 <ChevronDown size={16} className="text-gray-400" />
@@ -422,15 +439,18 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 </div>
               )}
             </div>
+            </div>
             
             {/* Reset Button */}
             {hasAnySelections && (
               <button
                 onClick={resetAllSelections}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
               >
-                <RotateCcw size={16} />
-                <span>Reset all</span>
+                <div className="flex items-center gap-2">
+                  <RotateCcw size={16} className="text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">Reset all</span>
+                </div>
               </button>
             )}
           </div>
@@ -459,7 +479,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
           {/* Main Content Area (Left and Right Panels) - Placeholder */}
           <div className="px-6 pb-6 flex gap-6 min-h-[300px]">
           {/* Left Panel - Voice List */}
-          <div className="flex-1 bg-gray-50 bg-opacity-20 rounded-lg p-4">
+          <div className="flex-1">
             {/* Create Custom Voice Row */}
             <div className="mb-4">
               <div 
@@ -469,18 +489,15 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 }}
               >
                 <div className="flex items-center gap-3">
-                  {/* Left chevron */}
-                  <ChevronRight size={20} className="text-blue-500" />
-                  
                   {/* White circle with radio wave icon */}
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                    <Radio size={20} className="text-blue-500" />
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-blue-500">
+                    <RadioWaveIcon size={20} className="text-blue-500" />
                   </div>
                   
                   {/* Text and badge */}
                   <div className="flex items-center gap-2">
                     <span className="text-blue-600 font-medium">Create a custom voice</span>
-                    <span className="px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
+                    <span className="px-2 py-1 bg-blue-600 text-blue-200 text-xs font-medium rounded-full">
                       NEW
                     </span>
                   </div>
@@ -488,6 +505,51 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 
                 {/* Right chevron */}
                 <ChevronRight size={20} className="text-blue-500" />
+              </div>
+            </div>
+
+            {/* Voice Item Row - Ana rus */}
+            <div className="mb-4 group">
+              <div className="rounded-lg p-4 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  {/* Radio wave icon / Play button */}
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-300">
+                    <Radio size={16} className="text-gray-600 group-hover:hidden" />
+                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full">
+                      <div className="w-0 h-0 border-l-[6px] border-l-gray-600 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Text and badges */}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-gray-900 font-medium">Ana rus</span>
+                    <div className="flex gap-2">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full">
+                        32 languages
+                      </span>
+                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full flex items-center gap-1">
+                        <span>🎤</span>
+                        <span>Cloned voice</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Action buttons - visible on hover */}
+                <div className="hidden group-hover:flex items-center gap-2">
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <div className="flex flex-col gap-1">
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                    </div>
+                  </button>
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
             
