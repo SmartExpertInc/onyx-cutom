@@ -549,16 +549,19 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // Calculate course statistics from projects using real data from backend
+                                      // Use the same data calculation logic as PDF
                                       const courseStats = data.projects.reduce((acc, project) => {
-                                        // Handle both Project and BackendProject types
-                                        const type = 'design_microproduct_type' in project 
-                                          ? (project as BackendProject).design_microproduct_type 
-                                          : (project as Project).designMicroproductType || 'Unknown';
+                                        // Get project type - same logic as PDF
+                                        let projectType = 'Unknown';
+                                        if ('design_microproduct_type' in project) {
+                                          projectType = (project as BackendProject).design_microproduct_type || 'Unknown';
+                                        } else {
+                                          projectType = (project as Project).designMicroproductType || 'Unknown';
+                                        }
                                         
-                                        if (!acc[type]) {
-                                          acc[type] = {
-                                            name: type,
+                                        if (!acc[projectType]) {
+                                          acc[projectType] = {
+                                            name: projectType,
                                             modules: 0,
                                             lessons: 0,
                                             learningDuration: 0,
@@ -566,33 +569,33 @@ const PreviewModal: React.FC<{
                                           };
                                         }
                                         
-                                        // Add real project data from backend
-                                        acc[type].modules += 1;
+                                        // Add project data - same logic as PDF
+                                        acc[projectType].modules += 1;
                                         
-                                        // Check if this is a BackendProject with real data
+                                        // Get lessons and hours - same logic as PDF
                                         if ('total_lessons' in project && 'total_hours' in project) {
-                                          // Use real data from backend
+                                          // Backend data - use real values
                                           const backendProject = project as BackendProject;
-                                          acc[type].lessons += backendProject.total_lessons || 0;
-                                          acc[type].learningDuration += backendProject.total_hours || 0;
+                                          acc[projectType].lessons += backendProject.total_lessons || 0;
+                                          acc[projectType].learningDuration += backendProject.total_hours || 0;
                                         } else {
-                                          // Use lessonDataCache for frontend Project data or fallback to defaults
+                                          // Frontend data - use lessonDataCache or defaults
                                           const frontendProject = project as Project;
                                           const lessonData = (window as any).__lessonDataCache?.[frontendProject.id];
                                           if (lessonData) {
-                                            acc[type].lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
-                                            acc[type].learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
+                                            acc[projectType].lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
+                                            acc[projectType].learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
                                           } else {
-                                            // Fallback to default values if no cache data
-                                            acc[type].lessons += 5; // Default lesson count
-                                            acc[type].learningDuration += 3; // Default hours
+                                            // Default values (same as PDF fallback)
+                                            acc[projectType].lessons += 5;
+                                            acc[projectType].learningDuration += 3;
                                           }
                                         }
                                         
                                         return acc;
                                       }, {} as Record<string, any>);
 
-                                      // Calculate production time (learning duration * 300 hours per learning hour)
+                                      // Calculate production time - same formula as PDF (learning duration * 300)
                                       Object.values(courseStats).forEach((course: any) => {
                                         course.productionTime = course.learningDuration * 300;
                                       });
