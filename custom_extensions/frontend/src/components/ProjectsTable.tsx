@@ -3305,8 +3305,74 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         document.body.removeChild(a);
         
         // Simultaneously open HTML preview page
-        const previewUrl = `/projects/pdf-preview?folderId=${folderId || ''}`;
-        window.open(previewUrl, '_blank');
+        const previewWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        
+        if (!previewWindow) {
+          alert('Пожалуйста, разрешите всплывающие окна для этого сайта.');
+          return;
+        }
+
+        // Create simple HTML preview content
+        const generatePreviewHTML = () => {
+            const projectsRows = visibleProjects.map(project => 
+                `<tr>
+                    <td>${project.title || ''}</td>
+                    <td>${project.status || ''}</td>
+                    <td>${project.created ? new Date(project.created).toLocaleDateString() : ''}</td>
+                </tr>`
+            ).join('');
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects List Preview</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background: #002864; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: bold; }
+        .info { background: #f8f9fa; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Projects List</h1>
+        <p>${clientName ? 'Client: ' + clientName : ''} ${managerName ? ' | Manager: ' + managerName : ''}</p>
+    </div>
+    <div class="content">
+        <div class="info">
+            <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+            <p><strong>Total Projects:</strong> ${visibleProjects.length}</p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${projectsRows}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>`;
+        };
+        
+        const previewHTML = generatePreviewHTML();
+        
+        // Write HTML to new window
+        previewWindow.document.write(previewHTML);
+        previewWindow.document.close();
+        
+        // Focus on new window
+        previewWindow.focus();
     };
 
     // Add these just before the render block
