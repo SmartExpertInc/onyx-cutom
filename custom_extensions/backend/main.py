@@ -19138,7 +19138,7 @@ async def get_all_nextcloud_files_individual(nextcloud_username: str, nextcloud_
                     logger.error(f"WebDAV PROPFIND failed: {response.status_code} - {response.text}")
                     return
                     
-                files = parse_webdav_response(response.text, nextcloud_base_url, nextcloud_username)
+                files = await parse_webdav_response(response.text, nextcloud_base_url)
                 
                 for file_info in files:
                     if file_info['name'] != '.':  # Skip current directory entry
