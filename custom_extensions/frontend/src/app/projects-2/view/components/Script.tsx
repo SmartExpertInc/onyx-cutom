@@ -1,42 +1,97 @@
+"use client";
+
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, User, MessageSquare, UserMinus, UserPlus, Radio } from 'lucide-react';
+
 export default function Script() {
+  const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsAvatarDropdownOpen(false);
+      }
+    };
+
+    if (isAvatarDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isAvatarDropdownOpen]);
   return (
     <div className="h-full bg-white border-gray-300 rounded-md relative overflow-hidden w-full">
       {/* Content Container */}
       <div className="relative z-10 flex flex-col items-start justify-start px-4 py-8 md:py-16 lg:py-24">
 
-        {/* Top Section with Avatar and Selector */}
+        {/* Top Section with Avatar Dropdown and Selector */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16 w-full">
-          {/* Avatar Image */}
-          <div className="relative flex-shrink-0">
-            <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/56233caf01f230cefc02bb883b9bb2e1c7a46208?width=160"
-              alt="Avatar"
-              className="w-16 h-8 sm:w-20 sm:h-11 rounded-[11px] object-cover"
-            />
-            {/* Counter Badge */}
-            <div className="absolute -top-1 -right-1 bg-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-sm border border-gray-100">
-              <span className="text-[#585858] text-sm font-medium">2</span>
-            </div>
-            {/* Small Avatar Overlay */}
-            <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/25754df26bea4537d5d743978026d0a6812e4ed7?width=72"
-              alt="Small avatar"
-              className="absolute top-0.5 left-0.5 sm:top-1 sm:left-1 w-7 h-7 sm:w-9 sm:h-9 rounded-[8.75px] object-cover"
-            />
+          {/* Avatar Dropdown */}
+          <div className="relative flex-shrink-0" ref={dropdownRef}>
+            <button
+              onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}
+              className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <User size={20} className="text-black" />
+              <ChevronDown size={16} className="text-black" />
+            </button>
+
+            {/* Avatar Dropdown Popup */}
+            {isAvatarDropdownOpen && (
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="p-2">
+                  {/* Row 1: Header */}
+                  <div className="px-2 py-1">
+                    <span className="text-xs text-gray-500">Avatars</span>
+                  </div>
+                  
+                  {/* Row 2: Lisa - Office 4 */}
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <User size={16} className="text-black" />
+                    <span className="text-sm text-black">Lisa - Office 4</span>
+                  </button>
+                  
+                  {/* Row 3: Narration only */}
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <MessageSquare size={16} className="text-black" />
+                    <span className="text-sm text-black">Narration only</span>
+                  </button>
+                  
+                  {/* Row 4: Horizontal line */}
+                  <div className="my-1">
+                    <hr className="border-gray-300" />
+                  </div>
+                  
+                  {/* Row 5: Remove avatar */}
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <UserMinus size={16} className="text-gray-500" />
+                    <span className="text-sm text-gray-500">Remove avatar</span>
+                  </button>
+                  
+                  {/* Row 6: Add new avatar */}
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <UserPlus size={16} className="text-black" />
+                    <span className="text-sm text-black">Add new avatar</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Language/User Selector */}
+          {/* Language/User Selector Button */}
           <div className="relative w-full sm:w-auto">
-            <div className="bg-[#FDFDFD] border border-[#E0E0E0] rounded-[10px_9px_6px_7px] px-3 py-2 sm:px-4 sm:py-3 shadow-sm w-full sm:w-auto min-w-[160px]">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/ad3b604e583b1053aaa9cb6aa8eae3d12ad5b9be?width=40"
-                  alt="Flag"
-                  className="w-4 h-4 sm:w-5 sm:h-5 object-cover flex-shrink-0"
-                />
-                <span className="text-[#626262] text-sm font-medium truncate">US-Leesa</span>
-              </div>
-            </div>
+            <button
+              onClick={() => setIsLanguageModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto min-w-[140px]"
+            >
+              <Radio size={16} className="text-black" />
+              <span className="text-sm font-medium text-black">US - Leesa</span>
+            </button>
           </div>
         </div>
 
@@ -52,6 +107,32 @@ export default function Script() {
           </p>
         </div>
       </div>
+
+      {/* Language Modal - Placeholder for future modifications */}
+      {isLanguageModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Language Settings</h2>
+              <button
+                onClick={() => setIsLanguageModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-gray-600">Modal content will be modified later...</p>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setIsLanguageModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
