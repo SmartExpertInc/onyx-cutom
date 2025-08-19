@@ -577,50 +577,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </div>
             </div>
 
-            {/* Voice Item Row - Ana rus */}
-            <div className="mb-4 group">
-              <div className="rounded-lg p-4 flex items-center justify-between cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  {/* Radio wave icon / Play button */}
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-300">
-                    <Radio size={16} className="text-gray-600 group-hover:hidden" />
-                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full">
-                      <div className="w-0 h-0 border-l-[6px] border-l-gray-600 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Text and badges */}
-                  <div className="flex flex-col gap-2">
-                    <span className="text-gray-900 font-medium">Ana rus</span>
-                    <div className="flex gap-2">
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full">
-                        32 languages
-                      </span>
-                      <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full flex items-center gap-1">
-                        <span>🎤</span>
-                        <span>Cloned voice</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Action buttons - visible on hover */}
-                <div className="hidden group-hover:flex items-center gap-2">
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex flex-col gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                    </div>
-                  </button>
-                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
+
 
             {/* Voice Item Row - Copy 1 */}
             <div className="mb-4 group">
@@ -628,9 +585,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-3">
                   {/* Radio wave icon / Play button */}
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
-                    <RadioWaveIcon size={16} className="text-gray-600 group-hover:hidden" />
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
                     <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                      <div className="w-0 h-0 border-l-[6px] border-l-gray-600 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
                     </div>
                   </div>
                   
@@ -655,9 +612,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -675,9 +632,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-3">
                   {/* Radio wave icon / Play button */}
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
-                    <RadioWaveIcon size={16} className="text-gray-600 group-hover:hidden" />
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
                     <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                      <div className="w-0 h-0 border-l-[6px] border-l-gray-600 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
                     </div>
                   </div>
                   
@@ -702,9 +659,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -722,9 +679,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-3">
                   {/* Radio wave icon / Play button */}
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
-                    <RadioWaveIcon size={16} className="text-gray-600 group-hover:hidden" />
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
                     <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                      <div className="w-0 h-0 border-l-[6px] border-l-gray-600 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
                     </div>
                   </div>
                   
@@ -749,9 +706,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -769,9 +726,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-3">
                   {/* Radio wave icon / Play button */}
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
-                    <RadioWaveIcon size={16} className="text-gray-600 group-hover:hidden" />
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
                     <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                      <div className="w-0 h-0 border-l-[6px] border-l-gray-600 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
                     </div>
                   </div>
                   
@@ -796,9 +753,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -816,9 +773,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-3">
                   {/* Radio wave icon / Play button */}
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
-                    <RadioWaveIcon size={16} className="text-gray-600 group-hover:hidden" />
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
                     <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                      <div className="w-0 h-0 border-l-[6px] border-l-gray-600 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
                     </div>
                   </div>
                   
@@ -843,9 +800,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -856,12 +813,11 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 </div>
               </div>
             </div>
-            
-            <div className="text-gray-500 text-center">Voice list content will go here...</div>
+
           </div>
           
           {/* Right Panel - Voice Details */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-4 self-start">
             {/* Row 1: Maya title */}
             <div className="mb-3">
               <h3 className="text-xl text-gray-900">Maya</h3>
@@ -870,7 +826,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {/* Row 2: USA flag + American English */}
             <div className="flex items-center gap-2 mb-4">
               <AmericanFlag size={16} />
-              <span className="text-sm text-gray-700">American English</span>
+              <span className="text-xs text-gray-700">American English</span>
             </div>
             
             {/* Row 3: Badges */}
@@ -879,7 +835,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {['Adult', 'Confident', 'Educational', 'Friendly', 'Professional', 'Customer Service', 'E-Learning'].map((badge) => (
                   <span
                     key={badge}
-                    className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full"
+                    className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] rounded-full"
                   >
                     {badge}
                   </span>
@@ -888,7 +844,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 4: Horizontal line */}
-            <div className="mb-4">
+            <div className="mb-4 -mx-4">
               <hr className="border-gray-300" />
             </div>
             
@@ -930,7 +886,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 8: Play Sample button */}
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 transition-colors">
               <Volume2 size={16} className="text-gray-700" />
               <span className="text-sm font-medium text-gray-700">Play Sample</span>
             </button>
@@ -945,10 +901,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="mb-2">
               <span className="text-sm text-gray-700">Apply new voice to</span>
             </div>
-            <div className="bg-gray-200 rounded-lg p-1 inline-flex">
+            <div className="bg-gray-200 rounded-lg p-1 flex w-80">
               <button
                 onClick={() => setApplyTo('block')}
-                className={`px-4 py-1.5 text-xs rounded transition-colors ${
+                className={`px-4 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'block' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -958,7 +914,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
-                className={`px-4 py-1.5 text-xs rounded transition-colors ${
+                className={`px-4 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'scene' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -968,7 +924,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('all')}
-                className={`px-4 py-1.5 text-xs rounded transition-colors ${
+                className={`px-4 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'all' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'

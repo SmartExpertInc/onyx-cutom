@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, User, MessageSquare, UserMinus, UserPlus, Radio } from 'lucide-react';
+import { ChevronDown, User, MessageSquare, UserMinus, UserPlus } from 'lucide-react';
 import VoicePicker from './VoicePicker';
 
 export default function Script() {
@@ -26,17 +26,17 @@ export default function Script() {
     };
   }, [isAvatarDropdownOpen]);
   return (
-    <div className="h-full bg-white border-gray-300 rounded-md relative overflow-hidden w-full">
+    <div className="h-full bg-white border border-gray-400 rounded-md relative overflow-hidden w-full">
       {/* Content Container */}
-      <div className="relative z-10 flex flex-col items-start justify-start px-4 py-8 md:py-16 lg:py-24">
+      <div className="relative z-10 flex flex-col items-start justify-start p-4">
 
         {/* Top Section with Avatar Dropdown and Selector */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 lg:mb-16 w-full">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-4 w-full">
           {/* Avatar Dropdown */}
           <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
               onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}
-              className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 px-3 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <User size={20} className="text-black" />
               <ChevronDown size={16} className="text-black" />
@@ -88,9 +88,11 @@ export default function Script() {
           <div className="relative w-full sm:w-auto">
             <button
               onClick={() => setIsLanguageModalOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto min-w-[140px]"
+              className="flex items-center gap-2 px-3 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto min-w-[140px]"
             >
-              <Radio size={16} className="text-black" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-black">
+                <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
+              </svg>
               <span className="text-sm font-medium text-black">US - Leesa</span>
             </button>
           </div>
