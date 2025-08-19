@@ -18842,8 +18842,17 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             size = int(size_elem.text) if size_elem is not None and size_elem.text else None
             
             # Get last modified
-            modified_elem = response.find('.//{DAV:}getlastmodified')
-            modified = modified_elem.text if modified_elem is not None else None
+                    modified_elem = response.find('.//{DAV:}getlastmodified')
+        modified = modified_elem.text if modified_elem is not None else None
+        
+        # Parse HTTP date string to datetime object
+        if modified:
+            try:
+                from email.utils import parsedate_to_datetime
+                modified = parsedate_to_datetime(modified)
+            except Exception as e:
+                logger.warning(f"Failed to parse modified date '{modified}': {e}")
+                modified = None
             
             # Get content type
             content_type_elem = response.find('.//{DAV:}getcontenttype')
@@ -19022,7 +19031,7 @@ async def import_new_smartdrive_files(
                     continue  # Skip directories for now
                     
                 file_path = file_info['path']
-                file_modified = file_info['modified']
+                file_modified = file_info.get('modified')  # Use .get() to handle None safely
                 
                 # Check if file was modified since last sync
                 if last_sync and file_modified and file_modified <= last_sync:
