@@ -2128,6 +2128,8 @@
                     </div>
                 </div>
                 
+            
+                
             {% elif slide.templateId == 'pyramid' %}
                 <div class="pyramid-template">
                     {% if slide.props.title and slide.props.title != 'Click to add title' %}
@@ -2151,7 +2153,14 @@
                         >{{ slide.props.subtitle }}</div>
                     {% endif %}
                     <div class="main-content">
-                        <div class="pyramid-container">
+                        <div class="pyramid-container positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set pyramidId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[pyramidId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[pyramidId].x }}px, {{ slide.metadata.elementPositions[pyramidId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             <!-- Pyramid SVG 1 (Top Triangle) -->
                             <svg class="pyramid-svg pyramid-svg-1" width="560" height="120" viewBox="66 0 68 60">
                                 <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path pyramid-path-1"/>
