@@ -460,9 +460,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       <Image
                         src={connector.logoPath}
                         alt={`${connector.name} logo`}
-                        width={24}
-                        height={24}
-                        className="object-contain"
+                        width={32}
+                        height={32}
+                        className="object-contain w-8 h-8"
+                        priority={false}
+                        unoptimized={true}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -490,7 +492,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         }
                       }}
                     >
-                      {connector.id === 'browse_uploaded' ? 'Browse' : 'Create'}
+                      {connector.id === 'browse_uploaded' ? 'Browse' : 'Connect'}
                     </Link>
 
                     {hasConnectors && (
