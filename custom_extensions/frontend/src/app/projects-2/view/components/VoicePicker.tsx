@@ -17,10 +17,45 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
   const [scenarioDropdownOpen, setScenarioDropdownOpen] = useState(false);
   const [speed, setSpeed] = useState(50);
   const [stability, setStability] = useState(50);
+  const [applyTo, setApplyTo] = useState<'block' | 'scene' | 'all'>('block');
 
   if (!isOpen) return null;
 
   return (
+    <>
+      {/* Custom CSS for range sliders */}
+      <style jsx>{`
+        .range-slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #000000;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .range-slider::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #000000;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .range-slider::-webkit-slider-track {
+          appearance: none;
+          background: transparent;
+        }
+        
+        .range-slider::-moz-range-track {
+          background: transparent;
+          border: none;
+        }
+      `}</style>
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Light background overlay */}
       <div 
@@ -51,7 +86,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -63,7 +98,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
             <div className="relative">
               <button
                 onClick={() => setAccentDropdownOpen(!accentDropdownOpen)}
-                className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
               >
                 <div className="flex items-center gap-2">
                   <Globe size={16} className="text-gray-600" />
@@ -83,7 +118,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
             <div className="relative">
               <button
                 onClick={() => setAgeDropdownOpen(!ageDropdownOpen)}
-                className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
               >
                 <div className="flex items-center gap-2">
                   <Cake size={16} className="text-gray-600" />
@@ -123,7 +158,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
             <div className="relative">
               <button
                 onClick={() => setScenarioDropdownOpen(!scenarioDropdownOpen)}
-                className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
               >
                 <div className="flex items-center gap-2">
                   <Briefcase size={16} className="text-gray-600" />
@@ -150,17 +185,17 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
         <div className="px-6 py-4 flex justify-between">
           {/* Left Zone */}
           <div className="flex-1">
-            <h3 className="text-lg font-medium text-gray-900">358 voices found</h3>
+            <h3 className="text-sm font-medium text-gray-900">358 voices found</h3>
           </div>
           
           {/* Right Zone */}
           <div className="w-80">
-            <h3 className="text-lg font-medium text-gray-900">Voice details</h3>
+            <h3 className="text-sm font-medium text-gray-900">Voice details</h3>
           </div>
         </div>
 
         {/* Main Content Area (Left and Right Panels) - Placeholder */}
-        <div className="px-6 pb-6 flex gap-6 min-h-[300px]">
+        <div className="px-6 pb-6 flex gap-6 min-h-[300px] max-h-[400px] overflow-y-auto">
           {/* Left Panel - Voice List */}
           <div className="flex-1 bg-gray-50 bg-opacity-20 rounded-lg p-4">
             {/* Create Custom Voice Row */}
@@ -238,7 +273,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 max="100"
                 value={speed}
                 onChange={(e) => setSpeed(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
+                style={{
+                  background: `linear-gradient(to right, #000000 0%, #000000 ${speed}%, #e5e7eb ${speed}%, #e5e7eb 100%)`
+                }}
               />
             </div>
             
@@ -251,7 +289,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 max="100"
                 value={stability}
                 onChange={(e) => setStability(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
+                style={{
+                  background: `linear-gradient(to right, #000000 0%, #000000 ${stability}%, #e5e7eb ${stability}%, #e5e7eb 100%)`
+                }}
               />
             </div>
             
@@ -262,7 +303,69 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
             </button>
           </div>
         </div>
+
+        {/* Footer */}
+        <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
+          {/* Left side - Apply new voice to */}
+          <div className="flex-1">
+            <div className="mb-2">
+              <span className="text-sm text-gray-700">Apply new voice to</span>
+            </div>
+            <div className="bg-gray-200 rounded-lg p-1 inline-flex">
+              <button
+                onClick={() => setApplyTo('block')}
+                className={`px-3 py-1 text-xs rounded transition-colors ${
+                  applyTo === 'block' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                This block only
+              </button>
+              <button
+                onClick={() => setApplyTo('scene')}
+                className={`px-3 py-1 text-xs rounded transition-colors ${
+                  applyTo === 'scene' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                This scene only
+              </button>
+              <button
+                onClick={() => setApplyTo('all')}
+                className={`px-3 py-1 text-xs rounded transition-colors ${
+                  applyTo === 'all' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                All scenes
+              </button>
+            </div>
+          </div>
+
+          {/* Right side - Action buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                // Handle apply voice logic here
+                onClose();
+              }}
+              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Apply voice
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+    </>
   );
 }
