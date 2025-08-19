@@ -16634,6 +16634,54 @@ async def download_projects_list_pdf(
 
         # Calculate summary statistics
         summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
+        
+        # Calculate course statistics by project type (like in preview)
+        def calculate_course_stats_by_type(folder_projects, unassigned_projects):
+            course_stats = {}
+            
+            # Process all projects from folders
+            for folder_id, projects in folder_projects.items():
+                for project in projects:
+                    project_type = project.get('design_microproduct_type', 'Unknown')
+                    if project_type not in course_stats:
+                        course_stats[project_type] = {
+                            'name': project_type,
+                            'modules': 0,
+                            'lessons': 0,
+                            'learningDuration': 0,
+                            'productionTime': 0
+                        }
+                    
+                    # Add project data
+                    course_stats[project_type]['modules'] += 1
+                    course_stats[project_type]['lessons'] += project.get('total_lessons', 0) or 0
+                    course_stats[project_type]['learningDuration'] += project.get('total_hours', 0) or 0
+            
+            # Process unassigned projects
+            for project in unassigned_projects:
+                project_type = project.get('design_microproduct_type', 'Unknown')
+                if project_type not in course_stats:
+                    course_stats[project_type] = {
+                        'name': project_type,
+                        'modules': 0,
+                        'lessons': 0,
+                        'learningDuration': 0,
+                        'productionTime': 0
+                    }
+                
+                # Add project data
+                course_stats[project_type]['modules'] += 1
+                course_stats[project_type]['lessons'] += project.get('total_lessons', 0) or 0
+                course_stats[project_type]['learningDuration'] += project.get('total_hours', 0) or 0
+            
+            # Calculate production time (learning duration * 300 hours per learning hour)
+            for course_type in course_stats.values():
+                course_type['productionTime'] = course_type['learningDuration'] * 300
+            
+            return course_stats
+        
+        # Calculate course statistics by type
+        course_stats_by_type = calculate_course_stats_by_type(folder_projects, unassigned_projects)
 
         # Collect all project IDs that are actually included in the filtered PDF data
         included_project_ids = set()
@@ -16905,7 +16953,8 @@ async def download_projects_list_pdf(
             'generated_at': datetime.now().isoformat(),
             'summary_stats': summary_stats,  # Add summary statistics to template data
             'product_distribution': product_distribution,  # Add real product distribution data
-            'quality_distribution': quality_distribution   # Add real quality distribution data
+            'quality_distribution': quality_distribution,   # Add real quality distribution data
+            'course_stats_by_type': course_stats_by_type  # Add course statistics by type (like in preview)
         }
         
         logger.info(f"[PDF_ANALYTICS] Template data prepared:")
