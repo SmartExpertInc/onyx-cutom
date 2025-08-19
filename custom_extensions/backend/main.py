@@ -16149,6 +16149,7 @@ async def download_projects_list_pdf(
     folder_id: Optional[int] = Query(None),
     column_visibility: Optional[str] = Query(None),  # JSON string of column visibility settings
     client_name: Optional[str] = Query(None),  # Client name for PDF header customization
+    manager_name: Optional[str] = Query(None),  # Manager name for PDF header customization
     selected_folders: Optional[str] = Query(None),  # JSON string of selected folder IDs
     selected_projects: Optional[str] = Query(None),  # JSON string of selected project IDs
     column_widths: Optional[str] = Query(None),  # JSON string of column width settings
@@ -16860,6 +16861,8 @@ async def download_projects_list_pdf(
             'column_widths': column_widths_settings,
             'folder_id': folder_id,
             'client_name': client_name,  # Client name for header customization
+            'manager_name': manager_name if manager_name else 'Project Manager',  # Manager name for header customization
+            'current_date': datetime.now().strftime('%B %d, %Y'),  # Current date in readable format
             'generated_at': datetime.now().isoformat(),
             'summary_stats': summary_stats,  # Add summary statistics to template data
             'product_distribution': product_distribution,  # Add real product distribution data
@@ -16881,7 +16884,7 @@ async def download_projects_list_pdf(
         logger.info(f"[PDF_ANALYTICS] - quality_distribution: {template_data.get('quality_distribution')}")
         
         unique_output_filename = f"projects_list_{onyx_user_id}_{uuid.uuid4().hex[:12]}.pdf"
-        pdf_path = await generate_pdf_from_html_template("projects_list_pdf_template.html", template_data, unique_output_filename)
+        pdf_path = await generate_pdf_from_html_template("modern_projects_list_pdf_template.html", template_data, unique_output_filename)
         
         if not os.path.exists(pdf_path):
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PDF file not found after generation.")

@@ -142,13 +142,14 @@ const FolderExportLoadingModal: React.FC<{
 const ClientNameModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (clientName: string | null, selectedFolders: number[], selectedProjects: number[]) => void;
+  onConfirm: (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[]) => void;
   folders: Folder[];
   folderProjects: Record<number, Project[]>;
   unassignedProjects: Project[];
 }> = ({ isOpen, onClose, onConfirm, folders, folderProjects, unassignedProjects }) => {
   const { t } = useLanguage();
   const [clientName, setClientName] = useState('');
+  const [managerName, setManagerName] = useState('');
   const [selectedFolders, setSelectedFolders] = useState<Set<number>>(new Set());
   const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
@@ -197,15 +198,17 @@ const ClientNameModal: React.FC<{
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onConfirm(clientName.trim() || null, Array.from(selectedFolders), Array.from(selectedProjects));
+    onConfirm(clientName.trim() || null, managerName.trim() || null, Array.from(selectedFolders), Array.from(selectedProjects));
     setClientName('');
+    setManagerName('');
     setSelectedFolders(new Set());
     setSelectedProjects(new Set());
   };
 
   const handleSkip = () => {
-    onConfirm(null, Array.from(selectedFolders), Array.from(selectedProjects));
+    onConfirm(null, null, Array.from(selectedFolders), Array.from(selectedProjects));
     setClientName('');
+    setManagerName('');
     setSelectedFolders(new Set());
     setSelectedProjects(new Set());
   };
@@ -231,29 +234,50 @@ const ClientNameModal: React.FC<{
         </button>
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2 text-gray-900">{t('interface.customizePDF', 'Customize PDF')}</h2>
-          <p className="text-gray-600">{t('interface.customizePDFDescription', 'Enter a client name and select which folders/products to include in the PDF.')}</p>
+          <p className="text-gray-600">{t('interface.customizePDFDescription', 'Enter client and manager names, then select which folders/products to include in the PDF.')}</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="client-name" className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('interface.clientNameOptional', 'Client Name (optional)')}
-            </label>
-            <input
-              id="client-name"
-              type="text"
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleSubmit(e as any);
-                }
-              }}
-              placeholder={t('interface.enterClientName', 'Enter client name')}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300"
-              autoFocus
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="client-name" className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('interface.clientNameOptional', 'Client Name (optional)')}
+              </label>
+              <input
+                id="client-name"
+                type="text"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSubmit(e as any);
+                  }
+                }}
+                placeholder={t('interface.enterClientName', 'Enter client name')}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label htmlFor="manager-name" className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('interface.managerNameOptional', 'Manager Name (optional)')}
+              </label>
+              <input
+                id="manager-name"
+                type="text"
+                value={managerName}
+                onChange={(e) => setManagerName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSubmit(e as any);
+                  }
+                }}
+                placeholder={t('interface.enterManagerName', 'Enter manager name')}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300"
+              />
+            </div>
           </div>
 
           <div>
@@ -3227,7 +3251,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     };
 
     // Handle client name confirmation
-    const handleClientNameConfirm = (clientName: string | null, selectedFolders: number[], selectedProjects: number[]) => {
+    const handleClientNameConfirm = (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[]) => {
         setShowClientNameModal(false);
         
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -3249,6 +3273,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         // Add client name if provided
         if (clientName) {
             queryParams.append('client_name', clientName);
+        }
+        
+        // Add manager name if provided
+        if (managerName) {
+            queryParams.append('manager_name', managerName);
         }
         
         // Add selected folders and projects if any are selected
