@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check, RotateCcw } from 'lucide-react';
+import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check, RotateCcw } from 'lucide-react';
 
 // Custom Radio Wave Icon
 const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
@@ -19,13 +19,22 @@ const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className
   </svg>
 );
 
+interface Voice {
+  id: string;
+  name: string;
+  accent?: string;
+  age?: string;
+  tone?: string;
+  scenario?: string;
+}
+
 interface VoicePickerProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectVoice?: (voice: any) => void;
+  onSelectVoice?: (voice: Voice) => void;
 }
 
-export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePickerProps) {
+export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice }: VoicePickerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [accentDropdownOpen, setAccentDropdownOpen] = useState(false);
   const [ageDropdownOpen, setAgeDropdownOpen] = useState(false);
