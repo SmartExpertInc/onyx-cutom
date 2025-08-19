@@ -44,7 +44,7 @@ print(Fernet.generate_key().decode())
 
 ### 2. One-Click Nextcloud Connection 🚀
 - Click **"Connect Nextcloud Account"** button
-- Enter your Nextcloud server URL (e.g., `http://nc1.contentbuilder.ai:8080`)
+- **Use the default HTTPS URL** (automatically filled - uses secure proxy)
 - A **popup window opens to your familiar Nextcloud login page**
 - **Login normally** with your regular username/password
 - **Handles 2FA, SSO, and any auth method automatically!**
@@ -55,6 +55,7 @@ print(Fernet.generate_key().decode())
 - System receives auto-generated app password from Nextcloud
 - Status changes to "✅ Connected to Nextcloud"
 - All credentials are encrypted and stored securely
+- **Note**: Default URL uses secure HTTPS proxy, avoiding mixed content issues
 
 ### 4. Upload Files to Your Nextcloud
 - Use the embedded Nextcloud interface to upload files
@@ -115,8 +116,45 @@ The following tables are automatically created on startup:
 - Check that your App Password has not expired
 - Look for import errors in backend logs
 
-### Issue: Mixed content HTTPS/HTTP errors  
-- ✅ **Fixed**: iframe now uses same protocol as parent page
+### Issue: Mixed Content Error (HTTPS page accessing HTTP Nextcloud)
+- **Error**: `"was loaded over HTTPS, but requested an insecure resource 'http://...' This request has been blocked"`
+- **Cause**: Browser security blocks HTTP requests from HTTPS pages
+- **Solutions**:
+
+#### **Solution 1: Enable HTTPS on Nextcloud (Recommended)** ✅
+1. **Configure SSL/TLS for your Nextcloud server**:
+   ```bash
+   # For Nextcloud in Docker, add SSL configuration
+   # Update your Nextcloud docker-compose.yml or reverse proxy
+   ```
+2. **Update Nginx proxy to handle HTTPS**:
+   ```nginx
+   # In deployment/data/nginx/app.conf.template.dev
+   upstream nextcloud_server {
+       server nc1.contentbuilder.ai:8080;  # Internal HTTP is OK
+   }
+   
+   location ^~ /smartdrive/ {
+       # Proxy to HTTP backend (OK for internal)
+       proxy_pass http://nextcloud_server/;
+       
+       # But serve via HTTPS to frontend
+       proxy_set_header Host $host;
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   }
+   ```
+3. **Test with HTTPS URL**: `https://nc1.contentbuilder.ai:8080` or `https://your-domain/smartdrive/`
+
+#### **Solution 2: Use Internal Proxy (Immediate Fix)** 🚀
+Instead of direct Nextcloud access, use the proxied URL:
+- **Change server URL to**: `https://ml-dev.contentbuilder.ai/smartdrive`
+- This uses your existing Nginx HTTPS proxy to reach Nextcloud internally
+
+#### **Solution 3: Development Workaround**
+For development only, access the page via HTTP:
+- Go to: `http://ml-dev.contentbuilder.ai/custom-projects-ui/projects?tab=smart-drive`
+- ⚠️ **Not recommended for production**
 
 ### Issue: Custom connector endpoints returning 410 errors
 - ✅ **Fixed**: Now using Onyx's native connector system with `AccessType.PRIVATE`

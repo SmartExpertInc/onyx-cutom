@@ -66,11 +66,21 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
       
       // Ask user for their Nextcloud server URL
       const serverUrl = prompt(
-        'Enter your Nextcloud server URL:', 
-        'http://nc1.contentbuilder.ai:8080'
+        'Enter your Nextcloud server URL (must be HTTPS):\n\nUse the default URL below (proxied through this server) or your direct HTTPS Nextcloud URL:', 
+        `https://${window.location.host}/smartdrive`
       );
       
       if (!serverUrl) {
+        setIsAuthenticating(false);
+        return;
+      }
+
+      // Check for mixed content issues
+      if (window.location.protocol === 'https:' && serverUrl.startsWith('http:')) {
+        alert(
+          'Security Error: Cannot connect to HTTP Nextcloud server from HTTPS page.\n\n' +
+          'Please use an HTTPS URL (e.g., https://your-server) or access this page over HTTP.'
+        );
         setIsAuthenticating(false);
         return;
       }
