@@ -18806,8 +18806,30 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             if file_path.endswith('/remote.php/dav/files/'):
                 continue  # Skip the root directory entry
                 
+            # Extract relative path by removing the WebDAV prefix
+            # file_path looks like: /smartdrive/remote.php/dav/files/username/Documents/file.txt
+            # We want just: /Documents/file.txt
+            if '/remote.php/dav/files/' in file_path:
+                # Find the username part and extract everything after it
+                parts = file_path.split('/remote.php/dav/files/')
+                if len(parts) > 1:
+                    # parts[1] is like "username/Documents/file.txt"
+                    username_and_path = parts[1]
+                    # Split by first "/" to separate username from the actual path
+                    path_parts = username_and_path.split('/', 1)
+                    if len(path_parts) > 1:
+                        # This is the actual relative path we want
+                        relative_path = '/' + path_parts[1]
+                    else:
+                        # Just the username, so root path
+                        relative_path = '/'
+                else:
+                    relative_path = '/'
+            else:
+                relative_path = file_path
+                
             # Extract file name
-            name = file_path.split('/')[-1] if not file_path.endswith('/') else file_path.split('/')[-2]
+            name = relative_path.split('/')[-1] if not relative_path.endswith('/') else relative_path.split('/')[-2]
             if not name:
                 continue
                 
@@ -18829,7 +18851,7 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             
             files.append({
                 "name": name,
-                "path": file_path,
+                "path": relative_path,
                 "type": "directory" if is_directory else "file",
                 "size": size,
                 "modified": modified,
@@ -19248,6 +19270,66 @@ async def import_file_to_onyx(nextcloud_user_folder: str, file_path: str, file_i
     except Exception as e:
         logger.error(f"Error importing file {file_path} to Onyx: {e}")
         return None
+
+
+async def import_file_to_onyx_individual(
+    nextcloud_username: str, 
+    nextcloud_password: str, 
+    nextcloud_base_url: str, 
+    file_path: str, 
+    file_info: Dict, 
+    onyx_user_id: str
+) -> str:
+    """Download file from individual Nextcloud account and upload to Onyx"""
+    try:
+        # Build download URL for individual account
+        download_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            download_response = await client.get(download_url, auth=auth)
+            
+            if download_response.status_code != 200:
+                logger.error(f"Failed to download {file_path}: {download_response.status_code}")
+                return None
+                
+            file_content = download_response.content
+            file_name = file_info['name']
+            mime_type = file_info.get('mime_type', 'application/octet-stream')
+            
+            # Upload to Onyx using the existing file upload endpoint
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/file"
+            
+            # Create multipart form data
+            files = {
+                'file': (file_name, file_content, mime_type)
+            }
+            
+            # Upload to Onyx
+            upload_response = await client.post(
+                onyx_upload_url,
+                files=files,
+                timeout=60.0
+            )
+            
+            if upload_response.status_code in [200, 201]:
+                response_data = upload_response.json()
+                # Extract file ID from Onyx response
+                if isinstance(response_data, list) and len(response_data) > 0:
+                    return str(response_data[0].get('id'))
+                elif isinstance(response_data, dict):
+                    return str(response_data.get('id'))
+                else:
+                    logger.error(f"Unexpected Onyx response format: {response_data}")
+                    return None
+            else:
+                logger.error(f"Failed to upload to Onyx: {upload_response.status_code} - {upload_response.text}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error importing individual file {file_path}: {e}")
+        return None
+
 
 @app.post("/api/custom/smartdrive/webhook")
 async def smartdrive_webhook(
