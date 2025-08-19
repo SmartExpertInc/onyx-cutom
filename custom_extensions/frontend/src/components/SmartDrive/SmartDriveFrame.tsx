@@ -298,7 +298,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
     }
   };
 
-  // Auto-sync function (silent, no alerts)
+  // Auto-sync function (completely silent, no iframe refresh)
   const performAutoSync = async () => {
     if (!hasCredentials) {
       return;
@@ -313,10 +313,10 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
       if (response.ok) {
         const result = await response.json();
         if (result.imported_count > 0) {
-          // Only update UI if files were actually imported
+          // Only update UI counters if files were actually imported
+          // DO NOT refresh iframe - keep it silent for auto-sync
           setLastAutoSyncTime(new Date().toLocaleTimeString());
           setAutoSyncCount(prev => prev + result.imported_count);
-          setIframeKey(prev => prev + 1); // Refresh iframe
         }
       } else {
         const errorData = await response.json();
