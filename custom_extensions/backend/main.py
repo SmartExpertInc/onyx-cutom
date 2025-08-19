@@ -33,6 +33,8 @@ import inspect
 import openai
 from openai import AsyncOpenAI
 from uuid import uuid4
+from cryptography.fernet import Fernet
+
 # NEW: PDF manipulation imports
 try:
     from PyPDF2 import PdfMerger
@@ -6461,20 +6463,31 @@ async def startup_event():
             # SMART DRIVE DATABASE MIGRATIONS
             # ============================
             
-            # SmartDrive Accounts: Per-user SmartDrive linkage and cursors
+            # SmartDrive Accounts: Per-user SmartDrive linkage with individual Nextcloud credentials
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS smartdrive_accounts (
                     id SERIAL PRIMARY KEY,
                     onyx_user_id VARCHAR(255) NOT NULL UNIQUE,
-                    nextcloud_user_id VARCHAR(255) NOT NULL,
+                    nextcloud_username VARCHAR(255),
+                    nextcloud_password_encrypted TEXT,
+                    nextcloud_base_url VARCHAR(512) DEFAULT 'http://nc1.contentbuilder.ai:8080',
                     sync_cursor JSONB DEFAULT '{}',
-                    credentials_encrypted TEXT,
                     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     CONSTRAINT idx_smartdrive_accounts_onyx_user UNIQUE (onyx_user_id)
                 );
             """)
-            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_accounts_nextcloud_user ON smartdrive_accounts(nextcloud_user_id);")
+            
+            # Add new columns to existing tables (migration-safe)
+            try:
+                await connection.execute("ALTER TABLE smartdrive_accounts ADD COLUMN IF NOT EXISTS nextcloud_username VARCHAR(255);")
+                await connection.execute("ALTER TABLE smartdrive_accounts ADD COLUMN IF NOT EXISTS nextcloud_password_encrypted TEXT;")
+                await connection.execute("ALTER TABLE smartdrive_accounts ADD COLUMN IF NOT EXISTS nextcloud_base_url VARCHAR(512) DEFAULT 'http://nc1.contentbuilder.ai:8080';")
+            except Exception as e:
+                logger.info(f"Columns may already exist: {e}")
+                pass
+            # Add encryption helper functions
+            await connection.execute("INSERT INTO smartdrive_accounts (onyx_user_id, nextcloud_username, nextcloud_password_encrypted) VALUES ('system_encryption_key', '__encryption_key__', '__placeholder__') ON CONFLICT (onyx_user_id) DO NOTHING;")
             logger.info("'smartdrive_accounts' table ensured.")
 
             # SmartDrive Imports: Maps SmartDrive files to Onyx files with etags/checksums
@@ -18587,27 +18600,114 @@ async def bootstrap_smartdrive_session(
             )
             
             if not account:
-                # Create new SmartDrive account entry
+                # Create new SmartDrive account placeholder
                 await conn.execute(
                     """
-                    INSERT INTO smartdrive_accounts (onyx_user_id, nextcloud_user_id, sync_cursor, created_at, updated_at)
-                    VALUES ($1, $2, $3, $4, $5)
+                    INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4)
                     """,
                     onyx_user_id,
-                    onyx_user_id,  # Use Onyx user ID as Nextcloud user ID for simplicity
                     '{}',  # Empty JSON cursor
                     datetime.now(timezone.utc),
                     datetime.now(timezone.utc)
                 )
-                logger.info(f"Created SmartDrive account for user: {onyx_user_id}")
+                logger.info(f"Created SmartDrive account placeholder for user: {onyx_user_id}")
+                has_credentials = False
             else:
                 logger.info(f"SmartDrive account already exists for user: {onyx_user_id}")
+                has_credentials = bool(account.get('nextcloud_username') and account.get('nextcloud_password_encrypted'))
 
-        return {"success": True, "message": "SmartDrive session initialized"}
+        return {
+            "success": True, 
+            "message": "SmartDrive session initialized",
+            "has_credentials": has_credentials,
+            "setup_required": not has_credentials
+        }
         
     except Exception as e:
         logger.error(f"Error bootstrapping SmartDrive session: {e}")
         raise HTTPException(status_code=500, detail="Failed to initialize SmartDrive session")
+
+
+@app.post("/api/custom/smartdrive/credentials")
+async def set_smartdrive_credentials(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Set or update user's Nextcloud credentials"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get request data
+        data = await request.json()
+        nextcloud_username = data.get('nextcloud_username', '').strip()
+        nextcloud_password = data.get('nextcloud_password', '').strip()
+        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
+        
+        if not nextcloud_username or not nextcloud_password:
+            raise HTTPException(status_code=400, detail="Username and password are required")
+        
+        # Encrypt password
+        encrypted_password = encrypt_password(nextcloud_password)
+        
+        async with pool.acquire() as conn:
+            # Update or insert credentials
+            await conn.execute(
+                """
+                UPDATE smartdrive_accounts 
+                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                WHERE onyx_user_id = $1
+                """,
+                onyx_user_id,
+                nextcloud_username,
+                encrypted_password,
+                nextcloud_base_url,
+                datetime.now(timezone.utc)
+            )
+            
+        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
+        return {"success": True, "message": "Nextcloud credentials saved successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting SmartDrive credentials: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/custom/smartdrive/credentials")
+async def set_smartdrive_credentials(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Set or update user's Nextcloud credentials"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        data = await request.json()
+        
+        nextcloud_username = data.get('nextcloud_username', '').strip()
+        nextcloud_password = data.get('nextcloud_password', '').strip()
+        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
+        
+        if not nextcloud_username or not nextcloud_password:
+            raise HTTPException(status_code=400, detail="Username and password are required")
+        
+        # Encrypt password
+        encrypted_password = encrypt_password(nextcloud_password)
+        
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                UPDATE smartdrive_accounts 
+                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                WHERE onyx_user_id = $1
+            """, onyx_user_id, nextcloud_username, encrypted_password, nextcloud_base_url, datetime.now(timezone.utc))
+            
+        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
+        return {"success": True, "message": "Nextcloud credentials saved successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting SmartDrive credentials: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/custom/smartdrive/list")
 async def list_smartdrive_files(
@@ -18741,6 +18841,37 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
         
     return files
 
+# --- Encryption Functions ---
+def get_or_create_encryption_key():
+    """Get or create a Fernet encryption key for the system"""
+    key = os.getenv("SMARTDRIVE_ENCRYPTION_KEY")
+    if not key:
+        # Generate a new key and save it to environment (in production, store securely)
+        from cryptography.fernet import Fernet
+        key = Fernet.generate_key().decode()
+        logger.warning(f"Generated new encryption key. Please set SMARTDRIVE_ENCRYPTION_KEY={key} in your environment for production!")
+    return key.encode()
+
+def encrypt_password(password: str) -> str:
+    """Encrypt a password for storage"""
+    try:
+        from cryptography.fernet import Fernet
+        f = Fernet(get_or_create_encryption_key())
+        return f.encrypt(password.encode()).decode()
+    except Exception as e:
+        logger.error(f"Failed to encrypt password: {e}")
+        raise HTTPException(status_code=500, detail="Encryption failed")
+
+def decrypt_password(encrypted_password: str) -> str:
+    """Decrypt a password from storage"""
+    try:
+        from cryptography.fernet import Fernet
+        f = Fernet(get_or_create_encryption_key())
+        return f.decrypt(encrypted_password.encode()).decode()
+    except Exception as e:
+        logger.error(f"Failed to decrypt password: {e}")
+        raise HTTPException(status_code=500, detail="Decryption failed")
+
 async def get_mock_files_response(path: str) -> Dict:
     """Fallback mock data when Nextcloud is unavailable"""
     mock_files = [
@@ -18842,14 +18973,21 @@ async def import_new_smartdrive_files(
             if not account:
                 raise HTTPException(status_code=404, detail="SmartDrive account not found")
 
-            nextcloud_user_id = account['nextcloud_user_id']
+            # Check if user has set up their Nextcloud credentials
+            if not account['nextcloud_username'] or not account['nextcloud_password_encrypted']:
+                raise HTTPException(status_code=400, detail="Please set up your Nextcloud credentials first")
+
+            # Decrypt user's credentials
+            nextcloud_username = account['nextcloud_username']
+            nextcloud_password = decrypt_password(account['nextcloud_password_encrypted'])
+            nextcloud_base_url = account['nextcloud_base_url'] or 'http://nc1.contentbuilder.ai:8080'
+            
             # Parse JSON cursor from database
             sync_cursor = json.loads(account['sync_cursor']) if account['sync_cursor'] else {}
             last_sync = sync_cursor.get('last_sync') if sync_cursor else None
             
-            # Get list of all files from Nextcloud
-            nextcloud_user_folder = account['nextcloud_user_id']  # User's folder within shared account
-            all_files = await get_all_nextcloud_files(nextcloud_user_folder, "/")
+            # Get list of all files from user's individual Nextcloud account
+            all_files = await get_all_nextcloud_files_individual(nextcloud_username, nextcloud_password, nextcloud_base_url, "/")
             
             imported_count = 0
             imported_files = []
@@ -18877,8 +19015,10 @@ async def import_new_smartdrive_files(
                 
                 # Try to import the file into Onyx
                 try:
-                    onyx_file_id = await import_file_to_onyx(
-                        nextcloud_user_folder, 
+                    onyx_file_id = await import_file_to_onyx_individual(
+                        nextcloud_username,
+                        nextcloud_password,
+                        nextcloud_base_url, 
                         file_path, 
                         file_info, 
                         onyx_user_id
@@ -18978,6 +19118,40 @@ async def ensure_user_folder_exists(nextcloud_username: str, nextcloud_password:
                 
     except Exception as e:
         logger.error(f"Error ensuring user folder exists: {e}")
+
+async def get_all_nextcloud_files_individual(nextcloud_username: str, nextcloud_password: str, nextcloud_base_url: str, base_path: str = "/") -> List[Dict]:
+    """Get all files from user's individual Nextcloud account recursively"""
+    all_files = []
+    
+    async def traverse_directory(path: str):
+        try:
+            webdav_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{path}"
+            auth = (nextcloud_username, nextcloud_password)
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.request("PROPFIND", webdav_url, auth=auth, headers={"Depth": "1"})
+                
+                if response.status_code == 404:
+                    logger.warning(f"Directory not found: {path}")
+                    return
+                elif response.status_code != 207:
+                    logger.error(f"WebDAV PROPFIND failed: {response.status_code} - {response.text}")
+                    return
+                    
+                files = parse_webdav_response(response.text, nextcloud_base_url, nextcloud_username)
+                
+                for file_info in files:
+                    if file_info['name'] != '.':  # Skip current directory entry
+                        all_files.append(file_info)
+                        if file_info['type'] == 'directory':
+                            await traverse_directory(file_info['path'])
+                            
+        except Exception as e:
+            logger.error(f"Error traversing directory {path}: {e}")
+    
+    await traverse_directory(base_path)
+    return all_files
+
 
 async def get_all_nextcloud_files(nextcloud_user_folder: str, base_path: str = "/") -> List[Dict]:
     """Recursively get all files from Nextcloud using shared account"""

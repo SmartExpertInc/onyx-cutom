@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
+from fastapi import Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -41,6 +42,7 @@ from onyx.db.index_attempt import get_latest_index_attempt_for_cc_pair_id
 from onyx.db.index_attempt import get_paginated_index_attempts_for_cc_pair_id
 from onyx.db.models import SearchSettings
 from onyx.db.models import User
+from onyx.db.models import Connector
 from onyx.db.search_settings import get_active_search_settings_list
 from onyx.db.search_settings import get_current_search_settings
 from onyx.redis.redis_connector import RedisConnector
@@ -448,12 +450,24 @@ def associate_credential_to_connector(
     user: User | None = Depends(current_curator_or_admin_user),
     db_session: Session = Depends(get_session),
     tenant_id: str = Depends(get_current_tenant_id),
+    request: Request = None,
 ) -> StatusResponse[int]:
     """NOTE(rkuo): internally discussed and the consensus is this endpoint
     and create_connector_with_mock_credential should be combined.
 
     The intent of this endpoint is to handle connectors that actually need credentials.
     """
+
+    # Check if this credential association is for a Smart Drive connector
+    if request and request.headers.get("x-smart-drive-credential") == "true":
+        from onyx.server.documents.connector import get_or_create_user_group_for_smart_drive
+        # Get or create user's personal Smart Drive group
+        user_group_id = get_or_create_user_group_for_smart_drive(user, db_session)
+        # Add user's personal group to the metadata
+        if user_group_id not in (metadata.groups or []):
+            metadata.groups = (metadata.groups or []) + [user_group_id]
+        # Force private access for Smart Drive connectors
+        metadata.access_type = AccessType.PRIVATE
 
     fetch_ee_implementation_or_noop(
         "onyx.db.user_group", "validate_object_creation_for_user", None

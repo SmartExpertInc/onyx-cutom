@@ -149,7 +149,7 @@ const ConnectorsPage: React.FC = () => {
             {connectorSources.map((source) => (
                              <a
                  key={source.id}
-                 href={`/admin/connectors/${source.id}?access_type=private&smart_drive=true&return_url=${encodeURIComponent('/projects/smart-drive/connectors')}`}
+                                         href={`/admin/connectors/${source.id}?access_type=private&smart_drive=true&smart_drive_user_group=true&return_url=${encodeURIComponent('/projects/smart-drive/connectors')}`}
                  className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
                >
                 <span className="text-2xl">{source.icon}</span>

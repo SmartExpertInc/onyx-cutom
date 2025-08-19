@@ -424,7 +424,8 @@ export default function AddConnector({
             name,
             access_type,
             groups,
-            auto_sync_options
+            auto_sync_options,
+            isSmartDriveConnector
           );
           if (linkCredentialResponse.ok) {
             onSuccess();

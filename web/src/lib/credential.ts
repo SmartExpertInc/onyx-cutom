@@ -47,15 +47,23 @@ export function linkCredential(
   name?: string,
   accessType?: AccessType,
   groups?: number[],
-  autoSyncOptions?: Record<string, any>
+  autoSyncOptions?: Record<string, any>,
+  isSmartDriveConnector?: boolean
 ) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  
+  // Add Smart Drive header if this is a Smart Drive connector
+  if (isSmartDriveConnector) {
+    headers["x-smart-drive-credential"] = "true";
+  }
+  
   return fetch(
     `/api/manage/connector/${connectorId}/credential/${credentialId}`,
     {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
         name: name || null,
         access_type: accessType !== undefined ? accessType : "public",
