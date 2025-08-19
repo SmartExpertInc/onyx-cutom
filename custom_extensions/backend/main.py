@@ -19272,9 +19272,8 @@ async def import_file_to_onyx(nextcloud_user_folder: str, file_path: str, file_i
             files = {
                 'files': (file_name, file_content, mime_type)
             }
-            data = {
-                'folder_id': '1'  # Use default folder ID
-            }
+            # Don't specify folder_id to use default "Recent Documents" folder (ID -1)
+            data = {}
             
             # Upload to Onyx with session authentication
             upload_response = await client.post(
@@ -19336,9 +19335,8 @@ async def import_file_to_onyx_individual(
             files = {
                 'files': (file_name, file_content, mime_type)
             }
-            data = {
-                'folder_id': '1'  # Use default folder ID
-            }
+            # Don't specify folder_id to use default "Recent Documents" folder (ID -1)
+            data = {}
             
             # Upload to Onyx with session authentication
             upload_response = await client.post(
