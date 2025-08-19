@@ -264,11 +264,28 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
       {/* Credentials Setup Modal */}
       {showCredentials && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4">
             <h3 className="text-lg font-semibold mb-4">Setup Nextcloud Credentials</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Please provide your individual Nextcloud account credentials:
-            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Important: Use App Password
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>You must create and use a <strong>Nextcloud App Password</strong>, not your regular login password.</p>
+                    <p className="mt-1">
+                      <strong>How to create:</strong> Go to Nextcloud → Personal Settings → Security → "App passwords" → Create new app password
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
             
             <div className="space-y-4">
               <div>
@@ -289,7 +306,8 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nextcloud Password
+                  Nextcloud App Password 
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="password"
@@ -299,8 +317,11 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
                     nextcloud_password: e.target.value
                   }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="your-password"
+                  placeholder="xxxxx-xxxxx-xxxxx-xxxxx-xxxxx (App Password, NOT regular password)"
                 />
+                <p className="mt-1 text-xs text-gray-500">
+                  This must be an App Password from your Nextcloud security settings, not your regular password
+                </p>
               </div>
               
               <div>
@@ -331,7 +352,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
                 disabled={!credentialsForm.nextcloud_username || !credentialsForm.nextcloud_password}
                 className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg"
               >
-                Save Credentials
+                Save App Password
               </button>
             </div>
           </div>

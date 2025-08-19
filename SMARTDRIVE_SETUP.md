@@ -25,7 +25,46 @@ OPENAI_API_KEY=your_openai_api_key
 ```bash
 # Nextcloud upstream for proxy (hostname:port only)
 NEXTCLOUD_UPSTREAM_HOST=nc1.contentbuilder.ai:8080
+
+# IMPORTANT: Individual User Account Encryption
+SMARTDRIVE_ENCRYPTION_KEY=your_generated_fernet_key_here
 ```
+
+**Generate the encryption key:**
+```python
+from cryptography.fernet import Fernet
+print(Fernet.generate_key().decode())
+```
+
+## User Setup Steps
+
+### 1. Create Nextcloud App Password ⚠️ **CRITICAL**
+- Log into your personal Nextcloud account 
+- Go to **Personal Settings → Security → "App passwords"**
+- Click **"Create new app password"** and give it a name (e.g., "Onyx Smart Drive")
+- Copy the generated app password (format: `xxxxx-xxxxx-xxxxx-xxxxx-xxxxx`)
+- **⚠️ You MUST use an App Password, not your regular login password**
+- **⚠️ This is mandatory for accounts with 2FA enabled**
+
+### 2. Navigate to Smart Drive Tab
+- Go to **Projects page → "Smart Drive" tab**
+- Click **"Browse Uploaded"** to see the Nextcloud interface in an iframe
+
+### 3. Set Up Individual Nextcloud Credentials 
+- Click **"Setup Credentials"** button (appears if credentials not configured)
+- Enter your personal Nextcloud username
+- **Enter the App Password** you created in step 1 (NOT your regular password)
+- Enter your Nextcloud server URL
+- Credentials are encrypted and stored securely in the database
+
+### 4. Upload Files to Your Nextcloud
+- Use the embedded Nextcloud interface to upload files
+- Files are stored in your individual Nextcloud account
+
+### 5. Sync Files to Onyx
+- Click **"Sync to Onyx"** button
+- Files are imported and indexed in Onyx with proper user isolation
+- Each user's files are completely private from other users
 
 ## Database Tables
 
@@ -47,7 +86,7 @@ The following tables are automatically created on startup:
 - **HTTPS Support**: Proper mixed content handling
 
 ### 🔧 Current Limitations
-- Uses basic auth for Nextcloud (should use OAuth/app passwords in production)
+- ✅ **App Password Support**: Now properly uses Nextcloud App Passwords for secure authentication
 - No real-time webhook support (manual sync required)
 - Directory uploads not implemented
 
@@ -58,12 +97,17 @@ The following tables are automatically created on startup:
 - The form data is being sent correctly to the backend
 - Try disabling browser extensions or use incognito mode
 
-### Issue: Files don't appear after sync (401 Unauthorized / 404 Not Found)
-- ✅ **Fixed**: Now uses shared Nextcloud account approach with auto-folder creation
-- Verify `NEXTCLOUD_USERNAME` and `NEXTCLOUD_PASSWORD` are correct for the shared account
-- Each Onyx user gets their own folder within the shared Nextcloud account (e.g., `/smart_drive_user/{onyx_user_id}/`)
-- User folders are automatically created when first accessed
-- Check that the shared Nextcloud account has proper permissions
+### Issue: 401 Unauthorized during sync
+- ✅ **Fixed**: Now uses individual Nextcloud accounts with App Passwords
+- **Solution**: Users must create and use Nextcloud App Passwords (not regular passwords)
+- Go to Nextcloud → Personal Settings → Security → "App passwords" → Create new
+- **Required for all accounts with 2FA enabled**
+- Use the generated App Password in the Smart Drive credentials setup
+
+### Issue: Files don't appear after sync (404 Not Found) 
+- Verify your personal Nextcloud account credentials are correct
+- Ensure your Nextcloud server URL is accessible
+- Check that your App Password has not expired
 - Look for import errors in backend logs
 
 ### Issue: Mixed content HTTPS/HTTP errors  
@@ -84,11 +128,10 @@ The following tables are automatically created on startup:
 
 ## Next Steps for Production
 
-1. **Secure Authentication**: Replace basic auth with Nextcloud OAuth or app passwords
+1. ✅ **Secure Authentication**: Now uses Nextcloud App Passwords with encrypted credential storage
 2. **Webhook Integration**: Implement real-time sync via Nextcloud webhooks
-3. **Encrypted Credentials**: Store user Nextcloud credentials encrypted
-4. **Directory Support**: Allow uploading/syncing entire folders
-5. **Error Handling**: Better user feedback for sync failures
+3. **Directory Support**: Allow uploading/syncing entire folders
+4. **Error Handling**: Better user feedback for sync failures
 
 ## API Endpoints
 
