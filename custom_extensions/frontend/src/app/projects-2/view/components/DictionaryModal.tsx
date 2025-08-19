@@ -71,16 +71,8 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
       >
         
         {/* Header */}
-        <div className="p-6 pb-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg text-gray-900 font-medium">Add new word</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-            >
-              <X size={20} />
-            </button>
-          </div>
+        <div className="p-6 pb-4">
+          <h2 className="text-lg text-gray-900 font-medium">Add new word</h2>
         </div>
 
         {/* Content */}
@@ -209,18 +201,7 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
         style={{ borderRadius: '12px' }}
       >
         
-        {/* Header */}
-        <div className="p-6 pb-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg text-gray-900 font-medium">Dictionary</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-            >
-              <X size={20} />
-            </button>
-          </div>
-        </div>
+
 
         {/* Content Area */}
         <div className="flex-1 p-6">
@@ -234,23 +215,23 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
           {/* Row 2: Search bar + Add new word button */}
           <div className="flex items-center gap-4 mb-6">
             {/* Search bar */}
-            <div className="flex-1 relative">
+            <div className="w-48 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search size={16} className="text-gray-400" />
               </div>
               <input
                 type="text"
-                placeholder="Search pronunciations..."
+                placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             
             {/* Add new word button */}
             <button 
               onClick={() => setIsAddWordModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               <Plus size={16} />
               <span>Add new word</span>
@@ -286,14 +267,16 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
                 </div>
                 
                 {/* Column 3: Voice */}
-                <div className="flex items-center gap-2">
-                  <USFlag size={16} />
-                  <span className="text-gray-900">Bill</span>
-                  <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
-                    <Play size={14} />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <USFlag size={16} />
+                    <span className="text-gray-900">Bill</span>
+                  </div>
+                  <button className="p-1 text-black hover:text-gray-700 hover:bg-gray-100 rounded transition-colors">
+                    <Play size={18} />
                   </button>
-                  <button className="p-1 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded transition-colors">
-                    <Trash2 size={14} />
+                  <button className="p-1 text-black hover:text-red-600 hover:bg-gray-100 rounded transition-colors">
+                    <Trash2 size={18} />
                   </button>
                 </div>
               </div>
@@ -301,17 +284,7 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-gray-200 px-6 py-4">
-          <div className="flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+
       </div>
 
       {/* Add New Word Modal */}
