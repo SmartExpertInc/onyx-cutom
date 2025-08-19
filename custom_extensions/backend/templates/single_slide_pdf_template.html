@@ -1836,9 +1836,8 @@
                 
             {% elif slide.templateId == 'big-numbers' %}
                 <!-- DEBUG: big-numbers template -->
-                                <div class="big-numbers">
- 
-                    {% if slide.props.title %}
+                <div class="big-numbers">
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
                                 {% set titleId = 'draggable-' + slide.slideId + '-title' %}
@@ -1852,9 +1851,9 @@
                         {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
                             <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
                             {% for item in slide.props.items %}
-                                {% if item.value or item.label or item.description %}
+                                {% if (item.value and item.value != 'Click to add value') or (item.label and item.label != 'Click to add label') or (item.description and item.description != 'Click to add description') %}
                                     <div class="number-item">
-                                        {% if item.value %}
+                                        {% if item.value and item.value != 'Click to add value' %}
                                             <div class="number-value positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                                     {% set valueId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-value' %}
@@ -1864,7 +1863,7 @@
                                                 {% endif %}
                                             >{{ item.value }}</div>
                                         {% endif %}
-                                        {% if item.label %}
+                                        {% if item.label and item.label != 'Click to add label' %}
                                             <div class="number-label positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                                     {% set labelId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-label' %}
@@ -1874,7 +1873,7 @@
                                                 {% endif %}
                                             >{{ item.label }}</div>
                                         {% endif %}
-                                        {% if item.description %}
+                                        {% if item.description and item.description != 'Click to add description' %}
                                             <div class="number-description positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                                     {% set descriptionId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-description' %}
@@ -1891,7 +1890,21 @@
                             <!-- DEBUG: items is not iterable or is callable, using fallback -->
                         {% endif %}
                         {% if not slide.props.items or slide.props.items is not iterable or slide.props.items is callable or slide.props.items|length == 0 %}
-                            <!-- No items available - template will be empty -->
+                            <div class="number-item">
+                                <div class="number-value">100+</div>
+                                <div class="number-label">Countries Served</div>
+                                <div class="number-description">We have expanded our operations to over 100 countries worldwide.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">5</div>
+                                <div class="number-label">Years in Business</div>
+                                <div class="number-description">Celebrating over 5 years of successful operations.</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">20%</div>
+                                <div class="number-label">Employee Satisfaction Rate</div>
+                                <div class="number-description">Our employee satisfaction rate stands at an impressive 20%.</div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
@@ -1929,7 +1942,22 @@
                             {% endif %}
                         {% endfor %}
                         {% if not slide.props.boxes or slide.props.boxes is not iterable or slide.props.boxes is callable or slide.props.boxes|length == 0 %}
-                            <!-- No boxes available - template will be empty -->
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">The teamwork culture makes every project enjoyable and successful.</div>
+                            </div>
+                            <div class="box-item">
+                                <div class="box-heading">[Employee Name]</div>
+                                <div class="box-text">Our commitment to customer focus is evident in everything we do.</div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
