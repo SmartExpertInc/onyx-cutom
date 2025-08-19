@@ -18863,6 +18863,17 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
         
     return files
 
+# --- Date Parsing Functions ---
+def parse_http_date(date_string: str) -> datetime:
+    """Parse HTTP date string (RFC 2822 format) to datetime object"""
+    try:
+        # Parse HTTP date format like "Wed, 13 Aug 2025 23:31:13 GMT"
+        from email.utils import parsedate_to_datetime
+        return parsedate_to_datetime(date_string)
+    except Exception as e:
+        logger.warning(f"Failed to parse date '{date_string}': {e}")
+        return datetime.now(timezone.utc)
+
 # --- Encryption Functions ---
 def get_or_create_encryption_key():
     """Get or create a Fernet encryption key for the system"""
@@ -19084,7 +19095,7 @@ async def import_new_smartdrive_files(
                                 file_info.get('size'),
                                 file_info.get('mime_type'),
                                 datetime.now(timezone.utc),
-                                file_modified
+                                parse_http_date(file_modified) if file_modified else None
                             )
                         
                         imported_count += 1
