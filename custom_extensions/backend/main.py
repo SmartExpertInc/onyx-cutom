@@ -6486,8 +6486,8 @@ async def startup_event():
             except Exception as e:
                 logger.info(f"Columns may already exist: {e}")
                 pass
-            # Add encryption helper functions
-            await connection.execute("INSERT INTO smartdrive_accounts (onyx_user_id, nextcloud_username, nextcloud_password_encrypted) VALUES ('system_encryption_key', '__encryption_key__', '__placeholder__') ON CONFLICT (onyx_user_id) DO NOTHING;")
+            # Add encryption helper functions - provide placeholder for old nextcloud_user_id column
+            await connection.execute("INSERT INTO smartdrive_accounts (onyx_user_id, nextcloud_user_id, nextcloud_username, nextcloud_password_encrypted) VALUES ('system_encryption_key', 'system_key', '__encryption_key__', '__placeholder__') ON CONFLICT (onyx_user_id) DO NOTHING;")
             logger.info("'smartdrive_accounts' table ensured.")
 
             # SmartDrive Imports: Maps SmartDrive files to Onyx files with etags/checksums
