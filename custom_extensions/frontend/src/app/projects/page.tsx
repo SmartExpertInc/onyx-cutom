@@ -29,7 +29,7 @@ import FolderModal from './FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
-import SmartDriveCards from '../../components/SmartDrive/SmartDriveCards';
+import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -773,7 +773,7 @@ const ProjectsPageInner: React.FC = () => {
         <Header isTrash={isTrash} isSmartDrive={isSmartDrive} />
         <main className="flex-1 overflow-y-auto p-8">
           {isSmartDrive ? (
-            <SmartDriveCards />
+            <SmartDriveConnectors />
           ) : (
             <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
           )}
