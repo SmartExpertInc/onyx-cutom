@@ -16,6 +16,9 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [iframeKey, setIframeKey] = useState(0);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [lastAutoSyncTime, setLastAutoSyncTime] = useState<string | null>(null);
+  const [autoSyncCount, setAutoSyncCount] = useState(0);
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
@@ -41,6 +44,54 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
 
     initializeSession();
   }, []);
+
+  // Auto-sync functionality with page visibility detection
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    const isPageVisible = () => {
+      return typeof document !== 'undefined' && !document.hidden;
+    };
+
+    if (autoSyncEnabled && hasCredentials && isPageVisible()) {
+      intervalId = setInterval(async () => {
+        // Only auto-sync if page is visible, not currently syncing manually, and conditions are met
+        if (isPageVisible() && !isLoading && syncStatus !== 'syncing') {
+          await performAutoSync();
+        }
+      }, 3000); // Every 3 seconds
+    }
+
+    // Handle page visibility changes
+    const handleVisibilityChange = () => {
+      if (document.hidden && intervalId) {
+        // Page became hidden, clear interval
+        clearInterval(intervalId);
+        intervalId = null;
+      } else if (!document.hidden && autoSyncEnabled && hasCredentials && !intervalId) {
+        // Page became visible, restart interval
+        intervalId = setInterval(async () => {
+          if (isPageVisible() && !isLoading && syncStatus !== 'syncing') {
+            await performAutoSync();
+          }
+        }, 3000);
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    // Cleanup interval and event listener
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
+    };
+  }, [autoSyncEnabled, hasCredentials, isLoading, syncStatus]);
 
   const checkCredentials = async () => {
     try {
@@ -247,6 +298,39 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
     }
   };
 
+  // Auto-sync function (silent, no alerts)
+  const performAutoSync = async () => {
+    if (!hasCredentials) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/custom-projects-backend/smartdrive/import-new', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.imported_count > 0) {
+          // Only update UI if files were actually imported
+          setLastAutoSyncTime(new Date().toLocaleTimeString());
+          setAutoSyncCount(prev => prev + result.imported_count);
+          setIframeKey(prev => prev + 1); // Refresh iframe
+        }
+      } else {
+        const errorData = await response.json();
+        if (errorData.detail?.includes('credentials')) {
+          setHasCredentials(false);
+          setAutoSyncEnabled(false); // Disable auto-sync if credentials invalid
+        }
+      }
+    } catch (error) {
+      console.error('Auto-sync error:', error);
+      // Don't show alerts for auto-sync errors, just log them
+    }
+  };
+
   const getSyncButtonText = () => {
     switch (syncStatus) {
       case 'syncing':
@@ -347,6 +431,17 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
                 </div>
               )}
               <button
+                onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
+                className={`text-sm px-3 py-1 rounded ${
+                  autoSyncEnabled 
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                title={autoSyncEnabled ? 'Auto-sync enabled (every 3s)' : 'Auto-sync disabled'}
+              >
+                {autoSyncEnabled ? '🔄 Auto' : '⏸️ Manual'}
+              </button>
+              <button
                 onClick={() => setHasCredentials(false)}
                 className="text-sm text-gray-600 hover:text-gray-800 px-2 py-1"
               >
@@ -386,10 +481,35 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
 
       {/* Footer Info */}
       <div className="p-3 bg-gray-50 border-t border-gray-200">
-        <p className="text-xs text-gray-500">
-          Files uploaded here are automatically available in your Onyx knowledge base. 
-          Use "Sync to Onyx" to import new or updated files.
-        </p>
+        <div className="flex justify-between items-center">
+          <p className="text-xs text-gray-500">
+            Files uploaded here are automatically available in your Onyx knowledge base.
+            {!autoSyncEnabled && " Use \"Sync to Onyx\" to import new or updated files."}
+          </p>
+          {hasCredentials && (
+            <div className="text-xs text-gray-500">
+              {autoSyncEnabled ? (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    Auto-sync ON (every 3s)
+                  </span>
+                  {autoSyncCount > 0 && (
+                    <span>• {autoSyncCount} files synced</span>
+                  )}
+                  {lastAutoSyncTime && (
+                    <span>• Last: {lastAutoSyncTime}</span>
+                  )}
+                </div>
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  Auto-sync OFF
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Credentials Setup Modal */}
