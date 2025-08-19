@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check, RotateCcw } from 'lucide-react';
+import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Volume2, Check, RotateCcw } from 'lucide-react';
 
 // Custom Radio Wave Icon
 const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
@@ -560,7 +560,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="flex items-center gap-3">
                   {/* White circle with radio wave icon */}
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border" style={{ borderColor: '#6D8DC3' }}>
-                    <RadioWaveIcon size={20} style={{ color: '#6D8DC3' }} />
+                    <RadioWaveIcon size={20} className="text-[#6D8DC3]" />
                   </div>
                   
                   {/* Text and badge */}
