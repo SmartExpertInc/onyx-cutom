@@ -177,7 +177,7 @@ const PdfDownloadButton = ({ dataToDisplay, parentProjectName, lessonNumber }: P
                         return `<ol class="numbered-list">${(block as NumberedListBlock).items.map(item => `<li>${item}</li>`).join('')}</ol>`;
                     case 'alert':
                         const alertBlock = block as AlertBlock;
-                        return `<div class="alert alert-${alertBlock.style || 'info'}">${alertBlock.text}</div>`;
+                        return `<div class="alert alert-${alertBlock.alertType || 'info'}">${alertBlock.text}</div>`;
                     case 'section_break':
                         return `<div class="section-break"></div>`;
                     default:
