@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check, RotateCcw } from 'lucide-react';
 
 interface VoicePickerProps {
   isOpen: boolean;
@@ -19,6 +19,14 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
   const [stability, setStability] = useState(50);
   const [applyTo, setApplyTo] = useState<'block' | 'scene' | 'all'>('block');
   const [selectedAccents, setSelectedAccents] = useState<string[]>([]);
+  const [selectedAges, setSelectedAges] = useState<string[]>([]);
+  const [selectedTones, setSelectedTones] = useState<string[]>([]);
+  const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
+  
+  const accentRef = useRef<HTMLDivElement>(null);
+  const ageRef = useRef<HTMLDivElement>(null);
+  const toneRef = useRef<HTMLDivElement>(null);
+  const scenarioRef = useRef<HTMLDivElement>(null);
 
   // Accent options with country flags
   const accentOptions = [
@@ -29,6 +37,47 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
     { id: 'south-african', flag: '🇿🇦', text: 'English (South Africa)' }
   ];
 
+  // Age options
+  const ageOptions = [
+    { id: 'adult', text: 'Adult' },
+    { id: 'middle-aged', text: 'Middle-Aged' },
+    { id: 'senior', text: 'Senior' },
+    { id: 'young', text: 'Young' },
+    { id: 'young-adult', text: 'Young Adult' }
+  ];
+
+  // Tone options
+  const toneOptions = [
+    { id: 'anxious', text: 'Anxious' },
+    { id: 'calm', text: 'Calm' },
+    { id: 'cheerful', text: 'Cheerful' },
+    { id: 'cloned-voice', text: 'Cloned Voice' },
+    { id: 'confident', text: 'Confident' },
+    { id: 'conversational', text: 'Conversational' },
+    { id: 'deep', text: 'Deep' },
+    { id: 'delightful', text: 'Delightful' },
+    { id: 'determined', text: 'Determined' },
+    { id: 'educational', text: 'Educational' },
+    { id: 'engaging', text: 'Engaging' },
+    { id: 'fast', text: 'Fast' },
+    { id: 'friendly', text: 'Friendly' },
+    { id: 'gentle', text: 'Gentle' }
+  ];
+
+  // Scenario options
+  const scenarioOptions = [
+    { id: 'ad', text: 'Ad' },
+    { id: 'any', text: 'Any' },
+    { id: 'assistant', text: 'Assistant' },
+    { id: 'chat', text: 'Chat' },
+    { id: 'conversational', text: 'Conversational' },
+    { id: 'customer-service', text: 'Customer Service' },
+    { id: 'documentary', text: 'Documentary' },
+    { id: 'e-learning', text: 'E-Learning' },
+    { id: 'explainer', text: 'Explainer' },
+    { id: 'how-to', text: 'How-to' }
+  ];
+
   const toggleAccent = (accentId: string) => {
     setSelectedAccents(prev => 
       prev.includes(accentId) 
@@ -36,6 +85,73 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
         : [...prev, accentId]
     );
   };
+
+  const toggleAge = (ageId: string) => {
+    setSelectedAges(prev => 
+      prev.includes(ageId) 
+        ? prev.filter(id => id !== ageId)
+        : [...prev, ageId]
+    );
+  };
+
+  const toggleTone = (toneId: string) => {
+    setSelectedTones(prev => 
+      prev.includes(toneId) 
+        ? prev.filter(id => id !== toneId)
+        : [...prev, toneId]
+    );
+  };
+
+  const toggleScenario = (scenarioId: string) => {
+    setSelectedScenarios(prev => 
+      prev.includes(scenarioId) 
+        ? prev.filter(id => id !== scenarioId)
+        : [...prev, scenarioId]
+    );
+  };
+
+  // Reset functions
+  const resetAccents = () => setSelectedAccents([]);
+  const resetAges = () => setSelectedAges([]);
+  const resetTones = () => setSelectedTones([]);
+  const resetScenarios = () => setSelectedScenarios([]);
+  
+  // Reset all selections
+  const resetAllSelections = () => {
+    resetAccents();
+    resetAges();
+    resetTones();
+    resetScenarios();
+  };
+  
+  // Check if any selections exist
+  const hasAnySelections = selectedAccents.length > 0 || selectedAges.length > 0 || selectedTones.length > 0 || selectedScenarios.length > 0;
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accentRef.current && !accentRef.current.contains(event.target as Node)) {
+        setAccentDropdownOpen(false);
+      }
+      if (ageRef.current && !ageRef.current.contains(event.target as Node)) {
+        setAgeDropdownOpen(false);
+      }
+      if (toneRef.current && !toneRef.current.contains(event.target as Node)) {
+        setToneDropdownOpen(false);
+      }
+      if (scenarioRef.current && !scenarioRef.current.contains(event.target as Node)) {
+        setScenarioDropdownOpen(false);
+      }
+    };
+
+    if (accentDropdownOpen || ageDropdownOpen || toneDropdownOpen || scenarioDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [accentDropdownOpen, ageDropdownOpen, toneDropdownOpen, scenarioDropdownOpen]);
 
   if (!isOpen) return null;
 
@@ -45,23 +161,23 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
       <style jsx>{`
         .range-slider::-webkit-slider-thumb {
           appearance: none;
-          width: 16px;
-          height: 16px;
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
           background: #000000;
           cursor: pointer;
           border: none;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         
         .range-slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
           background: #000000;
           cursor: pointer;
           border: none;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         
         .range-slider::-webkit-slider-track {
@@ -111,12 +227,16 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
 
         {/* Row 3: Dropdown Buttons */}
         <div className="px-6 pb-4">
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
             {/* Accent Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={accentRef}>
               <button
                 onClick={() => setAccentDropdownOpen(!accentDropdownOpen)}
-                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                  accentDropdownOpen 
+                    ? 'bg-gray-100' 
+                    : 'bg-white hover:bg-gray-50'
+                }`}
               >
                 <div className="flex items-center gap-2">
                   <Globe size={16} className="text-gray-600" />
@@ -126,12 +246,12 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
               </button>
               {/* Accent dropdown popup */}
               {accentDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
                   {accentOptions.map((accent) => (
                     <div
                       key={accent.id}
                       onClick={() => toggleAccent(accent.id)}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
                     >
                       {/* Custom checkbox */}
                       <div className={`
@@ -153,15 +273,21 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                       <span className="text-sm text-gray-700">{accent.text}</span>
                     </div>
                   ))}
+                  
+
                 </div>
               )}
             </div>
 
             {/* Age Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={ageRef}>
               <button
                 onClick={() => setAgeDropdownOpen(!ageDropdownOpen)}
-                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                  ageDropdownOpen 
+                    ? 'bg-gray-100' 
+                    : 'bg-white hover:bg-gray-50'
+                }`}
               >
                 <div className="flex items-center gap-2">
                   <Cake size={16} className="text-gray-600" />
@@ -169,19 +295,47 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 </div>
                 <ChevronDown size={16} className="text-gray-400" />
               </button>
-              {/* Placeholder for age dropdown popup */}
+              {/* Age dropdown popup */}
               {ageDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  <div className="text-sm text-gray-500">Age options coming soon...</div>
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                  {ageOptions.map((age) => (
+                    <div
+                      key={age.id}
+                      onClick={() => toggleAge(age.id)}
+                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
+                    >
+                      {/* Custom checkbox */}
+                      <div className={`
+                        w-4 h-4 rounded border flex items-center justify-center transition-colors
+                        ${selectedAges.includes(age.id) 
+                          ? 'bg-black border-black' 
+                          : 'bg-white border-gray-300'
+                        }
+                      `}>
+                        {selectedAges.includes(age.id) && (
+                          <Check size={10} className="text-white" />
+                        )}
+                      </div>
+                      
+                      {/* Text */}
+                      <span className="text-sm text-gray-700">{age.text}</span>
+                    </div>
+                  ))}
+                  
+
                 </div>
               )}
             </div>
 
             {/* Tone Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={toneRef}>
               <button
                 onClick={() => setToneDropdownOpen(!toneDropdownOpen)}
-                className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className={`flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                  toneDropdownOpen 
+                    ? 'bg-gray-100' 
+                    : 'bg-white hover:bg-gray-50'
+                }`}
               >
                 <div className="flex items-center gap-2">
                   <Radio size={16} className="text-gray-600" />
@@ -189,19 +343,47 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 </div>
                 <ChevronDown size={16} className="text-gray-400" />
               </button>
-              {/* Placeholder for tone dropdown popup */}
+              {/* Tone dropdown popup */}
               {toneDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  <div className="text-sm text-gray-500">Tone options coming soon...</div>
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2 max-h-60 overflow-y-auto">
+                  {toneOptions.map((tone) => (
+                    <div
+                      key={tone.id}
+                      onClick={() => toggleTone(tone.id)}
+                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
+                    >
+                      {/* Custom checkbox */}
+                      <div className={`
+                        w-4 h-4 rounded border flex items-center justify-center transition-colors
+                        ${selectedTones.includes(tone.id) 
+                          ? 'bg-black border-black' 
+                          : 'bg-white border-gray-300'
+                        }
+                      `}>
+                        {selectedTones.includes(tone.id) && (
+                          <Check size={10} className="text-white" />
+                        )}
+                      </div>
+                      
+                      {/* Text */}
+                      <span className="text-sm text-gray-700">{tone.text}</span>
+                    </div>
+                  ))}
+                  
+
                 </div>
               )}
             </div>
 
             {/* Scenario Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={scenarioRef}>
               <button
                 onClick={() => setScenarioDropdownOpen(!scenarioDropdownOpen)}
-                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                  scenarioDropdownOpen 
+                    ? 'bg-gray-100' 
+                    : 'bg-white hover:bg-gray-50'
+                }`}
               >
                 <div className="flex items-center gap-2">
                   <Briefcase size={16} className="text-gray-600" />
@@ -209,13 +391,48 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 </div>
                 <ChevronDown size={16} className="text-gray-400" />
               </button>
-              {/* Placeholder for scenario dropdown popup */}
+              {/* Scenario dropdown popup */}
               {scenarioDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  <div className="text-sm text-gray-500">Scenario options coming soon...</div>
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                  {scenarioOptions.map((scenario) => (
+                    <div
+                      key={scenario.id}
+                      onClick={() => toggleScenario(scenario.id)}
+                      className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer"
+                    >
+                      {/* Custom checkbox */}
+                      <div className={`
+                        w-4 h-4 rounded border flex items-center justify-center transition-colors
+                        ${selectedScenarios.includes(scenario.id) 
+                          ? 'bg-black border-black' 
+                          : 'bg-white border-gray-300'
+                        }
+                      `}>
+                        {selectedScenarios.includes(scenario.id) && (
+                          <Check size={10} className="text-white" />
+                        )}
+                      </div>
+                      
+                      {/* Text */}
+                      <span className="text-sm text-gray-700">{scenario.text}</span>
+                    </div>
+                  ))}
+                  
+
                 </div>
               )}
             </div>
+            
+            {/* Reset Button */}
+            {hasAnySelections && (
+              <button
+                onClick={resetAllSelections}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <RotateCcw size={16} />
+                <span>Reset all</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -245,7 +462,12 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
           <div className="flex-1 bg-gray-50 bg-opacity-20 rounded-lg p-4">
             {/* Create Custom Voice Row */}
             <div className="mb-4">
-              <div className="bg-blue-500 bg-opacity-20 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-opacity-30 transition-colors">
+              <div 
+                className="rounded-lg p-4 flex items-center justify-between cursor-pointer"
+                style={{ 
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)' 
+                }}
+              >
                 <div className="flex items-center gap-3">
                   {/* Left chevron */}
                   <ChevronRight size={20} className="text-blue-500" />
@@ -318,7 +540,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 max="100"
                 value={speed}
                 onChange={(e) => setSpeed(Number(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
+                className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
                 style={{
                   background: `linear-gradient(to right, #000000 0%, #000000 ${speed}%, #e5e7eb ${speed}%, #e5e7eb 100%)`
                 }}
@@ -334,7 +556,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 max="100"
                 value={stability}
                 onChange={(e) => setStability(Number(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
+                className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer range-slider"
                 style={{
                   background: `linear-gradient(to right, #000000 0%, #000000 ${stability}%, #e5e7eb ${stability}%, #e5e7eb 100%)`
                 }}
@@ -360,7 +582,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
             <div className="bg-gray-200 rounded-lg p-1 inline-flex">
               <button
                 onClick={() => setApplyTo('block')}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
+                className={`px-4 py-1.5 text-xs rounded transition-colors ${
                   applyTo === 'block' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -370,7 +592,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
+                className={`px-4 py-1.5 text-xs rounded transition-colors ${
                   applyTo === 'scene' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -380,7 +602,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
               </button>
               <button
                 onClick={() => setApplyTo('all')}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
+                className={`px-4 py-1.5 text-xs rounded transition-colors ${
                   applyTo === 'all' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -395,7 +617,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
@@ -404,7 +626,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 // Handle apply voice logic here
                 onClose();
               }}
-              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Apply voice
             </button>
