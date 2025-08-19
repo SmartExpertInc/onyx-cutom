@@ -277,7 +277,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[80vh] flex flex-col z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[70vh] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
         
@@ -901,10 +901,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="mb-2">
               <span className="text-sm text-gray-700">Apply new voice to</span>
             </div>
-            <div className="bg-gray-200 rounded-lg px-1 py-0.5 flex w-96">
+            <div className="bg-gray-200 rounded-lg px-1 py-0.5 flex w-full max-w-lg">
               <button
                 onClick={() => setApplyTo('block')}
-                className={`px-6 py-1.5 text-sm rounded transition-colors ${
+                className={`px-4 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'block' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -914,7 +914,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
-                className={`px-6 py-1.5 text-sm rounded transition-colors ${
+                className={`px-4 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'scene' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -924,7 +924,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('all')}
-                className={`px-6 py-1.5 text-sm rounded transition-colors ${
+                className={`px-4 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'all' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
