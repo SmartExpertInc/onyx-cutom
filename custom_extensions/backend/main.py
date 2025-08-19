@@ -16317,15 +16317,54 @@ async def download_projects_list_pdf(
                                 else:
                                     total_completion_time += 5  # No completion time, use 5 minutes
             
+            # Extract the best available title from various sources
+            project_title = 'Untitled'
+            
+            # Try to get title from project_name or microproduct_name first
+            if row_dict.get('project_name') and row_dict['project_name'].strip():
+                project_title = row_dict['project_name'].strip()
+            elif row_dict.get('microproduct_name') and row_dict['microproduct_name'].strip():
+                project_title = row_dict['microproduct_name'].strip()
+            
+            # If we still have default/empty title, try to extract from microproduct_content
+            if project_title == 'Untitled' or not project_title or project_title in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
+                content = row_dict.get('microproduct_content')
+                if content and isinstance(content, dict):
+                    # Try different content title fields based on project type
+                    content_title = None
+                    
+                    # Training Plan
+                    if content.get('mainTitle'):
+                        content_title = content['mainTitle']
+                    # PDF Lesson
+                    elif content.get('lessonTitle'):
+                        content_title = content['lessonTitle']
+                    # Slide Deck
+                    elif content.get('lessonTitle'):  # Slide deck also uses lessonTitle
+                        content_title = content['lessonTitle']
+                    # Video Lesson
+                    elif content.get('mainPresentationTitle'):
+                        content_title = content['mainPresentationTitle']
+                    # Quiz
+                    elif content.get('quizTitle'):
+                        content_title = content['quizTitle']
+                    # Text Presentation
+                    elif content.get('textTitle'):
+                        content_title = content['textTitle']
+                    
+                    if content_title and content_title.strip() and content_title.strip() not in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
+                        project_title = content_title.strip()
+
             projects_data.append({
                 'id': row_dict['id'],
-                'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
+                'title': project_title,
                 'created_at': row_dict['created_at'],
                 'created_by': 'You',
                 'design_microproduct_type': row_dict.get('design_microproduct_type'),
                 'folder_id': row_dict.get('folder_id'),
                 'order': row_dict.get('order', 0),
                 'microproduct_content': row_dict.get('microproduct_content'),
+                'quality_tier': row_dict.get('quality_tier', 'interactive'),  # Add quality tier
                 'total_lessons': total_lessons,
                 'total_hours': round(total_hours),
                 'total_completion_time': total_completion_time
