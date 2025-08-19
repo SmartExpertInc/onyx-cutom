@@ -526,7 +526,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         </div>
 
         {/* Row 4: Horizontal Line */}
-        <div className="px-6">
+        <div>
           <hr className="border-gray-200" />
         </div>
 
@@ -611,7 +611,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {/* Action buttons - visible on hover */}
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
@@ -658,7 +658,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {/* Action buttons - visible on hover */}
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
@@ -705,7 +705,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {/* Action buttons - visible on hover */}
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
@@ -752,7 +752,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {/* Action buttons - visible on hover */}
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
@@ -799,7 +799,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 {/* Action buttons - visible on hover */}
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                       <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
