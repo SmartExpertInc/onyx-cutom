@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight, Flag, Volume2 } from 'lucide-react';
+import { Search, Globe, Cake, Radio, Briefcase, ChevronDown, ChevronRight, Flag, Volume2, Check } from 'lucide-react';
 
 interface VoicePickerProps {
   isOpen: boolean;
@@ -18,6 +18,24 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
   const [speed, setSpeed] = useState(50);
   const [stability, setStability] = useState(50);
   const [applyTo, setApplyTo] = useState<'block' | 'scene' | 'all'>('block');
+  const [selectedAccents, setSelectedAccents] = useState<string[]>([]);
+
+  // Accent options with country flags
+  const accentOptions = [
+    { id: 'american', flag: '🇺🇸', text: 'American English' },
+    { id: 'british', flag: '🇬🇧', text: 'British English' },
+    { id: 'australian', flag: '🇦🇺', text: 'Australian English' },
+    { id: 'indian', flag: '🇮🇳', text: 'English (India)' },
+    { id: 'south-african', flag: '🇿🇦', text: 'English (South Africa)' }
+  ];
+
+  const toggleAccent = (accentId: string) => {
+    setSelectedAccents(prev => 
+      prev.includes(accentId) 
+        ? prev.filter(id => id !== accentId)
+        : [...prev, accentId]
+    );
+  };
 
   if (!isOpen) return null;
 
@@ -66,7 +84,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden z-10"
+        className="relative bg-white shadow-xl w-[900px] max-w-[95vw] max-h-[90vh] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
         
@@ -106,10 +124,35 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
                 </div>
                 <ChevronDown size={16} className="text-gray-400" />
               </button>
-              {/* Placeholder for accent dropdown popup */}
+              {/* Accent dropdown popup */}
               {accentDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
-                  <div className="text-sm text-gray-500">Accent options coming soon...</div>
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                  {accentOptions.map((accent) => (
+                    <div
+                      key={accent.id}
+                      onClick={() => toggleAccent(accent.id)}
+                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                    >
+                      {/* Custom checkbox */}
+                      <div className={`
+                        w-4 h-4 rounded border flex items-center justify-center transition-colors
+                        ${selectedAccents.includes(accent.id) 
+                          ? 'bg-black border-black' 
+                          : 'bg-white border-gray-300'
+                        }
+                      `}>
+                        {selectedAccents.includes(accent.id) && (
+                          <Check size={10} className="text-white" />
+                        )}
+                      </div>
+                      
+                      {/* Country flag */}
+                      <span className="text-lg">{accent.flag}</span>
+                      
+                      {/* Text */}
+                      <span className="text-sm text-gray-700">{accent.text}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -181,21 +224,23 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
           <hr className="border-gray-200" />
         </div>
 
-        {/* Row 5: Main Area Layout Headers */}
-        <div className="px-6 py-4 flex justify-between">
-          {/* Left Zone */}
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-gray-900">358 voices found</h3>
+        {/* Scrollable Content Container */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Row 5: Main Area Layout Headers */}
+          <div className="px-6 py-4 flex justify-between">
+            {/* Left Zone */}
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-gray-900">358 voices found</h3>
+            </div>
+            
+            {/* Right Zone */}
+            <div className="w-80">
+              <h3 className="text-sm font-medium text-gray-900">Voice details</h3>
+            </div>
           </div>
-          
-          {/* Right Zone */}
-          <div className="w-80">
-            <h3 className="text-sm font-medium text-gray-900">Voice details</h3>
-          </div>
-        </div>
 
-        {/* Main Content Area (Left and Right Panels) - Placeholder */}
-        <div className="px-6 pb-6 flex gap-6 min-h-[300px] max-h-[400px] overflow-y-auto">
+          {/* Main Content Area (Left and Right Panels) - Placeholder */}
+          <div className="px-6 pb-6 flex gap-6 min-h-[300px]">
           {/* Left Panel - Voice List */}
           <div className="flex-1 bg-gray-50 bg-opacity-20 rounded-lg p-4">
             {/* Create Custom Voice Row */}
@@ -302,6 +347,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice }: VoicePic
               <span className="text-sm font-medium text-gray-700">Play Sample</span>
             </button>
           </div>
+        </div>
         </div>
 
         {/* Footer */}
