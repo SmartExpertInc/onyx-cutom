@@ -36,26 +36,25 @@ from cryptography.fernet import Fernet
 print(Fernet.generate_key().decode())
 ```
 
-## User Setup Steps
+## User Setup Steps ✨ **Now Super Easy!**
 
-### 1. Create Nextcloud App Password ⚠️ **CRITICAL**
-- Log into your personal Nextcloud account 
-- Go to **Personal Settings → Security → "App passwords"**
-- Click **"Create new app password"** and give it a name (e.g., "Onyx Smart Drive")
-- Copy the generated app password (format: `xxxxx-xxxxx-xxxxx-xxxxx-xxxxx`)
-- **⚠️ You MUST use an App Password, not your regular login password**
-- **⚠️ This is mandatory for accounts with 2FA enabled**
-
-### 2. Navigate to Smart Drive Tab
+### 1. Navigate to Smart Drive Tab
 - Go to **Projects page → "Smart Drive" tab**
-- Click **"Browse Uploaded"** to see the Nextcloud interface in an iframe
+- You'll see "⚠️ No Nextcloud account connected"
 
-### 3. Set Up Individual Nextcloud Credentials 
-- Click **"Setup Credentials"** button (appears if credentials not configured)
-- Enter your personal Nextcloud username
-- **Enter the App Password** you created in step 1 (NOT your regular password)
-- Enter your Nextcloud server URL
-- Credentials are encrypted and stored securely in the database
+### 2. One-Click Nextcloud Connection 🚀
+- Click **"Connect Nextcloud Account"** button
+- Enter your Nextcloud server URL (e.g., `http://nc1.contentbuilder.ai:8080`)
+- A **popup window opens to your familiar Nextcloud login page**
+- **Login normally** with your regular username/password
+- **Handles 2FA, SSO, and any auth method automatically!**
+- **No manual app password creation needed!** ✨
+
+### 3. Automatic Setup Complete
+- Popup closes automatically after successful login
+- System receives auto-generated app password from Nextcloud
+- Status changes to "✅ Connected to Nextcloud"
+- All credentials are encrypted and stored securely
 
 ### 4. Upload Files to Your Nextcloud
 - Use the embedded Nextcloud interface to upload files
@@ -65,6 +64,11 @@ print(Fernet.generate_key().decode())
 - Click **"Sync to Onyx"** button
 - Files are imported and indexed in Onyx with proper user isolation
 - Each user's files are completely private from other users
+
+---
+
+## 🔄 Fallback: Manual Setup
+If the automatic connection doesn't work, click **"Manual Setup"** for the traditional app password approach.
 
 ## Database Tables
 
@@ -78,15 +82,17 @@ The following tables are automatically created on startup:
 
 ### ✅ Implemented
 - **Smart Drive Tab**: Browse and sync files from Nextcloud
+- **One-Click Authentication**: Nextcloud Login Flow v2 with automatic app password generation ✨
+- **Universal Auth Support**: Handles 2FA, SSO, LDAP, and all Nextcloud authentication methods
 - **File Listing**: WebDAV integration to list actual Nextcloud files  
 - **File Import**: Downloads from Nextcloud and uploads to Onyx
 - **Sync Tracking**: Tracks imported files and prevents duplicates
 - **Native Onyx Connectors**: Users create private connectors using Onyx's existing system
 - **OAuth Support**: Full OAuth integration via Onyx's connector forms
 - **HTTPS Support**: Proper mixed content handling
+- **Individual User Isolation**: Each user has completely private file access
 
 ### 🔧 Current Limitations
-- ✅ **App Password Support**: Now properly uses Nextcloud App Passwords for secure authentication
 - No real-time webhook support (manual sync required)
 - Directory uploads not implemented
 
@@ -98,11 +104,10 @@ The following tables are automatically created on startup:
 - Try disabling browser extensions or use incognito mode
 
 ### Issue: 401 Unauthorized during sync
-- ✅ **Fixed**: Now uses individual Nextcloud accounts with App Passwords
-- **Solution**: Users must create and use Nextcloud App Passwords (not regular passwords)
-- Go to Nextcloud → Personal Settings → Security → "App passwords" → Create new
-- **Required for all accounts with 2FA enabled**
-- Use the generated App Password in the Smart Drive credentials setup
+- ✅ **Fixed**: Now uses Nextcloud Login Flow v2 with automatic app password generation
+- **Solution**: Use the "Connect Nextcloud Account" button for automatic setup
+- No manual app password creation needed - system handles everything!
+- Supports 2FA, SSO, and all Nextcloud authentication methods automatically
 
 ### Issue: Files don't appear after sync (404 Not Found) 
 - Verify your personal Nextcloud account credentials are correct
