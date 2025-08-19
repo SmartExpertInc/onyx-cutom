@@ -1836,11 +1836,13 @@
                 
             {% elif slide.templateId == 'big-numbers' %}
                 <!-- DEBUG: big-numbers template -->
+                <!-- DEBUG: slide.props.items = {{ slide.props.items }} -->
+                <!-- DEBUG: slide.props.title = {{ slide.props.title }} -->
                 <div class="big-numbers">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                    {% if slide.props.title %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% set titleId = slide.slideId + '-title' %}
                                 {% if slide.metadata.elementPositions[titleId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
@@ -1851,42 +1853,58 @@
                         {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
                             <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
                             {% for item in slide.props.items %}
-                                {% if (item.value and item.value != 'Click to add value') or (item.label and item.label != 'Click to add label') or (item.description and item.description != 'Click to add description') %}
-                                    <div class="number-item">
-                                        {% if item.value and item.value != 'Click to add value' %}
-                                            <div class="number-value positioned-element"
-                                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                                    {% set valueId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 1)|string %}
-                                                    {% if slide.metadata.elementPositions[valueId] %}
-                                                        style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
-                                                    {% endif %}
+                                <!-- DEBUG: Processing item {{ loop.index0 }}: {{ item }} -->
+                                <div class="number-item">
+                                    {% if item.value %}
+                                        <div class="number-value positioned-element"
+                                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                                {% set valueId = slide.slideId + '-item-' + loop.index0|string + '-value' %}
+                                                {% if slide.metadata.elementPositions[valueId] %}
+                                                    style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
                                                 {% endif %}
-                                            >{{ item.value }}</div>
-                                        {% endif %}
-                                        {% if item.label and item.label != 'Click to add label' %}
-                                            <div class="number-label positioned-element"
-                                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                                    {% set labelId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 2)|string %}
-                                                    {% if slide.metadata.elementPositions[labelId] %}
-                                                        style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
-                                                    {% endif %}
+                                            {% endif %}
+                                        >{{ item.value }}</div>
+                                    {% endif %}
+                                    {% if item.label %}
+                                        <div class="number-label positioned-element"
+                                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                                {% set labelId = slide.slideId + '-item-' + loop.index0|string + '-label' %}
+                                                {% if slide.metadata.elementPositions[labelId] %}
+                                                    style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
                                                 {% endif %}
-                                            >{{ item.label }}</div>
-                                        {% endif %}
-                                        {% if item.description and item.description != 'Click to add description' %}
-                                            <div class="number-description positioned-element"
-                                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                                    {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 3)|string %}
-                                                    {% if slide.metadata.elementPositions[descriptionId] %}
-                                                        style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
-                                                    {% endif %}
+                                            {% endif %}
+                                        >{{ item.label }}</div>
+                                    {% endif %}
+                                    {% if item.description %}
+                                        <div class="number-description positioned-element"
+                                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                                {% set descriptionId = slide.slideId + '-item-' + loop.index0|string + '-description' %}
+                                                {% if slide.metadata.elementPositions[descriptionId] %}
+                                                    style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
                                                 {% endif %}
-                                            >{{ item.description }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
+                                            {% endif %}
+                                        >{{ item.description }}</div>
+                                    {% endif %}
+                                </div>
                             {% endfor %}
-                     
+                        {% else %}
+                            <!-- DEBUG: Items not available, using fallback -->
+                            <!-- Fallback content when items are not available -->
+                            <div class="number-item">
+                                <div class="number-value">32</div>
+                                <div class="number-label">Sample Metric</div>
+                                <div class="number-description">This is a sample description for the metric</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">5432</div>
+                                <div class="number-label">Another Metric</div>
+                                <div class="number-description">Another sample description</div>
+                            </div>
+                            <div class="number-item">
+                                <div class="number-value">6453</div>
+                                <div class="number-label">Third Metric</div>
+                                <div class="number-description">Third sample description</div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>

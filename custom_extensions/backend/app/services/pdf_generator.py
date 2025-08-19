@@ -1385,9 +1385,69 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             # ✅ NEW: Log text positioning properties for big-image-left template
             await log_text_positioning_properties(safe_slide_data, slide_index, template_id)
             
+            # ✅ NEW: Specific debug logging for big-numbers template
+            if safe_slide_data.get('templateId') == 'big-numbers':
+                logger.info(f"=== BIG NUMBERS TEMPLATE DEBUG for {slide_info}{template_info} ===")
+                logger.info(f"Slide data: {safe_slide_data}")
+                logger.info(f"Props: {safe_slide_data.get('props', {})}")
+                logger.info(f"Items: {safe_slide_data.get('props', {}).get('items', [])}")
+                logger.info(f"Title: {safe_slide_data.get('props', {}).get('title', 'NO TITLE')}")
+                logger.info(f"Metadata: {safe_slide_data.get('metadata', {})}")
+                logger.info(f"Element positions: {safe_slide_data.get('metadata', {}).get('elementPositions', {})}")
+                logger.info(f"=== END BIG NUMBERS TEMPLATE DEBUG ===")
+            
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
             logger.info("Template rendered successfully")
+            
+            # ✅ NEW: Log generated HTML for big-numbers template to debug content
+            if safe_slide_data.get('templateId') == 'big-numbers':
+                logger.info(f"=== BIG NUMBERS HTML ANALYSIS for {slide_info}{template_info} ===")
+                
+                # Extract the big-numbers section from the HTML
+                big_numbers_pattern = r'<div class="big-numbers">(.*?)</div>\s*</div>\s*</div>'
+                match = re.search(big_numbers_pattern, html_content, re.DOTALL)
+                
+                if match:
+                    big_numbers_html = match.group(1)
+                    logger.info(f"Big-numbers HTML section found")
+                    
+                    # Look for title element
+                    title_pattern = r'<h1[^>]*class="[^"]*slide-title[^"]*"[^>]*>(.*?)</h1>'
+                    title_match = re.search(title_pattern, big_numbers_html, re.DOTALL)
+                    if title_match:
+                        title_content = title_match.group(1)
+                        logger.info(f"Title content: '{title_content}'")
+                    else:
+                        logger.info("No title element found")
+                    
+                    # Look for number items
+                    number_item_pattern = r'<div class="number-item">(.*?)</div>'
+                    number_items = re.findall(number_item_pattern, big_numbers_html, re.DOTALL)
+                    logger.info(f"Found {len(number_items)} number items")
+                    
+                    for i, item_html in enumerate(number_items):
+                        logger.info(f"Number item {i+1} HTML: {item_html}")
+                        
+                        # Extract value, label, and description from each item
+                        value_pattern = r'<div class="number-value[^"]*">(.*?)</div>'
+                        label_pattern = r'<div class="number-label[^"]*">(.*?)</div>'
+                        description_pattern = r'<div class="number-description[^"]*">(.*?)</div>'
+                        
+                        value_match = re.search(value_pattern, item_html, re.DOTALL)
+                        label_match = re.search(label_pattern, item_html, re.DOTALL)
+                        description_match = re.search(description_pattern, item_html, re.DOTALL)
+                        
+                        if value_match:
+                            logger.info(f"  Item {i+1} value: '{value_match.group(1)}'")
+                        if label_match:
+                            logger.info(f"  Item {i+1} label: '{label_match.group(1)}'")
+                        if description_match:
+                            logger.info(f"  Item {i+1} description: '{description_match.group(1)}'")
+                else:
+                    logger.warning("Big-numbers HTML section not found in generated HTML")
+                
+                logger.info(f"=== END BIG NUMBERS HTML ANALYSIS ===")
             
             # ✅ NEW: Log generated HTML for big-image-left template to debug text positioning
             if safe_slide_data.get('templateId') == 'big-image-left':
