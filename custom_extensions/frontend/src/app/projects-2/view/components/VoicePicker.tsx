@@ -530,8 +530,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           <hr className="border-gray-200" />
         </div>
 
-        {/* Scrollable Content Container */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Content Container */}
+        <div className="flex-1 flex flex-col">
           {/* Row 5: Main Area Layout Headers */}
           <div className="px-6 py-4 flex justify-between">
             {/* Left Zone */}
@@ -545,12 +545,12 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
           </div>
 
-          {/* Main Content Area (Left and Right Panels) - Placeholder */}
-          <div className="px-6 pb-6 flex gap-6 min-h-[300px]">
-          {/* Left Panel - Voice List */}
-          <div className="flex-1">
+          {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
+          <div className="px-6 pb-6 flex gap-6 flex-1">
+          {/* Left Panel - Voice List with its own scrolling */}
+          <div className="flex-1 overflow-y-auto max-h-[400px]">
             {/* Create Custom Voice Row */}
-            <div className="mb-4">
+            <div className="mb-3">
               <div 
                 className="rounded-lg p-4 flex items-center justify-between cursor-pointer"
                 style={{ 
@@ -612,9 +612,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -659,9 +659,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -706,9 +706,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -753,9 +753,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -800,9 +800,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -816,26 +816,26 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
 
           </div>
           
-          {/* Right Panel - Voice Details */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-4 self-start">
+          {/* Right Panel - Voice Details with its own scrolling */}
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto max-h-[400px]">
             {/* Row 1: Maya title */}
-            <div className="mb-3">
+            <div className="mb-2">
               <h3 className="text-xl text-gray-900">Maya</h3>
             </div>
             
             {/* Row 2: USA flag + American English */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3">
               <AmericanFlag size={16} />
               <span className="text-xs text-gray-700">American English</span>
             </div>
             
             {/* Row 3: Badges */}
-            <div className="mb-4">
+            <div className="mb-3">
               <div className="flex flex-wrap gap-2">
                 {['Adult', 'Confident', 'Educational', 'Friendly', 'Professional', 'Customer Service', 'E-Learning'].map((badge) => (
                   <span
                     key={badge}
-                    className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] rounded-full"
+                    className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] rounded-full border border-gray-300"
                   >
                     {badge}
                   </span>
@@ -844,18 +844,18 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 4: Horizontal line */}
-            <div className="mb-4 -mx-4">
+            <div className="mb-3 -mx-3">
               <hr className="border-gray-300" />
             </div>
             
             {/* Row 5: Advanced settings */}
-            <div className="mb-4">
+            <div className="mb-3">
               <h4 className="text-sm text-gray-900">Advanced settings</h4>
             </div>
             
             {/* Row 6: Speed */}
-            <div className="mb-4">
-              <label className="text-sm text-gray-700 mb-2 block">Speed</label>
+            <div className="mb-3">
+              <label className="text-sm text-gray-700 mb-1 block">Speed</label>
               <input
                 type="range"
                 min="0"
@@ -871,7 +871,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             
             {/* Row 7: Stability */}
             <div className="mb-6">
-              <label className="text-sm text-gray-700 mb-2 block">Stability</label>
+              <label className="text-sm text-gray-700 mb-1 block">Stability</label>
               <input
                 type="range"
                 min="0"
@@ -886,7 +886,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 8: Play Sample button */}
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 transition-colors">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
               <Volume2 size={16} className="text-gray-700" />
               <span className="text-sm font-medium text-gray-700">Play Sample</span>
             </button>
@@ -904,7 +904,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="bg-gray-200 rounded-lg p-1 flex w-80">
               <button
                 onClick={() => setApplyTo('block')}
-                className={`px-4 py-1.5 text-sm rounded transition-colors ${
+                className={`px-6 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'block' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -914,7 +914,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
-                className={`px-4 py-1.5 text-sm rounded transition-colors ${
+                className={`px-6 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'scene' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
@@ -924,7 +924,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('all')}
-                className={`px-4 py-1.5 text-sm rounded transition-colors ${
+                className={`px-6 py-1.5 text-sm rounded transition-colors ${
                   applyTo === 'all' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:text-gray-800'
