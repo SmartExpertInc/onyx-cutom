@@ -19265,18 +19265,22 @@ async def import_file_to_onyx(nextcloud_user_folder: str, file_path: str, file_i
             file_name = file_info['name']
             mime_type = file_info.get('mime_type', 'application/octet-stream')
             
-            # Upload to Onyx using the existing file upload endpoint
-            onyx_upload_url = f"{ONYX_API_SERVER_URL}/file"
+            # Upload to Onyx using the user file upload endpoint (same as frontend)
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
             
-            # Create multipart form data
+            # Create multipart form data with folder_id parameter
             files = {
-                'file': (file_name, file_content, mime_type)
+                'files': (file_name, file_content, mime_type)
+            }
+            data = {
+                'folder_id': '1'  # Use default folder ID
             }
             
-            # Upload to Onyx
+            # Upload to Onyx with session authentication
             upload_response = await client.post(
                 onyx_upload_url,
                 files=files,
+                data=data,
                 timeout=60.0
             )
             
@@ -19325,18 +19329,22 @@ async def import_file_to_onyx_individual(
             file_name = file_info['name']
             mime_type = file_info.get('mime_type', 'application/octet-stream')
             
-            # Upload to Onyx using the existing file upload endpoint
-            onyx_upload_url = f"{ONYX_API_SERVER_URL}/file"
+            # Upload to Onyx using the user file upload endpoint (same as frontend)
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
             
-            # Create multipart form data
+            # Create multipart form data with folder_id parameter
             files = {
-                'file': (file_name, file_content, mime_type)
+                'files': (file_name, file_content, mime_type)
+            }
+            data = {
+                'folder_id': '1'  # Use default folder ID
             }
             
             # Upload to Onyx with session authentication
             upload_response = await client.post(
                 onyx_upload_url,
                 files=files,
+                data=data,
                 cookies=session_cookies,
                 timeout=60.0
             )
