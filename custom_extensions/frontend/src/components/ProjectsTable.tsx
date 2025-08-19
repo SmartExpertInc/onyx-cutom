@@ -429,7 +429,7 @@ const PreviewModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
-      <div className="bg-white shadow-2xl w-full max-w-6xl max-h-[95vh] relative overflow-hidden rounded-xl">
+      <div className="bg-white shadow-2xl w-full max-w-6xl h-[95vh] relative flex flex-col rounded-xl">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 z-10" 
           onClick={onClose}
@@ -440,7 +440,7 @@ const PreviewModal: React.FC<{
         </button>
         
         {/* PDF Document Content - Matching testPageForVitaliy.html exactly */}
-        <div className="h-full overflow-y-auto" style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
+        <div className="flex-1 overflow-y-auto" style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
           {/* Header with gradient and noise texture */}
           <div className="relative overflow-hidden" style={{
             background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
@@ -549,18 +549,33 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // Calculate course statistics from projects
+                                      // Calculate course statistics from projects using real data
                                       const courseStats = data.projects.reduce((acc, project) => {
                                         const type = project.designMicroproductType || 'Unknown';
                                         if (!acc[type]) {
                                           acc[type] = {
                                             name: type,
-                                            modules: Math.floor(Math.random() * 5) + 2, // 2-6 modules
-                                            lessons: Math.floor(Math.random() * 15) + 8, // 8-22 lessons
-                                            learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
+                                            modules: 0,
+                                            lessons: 0,
+                                            learningDuration: 0,
                                             productionTime: 0
                                           };
                                         }
+                                        
+                                        // Add real project data - use lessonDataCache if available
+                                        acc[type].modules += 1;
+                                        
+                                        // Get lesson data from cache or use defaults
+                                        const lessonData = (window as any).__lessonDataCache?.[project.id];
+                                        if (lessonData) {
+                                          acc[type].lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
+                                          acc[type].learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
+                                        } else {
+                                          // Fallback to default values if no cache data
+                                          acc[type].lessons += 5; // Default lesson count
+                                          acc[type].learningDuration += 3; // Default hours
+                                        }
+                                        
                                         return acc;
                                       }, {} as Record<string, any>);
 
@@ -613,7 +628,7 @@ const PreviewModal: React.FC<{
                                             </tr>
                                           ))}
                                           <tr>
-                                            <td colSpan={5} className="text-center font-semibold text-lg py-4 text-white" style={{
+                                            <td colSpan={4} className="text-center font-semibold text-lg py-4 text-white" style={{
                                               background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
                                               padding: '16px 20px',
                                               fontWeight: '600',
@@ -683,15 +698,6 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Production Ratio (h prod / 1h learn)
-                                      </th>
-                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        fontSize: '0.9rem',
-                                        letterSpacing: '0.5px'
-                                      }}>
                                         Production Hours
                                       </th>
                                     </tr>
@@ -724,12 +730,6 @@ const PreviewModal: React.FC<{
                                               fontWeight: '500'
                                             }}>
                                               {level.learningDuration}
-                                            </td>
-                                            <td className="p-4 font-medium text-black" style={{
-                                              padding: '16px 20px',
-                                              fontWeight: '500'
-                                            }}>
-                                              {level.productionRatio}
                                             </td>
                                             <td className="p-4 font-medium text-black" style={{
                                               padding: '16px 20px',
