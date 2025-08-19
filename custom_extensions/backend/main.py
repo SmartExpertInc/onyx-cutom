@@ -8303,9 +8303,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For two-column: split content into left and right sections
             - For process-steps: extract numbered or sequential items into "steps" array
             - For four-box-grid: parse "Box N:" format into "boxes" array
-            - For big-numbers: parse table format into "items" array with value/label/description
+            - For big-numbers: parse table format into "steps" array with value/label/description
             - For timeline: parse chronological content into "steps" array
-            - For pyramid: parse hierarchical content into "items" array
+            - For pyramid: parse hierarchical content into "steps" array
 
             **Critical Parsing Rules:**
             - Parse ALL slides provided in the input text - do not skip any
@@ -8493,18 +8493,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            7. **`comparison-slide`** - Before/after comparison:
-            ```json
-            "props": {
-              "title": "Comparison Analysis",
-              "beforeTitle": "Before",
-              "beforeContent": "- Key characteristic 1 of old/current state\\n- Key characteristic 2 of old/current state\\n- Key characteristic 3 of old/current state",
-              "afterTitle": "After",
-              "afterContent": "- Key characteristic 1 of new/improved state\\n- Key characteristic 2 of new/improved state\\n- Key characteristic 3 of new/improved state"
-            }
-            ```
+            
 
-            8. **`challenges-solutions`** - Problems vs solutions:
+            7. **`challenges-solutions`** - Problems vs solutions:
             ```json
             "props": {
               "title": "Challenges and Solutions",
@@ -8521,7 +8512,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            9. **`big-image-left`** - Large image on left:
+            8. **`big-image-left`** - Large image on left:
             ```json
             "props": {
               "title": "Slide Title",
@@ -8533,7 +8524,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            10. **`bullet-points-right`** - Title, subtitle, bullet points with image:
+            9. **`bullet-points-right`** - Title, subtitle, bullet points with image:
             ```json
             "props": {
               "title": "Key Points",
@@ -8552,7 +8543,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            11. **`big-image-top`** - Large image on top:
+            10. **`big-image-top`** - Large image on top:
             ```json
             "props": {
               "title": "Main Title",
@@ -8564,7 +8555,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            12. **`four-box-grid`** - Title and 4 boxes in 2x2 grid:
+            11. **`four-box-grid`** - Title and 4 boxes in 2x2 grid:
             ```json
             "props": {
               "title": "Main Title",
@@ -8577,7 +8568,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            13. **`timeline`** - Horizontal timeline with 4 steps:
+            12. **`timeline`** - Horizontal timeline with 4 steps:
             ```json
             "props": {
               "title": "History and Evolution",
@@ -8590,11 +8581,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            14. **`big-numbers`** - Three-column layout for metrics:
+            13. **`big-numbers`** - Three-column layout for metrics:
             ```json
             "props": {
               "title": "Key Metrics",
-              "items": [
+              "steps": [
                 { "value": "25%", "label": "Performance Improvement", "description": "System performance improved by 25% after optimization" },
                 { "value": "3x", "label": "Speed Increase", "description": "Processing speed increased 3 times faster than before" },
                 { "value": "50%", "label": "Cost Reduction", "description": "Operating costs reduced by 50% through efficient design" }
@@ -8602,12 +8593,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            15. **`pyramid`** - Pyramid diagram with 3 levels:
+            14. **`pyramid`** - Pyramid diagram with 3 levels:
             ```json
             "props": {
               "title": "Hierarchical Structure",
               "subtitle": "Explanation of the hierarchical relationship between elements",
-              "items": [
+              "steps": [
                 { "heading": "Top Level", "description": "Description of the highest level" },
                 { "heading": "Middle Level", "description": "Description of the intermediate level" },
                 { "heading": "Base Level", "description": "Description of the foundational level" }
@@ -8624,7 +8615,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For four-box-grid: parse "Box N:" format into "boxes" array
             - For big-numbers: parse table format into "items" array with value/label/description
             - For timeline: parse chronological content into "steps" array
-            - For pyramid: parse hierarchical content into "items" array
+            - For pyramid: parse hierarchical content into "steps" array
 
             **Critical Parsing Rules:**
             - Parse ALL slides provided in the input text - do not skip any

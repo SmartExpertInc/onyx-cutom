@@ -272,7 +272,7 @@ export interface PyramidTemplateProps {
   slideId: string;
   title: string;
   subtitle: string;
-  items: { heading: string; description: string }[];
+  steps: { heading: string; description: string }[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
 }
 

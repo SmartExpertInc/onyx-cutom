@@ -817,7 +817,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Add title',
       subtitle: 'Add subtitle',
-      items: [
+      steps: [  // Changed from 'items' to 'steps'
         { heading: 'Add heading 1', description: 'Add description' },
         { heading: 'Add heading 2', description: 'Add description' },
         { heading: 'Add heading 3', description: 'Add description' },
@@ -826,7 +826,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     propSchema: {
       title: { type: 'text', label: 'Title' },
       subtitle: { type: 'text', label: 'Subtitle' },
-      items: { type: 'array', label: 'Pyramid Items' },
+      steps: { type: 'array', label: 'Pyramid Steps' },  // Changed from 'items' to 'steps'
     },
   },
 };

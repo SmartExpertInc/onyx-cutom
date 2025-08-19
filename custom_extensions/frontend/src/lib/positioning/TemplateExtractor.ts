@@ -376,7 +376,7 @@ export class TemplateExtractor {
   }
 
   /**
-   * Extract items from pyramid template
+   * Extract steps from pyramid template
    */
   private static extractPyramid(props: PyramidTemplateProps): {
     items: PositionableItem[];
@@ -410,15 +410,15 @@ export class TemplateExtractor {
       { x: 60, y: 200, width: 500, height: 400 }
     ));
 
-    // Pyramid items
-    if (props.items && props.items.length > 0) {
+    // Pyramid steps
+    if (props.steps && props.steps.length > 0) {  // Changed from 'items' to 'steps'
       const itemPositions = [
         { x: 600, y: 220, width: 540, height: 80 },   // Top
         { x: 600, y: 320, width: 540, height: 80 },   // Middle
         { x: 600, y: 420, width: 540, height: 80 }    // Bottom
       ];
 
-      props.items.forEach((item, index) => {
+      props.steps.forEach((item, index) => {  // Changed from 'items' to 'steps'
         if (index < itemPositions.length) {
           items.push(TemplateExtractor.createPyramidItem(
             `pyramid-item-${index + 1}`,

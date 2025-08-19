@@ -2169,8 +2169,8 @@
                             </svg>
                         </div>
                         <div class="items-container">
-                            {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
-                                {% for item in slide.props.items %}
+                            {% if slide.props.steps and slide.props.steps is iterable and slide.props.steps is not string and slide.props.steps is not callable %}
+                                {% for item in slide.props.steps %}
                                     {% if loop.index0 < 3 and ((item.heading and item.heading != 'Click to add heading') or (item.description and item.description != 'Click to add description')) %}
                                         <div class="item-wrapper level-{{ loop.index0 }}">
                                             {% if item.heading and item.heading != 'Click to add heading' %}
@@ -2225,4 +2225,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

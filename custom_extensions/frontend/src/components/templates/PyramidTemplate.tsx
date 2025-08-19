@@ -10,7 +10,7 @@ export interface PyramidTemplateProps {
   slideId: string;
   title: string;
   subtitle: string;
-  items: PyramidItem[];
+  steps: PyramidItem[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -144,7 +144,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   slideId,
   title,
   subtitle,
-  items = [],
+  steps = [],  // Changed from 'items' to 'steps'
   theme,
   onUpdate,
   isEditable = false
@@ -288,10 +288,10 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   // Handle item heading editing
   const handleItemHeadingSave = (index: number, newHeading: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], heading: newHeading };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
+      onUpdate({ steps: updatedSteps });
     }
     setEditingItemHeadings(editingItemHeadings.filter(i => i !== index));
   };
@@ -302,10 +302,10 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   // Handle item description editing
   const handleItemDescriptionSave = (index: number, newDescription: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], description: newDescription };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
+      onUpdate({ steps: updatedSteps });
     }
     setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
   };
@@ -494,7 +494,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           <PyramidSVG3 />
         </div>
         <div style={itemsContainerStyles} >
-          {Array.isArray(items) && items.slice(0, 3).map((item, index: number) => (
+          {Array.isArray(steps) && steps.slice(0, 3).map((item, index: number) => (
             <div key={index} style={itemWrapperStyles(index)}>
               {/* Item Heading */}
               <div data-draggable="true" style={{ width: '100%' }}>
