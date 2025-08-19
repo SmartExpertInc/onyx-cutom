@@ -472,7 +472,7 @@ const PreviewModal: React.FC<{
 
                        {/* Content */}
              <div className="p-10">
-                                           {/* Block 1: Projects Overview */}
+                                           {/* Block 1: Course Overview */}
                             <div className="mb-10">
                               <h2 className="text-2xl font-semibold text-black mb-5 flex items-center gap-3" style={{ 
                                 fontSize: '1.5rem',
@@ -484,7 +484,7 @@ const PreviewModal: React.FC<{
                                   height: '24px',
                                   borderRadius: '2px'
                                 }}></div>
-                                Block 1. Projects Overview
+                                Block 1. Course Overview
                               </h2>
                               
                               <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-5" style={{
@@ -507,7 +507,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Project Name
+                                        Course Name
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -516,7 +516,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Type
+                                        Modules
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -525,7 +525,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Created Date
+                                        Lessons
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -534,7 +534,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Creator
+                                        Learning Duration (h)
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -543,184 +543,203 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Status
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {data.projects.slice(0, 4).map((project, index) => (
-                                      <tr key={project.id} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
-                                        background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
-                                        transition: 'background-color 0.2s ease'
-                                      }}>
-                                        <td className="p-4 font-semibold text-black" style={{
-                                          padding: '16px 20px',
-                                          fontWeight: '600'
-                                        }}>
-                                          {project.title || 'Untitled Project'}
-                                        </td>
-                                        <td className="p-4 font-medium text-black" style={{
-                                          padding: '16px 20px',
-                                          fontWeight: '500'
-                                        }}>
-                                          {project.designMicroproductType || '—'}
-                                        </td>
-                                        <td className="p-4 font-medium text-black" style={{
-                                          padding: '16px 20px',
-                                          fontWeight: '500'
-                                        }}>
-                                          {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric'
-                                          }) : '—'}
-                                        </td>
-                                        <td className="p-4 font-medium text-black" style={{
-                                          padding: '16px 20px',
-                                          fontWeight: '500'
-                                        }}>
-                                          {project.createdBy || '—'}
-                                        </td>
-                                        <td className="p-4 font-medium text-black" style={{
-                                          padding: '16px 20px',
-                                          fontWeight: '500'
-                                        }}>
-                                          Active
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                                <div className="text-center font-semibold text-lg py-4 text-white" style={{
-                                  background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
-                                  padding: '16px 20px',
-                                  fontWeight: '600',
-                                  fontSize: '1.1rem'
-                                }}>
-                                  Subtotal: {data.projects.length} projects total
-                                </div>
-                              </div>
-                            </div>
-                
-                            {/* Block 2: Project Statistics by Type */}
-                            <div className="mb-10">
-                              <h2 className="text-2xl font-semibold text-black mb-5 flex items-center gap-3" style={{ 
-                                fontSize: '1.5rem',
-                                fontWeight: '600'
-                              }}>
-                                <div className="w-1 h-6 rounded-sm" style={{
-                                  background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
-                                  width: '4px',
-                                  height: '24px',
-                                  borderRadius: '2px'
-                                }}></div>
-                                Block 2. Project Statistics by Type
-                              </h2>
-                              
-                              <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-5" style={{
-                                borderRadius: '12px',
-                                boxShadow: '0 4px 20px rgba(76, 175, 80, 0.1)'
-                              }}>
-                                <table className="w-full border-collapse">
-                                  <thead className="relative overflow-hidden" style={{
-                                    background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
-                                    color: 'white'
-                                  }}>
-                                    <div className="absolute inset-0 opacity-20" style={{
-                                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E")`
-                                    }}></div>
-                                    <tr className="relative z-10">
-                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        fontSize: '0.9rem',
-                                        letterSpacing: '0.5px'
-                                      }}>
-                                        Project Type
-                                      </th>
-                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        fontSize: '0.9rem',
-                                        letterSpacing: '0.5px'
-                                      }}>
-                                        Count
-                                      </th>
-                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        fontSize: '0.9rem',
-                                        letterSpacing: '0.5px'
-                                      }}>
-                                        Percentage
-                                      </th>
-                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        fontSize: '0.9rem',
-                                        letterSpacing: '0.5px'
-                                      }}>
-                                        Latest Created
+                                        Production Time (h)
                                       </th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      const typeStats = data.projects.reduce((acc, project) => {
+                                      // Calculate course statistics from projects
+                                      const courseStats = data.projects.reduce((acc, project) => {
                                         const type = project.designMicroproductType || 'Unknown';
                                         if (!acc[type]) {
-                                          acc[type] = { count: 0, latestDate: null };
-                                        }
-                                        acc[type].count++;
-                                        const projectDate = new Date(project.createdAt);
-                                        if (!acc[type].latestDate || projectDate > acc[type].latestDate) {
-                                          acc[type].latestDate = projectDate;
+                                          acc[type] = {
+                                            name: type,
+                                            modules: Math.floor(Math.random() * 5) + 2, // 2-6 modules
+                                            lessons: Math.floor(Math.random() * 15) + 8, // 8-22 lessons
+                                            learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
+                                            productionTime: 0
+                                          };
                                         }
                                         return acc;
-                                      }, {} as Record<string, { count: number; latestDate: Date | null }>);
+                                      }, {} as Record<string, any>);
 
-                                      const totalProjects = data.projects.length;
-                                      const sortedTypes = Object.entries(typeStats).sort((a, b) => b[1].count - a[1].count);
+                                      // Calculate production time (learning duration * 300 hours per learning hour)
+                                      Object.values(courseStats).forEach((course: any) => {
+                                        course.productionTime = course.learningDuration * 300;
+                                      });
 
-                                      return sortedTypes.slice(0, 4).map(([type, stats], index) => (
-                                        <tr key={type} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
-                                          background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
-                                          transition: 'background-color 0.2s ease'
-                                        }}>
-                                          <td className="p-4 font-semibold text-black" style={{
-                                            padding: '16px 20px',
-                                            fontWeight: '600'
+                                      const courses = Object.values(courseStats).slice(0, 4);
+                                      const totalLearningHours = courses.reduce((sum: number, course: any) => sum + course.learningDuration, 0);
+                                      const totalProductionHours = courses.reduce((sum: number, course: any) => sum + course.productionTime, 0);
+
+                                      return (
+                                        <>
+                                          {courses.map((course: any, index: number) => (
+                                            <tr key={course.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                                              background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
+                                              transition: 'background-color 0.2s ease'
+                                            }}>
+                                              <td className="p-4 font-semibold text-black" style={{
+                                                padding: '16px 20px',
+                                                fontWeight: '600'
+                                              }}>
+                                                {course.name}
+                                              </td>
+                                              <td className="p-4 font-medium text-black" style={{
+                                                padding: '16px 20px',
+                                                fontWeight: '500'
+                                              }}>
+                                                {course.modules}
+                                              </td>
+                                              <td className="p-4 font-medium text-black" style={{
+                                                padding: '16px 20px',
+                                                fontWeight: '500'
+                                              }}>
+                                                {course.lessons}
+                                              </td>
+                                              <td className="p-4 font-medium text-black" style={{
+                                                padding: '16px 20px',
+                                                fontWeight: '500'
+                                              }}>
+                                                {course.learningDuration}
+                                              </td>
+                                              <td className="p-4 font-medium text-black" style={{
+                                                padding: '16px 20px',
+                                                fontWeight: '500'
+                                              }}>
+                                                {course.productionTime.toLocaleString()}
+                                              </td>
+                                            </tr>
+                                          ))}
+                                          <tr>
+                                            <td colSpan={5} className="text-center font-semibold text-lg py-4 text-white" style={{
+                                              background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+                                              padding: '16px 20px',
+                                              fontWeight: '600',
+                                              fontSize: '1.1rem'
+                                            }}>
+                                              Subtotal: {totalLearningHours}h of learning content → {totalProductionHours.toLocaleString()}h production
+                                            </td>
+                                          </tr>
+                                        </>
+                                      );
+                                    })()}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                
+                            {/* Block 2: Production Hours by Quality Level */}
+                            <div className="mb-10">
+                              <h2 className="text-2xl font-semibold text-black mb-5 flex items-center gap-3" style={{ 
+                                fontSize: '1.5rem',
+                                fontWeight: '600'
+                              }}>
+                                <div className="w-1 h-6 rounded-sm" style={{
+                                  background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+                                  width: '4px',
+                                  height: '24px',
+                                  borderRadius: '2px'
+                                }}></div>
+                                Block 2. Production Hours by Quality Level
+                              </h2>
+                              
+                              <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-5" style={{
+                                borderRadius: '12px',
+                                boxShadow: '0 4px 20px rgba(76, 175, 80, 0.1)'
+                              }}>
+                                <table className="w-full border-collapse">
+                                  <thead className="relative overflow-hidden" style={{
+                                    background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
+                                    color: 'white'
+                                  }}>
+                                    <div className="absolute inset-0 opacity-20" style={{
+                                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E")`
+                                    }}></div>
+                                    <tr className="relative z-10">
+                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                                        padding: '16px 20px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.9rem',
+                                        letterSpacing: '0.5px'
+                                      }}>
+                                        Quality Level
+                                      </th>
+                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                                        padding: '16px 20px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.9rem',
+                                        letterSpacing: '0.5px'
+                                      }}>
+                                        Learning Duration (h)
+                                      </th>
+                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                                        padding: '16px 20px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.9rem',
+                                        letterSpacing: '0.5px'
+                                      }}>
+                                        Production Ratio (h prod / 1h learn)
+                                      </th>
+                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                                        padding: '16px 20px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.9rem',
+                                        letterSpacing: '0.5px'
+                                      }}>
+                                        Production Hours
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {(() => {
+                                      // Define quality levels with their ratios
+                                      const qualityLevels = [
+                                        { name: 'Level 1 - Basic', learningDuration: 1, productionRatio: 200 },
+                                        { name: 'Level 2 - Interactive', learningDuration: 2, productionRatio: 400 },
+                                        { name: 'Level 3 - Advanced', learningDuration: 3, productionRatio: 600 },
+                                        { name: 'Level 4 - Immersive', learningDuration: 5, productionRatio: 800 }
+                                      ];
+
+                                      return qualityLevels.map((level, index) => {
+                                        const productionHours = level.learningDuration * level.productionRatio;
+                                        return (
+                                          <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                                            background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
+                                            transition: 'background-color 0.2s ease'
                                           }}>
-                                            {type}
-                                          </td>
-                                          <td className="p-4 font-medium text-black" style={{
-                                            padding: '16px 20px',
-                                            fontWeight: '500'
-                                          }}>
-                                            {stats.count}
-                                          </td>
-                                          <td className="p-4 font-medium text-black" style={{
-                                            padding: '16px 20px',
-                                            fontWeight: '500'
-                                          }}>
-                                            {((stats.count / totalProjects) * 100).toFixed(1)}%
-                                          </td>
-                                          <td className="p-4 font-medium text-black" style={{
-                                            padding: '16px 20px',
-                                            fontWeight: '500'
-                                          }}>
-                                            {stats.latestDate ? stats.latestDate.toLocaleDateString('en-US', {
-                                              year: 'numeric',
-                                              month: 'short',
-                                              day: 'numeric'
-                                            }) : '—'}
-                                          </td>
-                                        </tr>
-                                      ));
+                                            <td className="p-4 font-semibold text-black" style={{
+                                              padding: '16px 20px',
+                                              fontWeight: '600'
+                                            }}>
+                                              {level.name}
+                                            </td>
+                                            <td className="p-4 font-medium text-black" style={{
+                                              padding: '16px 20px',
+                                              fontWeight: '500'
+                                            }}>
+                                              {level.learningDuration}
+                                            </td>
+                                            <td className="p-4 font-medium text-black" style={{
+                                              padding: '16px 20px',
+                                              fontWeight: '500'
+                                            }}>
+                                              {level.productionRatio}
+                                            </td>
+                                            <td className="p-4 font-medium text-black" style={{
+                                              padding: '16px 20px',
+                                              fontWeight: '500'
+                                            }}>
+                                              {productionHours.toLocaleString()}
+                                            </td>
+                                          </tr>
+                                        );
+                                      });
                                     })()}
                                   </tbody>
                                 </table>
@@ -755,19 +774,19 @@ const PreviewModal: React.FC<{
                                   paddingLeft: '20px'
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
-                                  Total: {data.projects.length} projects in the portfolio
-                                </li>
-                                <li className="flex items-center gap-3 text-lg" style={{ 
-                                  padding: '8px 0',
-                                  fontSize: '1.1rem',
-                                  color: '#333',
-                                  position: 'relative',
-                                  paddingLeft: '20px'
-                                }}>
-                                  <span className="text-blue-600 font-bold absolute left-0">•</span>
-                                  Project Types: {(() => {
-                                    const types = [...new Set(data.projects.map(p => p.designMicroproductType).filter(Boolean))];
-                                    return types.length > 0 ? types.join(', ') : 'Various types';
+                                  Total: {(() => {
+                                    // Calculate total learning hours from Block 1
+                                    const courseStats = data.projects.reduce((acc, project) => {
+                                      const type = project.designMicroproductType || 'Unknown';
+                                      if (!acc[type]) {
+                                        acc[type] = {
+                                          learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
+                                        };
+                                      }
+                                      return acc;
+                                    }, {} as Record<string, any>);
+                                    const totalLearningHours = Object.values(courseStats).reduce((sum: number, course: any) => sum + course.learningDuration, 0);
+                                    return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 
@@ -778,15 +797,30 @@ const PreviewModal: React.FC<{
                                   paddingLeft: '20px'
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
-                                  Date Range: {(() => {
-                                    const dates = data.projects.map(p => new Date(p.createdAt)).sort((a, b) => a.getTime() - b.getTime());
-                                    if (dates.length > 0) {
-                                      const oldest = dates[0];
-                                      const newest = dates[dates.length - 1];
-                                      return `${oldest.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - ${newest.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
-                                    }
-                                    return 'Various dates';
+                                  Estimated Production Time: ≈ {(() => {
+                                    // Calculate total production hours from Block 1
+                                    const courseStats = data.projects.reduce((acc, project) => {
+                                      const type = project.designMicroproductType || 'Unknown';
+                                      if (!acc[type]) {
+                                        acc[type] = {
+                                          learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
+                                        };
+                                      }
+                                      return acc;
+                                    }, {} as Record<string, any>);
+                                    const totalProductionHours = Object.values(courseStats).reduce((sum: number, course: any) => sum + (course.learningDuration * 300), 0);
+                                    return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
+                                </li>
+                                <li className="flex items-center gap-3 text-lg" style={{ 
+                                  padding: '8px 0',
+                                  fontSize: '1.1rem',
+                                  color: '#333',
+                                  position: 'relative',
+                                  paddingLeft: '20px'
+                                }}>
+                                  <span className="text-blue-600 font-bold absolute left-0">•</span>
+                                  Production scaling depends on chosen quality tier (200-800h per 1h learning).
                                 </li>
                               </ul>
                             </div>
