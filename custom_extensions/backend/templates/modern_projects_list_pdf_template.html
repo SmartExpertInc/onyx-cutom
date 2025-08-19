@@ -280,11 +280,11 @@
                             {% if folders %}
                                 {% for folder in folders %}
                                     <tr class="table-row">
-                                        <td class="course-name">{{ folder.name }}</td>
-                                        <td>{{ folder.projects|length if folder.projects else 0 }}</td>
-                                        <td>{{ folder.total_lessons if folder.total_lessons else 0 }}</td>
-                                        <td>{{ folder.total_hours if folder.total_hours else 0 }}</td>
-                                        <td>{{ (folder.total_hours * 300) if folder.total_hours else 0 }}</td>
+                                        <td class="course-name">{{ folder.name if folder.name else '-' }}</td>
+                                        <td>{{ folder.projects|length if folder.projects else '-' }}</td>
+                                        <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
+                                        <td>{{ folder.total_hours if folder.total_hours else '-' }}</td>
+                                        <td>{{ (folder.total_hours * 300) if folder.total_hours else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons else 0) %}
                                     {% set total_hours = total_hours + (folder.total_hours if folder.total_hours else 0) %}
@@ -293,11 +293,11 @@
                                     {% if folder.projects %}
                                         {% for project in folder.projects %}
                                             <tr class="table-row">
-                                                <td class="course-name" style="padding-left: 20px;">{{ project.project_name }}</td>
+                                                <td class="course-name" style="padding-left: 20px;">{{ project.project_name if project.project_name else '-' }}</td>
                                                 <td>1</td>
-                                                <td>{{ project.total_lessons if project.total_lessons else 0 }}</td>
-                                                <td>{{ project.total_hours if project.total_hours else 0 }}</td>
-                                                <td>{{ (project.total_hours * 300) if project.total_hours else 0 }}</td>
+                                                <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
+                                                <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                                <td>{{ (project.total_hours * 300) if project.total_hours else '-' }}</td>
                                             </tr>
                                             {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
                                             {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
@@ -310,11 +310,11 @@
                             {% if unassigned_projects %}
                                 {% for project in unassigned_projects %}
                                     <tr class="table-row">
-                                        <td class="course-name">{{ project.project_name }}</td>
+                                        <td class="course-name">{{ project.project_name if project.project_name else '-' }}</td>
                                         <td>1</td>
-                                        <td>{{ project.total_lessons if project.total_lessons else 0 }}</td>
-                                        <td>{{ project.total_hours if project.total_hours else 0 }}</td>
-                                        <td>{{ (project.total_hours * 300) if project.total_hours else 0 }}</td>
+                                        <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
+                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                        <td>{{ (project.total_hours * 300) if project.total_hours else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
                                     {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
