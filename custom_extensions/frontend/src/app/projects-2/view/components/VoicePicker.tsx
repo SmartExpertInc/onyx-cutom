@@ -901,33 +901,33 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="mb-2">
               <span className="text-sm text-gray-700">Apply new voice to</span>
             </div>
-            <div className="bg-gray-200 rounded-lg px-1 py-1 flex justify-between w-full max-w-md">
+            <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
               <button
                 onClick={() => setApplyTo('block')}
-                className={`px-4 py-1 text-sm rounded transition-colors ${
+                className={`flex-1 py-1 text-sm rounded transition-colors ${
                   applyTo === 'block' 
                     ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-600 hover:bg-gray-300'
                 }`}
               >
                 This block only
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
-                className={`px-4 py-1 text-sm rounded transition-colors ${
+                className={`flex-1 py-1 text-sm rounded transition-colors ${
                   applyTo === 'scene' 
                     ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-600 hover:bg-gray-300'
                 }`}
               >
                 This scene only
               </button>
               <button
                 onClick={() => setApplyTo('all')}
-                className={`px-4 py-1 text-sm rounded transition-colors ${
+                className={`flex-1 py-1 text-sm rounded transition-colors ${
                   applyTo === 'all' 
                     ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-600 hover:bg-gray-300'
                 }`}
               >
                 All scenes
