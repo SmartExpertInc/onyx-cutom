@@ -103,7 +103,7 @@ const DynamicText: React.FC<{
         </Link>
       </div>
     );
-  }
+  }/* s */
 
   return (
     <div ref={containerRef}>
