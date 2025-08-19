@@ -12,7 +12,7 @@ interface EmailInput {
 export default function VideoEditorHeader() {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
-  const [isEyeVisible, setIsEyeVisible] = useState(true);
+  const [isEyeVisible, setIsEyeVisible] = useState(false);
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
     { id: '1', email: '', role: 'editor' }
   ]);
@@ -315,18 +315,18 @@ export default function VideoEditorHeader() {
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
 
             {/* Grid tool - hidden on smaller screens */}
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center">
               <button 
                 onClick={handleEyeToggle}
-                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer"
+                className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer gap-2"
               >
                 {isEyeVisible ? (
                   <Eye className="w-4 h-4" />
                 ) : (
                   <EyeOff className="w-4 h-4" />
                 )}
+                <span className="text-editor-icon-text text-sm font-normal">Grid</span>
               </button>
-              <span className="text-editor-icon-text text-sm font-normal">Grid</span>
             </div>
 
             <div className="hidden lg:block w-0.5 h-[20px] bg-gray-300"></div>
