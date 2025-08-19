@@ -530,7 +530,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
           </div>
         </div>
-        <h1>Hello9</h1>
+        <h1>Hello10</h1>
       </div>
       {/* Main Content Area - Static white container */}
       <div 
