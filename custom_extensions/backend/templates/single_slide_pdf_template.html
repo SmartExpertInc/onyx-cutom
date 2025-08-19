@@ -1836,17 +1836,9 @@
                 
             {% elif slide.templateId == 'big-numbers' %}
                 <!-- DEBUG: big-numbers template -->
-                <div class="big-numbers">
-                    <!-- DEBUG: Frontend Data Structure -->
-                    <div style="background: red; color: white; padding: 10px; margin: 10px; font-size: 12px;">
-                        DEBUG - Big Numbers Data:
-                        <br>Title: {{ slide.props.title }}
-                        <br>Items array: {{ slide.props.items }}
-                        <br>Items length: {{ slide.props.items|length if slide.props.items else 0 }}
-                        <br>First item: {{ slide.props.items[0] if slide.props.items else 'None' }}
-                        <br>Full props: {{ slide.props }}
-                    </div>
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                                <div class="big-numbers">
+ 
+                    {% if slide.props.title %}
                         <h1 class="slide-title positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
                                 {% set titleId = 'draggable-' + slide.slideId + '-title' %}
@@ -1860,9 +1852,9 @@
                         {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
                             <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
                             {% for item in slide.props.items %}
-                                {% if (item.value and item.value != 'Click to add value') or (item.label and item.label != 'Click to add label') or (item.description and item.description != 'Click to add description') %}
+                                {% if item.value or item.label or item.description %}
                                     <div class="number-item">
-                                        {% if item.value and item.value != 'Click to add value' %}
+                                        {% if item.value %}
                                             <div class="number-value positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                                     {% set valueId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-value' %}
@@ -1872,7 +1864,7 @@
                                                 {% endif %}
                                             >{{ item.value }}</div>
                                         {% endif %}
-                                        {% if item.label and item.label != 'Click to add label' %}
+                                        {% if item.label %}
                                             <div class="number-label positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                                     {% set labelId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-label' %}
@@ -1882,7 +1874,7 @@
                                                 {% endif %}
                                             >{{ item.label }}</div>
                                         {% endif %}
-                                        {% if item.description and item.description != 'Click to add description' %}
+                                        {% if item.description %}
                                             <div class="number-description positioned-element"
                                                 {% if slide.metadata and slide.metadata.elementPositions %}
                                                     {% set descriptionId = 'draggable-' + slide.slideId + '-item-' + loop.index0|string + '-description' %}
