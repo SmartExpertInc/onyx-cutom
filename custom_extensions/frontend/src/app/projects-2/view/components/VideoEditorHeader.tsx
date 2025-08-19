@@ -263,6 +263,8 @@ export default function VideoEditorHeader() {
               </button>
             </div>
 
+            <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
+
             {/* Resize tool - hidden on smaller screens */}
             <div className="hidden lg:flex items-center relative">
               <button

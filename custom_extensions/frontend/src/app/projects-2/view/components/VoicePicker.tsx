@@ -546,9 +546,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
 
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
-          <div className="px-6 pb-6 flex gap-6 flex-1">
+          <div className="px-6 pb-6 flex gap-6">
           {/* Left Panel - Voice List with its own scrolling */}
-          <div className="flex-1 overflow-y-auto max-h-[400px]">
+          <div className="flex-1 overflow-y-auto max-h-[300px]">
             {/* Create Custom Voice Row */}
             <div className="mb-3">
               <div 
@@ -598,8 +598,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -612,9 +612,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -645,8 +645,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -659,9 +659,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -692,8 +692,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -706,9 +706,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -739,8 +739,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -753,9 +753,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -786,8 +786,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                         32 languages
                       </span>
-                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-gray-600">
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded-full flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
                           <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
                         </svg>
                         <span>Cloned voice</span>
@@ -800,9 +800,9 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 <div className="hidden group-hover:flex items-center gap-2">
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
                     <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-                      <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
                     </div>
                   </button>
                   <button className="p-2 rounded hover:bg-gray-200 transition-colors">
@@ -817,7 +817,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
           
           {/* Right Panel - Voice Details with its own scrolling */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto max-h-[400px]">
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto max-h-[300px]">
             {/* Row 1: Maya title */}
             <div className="mb-2">
               <h3 className="text-xl text-gray-900">Maya</h3>
