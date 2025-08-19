@@ -193,7 +193,7 @@ export default function Script() {
             ref={textAreaRef}
             contentEditable
             suppressContentEditableWarning
-            className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none h-[70vh] overflow-y-auto p-0"
+            className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none h-32 overflow-y-auto p-0"
             style={{ whiteSpace: 'pre-wrap' }}
             dangerouslySetInnerHTML={{ __html: scriptContent }}
           />

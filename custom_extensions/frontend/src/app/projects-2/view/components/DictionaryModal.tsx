@@ -127,7 +127,7 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                   
                   {/* Dropdown menu */}
                   {isVoiceDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] max-h-48 overflow-y-auto">
                       <div className="p-2">
                         <div className="px-2 py-1 text-xs text-gray-500 font-medium">All languages</div>
                         {voices.map((voice, index) => (
