@@ -16317,54 +16317,15 @@ async def download_projects_list_pdf(
                                 else:
                                     total_completion_time += 5  # No completion time, use 5 minutes
             
-            # Extract the best available title from various sources
-            project_title = 'Untitled'
-            
-            # Try to get title from project_name or microproduct_name first
-            if row_dict.get('project_name') and row_dict['project_name'].strip():
-                project_title = row_dict['project_name'].strip()
-            elif row_dict.get('microproduct_name') and row_dict['microproduct_name'].strip():
-                project_title = row_dict['microproduct_name'].strip()
-            
-            # If we still have default/empty title, try to extract from microproduct_content
-            if project_title == 'Untitled' or not project_title or project_title in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
-                content = row_dict.get('microproduct_content')
-                if content and isinstance(content, dict):
-                    # Try different content title fields based on project type
-                    content_title = None
-                    
-                    # Training Plan
-                    if content.get('mainTitle'):
-                        content_title = content['mainTitle']
-                    # PDF Lesson
-                    elif content.get('lessonTitle'):
-                        content_title = content['lessonTitle']
-                    # Slide Deck
-                    elif content.get('lessonTitle'):  # Slide deck also uses lessonTitle
-                        content_title = content['lessonTitle']
-                    # Video Lesson
-                    elif content.get('mainPresentationTitle'):
-                        content_title = content['mainPresentationTitle']
-                    # Quiz
-                    elif content.get('quizTitle'):
-                        content_title = content['quizTitle']
-                    # Text Presentation
-                    elif content.get('textTitle'):
-                        content_title = content['textTitle']
-                    
-                    if content_title and content_title.strip() and content_title.strip() not in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
-                        project_title = content_title.strip()
-
             projects_data.append({
                 'id': row_dict['id'],
-                'title': project_title,
+                'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
                 'created_at': row_dict['created_at'],
                 'created_by': 'You',
                 'design_microproduct_type': row_dict.get('design_microproduct_type'),
                 'folder_id': row_dict.get('folder_id'),
                 'order': row_dict.get('order', 0),
                 'microproduct_content': row_dict.get('microproduct_content'),
-                'quality_tier': row_dict.get('quality_tier', 'interactive'),  # Add quality tier
                 'total_lessons': total_lessons,
                 'total_hours': round(total_hours),
                 'total_completion_time': total_completion_time
@@ -16634,54 +16595,6 @@ async def download_projects_list_pdf(
 
         # Calculate summary statistics
         summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
-        
-        # Calculate course statistics by project type (like in preview)
-        def calculate_course_stats_by_type(folder_projects, unassigned_projects):
-            course_stats = {}
-            
-            # Process all projects from folders
-            for folder_id, projects in folder_projects.items():
-                for project in projects:
-                    project_type = project.get('design_microproduct_type', 'Unknown')
-                    if project_type not in course_stats:
-                        course_stats[project_type] = {
-                            'name': project_type,
-                            'modules': 0,
-                            'lessons': 0,
-                            'learningDuration': 0,
-                            'productionTime': 0
-                        }
-                    
-                    # Add project data
-                    course_stats[project_type]['modules'] += 1
-                    course_stats[project_type]['lessons'] += project.get('total_lessons', 0) or 0
-                    course_stats[project_type]['learningDuration'] += project.get('total_hours', 0) or 0
-            
-            # Process unassigned projects
-            for project in unassigned_projects:
-                project_type = project.get('design_microproduct_type', 'Unknown')
-                if project_type not in course_stats:
-                    course_stats[project_type] = {
-                        'name': project_type,
-                        'modules': 0,
-                        'lessons': 0,
-                        'learningDuration': 0,
-                        'productionTime': 0
-                    }
-                
-                # Add project data
-                course_stats[project_type]['modules'] += 1
-                course_stats[project_type]['lessons'] += project.get('total_lessons', 0) or 0
-                course_stats[project_type]['learningDuration'] += project.get('total_hours', 0) or 0
-            
-            # Calculate production time (learning duration * 300 hours per learning hour)
-            for course_type in course_stats.values():
-                course_type['productionTime'] = course_type['learningDuration'] * 300
-            
-            return course_stats
-        
-        # Calculate course statistics by type
-        course_stats_by_type = calculate_course_stats_by_type(folder_projects, unassigned_projects)
 
         # Collect all project IDs that are actually included in the filtered PDF data
         included_project_ids = set()
@@ -16953,8 +16866,7 @@ async def download_projects_list_pdf(
             'generated_at': datetime.now().isoformat(),
             'summary_stats': summary_stats,  # Add summary statistics to template data
             'product_distribution': product_distribution,  # Add real product distribution data
-            'quality_distribution': quality_distribution,   # Add real quality distribution data
-            'course_stats_by_type': course_stats_by_type  # Add course statistics by type (like in preview)
+            'quality_distribution': quality_distribution   # Add real quality distribution data
         }
         
         logger.info(f"[PDF_ANALYTICS] Template data prepared:")
@@ -19138,3 +19050,171 @@ async def get_quality_distribution(
     except Exception as e:
         logger.error(f"Error getting quality distribution: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get quality distribution: {str(e)}")
+
+@app.get("/api/custom/projects-data")
+async def get_projects_data_for_preview(
+    folder_id: Optional[int] = Query(None),
+    client_name: Optional[str] = Query(None),
+    manager_name: Optional[str] = Query(None),
+    selected_folders: Optional[str] = Query(None),
+    selected_projects: Optional[str] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get projects data for preview with real database values"""
+    try:
+        async with pool.acquire() as conn:
+            # Parse selected folders and projects
+            selected_folders_list = []
+            selected_projects_list = []
+            
+            if selected_folders:
+                try:
+                    selected_folders_list = json.loads(selected_folders)
+                except json.JSONDecodeError:
+                    pass
+            
+            if selected_projects:
+                try:
+                    selected_projects_list = json.loads(selected_projects)
+                except json.JSONDecodeError:
+                    pass
+            
+            # Build base query for projects
+            projects_query = """
+                SELECT 
+                    p.id,
+                    p.project_name,
+                    p.microproduct_name,
+                    p.microproduct_content,
+                    p.created_at,
+                    p.design_microproduct_type,
+                    p.folder_id,
+                    p."order",
+                    p.quality_tier
+                FROM projects p
+                WHERE p.onyx_user_id = $1
+                AND p.deleted_at IS NULL
+            """
+            params = [onyx_user_id]
+            param_count = 1
+            
+            # Add folder filter
+            if folder_id is not None:
+                param_count += 1
+                projects_query += f" AND p.folder_id = ${param_count}"
+                params.append(folder_id)
+            
+            # Add selected projects filter
+            if selected_projects_list:
+                param_count += 1
+                projects_query += f" AND p.id = ANY(${param_count})"
+                params.append(selected_projects_list)
+            
+            projects_query += " ORDER BY p.folder_id NULLS LAST, p.\"order\" ASC, p.created_at ASC"
+            
+            projects_rows = await conn.fetch(projects_query, *params)
+            
+            # Process projects data
+            projects_data = []
+            for row in projects_rows:
+                row_dict = dict(row)
+                
+                # Calculate individual project times
+                total_lessons = 0
+                total_hours = 0.0
+                total_completion_time = 0
+                
+                if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
+                    content = row_dict['microproduct_content']
+                    if content.get('sections') and isinstance(content['sections'], list):
+                        for section in content['sections']:
+                            if section.get('lessons') and isinstance(section['lessons'], list):
+                                for lesson in section['lessons']:
+                                    total_lessons += 1
+                                    if lesson.get('hours'):
+                                        try:
+                                            total_hours += float(lesson['hours'])
+                                        except (ValueError, TypeError):
+                                            pass
+                                    
+                                    # Calculate completion time
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    minutes = int(time_str[:-1])
+                                                    total_completion_time += minutes
+                                                except ValueError:
+                                                    total_completion_time += 5
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    total_completion_time += (hours * 60)
+                                                except ValueError:
+                                                    total_completion_time += 5
+                                            elif time_str.isdigit():
+                                                try:
+                                                    total_completion_time += int(time_str)
+                                                except ValueError:
+                                                    total_completion_time += 5
+                                            else:
+                                                total_completion_time += 5
+                                        else:
+                                            total_completion_time += 5
+                                    else:
+                                        total_completion_time += 5
+                
+                # Extract project title
+                project_title = 'Untitled'
+                if row_dict.get('project_name') and row_dict['project_name'].strip():
+                    project_title = row_dict['project_name'].strip()
+                elif row_dict.get('microproduct_name') and row_dict['microproduct_name'].strip():
+                    project_title = row_dict['microproduct_name'].strip()
+                
+                # Try to extract from microproduct_content
+                if project_title == 'Untitled' or not project_title or project_title in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
+                    content = row_dict.get('microproduct_content')
+                    if content and isinstance(content, dict):
+                        content_title = None
+                        
+                        if content.get('mainTitle'):
+                            content_title = content['mainTitle']
+                        elif content.get('lessonTitle'):
+                            content_title = content['lessonTitle']
+                        elif content.get('mainPresentationTitle'):
+                            content_title = content['mainPresentationTitle']
+                        elif content.get('quizTitle'):
+                            content_title = content['quizTitle']
+                        elif content.get('textTitle'):
+                            content_title = content['textTitle']
+                        
+                        if content_title and content_title.strip() and content_title.strip() not in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
+                            project_title = content_title.strip()
+                
+                projects_data.append({
+                    'id': row_dict['id'],
+                    'title': project_title,
+                    'created_at': row_dict['created_at'].isoformat() if row_dict['created_at'] else None,
+                    'created_by': 'You',
+                    'design_microproduct_type': row_dict.get('design_microproduct_type'),
+                    'folder_id': row_dict.get('folder_id'),
+                    'order': row_dict.get('order', 0),
+                    'microproduct_content': row_dict.get('microproduct_content'),
+                    'quality_tier': row_dict.get('quality_tier', 'interactive'),
+                    'total_lessons': total_lessons,
+                    'total_hours': round(total_hours, 1),
+                    'total_completion_time': total_completion_time
+                })
+            
+            return {
+                'projects': projects_data,
+                'client_name': client_name,
+                'manager_name': manager_name
+            }
+            
+    except Exception as e:
+        logger.error(f"Error getting projects data for preview: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get projects data: {str(e)}")

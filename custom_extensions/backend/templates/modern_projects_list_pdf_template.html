@@ -277,18 +277,48 @@
                             {% set total_hours = 0 %}
                             {% set total_production_time = 0 %}
                             
-                            {% if course_stats_by_type %}
-                                {% for course_type, stats in course_stats_by_type.items() %}
+                            {% if folders %}
+                                {% for folder in folders %}
                                     <tr class="table-row">
-                                        <td class="course-name">{{ stats.name if stats.name else '-' }}</td>
-                                        <td>{{ stats.modules if stats.modules else '-' }}</td>
-                                        <td>{{ stats.lessons if stats.lessons else '-' }}</td>
-                                        <td>{{ stats.learningDuration if stats.learningDuration else '-' }}</td>
-                                        <td>{{ stats.productionTime|int if stats.productionTime else '-' }}</td>
+                                        <td class="course-name">{{ folder.name if folder.name else '-' }}</td>
+                                        <td>{{ folder.projects|length if folder.projects else '-' }}</td>
+                                        <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
+                                        <td>{{ folder.total_hours if folder.total_hours else '-' }}</td>
+                                        <td>{{ (folder.total_hours * 300) if folder.total_hours else '-' }}</td>
                                     </tr>
-                                    {% set total_lessons = total_lessons + (stats.lessons if stats.lessons else 0) %}
-                                    {% set total_hours = total_hours + (stats.learningDuration if stats.learningDuration else 0) %}
-                                    {% set total_production_time = total_production_time + (stats.productionTime if stats.productionTime else 0) %}
+                                    {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons else 0) %}
+                                    {% set total_hours = total_hours + (folder.total_hours if folder.total_hours else 0) %}
+                                    {% set total_production_time = total_production_time + ((folder.total_hours * 300) if folder.total_hours else 0) %}
+                                    
+                                    {% if folder.projects %}
+                                        {% for project in folder.projects %}
+                                            <tr class="table-row">
+                                                <td class="course-name" style="padding-left: 20px;">{{ project.project_name if project.project_name else '-' }}</td>
+                                                <td>1</td>
+                                                <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
+                                                <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                                <td>{{ (project.total_hours * 300) if project.total_hours else '-' }}</td>
+                                            </tr>
+                                            {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
+                                            {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
+                                            {% set total_production_time = total_production_time + ((project.total_hours * 300) if project.total_hours else 0) %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {% if unassigned_projects %}
+                                {% for project in unassigned_projects %}
+                                    <tr class="table-row">
+                                        <td class="course-name">{{ project.project_name if project.project_name else '-' }}</td>
+                                        <td>1</td>
+                                        <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
+                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                        <td>{{ (project.total_hours * 300) if project.total_hours else '-' }}</td>
+                                    </tr>
+                                    {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
+                                    {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
+                                    {% set total_production_time = total_production_time + ((project.total_hours * 300) if project.total_hours else 0) %}
                                 {% endfor %}
                             {% endif %}
                         </tbody>
@@ -307,61 +337,35 @@
                             <tr>
                                 <th>Quality Level</th>
                                 <th>Learning Duration (h)</th>
+                                <th>Production Ratio (h prod / 1h learn)</th>
                                 <th>Production Hours</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% if quality_distribution %}
-                                {% if quality_distribution.basic_count > 0 %}
-                                <tr class="table-row">
-                                    <td class="course-name">Level 1 - Basic</td>
-                                    <td>{{ quality_distribution.basic_count }}</td>
-                                    <td>{{ (quality_distribution.basic_count * 200)|int }}</td>
-                                </tr>
-                                {% endif %}
-                                {% if quality_distribution.interactive_count > 0 %}
-                                <tr class="table-row">
-                                    <td class="course-name">Level 2 - Interactive</td>
-                                    <td>{{ quality_distribution.interactive_count }}</td>
-                                    <td>{{ (quality_distribution.interactive_count * 400)|int }}</td>
-                                </tr>
-                                {% endif %}
-                                {% if quality_distribution.advanced_count > 0 %}
-                                <tr class="table-row">
-                                    <td class="course-name">Level 3 - Advanced</td>
-                                    <td>{{ quality_distribution.advanced_count }}</td>
-                                    <td>{{ (quality_distribution.advanced_count * 600)|int }}</td>
-                                </tr>
-                                {% endif %}
-                                {% if quality_distribution.immersive_count > 0 %}
-                                <tr class="table-row">
-                                    <td class="course-name">Level 4 - Immersive</td>
-                                    <td>{{ quality_distribution.immersive_count }}</td>
-                                    <td>{{ (quality_distribution.immersive_count * 800)|int }}</td>
-                                </tr>
-                                {% endif %}
-                            {% else %}
-                                <tr class="table-row">
-                                    <td class="course-name">Level 1 - Basic</td>
-                                    <td>1</td>
-                                    <td>200</td>
-                                </tr>
-                                <tr class="table-row">
-                                    <td class="course-name">Level 2 - Interactive</td>
-                                    <td>2</td>
-                                    <td>800</td>
-                                </tr>
-                                <tr class="table-row">
-                                    <td class="course-name">Level 3 - Advanced</td>
-                                    <td>3</td>
-                                    <td>1,800</td>
-                                </tr>
-                                <tr class="table-row">
-                                    <td class="course-name">Level 4 - Immersive</td>
-                                    <td>5</td>
-                                    <td>4,000</td>
-                                </tr>
-                            {% endif %}
+                            <tr class="table-row">
+                                <td class="course-name">Level 1 - Basic</td>
+                                <td>1</td>
+                                <td>200</td>
+                                <td>200</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="course-name">Level 2 - Interactive</td>
+                                <td>2</td>
+                                <td>400</td>
+                                <td>800</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="course-name">Level 3 - Advanced</td>
+                                <td>3</td>
+                                <td>600</td>
+                                <td>1,800</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="course-name">Level 4 - Immersive</td>
+                                <td>5</td>
+                                <td>800</td>
+                                <td>4,000</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

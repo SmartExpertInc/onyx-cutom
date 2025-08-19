@@ -429,7 +429,7 @@ const PreviewModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
-      <div className="bg-white shadow-2xl w-full max-w-6xl h-[95vh] relative flex flex-col rounded-xl">
+      <div className="bg-white shadow-2xl w-full max-w-6xl max-h-[95vh] relative overflow-hidden rounded-xl">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 z-10" 
           onClick={onClose}
@@ -440,7 +440,7 @@ const PreviewModal: React.FC<{
         </button>
         
         {/* PDF Document Content - Matching testPageForVitaliy.html exactly */}
-        <div className="flex-1 overflow-y-auto" style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
+        <div className="h-full overflow-y-auto" style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
           {/* Header with gradient and noise texture */}
           <div className="relative overflow-hidden" style={{
             background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
@@ -549,9 +549,9 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // Calculate course statistics from projects using real data
+                                      // Calculate course statistics from projects using real data from backend
                                       const courseStats = data.projects.reduce((acc, project) => {
-                                        const type = project.designMicroproductType || 'Unknown';
+                                        const type = project.design_microproduct_type || 'Unknown';
                                         if (!acc[type]) {
                                           acc[type] = {
                                             name: type,
@@ -562,19 +562,10 @@ const PreviewModal: React.FC<{
                                           };
                                         }
                                         
-                                        // Add real project data - use lessonDataCache if available
+                                        // Add real project data from backend
                                         acc[type].modules += 1;
-                                        
-                                        // Get lesson data from cache or use defaults
-                                        const lessonData = (window as any).__lessonDataCache?.[project.id];
-                                        if (lessonData) {
-                                          acc[type].lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
-                                          acc[type].learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
-                                        } else {
-                                          // Fallback to default values if no cache data
-                                          acc[type].lessons += 5; // Default lesson count
-                                          acc[type].learningDuration += 3; // Default hours
-                                        }
+                                        acc[type].lessons += project.total_lessons || 0;
+                                        acc[type].learningDuration += project.total_hours || 0;
                                         
                                         return acc;
                                       }, {} as Record<string, any>);
@@ -698,6 +689,15 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
+                                        Production Ratio (h prod / 1h learn)
+                                      </th>
+                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
+                                        padding: '16px 20px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.9rem',
+                                        letterSpacing: '0.5px'
+                                      }}>
                                         Production Hours
                                       </th>
                                     </tr>
@@ -730,6 +730,12 @@ const PreviewModal: React.FC<{
                                               fontWeight: '500'
                                             }}>
                                               {level.learningDuration}
+                                            </td>
+                                            <td className="p-4 font-medium text-black" style={{
+                                              padding: '16px 20px',
+                                              fontWeight: '500'
+                                            }}>
+                                              {level.productionRatio}
                                             </td>
                                             <td className="p-4 font-medium text-black" style={{
                                               padding: '16px 20px',
@@ -3681,7 +3687,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     };
 
     // Handle client name confirmation
-    const handleClientNameConfirm = (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[]) => {
+    const handleClientNameConfirm = async (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[]) => {
         setShowClientNameModal(false);
         
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -3734,16 +3740,53 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         a.click();
         document.body.removeChild(a);
         
-        // Show preview modal with project structure
-        const projectsToShow = visibleProjects.filter(project => 
-            selectedProjects.length === 0 || selectedProjects.includes(project.id)
-        );
+        // Get real data from backend for preview
+        try {
+            const previewDataUrl = `${CUSTOM_BACKEND_URL}/projects-data`;
+            if (queryParams.toString()) {
+                previewDataUrl += `?${queryParams.toString()}`;
+            }
+            
+            const response = await fetch(previewDataUrl);
+            if (response.ok) {
+                const backendData = await response.json();
+                
+                // Filter projects based on selection
+                const filteredProjects = backendData.projects.filter((project: any) => 
+                    selectedProjects.length === 0 || selectedProjects.includes(project.id)
+                );
+                
+                setPreviewData({
+                    clientName,
+                    managerName,
+                    projects: filteredProjects
+                });
+            } else {
+                // Fallback to frontend data if backend fails
+                const projectsToShow = visibleProjects.filter(project => 
+                    selectedProjects.length === 0 || selectedProjects.includes(project.id)
+                );
+                
+                setPreviewData({
+                    clientName,
+                    managerName,
+                    projects: projectsToShow
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch preview data from backend:', error);
+            // Fallback to frontend data
+            const projectsToShow = visibleProjects.filter(project => 
+                selectedProjects.length === 0 || selectedProjects.includes(project.id)
+            );
+            
+            setPreviewData({
+                clientName,
+                managerName,
+                projects: projectsToShow
+            });
+        }
         
-        setPreviewData({
-            clientName,
-            managerName,
-            projects: projectsToShow
-        });
         setShowPreviewModal(true);
     };
 
