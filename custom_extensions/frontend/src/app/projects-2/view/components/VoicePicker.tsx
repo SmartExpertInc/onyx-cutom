@@ -901,7 +901,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="mb-2">
               <span className="text-sm text-gray-700">Apply new voice to</span>
             </div>
-            <div className="bg-gray-200 rounded-lg px-1 py-0.5 flex w-full max-w-lg">
+            <div className="bg-gray-200 rounded-lg px-1 py-1 flex justify-between w-full max-w-md">
               <button
                 onClick={() => setApplyTo('block')}
                 className={`px-4 py-1 text-sm rounded transition-colors ${
@@ -936,7 +936,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
 
           {/* Right side - Action buttons */}
-          <div className="flex justify-between gap-3 w-48">
+          <div className="flex gap-3">
             <button
               onClick={onClose}
               className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
