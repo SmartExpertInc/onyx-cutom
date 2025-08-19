@@ -18842,7 +18842,7 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             size = int(size_elem.text) if size_elem is not None and size_elem.text else None
             
             # Get last modified
-                    modified_elem = response.find('.//{DAV:}getlastmodified')
+            modified_elem = response.find('.//{DAV:}getlastmodified')
         modified = modified_elem.text if modified_elem is not None else None
         
         # Parse HTTP date string to datetime object
