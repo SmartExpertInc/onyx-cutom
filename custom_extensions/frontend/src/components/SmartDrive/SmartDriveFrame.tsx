@@ -12,6 +12,14 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [iframeKey, setIframeKey] = useState(0);
+  const [syncing, setSyncing] = useState(false);
+  const [showCredentials, setShowCredentials] = useState(false);
+  const [hasCredentials, setHasCredentials] = useState(true);
+  const [credentialsForm, setCredentialsForm] = useState({
+    nextcloud_username: '',
+    nextcloud_password: '',
+    nextcloud_base_url: 'http://nc1.contentbuilder.ai:8080'
+  });
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
@@ -36,7 +44,58 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
     initializeSession();
   }, []);
 
+  useEffect(() => {
+    checkCredentials();
+  }, []);
+
+  const checkCredentials = async () => {
+    try {
+      const response = await fetch('/api/custom-projects-backend/smartdrive/session', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+      const data = await response.json();
+      setHasCredentials(data.has_credentials || false);
+      if (!data.has_credentials) {
+        setShowCredentials(true);
+      }
+    } catch (error) {
+      console.error('Failed to check credentials:', error);
+    }
+  };
+
+  const handleSetCredentials = async () => {
+    try {
+      const response = await fetch('/api/custom-projects-backend/smartdrive/credentials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(credentialsForm)
+      });
+
+      if (response.ok) {
+        setHasCredentials(true);
+        setShowCredentials(false);
+        alert('Nextcloud credentials saved successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to save credentials: ${errorData.detail}`);
+      }
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+      alert('Failed to save credentials. Please try again.');
+    }
+  };
+
   const handleSyncToOnyx = async () => {
+    if (!hasCredentials) {
+      alert('Please set up your Nextcloud credentials first!');
+      setShowCredentials(true);
+      return;
+    }
+
     setIsLoading(true);
     setSyncStatus('syncing');
 
@@ -72,6 +131,39 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
       console.error('Error syncing to Onyx:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSync = async () => {
+    if (!hasCredentials) {
+      alert('Please set up your Nextcloud credentials first!');
+      setShowCredentials(true);
+      return;
+    }
+
+    try {
+      setSyncing(true);
+      const response = await fetch('/api/custom-projects-backend/smartdrive/import-new', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+
+      if (response.ok) {
+        alert('Successfully synced files from Smart Drive!');
+      } else {
+        const errorData = await response.json();
+        if (errorData.detail?.includes('credentials')) {
+          setShowCredentials(true);
+          alert('Please set up your Nextcloud credentials first!');
+        } else {
+          alert(`Sync failed: ${errorData.detail || 'Unknown error'}`);
+        }
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      alert('Failed to sync files. Please try again.');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -168,6 +260,83 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
           Use "Sync to Onyx" to import new or updated files.
         </p>
       </div>
+
+      {/* Credentials Setup Modal */}
+      {showCredentials && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Setup Nextcloud Credentials</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Please provide your individual Nextcloud account credentials:
+            </p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nextcloud Username
+                </label>
+                <input
+                  type="text"
+                  value={credentialsForm.nextcloud_username}
+                  onChange={(e) => setCredentialsForm(prev => ({
+                    ...prev,
+                    nextcloud_username: e.target.value
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="your-username"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nextcloud Password
+                </label>
+                <input
+                  type="password"
+                  value={credentialsForm.nextcloud_password}
+                  onChange={(e) => setCredentialsForm(prev => ({
+                    ...prev,
+                    nextcloud_password: e.target.value
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="your-password"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nextcloud URL
+                </label>
+                <input
+                  type="text"
+                  value={credentialsForm.nextcloud_base_url}
+                  onChange={(e) => setCredentialsForm(prev => ({
+                    ...prev,
+                    nextcloud_base_url: e.target.value
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowCredentials(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSetCredentials}
+                disabled={!credentialsForm.nextcloud_username || !credentialsForm.nextcloud_password}
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg"
+              >
+                Save Credentials
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
