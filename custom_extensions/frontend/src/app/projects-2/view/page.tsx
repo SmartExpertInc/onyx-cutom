@@ -97,7 +97,7 @@ export default function Projects2ViewPage() {
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
-      <div className="flex gap-4 overflow-hidden mt-[5px]" style={{ height: 'calc(100vh - 145px)' }}>
+      <div className="flex gap-4 overflow-hidden mt-[5px] mx-4" style={{ height: 'calc(100vh - 145px)' }}>
         {/* Sidebar - 30% width, full height of available space */}
         <div className="w-[30%] h-full">
           {renderSidebarComponent()}

@@ -277,7 +277,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[70vh] flex flex-col z-10"
+        className="relative bg-white shadow-xl w-[1000px] max-w-[96vw] max-h-[85vh] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
         
@@ -548,7 +548,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
           <div className="px-6 pb-6 flex gap-6">
           {/* Left Panel - Voice List with its own scrolling */}
-          <div className="flex-1 overflow-y-auto max-h-[300px]">
+          <div className="flex-1 overflow-y-auto max-h-[400px]">
             {/* Create Custom Voice Row */}
             <div className="mb-3">
               <div 
@@ -559,21 +559,21 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               >
                 <div className="flex items-center gap-3">
                   {/* White circle with radio wave icon */}
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border" style={{ borderColor: '#6D8DC3' }}>
-                    <RadioWaveIcon size={20} className="text-[#6D8DC3]" />
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border" style={{ borderColor: '#2C71F5' }}>
+                    <RadioWaveIcon size={20} className="text-[#2C71F5]" />
                   </div>
                   
                   {/* Text and badge */}
                   <div className="flex items-center gap-2">
-                    <span className="font-medium" style={{ color: '#6D8DC3' }}>Create a custom voice</span>
-                    <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ backgroundColor: '#6D8DC3', color: '#EFF7FE' }}>
+                    <span className="font-medium text-base" style={{ color: '#2C71F5' }}>Create a custom voice</span>
+                    <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ backgroundColor: '#2C71F5', color: '#FFFFFF' }}>
                       NEW
                     </span>
                   </div>
                 </div>
                 
                 {/* Right chevron */}
-                <ChevronRight size={20} style={{ color: '#6D8DC3' }} />
+                <ChevronRight size={20} style={{ color: '#2C71F5' }} />
               </div>
             </div>
 
@@ -817,7 +817,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
           
           {/* Right Panel - Voice Details with its own scrolling */}
-          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto max-h-[300px]">
+          <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 self-start overflow-y-auto max-h-[400px]">
             {/* Row 1: Maya title */}
             <div className="mb-2">
               <h3 className="text-xl text-gray-900">Maya</h3>
