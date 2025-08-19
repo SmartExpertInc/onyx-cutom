@@ -12,6 +12,7 @@ interface ComponentBasedSlideRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
@@ -19,7 +20,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   isEditable = false,
   onSlideUpdate,
   onTemplateChange,
-  theme
+  theme,
+  getPlaceholderGenerationState
 }) => {
   const template = getTemplate(slide.templateId);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
@@ -93,7 +95,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     slideId: slide.slideId,
     isEditable,
     onUpdate: handlePropsUpdate,
-    theme: currentTheme
+    theme: currentTheme,
+    getPlaceholderGenerationState
   };
 
   // Use HybridTemplateBase for all editable slides (positioning enabled by default)
@@ -139,6 +142,7 @@ interface ComponentBasedSlideDeckRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -147,7 +151,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   isEditable = false,
   onSlideUpdate,
   onTemplateChange,
-  theme
+  theme,
+  getPlaceholderGenerationState
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -175,6 +180,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             onSlideUpdate={onSlideUpdate}
             onTemplateChange={onTemplateChange}
             theme={theme}
+            getPlaceholderGenerationState={getPlaceholderGenerationState}
           />
         </div>
       ))}

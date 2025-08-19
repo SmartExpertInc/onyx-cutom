@@ -1,7 +1,7 @@
 // components/SmartSlideDeckViewer.tsx
 // Component-based slide viewer with classic UX (sidebar, navigation, inline editing)
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
@@ -9,7 +9,8 @@ import VoiceoverPanel from './VoiceoverPanel';
 import { ThemePicker } from './theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
-import { Plus, ChevronDown, X, Volume2, Palette} from 'lucide-react';
+import { Plus, ChevronDown, X, Volume2, Palette, Loader2, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
+import AutomaticImageGenerationManager from './AutomaticImageGenerationManager';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -32,6 +33,15 @@ interface SmartSlideDeckViewerProps {
 
   /** Project ID for theme persistence */
   projectId?: string;
+
+  /** Whether to enable automatic image generation */
+  enableAutomaticImageGeneration?: boolean;
+
+  /** Callback when automatic generation starts */
+  onAutomaticGenerationStarted?: () => void;
+
+  /** Callback when automatic generation completes */
+  onAutomaticGenerationCompleted?: (results: { elementId: string; success: boolean; imagePath?: string; error?: string }[]) => void;
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
@@ -41,7 +51,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   showFormatInfo = false,
   theme,
   hasVoiceover = false,
-  projectId
+  projectId,
+  enableAutomaticImageGeneration = true,
+  onAutomaticGenerationStarted,
+  onAutomaticGenerationCompleted
 }: SmartSlideDeckViewerProps) => {
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +73,20 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Scroll synchronization state
   const [isScrollingSlidesFromPanel, setIsScrollingSlidesFromPanel] = useState(false);
   const [isScrollingPanelFromSlides, setIsScrollingPanelFromSlides] = useState(false);
+
+  // ✅ NEW: Automatic Image Generation State
+  const [generationStates, setGenerationStates] = useState<Map<string, { isGenerating: boolean; hasImage: boolean; error?: string }>>(new Map());
+  const [overallGenerationProgress, setOverallGenerationProgress] = useState<{ total: number; completed: number; inProgress: number; failed: number; percentage: number }>({ total: 0, completed: 0, inProgress: 0, failed: 0, percentage: 0 });
+  const [showGenerationProgress, setShowGenerationProgress] = useState(false);
+  const progressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // ✅ NEW: Debug logging utility
+  const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+  const log = (source: string, event: string, data: any) => {
+    if (DEBUG) {
+      console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+    }
+  };
 
   // Theme management for slide decks
   const { currentTheme, changeTheme, isChangingTheme } = useTheme({
@@ -90,6 +117,131 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Get available templates
   const availableTemplates = getAllTemplates();
+
+  // ✅ NEW: Handle generation started for a specific placeholder
+  const handleGenerationStarted = useCallback((elementId: string) => {
+    log('SmartSlideDeckViewer', 'handleGenerationStarted', { elementId });
+    
+    setGenerationStates(prev => new Map(prev).set(elementId, { 
+      isGenerating: true, 
+      hasImage: false 
+    }));
+
+    // Show progress indicator
+    setShowGenerationProgress(true);
+    
+    // Notify parent
+    onAutomaticGenerationStarted?.();
+  }, [onAutomaticGenerationStarted]);
+
+  // ✅ NEW: Handle generation completed for a specific placeholder
+  const handleGenerationCompleted = useCallback((elementId: string, imagePath: string) => {
+    log('SmartSlideDeckViewer', 'handleGenerationCompleted', { elementId, imagePath });
+    
+    // Update generation state
+    setGenerationStates(prev => new Map(prev).set(elementId, { 
+      isGenerating: false, 
+      hasImage: true 
+    }));
+
+    // Update the deck with the generated image
+    setComponentDeck(prevDeck => {
+      if (!prevDeck?.slides) return prevDeck;
+
+      const updatedDeck = { ...prevDeck };
+      const updatedSlides = [...updatedDeck.slides];
+
+      // Find the slide containing this placeholder
+      for (let slideIndex = 0; slideIndex < updatedSlides.length; slideIndex++) {
+        const slide = updatedSlides[slideIndex];
+        const slideId = slide.slideId || `slide-${slideIndex}`;
+        
+        // Check if this is the slide containing the placeholder
+        if (elementId.startsWith(slideId)) {
+          const updatedSlide = { ...slide };
+          
+          // Update the appropriate image property based on template and element ID
+          if (elementId === `${slideId}-image`) {
+            // Single image template
+            updatedSlide.props = { ...updatedSlide.props, imagePath };
+          } else if (elementId === `${slideId}-left-image`) {
+            // Two-column template - left image
+            updatedSlide.props = { ...updatedSlide.props, leftImagePath: imagePath };
+          } else if (elementId === `${slideId}-right-image`) {
+            // Two-column template - right image
+            updatedSlide.props = { ...updatedSlide.props, rightImagePath: imagePath };
+          }
+          
+          updatedSlides[slideIndex] = updatedSlide;
+          break;
+        }
+      }
+
+      updatedDeck.slides = updatedSlides;
+      
+      // Save the updated deck
+      onSave?.(updatedDeck);
+      
+      return updatedDeck;
+    });
+  }, [onSave]);
+
+  // ✅ NEW: Handle generation failed for a specific placeholder
+  const handleGenerationFailed = useCallback((elementId: string, error: string) => {
+    log('SmartSlideDeckViewer', 'handleGenerationFailed', { elementId, error });
+    
+    setGenerationStates(prev => new Map(prev).set(elementId, { 
+      isGenerating: false, 
+      hasImage: false, 
+      error 
+    }));
+  }, []);
+
+  // ✅ NEW: Handle all generations completed
+  const handleAllGenerationsComplete = useCallback((results: { elementId: string; success: boolean; imagePath?: string; error?: string }[]) => {
+    log('SmartSlideDeckViewer', 'handleAllGenerationsComplete', { 
+      totalResults: results.length,
+      successfulResults: results.filter(r => r.success).length,
+      failedResults: results.filter(r => !r.success).length
+    });
+
+    // Hide progress indicator after a delay
+    if (progressTimeoutRef.current) {
+      clearTimeout(progressTimeoutRef.current);
+    }
+    
+    progressTimeoutRef.current = setTimeout(() => {
+      setShowGenerationProgress(false);
+    }, 3000); // Show for 3 seconds after completion
+
+    // Notify parent
+    onAutomaticGenerationCompleted?.(results);
+  }, [onAutomaticGenerationCompleted]);
+
+  // ✅ NEW: Update overall generation progress
+  useEffect(() => {
+    const total = generationStates.size;
+    const completed = Array.from(generationStates.values()).filter(state => state.hasImage).length;
+    const inProgress = Array.from(generationStates.values()).filter(state => state.isGenerating).length;
+    const failed = Array.from(generationStates.values()).filter(state => state.error).length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    setOverallGenerationProgress({ total, completed, inProgress, failed, percentage });
+  }, [generationStates]);
+
+  // ✅ NEW: Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (progressTimeoutRef.current) {
+        clearTimeout(progressTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // ✅ NEW: Get generation state for a specific placeholder
+  const getPlaceholderGenerationState = useCallback((elementId: string) => {
+    return generationStates.get(elementId) || { isGenerating: false, hasImage: false };
+  }, [generationStates]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -530,7 +682,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
           </div>
         </div>
-        <h1>Hello5</h1>
+        <h1>Hello6</h1>
       </div>
       {/* Main Content Area - Static white container */}
       <div 
@@ -638,6 +790,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                     onTemplateChange={isEditable ? handleTemplateChange : undefined}
                     theme={currentTheme}
+                    getPlaceholderGenerationState={getPlaceholderGenerationState}
                   />
                 </div>
               </div>
@@ -955,6 +1108,91 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         onThemeSelect={changeTheme}
         isChanging={isChangingTheme}
       />
+
+      {/* Automatic Image Generation Manager */}
+      {enableAutomaticImageGeneration && (
+        <AutomaticImageGenerationManager
+          deck={componentDeck}
+          enabled={enableAutomaticImageGeneration}
+          onGenerationStarted={handleGenerationStarted}
+          onGenerationCompleted={handleGenerationCompleted}
+          onGenerationFailed={handleGenerationFailed}
+          onAllGenerationsComplete={handleAllGenerationsComplete}
+        />
+      )}
+
+      {/* Generation Progress Indicator */}
+      {showGenerationProgress && overallGenerationProgress.total > 0 && (
+        <div 
+          className="generation-progress-indicator"
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: 'white',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '16px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            zIndex: 1000,
+            minWidth: '300px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <Sparkles className="w-5 h-5 text-purple-600" />
+            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+              Generating AI Images
+            </h3>
+          </div>
+
+          {/* Progress Bar */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ 
+              width: '100%', 
+              height: '6px', 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '3px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${overallGenerationProgress.percentage}%`,
+                height: '100%',
+                backgroundColor: '#8b5cf6',
+                transition: 'width 0.3s ease',
+                borderRadius: '3px'
+              }} />
+            </div>
+          </div>
+
+          {/* Progress Stats */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#6b7280' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              <span>{overallGenerationProgress.completed} completed</span>
+            </div>
+            
+            {overallGenerationProgress.inProgress > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Loader2 className="w-4 h-4 animate-spin text-purple-500" />
+                <span>{overallGenerationProgress.inProgress} generating</span>
+              </div>
+            )}
+            
+            {overallGenerationProgress.failed > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AlertCircle className="w-4 h-4 text-red-500" />
+                <span>{overallGenerationProgress.failed} failed</span>
+              </div>
+            )}
+          </div>
+
+          {/* Progress Text */}
+          <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
+            {overallGenerationProgress.percentage}% complete
+          </div>
+        </div>
+      )}
     </div>
   );
 };

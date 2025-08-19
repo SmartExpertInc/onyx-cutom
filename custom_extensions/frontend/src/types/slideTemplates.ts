@@ -11,6 +11,7 @@ export interface BaseTemplateProps {
   isEditable?: boolean;
   onUpdate?: (props: any) => void;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
 export interface TemplateComponentInfo {

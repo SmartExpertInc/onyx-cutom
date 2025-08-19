@@ -157,7 +157,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   heightPx,
   imageScale,
   imageOffset,
-  objectFit
+  objectFit,
+  getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -459,6 +460,9 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}
           savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          aiGeneratedPrompt={imagePrompt}
+          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+          onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
         />
       </div>
 
