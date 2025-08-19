@@ -407,6 +407,93 @@ const ClientNameModal: React.FC<{
   );
 };
 
+// Preview Modal Component
+const PreviewModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  data: {
+    clientName: string | null;
+    managerName: string | null;
+    projects: Project[];
+  } | null;
+}> = ({ isOpen, onClose, data }) => {
+  const { t } = useLanguage();
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  if (!isOpen || !data) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] p-8 relative border border-gray-100 overflow-hidden">
+        <button 
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 z-10" 
+          onClick={onClose}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Projects List Preview</h2>
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            {data.clientName && <span>Client: {data.clientName}</span>}
+            {data.managerName && <span>Manager: {data.managerName}</span>}
+            <span>Total Projects: {data.projects.length}</span>
+            <span>Generated: {new Date().toLocaleDateString()}</span>
+          </div>
+        </div>
+        
+        <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
+          <div className="bg-gray-50 rounded-lg p-6">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Title</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Created</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Creator</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.projects.map((project, index) => (
+                  <tr key={project.id} className={`border-b border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                    <td className="py-3 px-4 text-gray-900 font-medium">{project.title}</td>
+                    <td className="py-3 px-4 text-gray-600">
+                      {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : '-'}
+                    </td>
+                    <td className="py-3 px-4 text-gray-600">
+                      <span className="inline-flex items-center">
+                        <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                          <span className="text-xs font-bold text-gray-700">Y</span>
+                        </span>
+                        You
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Helper function to check if any modal is present in the DOM
 const isAnyModalPresent = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -2311,6 +2398,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     
     // Client name modal state
     const [showClientNameModal, setShowClientNameModal] = useState(false);
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
+    const [previewData, setPreviewData] = useState<{
+        clientName: string | null;
+        managerName: string | null;
+        projects: Project[];
+    } | null>(null);
 
 
     // Column resizing functionality
@@ -3304,75 +3397,17 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         a.click();
         document.body.removeChild(a);
         
-        // Simultaneously open HTML preview page
-        const previewWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        // Show preview modal with project structure
+        const projectsToShow = visibleProjects.filter(project => 
+            selectedProjects.length === 0 || selectedProjects.includes(project.id)
+        );
         
-        if (!previewWindow) {
-          alert('Пожалуйста, разрешите всплывающие окна для этого сайта.');
-          return;
-        }
-
-        // Create simple HTML preview content
-        const generatePreviewHTML = () => {
-            const projectsRows = visibleProjects.map(project => 
-                `<tr>
-                    <td>${project.title || ''}</td>
-                    <td>${project.status || ''}</td>
-                    <td>${project.created ? new Date(project.created).toLocaleDateString() : ''}</td>
-                </tr>`
-            ).join('');
-            
-            return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects List Preview</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .header { background: #002864; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #f8f9fa; font-weight: bold; }
-        .info { background: #f8f9fa; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Projects List</h1>
-        <p>${clientName ? 'Client: ' + clientName : ''} ${managerName ? ' | Manager: ' + managerName : ''}</p>
-    </div>
-    <div class="content">
-        <div class="info">
-            <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
-            <p><strong>Total Projects:</strong> ${visibleProjects.length}</p>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${projectsRows}
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>`;
-        };
-        
-        const previewHTML = generatePreviewHTML();
-        
-        // Write HTML to new window
-        previewWindow.document.write(previewHTML);
-        previewWindow.document.close();
-        
-        // Focus on new window
-        previewWindow.focus();
+        setPreviewData({
+            clientName,
+            managerName,
+            projects: projectsToShow
+        });
+        setShowPreviewModal(true);
     };
 
     // Add these just before the render block
@@ -3930,6 +3965,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 folders={folders}
                 folderProjects={folderProjects}
                 unassignedProjects={getProjectsForFolder(null).filter(p => !p.folderId)}
+            />
+            
+            {/* Preview Modal */}
+            <PreviewModal
+                isOpen={showPreviewModal}
+                onClose={() => setShowPreviewModal(false)}
+                data={previewData}
             />
         </div>
     );
