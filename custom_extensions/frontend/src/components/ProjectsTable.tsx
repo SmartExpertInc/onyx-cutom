@@ -553,8 +553,8 @@ const PreviewModal: React.FC<{
                                       const courseStats = data.projects.reduce((acc, project) => {
                                         // Handle both Project and BackendProject types
                                         const type = 'design_microproduct_type' in project 
-                                          ? project.design_microproduct_type 
-                                          : project.designMicroproductType || 'Unknown';
+                                          ? (project as BackendProject).design_microproduct_type 
+                                          : (project as Project).designMicroproductType || 'Unknown';
                                         
                                         if (!acc[type]) {
                                           acc[type] = {
@@ -572,11 +572,13 @@ const PreviewModal: React.FC<{
                                         // Check if this is a BackendProject with real data
                                         if ('total_lessons' in project && 'total_hours' in project) {
                                           // Use real data from backend
-                                          acc[type].lessons += project.total_lessons || 0;
-                                          acc[type].learningDuration += project.total_hours || 0;
+                                          const backendProject = project as BackendProject;
+                                          acc[type].lessons += backendProject.total_lessons || 0;
+                                          acc[type].learningDuration += backendProject.total_hours || 0;
                                         } else {
                                           // Use lessonDataCache for frontend Project data or fallback to defaults
-                                          const lessonData = (window as any).__lessonDataCache?.[project.id];
+                                          const frontendProject = project as Project;
+                                          const lessonData = (window as any).__lessonDataCache?.[frontendProject.id];
                                           if (lessonData) {
                                             acc[type].lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
                                             acc[type].learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
