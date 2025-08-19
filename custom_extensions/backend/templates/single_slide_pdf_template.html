@@ -1848,26 +1848,24 @@
                     {% endif %}
                     <div class="numbers-grid">
                         {% for item in slide.props.items %}
-                            {% if (item.value and item.value != 'Click to add value') or (item.label and item.label != 'Click to add label') or (item.description and item.description != 'Click to add description') %}
-                                <div class="number-item positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set itemId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
-                                        {% if slide.metadata.elementPositions[itemId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[itemId].x }}px, {{ slide.metadata.elementPositions[itemId].y }}px);"
-                                        {% endif %}
+                            <div class="number-item positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set itemId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
+                                    {% if slide.metadata.elementPositions[itemId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[itemId].x }}px, {{ slide.metadata.elementPositions[itemId].y }}px);"
                                     {% endif %}
-                                >
-                                    {% if item.value and item.value != 'Click to add value' %}
-                                        <div class="number-value">{{ item.value }}</div>
-                                    {% endif %}
-                                    {% if item.label and item.label != 'Click to add label' %}
-                                        <div class="number-label">{{ item.label }}</div>
-                                    {% endif %}
-                                    {% if item.description and item.description != 'Click to add description' %}
-                                        <div class="number-description">{{ item.description }}</div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                            >
+                                {% if item.value %}
+                                    <div class="number-value">{{ item.value }}</div>
+                                {% endif %}
+                                {% if item.label %}
+                                    <div class="number-label">{{ item.label }}</div>
+                                {% endif %}
+                                {% if item.description %}
+                                    <div class="number-description">{{ item.description }}</div>
+                                {% endif %}
+                            </div>
                         {% endfor %}
                     </div>
                 </div>
