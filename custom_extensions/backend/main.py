@@ -19144,11 +19144,25 @@ async def ensure_user_folder_exists(nextcloud_username: str, nextcloud_password:
 async def get_all_nextcloud_files_individual(nextcloud_username: str, nextcloud_password: str, nextcloud_base_url: str, base_path: str = "/") -> List[Dict]:
     """Get all files from user's individual Nextcloud account recursively"""
     all_files = []
+    visited_paths = set()  # Prevent infinite recursion
     
-    async def traverse_directory(path: str):
+    async def traverse_directory(path: str, depth: int = 0):
+        # Prevent infinite recursion
+        if depth > 10:  # Max depth limit
+            logger.warning(f"Max recursion depth reached for path: {path}")
+            return
+            
+        if path in visited_paths:
+            logger.warning(f"Already visited path, skipping: {path}")
+            return
+            
+        visited_paths.add(path)
+        
         try:
             webdav_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{path}"
             auth = (nextcloud_username, nextcloud_password)
+            
+            logger.debug(f"Traversing directory: {path} (depth: {depth}, URL: {webdav_url})")
             
             async with httpx.AsyncClient() as client:
                 response = await client.request("PROPFIND", webdav_url, auth=auth, headers={"Depth": "1"})
@@ -19161,17 +19175,23 @@ async def get_all_nextcloud_files_individual(nextcloud_username: str, nextcloud_
                     return
                     
                 files = await parse_webdav_response(response.text, nextcloud_base_url)
+                logger.debug(f"Found {len(files)} items in {path}")
                 
                 for file_info in files:
-                    if file_info['name'] != '.':  # Skip current directory entry
+                    if file_info['name'] != '.' and file_info['name'] != '..':  # Skip current and parent directory entries
                         all_files.append(file_info)
+                        
                         if file_info['type'] == 'directory':
-                            await traverse_directory(file_info['path'])
+                            # For subdirectories, traverse recursively
+                            subdir_path = file_info['path']
+                            logger.debug(f"Found subdirectory: {file_info['name']} -> {subdir_path}")
+                            await traverse_directory(subdir_path, depth + 1)
                             
         except Exception as e:
             logger.error(f"Error traversing directory {path}: {e}")
     
     await traverse_directory(base_path)
+    logger.info(f"Directory traversal completed. Found {len(all_files)} total items.")
     return all_files
 
 
