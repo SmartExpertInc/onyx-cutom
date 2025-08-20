@@ -10811,14 +10811,33 @@ async def download_project_instance_pdf(
 
         logger.info(f"Project {project_id} PDF Gen: Raw content_json from DB (type: {type(content_json)}). First 1000 chars: {str(content_json)[:1000]}")
 
+        # 🔧 FIX: Apply consistent data processing for all component types
+        # Parse and process content_json consistently like in get_project_instance_detail
+        processed_content_json = None
+        if content_json:
+            if isinstance(content_json, str):
+                try:
+                    # Parse JSON string to dict
+                    content_dict = json.loads(content_json)
+                    # Round hours to integers before processing
+                    processed_content_json = round_hours_in_content(content_dict)
+                    logger.info(f"Project {project_id} PDF Gen: Parsed from JSON string and processed")
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.error(f"Failed to parse microproduct_content JSON for PDF generation project {project_id}: {e}")
+                    processed_content_json = None
+            else:
+                # Already a dict, just round hours
+                processed_content_json = round_hours_in_content(content_json)
+                logger.info(f"Project {project_id} PDF Gen: Already dict, processed with round_hours")
+
         if component_name == COMPONENT_NAME_PDF_LESSON:
             pdf_template_file = "pdf_lesson_pdf_template.html"
-            if content_json and isinstance(content_json, dict):
-                logger.info(f"Project {project_id} PDF Gen (PDF LESSON): Using raw content_json directly for template.")
-                data_for_template_render = json.loads(json.dumps(content_json)) 
+            if processed_content_json and isinstance(processed_content_json, dict):
+                logger.info(f"Project {project_id} PDF Gen (PDF LESSON): Using processed content_json for template.")
+                data_for_template_render = json.loads(json.dumps(processed_content_json)) 
                 if not data_for_template_render.get('detectedLanguage'):
                     try:
-                        parsed_model_for_fallback_lang = PdfLessonDetails(**content_json)
+                        parsed_model_for_fallback_lang = PdfLessonDetails(**processed_content_json)
                         if parsed_model_for_fallback_lang and parsed_model_for_fallback_lang.detectedLanguage:
                             detected_lang_for_pdf = parsed_model_for_fallback_lang.detectedLanguage
                             # Update locale strings if language detection changed
@@ -10826,14 +10845,14 @@ async def download_project_instance_pdf(
                     except Exception: pass
                     data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
             else:
-                logger.warning(f"Project {project_id} PDF Gen (PDF LESSON): content_json is not a valid dict or is None. Using fallback structure.")
+                logger.warning(f"Project {project_id} PDF Gen (PDF LESSON): processed_content_json is not a valid dict or is None. Using fallback structure.")
                 data_for_template_render = {
                     "lessonTitle": f"Content Unavailable/Invalid: {mp_name_for_pdf_context}",
                     "contentBlocks": [], "detectedLanguage": detected_lang_for_pdf}
         elif component_name == COMPONENT_NAME_TEXT_PRESENTATION:
             pdf_template_file = "text_presentation_pdf_template.html"
-            if content_json and isinstance(content_json, dict):
-                data_for_template_render = json.loads(json.dumps(content_json))
+            if processed_content_json and isinstance(processed_content_json, dict):
+                data_for_template_render = json.loads(json.dumps(processed_content_json))
                 if not data_for_template_render.get('detectedLanguage'):
                     data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
             else:
@@ -10844,17 +10863,14 @@ async def download_project_instance_pdf(
         elif component_name == COMPONENT_NAME_TRAINING_PLAN:
             pdf_template_file = "training_plan_pdf_template.html"
             temp_dumped_dict = None
-            if content_json and isinstance(content_json, dict):
+            if processed_content_json and isinstance(processed_content_json, dict):
                 try:
-                    logger.info(f"PDF Gen (Proj {project_id}): Raw content_json type: {type(content_json)}")
-                    logger.info(f"PDF Gen (Proj {project_id}): Raw content_json keys: {list(content_json.keys()) if isinstance(content_json, dict) else 'Not a dict'}")
-                    if 'sections' in content_json:
-                        logger.info(f"PDF Gen (Proj {project_id}): sections type: {type(content_json['sections'])}, length: {len(content_json['sections']) if isinstance(content_json['sections'], list) else 'Not a list'}")
+                    logger.info(f"PDF Gen (Proj {project_id}): Processed content_json type: {type(processed_content_json)}")
+                    logger.info(f"PDF Gen (Proj {project_id}): Processed content_json keys: {list(processed_content_json.keys()) if isinstance(processed_content_json, dict) else 'Not a dict'}")
+                    if 'sections' in processed_content_json:
+                        logger.info(f"PDF Gen (Proj {project_id}): sections type: {type(processed_content_json['sections'])}, length: {len(processed_content_json['sections']) if isinstance(processed_content_json['sections'], list) else 'Not a list'}")
                     
-                    # Round hours to integers before parsing to prevent float validation errors
-                    content_json = round_hours_in_content(content_json)
-                    
-                    parsed_model = TrainingPlanDetails(**content_json)
+                    parsed_model = TrainingPlanDetails(**processed_content_json)
                     logger.info(f"PDF Gen (Proj {project_id}): Parsed model sections length: {len(parsed_model.sections)}")
                     
                     if parsed_model.detectedLanguage: 
@@ -10906,18 +10922,18 @@ async def download_project_instance_pdf(
             data_for_template_render['time_unit_general_plural'] = current_lang_cfg_main.get('TIME_UNIT_GENERAL_PLURAL', 'h')
         elif component_name == COMPONENT_NAME_VIDEO_LESSON: # Updated logic for Video Lesson
             pdf_template_file = "video_lesson_pdf_template.html"
-            if content_json and isinstance(content_json, dict):
-                data_for_template_render = json.loads(json.dumps(content_json))
+            if processed_content_json and isinstance(processed_content_json, dict):
+                data_for_template_render = json.loads(json.dumps(processed_content_json))
                 if not data_for_template_render.get('detectedLanguage'):
                     try:
-                        parsed_model = VideoLessonData(**content_json)
+                        parsed_model = VideoLessonData(**processed_content_json)
                         if parsed_model.detectedLanguage:
                             detected_lang_for_pdf = parsed_model.detectedLanguage
                             # Update locale strings if language detection changed
                             current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
                     except Exception: pass 
                     data_for_template_render['detectedLanguage'] = detected_lang_for_pdf
-                else: # If language IS in content_json, ensure locale strings match
+                else: # If language IS in processed_content_json, ensure locale strings match
                     detected_lang_for_pdf = data_for_template_render.get('detectedLanguage', detected_lang_for_pdf)
                     current_pdf_locale_strings = VIDEO_SCRIPT_LANG_STRINGS.get(detected_lang_for_pdf, VIDEO_SCRIPT_LANG_STRINGS['en'])
 
@@ -10928,9 +10944,9 @@ async def download_project_instance_pdf(
                 }
         elif component_name == COMPONENT_NAME_QUIZ: # Quiz handling
             pdf_template_file = "quiz_pdf_template.html"
-            if content_json and isinstance(content_json, dict):
+            if processed_content_json and isinstance(processed_content_json, dict):
                 try:
-                    parsed_model = QuizData(**content_json)
+                    parsed_model = QuizData(**processed_content_json)
                     if parsed_model.detectedLanguage:
                         detected_lang_for_pdf = parsed_model.detectedLanguage
                         # Update locale strings if language detection changed
