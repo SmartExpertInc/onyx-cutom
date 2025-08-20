@@ -24,6 +24,7 @@ interface ToolbarProps {
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onInteractionButtonClick?: (position: { x: number; y: number }) => void;
   onMusicButtonClick?: () => void;
+  onTransitionButtonClick?: (position: { x: number; y: number }) => void;
 }
 
 interface Tool {
@@ -33,12 +34,13 @@ interface Tool {
   chevron?: LucideIcon;
 }
 
-export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onMusicButtonClick }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onMusicButtonClick, onTransitionButtonClick }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const textButtonRef = useRef<HTMLDivElement>(null);
   const shapesButtonRef = useRef<HTMLDivElement>(null);
   const interactionButtonRef = useRef<HTMLDivElement>(null);
+  const transitionButtonRef = useRef<HTMLDivElement>(null);
   const defaultButtonRef = useRef<HTMLDivElement>(null);
 
   // Custom flag icon with EN text

@@ -85,7 +85,7 @@ export default function Comments({}: CommentsProps) {
 
           {/* Status dropdown popup */}
           {statusDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-[160px] z-50">
+            <div className="absolute top-full -left-8 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-[160px] z-50">
               {/* Open status row */}
               <div className="flex items-center justify-between py-2 px-2 hover:bg-gray-50 rounded cursor-pointer">
                 <div className="flex items-center gap-2">
@@ -378,10 +378,10 @@ export default function Comments({}: CommentsProps) {
         </div>
 
         {/* Footer with buttons */}
-        <div className="border-t border-gray-200 p-4 flex gap-3">
+        <div className="border-t border-gray-200 p-4 flex gap-3 rounded-b-lg">
           <button
             onClick={handleReset}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-black rounded-full hover:bg-gray-200 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-black rounded-full hover:bg-gray-200 transition-colors flex-1 justify-center"
             style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               fontSize: '14px',
@@ -392,7 +392,7 @@ export default function Comments({}: CommentsProps) {
           </button>
           <button
             onClick={handleApply}
-            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors flex-1 justify-center"
             style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
               fontSize: '14px',
