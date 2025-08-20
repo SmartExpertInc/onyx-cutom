@@ -336,7 +336,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   };
 
   const handleInputChange = (name: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
       [name]: value
     }));
