@@ -1295,8 +1295,8 @@ const FolderRow: React.FC<{
                 {columnVisibility.estCompletionTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
-                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
                         })()}
                     </td>
                 )}
@@ -1425,9 +1425,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    // Use completionTime for Learning Duration (h) - Completion time
-                                    const learningHours = lessonData?.completionTime;
-                                    return learningHours ? formatCompletionTimeLocalized(learningHours) : '-';
+                                    // Use totalHours for Learning Duration (h) - Completion time values
+                                    const learningHours = lessonData?.totalHours;
+                                    return learningHours ? `${learningHours}h` : '-';
                                 })()}
                             </td>
                         )}
@@ -4365,7 +4365,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                 })()}
                                             </td>
                                         )}
