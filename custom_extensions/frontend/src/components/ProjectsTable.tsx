@@ -1087,6 +1087,7 @@ interface Project {
   total_completion_time?: number;
   total_modules?: number;
   total_creation_hours?: number;
+  quality_tier?: string;
 }
 
 // Interface for backend project data
