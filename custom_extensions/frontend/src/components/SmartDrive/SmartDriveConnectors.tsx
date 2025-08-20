@@ -339,46 +339,32 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     try {
       setLoading(true);
       
-              const [connectorsResponse, ccPairsResponse] = await Promise.all([
-          fetch('/api/manage/admin/connector', { credentials: 'same-origin' }),
-          fetch('/api/manage/admin/cc-pair', { credentials: 'same-origin' })
-        ]);
+              const connectorsResponse = await fetch('/api/manage/admin/connector/status', { 
+          credentials: 'same-origin' 
+        });
 
-      if (connectorsResponse.ok && ccPairsResponse.ok) {
-        const allConnectors = await connectorsResponse.json();
-        const allCCPairs = await ccPairsResponse.json();
+      if (connectorsResponse.ok) {
+        const allConnectorStatuses = await connectorsResponse.json();
         
-        console.log('All connectors:', allConnectors);
-        console.log('All CC pairs:', allCCPairs);
+        console.log('All connector statuses:', allConnectorStatuses);
         
-        // Filter to show all connectors that belong to the current user
-        const smartDriveConnectors = allConnectors.filter((connector: any) => {
-          const associatedCCPairs = allCCPairs.filter((pair: any) => 
-            pair.connector.id === connector.id
-          );
-          
-          // Show all connectors that have associated CC pairs (regardless of access type)
-          return associatedCCPairs.length > 0;
-        });
+        // Filter to show connectors that have private access (Smart Drive connectors)
+        const smartDriveConnectors = allConnectorStatuses.filter((connectorStatus: any) => 
+          connectorStatus.access_type === 'private'
+        );
         
-        const userConnectors = smartDriveConnectors.map((connector: any) => {
-          const ccPair = allCCPairs.find((pair: any) => 
-            pair.connector.id === connector.id
-          );
-          
-          return {
-            id: connector.id,
-            name: connector.name,
-            source: connector.source,
-            status: ccPair?.status || 'unknown',
-            last_sync_at: ccPair?.last_time_synced,
-            total_docs_indexed: ccPair?.documents_indexed || 0,
-            last_error: ccPair?.last_index_attempt?.error_msg,
-            access_type: ccPair?.access_type || 'unknown',
-          };
-        });
+        const userConnectors = smartDriveConnectors.map((connectorStatus: any) => ({
+          id: connectorStatus.connector.id,
+          name: connectorStatus.name,
+          source: connectorStatus.connector.source,
+          status: connectorStatus.last_status || 'unknown',
+          last_sync_at: connectorStatus.last_sync_at,
+          total_docs_indexed: connectorStatus.docs_indexed || 0,
+          last_error: connectorStatus.last_index_attempt?.error_msg,
+          access_type: connectorStatus.access_type || 'unknown',
+        }));
         
-        console.log('Found user connectors:', userConnectors);
+        console.log('Found user Smart Drive connectors:', userConnectors);
         setUserConnectors(userConnectors);
       }
     } catch (error) {

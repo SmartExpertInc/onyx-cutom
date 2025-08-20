@@ -19519,23 +19519,21 @@ async def create_smartdrive_connector(
             if not connector_id:
                 raise HTTPException(status_code=500, detail="Failed to get connector ID")
             
-            # Create the connector-credential pair with private access
-            cc_pair_payload = {
-                "connector_id": connector_id,
-                "credential_id": None,  # Will be set up later for OAuth connectors
-                "name": name,
-                "access_type": "private",
-                "groups": [],  # Private to current user
-                "auto_sync_options": {
-                    "enabled": True,
-                    "frequency": 3600
-                }
+            # Create the connector-credential pair with private access using linkCredential approach
+            auto_sync_options = {
+                "enabled": True,
+                "frequency": 3600
             }
             
-            cc_pair_response = await client.post(
-                f"{main_app_url}/api/manage/admin/cc-pair",
+            cc_pair_response = await client.put(
+                f"{main_app_url}/api/manage/connector/{connector_id}/credential/{credential_id}",
                 headers=auth_headers,
-                json=cc_pair_payload
+                json={
+                    "name": connector_data.get("name", f"Smart Drive {connector_data.get('source', 'connector')}"),
+                    "access_type": "private",
+                    "groups": None,
+                    "auto_sync_options": auto_sync_options
+                }
             )
             
             if not cc_pair_response.is_success:
