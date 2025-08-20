@@ -446,7 +446,7 @@
                                     'immersive': 'Level 4 - Immersive'
                                 } %}
                                 {% for tier_key, tier_name in tier_names.items() %}
-                                    {% if quality_tier_sums[tier_key] %}
+                                    {% if quality_tier_sums[tier_key] and (quality_tier_sums[tier_key].completion_time > 0 or quality_tier_sums[tier_key].creation_time > 0) %}
                                         <tr class="table-row">
                                             <td class="course-name">{{ tier_name }}</td>
                                             <td>

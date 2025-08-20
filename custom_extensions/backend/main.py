@@ -16461,6 +16461,7 @@ async def download_projects_list_pdf(
                 'folder_id': row_dict.get('folder_id'),
                 'order': row_dict.get('order', 0),
                 'microproduct_content': row_dict.get('microproduct_content'),
+                'quality_tier': row_dict.get('quality_tier'),  # Add quality_tier field
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
                 'total_hours': round(total_hours),  # Sum of lesson hours (like in original)
@@ -16715,7 +16716,7 @@ async def download_projects_list_pdf(
                         total_projects += 1
                         total_lessons += project.get('total_lessons', 0) or 0
                         total_modules += project.get('total_modules', 0) or 0
-                        total_creation_time += project.get('total_hours', 0) or 0
+                        total_creation_time += project.get('total_creation_hours', 0) or 0  # Use total_creation_hours for production time
                         total_completion_time += project.get('total_completion_time', 0) or 0
                 
                 # Recursively calculate from subfolders
@@ -16732,14 +16733,14 @@ async def download_projects_list_pdf(
                 total_projects += 1
                 total_lessons += project.get('total_lessons', 0) or 0
                 total_modules += project.get('total_modules', 0) or 0
-                total_creation_time += project.get('total_hours', 0) or 0
+                total_creation_time += project.get('total_creation_hours', 0) or 0  # Use total_creation_hours for production time
                 total_completion_time += project.get('total_completion_time', 0) or 0
             
             return {
                 'total_projects': total_projects,
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
-                'total_hours': total_creation_time,  # This is actually total_hours (Creation Time)
+                'total_hours': total_creation_time,  # This is actually total_creation_hours (Production Time)
                 'total_completion_time': total_completion_time
             }
 
@@ -16775,7 +16776,7 @@ async def download_projects_list_pdf(
                         effective_tier = get_effective_quality_tier(project, folder_quality_tier)
                         if effective_tier in quality_tier_data:
                             quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
-                            quality_tier_data[effective_tier]['creation_time'] += project.get('total_hours', 0) or 0
+                            quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0  # Use total_creation_hours for production time
                 
                 # Recursively process subfolders
                 if folder.get('children'):
@@ -16789,7 +16790,7 @@ async def download_projects_list_pdf(
                 effective_tier = get_effective_quality_tier(project, 'interactive')
                 if effective_tier in quality_tier_data:
                     quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
-                    quality_tier_data[effective_tier]['creation_time'] += project.get('total_hours', 0) or 0
+                    quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0  # Use total_creation_hours for production time
             
             return quality_tier_data
         
