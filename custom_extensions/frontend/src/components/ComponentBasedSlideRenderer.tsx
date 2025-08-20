@@ -4,6 +4,7 @@ import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplate } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import AvatarPlaceholder from './AvatarPlaceholder';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
@@ -110,6 +111,7 @@ interface ComponentBasedSlideDeckRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  isVideoLesson?: boolean;
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -118,7 +120,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   isEditable = false,
   onSlideUpdate,
   onTemplateChange,
-  theme
+  theme,
+  isVideoLesson = false
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -140,13 +143,22 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             marginBottom: selectedSlideId ? 0 : '40px'
           }}
         >
-          <ComponentBasedSlideRenderer
-            slide={slide}
-            isEditable={isEditable}
-            onSlideUpdate={onSlideUpdate}
-            onTemplateChange={onTemplateChange}
-            theme={theme}
-          />
+          <div style={{ position: 'relative' }}>
+            <ComponentBasedSlideRenderer
+              slide={slide}
+              isEditable={isEditable}
+              onSlideUpdate={onSlideUpdate}
+              onTemplateChange={onTemplateChange}
+              theme={theme}
+            />
+            {isVideoLesson && (
+              <AvatarPlaceholder 
+                size="medium" 
+                position="bottom-right" 
+                className="z-10"
+              />
+            )}
+          </div>
         </div>
       ))}
     </div>
