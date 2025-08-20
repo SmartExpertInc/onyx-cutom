@@ -588,8 +588,8 @@ const PreviewModal: React.FC<{
                                       
                                       // Calculate summary stats like in PDF generation
                                       const allProjects = data.projects || [];
-                                      const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_completion_time || 0), 0);
-                                      const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                      const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                      const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_completion_time || 0), 0);
 
                                       return (
                                         <>
@@ -767,13 +767,13 @@ const PreviewModal: React.FC<{
                                               padding: '16px 20px',
                                               fontWeight: '500'
                                             }}>
-                                              {completionTimeFormatted}
+                                              {creationTimeFormatted}
                                             </td>
                                             <td className="p-4 font-medium text-black" style={{
                                               padding: '16px 20px',
                                               fontWeight: '500'
                                             }}>
-                                              {creationTimeFormatted}
+                                              {completionTimeFormatted}
                                             </td>
                                           </tr>
                                         );
@@ -815,7 +815,7 @@ const PreviewModal: React.FC<{
                                   Total: {(() => {
                                     // Calculate total learning hours like in PDF generation
                                     const allProjects = data.projects || [];
-                                    const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_completion_time || 0), 0);
+                                    const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
@@ -830,7 +830,7 @@ const PreviewModal: React.FC<{
                                   Estimated Production Time: ≈ {(() => {
                                     // Calculate total production hours like in PDF generation
                                     const allProjects = data.projects || [];
-                                    const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                    const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_completion_time || 0), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
                                 </li>
@@ -1321,16 +1321,16 @@ const FolderRow: React.FC<{
                 {columnVisibility.estCreationTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
-                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? formatCompletionTimeLocalized(totalHours) : '-';
                         })()}
                     </td>
                 )}
                 {columnVisibility.estCompletionTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalHours = getTotalHoursInFolder(folder);
-                            return totalHours > 0 ? formatCompletionTimeLocalized(totalHours) : '-';
+                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
+                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
                         })()}
                     </td>
                 )}
@@ -1449,9 +1449,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    // Use completionTime for Production Time (h) - Completion time values
-                                    const completionHours = lessonData?.completionTime;
-                                    return completionHours ? formatCompletionTimeLocalized(completionHours) : '-';
+                                    // Use totalHours for Production Time (h) - Creation time values
+                                    const creationHours = lessonData?.totalHours;
+                                    return creationHours ? formatCompletionTimeLocalized(creationHours) : '-';
                                 })()}
                             </td>
                         )}
@@ -1459,9 +1459,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    // Use totalHours for Learning Duration (h) - Creation time values
-                                    const creationHours = lessonData?.totalHours;
-                                    return creationHours ? formatCompletionTimeLocalized(creationHours) : '-';
+                                    // Use completionTime for Learning Duration (h) - Completion time values
+                                    const completionHours = lessonData?.completionTime;
+                                    return completionHours ? formatCompletionTimeLocalized(completionHours) : '-';
                                 })()}
                             </td>
                         )}
@@ -4391,7 +4391,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.completionTime ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                                    return lessonData && lessonData.totalHours ? formatCompletionTimeLocalized(lessonData.totalHours) : '-';
                                                 })()}
                                             </td>
                                         )}
@@ -4399,7 +4399,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalHours ? formatCompletionTimeLocalized(lessonData.totalHours) : '-';
+                                                    return lessonData && lessonData.completionTime ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
                                             </td>
                                         )}
