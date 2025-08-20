@@ -421,7 +421,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }}h of learning content → {{ summary_stats.total_hours if summary_stats.total_hours else 0 }}h production
+                         Subtotal: {{ (total_hours // 60) if total_hours else 0 }}h of learning content → {{ total_production_time }}h production
                      </div>
                 </div>
             </div>
@@ -446,25 +446,23 @@
                                     'immersive': 'Level 4 - Immersive'
                                 } %}
                                 {% for tier_key, tier_name in tier_names.items() %}
-                                    {% if quality_tier_sums[tier_key] and (quality_tier_sums[tier_key].completion_time > 0 or quality_tier_sums[tier_key].creation_time > 0) %}
-                                        <tr class="table-row">
-                                            <td class="course-name">{{ tier_name }}</td>
-                                            <td>
-                                                {% if quality_tier_sums[tier_key].completion_time and quality_tier_sums[tier_key].completion_time > 0 %}
-                                                    {% set h = quality_tier_sums[tier_key].completion_time // 60 %}
-                                                    {% set m = quality_tier_sums[tier_key].completion_time % 60 %}
-                                                    {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
-                                                {% else %}0{% endif %}
-                                            </td>
-                                            <td>
-                                                {% if quality_tier_sums[tier_key].creation_time and quality_tier_sums[tier_key].creation_time > 0 %}
-                                                    {% set h = quality_tier_sums[tier_key].creation_time // 60 %}
-                                                    {% set m = quality_tier_sums[tier_key].creation_time % 60 %}
-                                                    {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
-                                                {% else %}0{% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endif %}
+                                    <tr class="table-row">
+                                        <td class="course-name">{{ tier_name }}</td>
+                                        <td>
+                                            {% if quality_tier_sums[tier_key] and quality_tier_sums[tier_key].completion_time and quality_tier_sums[tier_key].completion_time > 0 %}
+                                                {% set h = quality_tier_sums[tier_key].completion_time // 60 %}
+                                                {% set m = quality_tier_sums[tier_key].completion_time % 60 %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                            {% else %}0{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if quality_tier_sums[tier_key] and quality_tier_sums[tier_key].creation_time and quality_tier_sums[tier_key].creation_time > 0 %}
+                                                {% set h = quality_tier_sums[tier_key].creation_time // 60 %}
+                                                {% set m = quality_tier_sums[tier_key].creation_time % 60 %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                            {% else %}0{% endif %}
+                                        </td>
+                                    </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr class="table-row">
@@ -499,8 +497,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }} hours of learning content</li>
-                     <li>Estimated Production Time: ≈ {{ summary_stats.total_hours if summary_stats.total_hours else 0 }} hours</li>
+                     <li>Total: {{ (total_hours // 60) if total_hours else 0 }} hours of learning content</li>
+                     <li>Estimated Production Time: ≈ {{ total_production_time }} hours</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>
