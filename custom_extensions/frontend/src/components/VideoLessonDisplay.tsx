@@ -2,11 +2,13 @@
 "use client";
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, useParams } from 'next/navigation';
 // import Image from 'next/image';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes'; // Adjust path
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
+import { VideoLessonGenerator } from './VideoLessonGenerator';
+import { VideoLessonDebug } from './VideoLessonDebug';
 
 // --- Theme Colors (consistent with PdfLessonDisplay & image) ---
 const THEME_COLORS = {
@@ -114,7 +116,9 @@ const VideoLessonDisplay = ({
   lessonNumber,
 }: VideoLessonDisplayProps): React.JSX.Element | null => {
   const searchParams = useSearchParams();
+  const params = useParams();
   const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
+  const [showVideoGenerator, setShowVideoGenerator] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -201,6 +205,44 @@ const VideoLessonDisplay = ({
               {mainPresentationTitle}
             </h1>
           )
+        )}
+
+        {/* Generate Video Button */}
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => setShowVideoGenerator(!showVideoGenerator)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            {showVideoGenerator ? 'Hide Video Generator' : 'Generate Video'}
+          </button>
+        </div>
+
+        {/* Video Lesson Generator */}
+        {showVideoGenerator && (
+          <div className="mt-6">
+            {/* Debug Component */}
+            <VideoLessonDebug
+              projectId={params.projectId as string}
+              slides={slides}
+            />
+            
+            <VideoLessonGenerator
+              projectId={params.projectId as string}
+              slides={slides.map((slide, index) => ({
+                slideId: slide.slideId,
+                slideNumber: slide.slideNumber || index + 1,
+                slideTitle: slide.slideTitle || `Slide ${index + 1}`,
+                voiceoverText: slide.voiceoverText || ''
+              }))}
+              onVideoGenerated={(videoPath) => {
+                console.log('Video generated:', videoPath);
+                setShowVideoGenerator(false);
+              }}
+            />
+          </div>
         )}
       </div>
 

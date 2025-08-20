@@ -454,7 +454,7 @@ class ElaiAPIService:
 # Factory function to create Elai service instance
 def create_elai_service() -> ElaiAPIService:
     """Create and return an Elai API service instance."""
-    api_token = os.getenv("ELAI_API_TOKEN")
+    api_token = os.getenv("ELAI_API_TOKEN", "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e")
     if not api_token:
         raise ValueError("ELAI_API_TOKEN environment variable not set")
     

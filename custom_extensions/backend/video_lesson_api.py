@@ -47,7 +47,7 @@ from main import get_current_onyx_user_id, get_db_pool
 logger = logging.getLogger(__name__)
 
 # Elai API Configuration
-ELAI_API_TOKEN = os.getenv("ELAI_API_TOKEN")
+ELAI_API_TOKEN = os.getenv("ELAI_API_TOKEN", "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e")
 ELAI_BASE_URL = os.getenv("ELAI_BASE_URL", "https://api.elai.io")
 
 # Create router

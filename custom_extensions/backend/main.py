@@ -62,7 +62,7 @@ else:
     logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
 
 # --- Elai API Configuration ---
-ELAI_API_TOKEN = os.getenv("ELAI_API_TOKEN")
+ELAI_API_TOKEN = os.getenv("ELAI_API_TOKEN", "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e")
 ELAI_BASE_URL = os.getenv("ELAI_BASE_URL", "https://api.elai.io")
 
 

@@ -333,7 +333,7 @@ class ElaiAPITester:
 def main():
     """Main function to run the Elai API test."""
     # Get API token from environment variable
-    api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
+    api_token = os.getenv("ELAI_API_TOKEN", "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e")
     
     if not api_token:
         logger.error("ELAI_API_TOKEN environment variable not set!")
