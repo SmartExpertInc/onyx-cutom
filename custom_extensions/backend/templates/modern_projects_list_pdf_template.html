@@ -284,8 +284,8 @@
                                         <td class="course-name">{{ folder.name if folder.name else '-' }}</td>
                                         <td>{{ folder.total_modules if folder.total_modules else '-' }}</td>
                                         <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
-                                        <td>{{ folder.total_hours if folder.total_hours else '-' }}</td>
                                         <td>{{ folder.total_creation_hours if folder.total_creation_hours else '-' }}</td>
+                                        <td>{{ folder.total_hours if folder.total_hours else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons is not none else 0) %}
                                     {% set total_modules = total_modules + (folder.total_modules if folder.total_modules is not none else 0) %}
@@ -298,8 +298,8 @@
                                                 <td class="course-name" style="padding-left: 20px;">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                                 <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                 <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
-                                                <td>{{ project.total_hours if project.total_hours else '-' }}</td>
                                                 <td>{{ project.total_creation_hours if project.total_creation_hours else '-' }}</td>
+                                                <td>{{ project.total_hours if project.total_hours else '-' }}</td>
                                             </tr>
                                             {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
                                             {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
@@ -315,8 +315,8 @@
                                                 <td class="course-name" style="padding-left: 20px;">{{ child_folder.name if child_folder.name else '-' }}</td>
                                                 <td>{{ child_folder.total_modules if child_folder.total_modules else '-' }}</td>
                                                 <td>{{ child_folder.total_lessons if child_folder.total_lessons else '-' }}</td>
-                                                <td>{{ child_folder.total_hours if child_folder.total_hours else '-' }}</td>
                                                 <td>{{ child_folder.total_creation_hours if child_folder.total_creation_hours else '-' }}</td>
+                                                <td>{{ child_folder.total_hours if child_folder.total_hours else '-' }}</td>
                                             </tr>
                                             {% set total_lessons = total_lessons + (child_folder.total_lessons if child_folder.total_lessons is not none else 0) %}
                                             {% set total_modules = total_modules + (child_folder.total_modules if child_folder.total_modules is not none else 0) %}
@@ -329,8 +329,8 @@
                                                         <td class="course-name" style="padding-left: 40px;">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
-                                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
                                                         <td>{{ project.total_creation_hours if project.total_creation_hours else '-' }}</td>
+                                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
                                                     </tr>
                                                     {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
                                                     {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
@@ -349,8 +349,8 @@
                                         <td class="course-name">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
-                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
                                         <td>{{ project.total_creation_hours if project.total_creation_hours else '-' }}</td>
+                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
                                     {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
@@ -361,7 +361,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {{ summary_stats.total_hours if summary_stats.total_hours else 0 }}h of learning content → {{ summary_stats.total_creation_time if summary_stats.total_creation_time else 0 }}h production
+                         Subtotal: {{ summary_stats.total_creation_time if summary_stats.total_creation_time else 0 }}h of learning content → {{ summary_stats.total_hours if summary_stats.total_hours else 0 }}h production
                      </div>
                 </div>
             </div>
@@ -409,8 +409,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {{ summary_stats.total_hours if summary_stats.total_hours else 0 }} hours of learning content</li>
-                     <li>Estimated Production Time: ≈ {{ summary_stats.total_creation_time if summary_stats.total_creation_time else 0 }} hours</li>
+                     <li>Total: {{ summary_stats.total_creation_time if summary_stats.total_creation_time else 0 }} hours of learning content</li>
+                     <li>Estimated Production Time: ≈ {{ summary_stats.total_hours if summary_stats.total_hours else 0 }} hours</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>
