@@ -38,6 +38,7 @@ import {
 import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
 import { useLanguage } from '../contexts/LanguageContext';
+import { processBlock1CourseOverview } from '../utils/dataProcessing';
 
 // Helper function to get design microproduct type from either Project or BackendProject
 const getDesignMicroproductType = (project: Project | BackendProject): string => {
@@ -558,65 +559,15 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // Use the same data calculation logic as PDF
-                                      const courseStats = data.projects.reduce((acc, project) => {
-                                        // Get project type - same logic as PDF
-                                        let projectType = 'Unknown';
-                                        if ('design_microproduct_type' in project) {
-                                          projectType = (project as BackendProject).design_microproduct_type || 'Unknown';
-                                        } else {
-                                          projectType = (project as Project).designMicroproductType || 'Unknown';
-                                        }
-                                        
-                                        if (!acc[projectType]) {
-                                          acc[projectType] = {
-                                            name: projectType,
-                                            modules: 0,
-                                            lessons: 0,
-                                            learningDuration: 0,
-                                            productionTime: 0
-                                          };
-                                        }
-                                        
-                                        // Add project data - same logic as PDF
-                                        (acc[projectType] as { modules: number }).modules += 1;
-                                        
-                                        // Get lessons and hours - same logic as PDF
-                                        if ('total_lessons' in project && 'total_hours' in project) {
-                                          // Backend data - use real values
-                                          const backendProject = project as BackendProject;
-                                          (acc[projectType] as { lessons: number }).lessons += backendProject.total_lessons || 0;
-                                          (acc[projectType] as { learningDuration: number }).learningDuration += backendProject.total_hours || 0;
-                                        } else {
-                                          // Frontend data - use lessonDataCache or defaults
-                                          const frontendProject = project as Project;
-                                          const lessonData = (window as any).__lessonDataCache?.[frontendProject.id];
-                                          if (lessonData) {
-                                            (acc[projectType] as { lessons: number }).lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
-                                            (acc[projectType] as { learningDuration: number }).learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
-                                          } else {
-                                            // Default values (same as PDF fallback)
-                                            (acc[projectType] as { lessons: number }).lessons += 5;
-                                            (acc[projectType] as { learningDuration: number }).learningDuration += 3;
-                                          }
-                                        }
-                                        
-                                        return acc;
-                                      }, {} as Record<string, { name: string; modules: number; lessons: number; learningDuration: number; productionTime: number }>);
-
-                                      // Calculate production time - same formula as PDF (learning duration * 300)
-                                      Object.values(courseStats).forEach((course: unknown) => {
-                                        (course as { learningDuration: number; productionTime: number }).productionTime = (course as { learningDuration: number }).learningDuration * 300;
-                                      });
-
-                                      const courses = Object.values(courseStats).slice(0, 4);
-                                      const totalLearningHours = courses.reduce((sum: number, course: unknown) => sum + (course as { learningDuration: number }).learningDuration, 0);
-                                      const totalProductionHours = courses.reduce((sum: number, course: unknown) => sum + (course as { productionTime: number }).productionTime, 0);
+                                      // 🔧 FIX: Use consistent data processing for Block 1. Course Overview (same as PDF)
+                                      const courses = processBlock1CourseOverview(data.projects).slice(0, 4);
+                                      const totalLearningHours = courses.reduce((sum: number, course: any) => sum + course.learningDuration, 0);
+                                      const totalProductionHours = courses.reduce((sum: number, course: any) => sum + course.productionTime, 0);
 
                                       return (
                                         <>
-                                          {courses.map((course: unknown, index: number) => (
-                                            <tr key={(course as { name: string }).name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                                          {courses.map((course: any, index: number) => (
+                                            <tr key={course.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
                                               background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
                                               transition: 'background-color 0.2s ease'
                                             }}>
@@ -624,31 +575,31 @@ const PreviewModal: React.FC<{
                                                 padding: '16px 20px',
                                                 fontWeight: '600'
                                               }}>
-                                                {(course as { name: string }).name}
+                                                {course.name}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {(course as { modules: number }).modules}
+                                                {course.modules}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {(course as { lessons: number }).lessons}
+                                                {course.lessons}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {(course as { learningDuration: number }).learningDuration}
+                                                {course.learningDuration}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {(course as { productionTime: number }).productionTime.toLocaleString()}
+                                                {course.productionTime.toLocaleString()}
                                               </td>
                                             </tr>
                                           ))}
