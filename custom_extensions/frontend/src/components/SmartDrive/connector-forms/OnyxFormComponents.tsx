@@ -3,6 +3,21 @@
 import React, { FC, useEffect } from "react";
 import { useFormikContext } from "formik";
 
+// Helper function to safely get error message
+const getErrorMessage = (errors: any, name: string): string => {
+  const error = errors[name];
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (Array.isArray(error)) {
+    return error.join(', ');
+  }
+  if (error && typeof error === 'object') {
+    return Object.values(error).join(', ');
+  }
+  return '';
+};
+
 // Text Form Field Component (matches Onyx's TextFormField)
 interface TextFormFieldProps {
   label: string;
@@ -60,7 +75,7 @@ export const TextFormField: FC<TextFormFieldProps> = ({
         <p className="text-sm text-gray-500 mt-1">{subtext}</p>
       )}
       {hasError && (
-        <p className="text-sm text-red-600 mt-1">{errors[name]}</p>
+        <p className="text-sm text-red-600 mt-1">{getErrorMessage(errors, name)}</p>
       )}
     </div>
   );
@@ -116,7 +131,7 @@ export const SelectInput: FC<SelectInputProps> = ({
         <p className="text-sm text-gray-500 mt-1">{description}</p>
       )}
       {hasError && (
-        <p className="text-sm text-red-600 mt-1">{errors[name]}</p>
+        <p className="text-sm text-red-600 mt-1">{getErrorMessage(errors, name)}</p>
       )}
     </div>
   );
@@ -164,7 +179,7 @@ export const NumberInput: FC<NumberInputProps> = ({
         <p className="text-sm text-gray-500 mt-1">{description}</p>
       )}
       {hasError && (
-        <p className="text-sm text-red-600 mt-1">{errors[name]}</p>
+        <p className="text-sm text-red-600 mt-1">{getErrorMessage(errors, name)}</p>
       )}
     </div>
   );
@@ -213,7 +228,7 @@ export const BooleanFormField: FC<BooleanFormFieldProps> = ({
         <p className="text-sm text-gray-500 mt-1 ml-6">{subtext}</p>
       )}
       {hasError && (
-        <p className="text-sm text-red-600 mt-1 ml-6">{errors[name]}</p>
+        <p className="text-sm text-red-600 mt-1 ml-6">{getErrorMessage(errors, name)}</p>
       )}
     </div>
   );
@@ -260,7 +275,7 @@ export const ListInput: FC<ListInputProps> = ({
         <p className="text-sm text-gray-500 mt-1">{description}</p>
       )}
       {hasError && (
-        <p className="text-sm text-red-600 mt-1">{errors[name]}</p>
+        <p className="text-sm text-red-600 mt-1">{getErrorMessage(errors, name)}</p>
       )}
     </div>
   );
@@ -313,7 +328,7 @@ export const FileInput: FC<FileInputProps> = ({
         <p className="text-sm text-gray-500 mt-1">{description}</p>
       )}
       {hasError && (
-        <p className="text-sm text-red-600 mt-1">{errors[name]}</p>
+        <p className="text-sm text-red-600 mt-1">{getErrorMessage(errors, name)}</p>
       )}
     </div>
   );
