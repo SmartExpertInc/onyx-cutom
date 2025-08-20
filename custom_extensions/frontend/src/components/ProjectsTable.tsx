@@ -717,21 +717,22 @@ const PreviewModal: React.FC<{
                                       };
                                       
                                       // Helper function to get effective quality tier
-                                      const getEffectiveQualityTier = (project: any, folderQualityTier = 'interactive') => {
+                                      const getEffectiveQualityTier = (project: any, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
                                         if (project.quality_tier) {
-                                          return project.quality_tier.toLowerCase();
+                                          const tier = project.quality_tier.toLowerCase();
+                                          return (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') 
+                                            ? tier as keyof typeof qualityTierSums 
+                                            : 'interactive';
                                         }
-                                        return folderQualityTier.toLowerCase();
+                                        return 'interactive';
                                       };
                                       
                                       // Process all projects to calculate quality tier sums
                                       const allProjects = data.projects || [];
                                       allProjects.forEach((project: any) => {
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
-                                        if (qualityTierSums[effectiveTier]) {
-                                          qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
-                                          qualityTierSums[effectiveTier].creationTime += project.total_hours || 0;
-                                        }
+                                        qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
+                                        qualityTierSums[effectiveTier].creationTime += project.total_hours || 0;
                                       });
                                       
                                       // Define quality level names
