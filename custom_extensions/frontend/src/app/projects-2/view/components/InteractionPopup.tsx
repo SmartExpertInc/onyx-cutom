@@ -1,25 +1,18 @@
 "use client";
 
-import React, { useState } from 'react';
-import InteractionModal from './InteractionModal';
+import React from 'react';
 
 interface InteractionPopupProps {
   isOpen: boolean;
   onClose: () => void;
   position: { x: number; y: number };
+  onModalOpen: () => void;
 }
 
-export default function InteractionPopup({ isOpen, onClose, position }: InteractionPopupProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+export default function InteractionPopup({ isOpen, onClose, position, onModalOpen }: InteractionPopupProps) {
   const handleOptionClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the backdrop click from firing
-    setIsModalOpen(true);
-    onClose(); // Close the popup when opening the modal
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
+    onModalOpen(); // Call the parent's modal open function
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -53,7 +46,7 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
         <div className="flex gap-2">
           {/* Multiple Choice Option */}
           <div 
-            className="flex flex-col items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+            className="flex flex-col items-center cursor-pointer"
             onClick={handleOptionClick}
           >
             <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-32 flex items-center justify-center">
@@ -96,7 +89,7 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
 
           {/* Branching Option */}
           <div 
-            className="flex flex-col items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+            className="flex flex-col items-center cursor-pointer"
             onClick={handleOptionClick}
           >
             <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-32 flex items-center justify-center">
@@ -139,12 +132,6 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
           </div>
         </div>
       </div>
-
-      {/* Interaction Modal */}
-      <InteractionModal 
-        isOpen={isModalOpen} 
-        onClose={handleModalClose}
-      />
     </>
   );
 }

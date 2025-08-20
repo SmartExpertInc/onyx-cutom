@@ -12,6 +12,7 @@ import Media from './components/Media';
 import TextPopup from './components/TextPopup';
 import ShapesPopup from './components/ShapesPopup';
 import InteractionPopup from './components/InteractionPopup';
+import InteractionModal from './components/InteractionModal';
 import AiPopup from './components/AiPopup';
 
 export default function Projects2ViewPage() {
@@ -20,6 +21,7 @@ export default function Projects2ViewPage() {
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
   const [isInteractionPopupOpen, setIsInteractionPopupOpen] = useState<boolean>(false);
+  const [isInteractionModalOpen, setIsInteractionModalOpen] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -88,6 +90,15 @@ export default function Projects2ViewPage() {
     setIsTextPopupOpen(false);
     setIsShapesPopupOpen(false);
     setIsAiPopupOpen(false);
+  };
+
+  const handleInteractionModalOpen = () => {
+    setIsInteractionModalOpen(true);
+    setIsInteractionPopupOpen(false);
+  };
+
+  const handleInteractionModalClose = () => {
+    setIsInteractionModalOpen(false);
   };
 
   const handleAiButtonClick = (position: { x: number; y: number }) => {
@@ -231,6 +242,13 @@ export default function Projects2ViewPage() {
         isOpen={isInteractionPopupOpen} 
         onClose={() => setIsInteractionPopupOpen(false)} 
         position={interactionPopupPosition}
+        onModalOpen={handleInteractionModalOpen}
+      />
+
+      {/* Interaction Modal */}
+      <InteractionModal 
+        isOpen={isInteractionModalOpen} 
+        onClose={handleInteractionModalClose}
       />
 
       {/* AI Popup */}
