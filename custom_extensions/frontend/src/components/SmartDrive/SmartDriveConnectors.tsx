@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, ExternalLink, Upload, Settings } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
+import ConnectorFormModal from './ConnectorFormModal';
 
 interface ConnectorConfig {
   id: string;
@@ -32,6 +33,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [showFrame, setShowFrame] = useState(false);
   const [userConnectors, setUserConnectors] = useState<UserConnector[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showConnectorModal, setShowConnectorModal] = useState(false);
+  const [selectedConnector, setSelectedConnector] = useState<{id: string, name: string} | null>(null);
 
   // Define all available connectors organized by category
   const connectorCategories = {
@@ -398,17 +401,37 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     setShowFrame(false);
   };
 
+  const handleConnectClick = (connectorId: string, connectorName: string) => {
+    setSelectedConnector({ id: connectorId, name: connectorName });
+    setShowConnectorModal(true);
+  };
+
+  const handleCloseConnectorModal = () => {
+    setShowConnectorModal(false);
+    setSelectedConnector(null);
+    // Optionally refresh connectors after modal closes
+    // You could call loadUserConnectors() here if needed
+  };
+
   const getConnectorsBySource = (source: string) => {
     return userConnectors.filter(connector => connector.source === source);
   };
 
   const getCreateUrl = (connectorId: string) => {
     if (connectorId === 'browse_uploaded') return '#';
-    return `/admin/connectors/${connectorId}?access_type=private&smart_drive=true&smart_drive_user_group=true&return_url=${encodeURIComponent('/projects')}`;
+    // Use absolute URL to ensure it goes to the main domain, not the custom-projects-ui path
+    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
+    const host = typeof window !== 'undefined' ? window.location.host : '';
+    const mainDomain = `${protocol}//${host}`;
+    return `${mainDomain}/admin/connectors/${connectorId}?access_type=private&smart_drive=true&smart_drive_user_group=true&return_url=${encodeURIComponent(`${mainDomain}/projects`)}`;
   };
 
   const getManageUrl = (connectorId: string) => {
-    return `/admin/connectors?source=${connectorId}&access_type=private`;
+    // Use absolute URL to ensure it goes to the main domain, not the custom-projects-ui path
+    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
+    const host = typeof window !== 'undefined' ? window.location.host : '';
+    const mainDomain = `${protocol}//${host}`;
+    return `${mainDomain}/admin/connectors?source=${connectorId}&access_type=private`;
   };
 
   if (showFrame) {
@@ -478,22 +501,21 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
 
                   <div className="flex gap-2">
-                    <Link
-                      href={getCreateUrl(connector.id)}
-                      className={`flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors ${
-                        connector.id === 'browse_uploaded'
-                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                          : 'bg-green-100 text-green-700 hover:bg-green-200'
-                      }`}
-                      onClick={(e) => {
-                        if (connector.id === 'browse_uploaded') {
-                          e.preventDefault();
-                          handleBrowseClick();
-                        }
-                      }}
-                    >
-                      {connector.id === 'browse_uploaded' ? 'Browse' : 'Connect'}
-                    </Link>
+                    {connector.id === 'browse_uploaded' ? (
+                      <button
+                        onClick={handleBrowseClick}
+                        className="flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200"
+                      >
+                        Browse
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleConnectClick(connector.id, connector.name)}
+                        className="flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors bg-green-100 text-green-700 hover:bg-green-200"
+                      >
+                        Connect
+                      </button>
+                    )}
 
                     {hasConnectors && (
                       <div className="relative">
@@ -507,7 +529,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               {userConnectorsForSource.map((userConnector) => (
                                 <Link
                                   key={userConnector.id}
-                                  href={`/admin/connectors/${userConnector.id}`}
+                                  href={`${typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : ''}/admin/connectors/${userConnector.id}`}
                                   className="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                                 >
                                   {userConnector.name}
@@ -544,6 +566,16 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           </div>
         </div>
       ))}
+
+      {/* Connector Form Modal */}
+      {selectedConnector && (
+        <ConnectorFormModal
+          isOpen={showConnectorModal}
+          onClose={handleCloseConnectorModal}
+          connectorId={selectedConnector.id}
+          connectorName={selectedConnector.name}
+        />
+      )}
     </div>
   );
 };
