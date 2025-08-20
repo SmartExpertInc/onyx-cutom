@@ -3783,7 +3783,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         
         // Get real data from backend for preview
         try {
-            const previewDataUrl = `${CUSTOM_BACKEND_URL}/projects-data`;
+            let previewDataUrl = `${CUSTOM_BACKEND_URL}/projects-data`;
             if (queryParams.toString()) {
                 previewDataUrl += `?${queryParams.toString()}`;
             }
