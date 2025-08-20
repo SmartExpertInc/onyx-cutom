@@ -463,7 +463,7 @@ const PreviewModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
-      <div className="bg-white shadow-2xl w-full max-w-6xl max-h-[95vh] relative overflow-hidden rounded-xl">
+      <div className="bg-white shadow-2xl w-full max-w-6xl max-h-[95vh] relative overflow-y-scroll rounded-xl">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 z-10" 
           onClick={onClose}
