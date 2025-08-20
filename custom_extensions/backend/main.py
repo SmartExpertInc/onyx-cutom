@@ -19450,7 +19450,7 @@ async def smartdrive_webhook(
 # while keeping connectors private to each user.
 
 # Proxy endpoint for creating credentials (matches Onyx's API)
-@app.post("/api/manage/credential")
+@app.post("/api/custom/manage/credential")
 async def create_credential(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
@@ -19515,7 +19515,7 @@ async def create_credential(
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # Proxy endpoint for fetching credentials (matches Onyx's API)
-@app.get("/api/manage/admin/similar-credentials/{source_type}")
+@app.get("/api/custom/manage/admin/similar-credentials/{source_type}")
 async def get_similar_credentials(
     source_type: str,
     get_editable: bool = Query(False),
