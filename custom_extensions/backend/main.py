@@ -16286,10 +16286,11 @@ async def download_projects_list_pdf(
         for row in projects_rows:
             row_dict = dict(row)
             
-            # Calculate individual project times
+            # Calculate individual project times using proper creation hours calculation
             total_lessons = 0
             total_hours = 0.0
             total_completion_time = 0
+            total_creation_hours = 0.0
             
             if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
                 content = row_dict['microproduct_content']
@@ -16332,6 +16333,12 @@ async def download_projects_list_pdf(
                                         total_completion_time += 5  # Empty string, use 5 minutes
                                 else:
                                     total_completion_time += 5  # No completion time, use 5 minutes
+                                
+                                # Calculate creation hours using proper function
+                                lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
+                                    lesson, section, get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
+                                )
+                                total_creation_hours += lesson_creation_hours
             
             projects_data.append({
                 'id': row_dict['id'],
@@ -16344,7 +16351,8 @@ async def download_projects_list_pdf(
                 'microproduct_content': row_dict.get('microproduct_content'),
                 'total_lessons': total_lessons,
                 'total_hours': round(total_hours),
-                'total_completion_time': total_completion_time
+                'total_completion_time': total_completion_time,
+                'total_creation_hours': round(total_creation_hours)
             })
 
         # --- Deduplicate projects: only show top-level products and outlines, hide lessons/quizzes that belong to an outline ---
@@ -16428,6 +16436,7 @@ async def download_projects_list_pdf(
             total_lessons = sum(p['total_lessons'] for p in direct_projects)
             total_hours = sum(p['total_hours'] for p in direct_projects)
             total_completion_time = sum(p['total_completion_time'] for p in direct_projects)
+            total_creation_hours = sum(p.get('total_creation_hours', 0) for p in direct_projects)
             total_items = len(direct_projects)
             
             # Add subfolder totals recursively
@@ -16437,18 +16446,21 @@ async def download_projects_list_pdf(
                     total_lessons += child_totals['total_lessons']
                     total_hours += child_totals['total_hours']
                     total_completion_time += child_totals['total_completion_time']
+                    total_creation_hours += child_totals['total_creation_hours']
                     total_items += child_totals['total_items']
             
             # Update folder with recursive totals
             folder['total_lessons'] = total_lessons
             folder['total_hours'] = total_hours
             folder['total_completion_time'] = total_completion_time
+            folder['total_creation_hours'] = total_creation_hours
             folder['project_count'] = total_items
             
             return {
                 'total_lessons': total_lessons,
                 'total_hours': total_hours,
                 'total_completion_time': total_completion_time,
+                'total_creation_hours': total_creation_hours,
                 'total_items': total_items
             }
 
@@ -16584,7 +16596,7 @@ async def download_projects_list_pdf(
                     for project in folder_projects[folder['id']]:
                         total_projects += 1
                         total_lessons += project.get('total_lessons', 0) or 0
-                        total_creation_time += project.get('total_hours', 0) or 0
+                        total_creation_time += project.get('total_creation_hours', 0) or 0
                         total_completion_time += project.get('total_completion_time', 0) or 0
                 
                 # Recursively calculate from subfolders
@@ -16599,7 +16611,7 @@ async def download_projects_list_pdf(
             for project in unassigned_projects:
                 total_projects += 1
                 total_lessons += project.get('total_lessons', 0) or 0
-                total_creation_time += project.get('total_hours', 0) or 0
+                total_creation_time += project.get('total_creation_hours', 0) or 0
                 total_completion_time += project.get('total_completion_time', 0) or 0
             
             return {

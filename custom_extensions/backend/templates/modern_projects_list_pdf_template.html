@@ -281,27 +281,58 @@
                                 {% for folder in folders %}
                                     <tr class="table-row">
                                         <td class="course-name">{{ folder.name if folder.name else '-' }}</td>
-                                        <td>{{ folder.projects|length if folder.projects else '-' }}</td>
+                                        <td>{{ folder_projects[folder.id]|length if folder.id in folder_projects else '-' }}</td>
                                         <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
                                         <td>{{ folder.total_hours if folder.total_hours else '-' }}</td>
-                                        <td>{{ (folder.total_hours * 300) if folder.total_hours else '-' }}</td>
+                                        <td>{{ folder.total_creation_hours if folder.total_creation_hours else '-' }}</td>
                                     </tr>
-                                    {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons else 0) %}
-                                    {% set total_hours = total_hours + (folder.total_hours if folder.total_hours else 0) %}
-                                    {% set total_production_time = total_production_time + ((folder.total_hours * 300) if folder.total_hours else 0) %}
+                                    {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons is not none else 0) %}
+                                    {% set total_hours = total_hours + (folder.total_hours if folder.total_hours is not none else 0) %}
+                                    {% set total_production_time = total_production_time + (folder.total_creation_hours if folder.total_creation_hours is not none else 0) %}
                                     
-                                    {% if folder.projects %}
-                                        {% for project in folder.projects %}
+                                    {% if folder.id in folder_projects and folder_projects[folder.id] %}
+                                        {% for project in folder_projects[folder.id] %}
                                             <tr class="table-row">
                                                 <td class="course-name" style="padding-left: 20px;">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                                 <td>1</td>
                                                 <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                 <td>{{ project.total_hours if project.total_hours else '-' }}</td>
-                                                <td>{{ (project.total_hours * 300) if project.total_hours else '-' }}</td>
+                                                <td>{{ project.total_creation_hours if project.total_creation_hours else '-' }}</td>
                                             </tr>
-                                            {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
-                                            {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
-                                            {% set total_production_time = total_production_time + ((project.total_hours * 300) if project.total_hours else 0) %}
+                                            {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
+                                            {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
+                                            {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    
+                                    {# Process subfolders recursively #}
+                                    {% if folder.children %}
+                                        {% for child_folder in folder.children %}
+                                            <tr class="table-row">
+                                                <td class="course-name" style="padding-left: 20px;">{{ child_folder.name if child_folder.name else '-' }}</td>
+                                                <td>{{ folder_projects[child_folder.id]|length if child_folder.id in folder_projects else '-' }}</td>
+                                                <td>{{ child_folder.total_lessons if child_folder.total_lessons else '-' }}</td>
+                                                <td>{{ child_folder.total_hours if child_folder.total_hours else '-' }}</td>
+                                                <td>{{ child_folder.total_creation_hours if child_folder.total_creation_hours else '-' }}</td>
+                                            </tr>
+                                            {% set total_lessons = total_lessons + (child_folder.total_lessons if child_folder.total_lessons is not none else 0) %}
+                                            {% set total_hours = total_hours + (child_folder.total_hours if child_folder.total_hours is not none else 0) %}
+                                            {% set total_production_time = total_production_time + (child_folder.total_creation_hours if child_folder.total_creation_hours is not none else 0) %}
+                                            
+                                            {% if child_folder.id in folder_projects and folder_projects[child_folder.id] %}
+                                                {% for project in folder_projects[child_folder.id] %}
+                                                    <tr class="table-row">
+                                                        <td class="course-name" style="padding-left: 40px;">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
+                                                        <td>1</td>
+                                                        <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
+                                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                                        <td>{{ project.total_creation_hours if project.total_creation_hours else '-' }}</td>
+                                                    </tr>
+                                                    {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
+                                                    {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
+                                                    {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
+                                                {% endfor %}
+                                            {% endif %}
                                         {% endfor %}
                                     {% endif %}
                                 {% endfor %}
@@ -314,11 +345,11 @@
                                         <td>1</td>
                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                         <td>{{ project.total_hours if project.total_hours else '-' }}</td>
-                                        <td>{{ (project.total_hours * 300) if project.total_hours else '-' }}</td>
+                                        <td>{{ project.total_creation_hours if project.total_creation_hours else '-' }}</td>
                                     </tr>
-                                    {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons else 0) %}
-                                    {% set total_hours = total_hours + (project.total_hours if project.total_hours else 0) %}
-                                    {% set total_production_time = total_production_time + ((project.total_hours * 300) if project.total_hours else 0) %}
+                                    {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
+                                    {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
+                                    {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
                                 {% endfor %}
                             {% endif %}
                         </tbody>
@@ -337,7 +368,6 @@
                             <tr>
                                 <th>Quality Level</th>
                                 <th>Learning Duration (h)</th>
-
                                 <th>Production Hours</th>
                             </tr>
                         </thead>
@@ -345,22 +375,22 @@
                             <tr class="table-row">
                                 <td class="course-name">Level 1 - Basic</td>
                                 <td>1</td>
-                                <td>200</td>
+                                <td>150</td>
                             </tr>
                             <tr class="table-row">
                                 <td class="course-name">Level 2 - Interactive</td>
-                                <td>2</td>
-                                <td>800</td>
+                                <td>1</td>
+                                <td>200</td>
                             </tr>
                             <tr class="table-row">
                                 <td class="course-name">Level 3 - Advanced</td>
-                                <td>3</td>
-                                <td>1,800</td>
+                                <td>1</td>
+                                <td>300</td>
                             </tr>
                             <tr class="table-row">
                                 <td class="course-name">Level 4 - Immersive</td>
-                                <td>5</td>
-                                <td>4,000</td>
+                                <td>1</td>
+                                <td>400</td>
                             </tr>
                         </tbody>
                     </table>
@@ -375,7 +405,7 @@
                 <ul class="summary-list">
                     <li>Total: {{ total_hours }} hours of learning content</li>
                     <li>Estimated Production Time: ≈ {{ total_production_time }} hours</li>
-                    <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
+                    <li>Production scaling depends on chosen quality tier (150-400h per 1h learning).</li>
                 </ul>
             </div>
         </div>
