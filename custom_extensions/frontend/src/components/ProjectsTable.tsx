@@ -3740,68 +3740,41 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         a.click();
         document.body.removeChild(a);
         
-        // Get real data from backend for preview using the same logic as PDF generation
+        // Get real data from backend for preview
         try {
-            // Use the same data processing logic as the backend PDF generation
-            let allProjects: (Project | BackendProject)[] = [];
-            
-            // Collect all projects from folders and unassigned projects
-            if (selectedFolders.length > 0 || selectedProjects.length > 0) {
-                // If specific folders/projects are selected, use frontend data
-                const selectedProjectIds = new Set(selectedProjects);
-                const selectedFolderIds = new Set(selectedFolders);
-                
-                // Get projects from selected folders
-                Object.entries(folderProjects).forEach(([folderId, projects]) => {
-                    if (selectedFolderIds.has(parseInt(folderId)) || selectedProjectIds.size === 0) {
-                        projects.forEach(project => {
-                            if (selectedProjectIds.size === 0 || selectedProjectIds.has(project.id)) {
-                                allProjects.push(project);
-                            }
-                        });
-                    }
-                });
-                
-                // Get unassigned projects if selected
-                if (selectedProjectIds.size === 0) {
-                    unassignedProjects.forEach(project => {
-                        allProjects.push(project);
-                    });
-                } else {
-                    unassignedProjects.forEach(project => {
-                        if (selectedProjectIds.has(project.id)) {
-                            allProjects.push(project);
-                        }
-                    });
-                }
-            } else {
-                // If no specific selection, use all visible projects
-                allProjects = visibleProjects;
+            let previewDataUrl = `${CUSTOM_BACKEND_URL}/projects-data`;
+            if (queryParams.toString()) {
+                previewDataUrl += `?${queryParams.toString()}`;
             }
             
-            // Convert frontend projects to backend format for consistent processing
-            const backendFormatProjects = allProjects.map(project => ({
-                id: project.id,
-                title: project.title,
-                project_name: project.title,
-                microproduct_name: project.title,
-                created_at: project.createdAt,
-                design_microproduct_type: getDesignMicroproductType(project),
-                folder_id: project.folderId || null,
-                order: project.order || 0,
-                microproduct_content: null, // We don't have this in frontend
-                total_lessons: 0, // Will be calculated by processBlock1CourseOverview
-                total_hours: 0, // Will be calculated by processBlock1CourseOverview
-                total_completion_time: 0 // Will be calculated by processBlock1CourseOverview
-            }));
-            
-            setPreviewData({
-                clientName,
-                managerName,
-                projects: backendFormatProjects
-            });
+            const response = await fetch(previewDataUrl);
+            if (response.ok) {
+                const backendData = await response.json();
+                
+                // Filter projects based on selection
+                const filteredProjects = backendData.projects.filter((project: BackendProject) => 
+                    selectedProjects.length === 0 || selectedProjects.includes(project.id)
+                );
+                
+                setPreviewData({
+                    clientName,
+                    managerName,
+                    projects: filteredProjects
+                });
+            } else {
+                // Fallback to frontend data if backend fails
+                const projectsToShow = visibleProjects.filter(project => 
+                    selectedProjects.length === 0 || selectedProjects.includes(project.id)
+                );
+                
+                setPreviewData({
+                    clientName,
+                    managerName,
+                    projects: projectsToShow
+                });
+            }
         } catch (error) {
-            console.error('Failed to process preview data:', error);
+            console.error('Failed to fetch preview data from backend:', error);
             // Fallback to frontend data
             const projectsToShow = visibleProjects.filter(project => 
                 selectedProjects.length === 0 || selectedProjects.includes(project.id)

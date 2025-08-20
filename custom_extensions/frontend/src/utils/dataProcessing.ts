@@ -65,7 +65,7 @@ export function processBlock1CourseOverview(projects: any[]): any {
     }
   });
 
-  // Create folder entries with aggregated data (matching backend logic)
+  // Create folder entries (simplified - we don't have folder names from backend)
   const folders: any[] = [];
   Object.keys(folderProjects).forEach(folderId => {
     const folderProjectsList = folderProjects[parseInt(folderId)];
@@ -105,43 +105,35 @@ export function processBlock1CourseOverview(projects: any[]): any {
 
     // Add individual projects under folder (like backend template)
     folder.projects.forEach((project: any) => {
-      // Use actual project data if available, otherwise use defaults
-      const projectLessons = project.total_lessons || 1; // Default to 1 lesson
-      const projectHours = project.total_hours || 1; // Default to 1 hour
-      
       result.push({
         name: `  ${project.title || project.project_name || 'Untitled'}`, // Use title from frontend API
         modules: 1,
-        lessons: projectLessons,
-        learningDuration: projectHours,
-        productionTime: projectHours * 300, // Same formula as backend
+        lessons: project.total_lessons || 0,
+        learningDuration: project.total_hours || 0,
+        productionTime: (project.total_hours || 0) * 300, // Same formula as backend
         isProject: true
       });
       
-      totalLessons += projectLessons;
-      totalHours += projectHours;
-      totalProductionTime += projectHours * 300;
+      totalLessons += project.total_lessons || 0;
+      totalHours += project.total_hours || 0;
+      totalProductionTime += (project.total_hours || 0) * 300;
     });
   });
 
   // Process unassigned projects (like backend template)
   unassignedProjects.forEach(project => {
-    // Use actual project data if available, otherwise use defaults
-    const projectLessons = project.total_lessons || 1; // Default to 1 lesson
-    const projectHours = project.total_hours || 1; // Default to 1 hour
-    
     result.push({
       name: project.title || project.project_name || 'Untitled', // Use title from frontend API
       modules: 1,
-      lessons: projectLessons,
-      learningDuration: projectHours,
-      productionTime: projectHours * 300, // Same formula as backend
+      lessons: project.total_lessons || 0,
+      learningDuration: project.total_hours || 0,
+      productionTime: (project.total_hours || 0) * 300, // Same formula as backend
       isUnassigned: true
     });
     
-    totalLessons += projectLessons;
-    totalHours += projectHours;
-    totalProductionTime += projectHours * 300;
+    totalLessons += project.total_lessons || 0;
+    totalHours += project.total_hours || 0;
+    totalProductionTime += (project.total_hours || 0) * 300;
   });
 
   // Apply rounding like backend
