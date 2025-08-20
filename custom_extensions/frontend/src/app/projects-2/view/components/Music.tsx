@@ -30,9 +30,9 @@ export default function Music() {
 
     return (
       <div className="h-full flex flex-col">
-        <div className="w-full border border-gray-300 rounded">
+        <div className="w-full border border-gray-300 rounded-md">
           {/* Top part - Light grey background */}
-          <div className="bg-gray-100 p-4 flex items-center justify-between">
+          <div className="bg-gray-100 p-4 flex items-center justify-between rounded-t-md">
             <div className="flex items-center gap-3">
               {/* Play button */}
               <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center bg-white cursor-pointer">
@@ -56,9 +56,9 @@ export default function Music() {
           </div>
 
           {/* Bottom part - White background */}
-          <div className="bg-white p-4 flex-1">
+          <div className="bg-white p-4 flex-1 rounded-b-md">
             {/* Settings container */}
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="p-4 rounded-lg">
               {/* Set as background music row */}
               <div className="flex items-center justify-between mb-6">
                 <span className="text-gray-700 text-sm">Set as background music everywhere</span>
