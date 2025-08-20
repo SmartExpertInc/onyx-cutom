@@ -39,6 +39,17 @@ try:
 except ImportError:
     PdfMerger = None
 
+# NEW: Video lesson generation imports
+try:
+    from elai_service import ElaiAPIService, ElaiVideoConfig
+    from video_composition_service import VideoCompositionService, VideoCompositionResult
+    from slide_image_generator import SlideImageGenerator
+    from video_lesson_generator import VideoLessonGenerator
+    VIDEO_LESSON_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Video lesson generation services not available: {e}")
+    VIDEO_LESSON_AVAILABLE = False
+
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
@@ -49,6 +60,10 @@ if IS_PRODUCTION:
     logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
 else:
     logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
+
+# --- Elai API Configuration ---
+ELAI_API_TOKEN = os.getenv("ELAI_API_TOKEN")
+ELAI_BASE_URL = os.getenv("ELAI_BASE_URL", "https://api.elai.io")
 
 
 # --- Constants & DB Setup ---
@@ -457,6 +472,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include video lesson router
+try:
+    from video_lesson_api import router as video_lesson_router
+    app.include_router(video_lesson_router)
+    logger.info("Video lesson API router included successfully")
+except ImportError as e:
+    logger.warning(f"Could not include video lesson router: {e}")
 
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
@@ -5204,6 +5227,37 @@ async def startup_event():
                 
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            # --- Ensure video generation tasks table ---
+            try:
+                await connection.execute("""
+                    CREATE TABLE IF NOT EXISTS video_generation_tasks (
+                        id SERIAL PRIMARY KEY,
+                        project_id VARCHAR(255) NOT NULL,
+                        slide_id VARCHAR(255) NOT NULL,
+                        video_id VARCHAR(255) NOT NULL,
+                        avatar_code VARCHAR(100) NOT NULL DEFAULT 'gia.1',
+                        voice VARCHAR(100) NOT NULL DEFAULT 'en-US-JennyNeural',
+                        background_color VARCHAR(20) NOT NULL DEFAULT '#00FF00',
+                        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+                        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+                        updated_at TIMESTAMP WITH TIME ZONE,
+                        onyx_user_id VARCHAR(255) NOT NULL,
+                        download_url TEXT,
+                        error_message TEXT
+                    );
+                """)
+                
+                # Create indexes for video generation tasks
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_project_id ON video_generation_tasks(project_id);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_user_id ON video_generation_tasks(onyx_user_id);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_status ON video_generation_tasks(status);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_video_id ON video_generation_tasks(video_id);")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_created_at ON video_generation_tasks(created_at);")
+                logger.info("'video_generation_tasks' table ensured with indexes.")
+                
+            except Exception as e:
+                logger.warning(f"Error creating video_generation_tasks table (may already exist): {e}")
 
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
