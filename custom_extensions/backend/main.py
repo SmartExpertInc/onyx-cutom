@@ -16715,7 +16715,7 @@ async def download_projects_list_pdf(
                         total_projects += 1
                         total_lessons += project.get('total_lessons', 0) or 0
                         total_modules += project.get('total_modules', 0) or 0
-                        total_creation_time += project.get('total_creation_hours', 0) or 0
+                        total_creation_time += project.get('total_hours', 0) or 0
                         total_completion_time += project.get('total_completion_time', 0) or 0
                 
                 # Recursively calculate from subfolders
@@ -16732,37 +16732,22 @@ async def download_projects_list_pdf(
                 total_projects += 1
                 total_lessons += project.get('total_lessons', 0) or 0
                 total_modules += project.get('total_modules', 0) or 0
-                total_creation_time += project.get('total_creation_hours', 0) or 0
+                total_creation_time += project.get('total_hours', 0) or 0
                 total_completion_time += project.get('total_completion_time', 0) or 0
             
             return {
                 'total_projects': total_projects,
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
-                'total_creation_time': total_creation_time,
+                'total_hours': total_creation_time,  # This is actually total_hours (Creation Time)
                 'total_completion_time': total_completion_time
             }
 
         # Calculate summary statistics
         summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
         
-        # Calculate total values for template
-        total_hours = 0
-        total_production_time = 0
-        
-        # Sum up from all projects in folder_projects (this includes all projects within folders)
-        for folder_id, projects in folder_projects.items():
-            for project in projects:
-                total_hours += project.get('total_hours', 0) or 0
-                total_production_time += project.get('total_creation_hours', 0) or 0
-        
-        # Sum up from unassigned projects
-        for project in unassigned_projects:
-            total_hours += project.get('total_hours', 0) or 0
-            total_production_time += project.get('total_creation_hours', 0) or 0
-        
-        # Add total_hours to summary_stats for template access
-        summary_stats['total_hours'] = total_hours
+        # summary_stats already contains total_hours (Creation Time) and total_completion_time
+        # No need for additional calculation
         
         # Calculate dynamic Block 2 data based on quality tier sums
         def calculate_quality_tier_sums(folders, folder_projects, unassigned_projects):
@@ -16813,8 +16798,8 @@ async def download_projects_list_pdf(
         
         # Add debug logging
         logger.info(f"[PDF_ANALYTICS] Total calculation:")
-        logger.info(f"[PDF_ANALYTICS] - Total hours: {total_hours}")
-        logger.info(f"[PDF_ANALYTICS] - Total production time: {total_production_time}")
+        logger.info(f"[PDF_ANALYTICS] - Total hours (Creation Time): {summary_stats['total_hours']}")
+        logger.info(f"[PDF_ANALYTICS] - Total completion time: {summary_stats['total_completion_time']}")
         logger.info(f"[PDF_ANALYTICS] - Folder count: {len(folder_tree)}")
         logger.info(f"[PDF_ANALYTICS] - Unassigned projects count: {len(unassigned_projects)}")
         logger.info(f"[PDF_ANALYTICS] - Folder projects count: {sum(len(projects) for projects in folder_projects.values())}")

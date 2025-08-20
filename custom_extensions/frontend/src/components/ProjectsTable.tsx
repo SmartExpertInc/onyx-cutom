@@ -731,8 +731,8 @@ const PreviewModal: React.FC<{
                                       const allProjects = data.projects || [];
                                       allProjects.forEach((project: any) => {
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
-                                        qualityTierSums[effectiveTier].completionTime += project.total_hours || 0;
-                                        qualityTierSums[effectiveTier].creationTime += project.total_completion_time || 0;
+                                        qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
+                                        qualityTierSums[effectiveTier].creationTime += project.total_hours || 0;
                                       });
                                       
                                       // Define quality level names
