@@ -6,8 +6,9 @@ import { Search, Play, Volume2 } from 'lucide-react';
 export default function Music() {
   const [activeButton, setActiveButton] = useState<'stock' | 'upload'>('stock');
   const [selectedMusic, setSelectedMusic] = useState<string | null>('no-music');
+  const [isBackgroundMusicEnabled, setIsBackgroundMusicEnabled] = useState(false);
 
-  const selectBtnClass = "hidden group-hover:block px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors";
+  const selectBtnClass = "opacity-0 group-hover:opacity-100 px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-all";
 
   // Track information mapping
   const trackInfo = {
@@ -53,13 +54,22 @@ export default function Music() {
         </div>
 
         {/* Bottom part - White background */}
-        <div className="bg-white p-4 flex-1">
+        <div className="bg-white p-4 flex-1 border border-gray-200 rounded-lg">
           {/* Set as background music row */}
           <div className="flex items-center justify-between mb-6">
             <span className="text-gray-700 text-sm">Set as background music everywhere</span>
             {/* Switch/Slider */}
-            <div className="w-12 h-6 bg-gray-300 rounded-full flex items-center p-1 cursor-pointer">
-              <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+            <div 
+              className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
+                isBackgroundMusicEnabled ? 'bg-black' : 'bg-gray-300'
+              }`}
+              onClick={() => setIsBackgroundMusicEnabled(!isBackgroundMusicEnabled)}
+            >
+              <div 
+                className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
+                  isBackgroundMusicEnabled ? 'bg-white translate-x-6' : 'bg-white'
+                }`}
+              ></div>
             </div>
           </div>
 
@@ -67,15 +77,20 @@ export default function Music() {
           <div className="flex items-center justify-between">
             <span className="text-gray-700 text-sm">Volume</span>
             <div className="flex items-center gap-2">
-              <Volume2 size={16} className="text-gray-600" />
+              <Volume2 size={16} className="text-gray-600 flex-shrink-0" />
               {/* Volume range slider */}
-              <div className="relative w-32">
+              <div className="relative w-32 flex items-center">
                 <input
                   type="range"
                   min="0"
                   max="100"
                   defaultValue="50"
-                  className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                  className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const percentage = value + '%';
+                    e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
+                  }}
                   style={{
                     background: `linear-gradient(to right, #000000 0%, #000000 50%, #e5e7eb 50%, #e5e7eb 100%)`
                   }}
@@ -83,8 +98,8 @@ export default function Music() {
                 <style jsx>{`
                   input[type="range"]::-webkit-slider-thumb {
                     appearance: none;
-                    width: 12px;
-                    height: 12px;
+                    width: 10px;
+                    height: 10px;
                     border-radius: 50%;
                     background: #000000;
                     cursor: pointer;
@@ -93,8 +108,8 @@ export default function Music() {
                   }
                   
                   input[type="range"]::-moz-range-thumb {
-                    width: 12px;
-                    height: 12px;
+                    width: 10px;
+                    height: 10px;
                     border-radius: 50%;
                     background: #000000;
                     cursor: pointer;
@@ -122,29 +137,31 @@ export default function Music() {
 
   return (
     <div className="h-full bg-white relative overflow-hidden w-full">
-      {/* Grey div with two buttons at the top */}
-      <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 mt-4 mb-4">
-        <button
-          onClick={() => setActiveButton('stock')}
-          className={`flex-1 py-1 text-sm rounded transition-colors ${
-            activeButton === 'stock' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-600 hover:bg-gray-300'
-          }`}
-        >
-          Stock
-        </button>
-        <button
-          onClick={() => setActiveButton('upload')}
-          className={`flex-1 py-1 text-sm rounded transition-colors ${
-            activeButton === 'upload' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-600 hover:bg-gray-300'
-          }`}
-        >
-          Upload
-        </button>
-      </div>
+      {/* Grey div with two buttons at the top - only show when no track is selected */}
+      {(!selectedMusic || selectedMusic === 'no-music') && (
+        <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 mt-4 mb-4">
+          <button
+            onClick={() => setActiveButton('stock')}
+            className={`flex-1 py-1 text-sm rounded transition-colors ${
+              activeButton === 'stock' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-600 hover:bg-gray-300'
+            }`}
+          >
+            Stock
+          </button>
+          <button
+            onClick={() => setActiveButton('upload')}
+            className={`flex-1 py-1 text-sm rounded transition-colors ${
+              activeButton === 'upload' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-600 hover:bg-gray-300'
+            }`}
+          >
+            Upload
+          </button>
+        </div>
+      )}
 
       {/* Content based on active button */}
       {activeButton === 'stock' ? (
