@@ -91,6 +91,45 @@ class VideoCompositionResponse(BaseModel):
 # Import VideoLessonData from main
 from main import VideoLessonData
 
+@router.get("/avatars")
+async def get_available_avatars():
+    """
+    Get list of available avatars for video generation.
+    Returns avatar codes and preview URLs.
+    """
+    avatars = [
+        {
+            "code": "gia.casual",
+            "name": "Gia Casual",
+            "gender": "female",
+            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",
+            "description": "Professional female avatar with casual style"
+        },
+        {
+            "code": "dylan.casual", 
+            "name": "Dylan Casual",
+            "gender": "male",
+            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/dylan/casual/dylan_casual.png",
+            "description": "Professional male avatar with casual style"
+        },
+        {
+            "code": "anna.casual",
+            "name": "Anna Casual", 
+            "gender": "female",
+            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/anna/casual/anna_casual.png",
+            "description": "Friendly female avatar with casual style"
+        },
+        {
+            "code": "lisa.casual",
+            "name": "Lisa Casual",
+            "gender": "female", 
+            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/lisa/casual/lisa_casual.png",
+            "description": "Confident female avatar with casual style"
+        }
+    ]
+    
+    return {"avatars": avatars}
+
 @router.post("/generate-avatar", response_model=VideoGenerationResponse)
 async def generate_avatar_video(
     request: VideoGenerationRequest,
@@ -166,7 +205,7 @@ async def generate_avatar_video(
             resolution=request.resolution
         )
         
-        elai_service = ElaiAPIService(ELAI_API_TOKEN, ELAI_BASE_URL)
+        elai_service = ElaiAPIService(ELAI_API_TOKEN)
         
         # Generate videos for each slide
         generated_videos = []

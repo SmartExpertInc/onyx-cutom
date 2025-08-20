@@ -4,7 +4,7 @@ import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplate } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import AvatarPlaceholder from './AvatarPlaceholder';
+import AvatarPreview from './AvatarPreview';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
@@ -152,10 +152,11 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
               theme={theme}
             />
             {isVideoLesson && (
-              <AvatarPlaceholder 
+              <AvatarPreview 
                 size="medium" 
                 position="bottom-right" 
                 className="z-10"
+                avatarCode="gia.casual"
               />
             )}
           </div>

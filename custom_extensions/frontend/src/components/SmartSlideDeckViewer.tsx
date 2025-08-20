@@ -10,7 +10,7 @@ import { ThemePicker } from './theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
 import { Plus, ChevronDown, X, Volume2, Palette} from 'lucide-react';
-import AvatarPlaceholder from './AvatarPlaceholder';
+import AvatarPreview from './AvatarPreview';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
