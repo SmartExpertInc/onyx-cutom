@@ -19449,7 +19449,141 @@ async def smartdrive_webhook(
 # This gives users the full Onyx connector experience (including OAuth support)
 # while keeping connectors private to each user.
 
-# New SmartDrive connector creation endpoint (bypasses admin requirements)
+# Proxy endpoint for creating credentials (matches Onyx's API)
+@app.post("/api/manage/credential")
+async def create_credential(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Create a credential by proxying to Onyx's /api/manage/credential endpoint.
+    """
+    try:
+        # Get the main app domain
+        host = request.headers.get('host', 'localhost')
+        # Force HTTPS for production domains, use HTTP only for localhost
+        if 'localhost' in host or '127.0.0.1' in host:
+            protocol = 'http'
+        else:
+            protocol = 'https'
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get('session')
+        csrf_token = request.cookies.get('csrftoken')
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        if session_cookie:
+            auth_headers['Cookie'] = f'session={session_cookie}'
+        if csrf_token:
+            auth_headers['X-CSRFToken'] = csrf_token
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        # Get the request body
+        credential_data = await request.json()
+        
+        # Forward the request to Onyx's backend
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                ensure_https_url("/api/manage/credential"),
+                headers=auth_headers,
+                json=credential_data
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to create credential: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to create credential: {response.text}"
+                )
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating credential: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+# Proxy endpoint for fetching credentials (matches Onyx's API)
+@app.get("/api/manage/admin/similar-credentials/{source_type}")
+async def get_similar_credentials(
+    source_type: str,
+    get_editable: bool = Query(False),
+    request: Request = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get credentials similar to Onyx's /api/manage/admin/similar-credentials endpoint.
+    This proxies the request to Onyx's backend to fetch available credentials for a source type.
+    """
+    try:
+        # Get the main app domain
+        host = request.headers.get('host', 'localhost')
+        # Force HTTPS for production domains, use HTTP only for localhost
+        if 'localhost' in host or '127.0.0.1' in host:
+            protocol = 'http'
+        else:
+            protocol = 'https'
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get('session')
+        csrf_token = request.cookies.get('csrftoken')
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        if session_cookie:
+            auth_headers['Cookie'] = f'session={session_cookie}'
+        if csrf_token:
+            auth_headers['X-CSRFToken'] = csrf_token
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        # Build the API URL
+        api_path = f"/api/manage/admin/similar-credentials/{source_type}"
+        if get_editable:
+            api_path += "?get_editable=True"
+        
+        # Forward the request to Onyx's backend
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                ensure_https_url(api_path),
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to fetch credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to fetch credentials: {response.text}"
+                )
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+  # New SmartDrive connector creation endpoint (bypasses admin requirements)
 @app.post("/api/custom/smartdrive/connectors/create")
 async def create_smartdrive_connector(
     request: Request,
