@@ -221,7 +221,7 @@ const VideoLessonDisplay = ({
         </div>
 
         {/* Video Lesson Generator */}
-        {showVideoGenerator && (
+        {showVideoGenerator && params?.projectId && (
           <div className="mt-6">
             {/* Debug Component */}
             <VideoLessonDebug
