@@ -19469,18 +19469,18 @@ async def create_smartdrive_connector(
             protocol = 'https'
         main_app_url = f"{protocol}://{host}"
         
-        # Get authentication from cookies
-        session_cookie = request.cookies.get('session')
-        csrf_token = request.cookies.get('csrftoken')
+        # Get authentication from cookies (using the same pattern as other endpoints)
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
         
         auth_headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
-        if session_cookie:
-            auth_headers['Cookie'] = f'session={session_cookie}'
-        if csrf_token:
-            auth_headers['X-CSRFToken'] = csrf_token
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
         
         # Get connector data from request
         connector_data = await request.json()
