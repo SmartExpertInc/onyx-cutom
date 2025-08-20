@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, ExternalLink, Upload, Settings } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
-import ConnectorFormModal from './ConnectorFormModal';
+import NativeConnectorForm from './NativeConnectorForm';
 
 interface ConnectorConfig {
   id: string;
@@ -567,9 +567,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         </div>
       ))}
 
-      {/* Connector Form Modal */}
+      {/* Native Connector Form */}
       {selectedConnector && (
-        <ConnectorFormModal
+        <NativeConnectorForm
           isOpen={showConnectorModal}
           onClose={handleCloseConnectorModal}
           connectorId={selectedConnector.id}
