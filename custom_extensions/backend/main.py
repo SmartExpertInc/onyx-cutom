@@ -16452,10 +16452,6 @@ async def download_projects_list_pdf(
                                 )
                                 total_creation_hours += lesson_creation_hours
             
-            # Calculate real creation time based on completion time and quality tier (like in original)
-            tier_ratio = get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
-            real_creation_hours = calculate_creation_hours(total_completion_time, tier_ratio)
-            
             projects_data.append({
                 'id': row_dict['id'],
                 'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
@@ -16467,7 +16463,7 @@ async def download_projects_list_pdf(
                 'microproduct_content': row_dict.get('microproduct_content'),
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
-                'total_hours': real_creation_hours,  # Real creation time (like in original)
+                'total_hours': round(total_hours),  # Sum of lesson hours (like in original)
                 'total_completion_time': total_completion_time,
                 'total_creation_hours': round(total_creation_hours)
             })

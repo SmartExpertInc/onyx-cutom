@@ -1287,16 +1287,16 @@ const FolderRow: React.FC<{
                 {columnVisibility.estCreationTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalCreationHours = getTotalCreationHoursInFolder(folder);
-                            return totalCreationHours > 0 ? `${totalCreationHours}h` : '-';
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
                         })()}
                     </td>
                 )}
                 {columnVisibility.estCompletionTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalHours = getTotalHoursInFolder(folder);
-                            return totalHours > 0 ? `${totalHours}h` : '-';
+                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
+                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
                         })()}
                     </td>
                 )}
@@ -1415,8 +1415,8 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    // Use totalCreationHours for Production Time (h) - Real creation time
-                                    const creationHours = lessonData?.totalCreationHours || lessonData?.totalHours;
+                                    // Use totalHours for Production Time (h) - Sum of lesson hours
+                                    const creationHours = lessonData?.totalHours;
                                     return creationHours ? `${creationHours}h` : '-';
                                 })()}
                             </td>
@@ -1425,9 +1425,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    // Use totalHours for Learning Duration (h) - Completion time values
-                                    const learningHours = lessonData?.totalHours;
-                                    return learningHours ? `${learningHours}h` : '-';
+                                    // Use completionTime for Learning Duration (h) - Completion time
+                                    const learningHours = lessonData?.completionTime;
+                                    return learningHours ? formatCompletionTimeLocalized(learningHours) : '-';
                                 })()}
                             </td>
                         )}
@@ -4230,7 +4230,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalCreationHours ? `${lessonData.totalCreationHours}h` : (lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-');
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                 })()}
                                             </td>
                                         )}
@@ -4357,7 +4357,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalCreationHours ? `${lessonData.totalCreationHours}h` : (lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-');
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                 })()}
                                             </td>
                                         )}
