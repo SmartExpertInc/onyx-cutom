@@ -16244,6 +16244,19 @@ async def download_projects_list_pdf(
                                     WHEN p.microproduct_content IS NOT NULL 
                                     AND p.microproduct_content->>'sections' IS NOT NULL 
                                     THEN (
+                                        SELECT COUNT(*)::int 
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_modules,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
                                         SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
                                         FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
                                         CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
@@ -16291,10 +16304,12 @@ async def download_projects_list_pdf(
             total_hours = 0.0
             total_completion_time = 0
             total_creation_hours = 0.0
+            total_modules = 0
             
             if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
                 content = row_dict['microproduct_content']
                 if content.get('sections') and isinstance(content['sections'], list):
+                    total_modules = len(content['sections'])  # Count modules
                     for section in content['sections']:
                         if section.get('lessons') and isinstance(section['lessons'], list):
                             for lesson in section['lessons']:
@@ -16350,6 +16365,7 @@ async def download_projects_list_pdf(
                 'order': row_dict.get('order', 0),
                 'microproduct_content': row_dict.get('microproduct_content'),
                 'total_lessons': total_lessons,
+                'total_modules': total_modules,
                 'total_hours': round(total_hours),
                 'total_completion_time': total_completion_time,
                 'total_creation_hours': round(total_creation_hours)
@@ -16434,6 +16450,7 @@ async def download_projects_list_pdf(
             # Start with direct project totals
             direct_projects = folder_projects.get(folder['id'], [])
             total_lessons = sum(p['total_lessons'] for p in direct_projects)
+            total_modules = sum(p.get('total_modules', 0) for p in direct_projects)
             total_hours = sum(p['total_hours'] for p in direct_projects)
             total_completion_time = sum(p['total_completion_time'] for p in direct_projects)
             total_creation_hours = sum(p.get('total_creation_hours', 0) for p in direct_projects)
@@ -16444,6 +16461,7 @@ async def download_projects_list_pdf(
                 for child in folder['children']:
                     child_totals = calculate_recursive_totals(child)
                     total_lessons += child_totals['total_lessons']
+                    total_modules += child_totals['total_modules']
                     total_hours += child_totals['total_hours']
                     total_completion_time += child_totals['total_completion_time']
                     total_creation_hours += child_totals['total_creation_hours']
@@ -16451,6 +16469,7 @@ async def download_projects_list_pdf(
             
             # Update folder with recursive totals
             folder['total_lessons'] = total_lessons
+            folder['total_modules'] = total_modules
             folder['total_hours'] = total_hours
             folder['total_completion_time'] = total_completion_time
             folder['total_creation_hours'] = total_creation_hours
@@ -16458,6 +16477,7 @@ async def download_projects_list_pdf(
             
             return {
                 'total_lessons': total_lessons,
+                'total_modules': total_modules,
                 'total_hours': total_hours,
                 'total_completion_time': total_completion_time,
                 'total_creation_hours': total_creation_hours,
@@ -16587,6 +16607,7 @@ async def download_projects_list_pdf(
         def calculate_summary_stats(folders, folder_projects, unassigned_projects):
             total_projects = 0
             total_lessons = 0
+            total_modules = 0
             total_creation_time = 0
             total_completion_time = 0
             
@@ -16596,6 +16617,7 @@ async def download_projects_list_pdf(
                     for project in folder_projects[folder['id']]:
                         total_projects += 1
                         total_lessons += project.get('total_lessons', 0) or 0
+                        total_modules += project.get('total_modules', 0) or 0
                         total_creation_time += project.get('total_creation_hours', 0) or 0
                         total_completion_time += project.get('total_completion_time', 0) or 0
                 
@@ -16604,6 +16626,7 @@ async def download_projects_list_pdf(
                     child_stats = calculate_summary_stats(folder['children'], folder_projects, [])
                     total_projects += child_stats['total_projects']
                     total_lessons += child_stats['total_lessons']
+                    total_modules += child_stats['total_modules']
                     total_creation_time += child_stats['total_creation_time']
                     total_completion_time += child_stats['total_completion_time']
             
@@ -16611,12 +16634,14 @@ async def download_projects_list_pdf(
             for project in unassigned_projects:
                 total_projects += 1
                 total_lessons += project.get('total_lessons', 0) or 0
+                total_modules += project.get('total_modules', 0) or 0
                 total_creation_time += project.get('total_creation_hours', 0) or 0
                 total_completion_time += project.get('total_completion_time', 0) or 0
             
             return {
                 'total_projects': total_projects,
                 'total_lessons': total_lessons,
+                'total_modules': total_modules,
                 'total_creation_time': total_creation_time,
                 'total_completion_time': total_completion_time
             }
