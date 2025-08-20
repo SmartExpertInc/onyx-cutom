@@ -23,6 +23,7 @@ interface ToolbarProps {
   onTextButtonClick?: (position: { x: number; y: number }) => void;
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onInteractionButtonClick?: (position: { x: number; y: number }) => void;
+  onMusicButtonClick?: () => void;
 }
 
 interface Tool {
@@ -32,7 +33,7 @@ interface Tool {
   chevron?: LucideIcon;
 }
 
-export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onMusicButtonClick }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const textButtonRef = useRef<HTMLDivElement>(null);
@@ -162,6 +163,11 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
         y: rect.bottom + 8 // Position popup 8px below the button
       };
       onInteractionButtonClick(position);
+      return;
+    }
+    
+    if (toolId === 'music' && onMusicButtonClick) {
+      onMusicButtonClick();
       return;
     }
     

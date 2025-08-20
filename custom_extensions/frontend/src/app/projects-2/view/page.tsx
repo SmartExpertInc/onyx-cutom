@@ -40,6 +40,16 @@ export default function Projects2ViewPage() {
     setIsAiPopupOpen(false);
   };
 
+  const handleMusicButtonClick = () => {
+    setActiveComponent('music');
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsTextPopupOpen(false);
+    setIsShapesPopupOpen(false);
+    setIsInteractionPopupOpen(false);
+    setIsAiPopupOpen(false);
+  };
+
   const handleTextButtonClick = (position: { x: number; y: number }) => {
     setTextPopupPosition(position);
     setIsTextPopupOpen(true);
@@ -109,6 +119,7 @@ export default function Projects2ViewPage() {
           onTextButtonClick={handleTextButtonClick}
           onShapesButtonClick={handleShapesButtonClick}
           onInteractionButtonClick={handleInteractionButtonClick}
+          onMusicButtonClick={handleMusicButtonClick}
         />
       </div>
       
