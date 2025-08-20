@@ -458,20 +458,11 @@ def associate_credential_to_connector(
     The intent of this endpoint is to handle connectors that actually need credentials.
     """
 
-    # Check for Smart Drive header and non-admin access
-    is_smart_drive = request and request.headers.get("x-smart-drive-credential") == "true"
-    
-    # For non-Smart Drive requests, enforce admin/curator requirements
-    if not is_smart_drive:
-        # Check if user has admin/curator role
-        if user is None or not (user.role.value in ["ADMIN", "CURATOR"]):
-            raise HTTPException(
-                status_code=403, 
-                detail="Access denied. User is not a curator or admin."
-            )
+    # Admin check disabled for Smart Drive functionality
+    # All authenticated users can link credentials
 
     # Check if this credential association is for a Smart Drive connector
-    if is_smart_drive:
+    if request and request.headers.get("x-smart-drive-credential") == "true":
         from onyx.server.documents.connector import get_or_create_user_group_for_smart_drive
         # Get or create user's personal Smart Drive group
         user_group_id = get_or_create_user_group_for_smart_drive(user, db_session)

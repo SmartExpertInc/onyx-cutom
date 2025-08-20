@@ -918,20 +918,11 @@ def create_connector_from_model(
 ) -> ObjectCreationIdResponse:
     tenant_id = get_current_tenant_id()
 
-    # Check for Smart Drive header and non-admin access
-    is_smart_drive = request and request.headers.get("x-smart-drive-connector") == "true"
+    # Admin check disabled for Smart Drive functionality
+    # All authenticated users can create connectors
     
-    # For non-Smart Drive requests, enforce admin/curator requirements
-    if not is_smart_drive:
-        # Check if user has admin/curator role
-        if user is None or not (user.role.value in ["ADMIN", "CURATOR"]):
-            raise HTTPException(
-                status_code=403, 
-                detail="Access denied. User is not a curator or admin."
-            )
-
     # Force PRIVATE access for Smart Drive connectors
-    if is_smart_drive:
+    if request and request.headers.get("x-smart-drive-connector") == "true":
         connector_data.access_type = AccessType.PRIVATE
         # Get or create a personal user group for this user
         user_group_id = get_or_create_user_group_for_smart_drive(user, db_session)
