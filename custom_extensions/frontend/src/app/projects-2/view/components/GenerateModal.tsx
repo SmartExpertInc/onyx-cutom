@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Gem } from 'lucide-react';
 
 interface GenerateModalProps {
   isOpen: boolean;
@@ -148,66 +149,70 @@ export default function GenerateModal({ isOpen, onClose, title }: GenerateModalP
                         setSelectedResolution('720p');
                         setIsResolutionDropdownOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center justify-between"
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      <span className="text-sm text-black">720p</span>
-                      {selectedResolution === '720p' && (
+                      {selectedResolution === '720p' ? (
                         <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
+                      ) : (
+                        <div className="w-4 h-4"></div>
                       )}
+                      <span className="text-sm text-black">720p</span>
                     </button>
                     <button
                       onClick={() => {
                         setSelectedResolution('1080p HD');
                         setIsResolutionDropdownOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center justify-between"
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      <span className="text-sm text-black">1080p HD</span>
-                      {selectedResolution === '1080p HD' && (
+                      {selectedResolution === '1080p HD' ? (
                         <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
+                      ) : (
+                        <div className="w-4 h-4"></div>
                       )}
+                      <span className="text-sm text-black">1080p HD</span>
                     </button>
                     <button
                       onClick={() => {
                         setSelectedResolution('1440p HD');
                         setIsResolutionDropdownOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center justify-between"
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-black">1440p HD</span>
-                        <svg className="w-4 h-4 text-purple-700" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z"/>
-                        </svg>
-                      </div>
-                      {selectedResolution === '1440p HD' && (
+                      {selectedResolution === '1440p HD' ? (
                         <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
+                      ) : (
+                        <div className="w-4 h-4"></div>
                       )}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-black">1440p HD</span>
+                        <Gem className="w-4 h-4 text-purple-700" />
+                      </div>
                     </button>
                     <button
                       onClick={() => {
                         setSelectedResolution('2160p 4K');
                         setIsResolutionDropdownOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center justify-between"
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer flex items-center gap-3"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-black">2160p 4K</span>
-                        <svg className="w-4 h-4 text-purple-700" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z"/>
-                        </svg>
-                      </div>
-                      {selectedResolution === '2160p 4K' && (
+                      {selectedResolution === '2160p 4K' ? (
                         <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
+                      ) : (
+                        <div className="w-4 h-4"></div>
                       )}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-black">2160p 4K</span>
+                        <Gem className="w-4 h-4 text-purple-700" />
+                      </div>
                     </button>
                   </div>
                 </div>
