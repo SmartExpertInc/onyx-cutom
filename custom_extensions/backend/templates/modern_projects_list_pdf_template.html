@@ -311,16 +311,16 @@
                                                 <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                 <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                 <td>
-                                                    {% if project.total_hours and project.total_hours > 0 %}
-                                                        {% set h = project.total_hours // 60 %}
-                                                        {% set m = project.total_hours % 60 %}
+                                                    {% if project.total_completion_time and project.total_completion_time > 0 %}
+                                                        {% set h = project.total_completion_time // 60 %}
+                                                        {% set m = project.total_completion_time % 60 %}
                                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>
                                                 <td>
-                                                    {% if project.total_completion_time and project.total_completion_time > 0 %}
-                                                        {% set h = project.total_completion_time // 60 %}
-                                                        {% set m = project.total_completion_time % 60 %}
+                                                    {% if project.total_hours and project.total_hours > 0 %}
+                                                        {% set h = project.total_hours // 60 %}
+                                                        {% set m = project.total_hours % 60 %}
                                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>
@@ -340,16 +340,16 @@
                                                 <td>{{ child_folder.total_modules if child_folder.total_modules else '-' }}</td>
                                                 <td>{{ child_folder.total_lessons if child_folder.total_lessons else '-' }}</td>
                                                 <td>
-                                                    {% if child_folder.total_completion_time and child_folder.total_completion_time > 0 %}
-                                                        {% set h = child_folder.total_completion_time // 60 %}
-                                                        {% set m = child_folder.total_completion_time % 60 %}
+                                                    {% if child_folder.total_hours and child_folder.total_hours > 0 %}
+                                                        {% set h = child_folder.total_hours // 60 %}
+                                                        {% set m = child_folder.total_hours % 60 %}
                                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>
                                                 <td>
-                                                    {% if child_folder.total_hours and child_folder.total_hours > 0 %}
-                                                        {% set h = child_folder.total_hours // 60 %}
-                                                        {% set m = child_folder.total_hours % 60 %}
+                                                    {% if child_folder.total_completion_time and child_folder.total_completion_time > 0 %}
+                                                        {% set h = child_folder.total_completion_time // 60 %}
+                                                        {% set m = child_folder.total_completion_time % 60 %}
                                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>
@@ -366,16 +366,16 @@
                                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                         <td>
-                                                            {% if project.total_hours and project.total_hours > 0 %}
-                                                                {% set h = project.total_hours // 60 %}
-                                                                {% set m = project.total_hours % 60 %}
+                                                            {% if project.total_completion_time and project.total_completion_time > 0 %}
+                                                                {% set h = project.total_completion_time // 60 %}
+                                                                {% set m = project.total_completion_time % 60 %}
                                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                             {% else %}-{% endif %}
                                                         </td>
                                                         <td>
-                                                            {% if project.total_completion_time and project.total_completion_time > 0 %}
-                                                                {% set h = project.total_completion_time // 60 %}
-                                                                {% set m = project.total_completion_time % 60 %}
+                                                            {% if project.total_hours and project.total_hours > 0 %}
+                                                                {% set h = project.total_hours // 60 %}
+                                                                {% set m = project.total_hours % 60 %}
                                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                             {% else %}-{% endif %}
                                                         </td>
@@ -398,16 +398,16 @@
                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                         <td>
-                                            {% if project.total_hours and project.total_hours > 0 %}
-                                                {% set h = project.total_hours // 60 %}
-                                                {% set m = project.total_hours % 60 %}
+                                            {% if project.total_completion_time and project.total_completion_time > 0 %}
+                                                {% set h = project.total_completion_time // 60 %}
+                                                {% set m = project.total_completion_time % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
                                         <td>
-                                            {% if project.total_completion_time and project.total_completion_time > 0 %}
-                                                {% set h = project.total_completion_time // 60 %}
-                                                {% set m = project.total_completion_time % 60 %}
+                                            {% if project.total_hours and project.total_hours > 0 %}
+                                                {% set h = project.total_hours // 60 %}
+                                                {% set m = project.total_hours % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
@@ -421,7 +421,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {{ summary_stats.total_hours if summary_stats.total_hours else 0 }}h of learning content → {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }}h production
+                         Subtotal: {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }}h of learning content → {{ summary_stats.total_hours if summary_stats.total_hours else 0 }}h production
                      </div>
                 </div>
             </div>
@@ -450,16 +450,16 @@
                                         <tr class="table-row">
                                             <td class="course-name">{{ tier_name }}</td>
                                             <td>
-                                                {% if quality_tier_sums[tier_key].creation_time and quality_tier_sums[tier_key].creation_time > 0 %}
-                                                    {% set h = quality_tier_sums[tier_key].creation_time // 60 %}
-                                                    {% set m = quality_tier_sums[tier_key].creation_time % 60 %}
+                                                {% if quality_tier_sums[tier_key].completion_time and quality_tier_sums[tier_key].completion_time > 0 %}
+                                                    {% set h = quality_tier_sums[tier_key].completion_time // 60 %}
+                                                    {% set m = quality_tier_sums[tier_key].completion_time % 60 %}
                                                     {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                 {% else %}0{% endif %}
                                             </td>
                                             <td>
-                                                {% if quality_tier_sums[tier_key].completion_time and quality_tier_sums[tier_key].completion_time > 0 %}
-                                                    {% set h = quality_tier_sums[tier_key].completion_time // 60 %}
-                                                    {% set m = quality_tier_sums[tier_key].completion_time % 60 %}
+                                                {% if quality_tier_sums[tier_key].creation_time and quality_tier_sums[tier_key].creation_time > 0 %}
+                                                    {% set h = quality_tier_sums[tier_key].creation_time // 60 %}
+                                                    {% set m = quality_tier_sums[tier_key].creation_time % 60 %}
                                                     {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                 {% else %}0{% endif %}
                                             </td>
@@ -499,8 +499,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {{ summary_stats.total_hours if summary_stats.total_hours else 0 }} hours of learning content</li>
-                     <li>Estimated Production Time: ≈ {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }} hours</li>
+                     <li>Total: {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }} hours of learning content</li>
+                     <li>Estimated Production Time: ≈ {{ summary_stats.total_hours if summary_stats.total_hours else 0 }} hours</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>
