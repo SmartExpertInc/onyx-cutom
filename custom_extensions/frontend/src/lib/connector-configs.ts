@@ -12,7 +12,7 @@ export interface ConnectorField {
   options?: { name: string; value: string }[];
   isTextArea?: boolean;
   hidden?: boolean;
-  disabled?: boolean;
+  disabled?: boolean | ((values: any, credential: any) => boolean);
   transform?: (value: any) => any;
   visibleCondition?: (values: any, credential: any) => boolean;
   tabs?: {

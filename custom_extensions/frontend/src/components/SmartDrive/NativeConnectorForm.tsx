@@ -205,6 +205,11 @@ const NativeConnectorForm: React.FC<NativeConnectorFormProps> = ({
     const fieldName = field.name;
     const fieldValue = formData[fieldName];
     const fieldError = errors[fieldName];
+    
+    // Handle disabled state
+    const isDisabled = typeof field.disabled === 'function' 
+      ? field.disabled(formData, currentCredential)
+      : field.disabled || false;
 
     switch (field.type) {
       case 'text':
@@ -222,7 +227,7 @@ const NativeConnectorForm: React.FC<NativeConnectorFormProps> = ({
               value={fieldValue || ''}
               onChange={(e) => handleInputChange(fieldName, e.target.value)}
               placeholder={field.placeholder}
-              disabled={field.disabled}
+              disabled={isDisabled}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
             />
             {fieldError && (
@@ -290,7 +295,7 @@ const NativeConnectorForm: React.FC<NativeConnectorFormProps> = ({
                 type="checkbox"
                 checked={fieldValue || false}
                 onChange={(e) => handleInputChange(fieldName, e.target.checked)}
-                disabled={field.disabled}
+                disabled={isDisabled}
                 className="mr-3 mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <div>
