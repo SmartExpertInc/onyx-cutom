@@ -17062,6 +17062,39 @@ async def download_projects_list_pdf(
             }
             logger.info(f"[PDF_ANALYTICS] Using fallback data due to error")
 
+        # Calculate table sums for template (like in Block 1 template)
+        def calculate_table_sums_for_template(folders, folder_projects, unassigned_projects):
+            total_lessons = 0
+            total_modules = 0
+            total_hours = 0  # Learning Duration (H) - sum of total_hours
+            total_production_time = 0  # Production Time (H) - sum of total_creation_hours
+            
+            # Calculate from folders and their projects
+            for folder in folders:
+                if folder['id'] in folder_projects:
+                    for project in folder_projects[folder['id']]:
+                        total_lessons += project.get('total_lessons', 0) or 0
+                        total_modules += project.get('total_modules', 0) or 0
+                        total_hours += project.get('total_hours', 0) or 0  # Learning Duration
+                        total_production_time += project.get('total_creation_hours', 0) or 0  # Production Time
+            
+            # Add unassigned projects
+            for project in unassigned_projects:
+                total_lessons += project.get('total_lessons', 0) or 0
+                total_modules += project.get('total_modules', 0) or 0
+                total_hours += project.get('total_hours', 0) or 0  # Learning Duration
+                total_production_time += project.get('total_creation_hours', 0) or 0  # Production Time
+            
+            return {
+                'total_lessons': total_lessons,
+                'total_modules': total_modules,
+                'total_hours': total_hours,  # Learning Duration (H)
+                'total_production_time': total_production_time  # Production Time (H)
+            }
+        
+        # Calculate table sums for template
+        table_sums = calculate_table_sums_for_template(folder_tree, folder_projects, unassigned_projects)
+        
         # Prepare data for template
         template_data = {
             'folders': folder_tree,  # Use hierarchical structure
@@ -17078,8 +17111,8 @@ async def download_projects_list_pdf(
             'product_distribution': product_distribution,  # Add real product distribution data
             'quality_distribution': quality_distribution,   # Add real quality distribution data
             'quality_tier_sums': quality_tier_sums,  # Add quality tier sums for Block 2
-            'total_hours': summary_stats['total_hours'],  # Add total hours for template
-            'total_production_time': summary_stats['total_hours']  # Add total production time for template (same as total_hours)
+            'total_hours': table_sums['total_hours'],  # Add total hours for template (from table sums)
+            'total_production_time': table_sums['total_production_time']  # Add total production time for template (from table sums)
         }
         
         logger.info(f"[PDF_ANALYTICS] Template data prepared:")

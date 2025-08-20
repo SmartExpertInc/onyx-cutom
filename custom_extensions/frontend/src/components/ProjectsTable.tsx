@@ -586,10 +586,10 @@ const PreviewModal: React.FC<{
                                       // 🔧 FIX: Use consistent data processing for Block 1. Course Overview (same as PDF)
                                       const courses = processBlock1CourseOverview(data.projects).slice(0, 4);
                                       
-                                      // Calculate summary stats like in PDF generation
+                                      // Calculate summary stats exactly like PDF generation
                                       const allProjects = data.projects || [];
-                                      const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_completion_time || 0), 0);
-                                      const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                      const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                      const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_creation_hours || 0), 0);
 
                                       return (
                                         <>
@@ -813,9 +813,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Total: {(() => {
-                                    // Calculate total learning hours like in PDF generation
+                                    // Calculate total learning hours exactly like PDF generation
                                     const allProjects = data.projects || [];
-                                    const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_completion_time || 0), 0);
+                                    const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
@@ -828,9 +828,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Estimated Production Time: ≈ {(() => {
-                                    // Calculate total production hours like in PDF generation
+                                    // Calculate total production hours exactly like PDF generation
                                     const allProjects = data.projects || [];
-                                    const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                    const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_creation_hours || 0), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
                                 </li>
