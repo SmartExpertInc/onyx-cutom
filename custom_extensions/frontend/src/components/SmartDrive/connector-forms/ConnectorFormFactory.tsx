@@ -30,6 +30,18 @@ const connectorConfigs: Record<string, any> = {
         description: 'A descriptive name for this GitHub connection'
       },
       {
+        name: 'github_access_token',
+        label: 'GitHub Access Token',
+        type: 'password',
+        required: true,
+        placeholder: 'ghp_...',
+        description: 'Your GitHub personal access token',
+        validation: {
+          pattern: '^ghp_[a-zA-Z0-9]+$',
+          message: 'GitHub token should start with "ghp_"'
+        }
+      },
+      {
         name: 'repository',
         label: 'Repository',
         type: 'text',
@@ -234,12 +246,28 @@ const connectorConfigs: Record<string, any> = {
         description: 'A descriptive name for this Zendesk connection'
       },
       {
-        name: 'subdomain',
+        name: 'zendesk_subdomain',
         label: 'Subdomain',
         type: 'text',
         required: true,
         placeholder: 'your-subdomain',
         description: 'Your Zendesk subdomain (without .zendesk.com)'
+      },
+      {
+        name: 'zendesk_email',
+        label: 'Email',
+        type: 'text',
+        required: true,
+        placeholder: 'your-email@company.com',
+        description: 'Your Zendesk account email'
+      },
+      {
+        name: 'zendesk_token',
+        label: 'API Token',
+        type: 'password',
+        required: true,
+        placeholder: 'Your API token',
+        description: 'Your Zendesk API token'
       },
       {
         name: 'include_tickets',
@@ -270,6 +298,14 @@ const connectorConfigs: Record<string, any> = {
         required: true,
         placeholder: 'My Asana Workspace',
         description: 'A descriptive name for this Asana connection'
+      },
+      {
+        name: 'asana_api_token_secret',
+        label: 'API Token',
+        type: 'password',
+        required: true,
+        placeholder: 'Your Asana API token',
+        description: 'Your personal access token from Asana'
       },
       {
         name: 'project_ids',

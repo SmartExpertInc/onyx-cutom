@@ -19486,11 +19486,52 @@ async def create_smartdrive_connector(
         if not connector_id:
             raise HTTPException(status_code=400, detail="Connector ID is required")
         
-        # Build connector_specific_config from form fields
+        # Define which fields are credentials vs connector config
+        credential_fields = {
+            'notion': ['notion_integration_token'],
+            'slack': ['slack_bot_token'],
+            'github': ['github_access_token'],
+            'zendesk': ['zendesk_subdomain', 'zendesk_email', 'zendesk_token'],
+            'asana': ['asana_api_token_secret'],
+            'dropbox': ['dropbox_access_token'],
+            'confluence': ['confluence_username', 'confluence_access_token'],
+            'jira': ['jira_user_email', 'jira_api_token'],
+            'linear': ['linear_access_token'],
+            'hubspot': ['hubspot_access_token'],
+            'clickup': ['clickup_api_token', 'clickup_team_id'],
+            'google_drive': ['google_tokens', 'google_primary_admin'],
+            'gmail': ['google_tokens', 'google_primary_admin'],
+            'salesforce': ['sf_username', 'sf_password', 'sf_security_token', 'is_sandbox'],
+            'sharepoint': ['sp_client_id', 'sp_client_secret', 'sp_directory_id'],
+            'airtable': ['airtable_access_token'],
+            'document360': ['portal_id', 'document360_api_token'],
+            'slab': ['slab_bot_token'],
+            'guru': ['guru_user', 'guru_user_token'],
+            'gong': ['gong_access_key', 'gong_access_key_secret'],
+            'loopio': ['loopio_subdomain', 'loopio_client_id', 'loopio_client_token'],
+            'productboard': ['productboard_access_token'],
+            'zulip': ['zuliprc_content'],
+            'gitbook': ['gitbook_api_key'],
+            'gitlab': ['gitlab_url', 'gitlab_access_token'],
+            'bookstack': ['bookstack_base_url', 'bookstack_api_token_id', 'bookstack_api_token_secret'],
+            's3': ['aws_access_key_id', 'aws_secret_access_key', 'aws_role_arn'],
+            'r2': ['account_id', 'r2_access_key_id', 'r2_secret_access_key'],
+            'google_cloud_storage': ['access_key_id', 'secret_access_key'],
+            'oci_storage': ['namespace', 'region', 'access_key_id', 'secret_access_key'],
+            'teams': ['teams_client_id', 'teams_client_secret', 'teams_directory_id']
+        }
+        
+        # Separate credential fields from connector config fields
+        connector_credential_fields = credential_fields.get(connector_id, [])
+        credential_json = {}
         connector_specific_config = {}
+        
         for key, value in connector_data.items():
             if key not in ['connector_id', 'name', 'access_type', 'smart_drive']:
-                connector_specific_config[key] = value
+                if key in connector_credential_fields:
+                    credential_json[key] = value
+                else:
+                    connector_specific_config[key] = value
         
         # Create the connector payload
         connector_payload = {
@@ -19524,36 +19565,86 @@ async def create_smartdrive_connector(
             if not connector_id:
                 raise HTTPException(status_code=500, detail="Failed to get connector ID")
             
-            # For now, create a connector with mock credential for basic connectors
-            # This allows non-OAuth connectors to work immediately
-            mock_connector_payload = {
-                **connector_payload,
-                "connector_specific_config": {
-                    **connector_specific_config,
-                    "mock_credential": True
-                }
+            # Create a proper credential for the connector using Onyx's credential system
+            credential_payload = {
+                "credential_json": connector_specific_config,
+                "public_doc": False  # Private credential for Smart Drive
             }
             
-            # Create connector with mock credential
-            mock_connector_response = await client.post(
-                f"{main_app_url}/api/manage/admin/connector-with-mock-credential",
+            # Create credential
+            credential_response = await client.post(
+                f"{main_app_url}/api/manage/credential",
                 headers=auth_headers,
-                json=mock_connector_payload
+                json=credential_payload
             )
             
-            if not mock_connector_response.is_success:
-                logger.error(f"Failed to create connector with mock credential: {mock_connector_response.text}")
+            if not credential_response.is_success:
+                logger.error(f"Failed to create credential: {credential_response.text}")
+                # If credential creation fails, try to delete the connector
+                try:
+                    await client.delete(
+                        f"{main_app_url}/api/manage/admin/connector/{connector_id}",
+                        headers=auth_headers
+                    )
+                except:
+                    pass
+                
                 raise HTTPException(
-                    status_code=mock_connector_response.status_code,
-                    detail=f"Failed to create connector: {mock_connector_response.text}"
+                    status_code=credential_response.status_code,
+                    detail=f"Failed to create credential: {credential_response.text}"
                 )
             
-            mock_connector_result = mock_connector_response.json()
+            credential_result = credential_response.json()
+            credential_id = credential_result.get('id')
+            
+            if not credential_id:
+                raise HTTPException(status_code=500, detail="Failed to get credential ID")
+            
+            # Link the credential to the connector using Onyx's linkCredential approach
+            auto_sync_options = {
+                "enabled": True,
+                "frequency": 3600
+            }
+            
+            cc_pair_response = await client.put(
+                f"{main_app_url}/api/manage/connector/{connector_id}/credential/{credential_id}",
+                headers=auth_headers,
+                json={
+                    "name": name,
+                    "access_type": "private",
+                    "groups": None,
+                    "auto_sync_options": auto_sync_options
+                }
+            )
+            
+            if not cc_pair_response.is_success:
+                logger.error(f"Failed to create connector-credential pair: {cc_pair_response.text}")
+                # If CC pair creation fails, try to delete both connector and credential
+                try:
+                    await client.delete(
+                        f"{main_app_url}/api/manage/admin/connector/{connector_id}",
+                        headers=auth_headers
+                    )
+                    await client.delete(
+                        f"{main_app_url}/api/manage/credential/{credential_id}",
+                        headers=auth_headers
+                    )
+                except:
+                    pass
+                
+                raise HTTPException(
+                    status_code=cc_pair_response.status_code,
+                    detail=f"Failed to create connector-credential pair: {cc_pair_response.text}"
+                )
+            
+            cc_pair_result = cc_pair_response.json()
             
             return {
                 "success": True,
                 "message": "Connector created successfully",
-                "connector": mock_connector_result
+                "connector": connector_result,
+                "credential": credential_result,
+                "cc_pair": cc_pair_result
             }
             
     except httpx.RequestError as e:

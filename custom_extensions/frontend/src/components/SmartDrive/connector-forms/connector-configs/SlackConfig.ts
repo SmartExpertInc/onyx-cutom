@@ -20,6 +20,18 @@ export const SlackConfig: ConnectorFormConfig = {
       description: 'A descriptive name for this Slack connection'
     },
     {
+      name: 'slack_bot_token',
+      label: 'Bot Token',
+      type: 'password',
+      required: true,
+      placeholder: 'xoxb-...',
+      description: 'Your Slack bot token (from Slack app settings)',
+      validation: {
+        pattern: '^xoxb-[a-zA-Z0-9-]+$',
+        message: 'Bot token should start with "xoxb-"'
+      }
+    },
+    {
       name: 'channel_ids',
       label: 'Channel IDs',
       type: 'textarea',
@@ -75,7 +87,7 @@ export const SlackConfig: ConnectorFormConfig = {
     {
       title: 'Basic Configuration',
       description: 'Set up the basic connection to your Slack workspace',
-      fields: ['name']
+      fields: ['name', 'slack_bot_token']
     },
     {
       title: 'Channel Selection',

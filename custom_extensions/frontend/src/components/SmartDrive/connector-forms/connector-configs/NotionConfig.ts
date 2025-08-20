@@ -20,27 +20,15 @@ export const NotionConfig: ConnectorFormConfig = {
       description: 'A descriptive name for this Notion connection'
     },
     {
-      name: 'workspace_id',
-      label: 'Workspace ID',
-      type: 'text',
-      required: true,
-      placeholder: 'your-workspace-id',
-      description: 'Your Notion workspace ID (found in the URL when you\'re in your workspace)',
-      validation: {
-        pattern: '^[a-zA-Z0-9-]+$',
-        message: 'Workspace ID should contain only letters, numbers, and hyphens'
-      }
-    },
-    {
-      name: 'access_token',
-      label: 'Access Token',
+      name: 'notion_integration_token',
+      label: 'Integration Token',
       type: 'password',
       required: true,
       placeholder: 'secret_...',
-      description: 'Your Notion integration access token',
+      description: 'Your Notion integration access token (from Notion integration settings)',
       validation: {
         pattern: '^secret_[a-zA-Z0-9]+$',
-        message: 'Access token should start with "secret_"'
+        message: 'Integration token should start with "secret_"'
       }
     },
     {
@@ -62,7 +50,7 @@ export const NotionConfig: ConnectorFormConfig = {
     {
       title: 'Basic Configuration',
       description: 'Set up the basic connection to your Notion workspace',
-      fields: ['name', 'workspace_id', 'access_token']
+      fields: ['name', 'notion_integration_token']
     },
     {
       title: 'Content Options',
