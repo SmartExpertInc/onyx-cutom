@@ -399,6 +399,33 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     loadUserConnectors();
   };
 
+  const handleConnectorSubmit = async (formData: any) => {
+    try {
+      const response = await fetch("/api/custom/smartdrive/connectors/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Connector created successfully:", result);
+
+      // Close the modal and refresh the connector list
+      setShowConnectorModal(false);
+      setSelectedConnector(null);
+      loadUserConnectors();
+    } catch (error) {
+      console.error("Error creating connector:", error);
+      // You might want to show an error message to the user here
+    }
+  };
+
   const getConnectorsBySource = (source: string) => {
     return userConnectors.filter(connector => connector.source === source);
   };
@@ -581,20 +608,37 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         </div>
       )}
 
-      {/* Connector Form Modal */}
-      {selectedConnector && showConnectorModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <ConnectorFormFactory
-              connectorId={selectedConnector.id}
-              connectorName={selectedConnector.name}
-              onSuccess={(data) => {
-                console.log('Connector created successfully:', data);
-                handleCloseConnectorModal();
-                loadUserConnectors(); // Refresh the list
-              }}
-              onCancel={handleCloseConnectorModal}
-            />
+      {/* Connector Creation Modal */}
+      {showConnectorModal && selectedConnector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Connect {selectedConnector.name}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowConnectorModal(false);
+                    setSelectedConnector(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <ConnectorFormFactory
+                connectorId={selectedConnector.id}
+                onSubmit={handleConnectorSubmit}
+                onCancel={() => {
+                  setShowConnectorModal(false);
+                  setSelectedConnector(null);
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
