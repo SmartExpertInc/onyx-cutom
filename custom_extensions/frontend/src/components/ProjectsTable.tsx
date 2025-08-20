@@ -1046,6 +1046,11 @@ interface Project {
   instanceName?: string;
   folderId?: number | null;
   order?: number;
+  total_lessons?: number;
+  total_hours?: number;
+  total_completion_time?: number;
+  total_modules?: number;
+  total_creation_hours?: number;
 }
 
 // Interface for backend project data
@@ -1062,6 +1067,8 @@ interface BackendProject {
   total_lessons: number;
   total_hours: number;
   total_completion_time: number;
+  total_modules: number;
+  total_creation_hours: number;
 }
 
 interface Folder {
@@ -2857,7 +2864,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 folderId: p.folder_id,
                 order: p.order || 0,
                 is_standalone: p.is_standalone,
-                source_chat_session_id: p.source_chat_session_id
+                source_chat_session_id: p.source_chat_session_id,
+                total_lessons: p.total_lessons || 0,
+                total_hours: p.total_hours || 0,
+                total_completion_time: p.total_completion_time || 0,
+                total_modules: p.total_modules || 0,
+                total_creation_hours: p.total_creation_hours || 0
             }));
 
             // Sort projects by order field
@@ -3072,7 +3084,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
                 folderId: p.folder_id,
                 order: p.order || 0,
                 is_standalone: p.is_standalone,
-                source_chat_session_id: p.source_chat_session_id
+                source_chat_session_id: p.source_chat_session_id,
+                total_lessons: p.total_lessons || 0,
+                total_hours: p.total_hours || 0,
+                total_completion_time: p.total_completion_time || 0,
+                total_modules: p.total_modules || 0,
+                total_creation_hours: p.total_creation_hours || 0
             }));
 
             // Sort folder projects by order field
@@ -3153,18 +3170,20 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 return { 
                     lessonCount: data.lessonCount || 0, 
                     totalHours: data.totalHours || 0,
-                    completionTime: data.completionTime || 0
+                    completionTime: data.completionTime || 0,
+                    totalModules: data.totalModules || 0,
+                    totalCreationHours: data.totalCreationHours || 0
                 };
             } else if (response.status === 401 || response.status === 403) {
                 router.push('/auth/login');
-                return { lessonCount: '?', totalHours: '?', completionTime: '?' };
+                return { lessonCount: '?', totalHours: '?', completionTime: '?', totalModules: '?', totalCreationHours: '?' };
             } else {
                 console.error('Failed to fetch lesson data:', response.status);
-                return { lessonCount: '?', totalHours: '?', completionTime: '?' };
+                return { lessonCount: '?', totalHours: '?', completionTime: '?', totalModules: '?', totalCreationHours: '?' };
             }
         } catch (error) {
             console.error('Error fetching lesson data:', error);
-            return { lessonCount: '?', totalHours: '?', completionTime: '?' };
+            return { lessonCount: '?', totalHours: '?', completionTime: '?', totalModules: '?', totalCreationHours: '?' };
         }
     }, [router]);
 
@@ -3177,7 +3196,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     useEffect(() => {
         const loadLessonData = async () => {
             const trainingPlanProjects = projects.filter(p => getDesignMicroproductType(p) === 'Training Plan');
-            const newCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }> = {};
+            const newCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string, totalModules?: number | string, totalCreationHours?: number | string }> = {};
             
             for (const project of trainingPlanProjects) {
                 try {
@@ -3185,7 +3204,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     newCache[project.id] = data;
                 } catch (error) {
                     console.error(`Error loading lesson data for project ${project.id}:`, error);
-                    newCache[project.id] = { lessonCount: '?', totalHours: '?', completionTime: '?' };
+                    newCache[project.id] = { lessonCount: '?', totalHours: '?', completionTime: '?', totalModules: '?', totalCreationHours: '?' };
                 }
             }
             

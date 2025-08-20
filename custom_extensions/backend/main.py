@@ -6745,6 +6745,11 @@ class ProjectApiResponse(BaseModel):
     order: Optional[int] = None
     source_chat_session_id: Optional[str] = None
     is_standalone: Optional[bool] = None  # Track whether this is standalone or part of an outline
+    total_lessons: Optional[int] = 0
+    total_hours: Optional[float] = 0.0
+    total_completion_time: Optional[int] = 0
+    total_modules: Optional[int] = 0
+    total_creation_hours: Optional[float] = 0.0
     model_config = {"from_attributes": True}
 
 class ProjectDetailForEditResponse(BaseModel):
@@ -10321,7 +10326,9 @@ async def get_user_projects_list_from_db(
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
-               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone
+               dt.component_name,
+               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone,
+               p.quality_tier
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         WHERE p.onyx_user_id = $1 {folder_filter}
@@ -10344,6 +10351,83 @@ async def get_user_projects_list_from_db(
         if source_chat_session_id:
             source_chat_session_id = str(source_chat_session_id)
         
+        # Calculate project totals (same logic as PDF generation)
+        total_lessons = 0
+        total_hours = 0
+        total_completion_time = 0
+        total_modules = 0
+        total_creation_hours = 0
+        
+        content = row_dict.get("microproduct_content")
+        component_name = row_dict.get("component_name")
+        folder_id = row_dict.get("folder_id")
+        quality_tier = row_dict.get("quality_tier")
+        
+        if content and component_name == COMPONENT_NAME_TRAINING_PLAN:
+            try:
+                if isinstance(content, dict):
+                    sections = content.get("sections", [])
+                    total_modules = len(sections)
+                    
+                    for section in sections:
+                        if isinstance(section, dict):
+                            lessons = section.get("lessons", [])
+                            total_lessons += len(lessons)
+                            
+                            for lesson in lessons:
+                                if isinstance(lesson, dict):
+                                    # Parse completion time
+                                    completion_time_str = lesson.get("completionTime", "")
+                                    completion_time_minutes = 5  # Default
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5
+                                            else:
+                                                completion_time_minutes = 5
+                                        else:
+                                            completion_time_minutes = 5
+                                    else:
+                                        completion_time_minutes = 5
+                                    
+                                    total_completion_time += completion_time_minutes
+                                    
+                                    # Calculate creation hours
+                                    if lesson.get('hours'):
+                                        try:
+                                            lesson_creation_hours = float(lesson['hours'])
+                                            total_hours += lesson_creation_hours
+                                        except (ValueError, TypeError):
+                                            # Calculate with completion time and custom rate
+                                            custom_rate = get_custom_rate_for_tier(quality_tier)
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, custom_rate)
+                                            total_hours += lesson_creation_hours
+                                    else:
+                                        # Calculate with completion time and custom rate
+                                        custom_rate = get_custom_rate_for_tier(quality_tier)
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, custom_rate)
+                                        total_hours += lesson_creation_hours
+            except Exception as e:
+                logger.warning(f"Error calculating totals for project {row_dict['id']}: {e}")
+        
+        total_creation_hours = round(total_hours)
+        
         projects_list.append(ProjectApiResponse(
             id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
             microproduct_name=row_dict.get("microproduct_name"),
@@ -10353,7 +10437,12 @@ async def get_user_projects_list_from_db(
             folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
             microproduct_content=row_dict.get("microproduct_content"),
             source_chat_session_id=source_chat_session_id,
-            is_standalone=row_dict.get("is_standalone")
+            is_standalone=row_dict.get("is_standalone"),
+            total_lessons=total_lessons,
+            total_hours=round(total_hours),
+            total_completion_time=total_completion_time,
+            total_modules=total_modules,
+            total_creation_hours=total_creation_hours
         ))
     return projects_list
 
@@ -16142,10 +16231,18 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                                 "lessonCount": section_lessons
                             })
                     
+                    # Calculate total_modules (number of sections)
+                    total_modules = len(sections)
+                    
+                    # Calculate total_creation_hours (same as total_hours, but for consistency with PDF)
+                    total_creation_hours = round(total_hours)
+                    
                     return {
                         "lessonCount": total_lessons, 
                         "totalHours": round(total_hours), 
                         "completionTime": total_completion_time,
+                        "totalModules": total_modules,
+                        "totalCreationHours": total_creation_hours,
                         "sections": sections_data
                     }
                 else:

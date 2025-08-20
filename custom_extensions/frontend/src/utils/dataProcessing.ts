@@ -55,11 +55,11 @@ export function processBlock1CourseOverview(projects: any[]): any {
 
   // Separate projects by folder (same logic as backend)
   projects.forEach(project => {
-    if (project.folder_id) {
-      if (!folderProjects[project.folder_id]) {
-        folderProjects[project.folder_id] = [];
+    if (project.folderId) {
+      if (!folderProjects[project.folderId]) {
+        folderProjects[project.folderId] = [];
       }
-      folderProjects[project.folder_id].push(project);
+      folderProjects[project.folderId].push(project);
     } else {
       unassignedProjects.push(project);
     }
@@ -71,13 +71,17 @@ export function processBlock1CourseOverview(projects: any[]): any {
     const folderProjectsList = folderProjects[parseInt(folderId)];
     const totalLessons = folderProjectsList.reduce((sum, project) => sum + (project.total_lessons || 0), 0);
     const totalHours = folderProjectsList.reduce((sum, project) => sum + (project.total_hours || 0), 0);
+    const totalModules = folderProjectsList.reduce((sum, project) => sum + (project.total_modules || 0), 0);
+    const totalCreationHours = folderProjectsList.reduce((sum, project) => sum + (project.total_creation_hours || 0), 0);
     
     folders.push({
       id: parseInt(folderId),
       name: `Folder ${folderId}`, // We don't have folder names from backend
       projects: folderProjectsList,
       total_lessons: totalLessons,
-      total_hours: totalHours
+      total_hours: totalHours,
+      total_modules: totalModules,
+      total_creation_hours: totalCreationHours
     });
   });
 
@@ -92,31 +96,31 @@ export function processBlock1CourseOverview(projects: any[]): any {
     // Add folder row
     result.push({
       name: folder.name,
-      modules: folder.projects.length,
+      modules: folder.total_modules,
       lessons: folder.total_lessons,
       learningDuration: folder.total_hours,
-      productionTime: folder.total_hours * 300, // Same formula as backend
+      productionTime: folder.total_creation_hours, // Use actual creation hours
       isFolder: true
     });
     
     totalLessons += folder.total_lessons;
     totalHours += folder.total_hours;
-    totalProductionTime += folder.total_hours * 300;
+    totalProductionTime += folder.total_creation_hours;
 
     // Add individual projects under folder (like backend template)
     folder.projects.forEach((project: any) => {
       result.push({
         name: `  ${project.title || project.project_name || 'Untitled'}`, // Use title from frontend API
-        modules: 1,
+        modules: project.total_modules || 1,
         lessons: project.total_lessons || 0,
         learningDuration: project.total_hours || 0,
-        productionTime: (project.total_hours || 0) * 300, // Same formula as backend
+        productionTime: project.total_creation_hours || 0, // Use actual creation hours
         isProject: true
       });
       
       totalLessons += project.total_lessons || 0;
       totalHours += project.total_hours || 0;
-      totalProductionTime += (project.total_hours || 0) * 300;
+      totalProductionTime += project.total_creation_hours || 0;
     });
   });
 
@@ -124,16 +128,16 @@ export function processBlock1CourseOverview(projects: any[]): any {
   unassignedProjects.forEach(project => {
     result.push({
       name: project.title || project.project_name || 'Untitled', // Use title from frontend API
-      modules: 1,
+      modules: project.total_modules || 1,
       lessons: project.total_lessons || 0,
       learningDuration: project.total_hours || 0,
-      productionTime: (project.total_hours || 0) * 300, // Same formula as backend
+      productionTime: project.total_creation_hours || 0, // Use actual creation hours
       isUnassigned: true
     });
     
     totalLessons += project.total_lessons || 0;
     totalHours += project.total_hours || 0;
-    totalProductionTime += (project.total_hours || 0) * 300;
+    totalProductionTime += project.total_creation_hours || 0;
   });
 
   // Apply rounding like backend
