@@ -19786,6 +19786,12 @@ async def get_credentials_for_source(source_type: str, request: Request):
             
             if response.is_success:
                 return response.json()
+            elif response.status_code == 403:
+                # User doesn't have admin access, return empty list
+                # This allows the frontend to show "No existing credentials" 
+                # and proceed with credential creation
+                logger.info(f"Non-admin user accessing credentials for {source_type}, returning empty list")
+                return []
             else:
                 logger.error(f"Failed to fetch credentials: {response.text}")
                 raise HTTPException(
@@ -19795,7 +19801,8 @@ async def get_credentials_for_source(source_type: str, request: Request):
                 
     except Exception as e:
         logger.error(f"Error fetching credentials: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error fetching credentials: {str(e)}")
+        # For any error, return empty list to allow credential creation
+        return []
 
 
 @app.post("/api/custom/credentials")
