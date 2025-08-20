@@ -17077,16 +17077,16 @@ async def download_projects_list_pdf(
             'product_distribution': product_distribution,  # Add real product distribution data
             'quality_distribution': quality_distribution,   # Add real quality distribution data
             'quality_tier_sums': quality_tier_sums,  # Add quality tier sums for Block 2
-            'total_hours': total_hours,  # Add total hours for template
-            'total_production_time': total_production_time  # Add total production time for template
+            'total_hours': summary_stats['total_hours'],  # Add total hours for template
+            'total_production_time': summary_stats['total_hours']  # Add total production time for template (same as total_hours)
         }
         
         logger.info(f"[PDF_ANALYTICS] Template data prepared:")
         logger.info(f"[PDF_ANALYTICS] - product_distribution: {product_distribution}")
         logger.info(f"[PDF_ANALYTICS] - quality_distribution: {quality_distribution}")
         logger.info(f"[PDF_ANALYTICS] - summary_stats: {summary_stats}")
-        logger.info(f"[PDF_ANALYTICS] - total_hours: {total_hours}")
-        logger.info(f"[PDF_ANALYTICS] - total_production_time: {total_production_time}")
+        logger.info(f"[PDF_ANALYTICS] - total_hours: {summary_stats['total_hours']}")
+        logger.info(f"[PDF_ANALYTICS] - total_production_time: {summary_stats['total_hours']}")
 
         # Generate PDF
         logger.info(f"[PDF_ANALYTICS] About to generate PDF with template data keys: {list(template_data.keys())}")
