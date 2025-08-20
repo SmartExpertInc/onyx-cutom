@@ -339,10 +339,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     try {
       setLoading(true);
       
-      const [connectorsResponse, ccPairsResponse] = await Promise.all([
-        fetch('/api/manage/admin/connector', { credentials: 'same-origin' }),
-        fetch('/api/manage/admin/connector-credential-pair', { credentials: 'same-origin' })
-      ]);
+              const [connectorsResponse, ccPairsResponse] = await Promise.all([
+          fetch('/api/manage/admin/connector', { credentials: 'same-origin' }),
+          fetch('/api/manage/admin/cc-pair', { credentials: 'same-origin' })
+        ]);
 
       if (connectorsResponse.ok && ccPairsResponse.ok) {
         const allConnectors = await connectorsResponse.json();

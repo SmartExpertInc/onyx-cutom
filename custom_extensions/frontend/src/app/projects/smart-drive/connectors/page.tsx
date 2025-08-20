@@ -25,7 +25,7 @@ const ConnectorsPage: React.FC = () => {
       // Get connectors and credential pairs
       const [connectorsResponse, ccPairsResponse] = await Promise.all([
         fetch('/api/manage/admin/connector', { credentials: 'same-origin' }),
-        fetch('/api/manage/admin/connector-credential-pair', { credentials: 'same-origin' })
+        fetch('/api/manage/admin/cc-pair', { credentials: 'same-origin' })
       ]);
 
       if (connectorsResponse.ok && ccPairsResponse.ok) {

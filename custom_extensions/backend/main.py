@@ -19533,7 +19533,7 @@ async def create_smartdrive_connector(
             }
             
             cc_pair_response = await client.post(
-                f"{main_app_url}/api/manage/admin/connector-credential-pair",
+                f"{main_app_url}/api/manage/admin/cc-pair",
                 headers=auth_headers,
                 json=cc_pair_payload
             )

@@ -109,7 +109,7 @@ async def create_connector(
             }
             
             cc_pair_response = await client.post(
-                f"{main_app_url}/api/manage/admin/connector-credential-pair",
+                f"{main_app_url}/api/manage/admin/cc-pair",
                 headers=auth_headers,
                 json=cc_pair_payload
             )
@@ -171,7 +171,7 @@ async def list_user_connectors(
             )
             
             cc_pairs_response = await client.get(
-                f"{main_app_url}/api/manage/admin/connector-credential-pair",
+                f"{main_app_url}/api/manage/admin/cc-pair",
                 headers=auth_headers
             )
             
