@@ -29,7 +29,7 @@ import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
-import { processContentForPreview } from '../../../utils/dataProcessing';
+import { processContentForPreview } from '../../../../utils/dataProcessing';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
