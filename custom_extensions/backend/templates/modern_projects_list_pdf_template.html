@@ -361,7 +361,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {{ total_hours }}h of learning content → {{ total_production_time }}h production
+                         Subtotal: {{ (summary_stats.total_completion_time / 60) | round(1) if summary_stats.total_completion_time else 0 }}h of learning content → {{ summary_stats.total_creation_time if summary_stats.total_creation_time else 0 }}h production
                      </div>
                 </div>
             </div>
@@ -409,8 +409,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {{ total_hours }} hours of learning content</li>
-                     <li>Estimated Production Time: ≈ {{ total_production_time }} hours</li>
+                     <li>Total: {{ (summary_stats.total_completion_time / 60) | round(1) if summary_stats.total_completion_time else 0 }} hours of learning content</li>
+                     <li>Estimated Production Time: ≈ {{ summary_stats.total_creation_time if summary_stats.total_creation_time else 0 }} hours</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>

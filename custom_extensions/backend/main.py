@@ -16951,6 +16951,8 @@ async def download_projects_list_pdf(
         logger.info(f"[PDF_ANALYTICS] - product_distribution: {product_distribution}")
         logger.info(f"[PDF_ANALYTICS] - quality_distribution: {quality_distribution}")
         logger.info(f"[PDF_ANALYTICS] - summary_stats: {summary_stats}")
+        logger.info(f"[PDF_ANALYTICS] - total_hours: {total_hours}")
+        logger.info(f"[PDF_ANALYTICS] - total_production_time: {total_production_time}")
 
         # Generate PDF
         logger.info(f"[PDF_ANALYTICS] About to generate PDF with template data keys: {list(template_data.keys())}")
