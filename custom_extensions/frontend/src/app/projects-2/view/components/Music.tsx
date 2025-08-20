@@ -37,7 +37,7 @@ export default function Music() {
 
       {/* Content based on active button */}
       {activeButton === 'stock' ? (
-        <div>
+        <div className="h-full overflow-y-auto">
           {/* Search bar */}
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" size={16} />
@@ -65,7 +65,7 @@ export default function Music() {
                   <path d="M15.304 4.697a.5.5 0 0 1 0 .707l-9.9 9.9a.5.5 0 1 1-.707-.707l9.9-9.9a.5.5 0 0 1 .707 0Z"/>
                 </g>
               </svg>
-              <span className="text-gray-700">No music</span>
+              <span className="text-gray-700 text-sm">No music</span>
             </div>
             
             {/* Show Select button when not selected, Default text when selected */}
@@ -86,7 +86,7 @@ export default function Music() {
 
           {/* Music item - Corporate */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
               selectedMusic === 'corporate'
                 ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
@@ -98,7 +98,7 @@ export default function Music() {
               <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                 <Play size={18} className="text-gray-600 ml-0.5" />
               </div>
-              <span className="text-gray-700">Corporate</span>
+              <span className="text-gray-700 text-sm">Corporate</span>
             </div>
             
             {/* Select button - only visible on hover when not selected */}
@@ -117,7 +117,7 @@ export default function Music() {
 
           {/* Music item - Happy */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
               selectedMusic === 'happy'
                 ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
@@ -129,7 +129,7 @@ export default function Music() {
               <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                 <Play size={18} className="text-gray-600 ml-0.5" />
               </div>
-              <span className="text-gray-700">Happy</span>
+              <span className="text-gray-700 text-sm">Happy</span>
             </div>
             
             {/* Select button - only visible on hover when not selected */}
@@ -148,7 +148,7 @@ export default function Music() {
 
           {/* Music item - Vibe Vacation */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
               selectedMusic === 'vibe-vacation'
                 ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
@@ -160,7 +160,7 @@ export default function Music() {
               <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                 <Play size={18} className="text-gray-600 ml-0.5" />
               </div>
-              <span className="text-gray-700">Vibe Vacation</span>
+              <span className="text-gray-700 text-sm">Vibe Vacation</span>
             </div>
             
             {/* Select button - only visible on hover when not selected */}
@@ -179,7 +179,7 @@ export default function Music() {
 
           {/* Music item - Inspiring */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
               selectedMusic === 'inspiring'
                 ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
@@ -191,7 +191,7 @@ export default function Music() {
               <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                 <Play size={18} className="text-gray-600 ml-0.5" />
               </div>
-              <span className="text-gray-700">Inspiring</span>
+              <span className="text-gray-700 text-sm">Inspiring</span>
               </div>
             
             {/* Select button - only visible on hover when not selected */}
@@ -210,7 +210,7 @@ export default function Music() {
 
           {/* Music item - Long Journey */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
               selectedMusic === 'long-journey'
                 ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
@@ -222,7 +222,7 @@ export default function Music() {
               <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
                 <Play size={18} className="text-gray-600 ml-0.5" />
               </div>
-              <span className="text-gray-700">Long Journey</span>
+              <span className="text-gray-700 text-sm">Long Journey</span>
             </div>
             
             {/* Select button - only visible on hover when not selected */}
@@ -232,6 +232,99 @@ export default function Music() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedMusic('long-journey');
+                }}
+              >
+                Select
+              </button>
+            )}
+          </div>
+
+          {/* Music item - Outside The Lines */}
+          <div 
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
+              selectedMusic === 'outside-the-lines'
+                ? 'bg-white border border-black cursor-pointer'
+                : 'hover:bg-gray-100'
+            }`}
+            onClick={() => selectedMusic === 'outside-the-lines' && setSelectedMusic(selectedMusic === 'outside-the-lines' ? null : 'outside-the-lines')}
+          >
+            <div className="flex items-center gap-3">
+              {/* Play triangle icon with grey borders */}
+              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                <Play size={18} className="text-gray-600 ml-0.5" />
+              </div>
+              <span className="text-gray-700 text-sm">Outside The Lines</span>
+            </div>
+            
+            {/* Select button - only visible on hover when not selected */}
+            {selectedMusic !== 'outside-the-lines' && (
+              <button 
+                className={selectBtnClass}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedMusic('outside-the-lines');
+                }}
+              >
+                Select
+              </button>
+            )}
+          </div>
+
+          {/* Music item - Motivation */}
+          <div 
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
+              selectedMusic === 'motivation'
+                ? 'bg-white border border-black cursor-pointer'
+                : 'hover:bg-gray-100'
+            }`}
+            onClick={() => selectedMusic === 'motivation' && setSelectedMusic(selectedMusic === 'motivation' ? null : 'motivation')}
+          >
+            <div className="flex items-center gap-3">
+              {/* Play triangle icon with grey borders */}
+              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                <Play size={18} className="text-gray-600 ml-0.5" />
+              </div>
+              <span className="text-gray-700 text-sm">Motivation</span>
+            </div>
+            
+            {/* Select button - only visible on hover when not selected */}
+            {selectedMusic !== 'motivation' && (
+              <button 
+                className={selectBtnClass}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedMusic('motivation');
+                }}
+              >
+                Select
+              </button>
+            )}
+          </div>
+
+          {/* Music item - Relaxing */}
+          <div 
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
+              selectedMusic === 'relaxing'
+                ? 'bg-white border border-black cursor-pointer'
+                : 'hover:bg-gray-100'
+            }`}
+            onClick={() => selectedMusic === 'relaxing' && setSelectedMusic(selectedMusic === 'relaxing' ? null : 'relaxing')}
+          >
+            <div className="flex items-center gap-3">
+              {/* Play triangle icon with grey borders */}
+              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                <Play size={18} className="text-gray-600 ml-0.5" />
+              </div>
+              <span className="text-gray-700 text-sm">Relaxing</span>
+            </div>
+            
+            {/* Select button - only visible on hover when not selected */}
+            {selectedMusic !== 'relaxing' && (
+              <button 
+                className={selectBtnClass}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedMusic('relaxing');
                 }}
               >
                 Select
