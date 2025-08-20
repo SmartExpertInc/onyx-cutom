@@ -777,17 +777,14 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Total: {(() => {
-                                    // Calculate total learning hours from Block 1
-                                    const courseStats = data.projects.reduce((acc, project) => {
-                                      const type = (project as BackendProject).design_microproduct_type || 'Unknown';
-                                      if (!acc[type]) {
-                                        acc[type] = {
-                                          learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
-                                        };
-                                      }
-                                      return acc;
-                                    }, {} as Record<string, { learningDuration: number }>);
-                                    const totalLearningHours = Object.values(courseStats).reduce((sum: number, course: unknown) => sum + (course as { learningDuration: number }).learningDuration, 0);
+                                    // Calculate total learning hours from Block 2 (Learning Duration)
+                                    const qualityLevels = [
+                                      { name: 'Level 1 - Basic', learningDuration: 1, productionRatio: 200 },
+                                      { name: 'Level 2 - Interactive', learningDuration: 2, productionRatio: 400 },
+                                      { name: 'Level 3 - Advanced', learningDuration: 3, productionRatio: 600 },
+                                      { name: 'Level 4 - Immersive', learningDuration: 5, productionRatio: 800 }
+                                    ];
+                                    const totalLearningHours = qualityLevels.reduce((sum, level) => sum + level.learningDuration, 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
