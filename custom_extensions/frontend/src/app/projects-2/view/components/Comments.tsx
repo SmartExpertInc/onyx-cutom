@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, ChevronDown, X } from 'lucide-react';
+import { Search, ChevronDown, X, RotateCcw, Check } from 'lucide-react';
 
 interface CommentsProps {
   // Add props as needed
@@ -37,8 +37,24 @@ export default function Comments({}: CommentsProps) {
     }));
   };
 
+  const handleReset = () => {
+    setSelectedStatuses([]);
+    setFilterSelections({
+      comments: [],
+      involved: [],
+      people: [],
+      assigned: [],
+      tagged: [],
+      groupedBy: []
+    });
+  };
+
+  const handleApply = () => {
+    // No action for now
+  };
+
   return (
-    <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-4 min-w-[300px] relative overflow-hidden">
+    <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-4 min-w-[300px] relative overflow-hidden h-full flex flex-col">
       {/* Top row with search, status dropdown, and icon button */}
       <div className="flex items-center gap-3 mb-4">
         {/* Search bar */}
@@ -47,7 +63,7 @@ export default function Comments({}: CommentsProps) {
           <input
             type="text"
             placeholder="Search comments"
-            className="w-full pl-10 pr-3 py-2 bg-gray-100 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-3 py-2 bg-gray-100 border-0 rounded-xl text-sm focus:outline-none"
             style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}
@@ -69,7 +85,7 @@ export default function Comments({}: CommentsProps) {
 
           {/* Status dropdown popup */}
           {statusDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[200px] z-50">
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-[160px] z-50">
               {/* Open status row */}
               <div className="flex items-center justify-between py-2 px-2 hover:bg-gray-50 rounded cursor-pointer">
                 <div className="flex items-center gap-2">
@@ -94,7 +110,7 @@ export default function Comments({}: CommentsProps) {
                   type="checkbox"
                   checked={selectedStatuses.includes('open')}
                   onChange={() => handleStatusToggle('open')}
-                  className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                 />
               </div>
 
@@ -122,7 +138,7 @@ export default function Comments({}: CommentsProps) {
                   type="checkbox"
                   checked={selectedStatuses.includes('resolved')}
                   onChange={() => handleStatusToggle('resolved')}
-                  className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                 />
               </div>
             </div>
@@ -159,10 +175,10 @@ export default function Comments({}: CommentsProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <span 
-            className="font-semibold text-gray-700"
+            className="text-gray-700"
             style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-              fontSize: '14px',
+              fontSize: '16px',
             }}
           >
             Filters
@@ -171,15 +187,15 @@ export default function Comments({}: CommentsProps) {
             onClick={() => setFilterPanelOpen(false)}
             className="p-1 hover:bg-gray-100 rounded transition-colors"
           >
-            <X size={16} className="text-gray-500" />
+            <X size={18} className="text-black" />
           </button>
         </div>
 
         {/* Filter content */}
-        <div className="p-4 max-h-96 overflow-y-auto">
+        <div className="p-4 max-h-80 overflow-y-auto">
           {/* Comments section */}
           <div className="mb-6">
-            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+            <div className="text-base font-medium text-gray-700 mb-3" style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}>
               Comments
@@ -190,7 +206,7 @@ export default function Comments({}: CommentsProps) {
                   type="checkbox"
                   checked={filterSelections.comments.includes('all')}
                   onChange={() => handleFilterToggle('comments', 'all')}
-                  className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                 />
                 <span className="text-sm text-gray-700">All</span>
               </div>
@@ -200,7 +216,7 @@ export default function Comments({}: CommentsProps) {
 
           {/* Involved section */}
           <div className="mb-6">
-            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+            <div className="text-base font-medium text-gray-700 mb-3" style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}>
               Involved
@@ -212,7 +228,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.involved.includes('all')}
                     onChange={() => handleFilterToggle('involved', 'all')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">All</span>
                 </div>
@@ -224,7 +240,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.involved.includes('me')}
                     onChange={() => handleFilterToggle('involved', 'me')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">Me</span>
                 </div>
@@ -235,7 +251,7 @@ export default function Comments({}: CommentsProps) {
 
           {/* People section */}
           <div className="mb-6">
-            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+            <div className="text-base font-medium text-gray-700 mb-3" style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}>
               People
@@ -247,7 +263,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.people.includes('all')}
                     onChange={() => handleFilterToggle('people', 'all')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">All</span>
                 </div>
@@ -259,7 +275,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.people.includes('me')}
                     onChange={() => handleFilterToggle('people', 'me')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">Me</span>
                 </div>
@@ -270,7 +286,7 @@ export default function Comments({}: CommentsProps) {
 
           {/* Assigned section */}
           <div className="mb-6">
-            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+            <div className="text-base font-medium text-gray-700 mb-3" style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}>
               Assigned
@@ -282,7 +298,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.assigned.includes('all')}
                     onChange={() => handleFilterToggle('assigned', 'all')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">All</span>
                 </div>
@@ -294,7 +310,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.assigned.includes('me')}
                     onChange={() => handleFilterToggle('assigned', 'me')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">Me</span>
                 </div>
@@ -305,7 +321,7 @@ export default function Comments({}: CommentsProps) {
 
           {/* Tagged section */}
           <div className="mb-6">
-            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+            <div className="text-base font-medium text-gray-700 mb-3" style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}>
               Tagged
@@ -317,7 +333,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.tagged.includes('all')}
                     onChange={() => handleFilterToggle('tagged', 'all')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">All</span>
                 </div>
@@ -329,7 +345,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.tagged.includes('me')}
                     onChange={() => handleFilterToggle('tagged', 'me')}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">Me</span>
                 </div>
@@ -340,7 +356,7 @@ export default function Comments({}: CommentsProps) {
 
           {/* Grouped By section */}
           <div className="mb-6">
-            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+            <div className="text-base font-medium text-gray-700 mb-3" style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}>
               Grouped By
@@ -352,7 +368,7 @@ export default function Comments({}: CommentsProps) {
                     type="checkbox"
                     checked={filterSelections.groupedBy.includes(option.toLowerCase())}
                     onChange={() => handleFilterToggle('groupedBy', option.toLowerCase())}
-                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                    className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
                   />
                   <span className="text-sm text-gray-700">{option}</span>
                 </div>
@@ -360,10 +376,36 @@ export default function Comments({}: CommentsProps) {
             </div>
           </div>
         </div>
+
+        {/* Footer with buttons */}
+        <div className="border-t border-gray-200 p-4 flex gap-3">
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-black rounded-full hover:bg-gray-200 transition-colors"
+            style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+              fontSize: '14px',
+            }}
+          >
+            <RotateCcw size={16} />
+            Reset
+          </button>
+          <button
+            onClick={handleApply}
+            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+            style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+              fontSize: '14px',
+            }}
+          >
+            <Check size={16} />
+            Apply
+          </button>
+        </div>
       </div>
 
       {/* Centered content */}
-      <div className="flex flex-col items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-12 flex-1">
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
           width="36" 
@@ -400,7 +442,7 @@ export default function Comments({}: CommentsProps) {
             <input
               type="checkbox"
               id="showOnAllScenes"
-              className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+              className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
             />
             <label
               htmlFor="showOnAllScenes"
