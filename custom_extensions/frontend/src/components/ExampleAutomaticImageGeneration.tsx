@@ -92,10 +92,10 @@ export const ExampleAutomaticImageGeneration: React.FC = () => {
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
           SmartSlideDeckViewer with Enhanced Automatic AI Image Generation
         </h1>
-        <p style={{ fontSize: '16px', color: '#6b7280', marginBottom: '16px' }}>
-          This example demonstrates the enhanced SmartSlideDeckViewer with automatic AI image generation.
-          <strong>Key improvements:</strong> Auto-generation only happens once, and AI-generated images are automatically cropped.
-        </p>
+                 <p style={{ fontSize: '16px', color: '#6b7280', marginBottom: '16px' }}>
+           This example demonstrates the enhanced SmartSlideDeckViewer with automatic AI image generation.
+           <strong>Key improvements:</strong> Auto-generation only happens once, AI-generated images are automatically cropped, and the generation process runs silently in the background without modal interruptions.
+         </p>
         
         {generationStatus && (
           <div style={{
@@ -195,9 +195,12 @@ export const ExampleAutomaticImageGeneration: React.FC = () => {
           <li style={{ marginBottom: '8px' }}>
             <strong>Deleted Images:</strong> Deleting images shows empty placeholders (no auto-generation)
           </li>
-          <li style={{ marginBottom: '8px' }}>
-            <strong>Manual Uploads:</strong> Manual image uploads still show the crop/no-crop choice modal
-          </li>
+                     <li style={{ marginBottom: '8px' }}>
+             <strong>Silent Generation:</strong> AI generation runs silently in the background without modal interruptions
+           </li>
+           <li style={{ marginBottom: '8px' }}>
+             <strong>Manual Uploads:</strong> Manual image uploads still show the crop/no-crop choice modal
+           </li>
         </ol>
       </div>
 

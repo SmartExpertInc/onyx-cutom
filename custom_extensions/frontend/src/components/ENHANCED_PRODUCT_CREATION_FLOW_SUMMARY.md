@@ -366,3 +366,4 @@ If you were using the separate `EnhancedSmartSlideDeckViewer`:
    ```
 
 3. **No other changes needed** - all props and callbacks remain the same!
+

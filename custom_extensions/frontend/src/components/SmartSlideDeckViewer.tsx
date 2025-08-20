@@ -9,7 +9,7 @@ import VoiceoverPanel from './VoiceoverPanel';
 import { ThemePicker } from './theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
-import { Plus, ChevronDown, X, Volume2, Palette, Loader2, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
+import { Plus, ChevronDown, X, Volume2, Palette } from 'lucide-react';
 import AutomaticImageGenerationManager from './AutomaticImageGenerationManager';
 
 interface SmartSlideDeckViewerProps {
@@ -76,9 +76,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // ✅ NEW: Automatic Image Generation State
   const [generationStates, setGenerationStates] = useState<Map<string, { isGenerating: boolean; hasImage: boolean; error?: string }>>(new Map());
-  const [overallGenerationProgress, setOverallGenerationProgress] = useState<{ total: number; completed: number; inProgress: number; failed: number; percentage: number }>({ total: 0, completed: 0, inProgress: 0, failed: 0, percentage: 0 });
-  const [showGenerationProgress, setShowGenerationProgress] = useState(false);
-  const progressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // ✅ NEW: Track if auto-generation has been completed for this presentation
   const [autoGenerationCompleted, setAutoGenerationCompleted] = useState(false);
@@ -129,9 +126,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       isGenerating: true, 
       hasImage: false 
     }));
-
-    // Show progress indicator
-    setShowGenerationProgress(true);
     
     // Notify parent
     onAutomaticGenerationStarted?.();
@@ -223,38 +217,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     // ✅ NEW: Mark auto-generation as completed permanently
     setAutoGenerationCompleted(true);
 
-    // Hide progress indicator after a delay
-    if (progressTimeoutRef.current) {
-      clearTimeout(progressTimeoutRef.current);
-    }
-    
-    progressTimeoutRef.current = setTimeout(() => {
-      setShowGenerationProgress(false);
-    }, 3000); // Show for 3 seconds after completion
-
     // Notify parent
     onAutomaticGenerationCompleted?.(results);
   }, [onAutomaticGenerationCompleted]);
 
-  // ✅ NEW: Update overall generation progress
-  useEffect(() => {
-    const total = generationStates.size;
-    const completed = Array.from(generationStates.values()).filter(state => state.hasImage).length;
-    const inProgress = Array.from(generationStates.values()).filter(state => state.isGenerating).length;
-    const failed = Array.from(generationStates.values()).filter(state => state.error).length;
-    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-    setOverallGenerationProgress({ total, completed, inProgress, failed, percentage });
-  }, [generationStates]);
-
-  // ✅ NEW: Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (progressTimeoutRef.current) {
-        clearTimeout(progressTimeoutRef.current);
-      }
-    };
-  }, []);
+  {/* Removed progress tracking and timeout cleanup - generation now runs silently */}
 
   // ✅ NEW: Get generation state for a specific placeholder
   const getPlaceholderGenerationState = useCallback((elementId: string) => {
@@ -1139,78 +1106,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         />
       )}
 
-      {/* Generation Progress Indicator */}
-      {showGenerationProgress && overallGenerationProgress.total > 0 && (
-        <div 
-          className="generation-progress-indicator"
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            backgroundColor: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '16px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            zIndex: 1000,
-            minWidth: '300px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <Sparkles className="w-5 h-5 text-purple-600" />
-            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#374151' }}>
-              Generating AI Images
-            </h3>
-          </div>
-
-          {/* Progress Bar */}
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ 
-              width: '100%', 
-              height: '6px', 
-              backgroundColor: '#f3f4f6', 
-              borderRadius: '3px',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                width: `${overallGenerationProgress.percentage}%`,
-                height: '100%',
-                backgroundColor: '#8b5cf6',
-                transition: 'width 0.3s ease',
-                borderRadius: '3px'
-              }} />
-            </div>
-          </div>
-
-          {/* Progress Stats */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#6b7280' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>{overallGenerationProgress.completed} completed</span>
-            </div>
-            
-            {overallGenerationProgress.inProgress > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Loader2 className="w-4 h-4 animate-spin text-purple-500" />
-                <span>{overallGenerationProgress.inProgress} generating</span>
-              </div>
-            )}
-            
-            {overallGenerationProgress.failed > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <AlertCircle className="w-4 h-4 text-red-500" />
-                <span>{overallGenerationProgress.failed} failed</span>
-              </div>
-            )}
-          </div>
-
-          {/* Progress Text */}
-          <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
-            {overallGenerationProgress.percentage}% complete
-          </div>
-        </div>
-      )}
+      {/* Generation Progress Indicator - REMOVED */}
+      {/* The generation process now runs silently in the background without showing a modal */}
     </div>
   );
 };

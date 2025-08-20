@@ -11,7 +11,7 @@ The `SmartSlideDeckViewer` now includes enhanced automatic AI image generation c
 - ✅ **Smart Behavior**: New slides and deleted images show empty placeholders (no auto-generation)
 - ✅ **Manual Uploads Preserved**: Manual image uploads still show the crop/no-crop choice modal
 - ✅ **Batch Processing**: Generates images in batches to avoid rate limits
-- ✅ **Real-time Progress**: Shows generation progress with visual indicator
+- ✅ **Silent Generation**: Generation process runs silently in the background without modal interruptions
 - ✅ **Error Handling**: Graceful handling of failures
 - ✅ **Backward Compatible**: Existing functionality preserved
 
@@ -89,6 +89,7 @@ const handleGenerationCompleted = (results) => {
 ### Smart Placeholder Behavior
 - **New slides**: Show empty placeholders (no auto-generation)
 - **Deleted images**: Show empty placeholders (no auto-generation)
+- **Silent generation**: AI generation runs in background without modal interruptions
 - **Manual uploads**: Still show the crop/no-crop choice modal
 - **AI-generated images**: Automatically cropped without user interaction
 
