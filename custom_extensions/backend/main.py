@@ -19462,7 +19462,11 @@ async def create_smartdrive_connector(
     try:
         # Get the main app domain (remove /custom-projects-ui path)
         host = request.headers.get('host', 'localhost')
-        protocol = 'https' if request.headers.get('x-forwarded-proto') == 'https' else 'http'
+        # Force HTTPS for production domains, use HTTP only for localhost
+        if 'localhost' in host or '127.0.0.1' in host:
+            protocol = 'http'
+        else:
+            protocol = 'https'
         main_app_url = f"{protocol}://{host}"
         
         # Get authentication from cookies
@@ -19548,10 +19552,19 @@ async def create_smartdrive_connector(
             "indexing_start": None
         }
         
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
         # Create the connector using httpx
         async with httpx.AsyncClient(timeout=30.0) as client:
+            connector_url = ensure_https_url("/api/manage/admin/connector")
+            
             connector_response = await client.post(
-                f"{main_app_url}/api/manage/admin/connector",
+                connector_url,
                 headers=auth_headers,
                 json=connector_payload
             )
@@ -19572,7 +19585,7 @@ async def create_smartdrive_connector(
             # Use the existing credential instead of creating a new one
             # Verify the credential exists and is accessible
             credential_response = await client.get(
-                f"{main_app_url}/api/manage/credential/{credential_id}",
+                ensure_https_url(f"/api/manage/credential/{credential_id}"),
                 headers=auth_headers
             )
             
@@ -19581,7 +19594,7 @@ async def create_smartdrive_connector(
                 # If credential access fails, try to delete the connector
                 try:
                     await client.delete(
-                        f"{main_app_url}/api/manage/admin/connector/{connector_id}",
+                        ensure_https_url(f"/api/manage/admin/connector/{connector_id}"),
                         headers=auth_headers
                     )
                 except:
@@ -19601,7 +19614,7 @@ async def create_smartdrive_connector(
             }
             
             cc_pair_response = await client.put(
-                f"{main_app_url}/api/manage/connector/{connector_id}/credential/{credential_id}",
+                ensure_https_url(f"/api/manage/connector/{connector_id}/credential/{credential_id}"),
                 headers=auth_headers,
                 json={
                     "name": name,
@@ -19616,11 +19629,11 @@ async def create_smartdrive_connector(
                 # If CC pair creation fails, try to delete both connector and credential
                 try:
                     await client.delete(
-                        f"{main_app_url}/api/manage/admin/connector/{connector_id}",
+                        ensure_https_url(f"/api/manage/admin/connector/{connector_id}"),
                         headers=auth_headers
                     )
                     await client.delete(
-                        f"{main_app_url}/api/manage/credential/{credential_id}",
+                        ensure_https_url(f"/api/manage/credential/{credential_id}"),
                         headers=auth_headers
                     )
                 except:

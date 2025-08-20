@@ -40,7 +40,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
     const fetchCredentials = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/manage/credential?source=${connectorId}`);
+        const response = await fetch(`/api/custom-projects-backend/manage/credential?source=${connectorId}`);
         if (response.ok) {
           const data = await response.json();
           setCredentials(data.credentials || []);
@@ -306,7 +306,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
     setError(null);
 
     try {
-      const response = await fetch('/api/manage/credential', {
+      const response = await fetch('/api/custom-projects-backend/manage/credential', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
