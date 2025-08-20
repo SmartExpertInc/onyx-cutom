@@ -777,14 +777,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Total: {(() => {
-                                    // Calculate total learning hours from Block 2 (Learning Duration)
-                                    const qualityLevels = [
-                                      { name: 'Level 1 - Basic', learningDuration: 1, productionRatio: 200 },
-                                      { name: 'Level 2 - Interactive', learningDuration: 2, productionRatio: 400 },
-                                      { name: 'Level 3 - Advanced', learningDuration: 3, productionRatio: 600 },
-                                      { name: 'Level 4 - Immersive', learningDuration: 5, productionRatio: 800 }
-                                    ];
-                                    const totalLearningHours = qualityLevels.reduce((sum, level) => sum + level.learningDuration, 0);
+                                    // Calculate total learning hours from Block 1 (Course Overview)
+                                    const courses = processBlock1CourseOverview(data.projects);
+                                    const totalLearningHours = courses.reduce((sum: number, course: any) => sum + (course.learningDuration || 0), 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
@@ -797,14 +792,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Estimated Production Time: ≈ {(() => {
-                                    // Calculate total production hours from Block 2 (Production Hours)
-                                    const qualityLevels = [
-                                      { name: 'Level 1 - Basic', learningDuration: 1, productionRatio: 200 },
-                                      { name: 'Level 2 - Interactive', learningDuration: 2, productionRatio: 400 },
-                                      { name: 'Level 3 - Advanced', learningDuration: 3, productionRatio: 600 },
-                                      { name: 'Level 4 - Immersive', learningDuration: 5, productionRatio: 800 }
-                                    ];
-                                    const totalProductionHours = qualityLevels.reduce((sum, level) => sum + (level.learningDuration * level.productionRatio), 0);
+                                    // Calculate total production hours from Block 1 (Course Overview)
+                                    const courses = processBlock1CourseOverview(data.projects);
+                                    const totalProductionHours = courses.reduce((sum: number, course: any) => sum + (course.productionTime || 0), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
                                 </li>
