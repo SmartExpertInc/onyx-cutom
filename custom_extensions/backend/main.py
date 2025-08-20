@@ -475,7 +475,13 @@ app.add_middleware(
 
 # Include video lesson router
 try:
+    import video_lesson_api
     from video_lesson_api import router as video_lesson_router
+    
+    # Replace the placeholder functions with the real ones
+    video_lesson_api.get_current_onyx_user_id = get_current_onyx_user_id
+    video_lesson_api.get_db_pool = get_db_pool
+    
     app.include_router(video_lesson_router)
     logger.info("Video lesson API router included successfully")
 except ImportError as e:

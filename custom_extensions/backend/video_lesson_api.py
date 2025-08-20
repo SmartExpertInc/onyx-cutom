@@ -40,9 +40,6 @@ except ImportError as e:
     logging.warning(f"Video lesson generation services not available: {e}")
     VIDEO_LESSON_AVAILABLE = False
 
-# Import main app dependencies
-from main import get_current_onyx_user_id, get_db_pool
-
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -88,8 +85,26 @@ class VideoCompositionResponse(BaseModel):
     file_size: Optional[int] = None
     message: str
 
-# Import VideoLessonData from main
-from main import VideoLessonData
+# Video Lesson Data Models (moved here to avoid circular imports)
+class VideoSlide(BaseModel):
+    slideId: str
+    slideTitle: str
+    voiceoverText: Optional[str] = None
+    slideContent: Optional[Dict[str, Any]] = None
+
+class VideoLessonData(BaseModel):
+    title: str
+    slides: List[VideoSlide] = []
+    description: Optional[str] = None
+
+# Dependency functions - will be overridden by main.py
+def get_current_onyx_user_id():
+    """Get current user ID - will be overridden by main.py"""
+    return "default_user_id"
+
+def get_db_pool():
+    """Get database pool - will be overridden by main.py"""
+    return None
 
 @router.get("/avatars")
 async def get_available_avatars():
