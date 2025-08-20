@@ -731,8 +731,8 @@ const PreviewModal: React.FC<{
                                       const allProjects = data.projects || [];
                                       allProjects.forEach((project: any) => {
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
-                                        qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
-                                        qualityTierSums[effectiveTier].creationTime += project.total_hours || 0;
+                                        qualityTierSums[effectiveTier].completionTime += project.total_hours || 0;  // Learning Duration (H)
+                                        qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;  // Production Time (H)
                                       });
                                       
                                       // Define quality level names
@@ -767,13 +767,13 @@ const PreviewModal: React.FC<{
                                               padding: '16px 20px',
                                               fontWeight: '500'
                                             }}>
-                                              {creationTimeFormatted}
+                                              {completionTimeFormatted}
                                             </td>
                                             <td className="p-4 font-medium text-black" style={{
                                               padding: '16px 20px',
                                               fontWeight: '500'
                                             }}>
-                                              {completionTimeFormatted}
+                                              {creationTimeFormatted}
                                             </td>
                                           </tr>
                                         );
@@ -3852,7 +3852,19 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 // Fallback to frontend data if backend fails
                 const projectsToShow = visibleProjects.filter(project => 
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
-                );
+                ).map(project => {
+                    // Ensure fallback data has the correct structure
+                    const lessonData = lessonDataCache[project.id] || {};
+                    return {
+                        ...project,
+                        total_hours: lessonData.totalHours || 0,
+                        total_creation_hours: lessonData.totalCreationHours || 0,
+                        total_lessons: lessonData.lessonCount || 0,
+                        total_modules: lessonData.totalModules || 1,
+                        total_completion_time: lessonData.completionTime || 0,
+                        quality_tier: project.quality_tier || 'interactive'
+                    };
+                });
                 
                 setPreviewData({
                     clientName,
@@ -3865,7 +3877,19 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             // Fallback to frontend data
             const projectsToShow = visibleProjects.filter(project => 
                 selectedProjects.length === 0 || selectedProjects.includes(project.id)
-            );
+            ).map(project => {
+                // Ensure fallback data has the correct structure
+                const lessonData = lessonDataCache[project.id] || {};
+                return {
+                    ...project,
+                    total_hours: lessonData.totalHours || 0,
+                    total_creation_hours: lessonData.totalCreationHours || 0,
+                    total_lessons: lessonData.lessonCount || 0,
+                    total_modules: lessonData.totalModules || 1,
+                    total_completion_time: lessonData.completionTime || 0,
+                    quality_tier: project.quality_tier || 'interactive'
+                };
+            });
             
             setPreviewData({
                 clientName,

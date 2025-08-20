@@ -19372,6 +19372,7 @@ async def get_projects_data_for_preview(
                 total_lessons = 0
                 total_hours = 0.0
                 total_completion_time = 0
+                total_creation_hours = 0  # Production time (H)
                 
                 if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
                     content = row_dict['microproduct_content']
@@ -19415,6 +19416,19 @@ async def get_projects_data_for_preview(
                                     else:
                                         total_completion_time += 5
                 
+                # Calculate production time based on quality tier
+                effective_quality_tier = row_dict.get('quality_tier', 'interactive').lower()
+                if effective_quality_tier == 'basic':
+                    total_creation_hours = total_hours * 20  # 20h per 1h learning
+                elif effective_quality_tier == 'interactive':
+                    total_creation_hours = total_hours * 25  # 25h per 1h learning
+                elif effective_quality_tier == 'advanced':
+                    total_creation_hours = total_hours * 40  # 40h per 1h learning
+                elif effective_quality_tier == 'immersive':
+                    total_creation_hours = total_hours * 80  # 80h per 1h learning
+                else:
+                    total_creation_hours = total_hours * 25  # Default to interactive
+                
                 # Extract project title
                 project_title = 'Untitled'
                 if row_dict.get('project_name') and row_dict['project_name'].strip():
@@ -19454,7 +19468,9 @@ async def get_projects_data_for_preview(
                     'quality_tier': row_dict.get('quality_tier', 'interactive'),
                     'total_lessons': total_lessons,
                     'total_hours': round(total_hours, 1),
-                    'total_completion_time': total_completion_time
+                    'total_completion_time': total_completion_time,
+                    'total_creation_hours': round(total_creation_hours, 1),  # Production time (H)
+                    'total_modules': 1  # Default to 1 module per project
                 })
             
             return {
