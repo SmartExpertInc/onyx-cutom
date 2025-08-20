@@ -744,7 +744,7 @@ const PreviewModal: React.FC<{
                                       ];
 
                                       return qualityLevels.map((level, index) => {
-                                        const tierData = qualityTierSums[level.key];
+                                        const tierData = qualityTierSums[level.key as keyof typeof qualityTierSums];
                                         const completionTimeFormatted = tierData.completionTime > 0 
                                           ? formatCompletionTimeLocalized(tierData.completionTime) 
                                           : '0';
