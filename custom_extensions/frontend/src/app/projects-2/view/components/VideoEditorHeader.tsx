@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
+import PlayModal from './PlayModal';
 
 interface EmailInput {
   id: string;
@@ -13,6 +14,7 @@ export default function VideoEditorHeader() {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
   const [isEyeVisible, setIsEyeVisible] = useState(false);
+  const [isPlayModalOpen, setIsPlayModalOpen] = useState(false);
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
     { id: '1', email: '', role: 'editor' }
   ]);
@@ -67,6 +69,10 @@ export default function VideoEditorHeader() {
 
   const handleEyeToggle = () => {
     setIsEyeVisible(!isEyeVisible);
+  };
+
+  const handlePlayClick = () => {
+    setIsPlayModalOpen(true);
   };
 
   const handleEmailChange = (id: string, email: string) => {
@@ -353,7 +359,10 @@ export default function VideoEditorHeader() {
         {/* Right section - Share and Generate buttons */}
         <div className="flex items-center gap-3 lg:gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
-            <button className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer">
+            <button 
+              onClick={handlePlayClick}
+              className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+            >
               <Play className="w-4 h-4" />
             </button>
 
@@ -487,6 +496,12 @@ export default function VideoEditorHeader() {
           </div>
         </div>
       </div>
+      
+      {/* Play Modal */}
+      <PlayModal 
+        isOpen={isPlayModalOpen} 
+        onClose={() => setIsPlayModalOpen(false)} 
+      />
     </header>
   );
 }
