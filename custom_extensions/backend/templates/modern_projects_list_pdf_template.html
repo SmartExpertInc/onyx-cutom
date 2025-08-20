@@ -285,13 +285,19 @@
                                         <td>{{ folder.total_modules if folder.total_modules else '-' }}</td>
                                         <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
                                         <td>
+                                            {% if folder.total_completion_time and folder.total_completion_time > 0 %}
+                                                {% set h = folder.total_completion_time // 60 %}
+                                                {% set m = folder.total_completion_time % 60 %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                            {% else %}-{% endif %}
+                                        </td>
+                                        <td>
                                             {% if folder.total_hours and folder.total_hours > 0 %}
                                                 {% set h = folder.total_hours // 60 %}
                                                 {% set m = folder.total_hours % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
-                                        <td>{{ folder.total_completion_time if folder.total_completion_time else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons is not none else 0) %}
                                     {% set total_modules = total_modules + (folder.total_modules if folder.total_modules is not none else 0) %}
@@ -305,13 +311,19 @@
                                                 <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                 <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                 <td>
+                                                    {% if project.total_completion_time and project.total_completion_time > 0 %}
+                                                        {% set h = project.total_completion_time // 60 %}
+                                                        {% set m = project.total_completion_time % 60 %}
+                                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                    {% else %}-{% endif %}
+                                                </td>
+                                                <td>
                                                     {% if project.total_hours and project.total_hours > 0 %}
                                                         {% set h = project.total_hours // 60 %}
                                                         {% set m = project.total_hours % 60 %}
                                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>
-                                                <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
                                             </tr>
                                             {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
                                             {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
@@ -348,13 +360,19 @@
                                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                         <td>
+                                                            {% if project.total_completion_time and project.total_completion_time > 0 %}
+                                                                {% set h = project.total_completion_time // 60 %}
+                                                                {% set m = project.total_completion_time % 60 %}
+                                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                            {% else %}-{% endif %}
+                                                        </td>
+                                                        <td>
                                                             {% if project.total_hours and project.total_hours > 0 %}
                                                                 {% set h = project.total_hours // 60 %}
                                                                 {% set m = project.total_hours % 60 %}
                                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                             {% else %}-{% endif %}
                                                         </td>
-                                                        <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
                                                     </tr>
                                                     {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
                                                     {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
@@ -374,13 +392,19 @@
                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                         <td>
+                                            {% if project.total_completion_time and project.total_completion_time > 0 %}
+                                                {% set h = project.total_completion_time // 60 %}
+                                                {% set m = project.total_completion_time % 60 %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                            {% else %}-{% endif %}
+                                        </td>
+                                        <td>
                                             {% if project.total_hours and project.total_hours > 0 %}
                                                 {% set h = project.total_hours // 60 %}
                                                 {% set m = project.total_hours % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
-                                        <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
                                     {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
@@ -391,7 +415,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {{ summary_stats.total_hours if summary_stats.total_hours else 0 }}h of learning content → {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }}h production
+                         Subtotal: {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }}h of learning content → {{ summary_stats.total_hours if summary_stats.total_hours else 0 }}h production
                      </div>
                 </div>
             </div>
@@ -408,26 +432,56 @@
                             </tr>
                         </thead>
                         <tbody>
-                                                         <tr class="table-row">
-                                 <td class="course-name">Level 1 - Basic</td>
-                                 <td>1</td>
-                                 <td>200</td>
-                             </tr>
-                             <tr class="table-row">
-                                 <td class="course-name">Level 2 - Interactive</td>
-                                 <td>2</td>
-                                 <td>400</td>
-                             </tr>
-                             <tr class="table-row">
-                                 <td class="course-name">Level 3 - Advanced</td>
-                                 <td>3</td>
-                                 <td>600</td>
-                             </tr>
-                             <tr class="table-row">
-                                 <td class="course-name">Level 4 - Immersive</td>
-                                 <td>5</td>
-                                 <td>800</td>
-                             </tr>
+                            {% if quality_tier_sums %}
+                                {% set tier_names = {
+                                    'basic': 'Level 1 - Basic',
+                                    'interactive': 'Level 2 - Interactive', 
+                                    'advanced': 'Level 3 - Advanced',
+                                    'immersive': 'Level 4 - Immersive'
+                                } %}
+                                {% for tier_key, tier_name in tier_names.items() %}
+                                    {% if quality_tier_sums[tier_key] %}
+                                        <tr class="table-row">
+                                            <td class="course-name">{{ tier_name }}</td>
+                                            <td>
+                                                {% if quality_tier_sums[tier_key].completion_time and quality_tier_sums[tier_key].completion_time > 0 %}
+                                                    {% set h = quality_tier_sums[tier_key].completion_time // 60 %}
+                                                    {% set m = quality_tier_sums[tier_key].completion_time % 60 %}
+                                                    {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                {% else %}0{% endif %}
+                                            </td>
+                                            <td>
+                                                {% if quality_tier_sums[tier_key].creation_time and quality_tier_sums[tier_key].creation_time > 0 %}
+                                                    {% set h = quality_tier_sums[tier_key].creation_time // 60 %}
+                                                    {% set m = quality_tier_sums[tier_key].creation_time % 60 %}
+                                                    {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                {% else %}0{% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <tr class="table-row">
+                                    <td class="course-name">Level 1 - Basic</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="course-name">Level 2 - Interactive</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="course-name">Level 3 - Advanced</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="course-name">Level 4 - Immersive</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -439,8 +493,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {{ summary_stats.total_hours if summary_stats.total_hours else 0 }} hours of learning content</li>
-                     <li>Estimated Production Time: ≈ {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }} hours</li>
+                     <li>Total: {{ summary_stats.total_completion_time if summary_stats.total_completion_time else 0 }} hours of learning content</li>
+                     <li>Estimated Production Time: ≈ {{ summary_stats.total_hours if summary_stats.total_hours else 0 }} hours</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>

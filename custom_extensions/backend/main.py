@@ -16764,6 +16764,53 @@ async def download_projects_list_pdf(
         # Add total_hours to summary_stats for template access
         summary_stats['total_hours'] = total_hours
         
+        # Calculate dynamic Block 2 data based on quality tier sums
+        def calculate_quality_tier_sums(folders, folder_projects, unassigned_projects):
+            quality_tier_data = {
+                'basic': {'completion_time': 0, 'creation_time': 0},
+                'interactive': {'completion_time': 0, 'creation_time': 0},
+                'advanced': {'completion_time': 0, 'creation_time': 0},
+                'immersive': {'completion_time': 0, 'creation_time': 0}
+            }
+            
+            # Helper function to get effective quality tier
+            def get_effective_quality_tier(project, folder_quality_tier='interactive'):
+                # Check project-level quality tier first
+                if project.get('quality_tier'):
+                    return project['quality_tier'].lower()
+                # Fall back to folder quality tier
+                return folder_quality_tier.lower()
+            
+            # Process folder projects
+            for folder in folders:
+                folder_quality_tier = folder.get('quality_tier', 'interactive').lower()
+                
+                if folder['id'] in folder_projects:
+                    for project in folder_projects[folder['id']]:
+                        effective_tier = get_effective_quality_tier(project, folder_quality_tier)
+                        if effective_tier in quality_tier_data:
+                            quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
+                            quality_tier_data[effective_tier]['creation_time'] += project.get('total_hours', 0) or 0
+                
+                # Recursively process subfolders
+                if folder.get('children'):
+                    child_data = calculate_quality_tier_sums(folder['children'], folder_projects, [])
+                    for tier in quality_tier_data:
+                        quality_tier_data[tier]['completion_time'] += child_data[tier]['completion_time']
+                        quality_tier_data[tier]['creation_time'] += child_data[tier]['creation_time']
+            
+            # Process unassigned projects (use default tier)
+            for project in unassigned_projects:
+                effective_tier = get_effective_quality_tier(project, 'interactive')
+                if effective_tier in quality_tier_data:
+                    quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
+                    quality_tier_data[effective_tier]['creation_time'] += project.get('total_hours', 0) or 0
+            
+            return quality_tier_data
+        
+        # Calculate quality tier sums for Block 2
+        quality_tier_sums = calculate_quality_tier_sums(folder_tree, folder_projects, unassigned_projects)
+        
         # Add debug logging
         logger.info(f"[PDF_ANALYTICS] Total calculation:")
         logger.info(f"[PDF_ANALYTICS] - Total hours: {total_hours}")
@@ -16771,6 +16818,7 @@ async def download_projects_list_pdf(
         logger.info(f"[PDF_ANALYTICS] - Folder count: {len(folder_tree)}")
         logger.info(f"[PDF_ANALYTICS] - Unassigned projects count: {len(unassigned_projects)}")
         logger.info(f"[PDF_ANALYTICS] - Folder projects count: {sum(len(projects) for projects in folder_projects.values())}")
+        logger.info(f"[PDF_ANALYTICS] - Quality tier sums: {quality_tier_sums}")
 
         # Collect all project IDs that are actually included in the filtered PDF data
         included_project_ids = set()
@@ -17043,6 +17091,7 @@ async def download_projects_list_pdf(
             'summary_stats': summary_stats,  # Add summary statistics to template data
             'product_distribution': product_distribution,  # Add real product distribution data
             'quality_distribution': quality_distribution,   # Add real quality distribution data
+            'quality_tier_sums': quality_tier_sums,  # Add quality tier sums for Block 2
             'total_hours': total_hours,  # Add total hours for template
             'total_production_time': total_production_time  # Add total production time for template
         }
