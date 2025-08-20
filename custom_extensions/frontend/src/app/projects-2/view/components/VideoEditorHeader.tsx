@@ -15,6 +15,8 @@ export default function VideoEditorHeader() {
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
   const [isEyeVisible, setIsEyeVisible] = useState(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState(false);
+  const [videoTitle, setVideoTitle] = useState('Create your first AI video');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
     { id: '1', email: '', role: 'editor' }
   ]);
@@ -346,7 +348,28 @@ export default function VideoEditorHeader() {
         {/* Center section - Create video text (hidden on mobile) */}
         <div className="hidden lg:flex flex-1 justify-center">
           <div className="flex items-center gap-3">
-            <span className="text-editor-gray-text text-sm font-medium whitespace-nowrap">Create your first AI video</span>
+            {isEditingTitle ? (
+              <input
+                type="text"
+                value={videoTitle}
+                onChange={(e) => setVideoTitle(e.target.value)}
+                onBlur={() => setIsEditingTitle(false)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsEditingTitle(false);
+                  }
+                }}
+                className="text-editor-gray-text text-sm font-medium bg-transparent border-none outline-none focus:ring-0 px-2 py-1 rounded"
+                autoFocus
+              />
+            ) : (
+              <span 
+                className="text-editor-gray-text text-sm font-medium whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                onClick={() => setIsEditingTitle(true)}
+              >
+                {videoTitle}
+              </span>
+            )}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4">
               <g fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path strokeLinecap="round" d="M4 22h16"/>
@@ -501,6 +524,7 @@ export default function VideoEditorHeader() {
       <PlayModal 
         isOpen={isPlayModalOpen} 
         onClose={() => setIsPlayModalOpen(false)} 
+        title={videoTitle}
       />
     </header>
   );

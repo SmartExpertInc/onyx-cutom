@@ -5,9 +5,10 @@ import { useState } from 'react';
 interface PlayModalProps {
   isOpen: boolean;
   onClose: () => void;
+  title?: string;
 }
 
-export default function PlayModal({ isOpen, onClose }: PlayModalProps) {
+export default function PlayModal({ isOpen, onClose, title = 'Create your first AI video' }: PlayModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -45,7 +46,7 @@ export default function PlayModal({ isOpen, onClose }: PlayModalProps) {
                 <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-md text-xs font-medium">2 scenes</span>
               </div>
               
-              <h3 className="text-3xl font-semibold text-gray-900 mb-4">Create your first AI video</h3>
+              <h3 className="text-3xl font-semibold text-gray-900 mb-4">{title}</h3>
               
               {/* Buttons */}
               <div className="flex gap-3 mb-4">
