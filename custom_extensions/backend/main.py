@@ -16452,6 +16452,10 @@ async def download_projects_list_pdf(
                                 )
                                 total_creation_hours += lesson_creation_hours
             
+            # Calculate real creation time based on completion time and quality tier (like in original)
+            tier_ratio = get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
+            real_creation_hours = calculate_creation_hours(total_completion_time, tier_ratio)
+            
             projects_data.append({
                 'id': row_dict['id'],
                 'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
@@ -16463,7 +16467,7 @@ async def download_projects_list_pdf(
                 'microproduct_content': row_dict.get('microproduct_content'),
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
-                'total_hours': round(total_hours),
+                'total_hours': real_creation_hours,  # Real creation time (like in original)
                 'total_completion_time': total_completion_time,
                 'total_creation_hours': round(total_creation_hours)
             })
@@ -16548,7 +16552,7 @@ async def download_projects_list_pdf(
             direct_projects = folder_projects.get(folder['id'], [])
             total_lessons = sum(p['total_lessons'] for p in direct_projects)
             total_modules = sum(p.get('total_modules', 0) for p in direct_projects)
-            total_hours = sum(p['total_hours'] for p in direct_projects)
+            total_hours = sum(p['total_hours'] for p in direct_projects)  # This is now real creation time
             total_completion_time = sum(p['total_completion_time'] for p in direct_projects)
             total_creation_hours = sum(p.get('total_creation_hours', 0) for p in direct_projects)
             total_items = len(direct_projects)
@@ -16567,7 +16571,7 @@ async def download_projects_list_pdf(
             # Update folder with recursive totals
             folder['total_lessons'] = total_lessons
             folder['total_modules'] = total_modules
-            folder['total_hours'] = total_hours
+            folder['total_hours'] = total_hours  # Real creation time
             folder['total_completion_time'] = total_completion_time
             folder['total_creation_hours'] = total_creation_hours
             folder['project_count'] = total_items
@@ -16575,7 +16579,7 @@ async def download_projects_list_pdf(
             return {
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
-                'total_hours': total_hours,
+                'total_hours': total_hours,  # Real creation time
                 'total_completion_time': total_completion_time,
                 'total_creation_hours': total_creation_hours,
                 'total_items': total_items
