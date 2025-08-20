@@ -286,9 +286,9 @@
                                         <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
                                         <td>
                                             {% if folder.total_hours and folder.total_hours > 0 %}
-                                                {% set h = folder.total_hours // 60 %}
-                                                {% set m = folder.total_hours % 60 %}
-                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                {% set h = folder.total_hours | int %}
+                                                {% set m = ((folder.total_hours - h) * 60) | round %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m | int }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
                                         <td>{{ folder.total_completion_time if folder.total_completion_time else '-' }}</td>
@@ -306,9 +306,9 @@
                                                 <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                 <td>
                                                     {% if project.total_hours and project.total_hours > 0 %}
-                                                        {% set h = project.total_hours // 60 %}
-                                                        {% set m = project.total_hours % 60 %}
-                                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                        {% set h = project.total_hours | int %}
+                                                        {% set m = ((project.total_hours - h) * 60) | round %}
+                                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m | int }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>
                                                 <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
@@ -327,7 +327,13 @@
                                                 <td class="course-name" style="padding-left: 20px;">{{ child_folder.name if child_folder.name else '-' }}</td>
                                                 <td>{{ child_folder.total_modules if child_folder.total_modules else '-' }}</td>
                                                 <td>{{ child_folder.total_lessons if child_folder.total_lessons else '-' }}</td>
-                                                <td>{{ child_folder.total_hours if child_folder.total_hours else '-' }}</td>
+                                                <td>
+                                                    {% if child_folder.total_hours and child_folder.total_hours > 0 %}
+                                                        {% set h = child_folder.total_hours | int %}
+                                                        {% set m = ((child_folder.total_hours - h) * 60) | round %}
+                                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m | int }}m{% endif %}
+                                                    {% else %}-{% endif %}
+                                                </td>
                                                 <td>{{ child_folder.total_completion_time if child_folder.total_completion_time else '-' }}</td>
                                             </tr>
                                             {% set total_lessons = total_lessons + (child_folder.total_lessons if child_folder.total_lessons is not none else 0) %}
@@ -343,9 +349,9 @@
                                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                         <td>
                                                             {% if project.total_hours and project.total_hours > 0 %}
-                                                                {% set h = project.total_hours // 60 %}
-                                                                {% set m = project.total_hours % 60 %}
-                                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                                {% set h = project.total_hours | int %}
+                                                                {% set m = ((project.total_hours - h) * 60) | round %}
+                                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m | int }}m{% endif %}
                                                             {% else %}-{% endif %}
                                                         </td>
                                                         <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
@@ -369,9 +375,9 @@
                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                         <td>
                                             {% if project.total_hours and project.total_hours > 0 %}
-                                                {% set h = project.total_hours // 60 %}
-                                                {% set m = project.total_hours % 60 %}
-                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                {% set h = project.total_hours | int %}
+                                                {% set m = ((project.total_hours - h) * 60) | round %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m | int }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
                                         <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
