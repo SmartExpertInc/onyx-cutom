@@ -3,11 +3,10 @@
 import React, { useState } from 'react';
 
 interface TransitionProps {
-  position?: { x: number; y: number };
-  onClose?: () => void;
+  // No props needed for side panel component
 }
 
-export default function Transition({ position, onClose }: TransitionProps) {
+export default function Transition({}: TransitionProps) {
   const [selectedTransition, setSelectedTransition] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   // Function to render the selected transition settings view
@@ -102,14 +101,7 @@ export default function Transition({ position, onClose }: TransitionProps) {
   };
 
   return (
-    <div 
-      className="fixed bg-white rounded-lg shadow-lg p-4 z-50"
-      style={{
-        left: position?.x || 0,
-        top: position?.y || 0,
-        minWidth: '300px'
-      }}
-    >
+    <div className="h-full bg-white relative overflow-hidden w-full">
       {/* Show selected transition view if a transition is selected and showSettings is true */}
       {selectedTransition && showSettings ? (
         renderSelectedTransitionView()

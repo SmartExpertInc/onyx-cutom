@@ -50,6 +50,16 @@ export default function Projects2ViewPage() {
     setIsAiPopupOpen(false);
   };
 
+  const handleTransitionButtonClick = () => {
+    setActiveComponent('transition');
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsTextPopupOpen(false);
+    setIsShapesPopupOpen(false);
+    setIsInteractionPopupOpen(false);
+    setIsAiPopupOpen(false);
+  };
+
   const handleTextButtonClick = (position: { x: number; y: number }) => {
     setTextPopupPosition(position);
     setIsTextPopupOpen(true);
@@ -120,6 +130,7 @@ export default function Projects2ViewPage() {
           onShapesButtonClick={handleShapesButtonClick}
           onInteractionButtonClick={handleInteractionButtonClick}
           onMusicButtonClick={handleMusicButtonClick}
+          onTransitionButtonClick={handleTransitionButtonClick}
         />
       </div>
       
