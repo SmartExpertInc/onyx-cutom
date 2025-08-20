@@ -40,7 +40,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
     const fetchCredentials = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/manage/admin/similar-credentials/${connectorId}`);
+        const response = await fetch(`/api/custom-projects-backend/credentials/${connectorId}`);
                   if (response.ok) {
             const data = await response.json();
             // Onyx returns credentials directly as an array, not wrapped in {credentials: [...]}
@@ -307,7 +307,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
     setError(null);
 
     try {
-      const response = await fetch('/api/manage/credential', {
+              const response = await fetch('/api/custom-projects-backend/credentials', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

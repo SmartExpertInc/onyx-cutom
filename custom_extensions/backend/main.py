@@ -19741,3 +19741,117 @@ async def sync_user_connector(
             "instructions": "Use Onyx's connector sync API or the connector management UI."
         }
     )
+
+
+# Credential proxy endpoints for non-admin users
+@app.get("/api/custom/credentials/{source_type}")
+async def get_credentials_for_source(source_type: str, request: Request):
+    """
+    Proxy endpoint to fetch credentials for a specific source type.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's credential endpoint
+            credentials_url = ensure_https_url(f"/api/manage/admin/similar-credentials/{source_type}")
+            
+            response = await client.get(
+                credentials_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to fetch credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to fetch credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error fetching credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching credentials: {str(e)}")
+
+
+@app.post("/api/custom/credentials")
+async def create_credential(request: Request):
+    """
+    Proxy endpoint to create credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        # Get credential data from request
+        credential_data = await request.json()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's credential creation endpoint
+            credentials_url = ensure_https_url("/api/manage/credential")
+            
+            response = await client.post(
+                credentials_url,
+                headers=auth_headers,
+                json=credential_data
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to create credential: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to create credential: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error creating credential: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating credential: {str(e)}")
