@@ -129,8 +129,8 @@ const CustomConnectorForm: React.FC<CustomConnectorFormProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Submit to your backend API that creates the connector
-      const response = await fetch('/api/custom-projects-backend/connectors/create', {
+      // Submit to the Smart Drive connector creation API
+      const response = await fetch('/api/custom-projects-backend/smartdrive/connectors/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

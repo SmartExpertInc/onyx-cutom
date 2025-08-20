@@ -23,6 +23,7 @@ interface UserConnector {
   last_sync_at?: string;
   total_docs_indexed: number;
   last_error?: string;
+  access_type: string;
 }
 
 interface SmartDriveConnectorsProps {
@@ -350,19 +351,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         console.log('All connectors:', allConnectors);
         console.log('All CC pairs:', allCCPairs);
         
-        // Filter to show all private connectors (including newly created ones)
+        // Filter to show all connectors that belong to the current user
         const smartDriveConnectors = allConnectors.filter((connector: any) => {
           const associatedCCPairs = allCCPairs.filter((pair: any) => 
-            pair.connector.id === connector.id && pair.access_type === 'private'
+            pair.connector.id === connector.id
           );
           
-          // Show all private connectors, not just those with "smart" in the name
+          // Show all connectors that have associated CC pairs (regardless of access type)
           return associatedCCPairs.length > 0;
         });
         
         const userConnectors = smartDriveConnectors.map((connector: any) => {
           const ccPair = allCCPairs.find((pair: any) => 
-            pair.connector.id === connector.id && pair.access_type === 'private'
+            pair.connector.id === connector.id
           );
           
           return {
@@ -373,6 +374,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             last_sync_at: ccPair?.last_time_synced,
             total_docs_indexed: ccPair?.documents_indexed || 0,
             last_error: ccPair?.last_index_attempt?.error_msg,
+            access_type: ccPair?.access_type || 'unknown',
           };
         });
         
@@ -585,7 +587,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <p className="text-xs text-gray-600 mb-1">Connectors:</p>
               {userConnectors.map(connector => (
                 <div key={connector.id} className="text-xs text-gray-500 ml-2">
-                  • {connector.name} ({connector.source}) - Status: {connector.status}
+                  • {connector.name} ({connector.source}) - Status: {connector.status} - Access: {connector.access_type}
                 </div>
               ))}
             </div>
