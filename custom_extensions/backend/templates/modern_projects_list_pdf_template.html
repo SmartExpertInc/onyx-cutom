@@ -293,7 +293,7 @@
                                     {% if folder.projects %}
                                         {% for project in folder.projects %}
                                             <tr class="table-row">
-                                                <td class="course-name" style="padding-left: 20px;">{{ project.project_name if project.project_name else '-' }}</td>
+                                                <td class="course-name" style="padding-left: 20px;">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                                 <td>1</td>
                                                 <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                                 <td>{{ project.total_hours if project.total_hours else '-' }}</td>
@@ -310,7 +310,7 @@
                             {% if unassigned_projects %}
                                 {% for project in unassigned_projects %}
                                     <tr class="table-row">
-                                        <td class="course-name">{{ project.project_name if project.project_name else '-' }}</td>
+                                        <td class="course-name">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                         <td>1</td>
                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
                                         <td>{{ project.total_hours if project.total_hours else '-' }}</td>

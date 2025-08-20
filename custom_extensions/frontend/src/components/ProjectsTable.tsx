@@ -70,7 +70,14 @@ const DynamicText: React.FC<{
   title?: string;
   href?: string;
   onClick?: () => void;
-}> = ({ text, columnWidthPercent, className = "", title, href, onClick }) => {
+}> = ({ text, columnWidthPercent, className = "", title, href, onClick }: {
+  text: string;
+  columnWidthPercent: number;
+  className?: string;
+  title?: string;
+  href?: string;
+  onClick?: () => void;
+}) => {
   const [containerWidth, setContainerWidth] = useState(1200);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -598,30 +605,30 @@ const PreviewModal: React.FC<{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.modules}
+                                                {course.modules || '-'}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.lessons}
+                                                {course.lessons || '-'}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.learningDuration}
+                                                {course.learningDuration || '-'}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.productionTime.toLocaleString()}
+                                                {course.productionTime ? course.productionTime.toLocaleString() : '-'}
                                               </td>
                                             </tr>
                                           ))}
                                           <tr>
-                                            <td colSpan={4} className="text-center font-semibold text-lg py-4 text-white" style={{
+                                            <td colSpan={5} className="text-center font-semibold text-lg py-4 text-white" style={{
                                               background: 'linear-gradient(135deg, #6c6fcc 0%, #05267c 100%)',
                                               padding: '16px 20px',
                                               fontWeight: '600',
