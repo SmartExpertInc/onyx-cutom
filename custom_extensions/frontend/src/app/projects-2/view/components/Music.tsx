@@ -1,13 +1,124 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, Play } from 'lucide-react';
+import { Search, Play, Volume2 } from 'lucide-react';
 
 export default function Music() {
   const [activeButton, setActiveButton] = useState<'stock' | 'upload'>('stock');
   const [selectedMusic, setSelectedMusic] = useState<string | null>('no-music');
 
   const selectBtnClass = "hidden group-hover:block px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors";
+
+  // Track information mapping
+  const trackInfo = {
+    'corporate': { name: 'Corporate', duration: '2:46' },
+    'happy': { name: 'Happy', duration: '3:12' },
+    'vibe-vacation': { name: 'Vibe Vacation', duration: '2:58' },
+    'inspiring': { name: 'Inspiring', duration: '3:30' },
+    'long-journey': { name: 'Long Journey', duration: '4:15' },
+    'outside-the-lines': { name: 'Outside The Lines', duration: '2:55' },
+    'motivation': { name: 'Motivation', duration: '3:45' },
+    'relaxing': { name: 'Relaxing', duration: '4:20' }
+  };
+
+  // Function to render the selected track view
+  const renderSelectedTrackView = () => {
+    const track = trackInfo[selectedMusic as keyof typeof trackInfo];
+    if (!track) return null;
+
+    return (
+      <div className="h-full flex flex-col">
+        {/* Top part - Light grey background */}
+        <div className="bg-gray-100 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Play button */}
+            <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+              <Play size={18} className="text-gray-600 ml-0.5" />
+            </div>
+            
+            {/* Track info */}
+            <div className="flex flex-col">
+              <span className="text-gray-700 text-sm font-medium">{track.name}</span>
+              <span className="text-gray-500 text-xs">{track.duration}</span>
+            </div>
+          </div>
+          
+          {/* Change button */}
+          <button 
+            className="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors"
+            onClick={() => setSelectedMusic(null)}
+          >
+            Change
+          </button>
+        </div>
+
+        {/* Bottom part - White background */}
+        <div className="bg-white p-4 flex-1">
+          {/* Set as background music row */}
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-gray-700 text-sm">Set as background music everywhere</span>
+            {/* Switch/Slider */}
+            <div className="w-12 h-6 bg-gray-300 rounded-full flex items-center p-1 cursor-pointer">
+              <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+            </div>
+          </div>
+
+          {/* Volume control row */}
+          <div className="flex items-center justify-between">
+            <span className="text-gray-700 text-sm">Volume</span>
+            <div className="flex items-center gap-2">
+              <Volume2 size={16} className="text-gray-600" />
+              {/* Volume range slider */}
+              <div className="relative w-32">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  defaultValue="50"
+                  className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #000000 0%, #000000 50%, #e5e7eb 50%, #e5e7eb 100%)`
+                  }}
+                />
+                <style jsx>{`
+                  input[type="range"]::-webkit-slider-thumb {
+                    appearance: none;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: #000000;
+                    cursor: pointer;
+                    border: none;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                  }
+                  
+                  input[type="range"]::-moz-range-thumb {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: #000000;
+                    cursor: pointer;
+                    border: none;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                  }
+                  
+                  input[type="range"]::-webkit-slider-track {
+                    appearance: none;
+                    background: transparent;
+                  }
+                  
+                  input[type="range"]::-moz-range-track {
+                    background: transparent;
+                    border: none;
+                  }
+                `}</style>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="h-full bg-white relative overflow-hidden w-full">
@@ -37,301 +148,388 @@ export default function Music() {
 
       {/* Content based on active button */}
       {activeButton === 'stock' ? (
-        <div className="h-full overflow-y-auto">
-          {/* Search bar */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" size={16} />
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full pl-10 pr-4 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-black focus:border-black hover:border-black transition-colors"
-            />
-          </div>
-
-          {/* No music content - now selectable */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'no-music'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'no-music' && setSelectedMusic('no-music')}
-          >
-            <div className="flex items-center gap-3">
-              {/* No icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" className="text-gray-500">
-                <g fill="currentColor" fillRule="evenodd" clipRule="evenodd">
-                  <path d="M10 3.5a6.5 6.5 0 1 0 0 13a6.5 6.5 0 0 0 0-13ZM2.5 10a7.5 7.5 0 1 1 15 0a7.5 7.5 0 0 1-15 0Z"/>
-                  <path d="M15.304 4.697a.5.5 0 0 1 0 .707l-9.9 9.9a.5.5 0 1 1-.707-.707l9.9-9.9a.5.5 0 0 1 .707 0Z"/>
-                </g>
-              </svg>
-              <span className="text-gray-700 text-sm">No music</span>
+        // Show selected track view if a track is selected (not 'no-music')
+        selectedMusic && selectedMusic !== 'no-music' ? (
+          renderSelectedTrackView()
+        ) : (
+          <div className="h-full overflow-y-auto">
+            {/* Search bar */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" size={16} />
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full pl-10 pr-4 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-black hover:border-black transition-colors text-sm"
+              />
             </div>
-            
-            {/* Show Select button when not selected, Default text when selected */}
-            {selectedMusic === 'no-music' ? (
-              <span className="text-gray-400 text-sm">Default</span>
-            ) : (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('no-music');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
 
-          {/* Music item - Corporate */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'corporate'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'corporate' && setSelectedMusic(selectedMusic === 'corporate' ? null : 'corporate')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
+            {/* No music content - now selectable */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'no-music'
+                  ? 'bg-white border border-black cursor-pointer'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'no-music' && setSelectedMusic('no-music')}
+            >
+              <div className="flex items-center gap-3">
+                {/* No icon */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" className="text-gray-500">
+                  <g fill="currentColor" fillRule="evenodd" clipRule="evenodd">
+                    <path d="M10 3.5a6.5 6.5 0 1 0 0 13a6.5 6.5 0 0 0 0-13ZM2.5 10a7.5 7.5 0 1 1 15 0a7.5 7.5 0 0 1-15 0Z"/>
+                    <path d="M15.304 4.697a.5.5 0 0 1 0 .707l-9.9 9.9a.5.5 0 1 1-.707-.707l9.9-9.9a.5.5 0 0 1 .707 0Z"/>
+                  </g>
+                </svg>
+                <span className="text-gray-700 text-sm">No music</span>
               </div>
-              <span className="text-gray-700 text-sm">Corporate</span>
+              
+              {/* Always reserve space for the right side content */}
+              <div className="w-16 flex justify-end">
+                {selectedMusic === 'no-music' ? (
+                  <span className="text-gray-400 text-sm">Default</span>
+                ) : (
+                  <button 
+                    className={selectBtnClass}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMusic('no-music');
+                    }}
+                  >
+                    Select
+                  </button>
+                )}
+              </div>
             </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'corporate' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('corporate');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
 
-          {/* Music item - Happy */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'happy'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'happy' && setSelectedMusic(selectedMusic === 'happy' ? null : 'happy')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
+            {/* Music item - Corporate */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'corporate'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'corporate' && setSelectedMusic(selectedMusic === 'corporate' ? null : 'corporate')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Corporate</span>
               </div>
-              <span className="text-gray-700 text-sm">Happy</span>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'corporate' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('corporate');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('corporate');
+                  }}
+                >
+                  Select
+                </button>
+              )}
             </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'happy' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('happy');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
 
-          {/* Music item - Vibe Vacation */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'vibe-vacation'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'vibe-vacation' && setSelectedMusic(selectedMusic === 'vibe-vacation' ? null : 'vibe-vacation')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
+            {/* Music item - Happy */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'happy'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'happy' && setSelectedMusic(selectedMusic === 'happy' ? null : 'happy')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Happy</span>
               </div>
-              <span className="text-gray-700 text-sm">Vibe Vacation</span>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'happy' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('happy');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('happy');
+                  }}
+                >
+                  Select
+                </button>
+              )}
             </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'vibe-vacation' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('vibe-vacation');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
 
-          {/* Music item - Inspiring */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'inspiring'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'inspiring' && setSelectedMusic(selectedMusic === 'inspiring' ? null : 'inspiring')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
+            {/* Music item - Vibe Vacation */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'vibe-vacation'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'vibe-vacation' && setSelectedMusic(selectedMusic === 'vibe-vacation' ? null : 'vibe-vacation')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Vibe Vacation</span>
               </div>
-              <span className="text-gray-700 text-sm">Inspiring</span>
-              </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'inspiring' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('inspiring');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
-
-          {/* Music item - Long Journey */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'long-journey'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'long-journey' && setSelectedMusic(selectedMusic === 'long-journey' ? null : 'long-journey')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
-              </div>
-              <span className="text-gray-700 text-sm">Long Journey</span>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'vibe-vacation' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('vibe-vacation');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('vibe-vacation');
+                  }}
+                >
+                  Select
+                </button>
+              )}
             </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'long-journey' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('long-journey');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
 
-          {/* Music item - Outside The Lines */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'outside-the-lines'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'outside-the-lines' && setSelectedMusic(selectedMusic === 'outside-the-lines' ? null : 'outside-the-lines')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
+            {/* Music item - Inspiring */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'inspiring'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'inspiring' && setSelectedMusic(selectedMusic === 'inspiring' ? null : 'inspiring')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Inspiring</span>
               </div>
-              <span className="text-gray-700 text-sm">Outside The Lines</span>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'inspiring' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('inspiring');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('inspiring');
+                  }}
+                >
+                  Select
+                </button>
+              )}
             </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'outside-the-lines' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('outside-the-lines');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
 
-          {/* Music item - Motivation */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'motivation'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'motivation' && setSelectedMusic(selectedMusic === 'motivation' ? null : 'motivation')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
+            {/* Music item - Long Journey */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'long-journey'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'long-journey' && setSelectedMusic(selectedMusic === 'long-journey' ? null : 'long-journey')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Long Journey</span>
               </div>
-              <span className="text-gray-700 text-sm">Motivation</span>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'long-journey' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('long-journey');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('long-journey');
+                  }}
+                >
+                  Select
+                </button>
+              )}
             </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'motivation' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('motivation');
-                }}
-              >
-                Select
-              </button>
-            )}
-          </div>
 
-          {/* Music item - Relaxing */}
-          <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
-              selectedMusic === 'relaxing'
-                ? 'bg-white border border-black cursor-pointer'
-                : 'hover:bg-gray-100'
-            }`}
-            onClick={() => selectedMusic === 'relaxing' && setSelectedMusic(selectedMusic === 'relaxing' ? null : 'relaxing')}
-          >
-            <div className="flex items-center gap-3">
-              {/* Play triangle icon with grey borders */}
-              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
-                <Play size={18} className="text-gray-600 ml-0.5" />
+            {/* Music item - Outside The Lines */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'outside-the-lines'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'outside-the-lines' && setSelectedMusic(selectedMusic === 'outside-the-lines' ? null : 'outside-the-lines')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Outside The Lines</span>
               </div>
-              <span className="text-gray-700 text-sm">Relaxing</span>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'outside-the-lines' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('outside-the-lines');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('outside-the-lines');
+                  }}
+                >
+                  Select
+                </button>
+              )}
             </div>
-            
-            {/* Select button - only visible on hover when not selected */}
-            {selectedMusic !== 'relaxing' && (
-              <button 
-                className={selectBtnClass}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMusic('relaxing');
-                }}
-              >
-                Select
-              </button>
-            )}
+
+            {/* Music item - Motivation */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'motivation'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'motivation' && setSelectedMusic(selectedMusic === 'motivation' ? null : 'motivation')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Motivation</span>
+              </div>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'motivation' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('motivation');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('motivation');
+                  }}
+                >
+                  Select
+                </button>
+              )}
+            </div>
+
+            {/* Music item - Relaxing */}
+            <div 
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+                selectedMusic === 'relaxing'
+                  ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => selectedMusic === 'relaxing' && setSelectedMusic(selectedMusic === 'relaxing' ? null : 'relaxing')}
+            >
+              <div className="flex items-center gap-3">
+                {/* Play triangle icon with grey borders */}
+                <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+                  <Play size={18} className="text-gray-600 ml-0.5" />
+                </div>
+                <span className="text-gray-700 text-sm">Relaxing</span>
+              </div>
+              
+              {/* Show Edit button when selected, Select button when not selected */}
+              {selectedMusic === 'relaxing' ? (
+                <button 
+                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('relaxing');
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button 
+                  className={selectBtnClass}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('relaxing');
+                  }}
+                >
+                  Select
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )
       ) : (
         <div>
           {/* Upload container */}
