@@ -15,22 +15,23 @@ const renderListItem = (item: unknown, index: number): React.ReactNode => {
     return <span key={index}>{item}</span>;
   }
   
-  if (typeof item === 'object' && item.type) {
-    switch (item.type) {
+  if (typeof item === 'object' && item !== null && 'type' in item && item.type) {
+    const typedItem = item as { type: string; items?: unknown[] };
+    switch (typedItem.type) {
       case 'bullet_list':
         return (
           <ul key={index} className="nested-bullet-list">
-            {item.items.map((subItem: unknown, subIndex: number) => (
+            {typedItem.items?.map((subItem: unknown, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
-            ))}
+            )) || []}
           </ul>
         );
       case 'numbered_list':
         return (
           <ol key={index} className="nested-numbered-list">
-            {item.items.map((subItem: unknown, subIndex: number) => (
+            {typedItem.items?.map((subItem: unknown, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
-            ))}
+            )) || []}
           </ol>
         );
       default:

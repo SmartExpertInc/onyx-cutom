@@ -39,6 +39,15 @@ import FolderSettingsModal from '../app/projects/FolderSettingsModal';
 import ProjectSettingsModal from '../app/projects/ProjectSettingsModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
+// Helper function to get design microproduct type from either Project or BackendProject
+const getDesignMicroproductType = (project: Project | BackendProject): string => {
+  if ('designMicroproductType' in project) {
+    return project.designMicroproductType || '';
+  } else {
+    return (project as BackendProject).design_microproduct_type || '';
+  }
+};
+
 // Helper function to calculate dynamic text width based on column width
 const calculateTextWidth = (columnWidthPercent: number, containerWidth: number = 1200): number => {
   // Calculate the actual pixel width based on percentage
@@ -1511,14 +1520,14 @@ const ProjectCard: React.FC<{
     const [showRestorePrompt, setShowRestorePrompt] = useState(false);
     const [renameModalOpen, setRenameModalOpen] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
-    const [newName, setNewName] = useState(project.designMicroproductType ? project.title : (project.instanceName || project.title));
+    const [newName, setNewName] = useState(getDesignMicroproductType(project) ? project.title : (project.instanceName || project.title));
     const [menuPosition, setMenuPosition] = useState<'above' | 'below'>('below');
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     
-    const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
+    const isOutline = (getDesignMicroproductType(project) || "").toLowerCase() === "training plan";
     const displayTitle = isOutline ? project.title : (project.instanceName || project.title);
     
     const stringToColor = (str: string): string => {
@@ -2080,7 +2089,7 @@ const ProjectRowMenu: React.FC<{
     const [showSettingsModal, setShowSettingsModal] = React.useState(false);
     const menuRef = React.useRef<HTMLDivElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
-    const isOutline = (project.designMicroproductType || "").toLowerCase() === "training plan";
+    const isOutline = (getDesignMicroproductType(project) || "").toLowerCase() === "training plan";
     
     const handleRemoveFromFolder = async () => {
         try {
