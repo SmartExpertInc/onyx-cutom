@@ -361,7 +361,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {{ total_hours if total_hours is defined else 0 }}h of learning content → {{ total_production_time if total_production_time is defined else 0 }}h production
+                         Subtotal: {{ total_hours }}h of learning content → {{ total_production_time }}h production
                      </div>
                 </div>
             </div>
@@ -409,8 +409,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {{ total_hours if total_hours is defined else 0 }} hours of learning content</li>
-                     <li>Estimated Production Time: ≈ {{ total_production_time if total_production_time is defined else 0 }} hours</li>
+                     <li>Total: {{ total_hours }} hours of learning content</li>
+                     <li>Estimated Production Time: ≈ {{ total_production_time }} hours</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>
