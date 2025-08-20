@@ -9,6 +9,8 @@ interface TransitionProps {
 export default function Transition({}: TransitionProps) {
   const [selectedTransition, setSelectedTransition] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [isApplyBetweenAllScenes, setIsApplyBetweenAllScenes] = useState(false);
+  const [duration, setDuration] = useState(1.0);
   // Function to render the selected transition settings view
   const renderSelectedTransitionView = () => {
     if (!selectedTransition) return null;
@@ -20,8 +22,7 @@ export default function Transition({}: TransitionProps) {
           <div className="bg-gray-100 p-4 flex items-center justify-between rounded-t-md">
             <div className="flex items-center gap-3">
               {/* Transition square */}
-              <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                <span className="text-gray-600 text-xs font-medium">{selectedTransition}</span>
+              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
               </div>
               
               {/* Transition name */}
@@ -32,7 +33,7 @@ export default function Transition({}: TransitionProps) {
             
             {/* Change button */}
             <button 
-              className="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
+              className="px-3 py-1 text-xs rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
               onClick={() => setShowSettings(false)}
             >
               Change
@@ -48,10 +49,15 @@ export default function Transition({}: TransitionProps) {
                 <span className="text-gray-700 text-sm">Apply between all scenes</span>
                 {/* Switch/Slider */}
                 <div 
-                  className="w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors bg-gray-300"
+                  className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
+                    isApplyBetweenAllScenes ? 'bg-black' : 'bg-gray-300'
+                  }`}
+                  onClick={() => setIsApplyBetweenAllScenes(!isApplyBetweenAllScenes)}
                 >
                   <div 
-                    className="w-4 h-4 rounded-full shadow-sm transition-transform bg-white"
+                    className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
+                      isApplyBetweenAllScenes ? 'bg-white translate-x-6' : 'bg-white'
+                    }`}
                   ></div>
                 </div>
               </div>
@@ -59,12 +65,61 @@ export default function Transition({}: TransitionProps) {
               {/* Duration row */}
               <div className="flex items-center justify-between mb-6">
                 <span className="text-gray-700 text-sm">Duration (sec)</span>
-                <select className="text-sm border border-gray-300 rounded px-2 py-1 bg-white">
-                  <option>0.5</option>
-                  <option>1.0</option>
-                  <option>1.5</option>
-                  <option>2.0</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  {/* Duration range slider */}
+                  <div className="relative w-32 flex items-center">
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="3.0"
+                      step="0.1"
+                      defaultValue="1.0"
+                      className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setDuration(parseFloat(value));
+                        const percentage = ((parseFloat(value) - 0.5) / 2.5) * 100 + '%';
+                        e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
+                      }}
+                      style={{
+                        background: `linear-gradient(to right, #000000 0%, #000000 40%, #e5e7eb 40%, #e5e7eb 100%)`
+                      }}
+                    />
+                    <style jsx>{`
+                      input[type="range"]::-webkit-slider-thumb {
+                        appearance: none;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: #000000;
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                      }
+                      
+                      input[type="range"]::-moz-range-thumb {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: #000000;
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                      }
+                      
+                      input[type="range"]::-webkit-slider-track {
+                        appearance: none;
+                        background: transparent;
+                      }
+                      
+                      input[type="range"]::-moz-range-track {
+                        background: transparent;
+                        border: none;
+                      }
+                    `}</style>
+                  </div>
+                  <span className="text-gray-600 text-sm w-8 text-right">{duration.toFixed(1)}</span>
+                </div>
               </div>
 
               {/* Variant row */}
@@ -72,23 +127,23 @@ export default function Transition({}: TransitionProps) {
                 <span className="text-gray-700 text-sm">Variant</span>
                 <div className="flex gap-2">
                   {/* Circle button */}
-                  <button className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center bg-white hover:bg-gray-50">
-                    <div className="w-3 h-3 rounded-full bg-gray-600"></div>
+                  <button className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center bg-white hover:bg-gray-50">
+                    <div className="w-3 h-3 rounded-full bg-white border border-black"></div>
                   </button>
                   
                   {/* Horizontal chevrons button */}
-                  <button className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center bg-white hover:bg-gray-50">
+                  <button className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center bg-white hover:bg-gray-50">
                     <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m15 18l-6-6l6-6"/>
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m9 18l6-6l-6-6"/>
+                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m16 18l-6-6l6-6"/>
+                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m8 18l6-6l-6-6"/>
                     </svg>
                   </button>
                   
                   {/* Vertical chevrons button */}
-                  <button className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center bg-white hover:bg-gray-50">
+                  <button className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center bg-white hover:bg-gray-50">
                     <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 15l-6-6l-6 6"/>
-                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 9l-6 6l-6-6"/>
+                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 16l-6-6l-6 6"/>
+                      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 8l-6 6l-6-6"/>
                     </svg>
                   </button>
                 </div>
@@ -108,7 +163,7 @@ export default function Transition({}: TransitionProps) {
       ) : (
         <>
           {/* Pill-shaped button with SVG and "No transition" text */}
-          <button className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-full py-3 px-4 transition-colors duration-200">
+          <button className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-full py-3 px-4 transition-colors duration-200">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="20" 
@@ -125,7 +180,7 @@ export default function Transition({}: TransitionProps) {
           </button>
 
           {/* Transition options grid */}
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-3 gap-2">
             {/* Fade */}
             <div 
               className="flex flex-col items-center cursor-pointer"
@@ -134,7 +189,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Fade</span>
             </div>
 
@@ -146,7 +201,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Close</span>
             </div>
 
@@ -158,7 +213,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Crop</span>
             </div>
 
@@ -170,7 +225,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Blur</span>
             </div>
 
@@ -182,7 +237,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Open</span>
             </div>
 
@@ -194,7 +249,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Slide</span>
             </div>
 
@@ -206,7 +261,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Wipe</span>
             </div>
 
@@ -218,7 +273,7 @@ export default function Transition({}: TransitionProps) {
                 setShowSettings(true);
               }}
             >
-              <div className="w-16 h-16 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Smooth wipe</span>
             </div>
           </div>
