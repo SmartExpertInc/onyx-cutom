@@ -19546,6 +19546,7 @@ async def create_smartdrive_connector(
             "name": name,
             "source": connector_id,
             "input_type": "poll",
+            "access_type": "private",  # Required field for Smart Drive connectors
             "connector_specific_config": connector_specific_config,
             "refresh_freq": 3600,  # 1 hour
             "prune_freq": 86400,   # 1 day
