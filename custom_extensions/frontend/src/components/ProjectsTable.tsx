@@ -739,7 +739,7 @@ const PreviewModal: React.FC<{
                                               padding: '16px 20px',
                                               fontWeight: '500'
                                             }}>
-                                              {productionHours.toLocaleString()}
+                                              {level.productionHours.toLocaleString()}
                                             </td>
                                           </tr>
                                         );
