@@ -19481,10 +19481,14 @@ async def create_smartdrive_connector(
         # Get connector data from request
         connector_data = await request.json()
         connector_id = connector_data.get('connector_id')  # This is the source type (e.g., 'notion', 'slack')
+        credential_id = connector_data.get('credential_id')  # ID of existing credential to use
         name = connector_data.get('name', f'Smart Drive {connector_id}')
         
         if not connector_id:
             raise HTTPException(status_code=400, detail="Connector ID is required")
+        
+        if not credential_id:
+            raise HTTPException(status_code=400, detail="Credential ID is required")
         
         # Define which fields are credentials vs connector config
         credential_fields = {
@@ -19565,22 +19569,16 @@ async def create_smartdrive_connector(
             if not connector_id:
                 raise HTTPException(status_code=500, detail="Failed to get connector ID")
             
-            # Create a proper credential for the connector using Onyx's credential system
-            credential_payload = {
-                "credential_json": connector_specific_config,
-                "public_doc": False  # Private credential for Smart Drive
-            }
-            
-            # Create credential
-            credential_response = await client.post(
-                f"{main_app_url}/api/manage/credential",
-                headers=auth_headers,
-                json=credential_payload
+            # Use the existing credential instead of creating a new one
+            # Verify the credential exists and is accessible
+            credential_response = await client.get(
+                f"{main_app_url}/api/manage/credential/{credential_id}",
+                headers=auth_headers
             )
             
             if not credential_response.is_success:
-                logger.error(f"Failed to create credential: {credential_response.text}")
-                # If credential creation fails, try to delete the connector
+                logger.error(f"Failed to access credential: {credential_response.text}")
+                # If credential access fails, try to delete the connector
                 try:
                     await client.delete(
                         f"{main_app_url}/api/manage/admin/connector/{connector_id}",
@@ -19591,14 +19589,10 @@ async def create_smartdrive_connector(
                 
                 raise HTTPException(
                     status_code=credential_response.status_code,
-                    detail=f"Failed to create credential: {credential_response.text}"
+                    detail=f"Failed to access credential: {credential_response.text}"
                 )
             
             credential_result = credential_response.json()
-            credential_id = credential_result.get('id')
-            
-            if not credential_id:
-                raise HTTPException(status_code=500, detail="Failed to get credential ID")
             
             # Link the credential to the connector using Onyx's linkCredential approach
             auto_sync_options = {
