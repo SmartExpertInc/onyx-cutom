@@ -39,23 +39,23 @@ export default function Music() {
       {activeButton === 'stock' ? (
         <div>
           {/* Search bar */}
-          <div className="relative mb-4 px-4">
-            <Search className="absolute left-7 top-1/2 transform -translate-y-1/2 text-black" size={16} />
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" size={16} />
             <input
               type="text"
               placeholder="Search"
-              className="w-full pl-10 pr-4 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-black hover:border-black transition-colors"
+              className="w-full pl-10 pr-4 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-black focus:border-black hover:border-black transition-colors"
             />
           </div>
 
           {/* No music content - now selectable */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg cursor-pointer transition-all mb-4 ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-4 ${
               selectedMusic === 'no-music'
-                ? 'bg-white border border-black'
-                : 'bg-gray-50 hover:bg-gray-100'
+                ? 'bg-white border border-black cursor-pointer'
+                : 'hover:bg-gray-100'
             }`}
-            onClick={() => setSelectedMusic('no-music')}
+            onClick={() => selectedMusic === 'no-music' && setSelectedMusic('no-music')}
           >
             <div className="flex items-center gap-3">
               {/* No icon */}
@@ -86,12 +86,12 @@ export default function Music() {
 
           {/* Music item - Corporate */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg cursor-pointer transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
               selectedMusic === 'corporate'
-                ? 'bg-white border border-black'
+                ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
             }`}
-            onClick={() => setSelectedMusic(selectedMusic === 'corporate' ? null : 'corporate')}
+            onClick={() => selectedMusic === 'corporate' && setSelectedMusic(selectedMusic === 'corporate' ? null : 'corporate')}
           >
             <div className="flex items-center gap-3">
               {/* Play triangle icon with grey borders */}
@@ -117,12 +117,12 @@ export default function Music() {
 
           {/* Music item - Happy */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg cursor-pointer transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
               selectedMusic === 'happy'
-                ? 'bg-white border border-black'
+                ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
             }`}
-            onClick={() => setSelectedMusic(selectedMusic === 'happy' ? null : 'happy')}
+            onClick={() => selectedMusic === 'happy' && setSelectedMusic(selectedMusic === 'happy' ? null : 'happy')}
           >
             <div className="flex items-center gap-3">
               {/* Play triangle icon with grey borders */}
@@ -148,12 +148,12 @@ export default function Music() {
 
           {/* Music item - Vibe Vacation */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg cursor-pointer transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
               selectedMusic === 'vibe-vacation'
-                ? 'bg-white border border-black'
+                ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
             }`}
-            onClick={() => setSelectedMusic(selectedMusic === 'vibe-vacation' ? null : 'vibe-vacation')}
+            onClick={() => selectedMusic === 'vibe-vacation' && setSelectedMusic(selectedMusic === 'vibe-vacation' ? null : 'vibe-vacation')}
           >
             <div className="flex items-center gap-3">
               {/* Play triangle icon with grey borders */}
@@ -179,12 +179,12 @@ export default function Music() {
 
           {/* Music item - Inspiring */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg cursor-pointer transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
               selectedMusic === 'inspiring'
-                ? 'bg-white border border-black'
+                ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
             }`}
-            onClick={() => setSelectedMusic(selectedMusic === 'inspiring' ? null : 'inspiring')}
+            onClick={() => selectedMusic === 'inspiring' && setSelectedMusic(selectedMusic === 'inspiring' ? null : 'inspiring')}
           >
             <div className="flex items-center gap-3">
               {/* Play triangle icon with grey borders */}
@@ -210,12 +210,12 @@ export default function Music() {
 
           {/* Music item - Long Journey */}
           <div 
-            className={`group flex items-center justify-between py-4 px-5 rounded-lg cursor-pointer transition-all ${
+            className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all ${
               selectedMusic === 'long-journey'
-                ? 'bg-white border border-black'
+                ? 'bg-white border border-black cursor-pointer'
                 : 'hover:bg-gray-100'
             }`}
-            onClick={() => setSelectedMusic(selectedMusic === 'long-journey' ? null : 'long-journey')}
+            onClick={() => selectedMusic === 'long-journey' && setSelectedMusic(selectedMusic === 'long-journey' ? null : 'long-journey')}
           >
             <div className="flex items-center gap-3">
               {/* Play triangle icon with grey borders */}
