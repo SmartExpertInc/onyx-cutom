@@ -570,30 +570,30 @@ const PreviewModal: React.FC<{
                                         }
                                         
                                         // Add project data - same logic as PDF
-                                        acc[projectType].modules += 1;
+                                        (acc[projectType] as { modules: number }).modules += 1;
                                         
                                         // Get lessons and hours - same logic as PDF
                                         if ('total_lessons' in project && 'total_hours' in project) {
                                           // Backend data - use real values
                                           const backendProject = project as BackendProject;
-                                          acc[projectType].lessons += backendProject.total_lessons || 0;
-                                          acc[projectType].learningDuration += backendProject.total_hours || 0;
+                                          (acc[projectType] as { lessons: number }).lessons += backendProject.total_lessons || 0;
+                                          (acc[projectType] as { learningDuration: number }).learningDuration += backendProject.total_hours || 0;
                                         } else {
                                           // Frontend data - use lessonDataCache or defaults
                                           const frontendProject = project as Project;
                                           const lessonData = (window as any).__lessonDataCache?.[frontendProject.id];
                                           if (lessonData) {
-                                            acc[projectType].lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
-                                            acc[projectType].learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
+                                            (acc[projectType] as { lessons: number }).lessons += typeof lessonData.lessonCount === 'number' ? lessonData.lessonCount : 0;
+                                            (acc[projectType] as { learningDuration: number }).learningDuration += typeof lessonData.totalHours === 'number' ? lessonData.totalHours : 0;
                                           } else {
                                             // Default values (same as PDF fallback)
-                                            acc[projectType].lessons += 5;
-                                            acc[projectType].learningDuration += 3;
+                                            (acc[projectType] as { lessons: number }).lessons += 5;
+                                            (acc[projectType] as { learningDuration: number }).learningDuration += 3;
                                           }
                                         }
                                         
                                         return acc;
-                                      }, {} as Record<string, unknown>);
+                                      }, {} as Record<string, { name: string; modules: number; lessons: number; learningDuration: number; productionTime: number }>);
 
                                       // Calculate production time - same formula as PDF (learning duration * 300)
                                       Object.values(courseStats).forEach((course: unknown) => {
@@ -815,7 +815,7 @@ const PreviewModal: React.FC<{
                                         };
                                       }
                                       return acc;
-                                    }, {} as Record<string, unknown>);
+                                    }, {} as Record<string, { learningDuration: number }>);
                                     const totalLearningHours = Object.values(courseStats).reduce((sum: number, course: unknown) => sum + (course as { learningDuration: number }).learningDuration, 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
@@ -838,7 +838,7 @@ const PreviewModal: React.FC<{
                                         };
                                       }
                                       return acc;
-                                    }, {} as Record<string, unknown>);
+                                    }, {} as Record<string, { learningDuration: number }>);
                                     const totalProductionHours = Object.values(courseStats).reduce((sum: number, course: unknown) => sum + ((course as { learningDuration: number }).learningDuration * 300), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
