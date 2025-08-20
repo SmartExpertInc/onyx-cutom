@@ -19474,7 +19474,8 @@ async def create_smartdrive_connector(
         
         auth_headers = {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'x-smart-drive-connector': 'true'  # Smart Drive header to bypass admin checks
         }
         
         # Forward all cookies to maintain session state
@@ -19614,9 +19615,13 @@ async def create_smartdrive_connector(
                 "frequency": 3600
             }
             
+            # Add Smart Drive header for credential linking
+            linking_headers = auth_headers.copy()
+            linking_headers['x-smart-drive-credential'] = 'true'
+            
             cc_pair_response = await client.put(
                 ensure_https_url(f"/api/manage/connector/{connector_id}/credential/{credential_id}"),
-                headers=auth_headers,
+                headers=linking_headers,
                 json={
                     "name": name,
                     "access_type": "private",
@@ -19760,7 +19765,8 @@ async def get_credentials_for_source(source_type: str, request: Request):
         session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
         
         auth_headers = {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'x-smart-drive-credential': 'true'  # Smart Drive header to bypass admin checks
         }
         
         # Forward all cookies to maintain session state

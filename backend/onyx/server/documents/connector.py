@@ -912,14 +912,26 @@ def _validate_connector_allowed(source: DocumentSource) -> None:
 @router.post("/admin/connector")
 def create_connector_from_model(
     connector_data: ConnectorUpdateRequest,
-    user: User = Depends(current_curator_or_admin_user),
+    user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
     request: Request = None,
 ) -> ObjectCreationIdResponse:
     tenant_id = get_current_tenant_id()
 
+    # Check for Smart Drive header and non-admin access
+    is_smart_drive = request and request.headers.get("x-smart-drive-connector") == "true"
+    
+    # For non-Smart Drive requests, enforce admin/curator requirements
+    if not is_smart_drive:
+        # Check if user has admin/curator role
+        if user is None or not (user.role.value in ["ADMIN", "CURATOR"]):
+            raise HTTPException(
+                status_code=403, 
+                detail="Access denied. User is not a curator or admin."
+            )
+
     # Force PRIVATE access for Smart Drive connectors
-    if request and request.headers.get("x-smart-drive-connector") == "true":
+    if is_smart_drive:
         connector_data.access_type = AccessType.PRIVATE
         # Get or create a personal user group for this user
         user_group_id = get_or_create_user_group_for_smart_drive(user, db_session)

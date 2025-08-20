@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
+from fastapi import Request
 from sqlalchemy.orm import Session
 
 from onyx.auth.users import current_admin_user
@@ -62,14 +63,27 @@ def list_credentials_admin(
 
 
 @router.get("/admin/similar-credentials/{source_type}")
-def get_cc_source_full_info(
+async def get_cc_source_full_info(
     source_type: DocumentSource,
-    user: User | None = Depends(current_curator_or_admin_user),
+    request: Request,
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     get_editable: bool = Query(
         False, description="If true, return editable credentials"
     ),
 ) -> list[CredentialSnapshot]:
+    # Check for Smart Drive header and non-admin access
+    is_smart_drive = request.headers.get("x-smart-drive-credential") == "true"
+    
+    # For non-Smart Drive requests, enforce admin/curator requirements
+    if not is_smart_drive:
+        # Check if user has admin/curator role
+        if user is None or not (user.role.value in ["ADMIN", "CURATOR"]):
+            raise HTTPException(
+                status_code=403, 
+                detail="Access denied. User is not a curator or admin."
+            )
+    
     credentials = fetch_credentials_by_source_for_user(
         db_session=db_session,
         user=user,
