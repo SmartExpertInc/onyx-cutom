@@ -2749,7 +2749,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
     const [activeFilter, setActiveFilter] = useState('All');
     const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
     const [folderProjects, setFolderProjects] = useState<Record<number, Project[]>>({});
-    const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>>({});
+    const [lessonDataCache, setLessonDataCache] = useState<Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string, totalModules?: number | string, totalCreationHours?: number | string }>>({});
     const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
         title: true,
         created: false,
@@ -4230,7 +4230,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalCreationHours ? `${lessonData.totalCreationHours}h` : '-';
+                                                    return lessonData && lessonData.totalCreationHours ? `${lessonData.totalCreationHours}h` : (lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-');
                                                 })()}
                                             </td>
                                         )}
@@ -4357,7 +4357,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                                    return lessonData && lessonData.totalCreationHours ? `${lessonData.totalCreationHours}h` : (lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-');
                                                 })()}
                                             </td>
                                         )}
@@ -4365,7 +4365,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
                                             </td>
                                         )}
