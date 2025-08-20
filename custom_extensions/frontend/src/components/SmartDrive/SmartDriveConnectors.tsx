@@ -401,7 +401,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   const handleConnectorSubmit = async (formData: any) => {
     try {
-      const response = await fetch("/api/custom/smartdrive/connectors/create", {
+      const response = await fetch("/api/custom-projects-backend/smartdrive/connectors/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
