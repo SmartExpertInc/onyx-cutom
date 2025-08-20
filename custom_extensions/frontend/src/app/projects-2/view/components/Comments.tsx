@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown, X } from 'lucide-react';
 
 interface CommentsProps {
   // Add props as needed
@@ -9,22 +9,36 @@ interface CommentsProps {
 
 export default function Comments({}: CommentsProps) {
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const [filterSelections, setFilterSelections] = useState<Record<string, string[]>>({
+    comments: [],
+    involved: [],
+    people: [],
+    assigned: [],
+    tagged: [],
+    groupedBy: []
+  });
+
+  const handleStatusToggle = (status: string) => {
+    setSelectedStatuses(prev => 
+      prev.includes(status) 
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
+  };
+
+  const handleFilterToggle = (section: string, value: string) => {
+    setFilterSelections(prev => ({
+      ...prev,
+      [section]: prev[section].includes(value)
+        ? prev[section].filter(v => v !== value)
+        : [...prev[section], value]
+    }));
+  };
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-4 min-w-[300px]">
-      <div className="flex items-center gap-2 mb-3">
-        <span 
-          className="font-semibold text-gray-400"
-          style={{
-            fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-            fontSize: '12px',
-            letterSpacing: '0.05em'
-          }}
-        >
-          COMMENTS
-        </span>
-      </div>
-      
+    <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-4 min-w-[300px] relative overflow-hidden">
       {/* Top row with search, status dropdown, and icon button */}
       <div className="flex items-center gap-3 mb-4">
         {/* Search bar */}
@@ -33,7 +47,7 @@ export default function Comments({}: CommentsProps) {
           <input
             type="text"
             placeholder="Search comments"
-            className="w-full pl-10 pr-3 py-2 bg-gray-100 border-0 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-3 py-2 bg-gray-100 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}
@@ -41,19 +55,85 @@ export default function Comments({}: CommentsProps) {
         </div>
 
         {/* Status dropdown */}
-        <button
-          onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
-          className="flex items-center gap-1 px-3 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors"
-          style={{
-            fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-          }}
-        >
-          <span className="text-gray-700">Status</span>
-          <ChevronDown size={14} className="text-gray-500" />
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+            className="flex items-center gap-1 px-3 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors"
+            style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+            }}
+          >
+            <span className="text-gray-700">Status</span>
+            <ChevronDown size={14} className="text-gray-500" />
+          </button>
 
-        {/* Icon button */}
-        <button className="p-2 hover:bg-gray-100 rounded-md transition-colors">
+          {/* Status dropdown popup */}
+          {statusDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[200px] z-50">
+              {/* Open status row */}
+              <div className="flex items-center justify-between py-2 px-2 hover:bg-gray-50 rounded cursor-pointer">
+                <div className="flex items-center gap-2">
+                  <span 
+                    className="text-gray-700 text-sm"
+                    style={{
+                      fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+                    }}
+                  >
+                    Open
+                  </span>
+                  <span 
+                    className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs"
+                    style={{
+                      fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+                    }}
+                  >
+                    0
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={selectedStatuses.includes('open')}
+                  onChange={() => handleStatusToggle('open')}
+                  className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                />
+              </div>
+
+              {/* Resolved status row */}
+              <div className="flex items-center justify-between py-2 px-2 hover:bg-gray-50 rounded cursor-pointer">
+                <div className="flex items-center gap-2">
+                  <span 
+                    className="text-gray-700 text-sm"
+                    style={{
+                      fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+                    }}
+                  >
+                    Resolved
+                  </span>
+                  <span 
+                    className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs"
+                    style={{
+                      fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+                    }}
+                  >
+                    0
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={selectedStatuses.includes('resolved')}
+                  onChange={() => handleStatusToggle('resolved')}
+                  className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Filter icon button */}
+        <button 
+          onClick={() => setFilterPanelOpen(!filterPanelOpen)}
+          className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+        >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             width="16" 
@@ -69,12 +149,226 @@ export default function Comments({}: CommentsProps) {
         </button>
       </div>
 
+      {/* Filter panel - slides down from top */}
+      <div 
+        className={`absolute top-0 left-0 right-0 bg-white border-b border-gray-200 transition-transform duration-300 ease-in-out ${
+          filterPanelOpen ? 'translate-y-0' : '-translate-y-full'
+        }`}
+        style={{ zIndex: 60 }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <span 
+            className="font-semibold text-gray-700"
+            style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+              fontSize: '14px',
+            }}
+          >
+            Filters
+          </span>
+          <button 
+            onClick={() => setFilterPanelOpen(false)}
+            className="p-1 hover:bg-gray-100 rounded transition-colors"
+          >
+            <X size={16} className="text-gray-500" />
+          </button>
+        </div>
+
+        {/* Filter content */}
+        <div className="p-4 max-h-96 overflow-y-auto">
+          {/* Comments section */}
+          <div className="mb-6">
+            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+            }}>
+              Comments
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={filterSelections.comments.includes('all')}
+                  onChange={() => handleFilterToggle('comments', 'all')}
+                  className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                />
+                <span className="text-sm text-gray-700">All</span>
+              </div>
+              <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+            </div>
+          </div>
+
+          {/* Involved section */}
+          <div className="mb-6">
+            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+            }}>
+              Involved
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.involved.includes('all')}
+                    onChange={() => handleFilterToggle('involved', 'all')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">All</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.involved.includes('me')}
+                    onChange={() => handleFilterToggle('involved', 'me')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">Me</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+            </div>
+          </div>
+
+          {/* People section */}
+          <div className="mb-6">
+            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+            }}>
+              People
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.people.includes('all')}
+                    onChange={() => handleFilterToggle('people', 'all')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">All</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.people.includes('me')}
+                    onChange={() => handleFilterToggle('people', 'me')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">Me</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Assigned section */}
+          <div className="mb-6">
+            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+            }}>
+              Assigned
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.assigned.includes('all')}
+                    onChange={() => handleFilterToggle('assigned', 'all')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">All</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.assigned.includes('me')}
+                    onChange={() => handleFilterToggle('assigned', 'me')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">Me</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tagged section */}
+          <div className="mb-6">
+            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+            }}>
+              Tagged
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.tagged.includes('all')}
+                    onChange={() => handleFilterToggle('tagged', 'all')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">All</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.tagged.includes('me')}
+                    onChange={() => handleFilterToggle('tagged', 'me')}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">Me</span>
+                </div>
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">0</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Grouped By section */}
+          <div className="mb-6">
+            <div className="text-sm font-medium text-gray-700 mb-3" style={{
+              fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
+            }}>
+              Grouped By
+            </div>
+            <div className="space-y-2">
+              {['Assigned', 'Involved', 'Comments', 'People', 'Tagged'].map((option) => (
+                <div key={option} className="flex items-center gap-2 py-2">
+                  <input
+                    type="checkbox"
+                    checked={filterSelections.groupedBy.includes(option.toLowerCase())}
+                    onChange={() => handleFilterToggle('groupedBy', option.toLowerCase())}
+                    className="w-4 h-4 text-gray-400 bg-gray-100 border-gray-300 rounded focus:ring-gray-200"
+                  />
+                  <span className="text-sm text-gray-700">{option}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
       {/* Centered content */}
       <div className="flex flex-col items-center justify-center py-12">
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
-          width="48" 
-          height="48" 
+          width="36" 
+          height="36" 
           viewBox="0 0 24 24"
           className="text-black mb-3"
         >
@@ -95,7 +389,7 @@ export default function Comments({}: CommentsProps) {
       </div>
 
       {/* Bottom comment input section */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-4">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mt-4">
         <div className="text-gray-500 text-sm mb-3" style={{
           fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
         }}>
@@ -120,11 +414,11 @@ export default function Comments({}: CommentsProps) {
             </label>
           </div>
           
-          <button className="w-8 h-8 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
+          <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              width="16" 
-              height="16" 
+              width="18" 
+              height="18" 
               viewBox="0 0 24 24"
               className="text-gray-300"
             >
