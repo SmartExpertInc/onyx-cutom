@@ -16664,6 +16664,9 @@ async def download_projects_list_pdf(
             total_hours += project.get('total_hours', 0) or 0
             total_production_time += project.get('total_creation_hours', 0) or 0
         
+        # Add total_hours to summary_stats for template access
+        summary_stats['total_hours'] = total_hours
+        
         # Add debug logging
         logger.info(f"[PDF_ANALYTICS] Total calculation:")
         logger.info(f"[PDF_ANALYTICS] - Total hours: {total_hours}")

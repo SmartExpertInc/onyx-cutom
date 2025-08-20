@@ -95,35 +95,38 @@ def test_summary_stats():
     # Calculate total_hours (LEARNING DURATION)
     total_hours = calculate_total_hours(folder_projects, unassigned_projects)
     
+    # Add total_hours to summary_stats (as done in main.py)
+    summary_stats['total_hours'] = total_hours
+    
     print(f"📊 Summary stats calculation:")
     print(f"  - Total projects: {summary_stats['total_projects']}")
     print(f"  - Total lessons: {summary_stats['total_lessons']}")
     print(f"  - Total modules: {summary_stats['total_modules']}")
     print(f"  - Total creation time: {summary_stats['total_creation_time']}h")
     print(f"  - Total completion time: {summary_stats['total_completion_time']}m")
-    print(f"  - Total hours (LEARNING DURATION): {total_hours}h")
+    print(f"  - Total hours (LEARNING DURATION): {summary_stats['total_hours']}h")
     
     expected_total_hours = 200 + 330 + 50  # all projects total_hours
     expected_creation_hours = 400 + 125 + 100  # all projects total_creation_hours
     
     print(f"\n✅ Test results:")
     print(f"  - Expected total hours (LEARNING DURATION): {expected_total_hours}")
-    print(f"  - Actual total hours (LEARNING DURATION): {total_hours}")
+    print(f"  - Actual total hours (LEARNING DURATION): {summary_stats['total_hours']}")
     print(f"  - Expected creation hours (PRODUCTION TIME): {expected_creation_hours}")
     print(f"  - Actual creation hours (PRODUCTION TIME): {summary_stats['total_creation_time']}")
     
     print(f"\n🎯 Expected PDF Output:")
-    print(f"  Subtotal: {total_hours}h of learning content → {summary_stats['total_creation_time']}h production")
-    print(f"  Summary: Total: {total_hours} hours of learning content")
+    print(f"  Subtotal: {summary_stats['total_hours']}h of learning content → {summary_stats['total_creation_time']}h production")
+    print(f"  Summary: Total: {summary_stats['total_hours']} hours of learning content")
     print(f"  Summary: Estimated Production Time: ≈ {summary_stats['total_creation_time']} hours")
     
     print(f"\n📋 Table Data:")
     print(f"  Project 1: {folder_projects[1][0]['total_hours']}h learning → {folder_projects[1][0]['total_creation_hours']}h production")
     print(f"  Project 2: {folder_projects[1][1]['total_hours']}h learning → {folder_projects[1][1]['total_creation_hours']}h production")
     print(f"  Unassigned: {unassigned_projects[0]['total_hours']}h learning → {unassigned_projects[0]['total_creation_hours']}h production")
-    print(f"  TOTAL: {total_hours}h learning → {summary_stats['total_creation_time']}h production")
+    print(f"  TOTAL: {summary_stats['total_hours']}h learning → {summary_stats['total_creation_time']}h production")
     
-    print(f"\n✅ Now using correct LEARNING DURATION (H) values!")
+    print(f"\n✅ Now using summary_stats.total_hours for LEARNING DURATION (H)!")
 
 if __name__ == "__main__":
     test_summary_stats() 
