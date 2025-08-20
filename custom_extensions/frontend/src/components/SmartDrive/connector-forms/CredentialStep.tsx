@@ -317,7 +317,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
           credential_json: formData,
           admin_public: true,
           curator_public: false,
-          groups: null,
+          groups: [],
         }),
       });
 
