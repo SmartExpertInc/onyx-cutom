@@ -1295,13 +1295,8 @@ const FolderRow: React.FC<{
                 {columnVisibility.estCompletionTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-<<<<<<< HEAD
-                            const totalHours = getTotalHoursInFolder(folder);
-                            return totalHours > 0 ? totalHours : '-';
-=======
                             const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
                             return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
->>>>>>> f009e6b52 (preview data fix MAIN)
                         })()}
                     </td>
                 )}
@@ -1430,15 +1425,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-<<<<<<< HEAD
-                                    // Use totalHours for Learning Duration (h) - Completion time values
-                                    const learningHours = lessonData?.totalHours;
-                                    return learningHours ? learningHours : '-';
-=======
                                     // Use completionTime for Learning Duration (h) - Completion time values
                                     const learningHours = lessonData?.completionTime;
                                     return learningHours ? formatCompletionTimeLocalized(learningHours) : '-';
->>>>>>> f009e6b52 (preview data fix MAIN)
                                 })()}
                             </td>
                         )}
@@ -4249,11 +4238,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-<<<<<<< HEAD
-                                                    return lessonData && lessonData.totalHours ? lessonData.totalHours : '-';
-=======
                                                     return lessonData && lessonData.completionTime ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
->>>>>>> f009e6b52 (preview data fix MAIN)
                                                 })()}
                                             </td>
                                         )}
@@ -4380,11 +4365,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-<<<<<<< HEAD
-                                                    return lessonData && lessonData.totalHours ? lessonData.totalHours : '-';
-=======
                                                     return lessonData && lessonData.completionTime ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
->>>>>>> f009e6b52 (preview data fix MAIN)
                                                 })()}
                                             </td>
                                         )}
