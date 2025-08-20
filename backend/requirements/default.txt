@@ -101,3 +101,19 @@ prometheus_client==0.21.0
 fastapi-limiter==0.1.6
 prometheus_fastapi_instrumentator==7.1.0
 sendgrid==6.11.0
+
+# Video Lesson Generation Dependencies
+# Core video processing
+opencv-python==4.8.1.78
+moviepy==1.0.3
+Pillow==10.0.1
+
+# Image processing and generation
+reportlab==4.0.4
+
+# Async support
+aiofiles==23.2.1
+
+# Data handling (numpy and pandas already included)
+# numpy==1.24.3  # Already available
+# pandas==2.0.3  # Already available
