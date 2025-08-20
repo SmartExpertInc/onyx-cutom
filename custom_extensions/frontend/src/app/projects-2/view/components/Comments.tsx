@@ -58,7 +58,7 @@ export default function Comments({}: CommentsProps) {
         <div className="relative">
           <button
             onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
-            className="flex items-center gap-1 px-3 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors"
+            className="flex items-center gap-1 px-3 py-2 text-base hover:bg-gray-100 rounded-md transition-colors"
             style={{
               fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
             }}
@@ -136,8 +136,8 @@ export default function Comments({}: CommentsProps) {
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
-            width="16" 
-            height="16" 
+            width="20" 
+            height="20" 
             viewBox="0 0 24 24"
             className="text-gray-700"
           >
@@ -360,7 +360,6 @@ export default function Comments({}: CommentsProps) {
             </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* Centered content */}
