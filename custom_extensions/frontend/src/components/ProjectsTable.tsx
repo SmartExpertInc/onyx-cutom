@@ -593,21 +593,21 @@ const PreviewModal: React.FC<{
                                         }
                                         
                                         return acc;
-                                      }, {} as Record<string, any>);
+                                      }, {} as Record<string, unknown>);
 
                                       // Calculate production time - same formula as PDF (learning duration * 300)
-                                      Object.values(courseStats).forEach((course: any) => {
-                                        course.productionTime = course.learningDuration * 300;
+                                      Object.values(courseStats).forEach((course: unknown) => {
+                                        (course as { learningDuration: number; productionTime: number }).productionTime = (course as { learningDuration: number }).learningDuration * 300;
                                       });
 
                                       const courses = Object.values(courseStats).slice(0, 4);
-                                      const totalLearningHours = courses.reduce((sum: number, course: any) => sum + course.learningDuration, 0);
-                                      const totalProductionHours = courses.reduce((sum: number, course: any) => sum + course.productionTime, 0);
+                                      const totalLearningHours = courses.reduce((sum: number, course: unknown) => sum + (course as { learningDuration: number }).learningDuration, 0);
+                                      const totalProductionHours = courses.reduce((sum: number, course: unknown) => sum + (course as { productionTime: number }).productionTime, 0);
 
                                       return (
                                         <>
-                                          {courses.map((course: any, index: number) => (
-                                            <tr key={course.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                                          {courses.map((course: unknown, index: number) => (
+                                            <tr key={(course as { name: string }).name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
                                               background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
                                               transition: 'background-color 0.2s ease'
                                             }}>
@@ -615,31 +615,31 @@ const PreviewModal: React.FC<{
                                                 padding: '16px 20px',
                                                 fontWeight: '600'
                                               }}>
-                                                {course.name}
+                                                {(course as { name: string }).name}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.modules}
+                                                {(course as { modules: number }).modules}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.lessons}
+                                                {(course as { lessons: number }).lessons}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.learningDuration}
+                                                {(course as { learningDuration: number }).learningDuration}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.productionTime.toLocaleString()}
+                                                {(course as { productionTime: number }).productionTime.toLocaleString()}
                                               </td>
                                             </tr>
                                           ))}
@@ -808,15 +808,15 @@ const PreviewModal: React.FC<{
                                   Total: {(() => {
                                     // Calculate total learning hours from Block 1
                                     const courseStats = data.projects.reduce((acc, project) => {
-                                      const type = project.designMicroproductType || 'Unknown';
+                                      const type = (project as BackendProject).design_microproduct_type || 'Unknown';
                                       if (!acc[type]) {
                                         acc[type] = {
                                           learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
                                         };
                                       }
                                       return acc;
-                                    }, {} as Record<string, any>);
-                                    const totalLearningHours = Object.values(courseStats).reduce((sum: number, course: any) => sum + course.learningDuration, 0);
+                                    }, {} as Record<string, unknown>);
+                                    const totalLearningHours = Object.values(courseStats).reduce((sum: number, course: unknown) => sum + (course as { learningDuration: number }).learningDuration, 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
@@ -831,15 +831,15 @@ const PreviewModal: React.FC<{
                                   Estimated Production Time: ≈ {(() => {
                                     // Calculate total production hours from Block 1
                                     const courseStats = data.projects.reduce((acc, project) => {
-                                      const type = project.designMicroproductType || 'Unknown';
+                                      const type = (project as BackendProject).design_microproduct_type || 'Unknown';
                                       if (!acc[type]) {
                                         acc[type] = {
                                           learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
                                         };
                                       }
                                       return acc;
-                                    }, {} as Record<string, any>);
-                                    const totalProductionHours = Object.values(courseStats).reduce((sum: number, course: any) => sum + (course.learningDuration * 300), 0);
+                                    }, {} as Record<string, unknown>);
+                                    const totalProductionHours = Object.values(courseStats).reduce((sum: number, course: unknown) => sum + ((course as { learningDuration: number }).learningDuration * 300), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
                                 </li>
