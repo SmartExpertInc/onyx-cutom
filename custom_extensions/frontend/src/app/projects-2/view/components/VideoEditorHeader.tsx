@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
 import PlayModal from './PlayModal';
+import GenerateModal from './GenerateModal';
 
 interface EmailInput {
   id: string;
@@ -15,6 +16,7 @@ export default function VideoEditorHeader() {
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
   const [isEyeVisible, setIsEyeVisible] = useState(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   const [videoTitle, setVideoTitle] = useState('Create your first AI video');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
@@ -75,6 +77,10 @@ export default function VideoEditorHeader() {
 
   const handlePlayClick = () => {
     setIsPlayModalOpen(true);
+  };
+
+  const handleGenerateClick = () => {
+    setIsGenerateModalOpen(true);
   };
 
   const handleEmailChange = (id: string, email: string) => {
@@ -512,6 +518,7 @@ export default function VideoEditorHeader() {
 
             {/* Generate button */}
             <button
+              onClick={handleGenerateClick}
               className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
             >
               <span className="text-sm font-normal">Generate</span>
@@ -524,6 +531,13 @@ export default function VideoEditorHeader() {
       <PlayModal 
         isOpen={isPlayModalOpen} 
         onClose={() => setIsPlayModalOpen(false)} 
+        title={videoTitle}
+      />
+
+      {/* Generate Modal */}
+      <GenerateModal 
+        isOpen={isGenerateModalOpen} 
+        onClose={() => setIsGenerateModalOpen(false)} 
         title={videoTitle}
       />
     </header>
