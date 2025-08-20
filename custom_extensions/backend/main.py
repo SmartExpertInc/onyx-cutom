@@ -16653,7 +16653,7 @@ async def download_projects_list_pdf(
         total_hours = 0
         total_production_time = 0
         
-        # Sum up from folders
+        # Sum up from folders (this includes all projects within folders)
         for folder in folder_tree:
             total_hours += folder.get('total_hours', 0) or 0
             total_production_time += folder.get('total_creation_hours', 0) or 0
@@ -16662,6 +16662,13 @@ async def download_projects_list_pdf(
         for project in unassigned_projects:
             total_hours += project.get('total_hours', 0) or 0
             total_production_time += project.get('total_creation_hours', 0) or 0
+        
+        # Add debug logging
+        logger.info(f"[PDF_ANALYTICS] Total calculation:")
+        logger.info(f"[PDF_ANALYTICS] - Total hours: {total_hours}")
+        logger.info(f"[PDF_ANALYTICS] - Total production time: {total_production_time}")
+        logger.info(f"[PDF_ANALYTICS] - Folder count: {len(folder_tree)}")
+        logger.info(f"[PDF_ANALYTICS] - Unassigned projects count: {len(unassigned_projects)}")
 
         # Collect all project IDs that are actually included in the filtered PDF data
         included_project_ids = set()
