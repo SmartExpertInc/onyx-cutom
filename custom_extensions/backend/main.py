@@ -16648,6 +16648,20 @@ async def download_projects_list_pdf(
 
         # Calculate summary statistics
         summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
+        
+        # Calculate total values for template
+        total_hours = 0
+        total_production_time = 0
+        
+        # Sum up from folders
+        for folder in folder_tree:
+            total_hours += folder.get('total_hours', 0) or 0
+            total_production_time += folder.get('total_creation_hours', 0) or 0
+        
+        # Sum up from unassigned projects
+        for project in unassigned_projects:
+            total_hours += project.get('total_hours', 0) or 0
+            total_production_time += project.get('total_creation_hours', 0) or 0
 
         # Collect all project IDs that are actually included in the filtered PDF data
         included_project_ids = set()
@@ -16919,7 +16933,9 @@ async def download_projects_list_pdf(
             'generated_at': datetime.now().isoformat(),
             'summary_stats': summary_stats,  # Add summary statistics to template data
             'product_distribution': product_distribution,  # Add real product distribution data
-            'quality_distribution': quality_distribution   # Add real quality distribution data
+            'quality_distribution': quality_distribution,   # Add real quality distribution data
+            'total_hours': total_hours,  # Add total hours for template
+            'total_production_time': total_production_time  # Add total production time for template
         }
         
         logger.info(f"[PDF_ANALYTICS] Template data prepared:")
