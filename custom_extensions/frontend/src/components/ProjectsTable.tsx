@@ -568,7 +568,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Learning Duration (h)
+                                        Completion Time (h)
                                       </th>
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
@@ -577,7 +577,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Production Time (h)
+                                        Creation Time (h)
                                       </th>
                                     </tr>
                                   </thead>
@@ -692,7 +692,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Learning Duration (h)
+                                        Completion Time (h)
                                       </th>
 
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
@@ -702,7 +702,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Production Hours
+                                        Creation Time (h)
                                       </th>
                                     </tr>
                                   </thead>
@@ -1287,16 +1287,16 @@ const FolderRow: React.FC<{
                 {columnVisibility.estCreationTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalCreationHours = getTotalCreationHoursInFolder(folder);
-                            return totalCreationHours > 0 ? `${totalCreationHours}h` : '-';
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
                         })()}
                     </td>
                 )}
                 {columnVisibility.estCompletionTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalHours = getTotalHoursInFolder(folder);
-                            return totalHours > 0 ? `${totalHours}h` : '-';
+                            const totalCreationHours = getTotalCreationHoursInFolder(folder);
+                            return totalCreationHours > 0 ? `${totalCreationHours}h` : '-';
                         })()}
                     </td>
                 )}
@@ -1415,8 +1415,8 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    // Use totalCreationHours if available, otherwise fallback to totalHours
-                                    const creationHours = lessonData?.totalCreationHours || lessonData?.totalHours;
+                                    // Use totalHours for Production Time (h) - Completion Time values
+                                    const creationHours = lessonData?.totalHours;
                                     return creationHours ? `${creationHours}h` : '-';
                                 })()}
                             </td>
@@ -1425,8 +1425,8 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    // Use totalHours for Learning Duration (h)
-                                    const learningHours = lessonData?.totalHours;
+                                    // Use totalCreationHours for Learning Duration (h) - Creation Time values
+                                    const learningHours = lessonData?.totalCreationHours || lessonData?.totalHours;
                                     return learningHours ? `${learningHours}h` : '-';
                                 })()}
                             </td>
@@ -4072,7 +4072,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.estCreationTime}%` }}
                                         >
-                                            {t('interface.estCreationTime', 'Production Time (h)')}
+                                            {t('interface.estCreationTime', 'Creation Time (h)')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCreationTime')}
@@ -4084,7 +4084,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.estCompletionTime}%` }}
                                         >
-                                            {t('interface.estCompletionTime', 'Learning Duration (h)')}
+                                            {t('interface.estCompletionTime', 'Completion Time (h)')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
@@ -4230,7 +4230,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
                                             </td>
                                         )}
@@ -4238,7 +4238,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                 })()}
                                             </td>
                                         )}
@@ -4318,8 +4318,8 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                             <circle cx="9" cy="12" r="2"/>
                                                             <circle cx="9" cy="19" r="2"/>
                                                             <circle cx="15" cy="5" r="2"/>
+                                                            <circle cx="9" cy="19" r="2"/>
                                                             <circle cx="15" cy="12" r="2"/>
-                                                            <circle cx="15" cy="19" r="2"/>
                                                         </svg>
                                                     </div>
                                                     <Star size={16} className="text-gray-300 mr-2" />
@@ -4357,7 +4357,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
                                             </td>
                                         )}
@@ -4365,7 +4365,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {(() => {
                                                     const lessonData = lessonDataCache[p.id];
-                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
                                                 })()}
                                             </td>
                                         )}
