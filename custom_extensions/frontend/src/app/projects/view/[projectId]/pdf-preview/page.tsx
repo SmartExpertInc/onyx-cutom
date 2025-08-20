@@ -33,6 +33,7 @@ export default function PdfPreviewPage() {
   const [editableData, setEditableData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]); // Default to today
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -235,10 +236,24 @@ export default function PdfPreviewPage() {
                 PDF Preview - {projectInstanceData.component_name.replace(/_/g, ' ')}
               </p>
               <p className="text-xs text-gray-400">
-                Generated on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
+                Generated on {new Date(selectedDate).toLocaleDateString()} at {new Date().toLocaleTimeString()}
               </p>
             </div>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap items-center">
+              {/* Date Selection */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="date-select" className="text-sm font-medium text-gray-700">
+                  Date:
+                </label>
+                <input
+                  id="date-select"
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
               <button
                 onClick={() => window.print()}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"

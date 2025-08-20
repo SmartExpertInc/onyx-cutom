@@ -152,7 +152,7 @@ const FolderExportLoadingModal: React.FC<{
 const ClientNameModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[]) => void;
+  onConfirm: (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[], selectedDate?: string) => void;
   folders: Folder[];
   folderProjects: Record<number, Project[]>;
   unassignedProjects: Project[];
@@ -160,6 +160,7 @@ const ClientNameModal: React.FC<{
   const { t } = useLanguage();
   const [clientName, setClientName] = useState('');
   const [managerName, setManagerName] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
   const [selectedFolders, setSelectedFolders] = useState<Set<number>>(new Set());
   const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
@@ -208,17 +209,19 @@ const ClientNameModal: React.FC<{
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onConfirm(clientName.trim() || null, managerName.trim() || null, Array.from(selectedFolders), Array.from(selectedProjects));
+    onConfirm(clientName.trim() || null, managerName.trim() || null, Array.from(selectedFolders), Array.from(selectedProjects), selectedDate);
     setClientName('');
     setManagerName('');
+    setSelectedDate(new Date().toISOString().split('T')[0]);
     setSelectedFolders(new Set());
     setSelectedProjects(new Set());
   };
 
   const handleSkip = () => {
-    onConfirm(null, null, Array.from(selectedFolders), Array.from(selectedProjects));
+    onConfirm(null, null, Array.from(selectedFolders), Array.from(selectedProjects), selectedDate);
     setClientName('');
     setManagerName('');
+    setSelectedDate(new Date().toISOString().split('T')[0]);
     setSelectedFolders(new Set());
     setSelectedProjects(new Set());
   };
@@ -288,6 +291,20 @@ const ClientNameModal: React.FC<{
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300"
               />
             </div>
+          </div>
+          
+          {/* Date Selection */}
+          <div>
+            <label htmlFor="selected-date" className="block text-sm font-semibold text-gray-700 mb-2">
+              {t('interface.selectDate', 'Select Date (optional)')}
+            </label>
+            <input
+              id="selected-date"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 transition-all duration-200 bg-white hover:border-gray-300"
+            />
           </div>
 
           <div>
@@ -3688,7 +3705,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     };
 
     // Handle client name confirmation
-    const handleClientNameConfirm = async (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[]) => {
+    const handleClientNameConfirm = async (clientName: string | null, managerName: string | null, selectedFolders: number[], selectedProjects: number[], selectedDate?: string) => {
         setShowClientNameModal(false);
         
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -3716,6 +3733,10 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         if (managerName) {
             queryParams.append('manager_name', managerName);
         }
+        
+        // Add selected date if provided (default to today)
+        const dateToUse = selectedDate || new Date().toISOString().split('T')[0];
+        queryParams.append('selected_date', dateToUse);
         
         // Add selected folders and projects if any are selected
         if (selectedFolders.length > 0) {

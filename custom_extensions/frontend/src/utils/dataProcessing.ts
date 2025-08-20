@@ -40,64 +40,106 @@ export function processContentForPreview(content: any): any {
 }
 
 /**
- * Process Block 1. Course Overview data to match PDF generation logic
+ * Process Block 1. Course Overview data to match PDF generation logic exactly
  * This ensures the same data structure and calculations as the backend PDF template
+ * The backend processes folders hierarchically with their projects, so we need to do the same
  */
 export function processBlock1CourseOverview(projects: any[]): any {
   if (!projects || !Array.isArray(projects)) {
     return [];
   }
 
-  // Group projects by type (same logic as PDF)
-  const projectGroups: { [key: string]: any } = {};
-  
+  // Group projects by folder_id to match backend logic
+  const folderProjects: { [folderId: number]: any[] } = {};
+  const unassignedProjects: any[] = [];
+
+  // Separate projects by folder (same logic as backend)
   projects.forEach(project => {
-    // Get project type - same logic as PDF
-    let projectType = 'Unknown';
-    if ('design_microproduct_type' in project) {
-      projectType = (project as any).design_microproduct_type || 'Unknown';
+    if (project.folder_id) {
+      if (!folderProjects[project.folder_id]) {
+        folderProjects[project.folder_id] = [];
+      }
+      folderProjects[project.folder_id].push(project);
     } else {
-      projectType = (project as any).designMicroproductType || 'Unknown';
-    }
-    
-    if (!projectGroups[projectType]) {
-      projectGroups[projectType] = {
-        name: projectType,
-        modules: 0,
-        lessons: 0,
-        learningDuration: 0,
-        productionTime: 0
-      };
-    }
-    
-    // Add project data - same logic as PDF
-    projectGroups[projectType].modules += 1;
-    
-    // Get lessons and hours - same logic as PDF
-    if ('total_lessons' in project && 'total_hours' in project) {
-      // Backend data - use real values
-      const backendProject = project as any;
-      projectGroups[projectType].lessons += backendProject.total_lessons || 0;
-      projectGroups[projectType].learningDuration += backendProject.total_hours || 0;
-      projectGroups[projectType].productionTime += (backendProject.total_hours || 0) * 300; // 300 hours per learning hour
-    } else if ('totalLessons' in project && 'totalHours' in project) {
-      // Frontend data - use real values
-      const frontendProject = project as any;
-      projectGroups[projectType].lessons += frontendProject.totalLessons || 0;
-      projectGroups[projectType].learningDuration += frontendProject.totalHours || 0;
-      projectGroups[projectType].productionTime += (frontendProject.totalHours || 0) * 300; // 300 hours per learning hour
-    } else {
-      // Fallback - use random values like in original frontend logic
-      projectGroups[projectType].lessons += Math.floor(Math.random() * 5) + 3; // 3-7 lessons
-      projectGroups[projectType].learningDuration += Math.floor(Math.random() * 5) + 3; // 3-7 hours
-      projectGroups[projectType].productionTime += (Math.floor(Math.random() * 5) + 3) * 300; // 300 hours per learning hour
+      unassignedProjects.push(project);
     }
   });
 
-  // Convert to array and apply rounding
-  return Object.values(projectGroups).map(group => ({
-    ...group,
-    learningDuration: Math.round(group.learningDuration),
-    productionTime: Math.round(group.productionTime)
+  // Create folder entries (simplified - we don't have folder names from backend)
+  const folders: any[] = [];
+  Object.keys(folderProjects).forEach(folderId => {
+    const folderProjectsList = folderProjects[parseInt(folderId)];
+    const totalLessons = folderProjectsList.reduce((sum, project) => sum + (project.total_lessons || 0), 0);
+    const totalHours = folderProjectsList.reduce((sum, project) => sum + (project.total_hours || 0), 0);
+    
+    folders.push({
+      id: parseInt(folderId),
+      name: `Folder ${folderId}`, // We don't have folder names from backend
+      projects: folderProjectsList,
+      total_lessons: totalLessons,
+      total_hours: totalHours
+    });
+  });
+
+  // Process data exactly like the backend PDF template
+  const result: any[] = [];
+  let totalLessons = 0;
+  let totalHours = 0;
+  let totalProductionTime = 0;
+
+  // Process folders first (like backend template)
+  folders.forEach(folder => {
+    // Add folder row
+    result.push({
+      name: folder.name,
+      modules: folder.projects.length,
+      lessons: folder.total_lessons,
+      learningDuration: folder.total_hours,
+      productionTime: folder.total_hours * 300, // Same formula as backend
+      isFolder: true
+    });
+    
+    totalLessons += folder.total_lessons;
+    totalHours += folder.total_hours;
+    totalProductionTime += folder.total_hours * 300;
+
+    // Add individual projects under folder (like backend template)
+    folder.projects.forEach((project: any) => {
+      result.push({
+        name: `  ${project.title || project.project_name || 'Untitled'}`, // Indent like backend
+        modules: 1,
+        lessons: project.total_lessons || 0,
+        learningDuration: project.total_hours || 0,
+        productionTime: (project.total_hours || 0) * 300, // Same formula as backend
+        isProject: true
+      });
+      
+      totalLessons += project.total_lessons || 0;
+      totalHours += project.total_hours || 0;
+      totalProductionTime += (project.total_hours || 0) * 300;
+    });
+  });
+
+  // Process unassigned projects (like backend template)
+  unassignedProjects.forEach(project => {
+    result.push({
+      name: project.title || project.project_name || 'Untitled',
+      modules: 1,
+      lessons: project.total_lessons || 0,
+      learningDuration: project.total_hours || 0,
+      productionTime: (project.total_hours || 0) * 300, // Same formula as backend
+      isUnassigned: true
+    });
+    
+    totalLessons += project.total_lessons || 0;
+    totalHours += project.total_hours || 0;
+    totalProductionTime += (project.total_hours || 0) * 300;
+  });
+
+  // Apply rounding like backend
+  return result.map(item => ({
+    ...item,
+    learningDuration: Math.round(item.learningDuration),
+    productionTime: Math.round(item.productionTime)
   }));
 } 
