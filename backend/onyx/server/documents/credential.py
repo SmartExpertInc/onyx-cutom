@@ -136,11 +136,24 @@ def swap_credentials_for_connector(
 
 
 @router.post("/credential")
-def create_credential_from_model(
+async def create_credential_from_model(
     credential_info: CredentialBase,
-    user: User | None = Depends(current_curator_or_admin_user),
+    request: Request,
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> ObjectCreationIdResponse:
+    # Check for Smart Drive header and non-admin access
+    is_smart_drive = request.headers.get("x-smart-drive-credential") == "true"
+    
+    # For non-Smart Drive requests, enforce admin/curator requirements
+    if not is_smart_drive:
+        # Check if user has admin/curator role
+        if user is None or not (user.role.value in ["ADMIN", "CURATOR"]):
+            raise HTTPException(
+                status_code=403, 
+                detail="Access denied. User is not a curator or admin."
+            )
+    
     if not _ignore_credential_permissions(credential_info.source):
         fetch_ee_implementation_or_noop(
             "onyx.db.user_group", "validate_object_creation_for_user", None
