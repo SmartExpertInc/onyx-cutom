@@ -19535,7 +19535,7 @@ async def create_smartdrive_connector(
         connector_specific_config = {}
         
         for key, value in connector_data.items():
-            if key not in ['connector_id', 'name', 'access_type', 'smart_drive']:
+            if key not in ['connector_id', 'name', 'access_type', 'smart_drive', 'credential_id']:
                 if key in connector_credential_fields:
                     credential_json[key] = value
                 else:
