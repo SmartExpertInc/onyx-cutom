@@ -1,6 +1,7 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
+import InteractionModal from './InteractionModal';
 
 interface InteractionPopupProps {
   isOpen: boolean;
@@ -9,6 +10,17 @@ interface InteractionPopupProps {
 }
 
 export default function InteractionPopup({ isOpen, onClose, position }: InteractionPopupProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOptionClick = () => {
+    setIsModalOpen(true);
+    onClose(); // Close the popup when opening the modal
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -32,7 +44,10 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
         {/* Content */}
         <div className="flex gap-2">
           {/* Multiple Choice Option */}
-          <div className="flex flex-col items-center cursor-pointer">
+          <div 
+            className="flex flex-col items-center cursor-pointer"
+            onClick={handleOptionClick}
+          >
             <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-32 flex items-center justify-center">
               <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
@@ -72,7 +87,10 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
           </div>
 
           {/* Branching Option */}
-          <div className="flex flex-col items-center cursor-pointer">
+          <div 
+            className="flex flex-col items-center cursor-pointer"
+            onClick={handleOptionClick}
+          >
             <div className="bg-gray-200 p-4 rounded-lg mb-4 w-48 h-32 flex items-center justify-center">
               <svg width="120" height="60" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
                 <style>
@@ -113,6 +131,12 @@ export default function InteractionPopup({ isOpen, onClose, position }: Interact
           </div>
         </div>
       </div>
+
+      {/* Interaction Modal */}
+      <InteractionModal 
+        isOpen={isModalOpen} 
+        onClose={handleModalClose}
+      />
     </>
   );
 }
