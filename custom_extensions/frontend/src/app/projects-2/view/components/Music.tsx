@@ -8,7 +8,7 @@ export default function Music() {
   const [selectedMusic, setSelectedMusic] = useState<string | null>('no-music');
   const [isBackgroundMusicEnabled, setIsBackgroundMusicEnabled] = useState(false);
 
-  const selectBtnClass = "opacity-0 group-hover:opacity-100 px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-all";
+  const selectBtnClass = "opacity-0 group-hover:opacity-100 px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-all cursor-pointer";
 
   // Track information mapping
   const trackInfo = {
@@ -33,7 +33,7 @@ export default function Music() {
         <div className="bg-gray-100 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Play button */}
-            <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center">
+            <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center bg-white cursor-pointer">
               <Play size={18} className="text-gray-600 ml-0.5" />
             </div>
             
@@ -46,87 +46,90 @@ export default function Music() {
           
           {/* Change button */}
           <button 
-            className="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors"
-            onClick={() => setSelectedMusic(null)}
+            className="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
+            onClick={() => setSelectedMusic(selectedMusic)}
           >
             Change
           </button>
         </div>
 
         {/* Bottom part - White background */}
-        <div className="bg-white p-4 flex-1 border border-gray-200 rounded-lg">
-          {/* Set as background music row */}
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-gray-700 text-sm">Set as background music everywhere</span>
-            {/* Switch/Slider */}
-            <div 
-              className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
-                isBackgroundMusicEnabled ? 'bg-black' : 'bg-gray-300'
-              }`}
-              onClick={() => setIsBackgroundMusicEnabled(!isBackgroundMusicEnabled)}
-            >
+        <div className="bg-white p-4 flex-1">
+          {/* Settings container */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            {/* Set as background music row */}
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-gray-700 text-sm">Set as background music everywhere</span>
+              {/* Switch/Slider */}
               <div 
-                className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
-                  isBackgroundMusicEnabled ? 'bg-white translate-x-6' : 'bg-white'
+                className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
+                  isBackgroundMusicEnabled ? 'bg-black' : 'bg-gray-300'
                 }`}
-              ></div>
+                onClick={() => setIsBackgroundMusicEnabled(!isBackgroundMusicEnabled)}
+              >
+                <div 
+                  className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
+                    isBackgroundMusicEnabled ? 'bg-white translate-x-6' : 'bg-white'
+                  }`}
+                ></div>
+              </div>
             </div>
-          </div>
 
-          {/* Volume control row */}
-          <div className="flex items-center justify-between">
-            <span className="text-gray-700 text-sm">Volume</span>
-            <div className="flex items-center gap-2">
-              <Volume2 size={16} className="text-gray-600 flex-shrink-0" />
-              {/* Volume range slider */}
-              <div className="relative w-32 flex items-center">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  defaultValue="50"
-                  className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const percentage = value + '%';
-                    e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
-                  }}
-                  style={{
-                    background: `linear-gradient(to right, #000000 0%, #000000 50%, #e5e7eb 50%, #e5e7eb 100%)`
-                  }}
-                />
-                <style jsx>{`
-                  input[type="range"]::-webkit-slider-thumb {
-                    appearance: none;
-                    width: 10px;
-                    height: 10px;
-                    border-radius: 50%;
-                    background: #000000;
-                    cursor: pointer;
-                    border: none;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-                  }
-                  
-                  input[type="range"]::-moz-range-thumb {
-                    width: 10px;
-                    height: 10px;
-                    border-radius: 50%;
-                    background: #000000;
-                    cursor: pointer;
-                    border: none;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-                  }
-                  
-                  input[type="range"]::-webkit-slider-track {
-                    appearance: none;
-                    background: transparent;
-                  }
-                  
-                  input[type="range"]::-moz-range-track {
-                    background: transparent;
-                    border: none;
-                  }
-                `}</style>
+            {/* Volume control row */}
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 text-sm">Volume</span>
+              <div className="flex items-center gap-2">
+                <Volume2 size={16} className="text-gray-600 flex-shrink-0" />
+                {/* Volume range slider */}
+                <div className="relative w-32 flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    defaultValue="50"
+                    className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const percentage = value + '%';
+                      e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
+                    }}
+                    style={{
+                      background: `linear-gradient(to right, #000000 0%, #000000 50%, #e5e7eb 50%, #e5e7eb 100%)`
+                    }}
+                  />
+                  <style jsx>{`
+                    input[type="range"]::-webkit-slider-thumb {
+                      appearance: none;
+                      width: 10px;
+                      height: 10px;
+                      border-radius: 50%;
+                      background: #000000;
+                      cursor: pointer;
+                      border: none;
+                      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                    }
+                    
+                    input[type="range"]::-moz-range-thumb {
+                      width: 10px;
+                      height: 10px;
+                      border-radius: 50%;
+                      background: #000000;
+                      cursor: pointer;
+                      border: none;
+                      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                    }
+                    
+                    input[type="range"]::-webkit-slider-track {
+                      appearance: none;
+                      background: transparent;
+                    }
+                    
+                    input[type="range"]::-moz-range-track {
+                      background: transparent;
+                      border: none;
+                    }
+                  `}</style>
+                </div>
               </div>
             </div>
           </div>
@@ -182,7 +185,7 @@ export default function Music() {
 
             {/* No music content - now selectable */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'no-music'
                   ? 'bg-white border border-black cursor-pointer'
                   : 'hover:bg-gray-100'
@@ -220,7 +223,7 @@ export default function Music() {
 
             {/* Music item - Corporate */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'corporate'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
@@ -237,15 +240,15 @@ export default function Music() {
               
               {/* Show Edit button when selected, Select button when not selected */}
               {selectedMusic === 'corporate' ? (
-                <button 
-                  className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedMusic('corporate');
-                  }}
-                >
-                  Edit
-                </button>
+                                  <button 
+                    className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMusic('corporate');
+                    }}
+                  >
+                    Edit
+                  </button>
               ) : (
                 <button 
                   className={selectBtnClass}
@@ -261,7 +264,7 @@ export default function Music() {
 
             {/* Music item - Happy */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'happy'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
@@ -302,7 +305,7 @@ export default function Music() {
 
             {/* Music item - Vibe Vacation */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'vibe-vacation'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
@@ -343,7 +346,7 @@ export default function Music() {
 
             {/* Music item - Inspiring */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'inspiring'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
@@ -384,7 +387,7 @@ export default function Music() {
 
             {/* Music item - Long Journey */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'long-journey'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
@@ -425,7 +428,7 @@ export default function Music() {
 
             {/* Music item - Outside The Lines */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'outside-the-lines'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
@@ -466,7 +469,7 @@ export default function Music() {
 
             {/* Music item - Motivation */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'motivation'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
@@ -507,7 +510,7 @@ export default function Music() {
 
             {/* Music item - Relaxing */}
             <div 
-              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-2 ${
+              className={`group flex items-center justify-between py-4 px-5 rounded-lg transition-all mb-1 ${
                 selectedMusic === 'relaxing'
                   ? 'bg-white border border-black cursor-pointer hover:bg-gray-100'
                   : 'hover:bg-gray-100'
