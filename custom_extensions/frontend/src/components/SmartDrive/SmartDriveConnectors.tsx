@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, ExternalLink, Upload, Settings } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
-import NativeConnectorForm from './NativeConnectorForm';
+import ConnectorFormModal from './ConnectorFormModal';
 
 interface ConnectorConfig {
   id: string;
@@ -334,62 +334,60 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
 
   // Load user's existing connectors
-  useEffect(() => {
-    const loadUserConnectors = async () => {
-      try {
-        setLoading(true);
+  const loadUserConnectors = async () => {
+    try {
+      setLoading(true);
+      
+      const [connectorsResponse, ccPairsResponse] = await Promise.all([
+        fetch('/api/manage/admin/connector', { credentials: 'same-origin' }),
+        fetch('/api/manage/admin/connector-credential-pair', { credentials: 'same-origin' })
+      ]);
+
+      if (connectorsResponse.ok && ccPairsResponse.ok) {
+        const allConnectors = await connectorsResponse.json();
+        const allCCPairs = await ccPairsResponse.json();
         
-        const [connectorsResponse, ccPairsResponse] = await Promise.all([
-          fetch('/api/manage/admin/connector', { credentials: 'same-origin' }),
-          fetch('/api/manage/admin/connector-credential-pair', { credentials: 'same-origin' })
-        ]);
-
-        if (connectorsResponse.ok && ccPairsResponse.ok) {
-          const allConnectors = await connectorsResponse.json();
-          const allCCPairs = await ccPairsResponse.json();
+        console.log('All connectors:', allConnectors);
+        console.log('All CC pairs:', allCCPairs);
+        
+        // Filter to show all private connectors (including newly created ones)
+        const smartDriveConnectors = allConnectors.filter((connector: any) => {
+          const associatedCCPairs = allCCPairs.filter((pair: any) => 
+            pair.connector.id === connector.id && pair.access_type === 'private'
+          );
           
-          // Filter to only show private connectors created through Smart Drive
-          const smartDriveConnectors = allConnectors.filter((connector: any) => {
-            const associatedCCPairs = allCCPairs.filter((pair: any) => 
-              pair.connector.id === connector.id && pair.access_type === 'private'
-            );
-            
-            return associatedCCPairs.length > 0 && 
-                   (connector.name?.toLowerCase().includes('smart') || 
-                    associatedCCPairs.some((pair: any) => 
-                      pair.user_groups?.some((group: any) => 
-                        group.name?.includes('smart_drive_user_')
-                      )
-                    )
-                   );
-          });
+          // Show all private connectors, not just those with "smart" in the name
+          return associatedCCPairs.length > 0;
+        });
+        
+        const userConnectors = smartDriveConnectors.map((connector: any) => {
+          const ccPair = allCCPairs.find((pair: any) => 
+            pair.connector.id === connector.id && pair.access_type === 'private'
+          );
           
-          const userConnectors = smartDriveConnectors.map((connector: any) => {
-            const ccPair = allCCPairs.find((pair: any) => 
-              pair.connector.id === connector.id && pair.access_type === 'private'
-            );
-            
-            return {
-              id: connector.id,
-              name: connector.name,
-              source: connector.source,
-              status: ccPair?.status || 'unknown',
-              last_sync_at: ccPair?.last_time_synced,
-              total_docs_indexed: ccPair?.documents_indexed || 0,
-              last_error: ccPair?.last_index_attempt?.error_msg,
-            };
-          });
-          
-          setUserConnectors(userConnectors);
-        }
-      } catch (error) {
-        console.error('Error loading user connectors:', error);
-        setUserConnectors([]);
-      } finally {
-        setLoading(false);
+          return {
+            id: connector.id,
+            name: connector.name,
+            source: connector.source,
+            status: ccPair?.status || 'unknown',
+            last_sync_at: ccPair?.last_time_synced,
+            total_docs_indexed: ccPair?.documents_indexed || 0,
+            last_error: ccPair?.last_index_attempt?.error_msg,
+          };
+        });
+        
+        console.log('Found user connectors:', userConnectors);
+        setUserConnectors(userConnectors);
       }
-    };
+    } catch (error) {
+      console.error('Error loading user connectors:', error);
+      setUserConnectors([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadUserConnectors();
   }, []);
 
@@ -409,8 +407,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const handleCloseConnectorModal = () => {
     setShowConnectorModal(false);
     setSelectedConnector(null);
-    // Optionally refresh connectors after modal closes
-    // You could call loadUserConnectors() here if needed
+    // Refresh connectors after modal closes to show newly created ones
+    loadUserConnectors();
   };
 
   const getConnectorsBySource = (source: string) => {
@@ -454,9 +452,18 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   return (
     <div className={`space-y-8 ${className}`}>
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Available Connectors</h2>
-        <p className="text-gray-600">Connect your data sources to import content into your Smart Drive</p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Available Connectors</h2>
+          <p className="text-gray-600">Connect your data sources to import content into your Smart Drive</p>
+        </div>
+        <button
+          onClick={loadUserConnectors}
+          disabled={loading}
+          className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50 transition-colors"
+        >
+          {loading ? 'Refreshing...' : 'Refresh'}
+        </button>
       </div>
 
       {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
@@ -567,9 +574,28 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         </div>
       ))}
 
-      {/* Native Connector Form */}
+      {/* Debug info - remove this in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">Debug Info:</h4>
+          <p className="text-xs text-gray-600">Total user connectors found: {userConnectors.length}</p>
+          <p className="text-xs text-gray-600">Loading state: {loading ? 'true' : 'false'}</p>
+          {userConnectors.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs text-gray-600 mb-1">Connectors:</p>
+              {userConnectors.map(connector => (
+                <div key={connector.id} className="text-xs text-gray-500 ml-2">
+                  • {connector.name} ({connector.source}) - Status: {connector.status}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Connector Form Modal */}
       {selectedConnector && (
-        <NativeConnectorForm
+        <ConnectorFormModal
           isOpen={showConnectorModal}
           onClose={handleCloseConnectorModal}
           connectorId={selectedConnector.id}
