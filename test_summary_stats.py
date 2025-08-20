@@ -11,15 +11,15 @@ def test_summary_stats():
     folder_projects = {
         1: [  # Main folder projects
             {
-                'total_hours': 200,
-                'total_creation_hours': 400,
+                'total_hours': 200,  # LEARNING DURATION (H)
+                'total_creation_hours': 400,  # PRODUCTION TIME (H)
                 'total_lessons': 10,
                 'total_modules': 3,
                 'total_completion_time': 1200  # 20 hours in minutes
             },
             {
-                'total_hours': 330,
-                'total_creation_hours': 125,
+                'total_hours': 330,  # LEARNING DURATION (H)
+                'total_creation_hours': 125,  # PRODUCTION TIME (H)
                 'total_lessons': 15,
                 'total_modules': 5,
                 'total_completion_time': 1800  # 30 hours in minutes
@@ -29,8 +29,8 @@ def test_summary_stats():
     
     unassigned_projects = [
         {
-            'total_hours': 50,
-            'total_creation_hours': 100,
+            'total_hours': 50,  # LEARNING DURATION (H)
+            'total_creation_hours': 100,  # PRODUCTION TIME (H)
             'total_lessons': 5,
             'total_modules': 2,
             'total_completion_time': 300  # 5 hours in minutes
@@ -71,11 +71,29 @@ def test_summary_stats():
             'total_completion_time': total_completion_time
         }
     
+    # Simulate the total_hours calculation (from main.py)
+    def calculate_total_hours(folder_projects, unassigned_projects):
+        total_hours = 0
+        
+        # Sum up from all projects in folder_projects
+        for folder_id, projects in folder_projects.items():
+            for project in projects:
+                total_hours += project.get('total_hours', 0) or 0
+        
+        # Sum up from unassigned projects
+        for project in unassigned_projects:
+            total_hours += project.get('total_hours', 0) or 0
+        
+        return total_hours
+    
     # Simulate folders structure
     folders = [{'id': 1, 'name': 'Main Folder'}]
     
     # Calculate summary stats
     summary_stats = calculate_summary_stats(folders, folder_projects, unassigned_projects)
+    
+    # Calculate total_hours (LEARNING DURATION)
+    total_hours = calculate_total_hours(folder_projects, unassigned_projects)
     
     print(f"📊 Summary stats calculation:")
     print(f"  - Total projects: {summary_stats['total_projects']}")
@@ -83,33 +101,29 @@ def test_summary_stats():
     print(f"  - Total modules: {summary_stats['total_modules']}")
     print(f"  - Total creation time: {summary_stats['total_creation_time']}h")
     print(f"  - Total completion time: {summary_stats['total_completion_time']}m")
+    print(f"  - Total hours (LEARNING DURATION): {total_hours}h")
     
-    # Calculate hours from completion time
-    completion_hours = summary_stats['total_completion_time'] / 60 if summary_stats['total_completion_time'] else 0
-    
-    print(f"\n📊 Conversion:")
-    print(f"  - Completion time in minutes: {summary_stats['total_completion_time']}")
-    print(f"  - Completion time in hours: {completion_hours:.1f}")
-    print(f"  - Creation time in hours: {summary_stats['total_creation_time']}")
-    
-    expected_completion_minutes = 1200 + 1800 + 300  # all projects
-    expected_creation_hours = 400 + 125 + 100  # all projects
-    expected_completion_hours = expected_completion_minutes / 60
+    expected_total_hours = 200 + 330 + 50  # all projects total_hours
+    expected_creation_hours = 400 + 125 + 100  # all projects total_creation_hours
     
     print(f"\n✅ Test results:")
-    print(f"  - Expected completion minutes: {expected_completion_minutes}")
-    print(f"  - Actual completion minutes: {summary_stats['total_completion_time']}")
-    print(f"  - Expected completion hours: {expected_completion_hours:.1f}")
-    print(f"  - Actual completion hours: {completion_hours:.1f}")
-    print(f"  - Expected creation hours: {expected_creation_hours}")
-    print(f"  - Actual creation hours: {summary_stats['total_creation_time']}")
+    print(f"  - Expected total hours (LEARNING DURATION): {expected_total_hours}")
+    print(f"  - Actual total hours (LEARNING DURATION): {total_hours}")
+    print(f"  - Expected creation hours (PRODUCTION TIME): {expected_creation_hours}")
+    print(f"  - Actual creation hours (PRODUCTION TIME): {summary_stats['total_creation_time']}")
     
     print(f"\n🎯 Expected PDF Output:")
-    print(f"  Subtotal: {completion_hours:.1f}h of learning content → {summary_stats['total_creation_time']}h production")
-    print(f"  Summary: Total: {completion_hours:.1f} hours of learning content")
+    print(f"  Subtotal: {total_hours}h of learning content → {summary_stats['total_creation_time']}h production")
+    print(f"  Summary: Total: {total_hours} hours of learning content")
     print(f"  Summary: Estimated Production Time: ≈ {summary_stats['total_creation_time']} hours")
     
-    print(f"\n✅ Summary stats calculation should now work correctly!")
+    print(f"\n📋 Table Data:")
+    print(f"  Project 1: {folder_projects[1][0]['total_hours']}h learning → {folder_projects[1][0]['total_creation_hours']}h production")
+    print(f"  Project 2: {folder_projects[1][1]['total_hours']}h learning → {folder_projects[1][1]['total_creation_hours']}h production")
+    print(f"  Unassigned: {unassigned_projects[0]['total_hours']}h learning → {unassigned_projects[0]['total_creation_hours']}h production")
+    print(f"  TOTAL: {total_hours}h learning → {summary_stats['total_creation_time']}h production")
+    
+    print(f"\n✅ Now using correct LEARNING DURATION (H) values!")
 
 if __name__ == "__main__":
     test_summary_stats() 
