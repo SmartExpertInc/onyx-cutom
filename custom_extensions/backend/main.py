@@ -19620,7 +19620,7 @@ async def create_smartdrive_connector(
                 json={
                     "name": name,
                     "access_type": "private",
-                    "groups": None,
+                    "groups": [],  # Must be an empty list, not None
                     "auto_sync_options": auto_sync_options
                 }
             )
