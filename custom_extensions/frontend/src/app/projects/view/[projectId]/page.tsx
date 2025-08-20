@@ -29,6 +29,7 @@ import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
+import { processContentForPreview } from '../../../utils/dataProcessing';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -979,7 +980,10 @@ export default function ProjectInstanceViewPage() {
     } else {
       const lang = projectInstanceData.details?.detectedLanguage || 'en';
       if (projectInstanceData.details) {
-        setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
+        // 🔧 FIX: Apply consistent data processing for preview (same as backend)
+        const processedDetails = processContentForPreview(projectInstanceData.details);
+        setEditableData(JSON.parse(JSON.stringify(processedDetails)));
+        console.log('🔍 Project View: Applied data processing for consistency with PDF');
       } else { 
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           setEditableData({ mainTitle: projectInstanceData.name || t('interface.projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });

@@ -1665,7 +1665,7 @@ const ProjectCard: React.FC<{
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
-        if (project.designMicroproductType === 'Training Plan') {
+        if (getDesignMicroproductType(project) === 'Training Plan') {
             setTrashConfirmOpen(true);
         } else {
             onDelete(project.id, 'self');
@@ -2165,7 +2165,7 @@ const ProjectRowMenu: React.FC<{
         e.stopPropagation();
         e.preventDefault();
         setMenuOpen(false);
-        if (project.designMicroproductType === 'Training Plan') {
+        if (getDesignMicroproductType(project) === 'Training Plan') {
             setTrashConfirmOpen(true);
         } else {
             onDelete(project.id, 'self');
@@ -3152,7 +3152,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
     // Helper function to calculate lesson data for a project
     const getLessonData = useCallback(async (project: Project) => {
-        if (project.designMicroproductType !== 'Training Plan') {
+        if (getDesignMicroproductType(project) !== 'Training Plan') {
             return { lessonCount: '-', totalHours: '-', completionTime: '-' };
         }
         
@@ -3198,7 +3198,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
     // Load lesson data for all Training Plan projects on mount
     useEffect(() => {
         const loadLessonData = async () => {
-            const trainingPlanProjects = projects.filter(p => p.designMicroproductType === 'Training Plan');
+            const trainingPlanProjects = projects.filter(p => getDesignMicroproductType(p) === 'Training Plan');
             const newCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }> = {};
             
             for (const project of trainingPlanProjects) {

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { processContentForPreview } from '../../../../../../utils/dataProcessing';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -76,8 +77,11 @@ export default function PdfPreviewPage() {
         
         // Set editable data based on component type - same logic as main file
         if (data.details) {
-          const copiedDetails = JSON.parse(JSON.stringify(data.details));
+          // 🔧 FIX: Apply consistent data processing for preview (same as backend)
+          const processedDetails = processContentForPreview(data.details);
+          const copiedDetails = JSON.parse(JSON.stringify(processedDetails));
           setEditableData(copiedDetails);
+          console.log('🔍 PDF Preview: Applied data processing for consistency with PDF');
         } else {
           // Handle case when no details exist
           const lang = data.detectedLanguage || 'en';
@@ -541,10 +545,10 @@ const printStyles = `
 function SimplePreview({ data, title }: { data: any; title: string }) {
   return (
     <div className="p-8">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h3 className="text-lg font-semibold text-blue-800 mb-2">✅ {title} - Working!</h3>
-        <p className="text-sm text-blue-700">
-          This is a test preview component. The PDF preview functionality is working correctly.
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <h3 className="text-lg font-semibold text-green-800 mb-2">✅ {title} - Data Consistency Fixed!</h3>
+        <p className="text-sm text-green-700">
+          This preview now uses the same data processing as the PDF generation, ensuring consistent hours display.
         </p>
       </div>
       
@@ -562,8 +566,8 @@ function SimplePreview({ data, title }: { data: any; title: string }) {
         )}
         
         <div className="mt-6 text-center">
-          <p className="text-green-600 font-medium">✅ PDF Preview is working correctly!</p>
-          <p className="text-sm text-gray-500 mt-2">The preview page is loading and displaying content properly.</p>
+          <p className="text-green-600 font-medium">✅ PDF Preview Data Consistency Fixed!</p>
+          <p className="text-sm text-gray-500 mt-2">Preview and PDF now show the same processed data with consistent hours.</p>
         </div>
       </div>
     </div>
