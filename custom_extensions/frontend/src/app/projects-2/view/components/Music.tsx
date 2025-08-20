@@ -7,6 +7,7 @@ export default function Music() {
   const [activeButton, setActiveButton] = useState<'stock' | 'upload'>('stock');
   const [selectedMusic, setSelectedMusic] = useState<string | null>('no-music');
   const [isBackgroundMusicEnabled, setIsBackgroundMusicEnabled] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const selectBtnClass = "opacity-0 group-hover:opacity-100 px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-all cursor-pointer";
 
@@ -29,106 +30,108 @@ export default function Music() {
 
     return (
       <div className="h-full flex flex-col">
-        {/* Top part - Light grey background */}
-        <div className="bg-gray-100 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Play button */}
-            <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center bg-white cursor-pointer">
-              <Play size={18} className="text-gray-600 ml-0.5" />
-            </div>
-            
-            {/* Track info */}
-            <div className="flex flex-col">
-              <span className="text-gray-700 text-sm font-medium">{track.name}</span>
-              <span className="text-gray-500 text-xs">{track.duration}</span>
-            </div>
-          </div>
-          
-          {/* Change button */}
-          <button 
-            className="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
-            onClick={() => setSelectedMusic(selectedMusic)}
-          >
-            Change
-          </button>
-        </div>
-
-        {/* Bottom part - White background */}
-        <div className="bg-white p-4 flex-1">
-          {/* Settings container */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            {/* Set as background music row */}
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-gray-700 text-sm">Set as background music everywhere</span>
-              {/* Switch/Slider */}
-              <div 
-                className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
-                  isBackgroundMusicEnabled ? 'bg-black' : 'bg-gray-300'
-                }`}
-                onClick={() => setIsBackgroundMusicEnabled(!isBackgroundMusicEnabled)}
-              >
-                <div 
-                  className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
-                    isBackgroundMusicEnabled ? 'bg-white translate-x-6' : 'bg-white'
-                  }`}
-                ></div>
+        <div className="w-full border border-gray-300 rounded">
+          {/* Top part - Light grey background */}
+          <div className="bg-gray-100 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Play button */}
+              <div className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center bg-white cursor-pointer">
+                <Play size={18} className="text-gray-600 ml-0.5" />
+              </div>
+              
+              {/* Track info */}
+              <div className="flex flex-col">
+                <span className="text-gray-700 text-sm font-medium">{track.name}</span>
+                <span className="text-gray-500 text-xs">{track.duration}</span>
               </div>
             </div>
+            
+            {/* Change button */}
+            <button 
+              className="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
+              onClick={() => setShowSettings(false)}
+            >
+              Change
+            </button>
+          </div>
 
-            {/* Volume control row */}
-            <div className="flex items-center justify-between">
-              <span className="text-gray-700 text-sm">Volume</span>
-              <div className="flex items-center gap-2">
-                <Volume2 size={16} className="text-gray-600 flex-shrink-0" />
-                {/* Volume range slider */}
-                <div className="relative w-32 flex items-center">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    defaultValue="50"
-                    className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      const percentage = value + '%';
-                      e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
-                    }}
-                    style={{
-                      background: `linear-gradient(to right, #000000 0%, #000000 50%, #e5e7eb 50%, #e5e7eb 100%)`
-                    }}
-                  />
-                  <style jsx>{`
-                    input[type="range"]::-webkit-slider-thumb {
-                      appearance: none;
-                      width: 10px;
-                      height: 10px;
-                      border-radius: 50%;
-                      background: #000000;
-                      cursor: pointer;
-                      border: none;
-                      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-                    }
-                    
-                    input[type="range"]::-moz-range-thumb {
-                      width: 10px;
-                      height: 10px;
-                      border-radius: 50%;
-                      background: #000000;
-                      cursor: pointer;
-                      border: none;
-                      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-                    }
-                    
-                    input[type="range"]::-webkit-slider-track {
-                      appearance: none;
-                      background: transparent;
-                    }
-                    
-                    input[type="range"]::-moz-range-track {
-                      background: transparent;
-                      border: none;
-                    }
-                  `}</style>
+          {/* Bottom part - White background */}
+          <div className="bg-white p-4 flex-1">
+            {/* Settings container */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              {/* Set as background music row */}
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-gray-700 text-sm">Set as background music everywhere</span>
+                {/* Switch/Slider */}
+                <div 
+                  className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
+                    isBackgroundMusicEnabled ? 'bg-black' : 'bg-gray-300'
+                  }`}
+                  onClick={() => setIsBackgroundMusicEnabled(!isBackgroundMusicEnabled)}
+                >
+                  <div 
+                    className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
+                      isBackgroundMusicEnabled ? 'bg-white translate-x-6' : 'bg-white'
+                    }`}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Volume control row */}
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 text-sm">Volume</span>
+                <div className="flex items-center gap-2">
+                  <Volume2 size={16} className="text-gray-600 flex-shrink-0" />
+                  {/* Volume range slider */}
+                  <div className="relative w-32 flex items-center">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      defaultValue="50"
+                      className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const percentage = value + '%';
+                        e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
+                      }}
+                      style={{
+                        background: `linear-gradient(to right, #000000 0%, #000000 50%, #e5e7eb 50%, #e5e7eb 100%)`
+                      }}
+                    />
+                    <style jsx>{`
+                      input[type="range"]::-webkit-slider-thumb {
+                        appearance: none;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: #000000;
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                      }
+                      
+                      input[type="range"]::-moz-range-thumb {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: #000000;
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                      }
+                      
+                      input[type="range"]::-webkit-slider-track {
+                        appearance: none;
+                        background: transparent;
+                      }
+                      
+                      input[type="range"]::-moz-range-track {
+                        background: transparent;
+                        border: none;
+                      }
+                    `}</style>
+                  </div>
                 </div>
               </div>
             </div>
@@ -168,8 +171,8 @@ export default function Music() {
 
       {/* Content based on active button */}
       {activeButton === 'stock' ? (
-        // Show selected track view if a track is selected (not 'no-music')
-        selectedMusic && selectedMusic !== 'no-music' ? (
+        // Show selected track view if a track is selected (not 'no-music') and showSettings is true
+        selectedMusic && selectedMusic !== 'no-music' && showSettings ? (
           renderSelectedTrackView()
         ) : (
           <div className="h-full overflow-y-auto">
@@ -213,6 +216,7 @@ export default function Music() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedMusic('no-music');
+                      setShowSettings(true);
                     }}
                   >
                     Select
@@ -242,10 +246,11 @@ export default function Music() {
               {selectedMusic === 'corporate' ? (
                                   <button 
                     className="hidden group-hover:block px-3 py-1 text-sm rounded-full bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedMusic('corporate');
-                    }}
+                                      onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMusic('corporate');
+                    setShowSettings(true);
+                  }}
                   >
                     Edit
                   </button>
@@ -255,6 +260,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('corporate');
+                    setShowSettings(true);
                   }}
                 >
                   Select
@@ -286,6 +292,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('happy');
+                    setShowSettings(true);
                   }}
                 >
                   Edit
@@ -296,6 +303,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('happy');
+                    setShowSettings(true);
                   }}
                 >
                   Select
@@ -327,6 +335,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('vibe-vacation');
+                    setShowSettings(true);
                   }}
                 >
                   Edit
@@ -337,6 +346,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('vibe-vacation');
+                    setShowSettings(true);
                   }}
                 >
                   Select
@@ -368,6 +378,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('inspiring');
+                    setShowSettings(true);
                   }}
                 >
                   Edit
@@ -378,6 +389,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('inspiring');
+                    setShowSettings(true);
                   }}
                 >
                   Select
@@ -409,6 +421,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('long-journey');
+                    setShowSettings(true);
                   }}
                 >
                   Edit
@@ -419,6 +432,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('long-journey');
+                    setShowSettings(true);
                   }}
                 >
                   Select
@@ -450,6 +464,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('outside-the-lines');
+                    setShowSettings(true);
                   }}
                 >
                   Edit
@@ -460,6 +475,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('outside-the-lines');
+                    setShowSettings(true);
                   }}
                 >
                   Select
@@ -491,6 +507,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('motivation');
+                    setShowSettings(true);
                   }}
                 >
                   Edit
@@ -501,6 +518,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('motivation');
+                    setShowSettings(true);
                   }}
                 >
                   Select
@@ -532,6 +550,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('relaxing');
+                    setShowSettings(true);
                   }}
                 >
                   Edit
@@ -542,6 +561,7 @@ export default function Music() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedMusic('relaxing');
+                    setShowSettings(true);
                   }}
                 >
                   Select
