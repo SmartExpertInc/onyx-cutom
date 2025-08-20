@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, ExternalLink, Upload, Settings } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
-import ConnectorFormModal from './ConnectorFormModal';
+import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 
 interface ConnectorConfig {
   id: string;
@@ -524,7 +524,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               {userConnectorsForSource.map((userConnector) => (
                                 <Link
                                   key={userConnector.id}
-                                  href={`${typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : ''}/admin/connectors/${userConnector.id}`}
+                                  href={`${typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : ''}/admin/connector/${userConnector.id}`}
                                   className="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                                 >
                                   {userConnector.name}
@@ -534,7 +534,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           </div>
                         ) : (
                           <Link
-                            href={getManageUrl(connector.id)}
+                            href={`${typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : ''}/admin/connector/${userConnectorsForSource[0].id}`}
                             className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
                           >
                             Manage
@@ -582,13 +582,21 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       )}
 
       {/* Connector Form Modal */}
-      {selectedConnector && (
-        <ConnectorFormModal
-          isOpen={showConnectorModal}
-          onClose={handleCloseConnectorModal}
-          connectorId={selectedConnector.id}
-          connectorName={selectedConnector.name}
-        />
+      {selectedConnector && showConnectorModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <ConnectorFormFactory
+              connectorId={selectedConnector.id}
+              connectorName={selectedConnector.name}
+              onSuccess={(data) => {
+                console.log('Connector created successfully:', data);
+                handleCloseConnectorModal();
+                loadUserConnectors(); // Refresh the list
+              }}
+              onCancel={handleCloseConnectorModal}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

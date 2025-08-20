@@ -19480,17 +19480,22 @@ async def create_smartdrive_connector(
         
         # Get connector data from request
         connector_data = await request.json()
-        source = connector_data.get('source')
-        name = connector_data.get('name', f'Smart Drive {source}')
-        connector_specific_config = connector_data.get('connector_specific_config', {})
+        connector_id = connector_data.get('connector_id')  # This is the source type (e.g., 'notion', 'slack')
+        name = connector_data.get('name', f'Smart Drive {connector_id}')
         
-        if not source:
-            raise HTTPException(status_code=400, detail="Connector source is required")
+        if not connector_id:
+            raise HTTPException(status_code=400, detail="Connector ID is required")
+        
+        # Build connector_specific_config from form fields
+        connector_specific_config = {}
+        for key, value in connector_data.items():
+            if key not in ['connector_id', 'name', 'access_type', 'smart_drive']:
+                connector_specific_config[key] = value
         
         # Create the connector payload
         connector_payload = {
             "name": name,
-            "source": source,
+            "source": connector_id,
             "input_type": "poll",
             "connector_specific_config": connector_specific_config,
             "refresh_freq": 3600,  # 1 hour
@@ -19519,46 +19524,36 @@ async def create_smartdrive_connector(
             if not connector_id:
                 raise HTTPException(status_code=500, detail="Failed to get connector ID")
             
-            # Create the connector-credential pair with private access using linkCredential approach
-            auto_sync_options = {
-                "enabled": True,
-                "frequency": 3600
+            # For now, create a connector with mock credential for basic connectors
+            # This allows non-OAuth connectors to work immediately
+            mock_connector_payload = {
+                **connector_payload,
+                "connector_specific_config": {
+                    **connector_specific_config,
+                    "mock_credential": True
+                }
             }
             
-            cc_pair_response = await client.put(
-                f"{main_app_url}/api/manage/connector/{connector_id}/credential/{credential_id}",
+            # Create connector with mock credential
+            mock_connector_response = await client.post(
+                f"{main_app_url}/api/manage/admin/connector-with-mock-credential",
                 headers=auth_headers,
-                json={
-                    "name": connector_data.get("name", f"Smart Drive {connector_data.get('source', 'connector')}"),
-                    "access_type": "private",
-                    "groups": None,
-                    "auto_sync_options": auto_sync_options
-                }
+                json=mock_connector_payload
             )
             
-            if not cc_pair_response.is_success:
-                logger.error(f"Failed to create connector-credential pair: {cc_pair_response.text}")
-                # If CC pair creation fails, try to delete the connector
-                try:
-                    await client.delete(
-                        f"{main_app_url}/api/manage/admin/connector/{connector_id}",
-                        headers=auth_headers
-                    )
-                except:
-                    pass
-                
+            if not mock_connector_response.is_success:
+                logger.error(f"Failed to create connector with mock credential: {mock_connector_response.text}")
                 raise HTTPException(
-                    status_code=cc_pair_response.status_code,
-                    detail=f"Failed to create connector-credential pair: {cc_pair_response.text}"
+                    status_code=mock_connector_response.status_code,
+                    detail=f"Failed to create connector: {mock_connector_response.text}"
                 )
             
-            cc_pair_result = cc_pair_response.json()
+            mock_connector_result = mock_connector_response.json()
             
             return {
                 "success": True,
                 "message": "Connector created successfully",
-                "connector": connector_result,
-                "cc_pair": cc_pair_result
+                "connector": mock_connector_result
             }
             
     except httpx.RequestError as e:
