@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Play, Download, Video, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { useLanguage } from '@/hooks/useLanguage';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface VideoGenerationTask {
   slide_id: string;
@@ -220,26 +211,35 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'done':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>;
       case 'failed':
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <svg className="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>;
       case 'rendering':
-        return <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />;
+        return <svg className="h-4 w-4 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+        return <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'done':
-        return <Badge variant="default" className="bg-green-500">Completed</Badge>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>;
       case 'failed':
-        return <Badge variant="destructive">Failed</Badge>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>;
       case 'rendering':
-        return <Badge variant="secondary" className="bg-blue-500">Rendering</Badge>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Rendering</span>;
       default:
-        return <Badge variant="outline">Pending</Badge>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Pending</span>;
     }
   };
 
@@ -251,65 +251,67 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Video className="h-5 w-5" />
+      <div className="bg-white rounded-lg shadow-md border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
             Video Lesson Generator
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
             Generate AI avatar videos for your slides and compose them into a complete video lesson
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </p>
+        </div>
+        <div className="px-6 py-4 space-y-4">
           {/* Configuration Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="avatar">Avatar</Label>
-              <Select value={selectedAvatar} onValueChange={setSelectedAvatar}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select avatar" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AVATAR_OPTIONS.map((avatar) => (
-                    <SelectItem key={avatar.code} value={avatar.code}>
-                      {avatar.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label htmlFor="avatar" className="block text-sm font-medium text-gray-700">Avatar</label>
+              <select 
+                id="avatar"
+                value={selectedAvatar} 
+                onChange={(e) => setSelectedAvatar(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                {AVATAR_OPTIONS.map((avatar) => (
+                  <option key={avatar.code} value={avatar.code}>
+                    {avatar.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="voice">Voice</Label>
-              <Select value={selectedVoice} onValueChange={setSelectedVoice}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  {VOICE_OPTIONS.map((voice) => (
-                    <SelectItem key={voice.code} value={voice.code}>
-                      {voice.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label htmlFor="voice" className="block text-sm font-medium text-gray-700">Voice</label>
+              <select 
+                id="voice"
+                value={selectedVoice} 
+                onChange={(e) => setSelectedVoice(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                {VOICE_OPTIONS.map((voice) => (
+                  <option key={voice.code} value={voice.code}>
+                    {voice.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="backgroundColor">Background Color</Label>
-              <Input
+              <label htmlFor="backgroundColor" className="block text-sm font-medium text-gray-700">Background Color</label>
+              <input
                 id="backgroundColor"
                 type="color"
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
-                className="h-10"
+                className="h-10 w-full border border-gray-300 rounded-md"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="avatarScale">Avatar Scale</Label>
-              <Input
+              <label htmlFor="avatarScale" className="block text-sm font-medium text-gray-700">Avatar Scale</label>
+              <input
                 id="avatarScale"
                 type="range"
                 min="0.5"
@@ -317,6 +319,7 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
                 step="0.1"
                 value={avatarScale}
                 onChange={(e) => setAvatarScale(parseFloat(e.target.value))}
+                className="w-full"
               />
               <span className="text-sm text-gray-500">{avatarScale}</span>
             </div>
@@ -324,8 +327,8 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
 
           {/* Slide Selection */}
           <div className="space-y-2">
-            <Label>Select Slides ({selectedSlides.length} of {slides.length})</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+            <label className="block text-sm font-medium text-gray-700">Select Slides ({selectedSlides.length} of {slides.length})</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-3">
               {slides.map((slide) => (
                 <label key={slide.slideId} className="flex items-center space-x-2">
                   <input
@@ -338,7 +341,7 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
                         setSelectedSlides(selectedSlides.filter(id => id !== slide.slideId));
                       }
                     }}
-                    className="rounded"
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <span className="text-sm truncate">
                     Slide {slide.slideNumber}: {slide.slideTitle}
@@ -350,62 +353,77 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <Button
+            <button
               onClick={generateAvatarVideos}
               disabled={isGenerating || selectedSlides.length === 0}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
               ) : (
-                <Play className="h-4 w-4" />
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               )}
               Generate Avatar Videos
-            </Button>
+            </button>
 
-            <Button
+            <button
               onClick={composeVideo}
               disabled={isComposing || !progress || progress.completed === 0}
-              variant="secondary"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isComposing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
               ) : (
-                <Video className="h-4 w-4" />
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
               )}
               Compose Final Video
-            </Button>
+            </button>
 
-            <Button
+            <button
               onClick={downloadVideo}
               disabled={!progress || progress.completed === 0}
-              variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="h-4 w-4" />
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
               Download
-            </Button>
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Progress Section */}
       {progress && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Generation Progress</CardTitle>
-            <CardDescription>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Generation Progress</h3>
+            <p className="text-sm text-gray-600 mt-1">
               {progress.completed} of {progress.total_tasks} videos completed
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </p>
+          </div>
+          <div className="px-6 py-4 space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Progress</span>
                 <span>{completionPercentage}%</span>
               </div>
-              <Progress value={completionPercentage} className="w-full" />
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${completionPercentage}%` }}
+                ></div>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4 text-center">
@@ -425,10 +443,10 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
 
             {/* Task List */}
             <div className="space-y-2">
-              <Label>Individual Tasks</Label>
+              <label className="block text-sm font-medium text-gray-700">Individual Tasks</label>
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {progress.tasks.map((task) => (
-                  <div key={task.video_id} className="flex items-center justify-between p-2 border rounded">
+                  <div key={task.video_id} className="flex items-center justify-between p-2 border border-gray-200 rounded-md">
                     <div className="flex items-center gap-2">
                       {getStatusIcon(task.status)}
                       <span className="text-sm">
@@ -438,34 +456,53 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
                     <div className="flex items-center gap-2">
                       {getStatusBadge(task.status)}
                       {task.download_url && (
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        <button
+                          className="p-1 border border-gray-300 rounded hover:bg-gray-50"
                           onClick={() => window.open(task.download_url, '_blank')}
                         >
-                          <Download className="h-3 w-3" />
-                        </Button>
+                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </button>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Messages */}
       {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          </div>
+        </div>
       )}
 
       {success && (
-        <Alert>
-          <AlertDescription>{success}</AlertDescription>
-        </Alert>
+        <div className="bg-green-50 border border-green-200 rounded-md p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-green-800">{success}</p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
