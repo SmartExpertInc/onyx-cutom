@@ -977,6 +977,30 @@ const getTotalCompletionTimeInFolder = (folder: Folder): number => {
   return directCompletionTime + subfolderCompletionTime;
 };
 
+// Helper function to get total modules in a folder (including subfolders)
+const getTotalModulesInFolder = (folder: Folder): number => {
+  const directModules = folder.total_modules || 0;
+  
+  // Recursively sum modules from all subfolders
+  const subfolderModules = folder.children?.reduce((total, childFolder) => {
+    return total + getTotalModulesInFolder(childFolder);
+  }, 0) || 0;
+  
+  return directModules + subfolderModules;
+};
+
+// Helper function to get total creation hours in a folder (including subfolders)
+const getTotalCreationHoursInFolder = (folder: Folder): number => {
+  const directCreationHours = folder.total_creation_hours || 0;
+  
+  // Recursively sum creation hours from all subfolders
+  const subfolderCreationHours = folder.children?.reduce((total, childFolder) => {
+    return total + getTotalCreationHoursInFolder(childFolder);
+  }, 0) || 0;
+  
+  return directCreationHours + subfolderCreationHours;
+};
+
 // Localized completion time formatting
 const timeUnits = {
     ru: { minuteUnit: "м" },
@@ -1049,6 +1073,8 @@ interface Folder {
   total_lessons: number;
   total_hours: number;
   total_completion_time: number;
+  total_modules: number;
+  total_creation_hours: number;
   parent_id?: number | null;
   quality_tier?: string;
   children?: Folder[];
@@ -1088,7 +1114,7 @@ const FolderRow: React.FC<{
     columnWidths: ColumnWidths;
     expandedFolders: Set<number>;
     folderProjects: Record<number, Project[]>;
-    lessonDataCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>;
+    lessonDataCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string, totalModules?: number | string, totalCreationHours?: number | string }>;
     draggedFolder: Folder | null;
     draggedProject: Project | null;
     dragOverIndex: number | null;
@@ -1244,24 +1270,24 @@ const FolderRow: React.FC<{
                 {columnVisibility.numberOfLessons && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalLessons = getTotalLessonsInFolder(folder);
-                            return totalLessons > 0 ? totalLessons : '-';
+                            const totalModules = getTotalModulesInFolder(folder);
+                            return totalModules > 0 ? totalModules : '-';
                         })()}
                     </td>
                 )}
                 {columnVisibility.estCreationTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalHours = getTotalHoursInFolder(folder);
-                            return totalHours > 0 ? `${totalHours}h` : '-';
+                            const totalCreationHours = getTotalCreationHoursInFolder(folder);
+                            return totalCreationHours > 0 ? `${totalCreationHours}h` : '-';
                         })()}
                     </td>
                 )}
                 {columnVisibility.estCompletionTime && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {(() => {
-                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
-                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
                         })()}
                     </td>
                 )}
@@ -1370,7 +1396,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    return lessonData ? lessonData.lessonCount : '-';
+                                    // Use totalModules if available, otherwise fallback to lessonCount
+                                    const modules = lessonData?.totalModules || lessonData?.lessonCount;
+                                    return modules || '-';
                                 })()}
                             </td>
                         )}
@@ -1378,7 +1406,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                    // Use totalCreationHours if available, otherwise fallback to totalHours
+                                    const creationHours = lessonData?.totalCreationHours || lessonData?.totalHours;
+                                    return creationHours ? `${creationHours}h` : '-';
                                 })()}
                             </td>
                         )}
@@ -1386,7 +1416,9 @@ const FolderRow: React.FC<{
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {(() => {
                                     const lessonData = lessonDataCache[p.id];
-                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                    // Use totalHours for Learning Duration (h)
+                                    const learningHours = lessonData?.totalHours;
+                                    return learningHours ? `${learningHours}h` : '-';
                                 })()}
                             </td>
                         )}
@@ -4007,7 +4039,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.numberOfLessons}%` }}
                                         >
-                                            {t('interface.numberOfLessons', 'Number of Lessons')}
+                                            {t('interface.numberOfLessons', 'Modules')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'numberOfLessons')}
@@ -4019,7 +4051,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.estCreationTime}%` }}
                                         >
-                                            {t('interface.estCreationTime', 'Est. Creation Time')}
+                                            {t('interface.estCreationTime', 'Production Time (h)')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCreationTime')}
@@ -4031,7 +4063,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                                             style={{ width: `${columnWidths.estCompletionTime}%` }}
                                         >
-                                            {t('interface.estCompletionTime', 'Est. Completion Time')}
+                                            {t('interface.estCompletionTime', 'Learning Duration (h)')}
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
