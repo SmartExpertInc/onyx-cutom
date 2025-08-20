@@ -95,40 +95,67 @@ from main import VideoLessonData
 async def get_available_avatars():
     """
     Get list of available avatars for video generation.
-    Returns avatar codes and preview URLs.
+    Returns avatar codes and preview URLs from Elai API.
     """
-    avatars = [
-        {
-            "code": "gia.casual",
-            "name": "Gia Casual",
-            "gender": "female",
-            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",
-            "description": "Professional female avatar with casual style"
-        },
-        {
-            "code": "dylan.casual", 
-            "name": "Dylan Casual",
-            "gender": "male",
-            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/dylan/casual/dylan_casual.png",
-            "description": "Professional male avatar with casual style"
-        },
-        {
-            "code": "anna.casual",
-            "name": "Anna Casual", 
-            "gender": "female",
-            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/anna/casual/anna_casual.png",
-            "description": "Friendly female avatar with casual style"
-        },
-        {
-            "code": "lisa.casual",
-            "name": "Lisa Casual",
-            "gender": "female", 
-            "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/lisa/casual/lisa_casual.png",
-            "description": "Confident female avatar with casual style"
-        }
-    ]
+    if not VIDEO_LESSON_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Video lesson generation services are not available"
+        )
     
-    return {"avatars": avatars}
+    if not ELAI_API_TOKEN:
+        raise HTTPException(
+            status_code=500,
+            detail="Elai API token not configured"
+        )
+    
+    try:
+        # Initialize Elai service and get avatars
+        elai_service = ElaiAPIService(ELAI_API_TOKEN)
+        avatars = elai_service.get_available_avatars()
+        
+        if not avatars:
+            # Fallback to hardcoded avatars if API call fails
+            logger.warning("Failed to get avatars from Elai API, using fallback list")
+            avatars = [
+                {
+                    "code": "gia.casual",
+                    "name": "Gia Casual",
+                    "gender": "female",
+                    "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",
+                    "description": "Professional female avatar with casual style"
+                },
+                {
+                    "code": "dylan.casual", 
+                    "name": "Dylan Casual",
+                    "gender": "male",
+                    "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/dylan/casual/dylan_casual.png",
+                    "description": "Professional male avatar with casual style"
+                },
+                {
+                    "code": "anna.casual",
+                    "name": "Anna Casual", 
+                    "gender": "female",
+                    "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/anna/casual/anna_casual.png",
+                    "description": "Friendly female avatar with casual style"
+                },
+                {
+                    "code": "lisa.casual",
+                    "name": "Lisa Casual",
+                    "gender": "female", 
+                    "preview_url": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/lisa/casual/lisa_casual.png",
+                    "description": "Confident female avatar with casual style"
+                }
+            ]
+        
+        return {"avatars": avatars}
+        
+    except Exception as e:
+        logger.error(f"Error getting available avatars: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get available avatars: {str(e)}"
+        )
 
 @router.post("/generate-avatar", response_model=VideoGenerationResponse)
 async def generate_avatar_video(
@@ -318,7 +345,7 @@ async def get_video_generation_progress(
             }
         
         # Check status of each video
-        elai_service = ElaiAPIService(ELAI_API_TOKEN, ELAI_BASE_URL)
+        elai_service = ElaiAPIService(ELAI_API_TOKEN)
         progress_data = []
         
         for task in tasks:
@@ -439,7 +466,7 @@ async def compose_video_lesson(
             )
         
         # Initialize services
-        elai_service = ElaiAPIService(ELAI_API_TOKEN, ELAI_BASE_URL)
+        elai_service = ElaiAPIService(ELAI_API_TOKEN)
         composition_service = VideoCompositionService()
         image_generator = SlideImageGenerator()
         

@@ -49,7 +49,9 @@ export const AvatarPreview: React.FC<AvatarPreviewProps> = ({
     const fetchAvatars = async () => {
       setLoading(true);
       try {
-        const response = await fetch('/api/custom/video-lesson/avatars');
+        // Use the correct backend URL
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/video-lesson/avatars`);
         if (response.ok) {
           const data = await response.json();
           setAvatars(data.avatars || []);

@@ -108,6 +108,43 @@ class ElaiAPIService:
         
         logger.info(f"{'='*60}\n")
 
+    def get_available_avatars(self) -> List[Dict[str, Any]]:
+        """
+        Get list of available avatars from Elai API.
+        
+        Returns:
+            List of avatar dictionaries with code, name, gender, etc.
+        """
+        try:
+            url = f"{self.base_url}/avatars"
+            response = self.session.get(url)
+            self.log_request_response("GET", url, None, response)
+            
+            if response.status_code == 200:
+                avatars_data = response.json()
+                logger.info(f"Successfully retrieved {len(avatars_data)} avatars from Elai API")
+                
+                # Transform the data to match our expected format
+                formatted_avatars = []
+                for avatar in avatars_data:
+                    formatted_avatar = {
+                        "code": avatar.get("code", ""),
+                        "name": avatar.get("name", ""),
+                        "gender": avatar.get("gender", "unknown"),
+                        "preview_url": avatar.get("canvas", ""),
+                        "description": f"{avatar.get('name', '')} - {avatar.get('gender', 'unknown')} avatar"
+                    }
+                    formatted_avatars.append(formatted_avatar)
+                
+                return formatted_avatars
+            else:
+                logger.error(f"Failed to get avatars. Status: {response.status_code}")
+                return []
+                
+        except Exception as e:
+            logger.error(f"Exception during avatar retrieval: {str(e)}")
+            return []
+
     def create_slide_video(self, 
                           slide_title: str, 
                           voiceover_text: str, 

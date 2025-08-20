@@ -99,7 +99,8 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
 
   const loadProgress = async () => {
     try {
-      const response = await fetch(`/api/custom/video-lesson/progress/${projectId}`);
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/video-lesson/progress/${projectId}`);
       if (response.ok) {
         const data = await response.json();
         setProgress(data);
@@ -115,7 +116,8 @@ export const VideoLessonGenerator: React.FC<VideoLessonGeneratorProps> = ({
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/custom/video-lesson/generate-avatar', {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/video-lesson/generate-avatar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
