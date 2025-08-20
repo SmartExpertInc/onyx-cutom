@@ -691,15 +691,7 @@ const PreviewModal: React.FC<{
                                       }}>
                                         Learning Duration (h)
                                       </th>
-                                      <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
-                                        padding: '16px 20px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        fontSize: '0.9rem',
-                                        letterSpacing: '0.5px'
-                                      }}>
-                                        Production Ratio (h prod / 1h learn)
-                                      </th>
+
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
                                         padding: '16px 20px',
                                         fontWeight: '600',
@@ -740,12 +732,7 @@ const PreviewModal: React.FC<{
                                             }}>
                                               {level.learningDuration}
                                             </td>
-                                            <td className="p-4 font-medium text-black" style={{
-                                              padding: '16px 20px',
-                                              fontWeight: '500'
-                                            }}>
-                                              {level.productionRatio}
-                                            </td>
+
                                             <td className="p-4 font-medium text-black" style={{
                                               padding: '16px 20px',
                                               fontWeight: '500'
@@ -813,17 +800,14 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Estimated Production Time: ≈ {(() => {
-                                    // Calculate total production hours from Block 1
-                                    const courseStats = data.projects.reduce((acc, project) => {
-                                      const type = (project as BackendProject).design_microproduct_type || 'Unknown';
-                                      if (!acc[type]) {
-                                        acc[type] = {
-                                          learningDuration: Math.floor(Math.random() * 5) + 3, // 3-7 hours
-                                        };
-                                      }
-                                      return acc;
-                                    }, {} as Record<string, { learningDuration: number }>);
-                                    const totalProductionHours = Object.values(courseStats).reduce((sum: number, course: unknown) => sum + ((course as { learningDuration: number }).learningDuration * 300), 0);
+                                    // Calculate total production hours from Block 2 (Production Hours)
+                                    const qualityLevels = [
+                                      { name: 'Level 1 - Basic', learningDuration: 1, productionRatio: 200 },
+                                      { name: 'Level 2 - Interactive', learningDuration: 2, productionRatio: 400 },
+                                      { name: 'Level 3 - Advanced', learningDuration: 3, productionRatio: 600 },
+                                      { name: 'Level 4 - Immersive', learningDuration: 5, productionRatio: 800 }
+                                    ];
+                                    const totalProductionHours = qualityLevels.reduce((sum, level) => sum + (level.learningDuration * level.productionRatio), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
                                 </li>

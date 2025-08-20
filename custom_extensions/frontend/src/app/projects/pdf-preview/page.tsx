@@ -122,7 +122,7 @@ function ProjectsPdfPreviewContent() {
           </div>
         </div>
         
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
           {filteredProjects.length > 0 ? (
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200">

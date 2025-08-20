@@ -277,7 +277,7 @@ export default function PdfPreviewPage() {
         </div>
         
         {/* Content */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-y-auto max-h-[calc(100vh-200px)]">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-y-auto max-h-[calc(100vh-200px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
           {renderComponent()}
         </div>
       </div>
@@ -292,7 +292,7 @@ function SlideDeckPreview({ data }: { data: any }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{data.lessonTitle}</h1>
       </div>
@@ -339,7 +339,7 @@ function TrainingPlanPreview({ data }: { data: any }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{data.mainTitle}</h1>
       </div>
@@ -372,7 +372,7 @@ function PdfLessonPreview({ data }: { data: any }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{data.lessonTitle}</h1>
       </div>
@@ -405,7 +405,7 @@ function TextPresentationPreview({ data }: { data: any }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{data.textTitle}</h1>
       </div>
@@ -438,7 +438,7 @@ function VideoLessonPreview({ data }: { data: any }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{data.mainPresentationTitle}</h1>
       </div>
@@ -470,7 +470,7 @@ function QuizPreview({ data }: { data: any }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{data.quizTitle}</h1>
       </div>
@@ -559,7 +559,7 @@ const printStyles = `
 // Simple Preview Component for testing
 function SimplePreview({ data, title }: { data: any; title: string }) {
   return (
-    <div className="p-8">
+    <div className="p-8 overflow-y-auto max-h-[calc(100vh-300px)]" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
         <h3 className="text-lg font-semibold text-green-800 mb-2">✅ {title} - Data Consistency Fixed!</h3>
         <p className="text-sm text-green-700">
