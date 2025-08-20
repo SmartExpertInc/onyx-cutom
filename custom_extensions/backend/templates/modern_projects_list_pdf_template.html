@@ -284,7 +284,13 @@
                                         <td class="course-name">{{ folder.name if folder.name else '-' }}</td>
                                         <td>{{ folder.total_modules if folder.total_modules else '-' }}</td>
                                         <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
-                                        <td>{{ folder.total_hours if folder.total_hours else '-' }}</td>
+                                        <td>
+                                            {% if folder.total_hours and folder.total_hours > 0 %}
+                                                {% set h = folder.total_hours // 60 %}
+                                                {% set m = folder.total_hours % 60 %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                            {% else %}-{% endif %}
+                                        </td>
                                         <td>{{ folder.total_completion_time if folder.total_completion_time else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons is not none else 0) %}
@@ -298,7 +304,13 @@
                                                 <td class="course-name" style="padding-left: 20px;">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                                 <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                 <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
-                                                <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                                <td>
+                                                    {% if project.total_hours and project.total_hours > 0 %}
+                                                        {% set h = project.total_hours // 60 %}
+                                                        {% set m = project.total_hours % 60 %}
+                                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                    {% else %}-{% endif %}
+                                                </td>
                                                 <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
                                             </tr>
                                             {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
@@ -329,7 +341,13 @@
                                                         <td class="course-name" style="padding-left: 40px;">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
-                                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                                        <td>
+                                                            {% if project.total_hours and project.total_hours > 0 %}
+                                                                {% set h = project.total_hours // 60 %}
+                                                                {% set m = project.total_hours % 60 %}
+                                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                                            {% else %}-{% endif %}
+                                                        </td>
                                                         <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
                                                     </tr>
                                                     {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
@@ -349,7 +367,13 @@
                                         <td class="course-name">{{ project.title if project.title else (project.project_name if project.project_name else '-') }}</td>
                                         <td>{{ project.total_modules if project.total_modules else '-' }}</td>
                                         <td>{{ project.total_lessons if project.total_lessons else '-' }}</td>
-                                        <td>{{ project.total_hours if project.total_hours else '-' }}</td>
+                                        <td>
+                                            {% if project.total_hours and project.total_hours > 0 %}
+                                                {% set h = project.total_hours // 60 %}
+                                                {% set m = project.total_hours % 60 %}
+                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
+                                            {% else %}-{% endif %}
+                                        </td>
                                         <td>{{ project.total_completion_time if project.total_completion_time else '-' }}</td>
                                     </tr>
                                     {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
