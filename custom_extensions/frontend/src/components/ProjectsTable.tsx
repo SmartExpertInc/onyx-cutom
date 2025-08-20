@@ -585,8 +585,11 @@ const PreviewModal: React.FC<{
                                     {(() => {
                                       // 🔧 FIX: Use consistent data processing for Block 1. Course Overview (same as PDF)
                                       const courses = processBlock1CourseOverview(data.projects).slice(0, 4);
-                                      const totalLearningHours = courses.reduce((sum: number, course: any) => sum + course.learningDuration, 0);
-                                      const totalProductionHours = courses.reduce((sum: number, course: any) => sum + course.productionTime, 0);
+                                      
+                                      // Calculate summary stats like in PDF generation
+                                      const allProjects = data.projects || [];
+                                      const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                      const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_creation_hours || 0), 0);
 
                                       return (
                                         <>
@@ -705,16 +708,15 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // Define quality levels with their ratios
+                                      // Define quality levels with their ratios (same as PDF)
                                       const qualityLevels = [
-                                        { name: 'Level 1 - Basic', learningDuration: 1, productionRatio: 200 },
-                                        { name: 'Level 2 - Interactive', learningDuration: 2, productionRatio: 400 },
-                                        { name: 'Level 3 - Advanced', learningDuration: 3, productionRatio: 600 },
-                                        { name: 'Level 4 - Immersive', learningDuration: 5, productionRatio: 800 }
+                                        { name: 'Level 1 - Basic', learningDuration: 1, productionHours: 200 },
+                                        { name: 'Level 2 - Interactive', learningDuration: 2, productionHours: 400 },
+                                        { name: 'Level 3 - Advanced', learningDuration: 3, productionHours: 600 },
+                                        { name: 'Level 4 - Immersive', learningDuration: 5, productionHours: 800 }
                                       ];
 
                                       return qualityLevels.map((level, index) => {
-                                        const productionHours = level.learningDuration * level.productionRatio;
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
                                             background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
@@ -777,9 +779,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Total: {(() => {
-                                    // Calculate total learning hours from Block 1 (Course Overview)
-                                    const courses = processBlock1CourseOverview(data.projects);
-                                    const totalLearningHours = courses.reduce((sum: number, course: any) => sum + (course.learningDuration || 0), 0);
+                                    // Calculate total learning hours like in PDF generation
+                                    const allProjects = data.projects || [];
+                                    const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
@@ -792,9 +794,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Estimated Production Time: ≈ {(() => {
-                                    // Calculate total production hours from Block 1 (Course Overview)
-                                    const courses = processBlock1CourseOverview(data.projects);
-                                    const totalProductionHours = courses.reduce((sum: number, course: any) => sum + (course.productionTime || 0), 0);
+                                    // Calculate total production hours like in PDF generation
+                                    const allProjects = data.projects || [];
+                                    const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_creation_hours || 0), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
                                 </li>
