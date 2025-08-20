@@ -858,7 +858,7 @@ const redirectToMainAuth = (path: string) => {
   window.location.href = mainAppUrl;
 };
 
-// Helper function to build folder tree from flat list
+// !Helper function to build folder tree from flat list
 const buildFolderTree = (folders: Folder[]): Folder[] => {
   const folderMap = new Map<number, Folder>();
   const rootFolders: Folder[] = [];
