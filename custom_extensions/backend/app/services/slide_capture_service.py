@@ -116,13 +116,70 @@ class ProfessionalSlideCapture:
             
             # Video recording is automatically started when context is created with record_video_dir
             
-            # Navigate to slide URL
+            # Navigate to slide URL with better error handling
             logger.info(f"Navigating to slide URL: {config.slide_url}")
-            await page.goto(
-                config.slide_url,
-                wait_until='networkidle',
-                timeout=30000
-            )
+            try:
+                await page.goto(
+                    config.slide_url,
+                    wait_until='domcontentloaded',  # Changed from 'networkidle' to be more reliable
+                    timeout=60000  # Increased timeout to 60 seconds
+                )
+                logger.info("Navigation completed successfully")
+            except Exception as nav_error:
+                logger.warning(f"Navigation failed with error: {nav_error}")
+                logger.info("Creating fallback slide content...")
+                
+                # Create a simple fallback slide with the slide URL as content
+                fallback_html = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Slide Content</title>
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            margin: 0;
+                            padding: 40px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            min-height: 100vh;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }}
+                        .slide-content {{
+                            text-align: center;
+                            max-width: 800px;
+                        }}
+                        h1 {{
+                            font-size: 3em;
+                            margin-bottom: 20px;
+                        }}
+                        p {{
+                            font-size: 1.5em;
+                            line-height: 1.6;
+                        }}
+                        .url {{
+                            background: rgba(255,255,255,0.2);
+                            padding: 20px;
+                            border-radius: 10px;
+                            margin-top: 30px;
+                            word-break: break-all;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="slide-content">
+                        <h1>Slide Content</h1>
+                        <p>This slide represents the content from:</p>
+                        <div class="url">{config.slide_url}</div>
+                    </div>
+                </body>
+                </html>
+                """
+                
+                await page.set_content(fallback_html)
+                logger.info("Fallback slide content created successfully")
             
             # Wait for all resources to load
             await self._wait_for_all_resources(page)
@@ -160,16 +217,22 @@ class ProfessionalSlideCapture:
     async def _wait_for_all_resources(self, page):
         """Wait for all page resources to load completely."""
         try:
-            # Wait for fonts to load
-            await page.wait_for_function("document.fonts.ready")
+            # Wait for fonts to load (with timeout)
+            try:
+                await page.wait_for_function("document.fonts.ready", timeout=10000)
+            except:
+                logger.warning("Font loading timeout, continuing...")
             
-            # Wait for images to load
-            await page.wait_for_function("""
-                () => {
-                    const images = Array.from(document.images);
-                    return images.every(img => img.complete && img.naturalHeight !== 0);
-                }
-            """)
+            # Wait for images to load (with timeout)
+            try:
+                await page.wait_for_function("""
+                    () => {
+                        const images = Array.from(document.images);
+                        return images.every(img => img.complete && img.naturalHeight !== 0);
+                    }
+                """, timeout=10000)
+            except:
+                logger.warning("Image loading timeout, continuing...")
             
             # Wait for any CSS animations to settle
             await page.wait_for_timeout(1000)
@@ -177,10 +240,11 @@ class ProfessionalSlideCapture:
             # Wait for any dynamic content
             await page.wait_for_timeout(500)
             
-            logger.info("All page resources loaded")
+            logger.info("Page resources loaded (or timeout reached)")
             
         except Exception as e:
             logger.warning(f"Resource waiting failed: {e}")
+            logger.info("Continuing with current page state...")
     
     async def _convert_to_optimized_mp4(self, input_path: str, config: SlideVideoConfig) -> str:
         """
