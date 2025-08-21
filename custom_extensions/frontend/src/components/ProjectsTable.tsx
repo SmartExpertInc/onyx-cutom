@@ -3896,7 +3896,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     };
                 });
                 
-                // Calculate quality tier sums from frontend data (same logic as backend)
+                // Calculate quality tier sums using module-level data when available (like backend)
                 const qualityTierSums = {
                     basic: { completion_time: 0, creation_time: 0 },
                     interactive: { completion_time: 0, creation_time: 0 },
@@ -3904,22 +3904,79 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     immersive: { completion_time: 0, creation_time: 0 }
                 };
 
-                // Helper function to get effective quality tier
-                const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
-                    if (project.quality_tier) {
-                        const tier = project.quality_tier.toLowerCase();
-                        if (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') {
-                            return tier as keyof typeof qualityTierSums;
-                        }
-                    }
-                    return 'interactive';
+                // Helper function to get effective quality tier (same priority as backend)
+                const getEffectiveQualityTier = (lessonQualityTier: string | null, sectionQualityTier: string | null, projectQualityTier: string | null, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
+                    // Priority: lesson -> section -> project -> folder -> default
+                    const tier = (lessonQualityTier || sectionQualityTier || projectQualityTier || folderQualityTier || 'interactive').toLowerCase();
+                    
+                    // Support both old and new tier names (like backend)
+                    const tierMapping: Record<string, keyof typeof qualityTierSums> = {
+                        // New tier names
+                        'basic': 'basic',
+                        'interactive': 'interactive', 
+                        'advanced': 'advanced',
+                        'immersive': 'immersive',
+                        // Old tier names (legacy support)
+                        'starter': 'basic',
+                        'medium': 'interactive',
+                        'professional': 'immersive'
+                    };
+                    return tierMapping[tier] || 'interactive';
                 };
 
-                // Process all projects (exactly like backend)
+                // Process all projects with module-level quality tiers (like backend)
                 projectsToShow.forEach((project: Project | BackendProject) => {
-                    const effectiveTier = getEffectiveQualityTier(project, 'interactive');
-                    qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
-                    qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+                    const projectQualityTier = project.quality_tier;
+                    
+                    // Check if we have microproduct_content for module-level calculation
+                    const microproductContent = project.microproduct_content;
+                    if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
+                        // Use module-level calculation (like backend)
+                        const sections = microproductContent.sections;
+                        if (Array.isArray(sections)) {
+                            sections.forEach((section: any) => {
+                                if (section && typeof section === 'object' && section.lessons) {
+                                    const sectionQualityTier = section.quality_tier;
+                                    const lessons = section.lessons;
+                                    if (Array.isArray(lessons)) {
+                                        lessons.forEach((lesson: any) => {
+                                            if (lesson && typeof lesson === 'object') {
+                                                const lessonQualityTier = lesson.quality_tier;
+                                                const effectiveTier = getEffectiveQualityTier(
+                                                    lessonQualityTier, 
+                                                    sectionQualityTier, 
+                                                    projectQualityTier, 
+                                                    'interactive'
+                                                );
+                                                
+                                                // Get lesson completion time and creation hours (like backend)
+                                                let lessonCompletionTimeRaw = lesson.completionTime || 0;
+                                                const lessonCreationHours = lesson.hours || 0;
+                                                
+                                                // Convert completionTime from string (e.g., "6m") to integer minutes (like backend)
+                                                let lessonCompletionTime: number;
+                                                if (typeof lessonCompletionTimeRaw === 'string') {
+                                                    // Remove 'm' suffix and convert to int
+                                                    lessonCompletionTime = parseInt(lessonCompletionTimeRaw.replace('m', '')) || 0;
+                                                } else {
+                                                    lessonCompletionTime = parseInt(lessonCompletionTimeRaw) || 0;
+                                                }
+                                                
+                                                qualityTierSums[effectiveTier].completion_time += lessonCompletionTime;
+                                                // Convert hours to minutes for consistency (like backend)
+                                                qualityTierSums[effectiveTier].creation_time += lessonCreationHours * 60;
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        // Fallback to project-level calculation if no microproduct_content
+                        const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
+                        qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
+                        qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+                    }
                 });
 
                 setPreviewData({
@@ -3948,7 +4005,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 };
             });
             
-            // Calculate quality tier sums from frontend data (same logic as backend)
+            // Calculate quality tier sums using module-level data when available (like backend)
             const qualityTierSums = {
                 basic: { completion_time: 0, creation_time: 0 },
                 interactive: { completion_time: 0, creation_time: 0 },
@@ -3956,22 +4013,79 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 immersive: { completion_time: 0, creation_time: 0 }
             };
 
-            // Helper function to get effective quality tier
-            const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
-                if (project.quality_tier) {
-                    const tier = project.quality_tier.toLowerCase();
-                    if (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') {
-                        return tier as keyof typeof qualityTierSums;
-                    }
-                }
-                return 'interactive';
+            // Helper function to get effective quality tier (same priority as backend)
+            const getEffectiveQualityTier = (lessonQualityTier: string | null, sectionQualityTier: string | null, projectQualityTier: string | null, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
+                // Priority: lesson -> section -> project -> folder -> default
+                const tier = (lessonQualityTier || sectionQualityTier || projectQualityTier || folderQualityTier || 'interactive').toLowerCase();
+                
+                // Support both old and new tier names (like backend)
+                const tierMapping: Record<string, keyof typeof qualityTierSums> = {
+                    // New tier names
+                    'basic': 'basic',
+                    'interactive': 'interactive', 
+                    'advanced': 'advanced',
+                    'immersive': 'immersive',
+                    // Old tier names (legacy support)
+                    'starter': 'basic',
+                    'medium': 'interactive',
+                    'professional': 'immersive'
+                };
+                return tierMapping[tier] || 'interactive';
             };
 
-            // Process all projects (exactly like backend)
+            // Process all projects with module-level quality tiers (like backend)
             projectsToShow.forEach((project: Project | BackendProject) => {
-                const effectiveTier = getEffectiveQualityTier(project, 'interactive');
-                qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
-                qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+                const projectQualityTier = project.quality_tier;
+                
+                // Check if we have microproduct_content for module-level calculation
+                const microproductContent = project.microproduct_content;
+                if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
+                    // Use module-level calculation (like backend)
+                    const sections = microproductContent.sections;
+                    if (Array.isArray(sections)) {
+                        sections.forEach((section: any) => {
+                            if (section && typeof section === 'object' && section.lessons) {
+                                const sectionQualityTier = section.quality_tier;
+                                const lessons = section.lessons;
+                                if (Array.isArray(lessons)) {
+                                    lessons.forEach((lesson: any) => {
+                                        if (lesson && typeof lesson === 'object') {
+                                            const lessonQualityTier = lesson.quality_tier;
+                                            const effectiveTier = getEffectiveQualityTier(
+                                                lessonQualityTier, 
+                                                sectionQualityTier, 
+                                                projectQualityTier, 
+                                                'interactive'
+                                            );
+                                            
+                                            // Get lesson completion time and creation hours (like backend)
+                                            let lessonCompletionTimeRaw = lesson.completionTime || 0;
+                                            const lessonCreationHours = lesson.hours || 0;
+                                            
+                                            // Convert completionTime from string (e.g., "6m") to integer minutes (like backend)
+                                            let lessonCompletionTime: number;
+                                            if (typeof lessonCompletionTimeRaw === 'string') {
+                                                // Remove 'm' suffix and convert to int
+                                                lessonCompletionTime = parseInt(lessonCompletionTimeRaw.replace('m', '')) || 0;
+                                            } else {
+                                                lessonCompletionTime = parseInt(lessonCompletionTimeRaw) || 0;
+                                            }
+                                            
+                                            qualityTierSums[effectiveTier].completion_time += lessonCompletionTime;
+                                            // Convert hours to minutes for consistency (like backend)
+                                            qualityTierSums[effectiveTier].creation_time += lessonCreationHours * 60;
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    // Fallback to project-level calculation if no microproduct_content
+                    const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
+                    qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
+                    qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+                }
             });
 
             setPreviewData({
