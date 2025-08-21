@@ -10342,6 +10342,14 @@ async def get_user_projects_list_from_db(
     query = select_query.format(folder_filter=folder_filter)
     async with pool.acquire() as conn:
         db_rows = await conn.fetch(query, *params)
+    
+    logger.info(f"[PDF_ANALYTICS] /api/custom/projects: Found {len(db_rows)} projects from database")
+    
+    # Debug: Log raw data from database
+    for i, row in enumerate(db_rows[:5]):  # Log first 5 projects
+        row_dict = dict(row)
+        logger.info(f"[PDF_ANALYTICS] Raw DB Project {i+1}: id={row_dict['id']}, title={row_dict.get('project_name') or row_dict.get('microproduct_name')}, quality_tier={row_dict.get('quality_tier')}")
+    
     projects_list: List[ProjectApiResponse] = []
     for row_data in db_rows:
         row_dict = dict(row_data)
@@ -10446,6 +10454,17 @@ async def get_user_projects_list_from_db(
             total_modules=total_modules,
             total_creation_hours=total_creation_hours
         ))
+    
+    # Debug: Log final projects list being sent to frontend
+    logger.info(f"[PDF_ANALYTICS] /api/custom/projects: Sending {len(projects_list)} projects to frontend")
+    quality_tier_count = {}
+    for project in projects_list:
+        tier = project.quality_tier or 'None'
+        quality_tier_count[tier] = quality_tier_count.get(tier, 0) + 1
+        logger.info(f"[PDF_ANALYTICS] Frontend Project {project.id}: quality_tier='{tier}', title='{project.project_name or project.microproduct_name}'")
+    
+    logger.info(f"[PDF_ANALYTICS] Quality tier distribution being sent to frontend: {quality_tier_count}")
+    
     return projects_list
 
 @app.get("/api/custom/projects/view/{project_id}", response_model=MicroProductApiResponse, responses={404: {"model": ErrorDetail}})
@@ -16265,6 +16284,7 @@ def process_projects_data_unified(projects_rows, folders_data=None):
     Unified function to process projects data for both PDF generation and preview.
     This ensures both PDF and preview use exactly the same data and calculations.
     """
+    logger.info(f"[PDF_ANALYTICS] process_projects_data_unified: Processing {len(projects_rows)} projects")
     projects_data = []
     for row in projects_rows:
         row_dict = dict(row)
@@ -16337,7 +16357,7 @@ def process_projects_data_unified(projects_rows, folders_data=None):
                                 )
                                 total_creation_hours += lesson_creation_hours
         
-        projects_data.append({
+        project_data = {
             'id': row_dict['id'],
             'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
             'created_at': row_dict['created_at'],
@@ -16352,7 +16372,11 @@ def process_projects_data_unified(projects_rows, folders_data=None):
             'total_hours': int(total_hours),  # Learning Duration (H) - no decimals
             'total_completion_time': total_completion_time,
             'total_creation_hours': int(total_creation_hours)  # Production Time (H) - no decimals
-        })
+        }
+        
+        logger.info(f"[PDF_ANALYTICS] Project {row_dict['id']}: quality_tier='{row_dict.get('quality_tier', 'interactive')}', title='{project_data['title']}', completion_time={total_completion_time}, creation_hours={int(total_creation_hours)}")
+        
+        projects_data.append(project_data)
     
     return projects_data
 
@@ -16406,6 +16430,11 @@ async def download_projects_list_pdf(
                 projects_params.append(folder_id)
             
             projects_rows = await conn.fetch(projects_query, *projects_params)
+            
+            # Debug: Log raw project data from database
+            logger.info(f"[PDF_ANALYTICS] Raw projects from database: {len(projects_rows)} projects")
+            for i, row in enumerate(projects_rows[:5]):  # Log first 5 projects
+                logger.info(f"[PDF_ANALYTICS] Project {i+1}: id={row['id']}, title={row.get('project_name') or row.get('microproduct_name')}, quality_tier={row.get('quality_tier')}, folder_id={row.get('folder_id')}")
             
             # Fetch folders with hierarchical structure (only if not viewing a specific folder)
             folders_data = []
@@ -16520,6 +16549,21 @@ async def download_projects_list_pdf(
 
         # Process projects data using unified function for consistency
         projects_data = process_projects_data_unified(projects_rows, folders_data)
+        
+        # Debug: Log processed project data
+        logger.info(f"[PDF_ANALYTICS] Processed projects data: {len(projects_data)} projects")
+        for i, project in enumerate(projects_data[:5]):  # Log first 5 projects
+            logger.info(f"[PDF_ANALYTICS] Processed Project {i+1}: id={project.get('id')}, title={project.get('title')}, quality_tier={project.get('quality_tier')}, folder_id={project.get('folder_id')}")
+        
+        # Debug: Log ALL projects with their quality_tier
+        logger.info(f"[PDF_ANALYTICS] ALL PROJECTS QUALITY TIER ANALYSIS:")
+        quality_tier_count = {}
+        for project in projects_data:
+            tier = project.get('quality_tier', 'None')
+            quality_tier_count[tier] = quality_tier_count.get(tier, 0) + 1
+            logger.info(f"[PDF_ANALYTICS] Project {project.get('id')}: quality_tier='{tier}', title='{project.get('title')}'")
+        
+        logger.info(f"[PDF_ANALYTICS] Quality tier distribution: {quality_tier_count}")
 
         # --- Deduplicate projects: only show top-level products and outlines, hide lessons/quizzes that belong to an outline ---
         def deduplicate_projects(projects_arr):

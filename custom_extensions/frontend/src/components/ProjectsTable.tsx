@@ -710,6 +710,9 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
+                                      console.log('[FRONTEND_DEBUG] === BLOCK 2 QUALITY TIER SUMS START ===');
+                                      console.log('[FRONTEND_DEBUG] Input data:', data);
+                                      
                                       // Calculate quality tier sums dynamically (same as PDF)
                                       const qualityTierSums = {
                                         'basic': { completionTime: 0, creationTime: 0 },
@@ -739,10 +742,28 @@ const PreviewModal: React.FC<{
                                         return 'interactive';
                                       };
                                       
-                                      // Process all projects to calculate quality tier sums (exactly like PDF backend)
-                                      const allProjects = data.projects || [];
-                                      console.log('[FRONTEND_DEBUG] Processing projects for quality tier sums:', allProjects.length);
+                                              // Process all projects to calculate quality tier sums (exactly like PDF backend)
+        const allProjects = data.projects || [];
+        console.log('[FRONTEND_DEBUG] Processing projects for quality tier sums:', allProjects.length);
+        console.log('[FRONTEND_DEBUG] Raw projects data:', allProjects);
+        
+        // Detailed logging of each project
+        console.log('[FRONTEND_DEBUG] === DETAILED PROJECT ANALYSIS ===');
+        allProjects.forEach((project: Project | BackendProject, index: number) => {
+            console.log(`[FRONTEND_DEBUG] Project ${index + 1}:`, {
+                id: project.id,
+                title: project.project_name || project.microproduct_name || 'Untitled',
+                quality_tier: project.quality_tier,
+                total_completion_time: project.total_completion_time,
+                total_creation_hours: project.total_creation_hours,
+                folder_id: project.folder_id,
+                created_at: project.created_at
+            });
+        });
+        console.log('[FRONTEND_DEBUG] === END PROJECT ANALYSIS ===');
                                       
+                                      // Quality tier processing with detailed logging
+                                      console.log('[FRONTEND_DEBUG] === QUALITY TIER PROCESSING ===');
                                       allProjects.forEach((project: Project | BackendProject) => {
                                         // Use the same logic as backend: check project quality_tier first, fallback to 'interactive'
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
@@ -755,6 +776,7 @@ const PreviewModal: React.FC<{
                                       });
                                       
                                       console.log('[FRONTEND_DEBUG] Final quality tier sums:', qualityTierSums);
+                                      console.log('[FRONTEND_DEBUG] === END QUALITY TIER PROCESSING ===');
                                       
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
@@ -772,6 +794,8 @@ const PreviewModal: React.FC<{
                                         const creationTimeFormatted = tierData.creationTime > 0 
                                           ? formatTimeLikePDF(tierData.creationTime) 
                                           : '-';
+                                        
+                                        console.log(`[FRONTEND_DEBUG] Rendering row for ${level.name}: completionTime=${tierData.completionTime}, creationTime=${tierData.creationTime}`);
                                         
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
