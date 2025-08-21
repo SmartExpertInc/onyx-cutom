@@ -55,7 +55,7 @@ export default function AvatarPopup({
       <div className="w-64 bg-white px-6 py-4 flex flex-col">
         {/* Three buttons at the top */}
         <div className="mb-4">
-          <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg p-1">
+          <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg py-2 px-1" style={{ width: 'fit-content' }}>
             <button 
               onClick={() => setActiveButton('button1')}
               className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
@@ -209,7 +209,7 @@ export default function AvatarPopup({
 
         {/* Footer - appears when items are checked */}
         {Object.values(selectedItems).some(Boolean) && (
-          <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6">
+          <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6 flex justify-center">
             <button 
               onClick={() => setSelectedItems({})}
               className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
@@ -245,7 +245,7 @@ export default function AvatarPopup({
           </div>
           
           {/* Create button */}
-          <button className="px-4 py-2 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-10 transition-colors font-medium" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+          <button className="px-3 py-2 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-30 transition-colors font-medium" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
             + Create
           </button>
         </div>
