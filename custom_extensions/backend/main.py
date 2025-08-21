@@ -10408,25 +10408,15 @@ async def get_user_projects_list_from_db(
                                     
                                     total_completion_time += completion_time_minutes
                                     
-                                    # Calculate creation hours
-                                    if lesson.get('hours'):
-                                        try:
-                                            lesson_creation_hours = float(lesson['hours'])
-                                            total_hours += lesson_creation_hours
-                                        except (ValueError, TypeError):
-                                            # Calculate with completion time and custom rate
-                                            custom_rate = get_custom_rate_for_tier(quality_tier)
-                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, custom_rate)
-                                            total_hours += lesson_creation_hours
-                                    else:
-                                        # Calculate with completion time and custom rate
-                                        custom_rate = get_custom_rate_for_tier(quality_tier)
-                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, custom_rate)
-                                        total_hours += lesson_creation_hours
+                                    # Calculate creation hours using the same logic as PDF generation
+                                    lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
+                                        lesson, section, get_tier_ratio(quality_tier)
+                                    )
+                                    total_creation_hours += lesson_creation_hours
             except Exception as e:
                 logger.warning(f"Error calculating totals for project {row_dict['id']}: {e}")
         
-        total_creation_hours = round(total_hours)
+        # total_creation_hours is already calculated correctly above
         
         projects_list.append(ProjectApiResponse(
             id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
