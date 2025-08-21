@@ -91,7 +91,7 @@ export default function AvatarPopup({
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto pb-4">
           {/* Sex */}
           <div className="mb-4">
             <h4 className="text-xs font-medium text-gray-600 mb-2">Sex</h4>
@@ -214,8 +214,8 @@ export default function AvatarPopup({
 
       {/* Right main area */}
       <div className="flex-1 flex flex-col p-4">
-        {/* Search bar and create button */}
-        <div className="flex items-center gap-4 mb-6">
+        {/* Search bar and create button - fixed at top */}
+        <div className="flex items-center gap-4 mb-6 flex-shrink-0">
           {/* Search bar */}
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -232,31 +232,34 @@ export default function AvatarPopup({
           </div>
           
           {/* Create button */}
-          <button className="px-4 py-2 bg-blue-500 bg-opacity-20 text-blue-600 rounded-lg hover:bg-opacity-30 transition-colors font-medium">
+          <button className="px-4 py-2 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-10 transition-colors font-medium" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
             + Create
           </button>
         </div>
 
-        {/* Avatar rectangles grid */}
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { name: 'Sarah Johnson' },
-            { name: 'Michael Chen' },
-            { name: 'Emma Rodriguez' },
-            { name: 'David Thompson' },
-            { name: 'Lisa Park' },
-            { name: 'James Wilson' },
-            { name: 'Maria Garcia' },
-            { name: 'Robert Kim' },
-            { name: 'Jennifer Lee' }
-          ].map((avatar, index) => (
-            <div key={index} className="flex flex-col items-center">
-              {/* Avatar rectangle */}
-              <div className="w-full h-32 bg-gray-200 rounded-lg mb-2"></div>
-              {/* Name */}
-              <span className="text-sm text-black font-medium">{avatar.name}</span>
-            </div>
-          ))}
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto pb-4">
+          {/* Avatar rectangles grid */}
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { name: 'Sarah Johnson' },
+              { name: 'Michael Chen' },
+              { name: 'Emma Rodriguez' },
+              { name: 'David Thompson' },
+              { name: 'Lisa Park' },
+              { name: 'James Wilson' },
+              { name: 'Maria Garcia' },
+              { name: 'Robert Kim' },
+              { name: 'Jennifer Lee' }
+            ].map((avatar, index) => (
+              <div key={index} className="flex flex-col items-center">
+                {/* Avatar rectangle */}
+                <div className="w-full h-32 bg-gray-200 rounded-lg mb-2"></div>
+                {/* Name */}
+                <span className="text-sm text-black font-medium">{avatar.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -295,7 +298,7 @@ export default function AvatarPopup({
           borderRadius: '12px',
           left: position?.x || 0,
           top: position?.y || 0,
-          width: '600px',
+          width: '800px',
           height: '500px'
         }}
       >

@@ -182,8 +182,24 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
     
     if (toolId === 'avatar' && avatarButtonRef.current) {
       const rect = avatarButtonRef.current.getBoundingClientRect();
+      const popupWidth = 800; // Updated popup width
+      const viewportWidth = window.innerWidth;
+      
+      // Calculate the ideal center position
+      let x = rect.left + (rect.width / 2) - (popupWidth / 2);
+      
+      // Ensure popup doesn't go beyond left viewport (minimum 20px from left edge)
+      if (x < 20) {
+        x = 20;
+      }
+      
+      // Ensure popup doesn't go beyond right viewport (minimum 20px from right edge)
+      if (x + popupWidth > viewportWidth - 20) {
+        x = viewportWidth - popupWidth - 20;
+      }
+      
       const position = {
-        x: rect.left + (rect.width / 2) - 300, // Center popup horizontally (assuming 600px popup width)
+        x: x,
         y: rect.bottom + 8 // Position popup 8px below the button
       };
       setIsAvatarPopupOpen(true);
@@ -413,7 +429,23 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
           onClose={() => setIsAvatarPopupOpen(false)}
           displayMode="popup"
           position={{
-            x: avatarButtonRef.current ? avatarButtonRef.current.getBoundingClientRect().left + (avatarButtonRef.current.getBoundingClientRect().width / 2) - 300 : 0,
+            x: avatarButtonRef.current ? (() => {
+              const rect = avatarButtonRef.current!.getBoundingClientRect();
+              const popupWidth = 800;
+              const viewportWidth = window.innerWidth;
+              
+              let x = rect.left + (rect.width / 2) - (popupWidth / 2);
+              
+              if (x < 20) {
+                x = 20;
+              }
+              
+              if (x + popupWidth > viewportWidth - 20) {
+                x = viewportWidth - popupWidth - 20;
+              }
+              
+              return x;
+            })() : 0,
             y: avatarButtonRef.current ? avatarButtonRef.current.getBoundingClientRect().bottom + 8 : 0
           }}
         />
