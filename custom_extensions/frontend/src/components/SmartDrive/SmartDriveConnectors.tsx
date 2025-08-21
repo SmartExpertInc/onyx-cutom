@@ -39,6 +39,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [selectedConnector, setSelectedConnector] = useState<{id: string, name: string} | null>(null);
   const [showManagementPage, setShowManagementPage] = useState(false);
   const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null);
+  const [isManagementOpening, setIsManagementOpening] = useState(false);
 
   // Define all available connectors organized by category
   const connectorCategories = {
@@ -546,7 +547,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       <div className="relative">
                         {hasMultipleConnectors ? (
                           <div className="relative group">
-                            <button className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors">
+                            <button 
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
+                            >
                               Manage
                               <ChevronDown className="w-3 h-3" />
                             </button>
@@ -554,9 +558,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               {userConnectorsForSource.map((userConnector) => (
                                 <button
                                   key={userConnector.id}
-                                  onClick={() => {
-                                    setSelectedConnectorId(userConnector.id);
-                                    setShowManagementPage(true);
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('Opening management for cc-pair:', userConnector.id);
+                                    if (!showManagementPage && !isManagementOpening) {
+                                      setIsManagementOpening(true);
+                                      setSelectedConnectorId(userConnector.id);
+                                      setShowManagementPage(true);
+                                      setTimeout(() => setIsManagementOpening(false), 500);
+                                    }
                                   }}
                                   className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                                 >
@@ -567,9 +577,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           </div>
                         ) : (
                           <button
-                            onClick={() => {
-                              setSelectedConnectorId(userConnectorsForSource[0].id);
-                              setShowManagementPage(true);
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log('Opening management for cc-pair:', userConnectorsForSource[0].id);
+                              if (!showManagementPage && !isManagementOpening) {
+                                setIsManagementOpening(true);
+                                setSelectedConnectorId(userConnectorsForSource[0].id);
+                                setShowManagementPage(true);
+                                setTimeout(() => setIsManagementOpening(false), 500);
+                              }
                             }}
                             className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
                           >
@@ -598,6 +614,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           onClose={() => {
             setShowManagementPage(false);
             setSelectedConnectorId(null);
+            setIsManagementOpening(false);
           }}
           onConnectorDeleted={() => {
             loadUserConnectors();
