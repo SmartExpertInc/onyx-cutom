@@ -11,6 +11,17 @@
             box-sizing: border-box;
         }
 
+        /* Page break controls */
+        .page-break {
+            page-break-before: always;
+            break-before: page;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
@@ -71,6 +82,8 @@
 
         .block {
             margin-bottom: 40px;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .block-title {
@@ -167,6 +180,8 @@
             padding: 30px;
             margin-top: 40px;
             border-left: 4px solid #6c6fcc;
+            page-break-before: always;
+            break-before: page;
         }
 
         .summary-title {
