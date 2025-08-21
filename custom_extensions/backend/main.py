@@ -210,7 +210,7 @@ def parse_id_list(id_string: str, context_name: str) -> List[int]:
 def should_use_hybrid_approach(payload) -> bool:
     """
     Determine if we should use the hybrid approach (Onyx for context extraction + OpenAI for generation).
-    Returns True when file context is present or knowledge base is used.
+    Returns True when file context is present.
     """
     # Check if files are explicitly provided
     has_files = (
@@ -225,10 +225,12 @@ def should_use_hybrid_approach(payload) -> bool:
         hasattr(payload, 'userText') and payload.userText
     )
     
-    # Check if knowledge base context is provided
-    has_knowledge_base = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+    # Check if Knowledge Base search is requested
+    has_knowledge_base = (
+        hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+    )
     
-    # Use hybrid approach when there's file context, text context, or knowledge base context
+    # Use hybrid approach when there's file context, text context, or Knowledge Base search
     use_hybrid = has_files or has_text_context or has_knowledge_base
     
     logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, has_knowledge_base={has_knowledge_base}, use_hybrid={use_hybrid}")
@@ -8717,8 +8719,6 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
                 return cached_data["context"]
         
         logger.info(f"[FILE_CONTEXT] Extracting context from {len(file_ids)} files and {len(folder_ids)} folders")
-        logger.info(f"[FILE_CONTEXT] File IDs: {file_ids}")
-        logger.info(f"[FILE_CONTEXT] Folder IDs: {folder_ids}")
         
         extracted_context = {
             "file_summaries": [],
@@ -8754,14 +8754,6 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
                         extracted_context["key_topics"].extend(file_context.get("topics", []))
                         successful_extractions += 1
                         logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id} (attempt {retry_attempt + 1})")
-                        
-                        # Log the exact content extracted from this file
-                        logger.info(f"[FILE_CONTEXT] 📄 FILE {file_id} EXTRACTED CONTENT:")
-                        logger.info(f"[FILE_CONTEXT] Summary: {file_context['summary']}")
-                        if file_context.get('topics'):
-                            logger.info(f"[FILE_CONTEXT] Topics: {file_context['topics']}")
-                        logger.info(f"[FILE_CONTEXT] Content preview: {file_context['content'][:300]}{'...' if len(file_context['content']) > 300 else ''}")
-                        
                         break  # Success, no need for more retries
                     else:
                         logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} (attempt {retry_attempt + 1})")
@@ -8784,13 +8776,6 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
                     extracted_context["key_topics"].extend(folder_context.get("topics", []))
                     successful_extractions += 1
                     logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
-                    
-                    # Log the exact content extracted from this folder
-                    logger.info(f"[FILE_CONTEXT] 📁 FOLDER {folder_id} EXTRACTED CONTENT:")
-                    logger.info(f"[FILE_CONTEXT] Folder name: {folder_context.get('folder_name', 'Unknown')}")
-                    logger.info(f"[FILE_CONTEXT] Summary: {folder_context['summary']}")
-                    if folder_context.get('topics'):
-                        logger.info(f"[FILE_CONTEXT] Topics: {folder_context['topics']}")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
             except Exception as e:
@@ -8799,63 +8784,12 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         # If no context was extracted successfully, provide a fallback
         if successful_extractions == 0:
             logger.warning(f"[FILE_CONTEXT] No context extracted successfully, providing fallback context")
-            fallback_summary = f"File(s) provided for content creation (IDs: {file_ids + folder_ids})"
-            fallback_topics = ["content creation", "educational materials"]
-            extracted_context["file_summaries"] = [fallback_summary]
-            extracted_context["key_topics"] = fallback_topics
+            extracted_context["file_summaries"] = [f"File(s) provided for content creation (IDs: {file_ids + folder_ids})"]
+            extracted_context["key_topics"] = ["content creation", "educational materials"]
             extracted_context["metadata"]["fallback_used"] = True
-            
-            # Log the exact fallback content being used
-            logger.info(f"[FILE_CONTEXT] ⚠️ FALLBACK CONTENT BEING USED:")
-            logger.info(f"[FILE_CONTEXT] Fallback summary: {fallback_summary}")
-            logger.info(f"[FILE_CONTEXT] Fallback topics: {fallback_topics}")
-            logger.info(f"[FILE_CONTEXT] This means no actual knowledge base data was extracted")
         
         # Remove duplicate topics
         extracted_context["key_topics"] = list(set(extracted_context["key_topics"]))
-        
-        # Log exact summaries and key topics extracted
-        logger.info(f"[FILE_CONTEXT] === EXACT EXTRACTED CONTENT ===")
-        
-        # Log all file summaries
-        if extracted_context["file_summaries"]:
-            logger.info(f"[FILE_CONTEXT] 📄 ALL FILE SUMMARIES EXTRACTED:")
-            for i, summary in enumerate(extracted_context["file_summaries"], 1):
-                logger.info(f"[FILE_CONTEXT] Summary {i}: {summary}")
-        else:
-            logger.info(f"[FILE_CONTEXT] 📄 No file summaries extracted")
-        
-        # Log all folder contexts
-        if extracted_context["folder_contexts"]:
-            logger.info(f"[FILE_CONTEXT] 📁 ALL FOLDER CONTEXTS EXTRACTED:")
-            for i, folder_ctx in enumerate(extracted_context["folder_contexts"], 1):
-                folder_name = folder_ctx.get('folder_name', f'Folder {i}')
-                folder_summary = folder_ctx.get('summary', 'No summary available')
-                folder_topics = folder_ctx.get('topics', [])
-                logger.info(f"[FILE_CONTEXT] Folder {i} ({folder_name}): {folder_summary}")
-                if folder_topics:
-                    logger.info(f"[FILE_CONTEXT] Folder {i} topics: {folder_topics}")
-        else:
-            logger.info(f"[FILE_CONTEXT] 📁 No folder contexts extracted")
-        
-        # Log all key topics
-        if extracted_context["key_topics"]:
-            logger.info(f"[FILE_CONTEXT] 🏷️ ALL KEY TOPICS EXTRACTED:")
-            for i, topic in enumerate(extracted_context["key_topics"], 1):
-                logger.info(f"[FILE_CONTEXT] Topic {i}: {topic}")
-        else:
-            logger.info(f"[FILE_CONTEXT] 🏷️ No key topics extracted")
-        
-        # Log file contents (first 500 chars each)
-        if extracted_context["file_contents"]:
-            logger.info(f"[FILE_CONTEXT] 📝 FILE CONTENTS EXTRACTED (first 500 chars each):")
-            for i, content in enumerate(extracted_context["file_contents"], 1):
-                content_preview = content[:500] + "..." if len(content) > 500 else content
-                logger.info(f"[FILE_CONTEXT] Content {i}: {content_preview}")
-        else:
-            logger.info(f"[FILE_CONTEXT] 📝 No file contents extracted")
-        
-        logger.info(f"[FILE_CONTEXT] === END EXACT EXTRACTED CONTENT ===")
         
         # Cache the result
         FILE_CONTEXT_CACHE[cache_key] = {
@@ -8864,23 +8798,6 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         }
         
         logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(extracted_context['file_summaries'])} file summaries, {len(extracted_context['key_topics'])} key topics")
-        
-        # Log detailed extraction results
-        logger.info(f"[FILE_CONTEXT] === DETAILED EXTRACTION RESULTS ===")
-        logger.info(f"[FILE_CONTEXT] File summaries count: {len(extracted_context['file_summaries'])}")
-        logger.info(f"[FILE_CONTEXT] File contents count: {len(extracted_context['file_contents'])}")
-        logger.info(f"[FILE_CONTEXT] Folder contexts count: {len(extracted_context['folder_contexts'])}")
-        logger.info(f"[FILE_CONTEXT] Key topics count: {len(extracted_context['key_topics'])}")
-        
-        # Log sample content lengths
-        if extracted_context['file_contents']:
-            content_lengths = [len(content) for content in extracted_context['file_contents']]
-            logger.info(f"[FILE_CONTEXT] File content lengths: {content_lengths[:5]}{'...' if len(content_lengths) > 5 else ''}")
-        
-        # Log metadata
-        metadata = extracted_context.get('metadata', {})
-        logger.info(f"[FILE_CONTEXT] Extraction metadata: {metadata}")
-        logger.info(f"[FILE_CONTEXT] === END DETAILED EXTRACTION RESULTS ===")
         
         return extracted_context
         
@@ -9324,13 +9241,6 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[
     """
     Build an enhanced prompt that includes the extracted file context for OpenAI.
     """
-    # Log the prompt building process
-    logger.info(f"[PROMPT_BUILD] Building enhanced prompt for product type: {product_type}")
-    logger.info(f"[PROMPT_BUILD] Original prompt: {original_prompt[:200]}{'...' if len(original_prompt) > 200 else ''}")
-    logger.info(f"[PROMPT_BUILD] Context has {len(file_context.get('file_summaries', []))} file summaries")
-    logger.info(f"[PROMPT_BUILD] Context has {len(file_context.get('folder_contexts', []))} folder contexts")
-    logger.info(f"[PROMPT_BUILD] Context has {len(file_context.get('key_topics', []))} key topics")
-    
     enhanced_prompt = f"""
 {original_prompt}
 
@@ -9345,34 +9255,20 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[
     # Add file summaries
     if file_context.get("file_summaries"):
         enhanced_prompt += "FILE SUMMARIES:\n"
-        logger.info(f"[PROMPT_BUILD] 📄 Adding {len(file_context['file_summaries'])} file summaries to prompt:")
         for i, summary in enumerate(file_context["file_summaries"], 1):
             enhanced_prompt += f"{i}. {summary}\n"
-            logger.info(f"[PROMPT_BUILD] Summary {i}: {summary}")
         enhanced_prompt += "\n"
-    else:
-        logger.info(f"[PROMPT_BUILD] 📄 No file summaries to add to prompt")
     
     # Add folder contexts
     if file_context.get("folder_contexts"):
         enhanced_prompt += "FOLDER CONTEXTS:\n"
-        logger.info(f"[PROMPT_BUILD] 📁 Adding {len(file_context['folder_contexts'])} folder contexts to prompt:")
         for folder_ctx in file_context["folder_contexts"]:
-            folder_name = folder_ctx.get('folder_name', 'Unknown')
-            folder_summary = folder_ctx.get('summary', '')
-            enhanced_prompt += f"• {folder_name}: {folder_summary}\n"
-            logger.info(f"[PROMPT_BUILD] Folder: {folder_name} - {folder_summary}")
+            enhanced_prompt += f"• {folder_ctx.get('folder_name', 'Unknown')}: {folder_ctx.get('summary', '')}\n"
         enhanced_prompt += "\n"
-    else:
-        logger.info(f"[PROMPT_BUILD] 📁 No folder contexts to add to prompt")
     
     # Add key topics
     if file_context.get("key_topics"):
-        topics_text = ', '.join(file_context['key_topics'])
-        enhanced_prompt += f"KEY TOPICS COVERED: {topics_text}\n\n"
-        logger.info(f"[PROMPT_BUILD] 🏷️ Adding key topics to prompt: {topics_text}")
-    else:
-        logger.info(f"[PROMPT_BUILD] 🏷️ No key topics to add to prompt")
+        enhanced_prompt += f"KEY TOPICS COVERED: {', '.join(file_context['key_topics'])}\n\n"
     
     # Add specific instructions for the product type with enhanced formatting guidance
     if product_type == "Course Outline":
@@ -9455,36 +9351,6 @@ async def stream_hybrid_response(prompt: str, file_context: Dict[str, Any], prod
         logger.info(f"[HYBRID_STREAM] Original prompt length: {len(prompt)} chars")
         logger.info(f"[HYBRID_STREAM] Enhanced prompt length: {len(enhanced_prompt)} chars")
         logger.info(f"[HYBRID_STREAM] File context: {len(file_context.get('file_summaries', []))} summaries, {len(file_context.get('key_topics', []))} topics")
-        
-        # Enhanced logging for knowledge base data
-        logger.info(f"[HYBRID_STREAM] === KNOWLEDGE BASE DATA EXTRACTION SUMMARY ===")
-        logger.info(f"[HYBRID_STREAM] Total files processed: {file_context.get('metadata', {}).get('total_files', 0)}")
-        logger.info(f"[HYBRID_STREAM] Total folders processed: {file_context.get('metadata', {}).get('total_folders', 0)}")
-        logger.info(f"[HYBRID_STREAM] Successful extractions: {len(file_context.get('file_summaries', [])) + len(file_context.get('folder_contexts', []))}")
-        
-        # Log file summaries (first 200 chars each)
-        for i, summary in enumerate(file_context.get('file_summaries', [])[:3]):  # Log first 3 summaries
-            logger.info(f"[HYBRID_STREAM] File Summary {i+1}: {summary[:200]}{'...' if len(summary) > 200 else ''}")
-        if len(file_context.get('file_summaries', [])) > 3:
-            logger.info(f"[HYBRID_STREAM] ... and {len(file_context.get('file_summaries', [])) - 3} more file summaries")
-        
-        # Log folder contexts
-        for i, folder_ctx in enumerate(file_context.get('folder_contexts', [])[:2]):  # Log first 2 folders
-            folder_summary = folder_ctx.get('summary', '')[:200]
-            logger.info(f"[HYBRID_STREAM] Folder Context {i+1}: {folder_summary}{'...' if len(folder_summary) > 200 else ''}")
-        if len(file_context.get('folder_contexts', [])) > 2:
-            logger.info(f"[HYBRID_STREAM] ... and {len(file_context.get('folder_contexts', [])) - 2} more folder contexts")
-        
-        # Log key topics
-        key_topics = file_context.get('key_topics', [])
-        if key_topics:
-            logger.info(f"[HYBRID_STREAM] Key Topics: {', '.join(key_topics[:10])}{'...' if len(key_topics) > 10 else ''}")
-        
-        # Log if fallback was used
-        if file_context.get('metadata', {}).get('fallback_used', False):
-            logger.warning(f"[HYBRID_STREAM] ⚠️ FALLBACK CONTEXT USED - No valid knowledge base data extracted")
-        
-        logger.info(f"[HYBRID_STREAM] === END KNOWLEDGE BASE DATA SUMMARY ===")
         
         # Use OpenAI with enhanced prompt
         async for chunk_data in stream_openai_response(enhanced_prompt, model):
@@ -12018,9 +11884,9 @@ class OutlineWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
-    theme: Optional[str] = None  # Selected theme from frontend
-    # NEW: knowledge base context for creation from knowledge base
+    # NEW: Knowledge Base context for creation from Knowledge Base search
     fromKnowledgeBase: Optional[bool] = None
+    theme: Optional[str] = None  # Selected theme from frontend
 
 class OutlineWizardFinalize(BaseModel):
     prompt: str
@@ -12037,22 +11903,26 @@ class OutlineWizardFinalize(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
     theme: Optional[str] = None  # Selected theme from frontend
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    # NEW: knowledge base context for creation from knowledge base
-    fromKnowledgeBase: Optional[bool] = None
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
-async def get_contentbuilder_persona_id(cookies: Dict[str, str], context: Optional[Dict[str, Any]] = None) -> int:
-    """Return persona id based on context. Uses Search persona (ID 0) for knowledge base, ContentBuilder for others."""
-    # Check if we should use the Search persona for knowledge base creation
-    if context and context.get("fromKnowledgeBase"):
-        # Return Search persona ID (0) for knowledge base creation
+async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
+    """Return persona id of the default ContentBuilder assistant (cached).
+    
+    Args:
+        cookies: Authentication cookies
+        use_search_persona: If True, return the Search persona (ID 0) instead of ContentBuilder
+    """
+    # If Knowledge Base search is requested, use Search persona (ID 0)
+    if use_search_persona:
+        logger.info(f"[PERSONA_SELECTION] Using Search persona (ID 0) for Knowledge Base search")
         return 0
     
-    # For all other cases, use the default ContentBuilder persona
     global _CONTENTBUILDER_PERSONA_CACHE
     if _CONTENTBUILDER_PERSONA_CACHE is not None:
         return _CONTENTBUILDER_PERSONA_CACHE
@@ -12377,10 +12247,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"[PREVIEW_CHAT] Creating new chat session")
         try:
             logger.info(f"[PREVIEW_CHAT] Attempting to get contentbuilder persona ID")
-            # Create context for persona selection
-            context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
-            persona_id = await get_contentbuilder_persona_id(cookies, context)
-            logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id}")
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
             logger.info(f"[PREVIEW_CHAT] Attempting to create Onyx chat session")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[PREVIEW_CHAT] Created new chat session: {chat_id}")
@@ -12466,11 +12336,6 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     elif payload.fromText:
         logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
-    # Add knowledge base context if provided
-    if payload.fromKnowledgeBase:
-        logger.info(f"[PREVIEW_PAYLOAD] Adding knowledge base context: fromKnowledgeBase=True")
-        wiz_payload["fromKnowledgeBase"] = True
-
     if payload.originalOutline:
         logger.info(f"[PREVIEW_PAYLOAD] Adding originalOutline ({len(payload.originalOutline)} chars)")
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -12514,15 +12379,6 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         if should_use_hybrid_approach(payload):
             logger.info(f"[PREVIEW_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
             logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            logger.info(f"[PREVIEW_STREAM] Knowledge base check: fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
-            
-            # Log the context type being used
-            if getattr(payload, 'fromKnowledgeBase', None):
-                logger.info(f"[PREVIEW_STREAM] 🧠 USING KNOWLEDGE BASE CONTEXT (Search persona)")
-            elif getattr(payload, 'fromFiles', None) or getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None):
-                logger.info(f"[PREVIEW_STREAM] 📁 USING FILE/FOLDER CONTEXT")
-            elif getattr(payload, 'fromText', None):
-                logger.info(f"[PREVIEW_STREAM] 📝 USING TEXT CONTEXT")
             
             try:
                 # Step 1: Extract file context from Onyx
@@ -13281,9 +13137,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
     else:
-        # Create context for persona selection
-        context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
-        persona_id = await get_contentbuilder_persona_id(cookies, context)
+        # Check if this is a Knowledge Base search request
+        use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+        persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Helper: check whether the user made ANY changes (structure or content)
@@ -13606,10 +13462,6 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             wiz_payload["textMode"] = payload.textMode
             wiz_payload["userText"] = payload.userText
 
-        # Add knowledge base context if provided
-        if payload.fromKnowledgeBase:
-            wiz_payload["fromKnowledgeBase"] = True
-
         wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
         logger.info(f"[FINALIZE_PAYLOAD] Final wizard message structure: {list(wiz_payload.keys())}")
         logger.info(f"[FINALIZE_PAYLOAD] Wizard message length: {len(wizard_message)} chars")
@@ -13777,6 +13629,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 async def init_course_outline_chat(request: Request):
     """Pre-create Chat Session & persona so subsequent preview calls are faster."""
     cookies = request.cookies
+    # For init-chat, we'll use the default ContentBuilder persona
+    # The actual persona selection will happen in the preview endpoint based on the request payload
     persona_id = await get_contentbuilder_persona_id(cookies)
     chat_id = await create_onyx_chat_session(persona_id, cookies)
     return {"personaId": persona_id, "chatSessionId": chat_id}
@@ -13974,7 +13828,7 @@ class LessonWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
-    # NEW: knowledge base context for creation from knowledge base
+    # NEW: Knowledge Base context for creation from Knowledge Base search
     fromKnowledgeBase: Optional[bool] = None
 
 
@@ -13989,8 +13843,6 @@ class LessonWizardFinalize(BaseModel):
     theme: Optional[str] = None            # Selected theme for presentation
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    # NEW: knowledge base context for creation from knowledge base
-    fromKnowledgeBase: Optional[bool] = None
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -14003,9 +13855,9 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
     else:
-        # Create context for persona selection
-        context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
-        persona_id = await get_contentbuilder_persona_id(cookies, context)
+        # Check if this is a Knowledge Base search request
+        use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+        persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Build wizard request for assistant persona
@@ -14083,9 +13935,10 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
-    # Add knowledge base context if provided
+    # Add Knowledge Base context if provided
     if payload.fromKnowledgeBase:
         wizard_dict["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for lesson generation")
 
     # Decompress text if it was compressed
     if wizard_dict.get("textCompressed") and wizard_dict.get("userText"):
@@ -14112,15 +13965,6 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         if should_use_hybrid_approach(payload):
             logger.info(f"[LESSON_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
             logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            logger.info(f"[LESSON_STREAM] Knowledge base check: fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
-            
-            # Log the context type being used
-            if getattr(payload, 'fromKnowledgeBase', None):
-                logger.info(f"[LESSON_STREAM] 🧠 USING KNOWLEDGE BASE CONTEXT (Search persona)")
-            elif getattr(payload, 'fromFiles', None) or getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None):
-                logger.info(f"[LESSON_STREAM] 📁 USING FILE/FOLDER CONTEXT")
-            elif getattr(payload, 'fromText', None):
-                logger.info(f"[LESSON_STREAM] 📝 USING TEXT CONTEXT")
             
             try:
                 # Step 1: Extract file context from Onyx
@@ -16783,7 +16627,7 @@ class QuizWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
-    # NEW: knowledge base context for creation from knowledge base
+    # NEW: Knowledge Base context for creation from Knowledge Base search
     fromKnowledgeBase: Optional[bool] = None
 
 class QuizWizardFinalize(BaseModel):
@@ -16805,8 +16649,6 @@ class QuizWizardFinalize(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    # NEW: knowledge base context for creation from knowledge base
-    fromKnowledgeBase: Optional[bool] = None
 
 class QuizEditRequest(BaseModel):
     currentContent: str
@@ -16878,10 +16720,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     else:
         logger.info(f"[QUIZ_PREVIEW_CHAT] Creating new chat session")
         try:
-            # Create context for persona selection
-            context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
-            persona_id = await get_contentbuilder_persona_id(cookies, context)
-            logger.info(f"[QUIZ_PREVIEW_CHAT] Got persona ID: {persona_id}")
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[QUIZ_PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[QUIZ_PREVIEW_CHAT] Created new chat session: {chat_id}")
         except Exception as e:
@@ -16966,9 +16808,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
-    # Add knowledge base context if provided
+    # Add Knowledge Base context if provided
     if payload.fromKnowledgeBase:
         wiz_payload["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for quiz generation")
 
     # Decompress text if it was compressed
     if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
@@ -17000,15 +16843,6 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         if should_use_hybrid_approach(payload):
             logger.info(f"[QUIZ_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
             logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            logger.info(f"[QUIZ_STREAM] Knowledge base check: fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
-            
-            # Log the context type being used
-            if getattr(payload, 'fromKnowledgeBase', None):
-                logger.info(f"[QUIZ_STREAM] 🧠 USING KNOWLEDGE BASE CONTEXT (Search persona)")
-            elif getattr(payload, 'fromFiles', None) or getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None):
-                logger.info(f"[QUIZ_STREAM] 📁 USING FILE/FOLDER CONTEXT")
-            elif getattr(payload, 'fromText', None):
-                logger.info(f"[QUIZ_STREAM] 📝 USING TEXT CONTEXT")
             
             try:
                 # Step 1: Extract file context from Onyx
@@ -17648,9 +17482,8 @@ class TextPresentationWizardPreview(BaseModel):
     fromText: bool = False
     textMode: Optional[str] = None
     userText: Optional[str] = None
+    fromKnowledgeBase: bool = False
     chatSessionId: Optional[str] = None
-    # NEW: knowledge base context for creation from knowledge base
-    fromKnowledgeBase: Optional[bool] = None
 
 class TextPresentationWizardFinalize(BaseModel):
     aiResponse: str
@@ -17661,8 +17494,6 @@ class TextPresentationWizardFinalize(BaseModel):
     chatSessionId: Optional[str] = None
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
-    # NEW: knowledge base context for creation from knowledge base
-    fromKnowledgeBase: Optional[bool] = None
 
 class TextPresentationEditRequest(BaseModel):
     content: str
@@ -17689,10 +17520,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     else:
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Creating new chat session")
         try:
-            # Create context for persona selection
-            context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
-            persona_id = await get_contentbuilder_persona_id(cookies, context)
-            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id}")
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Created new chat session: {chat_id}")
         except Exception as e:
@@ -17780,9 +17611,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
-    # Add knowledge base context if provided
+    # Add Knowledge Base context if provided
     if payload.fromKnowledgeBase:
         wiz_payload["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for text presentation generation")
 
     # Decompress text if it was compressed
     if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
@@ -17814,15 +17646,6 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         if should_use_hybrid_approach(payload):
             logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
             logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Knowledge base check: fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
-            
-            # Log the context type being used
-            if getattr(payload, 'fromKnowledgeBase', None):
-                logger.info(f"[TEXT_PRESENTATION_STREAM] 🧠 USING KNOWLEDGE BASE CONTEXT (Search persona)")
-            elif getattr(payload, 'fromFiles', None) or getattr(payload, 'fileIds', None) or getattr(payload, 'folderIds', None):
-                logger.info(f"[TEXT_PRESENTATION_STREAM] 📁 USING FILE/FOLDER CONTEXT")
-            elif getattr(payload, 'fromText', None):
-                logger.info(f"[TEXT_PRESENTATION_STREAM] 📝 USING TEXT CONTEXT")
             
             try:
                 # Step 1: Extract file context from Onyx

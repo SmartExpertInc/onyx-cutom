@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
@@ -120,11 +120,11 @@ function GenerateProductPicker() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
+  const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
-  const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
   
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -224,7 +224,7 @@ function GenerateProductPicker() {
         ? "Create educational content using the provided text as context"
         : "Create educational content based on the provided text structure";
     } else if (isFromKnowledgeBase && !finalPrompt) {
-      finalPrompt = "Create educational content using the knowledge base";
+      finalPrompt = "Create educational content by searching the Knowledge Base";
     }
 
     const params = new URLSearchParams({
@@ -246,16 +246,16 @@ function GenerateProductPicker() {
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     }
     
+    // Add Knowledge Base context if coming from Knowledge Base
+    if (isFromKnowledgeBase) {
+      params.set("fromKnowledgeBase", "true");
+    }
+    
     // Add text context if coming from text
     if (isFromText) {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
-    }
-    
-    // Add knowledge base context if coming from knowledge base
-    if (isFromKnowledgeBase) {
-      params.set("fromKnowledgeBase", "true");
     }
 
     router.push(`/create/course-outline?${params.toString()}`);
@@ -642,8 +642,8 @@ function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone lesson, check if prompt entered or coming from files/text/knowledge base
-      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+      // If standalone lesson, check if prompt entered or coming from files/text
+      if (!prompt.trim() && !isFromFiles && !isFromText) return;
     }
 
     const params = new URLSearchParams();
@@ -669,9 +669,6 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
-    } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create lesson content using the knowledge base");
-      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -686,8 +683,8 @@ function GenerateProductPicker() {
     if (useExistingQuizOutline === true) {
       if (!selectedQuizOutlineId || !selectedQuizLesson) return;
     } else {
-      // If standalone quiz, check if prompt entered or coming from files/text/knowledge base
-      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+      // If standalone quiz, check if prompt entered or coming from files/text
+      if (!prompt.trim() && !isFromFiles && !isFromText) return;
     }
 
     const params = new URLSearchParams();
@@ -721,9 +718,6 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
-    } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create quiz content using the knowledge base");
-      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -860,8 +854,8 @@ function GenerateProductPicker() {
     if (useExistingTextOutline === true) {
       if (!selectedTextOutlineId || !selectedTextLesson) return;
     } else {
-      // If standalone text presentation, check if prompt entered or coming from files/text/knowledge base
-      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+      // If standalone text presentation, check if prompt entered or coming from files/text
+      if (!prompt.trim() && !isFromFiles && !isFromText) return;
     }
 
     const params = new URLSearchParams();
@@ -895,9 +889,6 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
-    } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create text presentation content using the knowledge base");
-      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -906,8 +897,8 @@ function GenerateProductPicker() {
   };
 
   const handleVideoLessonStart = () => {
-    // Check if prompt entered or coming from files/text/knowledge base
-    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
+    // Check if prompt entered or coming from files/text
+    if (!prompt.trim() && !isFromFiles && !isFromText) return;
 
     const params = new URLSearchParams();
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
@@ -928,9 +919,6 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
-    } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create video lesson content using the knowledge base");
-      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -959,6 +947,7 @@ function GenerateProductPicker() {
         <p className="text-center text-gray-600 text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+           isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
            t('interface.generate.subtitle', 'What would you like to create today?')}
         </p>
 
@@ -1004,6 +993,21 @@ function GenerateProductPicker() {
                   {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
                 </p>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Knowledge Base context indicator */}
+        {isFromKnowledgeBase && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
+              <Search className="h-5 w-5" />
+              {t('interface.generate.creatingFromKnowledgeBase', 'Creating from Knowledge Base')}
+            </div>
+            <div className="text-sm text-blue-700">
+              <p className="mt-1 text-blue-600">
+                {t('interface.generate.aiWillSearchKnowledgeBase', 'The AI will search your entire Knowledge Base to find relevant information and create educational content.')}
+              </p>
             </div>
           </div>
         )}
@@ -1742,7 +1746,9 @@ function GenerateProductPicker() {
               ref={promptRef}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+              placeholder={isFromKnowledgeBase 
+                ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
+                : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={3}
@@ -1791,14 +1797,14 @@ function GenerateProductPicker() {
         )}
 
         {/* Generate Button */}
-        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText)) ||
-          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText)) ||
+        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
+          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
-          (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
-          (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
+          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase))) && (
           <div className="flex justify-center mt-6">
             <button
               onClick={() => {
