@@ -251,44 +251,59 @@ export default function Projects2ViewPage() {
                           fill="currentColor" 
                           viewBox="0 0 24 24"
                         >
-                          <circle cx="12" cy="6" r="2"/>
+                          <circle cx="6" cy="12" r="2"/>
                           <circle cx="12" cy="12" r="2"/>
-                          <circle cx="12" cy="18" r="2"/>
+                          <circle cx="18" cy="12" r="2"/>
                         </svg>
                       </button>
                     </div>
 
                     {/* Popup Menu */}
                     {openMenuSceneId === scene.id && (
-                      <div className="absolute top-8 right-0 z-50 bg-white rounded-md shadow-lg border border-gray-200 min-w-[160px] py-1">
+                      <div className="absolute bottom-8 right-0 z-50 bg-white rounded-md shadow-lg border border-gray-200 min-w-[180px] py-1">
                         <button 
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                           onClick={() => handleMenuAction('Save as Scene Layout', scene.id)}
                         >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path d="M7.558 3.75H7.25a3.5 3.5 0 0 0-3.5 3.5v9.827a3.173 3.173 0 0 0 3.173 3.173v0m.635-16.5v2.442a2 2 0 0 0 2 2h2.346a2 2 0 0 0 2-2V3.75m-6.346 0h6.346m0 0h.026a3 3 0 0 1 2.122.879l3.173 3.173a3.5 3.5 0 0 1 1.025 2.475v6.8a3.173 3.173 0 0 1-3.173 3.173v0m-10.154 0V15a3 3 0 0 1 3-3h4.154a3 3 0 0 1 3 3v5.25m-10.154 0h10.154"/>
+                          </svg>
                           Save as Scene Layout
                         </button>
                         <button 
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                           onClick={() => handleMenuAction('Duplicate Scene', scene.id)}
                         >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <g>
+                              <path d="M19.4 20H9.6a.6.6 0 0 1-.6-.6V9.6a.6.6 0 0 1 .6-.6h9.8a.6.6 0 0 1 .6.6v9.8a.6.6 0 0 1-.6.6Z"/>
+                              <path d="M15 9V4.6a.6.6 0 0 0-.6-.6H4.6a.6.6 0 0 0-.6.6v9.8a.6.6 0 0 0 .6.6H9"/>
+                            </g>
+                          </svg>
                           Duplicate Scene
                         </button>
                         <button 
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                           onClick={() => handleMenuAction('Insert Scene', scene.id)}
                         >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2Z"/>
+                          </svg>
                           Insert Scene
                         </button>
                         <div className="border-t border-gray-200 my-1"></div>
                         <button 
-                          className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                          className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center gap-2 ${
                             scene.id === 'scene-1' 
                               ? 'text-gray-400 cursor-not-allowed' 
-                              : 'text-red-600 hover:bg-red-50'
+                              : 'text-gray-700 hover:bg-gray-50'
                           }`}
                           onClick={() => handleDeleteScene(scene.id)}
                           disabled={scene.id === 'scene-1'}
                         >
+                          <svg className="w-4 h-4" fill="currentColor" fillRule="evenodd" viewBox="0 0 16 16">
+                            <path d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+                          </svg>
                           Delete Scene
                         </button>
                       </div>

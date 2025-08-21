@@ -211,7 +211,6 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   };
 
   const handleAddNewLanguageVariant = () => {
-    console.log('🔧 handleAddNewLanguageVariant called');
     setIsLanguagePopupOpen(false);
     onLanguageVariantModalOpen?.();
   };
@@ -219,33 +218,27 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      console.log('🔧 Click outside detected, target:', event.target);
       
       // Check if the click is inside the popup container
       const popupElement = document.querySelector('[data-popup="language-variants"]');
       if (popupElement && popupElement.contains(event.target as Node)) {
-        console.log('🔧 Click is inside popup, not closing');
         return;
       }
       
       // Check if the click is inside the button
       if (defaultButtonRef.current && defaultButtonRef.current.contains(event.target as Node)) {
-        console.log('🔧 Click is inside button, not closing');
         return;
       }
       
-      console.log('🔧 Closing popup due to click outside');
       setIsLanguagePopupOpen(false);
     };
 
     if (isLanguagePopupOpen) {
-      console.log('🔧 Adding click outside listener');
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       if (isLanguagePopupOpen) {
-        console.log('🔧 Removing click outside listener');
         document.removeEventListener('mousedown', handleClickOutside);
       }
     };
@@ -253,7 +246,6 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
 
   // Debug popup state
   useEffect(() => {
-    console.log('🔧 Language popup state changed:', isLanguagePopupOpen);
   }, [isLanguagePopupOpen]);
 
 
@@ -428,19 +420,11 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
 
                       {/* Add New Language Variant Row */}
                       <div 
-                        className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer bg-blue-100"
+                        className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
                         onClick={(e) => {
-                          console.log('🔧 Add new variant button clicked - START');
-                          console.log('🔧 Event target:', e.target);
-                          console.log('🔧 Event currentTarget:', e.currentTarget);
-                          console.log('🔧 Popup open:', isLanguagePopupOpen);
-                          
                           e.preventDefault();
                           e.stopPropagation();
-                          
-                          console.log('🔧 About to call handleAddNewLanguageVariant');
                           handleAddNewLanguageVariant();
-                          console.log('🔧 handleAddNewLanguageVariant called - END');
                         }}
                       >
                         {/* Plus Icon */}

@@ -15,7 +15,6 @@ const languages = [
 ];
 
 export default function LanguageVariantModal({ isOpen, onClose }: LanguageVariantModalProps) {
-  console.log('🔧 LanguageVariantModal render - isOpen:', isOpen);
   
   const [selectedLanguage, setSelectedLanguage] = useState('Spanish');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -55,32 +54,28 @@ export default function LanguageVariantModal({ isOpen, onClose }: LanguageVarian
       <div 
         className="absolute inset-0"
         style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-        // onClick={handleBackdropClick}
+        onClick={handleBackdropClick}
       ></div>
       
       {/* Modal content */}
       <div 
-        className="relative bg-white shadow-xl w-[400px] max-w-[95vw] flex flex-col z-10"
+        className="relative bg-white shadow-xl w-[500px] max-w-[95vw] flex flex-col z-10"
         style={{ borderRadius: '12px' }}
       >
         {/* Content */}
         <div className="px-6 py-8">
-          {/* Test element */}
-          <div className="bg-red-500 text-white p-4 mb-4 text-center font-bold text-xl">
-            MODAL IS RENDERING!
-          </div>
           
           {/* Row 1: Language variant title */}
           <div className="mb-4">
             <h3 
-              className="text-sm font-medium text-gray-500"
+              className="text-base font-medium text-gray-500"
               style={{
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                fontSize: '12px',
+                fontSize: '16px',
                 letterSpacing: '0.05em'
               }}
             >
-              LANGUAGE VARIANT
+              Language variant
             </h3>
           </div>
 
@@ -179,7 +174,7 @@ export default function LanguageVariantModal({ isOpen, onClose }: LanguageVarian
           <div className="flex justify-end gap-3">
             <button
               onClick={onClose}
-              className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               style={{
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
                 fontSize: '14px',
@@ -193,7 +188,7 @@ export default function LanguageVariantModal({ isOpen, onClose }: LanguageVarian
                 // Handle create variant logic here
                 onClose();
               }}
-              className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              className="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
               style={{
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
                 fontSize: '14px',
