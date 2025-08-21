@@ -739,7 +739,8 @@ const PreviewModal: React.FC<{
                                       
                                       // Log each tier's data
                                       Object.entries(qualityTierSums).forEach(([tier, data]) => {
-                                        console.log(`[FRONTEND_DEBUG] ${tier}: completion_time=${data.completion_time}, creation_time=${data.creation_time}`);
+                                        console.log(`[FRONTEND_DEBUG] ${tier}: completion_time=${data.completion_time} (type: ${typeof data.completion_time}), creation_time=${data.creation_time} (type: ${typeof data.creation_time})`);
+                                        console.log(`[FRONTEND_DEBUG] ${tier} > 0 check: completion_time > 0 = ${data.completion_time > 0}, creation_time > 0 = ${data.creation_time > 0}`);
                                         console.log(`[FRONTEND_DEBUG] ${tier} formatted: completion=${formatTimeLikePDF(data.completion_time)}, creation=${formatTimeLikePDF(data.creation_time)}`);
                                       });
                                       
@@ -3905,6 +3906,8 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 });
             } else {
                 console.log('[FRONTEND_DEBUG] Backend response not ok, using fallback data');
+                console.log('[FRONTEND_DEBUG] Response status:', response.status);
+                console.log('[FRONTEND_DEBUG] Response text:', await response.text());
                 // Fallback to frontend data if backend fails
                 const projectsToShow = visibleProjects.filter(project => 
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
@@ -3937,6 +3940,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         } catch (error) {
             console.error('Failed to fetch preview data from backend:', error);
             console.log('[FRONTEND_DEBUG] Using catch block fallback data');
+            console.log('[FRONTEND_DEBUG] Error details:', error);
             // Fallback to frontend data
             const projectsToShow = visibleProjects.filter(project => 
                 selectedProjects.length === 0 || selectedProjects.includes(project.id)
