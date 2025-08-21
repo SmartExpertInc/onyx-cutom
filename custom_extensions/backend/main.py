@@ -8811,6 +8811,105 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "metadata": {"error": str(e)}
         }
 
+async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract context from the entire Knowledge Base using the Search persona.
+    This function performs a comprehensive search across all documents in the Knowledge Base.
+    """
+    try:
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Starting Knowledge Base search for topic: {topic}")
+        
+        # Create a temporary chat session with the Search persona (ID 0)
+        search_persona_id = 0
+        temp_chat_id = await create_onyx_chat_session(search_persona_id, cookies)
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Created search chat session: {temp_chat_id}")
+        
+        # Create a comprehensive search prompt
+        search_prompt = f"""
+        Please search your entire Knowledge Base for information relevant to this topic: "{topic}"
+        
+        I need you to:
+        1. Search across all available documents and knowledge sources
+        2. Find the most relevant information related to this topic
+        3. Provide a comprehensive summary of what you find
+        4. Extract key topics, concepts, and important details
+        5. Identify any specific examples, case studies, or practical applications
+        
+        Please format your response as:
+        SUMMARY: [comprehensive summary of relevant information found]
+        KEY_TOPICS: [comma-separated list of key topics and concepts]
+        IMPORTANT_DETAILS: [specific details, examples, or practical information]
+        RELEVANT_SOURCES: [mention of any specific documents or sources that were particularly relevant]
+        
+        Be thorough and comprehensive in your search and analysis.
+        """
+        
+        # Use the Search persona to perform the Knowledge Base search
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Sending search request to Search persona")
+        search_result = await stream_chat_message(temp_chat_id, search_prompt, cookies)
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Received search result ({len(search_result)} chars)")
+        
+        # Parse the search result
+        summary = ""
+        key_topics = []
+        important_details = ""
+        relevant_sources = ""
+        
+        lines = search_result.split('\n')
+        for line in lines:
+            if line.startswith("SUMMARY:"):
+                summary = line.replace("SUMMARY:", "").strip()
+            elif line.startswith("KEY_TOPICS:"):
+                topics_text = line.replace("KEY_TOPICS:", "").strip()
+                key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+            elif line.startswith("IMPORTANT_DETAILS:"):
+                important_details = line.replace("IMPORTANT_DETAILS:", "").strip()
+            elif line.startswith("RELEVANT_SOURCES:"):
+                relevant_sources = line.replace("RELEVANT_SOURCES:", "").strip()
+        
+        # If parsing failed, use the raw result as summary
+        if not summary:
+            summary = search_result[:1000] + "..." if len(search_result) > 1000 else search_result
+            key_topics = ["knowledge base search"]
+        
+        # Log the extracted information
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted summary: {summary[:200]}...")
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted key topics: {key_topics}")
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted important details: {important_details[:200]}...")
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted relevant sources: {relevant_sources[:200]}...")
+        
+        # Return context in the same format as file context
+        return {
+            "knowledge_base_search": True,
+            "topic": topic,
+            "summary": summary,
+            "key_topics": key_topics,
+            "important_details": important_details,
+            "relevant_sources": relevant_sources,
+            "full_search_result": search_result,
+            "file_summaries": [{
+                "file_id": "knowledge_base",
+                "name": f"Knowledge Base Search: {topic}",
+                "summary": summary,
+                "topics": key_topics,
+                "key_info": important_details
+            }]
+        }
+        
+    except Exception as e:
+        logger.error(f"[KNOWLEDGE_BASE_CONTEXT] Error extracting Knowledge Base context: {e}", exc_info=True)
+        # Return fallback context
+        return {
+            "knowledge_base_search": True,
+            "topic": topic,
+            "summary": f"Knowledge Base search failed for topic: {topic}",
+            "key_topics": ["search error"],
+            "important_details": "Unable to search Knowledge Base",
+            "relevant_sources": "",
+            "full_search_result": f"Error: {str(e)}",
+            "file_summaries": []
+        }
+
 async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Extract context from a single file using Onyx's chat API with 100% file attachment guarantee.
@@ -12336,6 +12435,11 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     elif payload.fromText:
         logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding Knowledge Base context: fromKnowledgeBase=True")
+        wiz_payload["fromKnowledgeBase"] = True
+
     if payload.originalOutline:
         logger.info(f"[PREVIEW_PAYLOAD] Adding originalOutline ({len(payload.originalOutline)} chars)")
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -12378,29 +12482,35 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[PREVIEW_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -13964,29 +14074,35 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[LESSON_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wizard_dict.get("virtualFileId"):
-                    file_ids_list.append(wizard_dict["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wizard_dict.get("virtualFileId"):
+                        file_ids_list.append(wizard_dict["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -16842,29 +16958,35 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[QUIZ_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -17645,29 +17767,35 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
