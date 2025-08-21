@@ -273,10 +273,7 @@
                         </thead>
                         <tbody>
                             {% set product_counter = namespace(value=1) %}
-                            {% set total_lessons = 0 %}
-                            {% set total_modules = 0 %}
-                            {% set total_hours = 0 %}
-                            {% set total_production_time = 0 %}
+                            {# Use values from backend, don't accumulate locally #}
                             {% set total_completion_time = total_completion_time %}
                             {% set total_creation_hours = total_creation_hours %}
                             
@@ -301,10 +298,7 @@
                                             {% else %}-{% endif %}
                                         </td>
                                     </tr>
-                                    {% set total_lessons = total_lessons + (folder.total_lessons if folder.total_lessons is not none else 0) %}
-                                    {% set total_modules = total_modules + (folder.total_modules if folder.total_modules is not none else 0) %}
-                                    {% set total_hours = total_hours + (folder.total_hours if folder.total_hours is not none else 0) %}
-                                    {% set total_production_time = total_production_time + (folder.total_creation_hours if folder.total_creation_hours is not none else 0) %}
+                                    {# Don't accumulate locally - use backend values #}
                                     
                                     {% if folder.id in folder_projects and folder_projects[folder.id] %}
                                         {% for project in folder_projects[folder.id] %}
@@ -327,10 +321,7 @@
                                                     {% else %}-{% endif %}
                                                 </td>
                                             </tr>
-                                            {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
-                                            {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
-                                            {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
-                                            {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
+                                            {# Don't accumulate locally - use backend values #}
                                         {% endfor %}
                                     {% endif %}
                                     
@@ -356,10 +347,7 @@
                                                     {% else %}-{% endif %}
                                                 </td>
                                             </tr>
-                                            {% set total_lessons = total_lessons + (child_folder.total_lessons if child_folder.total_lessons is not none else 0) %}
-                                            {% set total_modules = total_modules + (child_folder.total_modules if child_folder.total_modules is not none else 0) %}
-                                            {% set total_hours = total_hours + (child_folder.total_hours if child_folder.total_hours is not none else 0) %}
-                                            {% set total_production_time = total_production_time + (child_folder.total_creation_hours if child_folder.total_creation_hours is not none else 0) %}
+                                            {# Don't accumulate locally - use backend values #}
                                             
                                             {% if child_folder.id in folder_projects and folder_projects[child_folder.id] %}
                                                 {% for project in folder_projects[child_folder.id] %}
@@ -382,10 +370,7 @@
                                                             {% else %}-{% endif %}
                                                         </td>
                                                     </tr>
-                                                    {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
-                                                    {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
-                                                    {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
-                                                    {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
+                                                    {# Don't accumulate locally - use backend values #}
                                                 {% endfor %}
                                             {% endif %}
                                         {% endfor %}
@@ -414,10 +399,7 @@
                                             {% else %}-{% endif %}
                                         </td>
                                     </tr>
-                                    {% set total_lessons = total_lessons + (project.total_lessons if project.total_lessons is not none else 0) %}
-                                    {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
-                                    {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
-                                    {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
+                                    {# Don't accumulate locally - use backend values #}
                                 {% endfor %}
                             {% endif %}
                         </tbody>
