@@ -87,6 +87,12 @@ const nextConfig = {
       destination: `${process.env.INTERNAL_URL || "http://localhost:8080"}/openapi.json`,
     },
     // ------
+    // Proxy custom-projects-backend requests to the custom backend
+    {
+      source: '/api/custom-projects-backend/:path*',
+      destination: 'http://custom_backend:8001/api/custom-projects-backend/:path*'
+    },
+    // ------
     // Proxy all other /api/* requests to the backend api_server
     {
       source: '/api/:path*', // Match any path starting with /api/

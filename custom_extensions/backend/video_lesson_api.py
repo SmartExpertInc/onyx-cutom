@@ -36,7 +36,7 @@ ELAI_API_TOKEN = os.getenv("ELAI_API_TOKEN", "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e")
 ELAI_BASE_URL = os.getenv("ELAI_BASE_URL", "https://apis.elai.io/api/v1")
 
 # Create router
-router = APIRouter(prefix="/api/custom/video-lesson", tags=["video-lesson"])
+router = APIRouter(prefix="/api/custom-projects-backend/video-lesson", tags=["video-lesson"])
 
 # Request/Response Models
 class VideoGenerationRequest(BaseModel):
