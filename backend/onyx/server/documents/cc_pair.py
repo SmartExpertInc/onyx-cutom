@@ -30,6 +30,8 @@ from onyx.db.connector_credential_pair import (
     get_connector_credential_pair_from_id_for_user,
 )
 from onyx.db.connector_credential_pair import remove_credential_from_connector
+from onyx.db.models import IndexAttempt, IndexAttemptError
+from sqlalchemy import delete
 from onyx.db.connector_credential_pair import (
     update_connector_credential_pair_from_id,
 )
@@ -574,11 +576,49 @@ def delete_cc_pair(
         connector_id = cc_pair.connector.id if hasattr(cc_pair, 'connector') else cc_pair.connector_id
         credential_id = cc_pair.credential.id if hasattr(cc_pair, 'credential') else cc_pair.credential_id
         
-        return remove_credential_from_connector(
-            connector_id, credential_id, user, db_session
+        # Delete related index attempts before removing the cc-pair to avoid constraint violation
+        
+        # Delete index attempt errors first (they reference index_attempt)
+        db_session.execute(
+            delete(IndexAttemptError).where(
+                IndexAttemptError.connector_credential_pair_id == cc_pair_id
+            )
+        )
+        
+        # Delete index attempts
+        db_session.execute(
+            delete(IndexAttempt).where(
+                IndexAttempt.connector_credential_pair_id == cc_pair_id
+            )
+        )
+        
+        # Now delete the cc-pair itself instead of using remove_credential_from_connector
+        # to avoid multiple transaction commits
+        fetch_ee_implementation_or_noop(
+            "onyx.db.external_perm",
+            "delete_user__ext_group_for_cc_pair__no_commit",
+        )(
+            db_session=db_session,
+            cc_pair_id=cc_pair_id,
+        )
+        
+        db_session.delete(cc_pair)
+        db_session.commit()
+        
+        return StatusResponse(
+            success=True,
+            message=f"Connector credential pair with id '{cc_pair_id}' was deleted successfully.",
+            data=cc_pair_id,
         )
     except AttributeError as e:
         raise HTTPException(
             status_code=500,
             detail=f"Failed to extract connector/credential IDs: {str(e)}",
+        )
+    except Exception as e:
+        # Rollback in case of any error
+        db_session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to delete connector: {str(e)}",
         )
