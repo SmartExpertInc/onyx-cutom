@@ -724,6 +724,10 @@ const PreviewModal: React.FC<{
                                         'immersive': { completion_time: 0, creation_time: 0 }
                                       };
                                       
+                                      // Debug: Log what we're using for Block 2
+                                      console.log('🔍 Block 2 Debug - using quality_tier_sums:', qualityTierSums);
+                                      console.log('🔍 Block 2 Debug - data source:', data?.quality_tier_sums ? 'backend' : 'fallback');
+                                      
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
                                         { key: 'basic', name: 'Level 1 - Basic' },
@@ -3929,14 +3933,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     return tierMapping[tier] || 'interactive';
                 };
 
-                // Process all projects with quality tier grouping (like PDF)
+                // Process all projects with quality tier grouping (exactly like backend)
                 projectsToShow.forEach((project: Project | BackendProject) => {
                     const projectQualityTier = project.quality_tier || null;
                     
-                    // Check if we have microproduct_content for module-level calculation
+                    // Check if we have microproduct_content for module-level calculation (PRIORITY)
                     const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
                     if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
-                        // Use module-level calculation (like backend)
+                        // Use module-level calculation (EXACTLY like backend)
                         const sections = microproductContent.sections;
                         if (Array.isArray(sections)) {
                             sections.forEach((section: any) => {
@@ -3954,11 +3958,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                     'interactive'
                                                 );
                                                 
-                                                // Get lesson completion time and creation hours (like backend)
+                                                // Get lesson completion time and creation hours (EXACTLY like backend)
                                                 let lessonCompletionTimeRaw = lesson.completionTime || 0;
                                                 const lessonCreationHours = lesson.hours || 0;
                                                 
-                                                // Convert completionTime from string (e.g., "6m") to integer minutes (like backend)
+                                                // Convert completionTime from string (e.g., "6m") to integer minutes (EXACTLY like backend)
                                                 let lessonCompletionTime: number;
                                                 if (typeof lessonCompletionTimeRaw === 'string') {
                                                     // Remove 'm' suffix and convert to int
@@ -3968,7 +3972,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                 }
                                                 
                                                 qualityTierSums[effectiveTier].completion_time += lessonCompletionTime;
-                                                // Convert hours to minutes for consistency (like backend)
+                                                // Convert hours to minutes for consistency (EXACTLY like backend)
                                                 qualityTierSums[effectiveTier].creation_time += lessonCreationHours * 60;
                                             }
                                         });
@@ -3977,14 +3981,17 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                             });
                         }
                     } else {
-                        // Use project-level calculation for Block 2 (like PDF)
+                        // FALLBACK: Use project-level calculation ONLY when no microproduct_content
+                        // This should rarely happen as most projects have microproduct_content
+                        console.warn(`⚠️ Project ${project.id} has no microproduct_content, using project-level fallback`);
                         const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
                         qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
-                        // total_creation_hours is already in minutes (like backend)
                         qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
                     }
                 });
 
+                console.log('🔄 Setting preview data with quality_tier_sums (try block):', qualityTierSums);
+                console.log('🔄 Projects data (try block):', projectsToShow);
                 setPreviewData({
                     clientName,
                     managerName,
@@ -4039,14 +4046,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 return tierMapping[tier] || 'interactive';
             };
 
-            // Process all projects with quality tier grouping (like PDF)
+            // Process all projects with quality tier grouping (exactly like backend) 
             projectsToShow.forEach((project: Project | BackendProject) => {
                 const projectQualityTier = project.quality_tier || null;
                 
-                // Check if we have microproduct_content for module-level calculation
+                // Check if we have microproduct_content for module-level calculation (PRIORITY)
                 const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
                 if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
-                    // Use module-level calculation (like backend)
+                    // Use module-level calculation (EXACTLY like backend)
                     const sections = microproductContent.sections;
                     if (Array.isArray(sections)) {
                         sections.forEach((section: any) => {
@@ -4064,11 +4071,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                                 'interactive'
                                             );
                                             
-                                            // Get lesson completion time and creation hours (like backend)
+                                            // Get lesson completion time and creation hours (EXACTLY like backend)
                                             let lessonCompletionTimeRaw = lesson.completionTime || 0;
                                             const lessonCreationHours = lesson.hours || 0;
                                             
-                                            // Convert completionTime from string (e.g., "6m") to integer minutes (like backend)
+                                            // Convert completionTime from string (e.g., "6m") to integer minutes (EXACTLY like backend)
                                             let lessonCompletionTime: number;
                                             if (typeof lessonCompletionTimeRaw === 'string') {
                                                 // Remove 'm' suffix and convert to int
@@ -4078,7 +4085,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                                             }
                                             
                                             qualityTierSums[effectiveTier].completion_time += lessonCompletionTime;
-                                            // Convert hours to minutes for consistency (like backend)
+                                            // Convert hours to minutes for consistency (EXACTLY like backend)
                                             qualityTierSums[effectiveTier].creation_time += lessonCreationHours * 60;
                                         }
                                     });
@@ -4087,15 +4094,17 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                         });
                     }
                 } else {
-                    // Use project-level calculation for Block 2 (like PDF)
+                    // FALLBACK: Use project-level calculation ONLY when no microproduct_content
+                    // This should rarely happen as most projects have microproduct_content
+                    console.warn(`⚠️ Fallback: Project ${project.id} has no microproduct_content, using project-level data`);
                     const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
                     qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
-                    // total_creation_hours is already in minutes (like backend)
                     qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
                 }
             });
 
             console.log('🔄 Setting fallback preview data with quality_tier_sums:', qualityTierSums);
+            console.log('🔄 Fallback projects data:', projectsToShow);
             setPreviewData({
                 clientName,
                 managerName,
