@@ -102,7 +102,7 @@ def get_cc_pair_index_attempts(
 @router.get("/admin/cc-pair/{cc_pair_id}")
 def get_cc_pair_full_info(
     cc_pair_id: int,
-    user: User | None = Depends(current_curator_or_admin_user),
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> CCPairFullInfo:
     tenant_id = get_current_tenant_id()
@@ -169,7 +169,7 @@ def get_cc_pair_full_info(
 def update_cc_pair_status(
     cc_pair_id: int,
     status_update_request: CCStatusUpdateRequest,
-    user: User | None = Depends(current_curator_or_admin_user),
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> JSONResponse:
     """This method returns nearly immediately. It simply sets some signals and

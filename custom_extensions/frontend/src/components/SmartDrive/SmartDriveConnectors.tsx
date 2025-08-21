@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+
 import Image from 'next/image';
-import { ChevronDown, ExternalLink, Upload, Settings } from 'lucide-react';
+import { ChevronDown, Upload, Settings } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
+import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
 
 interface ConnectorConfig {
   id: string;
@@ -36,6 +37,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [loading, setLoading] = useState(true);
   const [showConnectorModal, setShowConnectorModal] = useState(false);
   const [selectedConnector, setSelectedConnector] = useState<{id: string, name: string} | null>(null);
+  const [showManagementPage, setShowManagementPage] = useState(false);
+  const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null);
 
   // Define all available connectors organized by category
   const connectorCategories = {
@@ -549,24 +552,29 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             </button>
                             <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 hidden group-hover:block">
                               {userConnectorsForSource.map((userConnector) => (
-                                <Link
+                                <button
                                   key={userConnector.id}
-                                  href={`${typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : ''}/admin/connector/${userConnector.id}`}
-                                  className="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                  onClick={() => {
+                                    setSelectedConnectorId(userConnector.id);
+                                    setShowManagementPage(true);
+                                  }}
+                                  className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                                 >
                                   {userConnector.name}
-                                </Link>
+                                </button>
                               ))}
                             </div>
                           </div>
                         ) : (
-                          <Link
-                            href={`${typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : ''}/admin/connector/${userConnectorsForSource[0].id}`}
+                          <button
+                            onClick={() => {
+                              setSelectedConnectorId(userConnectorsForSource[0].id);
+                              setShowManagementPage(true);
+                            }}
                             className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
                           >
                             Manage
-                            <ExternalLink className="w-3 h-3" />
-                          </Link>
+                          </button>
                         )}
                       </div>
                     )}
@@ -579,12 +587,26 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         {userConnectorsForSource.some(c => c.status === 'active') && (
                           <span className="text-green-600">● Active</span>
                         )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                                </div>
+        </div>
+      )}
+
+      {/* Connector Management Page */}
+      {showManagementPage && selectedConnectorId && (
+        <ConnectorManagementPage
+          ccPairId={selectedConnectorId}
+          onClose={() => {
+            setShowManagementPage(false);
+            setSelectedConnectorId(null);
+          }}
+          onConnectorDeleted={() => {
+            loadUserConnectors();
+          }}
+        />
+      )}
+    </div>
+  );
+})}
           </div>
         </div>
       ))}
