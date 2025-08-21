@@ -610,7 +610,7 @@ def delete_cc_pair(
             from onyx.db.connector_credential_pair import get_connector_credential_pair_for_user
             from onyx.db.connector_credential_pair import update_connector_credential_pair_from_id
             from onyx.db.enums import ConnectorCredentialPairStatus
-            from onyx.background.indexing.run_indexing import cancel_indexing_attempts_for_ccpair
+            from onyx.db.index_attempt import cancel_indexing_attempts_for_ccpair
             logger.info(f"[DELETE_CC_PAIR] Modules imported successfully")
             
             # Cancel any scheduled indexing attempts

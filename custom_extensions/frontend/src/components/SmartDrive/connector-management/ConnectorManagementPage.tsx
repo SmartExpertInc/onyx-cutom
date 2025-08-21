@@ -5,6 +5,9 @@ import { CCPairFullInfo, ConnectorCredentialPairStatus, statusIsNotCurrentlyActi
 import { buildCCPairInfoUrl, triggerIndexing, getTooltipMessage } from "./lib";
 import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X } from "lucide-react";
 
+// Global counter to track component instances
+let componentInstanceCounter = 0;
+
 interface ConnectorManagementPageProps {
   ccPairId: number;
   onClose: () => void;
@@ -21,20 +24,25 @@ export default function ConnectorManagementPage({
   const [error, setError] = useState<string | null>(null);
   const [popup, setPopup] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const isLoadingRef = useRef(false);
+  const lastFetchTime = useRef<number>(0);
+  const componentId = useRef(Math.random().toString(36).substr(2, 9));
+  const instanceNumber = useRef(++componentInstanceCounter);
   
-  console.log('[MANAGEMENT_DEBUG] ConnectorManagementPage rendered for ccPairId:', ccPairId);
+  console.log('[MANAGEMENT_DEBUG] ConnectorManagementPage rendered for ccPairId:', ccPairId, 'componentId:', componentId.current, 'instanceNumber:', instanceNumber.current, 'totalInstances:', componentInstanceCounter);
 
   // Fetch connector data
   useEffect(() => {
     const fetchConnectorData = async () => {
-      // Prevent multiple simultaneous requests
-      if (isLoadingRef.current) {
-        console.log('[MANAGEMENT_DEBUG] Already loading, skipping fetch for ccPairId:', ccPairId);
+      // Prevent multiple simultaneous requests and rapid fetches
+      const now = Date.now();
+      if (isLoadingRef.current || (now - lastFetchTime.current < 1000)) {
+        console.log('[MANAGEMENT_DEBUG] Skipping fetch - already loading:', isLoadingRef.current, 'or too recent:', (now - lastFetchTime.current < 1000), 'componentId:', componentId.current);
         return;
       }
 
       try {
-        console.log('[MANAGEMENT_DEBUG] Starting fetch for ccPairId:', ccPairId);
+        console.log('[MANAGEMENT_DEBUG] Starting fetch for ccPairId:', ccPairId, 'componentId:', componentId.current);
+        lastFetchTime.current = now;
         isLoadingRef.current = true;
         setLoading(true);
         const response = await fetch(buildCCPairInfoUrl(ccPairId));
@@ -52,7 +60,7 @@ export default function ConnectorManagementPage({
         console.error('[MANAGEMENT_DEBUG] Error loading connector data:', err);
         setError('Failed to load connector data');
       } finally {
-        console.log('[MANAGEMENT_DEBUG] Fetch completed for ccPairId:', ccPairId);
+        console.log('[MANAGEMENT_DEBUG] Fetch completed for ccPairId:', ccPairId, 'componentId:', componentId.current);
         setLoading(false);
         isLoadingRef.current = false;
       }
@@ -60,6 +68,14 @@ export default function ConnectorManagementPage({
 
     fetchConnectorData();
   }, [ccPairId]);
+
+  // Cleanup effect to track component unmounting
+  useEffect(() => {
+    return () => {
+      componentInstanceCounter--;
+      console.log('[MANAGEMENT_DEBUG] ConnectorManagementPage unmounting, instanceNumber:', instanceNumber.current, 'remaining instances:', componentInstanceCounter);
+    };
+  }, []);
 
   // Refresh data
   const refreshData = async () => {
@@ -156,10 +172,10 @@ export default function ConnectorManagementPage({
 
       if (response.ok) {
         setPopup({ message: 'Connector deleted successfully', type: 'success' });
-        setTimeout(() => {
-          onConnectorDeleted?.();
-          onClose();
-        }, 1500);
+        // Immediate close instead of delayed - setTimeout(() => {
+        onConnectorDeleted?.();
+        onClose();
+        // }, 1500);
       } else {
         setPopup({ message: 'Failed to delete connector', type: 'error' });
       }
