@@ -3896,16 +3896,37 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     };
                 });
                 
+                // Calculate quality tier sums from frontend data (same logic as backend)
+                const qualityTierSums = {
+                    basic: { completion_time: 0, creation_time: 0 },
+                    interactive: { completion_time: 0, creation_time: 0 },
+                    advanced: { completion_time: 0, creation_time: 0 },
+                    immersive: { completion_time: 0, creation_time: 0 }
+                };
+
+                // Helper function to get effective quality tier
+                const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
+                    if (project.quality_tier) {
+                        const tier = project.quality_tier.toLowerCase();
+                        if (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') {
+                            return tier as keyof typeof qualityTierSums;
+                        }
+                    }
+                    return 'interactive';
+                };
+
+                // Process all projects (exactly like backend)
+                projectsToShow.forEach((project: Project | BackendProject) => {
+                    const effectiveTier = getEffectiveQualityTier(project, 'interactive');
+                    qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
+                    qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+                });
+
                 setPreviewData({
                     clientName,
                     managerName,
                     projects: projectsToShow,
-                    quality_tier_sums: {
-                        basic: { completion_time: 0, creation_time: 0 },
-                        interactive: { completion_time: 0, creation_time: 0 },
-                        advanced: { completion_time: 0, creation_time: 0 },
-                        immersive: { completion_time: 0, creation_time: 0 }
-                    }
+                    quality_tier_sums: qualityTierSums
                 });
             }
         } catch (error) {
@@ -3927,16 +3948,37 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 };
             });
             
+            // Calculate quality tier sums from frontend data (same logic as backend)
+            const qualityTierSums = {
+                basic: { completion_time: 0, creation_time: 0 },
+                interactive: { completion_time: 0, creation_time: 0 },
+                advanced: { completion_time: 0, creation_time: 0 },
+                immersive: { completion_time: 0, creation_time: 0 }
+            };
+
+            // Helper function to get effective quality tier
+            const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
+                if (project.quality_tier) {
+                    const tier = project.quality_tier.toLowerCase();
+                    if (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') {
+                        return tier as keyof typeof qualityTierSums;
+                    }
+                }
+                return 'interactive';
+            };
+
+            // Process all projects (exactly like backend)
+            projectsToShow.forEach((project: Project | BackendProject) => {
+                const effectiveTier = getEffectiveQualityTier(project, 'interactive');
+                qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
+                qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+            });
+
             setPreviewData({
                 clientName,
                 managerName,
                 projects: projectsToShow,
-                quality_tier_sums: {
-                    basic: { completion_time: 0, creation_time: 0 },
-                    interactive: { completion_time: 0, creation_time: 0 },
-                    advanced: { completion_time: 0, creation_time: 0 },
-                    immersive: { completion_time: 0, creation_time: 0 }
-                }
+                quality_tier_sums: qualityTierSums
             });
         }
         
