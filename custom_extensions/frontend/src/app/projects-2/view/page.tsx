@@ -260,7 +260,7 @@ export default function Projects2ViewPage() {
 
                     {/* Popup Menu */}
                     {openMenuSceneId === scene.id && (
-                      <div className="absolute bottom-8 right-0 z-50 bg-white rounded-md shadow-lg border border-gray-200 min-w-[180px] py-1">
+                      <div className="absolute -top-2 right-0 z-50 bg-white rounded-md shadow-lg border border-gray-200 min-w-[180px] py-1">
                         <button 
                           className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                           onClick={() => handleMenuAction('Save as Scene Layout', scene.id)}

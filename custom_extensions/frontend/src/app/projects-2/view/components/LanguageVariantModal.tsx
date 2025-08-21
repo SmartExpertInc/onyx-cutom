@@ -68,10 +68,10 @@ export default function LanguageVariantModal({ isOpen, onClose }: LanguageVarian
           {/* Row 1: Language variant title */}
           <div className="mb-4">
             <h3 
-              className="text-base font-medium text-gray-500"
+              className="text-lg font-medium text-black"
               style={{
                 fontFamily: 'Inter, -apple-system, Roboto, Helvetica, sans-serif',
-                fontSize: '16px',
+                fontSize: '18px',
                 letterSpacing: '0.05em'
               }}
             >
