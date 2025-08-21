@@ -72,7 +72,7 @@ export default function AvatarPopup({
                         <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1 py-1" style={{ width: 'fit-content', height: '36px' }}>
                 <button 
                   onClick={() => setActiveButton('button1')}
-                  className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
+                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
                     activeButton === 'button1' 
                       ? 'bg-gray-200 text-black' 
                       : 'bg-white text-gray-600'
@@ -82,7 +82,7 @@ export default function AvatarPopup({
                 </button>
                 <button 
                   onClick={() => setActiveButton('button2')}
-                  className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
+                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
                     activeButton === 'button2' 
                       ? 'bg-gray-200 text-black' 
                       : 'bg-white text-gray-600'
@@ -92,7 +92,7 @@ export default function AvatarPopup({
                 </button>
                 <button 
                   onClick={() => setActiveButton('button3')}
-                  className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
+                  className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
                     activeButton === 'button3' 
                       ? 'bg-gray-200 text-black' 
                       : 'bg-white text-gray-600'
@@ -272,7 +272,7 @@ export default function AvatarPopup({
             </div>
 
             {/* Footer with Add to Scene button */}
-            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4">
+            <div className="flex justify-center flex-shrink-0 border-t border-gray-200 pt-4 -mx-4">
               <button className="px-6 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors">
                 + Add to scene
               </button>
