@@ -16916,12 +16916,18 @@ async def create_video(request: Request):
             return {"success": False, "error": "No voiceover texts provided"}
         
         # Create video
+        logger.info(f"Creating video with project name: {project_name}")
+        logger.info(f"Voiceover texts count: {len(voiceover_texts)}")
+        logger.info(f"Avatar code: {avatar_code}")
+        
         result = await video_generation_service.create_video_from_texts(project_name, voiceover_texts, avatar_code)
+        
+        logger.info(f"Video creation result: {result}")
         
         if result["success"]:
             return {
                 "success": True,
-                "videoId": result["video_id"],
+                "videoId": result["videoId"],
                 "message": "Video created successfully"
             }
         else:

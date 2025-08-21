@@ -49,41 +49,67 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [data-slide-title]');
       const slideContent = document.querySelectorAll('.slide-content, .real-slide, [data-slide-id]');
       
-      // Extract from titles first
-      slideTitles.forEach((titleElement, index) => {
-        const titleText = titleElement.textContent?.trim();
-        if (titleText && titleText.length > 5 && titleText.length < 200) {
-          const cleanTitle = titleText.replace(/\s+/g, ' ').trim();
-          voiceoverTexts.push(cleanTitle);
-          console.log(`🎬 [VIDEO_DOWNLOAD] Slide title ${index + 1}:`, cleanTitle);
-        }
-      });
+             // Extract from titles first
+       slideTitles.forEach((titleElement, index) => {
+         const titleText = titleElement.textContent?.trim();
+         if (titleText && titleText.length > 5 && titleText.length < 200) {
+           const cleanTitle = titleText.replace(/\s+/g, ' ').trim();
+           
+           // Filter out problematic titles
+           const lowerTitle = cleanTitle.toLowerCase();
+           if (lowerTitle === 'voiceover' || 
+               lowerTitle === 'presentation themes' ||
+               lowerTitle === 'themes' ||
+               lowerTitle === 'slide' ||
+               lowerTitle === 'title') {
+             console.log(`🎬 [VIDEO_DOWNLOAD] Skipping problematic title: ${cleanTitle}`);
+             return;
+           }
+           
+           // Check if title contains non-English characters (like Russian)
+           const hasNonEnglish = /[а-яё]/i.test(cleanTitle);
+           if (hasNonEnglish) {
+             console.log(`🎬 [VIDEO_DOWNLOAD] Skipping non-English title: ${cleanTitle}`);
+             return;
+           }
+           
+           voiceoverTexts.push(cleanTitle);
+           console.log(`🎬 [VIDEO_DOWNLOAD] Slide title ${index + 1}:`, cleanTitle);
+         }
+       });
       
-      // Extract from main content if we still don't have enough
-      if (voiceoverTexts.length < 2) {
-        slideContent.forEach((contentElement, index) => {
-          const contentText = contentElement.textContent?.trim();
-          if (contentText && contentText.length > 20 && contentText.length < 500) {
-            // Clean and extract meaningful content
-            const cleanContent = contentText
-              .replace(/\s+/g, ' ')
-              .replace(/[^\w\s.,!?-]/g, '') // Remove special characters except basic punctuation
-              .trim();
-            
-            if (cleanContent.length > 20) {
-              voiceoverTexts.push(cleanContent);
-              console.log(`🎬 [VIDEO_DOWNLOAD] Slide content ${index + 1}:`, cleanContent.substring(0, 100) + '...');
-            }
-          }
-        });
-      }
+             // Extract from main content if we still don't have enough
+       if (voiceoverTexts.length < 2) {
+         slideContent.forEach((contentElement, index) => {
+           const contentText = contentElement.textContent?.trim();
+           if (contentText && contentText.length > 20 && contentText.length < 500) {
+             // Clean and extract meaningful content
+             const cleanContent = contentText
+               .replace(/\s+/g, ' ')
+               .replace(/[^\w\s.,!?-]/g, '') // Remove special characters except basic punctuation
+               .trim();
+             
+             // Check if content contains non-English characters
+             const hasNonEnglish = /[а-яё]/i.test(cleanContent);
+             if (hasNonEnglish) {
+               console.log(`🎬 [VIDEO_DOWNLOAD] Skipping non-English content: ${cleanContent.substring(0, 50)}...`);
+               return;
+             }
+             
+             if (cleanContent.length > 20) {
+               voiceoverTexts.push(cleanContent);
+               console.log(`🎬 [VIDEO_DOWNLOAD] Slide content ${index + 1}:`, cleanContent.substring(0, 100) + '...');
+             }
+           }
+         });
+       }
     }
 
-    // Method 3: Fallback - create a simple default voiceover if nothing found
-    if (voiceoverTexts.length === 0) {
-      console.log('🎬 [VIDEO_DOWNLOAD] No content found, creating default voiceover...');
-      voiceoverTexts.push("Welcome to this presentation. This is a demonstration of our video generation system.");
-    }
+         // Method 3: Fallback - create a simple default voiceover if nothing found
+     if (voiceoverTexts.length === 0) {
+       console.log('🎬 [VIDEO_DOWNLOAD] No content found, creating default voiceover...');
+       voiceoverTexts.push("Welcome to this presentation. Today we will explore important topics and share valuable insights with you.");
+     }
 
     // Final validation and cleaning
     const finalTexts = voiceoverTexts
