@@ -1,47 +1,72 @@
-# Финальное исправление ошибки TypeScript и обеспечение корректного отображения данных
+# Final Fix Documentation - Block 2 Preview Issue
 
-## Проблема
-Приложение не компилировалось из-за ошибки TypeScript:
-```
-Type error: Property 'microproduct_content' does not exist on type 'Project | BackendProject'.
-Property 'microproduct_content' does not exist on type 'Project'.
-```
+## Problem Summary
+The user reported that the "Block 2. Production Hours by Quality Level" section in the PDF preview was showing only dashes (`-`), while the actual PDF document contained correct values. The user requested that the preview show all values exactly as they appear in the PDF for this block.
 
-## Причина
-В коде использовался прямой доступ к свойству `project.microproduct_content`, но тип `Project` не содержит это свойство. Только тип `BackendProject` содержит `microproduct_content`.
+## Root Cause Analysis
+1. **Initial Issue**: The frontend fallback logic for `quality_tier_sums` was initialized to zeros, causing Block 2 to display dashes when backend data was unavailable.
 
-## Решение
-Заменил прямой доступ на безопасную проверку с использованием оператора `in`:
+2. **Secondary Issue**: After implementing module-level calculation, TypeScript compilation errors occurred due to:
+   - `Property 'microproduct_content' does not exist on type 'Project | BackendProject'`
+   - `Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'`
 
-### Было:
+## Solution Implemented
+
+### 1. Module-Level Quality Tier Calculation
+Implemented module-level quality tier aggregation in the frontend fallback logic, mirroring the backend's `calculate_quality_tier_sums` function:
+
+- **File**: `onyx-cutom/custom_extensions/frontend/src/components/ProjectsTable.tsx`
+- **Lines**: 3902-3969 and 4035-4094
+- **Changes**:
+  - Modified `getEffectiveQualityTier` to prioritize: `lessonQualityTier` → `sectionQualityTier` → `projectQualityTier` → `folderQualityTier` → default 'interactive'
+  - Implemented iteration through `project.microproduct_content.sections.lessons` to calculate quality tier sums
+  - Added proper time unit conversions (string "Xm" to minutes, hours to minutes)
+
+### 2. TypeScript Type Safety Fixes
+
+#### Fix 1: Safe Property Access
+- **Problem**: `Property 'microproduct_content' does not exist on type 'Project | BackendProject'`
+- **Solution**: Added type guard using `'microproduct_content' in project`
+- **Changes**: Lines 3931 and 4040
 ```typescript
+// Before
 const microproductContent = project.microproduct_content;
-```
 
-### Стало:
-```typescript
+// After  
 const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
 ```
 
-## Изменения в файлах
+#### Fix 2: Type Conversion for Function Parameters
+- **Problem**: `Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'`
+- **Solution**: Convert `undefined` to `null` using `|| null`
+- **Changes**: Lines 3930 and 4039
+```typescript
+// Before
+const projectQualityTier = project.quality_tier;
 
-### `onyx-cutom/custom_extensions/frontend/src/components/ProjectsTable.tsx`
+// After
+const projectQualityTier = project.quality_tier || null;
+```
 
-**Строки 3931 и 4040:**
-- Исправлен доступ к `microproduct_content` с безопасной проверкой типа
-- Добавлена проверка `'microproduct_content' in project` перед обращением к свойству
+## Testing Results
+- ✅ TypeScript compilation errors resolved
+- ✅ Module-level quality tier calculation working correctly
+- ✅ Fallback logic properly handles both `BackendProject` (with `microproduct_content`) and `Project` (without) types
+- ✅ Quality tier mapping supports both new and legacy tier names
+- ✅ Time unit conversions working as expected
 
-## Результат
-1. ✅ **Ошибка TypeScript исправлена** - приложение теперь компилируется без ошибок
-2. ✅ **Данные отображаются корректно** - превью показывает те же значения, что и PDF
-3. ✅ **Fallback логика работает** - если `microproduct_content` недоступен, используется расчет на уровне проекта
-4. ✅ **Модульный расчет работает** - если `microproduct_content` доступен, используется расчет на уровне модулей (как в бэкенде)
+## Files Modified
+1. **`onyx-cutom/custom_extensions/frontend/src/components/ProjectsTable.tsx`**
+   - Lines 3902-3969: First occurrence of module-level calculation
+   - Lines 4035-4094: Second occurrence of module-level calculation
+   - Lines 3931, 4040: Safe property access for `microproduct_content`
+   - Lines 3930, 4039: Type conversion for `quality_tier`
 
-## Тестирование
-Создан тестовый файл `test_final_fix.js`, который подтверждает:
-- Безопасный доступ к свойствам работает корректно
-- Форматирование времени работает правильно
-- Данные из `quality_tier_sums` отображаются корректно
+## Expected Outcome
+The PDF preview for "Block 2. Production Hours by Quality Level" should now display accurate values that match the PDF document, even when the backend data is unavailable. The preview will use module-level quality tier aggregation, ensuring consistency with the backend calculation logic.
 
-## Заключение
-Теперь превью PDF показывает точно такие же значения, как и сам PDF документ, без ошибок компиляции. Все поля в Block 2 "Production Hours by Quality Level" отображают корректные данные, рассчитанные на уровне модулей (как в бэкенде) или с fallback на уровень проекта. 
+## Technical Notes
+- The solution maintains backward compatibility with both `Project` and `BackendProject` interfaces
+- Module-level calculation is prioritized when `microproduct_content` is available
+- Project-level calculation serves as a fallback when `microproduct_content` is not available
+- All TypeScript type safety requirements are satisfied 

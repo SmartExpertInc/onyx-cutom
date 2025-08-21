@@ -3926,7 +3926,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
                 // Process all projects with module-level quality tiers (like backend)
                 projectsToShow.forEach((project: Project | BackendProject) => {
-                    const projectQualityTier = project.quality_tier;
+                    const projectQualityTier = project.quality_tier || null;
                     
                     // Check if we have microproduct_content for module-level calculation
                     const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
@@ -4035,7 +4035,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
             // Process all projects with module-level quality tiers (like backend)
             projectsToShow.forEach((project: Project | BackendProject) => {
-                const projectQualityTier = project.quality_tier;
+                const projectQualityTier = project.quality_tier || null;
                 
                 // Check if we have microproduct_content for module-level calculation
                 const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
