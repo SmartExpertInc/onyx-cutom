@@ -163,6 +163,22 @@
         .course-name {
             font-weight: 600;
             color: #000;
+            min-width: 200px;
+            width: 40%;
+        }
+        
+        /* Make first column (Quality Level) wider */
+        .table-header th:first-child,
+        .table-row td:first-child {
+            width: 40%;
+            min-width: 200px;
+        }
+        
+        /* Make other columns narrower */
+        .table-header th:not(:first-child),
+        .table-row td:not(:first-child) {
+            width: 30%;
+            min-width: 120px;
         }
 
         .subtotal {
@@ -418,7 +434,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {% if total_completion_time and total_completion_time > 0 %}{% set h = total_completion_time // 60 %}{% set m = total_completion_time % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %} of learning content → {% if total_creation_hours and total_creation_hours > 0 %}{% set h = total_creation_hours // 60 %}{% set m = total_creation_hours % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %} production
+                         Subtotal: {% if total_completion_time and total_completion_time > 0 %}{% set h = total_completion_time // 60 %}{% set m = total_completion_time % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}-{% endif %} of learning content → {% if total_creation_hours and total_creation_hours > 0 %}{% set h = total_creation_hours // 60 %}{% set m = total_creation_hours % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}-{% endif %} production
                      </div>
                 </div>
             </div>
@@ -450,37 +466,37 @@
                                                 {% set h = quality_tier_sums[tier_key].completion_time // 60 %}
                                                 {% set m = quality_tier_sums[tier_key].completion_time % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
-                                            {% else %}0{% endif %}
+                                            {% else %}-{% endif %}
                                         </td>
                                         <td>
                                             {% if quality_tier_sums[tier_key] and quality_tier_sums[tier_key].creation_time and quality_tier_sums[tier_key].creation_time > 0 %}
                                                 {% set h = quality_tier_sums[tier_key].creation_time // 60 %}
                                                 {% set m = quality_tier_sums[tier_key].creation_time % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
-                                            {% else %}0{% endif %}
+                                            {% else %}-{% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr class="table-row">
                                     <td class="course-name">Level 1 - Basic</td>
-                                    <td>0</td>
-                                    <td>0</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                 </tr>
                                 <tr class="table-row">
                                     <td class="course-name">Level 2 - Interactive</td>
-                                    <td>0</td>
-                                    <td>0</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                 </tr>
                                 <tr class="table-row">
                                     <td class="course-name">Level 3 - Advanced</td>
-                                    <td>0</td>
-                                    <td>0</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                 </tr>
                                 <tr class="table-row">
                                     <td class="course-name">Level 4 - Immersive</td>
-                                    <td>0</td>
-                                    <td>0</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -494,8 +510,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {% if total_completion_time and total_completion_time > 0 %}{% set h = total_completion_time // 60 %}{% set m = total_completion_time % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %} of learning content</li>
-                     <li>Estimated Production Time: ≈ {% if total_creation_hours and total_creation_hours > 0 %}{% set h = total_creation_hours // 60 %}{% set m = total_creation_hours % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %}</li>
+                     <li>Total: {% if total_completion_time and total_completion_time > 0 %}{% set h = total_completion_time // 60 %}{% set m = total_completion_time % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}-{% endif %} of learning content</li>
+                     <li>Estimated Production Time: ≈ {% if total_creation_hours and total_creation_hours > 0 %}{% set h = total_creation_hours // 60 %}{% set m = total_creation_hours % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}-{% endif %}</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>

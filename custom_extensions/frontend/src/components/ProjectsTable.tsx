@@ -759,10 +759,10 @@ const PreviewModal: React.FC<{
                                         const tierData = qualityTierSums[level.key as keyof typeof qualityTierSums];
                                         const completionTimeFormatted = tierData.completionTime > 0 
                                           ? formatTimeLikePDF(tierData.completionTime) 
-                                          : '0h';
+                                          : '-';
                                         const creationTimeFormatted = tierData.creationTime > 0 
                                           ? formatTimeLikePDF(tierData.creationTime) 
-                                          : '0h';
+                                          : '-';
                                         
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
@@ -828,7 +828,7 @@ const PreviewModal: React.FC<{
                                     // Calculate total learning hours exactly like PDF generation (using total_completion_time)
                                     const allProjects = data.projects || [];
                                     const totalLearningMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_completion_time || 0), 0);
-                                    return formatTimeLikePDF(totalLearningMinutes) + ' of learning content';
+                                    return totalLearningMinutes > 0 ? formatTimeLikePDF(totalLearningMinutes) + ' of learning content' : '- of learning content';
                                   })()}
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 
@@ -843,7 +843,7 @@ const PreviewModal: React.FC<{
                                     // Calculate total production hours exactly like PDF generation (convert minutes to hours)
                                     const allProjects = data.projects || [];
                                     const totalProductionMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
-                                    return formatTimeLikePDF(totalProductionMinutes);
+                                    return totalProductionMinutes > 0 ? formatTimeLikePDF(totalProductionMinutes) : '-';
                                   })()}
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 

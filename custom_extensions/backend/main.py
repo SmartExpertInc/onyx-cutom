@@ -16810,20 +16810,26 @@ async def download_projects_list_pdf(
             def get_effective_quality_tier(project, folder_quality_tier='interactive'):
                 # Check project-level quality tier first
                 if project.get('quality_tier'):
-                    return project['quality_tier'].lower()
+                    tier = project['quality_tier'].lower()
+                    # Validate tier is one of the supported ones
+                    if tier in ['basic', 'interactive', 'advanced', 'immersive']:
+                        return tier
                 # Fall back to folder quality tier
                 return folder_quality_tier.lower()
             
             # Process folder projects
             for folder in folders:
                 folder_quality_tier = folder.get('quality_tier', 'interactive').lower()
+                logger.info(f"[PDF_ANALYTICS] Processing folder {folder.get('id')} with quality_tier: {folder_quality_tier}")
                 
                 if folder['id'] in folder_projects:
                     for project in folder_projects[folder['id']]:
                         effective_tier = get_effective_quality_tier(project, folder_quality_tier)
+                        logger.info(f"[PDF_ANALYTICS] Project {project.get('id')} from folder {folder.get('id')}: project_tier={project.get('quality_tier')}, effective_tier={effective_tier}")
                         if effective_tier in quality_tier_data:
                             quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
-                            quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0  # Use total_creation_hours for production time
+                            quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0
+                            logger.info(f"[PDF_ANALYTICS] Added to {effective_tier}: completion_time={project.get('total_completion_time', 0)}, creation_time={project.get('total_creation_hours', 0)}")
                 
                 # Recursively process subfolders
                 if folder.get('children'):
@@ -16833,16 +16839,37 @@ async def download_projects_list_pdf(
                         quality_tier_data[tier]['creation_time'] += child_data[tier]['creation_time']
             
             # Process unassigned projects (use default tier)
+            logger.info(f"[PDF_ANALYTICS] Processing {len(unassigned_projects)} unassigned projects")
             for project in unassigned_projects:
                 effective_tier = get_effective_quality_tier(project, 'interactive')
+                logger.info(f"[PDF_ANALYTICS] Unassigned project {project.get('id')}: project_tier={project.get('quality_tier')}, effective_tier={effective_tier}")
                 if effective_tier in quality_tier_data:
                     quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
-                    quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0  # Use total_creation_hours for production time
+                    quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0
+                    logger.info(f"[PDF_ANALYTICS] Added unassigned to {effective_tier}: completion_time={project.get('total_completion_time', 0)}, creation_time={project.get('total_creation_hours', 0)}")
             
+            logger.info(f"[PDF_ANALYTICS] Final quality tier data: {quality_tier_data}")
             return quality_tier_data
         
         # Calculate quality tier sums for Block 2
         quality_tier_sums = calculate_quality_tier_sums(folder_tree, folder_projects, unassigned_projects)
+        
+        # Debug logging for quality tier sums
+        logger.info(f"[PDF_ANALYTICS] Quality tier sums calculation:")
+        logger.info(f"[PDF_ANALYTICS] - Folder tree count: {len(folder_tree)}")
+        logger.info(f"[PDF_ANALYTICS] - Folder projects count: {sum(len(projects) for projects in folder_projects.values())}")
+        logger.info(f"[PDF_ANALYTICS] - Unassigned projects count: {len(unassigned_projects)}")
+        logger.info(f"[PDF_ANALYTICS] - Quality tier sums: {quality_tier_sums}")
+        
+        # Additional debug: check each project's quality tier
+        all_projects = []
+        for projects in folder_projects.values():
+            all_projects.extend(projects)
+        all_projects.extend(unassigned_projects)
+        
+        logger.info(f"[PDF_ANALYTICS] Total projects processed: {len(all_projects)}")
+        for project in all_projects:
+            logger.info(f"[PDF_ANALYTICS] Project {project.get('id')}: quality_tier={project.get('quality_tier')}, completion_time={project.get('total_completion_time')}, creation_hours={project.get('total_creation_hours')}")
         
         # Add debug logging
         logger.info(f"[PDF_ANALYTICS] Total calculation:")
