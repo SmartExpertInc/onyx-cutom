@@ -63,182 +63,186 @@ export default function AvatarPopup({
 
   const content = (
     <div className="flex h-full">
-      {/* Left sidebar */}
-      <div className="w-64 bg-white px-6 py-4 flex flex-col">
-        {/* Three buttons at the top */}
-        <div className="mb-4">
+      {!previewMode && (
+        <>
+          {/* Left sidebar */}
+          <div className="w-64 bg-white px-6 py-4 flex flex-col">
+                    {/* Three buttons at the top */}
+        <div className="mb-4 flex justify-center">
           <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1" style={{ width: 'fit-content', height: '40px' }}>
-            <button 
-              onClick={() => setActiveButton('button1')}
-              className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
-                activeButton === 'button1' 
-                  ? 'bg-gray-200 text-black' 
-                  : 'bg-white text-gray-600'
-              }`}
-            >
-              All
-            </button>
-            <button 
-              onClick={() => setActiveButton('button2')}
-              className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
-                activeButton === 'button2' 
-                  ? 'bg-gray-200 text-black' 
-                  : 'bg-white text-gray-600'
-              }`}
-            >
-              Custom
-            </button>
-            <button 
-              onClick={() => setActiveButton('button3')}
-              className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
-                activeButton === 'button3' 
-                  ? 'bg-gray-200 text-black' 
-                  : 'bg-white text-gray-600'
-              }`}
-            >
-              Stock
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto pb-4">
-          {/* Sex */}
-          <div className="mb-4">
-            <h4 className="text-xs font-medium text-gray-500 mb-2">Sex</h4>
-            <div className="space-y-2">
-              <label className="flex items-center cursor-pointer pl-2">
-                <input
-                  type="checkbox"
-                  checked={selectedItems['male'] || false}
-                  onChange={() => handleCheckboxChange('male')}
-                  className="mr-2 border-gray-400 text-black focus:ring-0"
-                />
-                <span className="text-sm text-black">Male</span>
-              </label>
-              <label className="flex items-center cursor-pointer pl-2">
-                <input
-                  type="checkbox"
-                  checked={selectedItems['female'] || false}
-                  onChange={() => handleCheckboxChange('female')}
-                  className="mr-2 border-gray-400 text-black focus:ring-0"
-                />
-                <span className="text-sm text-black">Female</span>
-              </label>
+                <button 
+                  onClick={() => setActiveButton('button1')}
+                  className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
+                    activeButton === 'button1' 
+                      ? 'bg-gray-200 text-black' 
+                      : 'bg-white text-gray-600'
+                  }`}
+                >
+                  All
+                </button>
+                <button 
+                  onClick={() => setActiveButton('button2')}
+                  className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
+                    activeButton === 'button2' 
+                      ? 'bg-gray-200 text-black' 
+                      : 'bg-white text-gray-600'
+                  }`}
+                >
+                  Custom
+                </button>
+                <button 
+                  onClick={() => setActiveButton('button3')}
+                  className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
+                    activeButton === 'button3' 
+                      ? 'bg-gray-200 text-black' 
+                      : 'bg-white text-gray-600'
+                  }`}
+                >
+                  Stock
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Feature */}
-          <div className="mb-4">
-            <h4 className="text-xs font-medium text-gray-500 mb-2">Feature</h4>
-            <div className="space-y-2">
-              {['NEO avatar', 'Hand gesture', 'Emotions', 'Side view', 'Logo addition'].map((feature) => (
-                <label key={feature} className="flex items-center cursor-pointer pl-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems[feature.toLowerCase().replace(/\s+/g, '_')] || false}
-                    onChange={() => handleCheckboxChange(feature.toLowerCase().replace(/\s+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-0"
-                  />
-                  <span className="text-sm text-black">{feature}</span>
-                </label>
-              ))}
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto pb-4">
+              {/* Sex */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Sex</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center cursor-pointer pl-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems['male'] || false}
+                      onChange={() => handleCheckboxChange('male')}
+                      className="mr-2 border-gray-400 text-black focus:ring-0"
+                    />
+                    <span className="text-sm text-black">Male</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer pl-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems['female'] || false}
+                      onChange={() => handleCheckboxChange('female')}
+                      className="mr-2 border-gray-400 text-black focus:ring-0"
+                    />
+                    <span className="text-sm text-black">Female</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Feature */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Feature</h4>
+                <div className="space-y-2">
+                  {['NEO avatar', 'Hand gesture', 'Emotions', 'Side view', 'Logo addition'].map((feature) => (
+                    <label key={feature} className="flex items-center cursor-pointer pl-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems[feature.toLowerCase().replace(/\s+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(feature.toLowerCase().replace(/\s+/g, '_'))}
+                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                      />
+                      <span className="text-sm text-black">{feature}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Age */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Age</h4>
+                <div className="space-y-2">
+                  {['Young', 'Middle-aged', 'Senior'].map((age) => (
+                    <label key={age} className="flex items-center cursor-pointer pl-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems[age.toLowerCase().replace(/\s+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(age.toLowerCase().replace(/\s+/g, '_'))}
+                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                      />
+                      <span className="text-sm text-black">{age}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ethnicity */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
+                <div className="space-y-2">
+                  {['Caucasian', 'Black / African American', 'East Asian', 'Hispanic / Latino', 'South Asian'].map((ethnicity) => (
+                    <label key={ethnicity} className="flex items-center cursor-pointer pl-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems[ethnicity.toLowerCase().replace(/[\/\s]+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(ethnicity.toLowerCase().replace(/[\/\s]+/g, '_'))}
+                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                      />
+                      <span className="text-sm text-black">{ethnicity}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Scenario */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Scenario</h4>
+                <div className="space-y-2">
+                  {['Office', 'Healthcare', 'Factory', 'Education', 'Construction', 'Heavy machinery', 'Retail & hospitality', 'Government', 'Customer support', 'Storage facility', 'Other'].map((scenario) => (
+                    <label key={scenario} className="flex items-center cursor-pointer pl-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems[scenario.toLowerCase().replace(/[&\s]+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(scenario.toLowerCase().replace(/[&\s]+/g, '_'))}
+                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                      />
+                      <span className="text-sm text-black">{scenario}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Avatar type */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Avatar type</h4>
+                <div className="space-y-2">
+                  {['Studio avatar', 'Instant avatar', 'Scenario avatar'].map((avatarType) => (
+                    <label key={avatarType} className="flex items-center cursor-pointer pl-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems[avatarType.toLowerCase().replace(/\s+/g, '_')] || false}
+                        onChange={() => handleCheckboxChange(avatarType.toLowerCase().replace(/\s+/g, '_'))}
+                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                      />
+                      <span className="text-sm text-black">{avatarType}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
+
+            {/* Footer - appears when items are checked */}
+            {Object.values(selectedItems).some(Boolean) && (
+              <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6 flex justify-center">
+                <button 
+                  onClick={() => setSelectedItems({})}
+                  className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                  style={{ width: 'fit-content' }}
+                >
+                  <span className="text-base">×</span>
+                  <span>Reset filter ({Object.values(selectedItems).filter(Boolean).length})</span>
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Age */}
-          <div className="mb-4">
-            <h4 className="text-xs font-medium text-gray-500 mb-2">Age</h4>
-            <div className="space-y-2">
-              {['Young', 'Middle-aged', 'Senior'].map((age) => (
-                <label key={age} className="flex items-center cursor-pointer pl-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems[age.toLowerCase().replace(/\s+/g, '_')] || false}
-                    onChange={() => handleCheckboxChange(age.toLowerCase().replace(/\s+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-0"
-                  />
-                  <span className="text-sm text-black">{age}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Ethnicity */}
-          <div className="mb-4">
-            <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
-            <div className="space-y-2">
-              {['Caucasian', 'Black / African American', 'East Asian', 'Hispanic / Latino', 'South Asian'].map((ethnicity) => (
-                <label key={ethnicity} className="flex items-center cursor-pointer pl-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems[ethnicity.toLowerCase().replace(/[\/\s]+/g, '_')] || false}
-                    onChange={() => handleCheckboxChange(ethnicity.toLowerCase().replace(/[\/\s]+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-0"
-                  />
-                  <span className="text-sm text-black">{ethnicity}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Scenario */}
-          <div className="mb-4">
-            <h4 className="text-xs font-medium text-gray-500 mb-2">Scenario</h4>
-            <div className="space-y-2">
-              {['Office', 'Healthcare', 'Factory', 'Education', 'Construction', 'Heavy machinery', 'Retail & hospitality', 'Government', 'Customer support', 'Storage facility', 'Other'].map((scenario) => (
-                <label key={scenario} className="flex items-center cursor-pointer pl-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems[scenario.toLowerCase().replace(/[&\s]+/g, '_')] || false}
-                    onChange={() => handleCheckboxChange(scenario.toLowerCase().replace(/[&\s]+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-0"
-                  />
-                  <span className="text-sm text-black">{scenario}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Avatar type */}
-          <div className="mb-4">
-            <h4 className="text-xs font-medium text-gray-500 mb-2">Avatar type</h4>
-            <div className="space-y-2">
-              {['Studio avatar', 'Instant avatar', 'Scenario avatar'].map((avatarType) => (
-                <label key={avatarType} className="flex items-center cursor-pointer pl-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems[avatarType.toLowerCase().replace(/\s+/g, '_')] || false}
-                    onChange={() => handleCheckboxChange(avatarType.toLowerCase().replace(/\s+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-0"
-                  />
-                  <span className="text-sm text-black">{avatarType}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer - appears when items are checked */}
-        {Object.values(selectedItems).some(Boolean) && (
-          <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6 flex justify-center">
-            <button 
-              onClick={() => setSelectedItems({})}
-              className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
-              style={{ width: 'fit-content' }}
-            >
-              <span className="text-base">×</span>
-              <span>Reset filter ({Object.values(selectedItems).filter(Boolean).length})</span>
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Vertical divider */}
-      <div className="w-px bg-gray-200"></div>
+          {/* Vertical divider */}
+          <div className="w-px bg-gray-200"></div>
+        </>
+      )}
 
       {/* Right main area */}
-      <div className="flex-1 flex flex-col p-4">
+      <div className={`flex flex-col p-4 ${previewMode ? 'w-full' : 'flex-1'}`}>
         {previewMode ? (
           // Preview mode content
           <>
@@ -246,9 +250,9 @@ export default function AvatarPopup({
             <div className="flex items-center gap-3 mb-6 flex-shrink-0">
               <button 
                 onClick={handleBackClick}
-                className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
@@ -258,18 +262,21 @@ export default function AvatarPopup({
             {/* Main preview area */}
             <div className="flex-1 flex flex-col items-center justify-center">
               {/* Big rectangle with play button */}
-              <div className="relative w-80 h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center">
-                <button className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow">
-                  <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <div className="relative w-full h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center">
+                <button className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                  <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </button>
               </div>
             </div>
 
+            {/* Grey horizontal line */}
+            <div className="w-full h-px bg-gray-200 mb-4"></div>
+
             {/* Footer with Add to Scene button */}
             <div className="flex justify-center flex-shrink-0">
-              <button className="px-6 py-3 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors">
+              <button className="px-6 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors">
                 + Add to scene
               </button>
             </div>
@@ -347,8 +354,8 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
-          style={{ borderRadius: '12px' }}
+          className={`relative bg-white shadow-xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
+          style={{ borderRadius: '12px', maxWidth: previewMode ? '500px' : '800px' }}
         >
           {/* Main content area with sidebar */}
           {content}
@@ -367,7 +374,7 @@ export default function AvatarPopup({
           borderRadius: '12px',
           left: position?.x || 0,
           top: position?.y || 0,
-          width: '800px',
+          width: previewMode ? '500px' : '800px',
           height: '420px'
         }}
       >
