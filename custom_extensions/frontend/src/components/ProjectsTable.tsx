@@ -4103,9 +4103,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         }
         
         setShowPreviewModal(true);
-        }
-        
-        setShowPreviewModal(true);
     };
 
     // Add these just before the render block
