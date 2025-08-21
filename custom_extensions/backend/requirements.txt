@@ -13,3 +13,39 @@ python-multipart
 tiktoken
 openai
 
+
+aiohttp
+ffmpeg-python
+
+playwright
+
+Pillow
+opencv-python
+
+# Audio processing (optional, for advanced features)
+# Note: pydub>=0.25.0 - May have compatibility issues with Python 3.13
+# If needed, consider using alternative audio processing libraries
+
+# Async utilities
+asyncio-mqtt
+
+# File handling
+pathlib2
+
+# Logging and monitoring
+structlog
+
+# Development dependencies (optional)
+pytest
+pytest-asyncio
+black
+flake8
+
+# Production dependencies
+gunicorn
+
+# Installation Notes:
+# - All core dependencies have been successfully installed
+# - Playwright browsers have been installed via: python -m playwright install
+# - pydub may require additional setup for Python 3.13 compatibility
+# - FFmpeg should be available system-wide for video processing
