@@ -729,10 +729,18 @@ const PreviewModal: React.FC<{
                                         return 'interactive';
                                       };
                                       
-                                      // Process all projects to calculate quality tier sums (like PDF template)
+                                      // Process all projects to calculate quality tier sums (exactly like PDF backend)
                                       const allProjects = data.projects || [];
                                       allProjects.forEach((project: Project | BackendProject) => {
-                                        const effectiveTier = getEffectiveQualityTier(project, 'interactive');
+                                        // Use the same logic as backend: check project quality_tier first, fallback to 'interactive'
+                                        let effectiveTier = 'interactive';
+                                        if (project.quality_tier) {
+                                          const tier = project.quality_tier.toLowerCase();
+                                          if (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') {
+                                            effectiveTier = tier;
+                                          }
+                                        }
+                                        
                                         // Learning Duration uses total_completion_time (like PDF template)
                                         qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
                                         // Production Time uses total_creation_hours (like PDF template)
