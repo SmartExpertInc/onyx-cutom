@@ -409,7 +409,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
 
                       {/* Add New Language Variant Row */}
                       <div 
-                        className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
+                        className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer bg-blue-100"
                         onClick={(e) => {
                           console.log('🔧 Add new variant button clicked, popup open:', isLanguagePopupOpen);
                           e.preventDefault();
