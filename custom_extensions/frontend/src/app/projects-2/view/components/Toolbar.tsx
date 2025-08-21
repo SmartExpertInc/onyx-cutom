@@ -217,8 +217,10 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   };
 
   const handleAddNewLanguageVariant = () => {
+    console.log('handleAddNewLanguageVariant called');
     setIsLanguagePopupOpen(false);
     setIsLanguageVariantModalOpen(true);
+    console.log('Modal state set to true');
   };
 
   // Close popup when clicking outside
@@ -237,6 +239,11 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isLanguagePopupOpen]);
+
+  // Debug modal state
+  useEffect(() => {
+    console.log('Modal state changed:', isLanguageVariantModalOpen);
+  }, [isLanguageVariantModalOpen]);
 
   return (
     <div className="w-full bg-white px-2 py-3" style={{ height: '72px' }}>
