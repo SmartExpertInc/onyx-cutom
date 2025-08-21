@@ -449,6 +449,12 @@ const PreviewModal: React.FC<{
     clientName: string | null;
     managerName: string | null;
     projects: (Project | BackendProject)[];
+    quality_tier_sums?: {
+      basic: { completion_time: number; creation_time: number };
+      interactive: { completion_time: number; creation_time: number };
+      advanced: { completion_time: number; creation_time: number };
+      immersive: { completion_time: number; creation_time: number };
+    };
   } | null;
 }> = ({ isOpen, onClose, data }) => {
   const { t } = useLanguage();
