@@ -588,7 +588,9 @@ const PreviewModal: React.FC<{
                                       
                                       // Calculate summary stats exactly like PDF generation (using unified backend data)
                                       const allProjects = data.projects || [];
-                                      const totalLearningHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_hours || 0), 0);
+                                      // Use total_completion_time for learning hours (like PDF template)
+                                      const totalLearningHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_completion_time || 0), 0);
+                                      // Use total_creation_hours for production hours (like PDF template)
                                       const totalProductionHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
 
                                       return (
@@ -727,12 +729,14 @@ const PreviewModal: React.FC<{
                                         return 'interactive';
                                       };
                                       
-                                      // Process all projects to calculate quality tier sums
+                                      // Process all projects to calculate quality tier sums (like PDF template)
                                       const allProjects = data.projects || [];
                                       allProjects.forEach((project: Project | BackendProject) => {
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
-                                        qualityTierSums[effectiveTier].completionTime += project.total_hours || 0;  // Learning Duration (H)
-                                        qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;  // Production Time (H)
+                                        // Learning Duration uses total_completion_time (like PDF template)
+                                        qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
+                                        // Production Time uses total_creation_hours (like PDF template)
+                                        qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;
                                       });
                                       
                                       // Define quality level names (matching PDF template exactly)

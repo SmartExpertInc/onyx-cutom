@@ -98,8 +98,8 @@ export function processBlock1CourseOverview(projects: any[]): any {
       name: folder.name,
       modules: folder.total_modules,
       lessons: folder.total_lessons,
-      learningDuration: folder.total_hours,
-      productionTime: folder.total_creation_hours, // Use actual creation hours
+      learningDuration: folder.total_hours, // Learning Duration uses total_hours (like PDF template)
+      productionTime: folder.total_creation_hours, // Production Time uses total_creation_hours (like PDF template)
       isFolder: true
     });
     
@@ -113,8 +113,8 @@ export function processBlock1CourseOverview(projects: any[]): any {
         name: `  ${project.title || project.project_name || 'Untitled'}`, // Use title from frontend API
         modules: project.total_modules || 1,
         lessons: project.total_lessons || 0,
-        learningDuration: project.total_hours || 0,
-        productionTime: project.total_creation_hours || 0, // Use actual creation hours
+        learningDuration: project.total_completion_time || 0, // Learning Duration uses total_completion_time (like PDF template)
+        productionTime: project.total_hours || 0, // Production Time uses total_hours (like PDF template)
         isProject: true
       });
       
@@ -130,8 +130,8 @@ export function processBlock1CourseOverview(projects: any[]): any {
       name: project.title || project.project_name || 'Untitled', // Use title from frontend API
       modules: project.total_modules || 1,
       lessons: project.total_lessons || 0,
-      learningDuration: project.total_hours || 0,
-      productionTime: project.total_creation_hours || 0, // Use actual creation hours
+      learningDuration: project.total_completion_time || 0, // Learning Duration uses total_completion_time (like PDF template)
+      productionTime: project.total_hours || 0, // Production Time uses total_hours (like PDF template)
       isUnassigned: true
     });
     
