@@ -8846,8 +8846,12 @@ async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) ->
         
         # Use the Search persona to perform the Knowledge Base search
         logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Sending search request to Search persona")
-        search_result = await stream_chat_message(temp_chat_id, search_prompt, cookies)
+        search_result = await stream_chat_message(temp_chat_id, search_prompt, cookies, enable_search=True)
         logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Received search result ({len(search_result)} chars)")
+        if len(search_result) > 0:
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] First 500 chars of search result: {search_result[:500]}")
+        else:
+            logger.warning(f"[KNOWLEDGE_BASE_CONTEXT] Search result is empty! This might indicate no documents in Knowledge Base or search failed")
         
         # Parse the search result
         summary = ""
@@ -12047,13 +12051,14 @@ async def create_onyx_chat_session(persona_id: int, cookies: Dict[str, str]) -> 
         data = resp.json()
         return data.get("chat_session_id") or data.get("chatSessionId")
 
-async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str]) -> str:
+async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str], enable_search: bool = False) -> str:
     """Send message via Onyx non-streaming simple API and return the full answer."""
-    logger.debug(f"[stream_chat_message] chat_id={chat_session_id} len(message)={len(message)}")
+    logger.debug(f"[stream_chat_message] chat_id={chat_session_id} len(message)={len(message)} enable_search={enable_search}")
 
     async with httpx.AsyncClient(timeout=300.0) as client:
-        minimal_retrieval = {
-            "run_search": "never",
+        # Enable search when needed for Knowledge Base searches
+        retrieval_options = {
+            "run_search": "always" if enable_search else "never",
             "real_time": False,
         }
         payload = {
@@ -12065,7 +12070,7 @@ async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[
             "user_folder_ids": [],
             "prompt_id": None,
             "search_doc_ids": None,
-            "retrieval_options": minimal_retrieval,
+            "retrieval_options": retrieval_options,
             "stream_response": False,
         }
         # Prefer the non-streaming simplified endpoint if available (much faster and avoids nginx timeouts)
