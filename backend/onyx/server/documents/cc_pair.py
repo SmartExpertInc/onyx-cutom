@@ -12,6 +12,9 @@ from sqlalchemy.orm import Session
 
 from onyx.auth.users import current_curator_or_admin_user
 from onyx.auth.users import current_user
+
+# Admin check disabled for Smart Drive functionality - all authenticated users can manage their own cc-pairs
+# Note: All cc-pair endpoints should use current_user instead of current_curator_or_admin_user
 from onyx.background.celery.tasks.pruning.tasks import (
     try_creating_prune_generator_task,
 )
@@ -249,7 +252,7 @@ def update_cc_pair_status(
 def update_cc_pair_name(
     cc_pair_id: int,
     new_name: str,
-    user: User | None = Depends(current_curator_or_admin_user),
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> StatusResponse[int]:
     cc_pair = get_connector_credential_pair_from_id_for_user(

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import Image from 'next/image';
 import { ChevronDown, Upload, Settings } from 'lucide-react';
@@ -17,7 +17,7 @@ interface ConnectorConfig {
 }
 
 interface UserConnector {
-  id: number;
+  id: number; // This is the cc_pair_id (not connector_id) for management API calls
   name: string;
   source: string;
   status: 'active' | 'paused' | 'error' | 'syncing';
@@ -338,7 +338,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
 
   // Load user's existing connectors
-  const loadUserConnectors = async () => {
+  const loadUserConnectors = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -357,7 +357,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         );
         
         const userConnectors = smartDriveConnectors.map((connectorStatus: any) => ({
-          id: connectorStatus.connector.id,
+          id: connectorStatus.cc_pair_id, // IMPORTANT: Use cc_pair_id (not connector.id) for management API
           name: connectorStatus.name,
           source: connectorStatus.connector.source,
           status: connectorStatus.last_status || 'unknown',
@@ -376,11 +376,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // useCallback dependency array
 
   useEffect(() => {
     loadUserConnectors();
-  }, []);
+  }, [loadUserConnectors]);
 
   const handleBrowseClick = () => {
     setShowFrame(true);
