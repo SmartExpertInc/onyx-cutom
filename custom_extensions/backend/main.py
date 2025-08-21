@@ -8893,36 +8893,63 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
                         logger.debug(f"[enhanced_stream_chat_message] Line {line_count}: Empty line")
                     continue
                     
-                if not line.startswith("data: "):
-                    if line_count <= 5:  # Log first few non-data lines
-                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count}: Non-data line: {line[:100]}")
+                # Onyx doesn't use "data: " prefix - each line is a direct JSON object  
+                # Skip empty lines but process all non-empty lines as JSON
+                payload_text = line.strip()
+                if not payload_text:
+                    if line_count <= 5:  # Log first few empty lines
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count}: Empty line")
                     continue
-                    
-                payload_text = line.removeprefix("data: ").strip()
-                if payload_text == "[DONE]":
-                    logger.info(f"[enhanced_stream_chat_message] Received [DONE] signal after {line_count} lines")
-                    done_received = True
-                    break
                     
                 try:
                     packet = json.loads(payload_text)
                 except Exception as e:
-                    logger.debug(f"[enhanced_stream_chat_message] Failed to parse JSON line {line_count}: {str(e)}")
+                    logger.debug(f"[enhanced_stream_chat_message] Failed to parse JSON line {line_count}: {str(e)} | Line: {payload_text[:100]}")
                     continue
+                
+                # For the first 10 packets, log full content to understand structure
+                if line_count <= 10:
+                    packet_str = str(packet)[:500] if packet else "empty"
+                    logger.info(f"[enhanced_stream_chat_message] Packet {line_count} content: {packet_str}")
                 
                 # Log packet structure for debugging (every 50 lines to avoid spam)
                 if line_count % 50 == 0:
                     packet_keys = list(packet.keys()) if isinstance(packet, dict) else "not-dict"
                     logger.info(f"[enhanced_stream_chat_message] Line {line_count} packet keys: {packet_keys}")
                 
-                # For the first 10 packets, log full content to understand structure
-                if line_count <= 10:
-                    packet_str = str(packet)[:500] if packet else "empty"
-                    logger.info(f"[enhanced_stream_chat_message] Packet {line_count} content: {packet_str}")
-                    
-                if packet.get("answer_piece"):
+                # Handle different Onyx packet types
+                answer_content = None
+                
+                # Check for OnyxAnswerPiece
+                if "answer_piece" in packet:
                     answer_piece = packet["answer_piece"]
-                    full_answer += answer_piece
+                    if answer_piece is None:
+                        # OnyxAnswerPiece with None signals end of answer
+                        logger.info(f"[enhanced_stream_chat_message] Received answer termination signal (answer_piece=None) after {line_count} lines")
+                        done_received = True
+                        break
+                    elif answer_piece:
+                        answer_content = answer_piece
+                        
+                # Check for AgentAnswerPiece (agent search responses)
+                elif packet.get("answer_type") and packet.get("answer_piece"):
+                    answer_content = packet["answer_piece"]
+                    logger.info(f"[enhanced_stream_chat_message] Received agent answer piece: {packet.get('answer_type')}")
+                    
+                # Check for QADocsResponse (search results)
+                elif packet.get("top_documents") or packet.get("rephrased_query"):
+                    logger.info(f"[enhanced_stream_chat_message] Received search results packet")
+                    last_activity_time = current_time  # Reset timer for search activity
+                    
+                # Check for StreamStopInfo
+                elif packet.get("stop_reason"):
+                    if packet["stop_reason"] == "finished":
+                        logger.info(f"[enhanced_stream_chat_message] Received stream stop signal: finished")
+                        done_received = True
+                        break
+                    
+                if answer_content:
+                    full_answer += answer_content
                     last_activity_time = current_time  # Reset activity timer on content
                     
                     # Log progress every 200 chars to track streaming
@@ -8930,20 +8957,10 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
                         logger.info(f"[enhanced_stream_chat_message] Accumulated {len(full_answer)} chars so far...")
                         last_log_length = len(full_answer)
                 else:
-                    # Log what we're getting instead of answer_piece
+                    # Log what we're getting for non-answer packets
                     if line_count <= 10 or line_count % 100 == 0:  # Log first 10 and every 100th
                         packet_preview = str(packet)[:200] if packet else "empty"
-                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count} - no answer_piece: {packet_preview}")
-                    
-                    # Check for other potential answer fields
-                    potential_answer = (packet.get("answer") or 
-                                      packet.get("message") or 
-                                      packet.get("content") or
-                                      packet.get("response"))
-                    if potential_answer:
-                        logger.info(f"[enhanced_stream_chat_message] Found potential answer in different field: {type(potential_answer)}")
-                        full_answer += str(potential_answer)
-                        last_activity_time = current_time  # Reset activity timer on content
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count} - non-answer packet: {packet_preview}")
             
             # Stream ended - determine why
             logger.info(f"[enhanced_stream_chat_message] Stream reading loop ended naturally")
