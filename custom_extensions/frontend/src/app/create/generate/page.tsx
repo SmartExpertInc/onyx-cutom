@@ -642,8 +642,8 @@ function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone lesson, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone lesson, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -656,7 +656,7 @@ function GenerateProductPicker() {
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create lesson content from the provided files");
       params.set("fromFiles", "true");
@@ -669,6 +669,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create lesson content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -683,8 +686,8 @@ function GenerateProductPicker() {
     if (useExistingQuizOutline === true) {
       if (!selectedQuizOutlineId || !selectedQuizLesson) return;
     } else {
-      // If standalone quiz, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone quiz, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -705,7 +708,7 @@ function GenerateProductPicker() {
     params.set("questionCount", String(quizQuestionCount));
     params.set("lang", quizLanguage);
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create quiz content from the provided files");
       params.set("fromFiles", "true");
@@ -718,6 +721,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create quiz content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -854,8 +860,8 @@ function GenerateProductPicker() {
     if (useExistingTextOutline === true) {
       if (!selectedTextOutlineId || !selectedTextLesson) return;
     } else {
-      // If standalone text presentation, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone text presentation, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -876,7 +882,7 @@ function GenerateProductPicker() {
     params.set("length", textLength);
     params.set("styles", textStyles.join(','));
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create text presentation content from the provided files");
       params.set("fromFiles", "true");
@@ -889,6 +895,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create text presentation content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -897,8 +906,8 @@ function GenerateProductPicker() {
   };
 
   const handleVideoLessonStart = () => {
-    // Check if prompt entered or coming from files/text
-    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    // Check if prompt entered or coming from files/text/knowledge base
+    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
 
     const params = new URLSearchParams();
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
@@ -906,7 +915,7 @@ function GenerateProductPicker() {
     params.set("slidesCount", String(slidesCount));
     params.set("lang", language);
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create video lesson content from the provided files");
       params.set("fromFiles", "true");
@@ -919,6 +928,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create video lesson content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
