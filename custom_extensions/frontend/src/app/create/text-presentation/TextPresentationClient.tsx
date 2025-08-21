@@ -69,6 +69,9 @@ export default function TextPresentationClient() {
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
   const [userText, setUserText] = useState('');
   
+  // Knowledge base context for creation from knowledge base
+  const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
+  
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
   useEffect(() => {
@@ -315,6 +318,11 @@ export default function TextPresentationClient() {
             requestBody.userText = userText;
           }
 
+          // Add knowledge base context if creating from knowledge base
+          if (isFromKnowledgeBase) {
+            requestBody.fromKnowledgeBase = true;
+          }
+
           const res = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -431,7 +439,7 @@ export default function TextPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, length, selectedStyles, isFromFiles, isFromText, isFromKnowledgeBase, textMode, folderIds.join(','), fileIds.join(','), userText]);
 
   // // Auto-scroll textarea as new content streams in
   // useEffect(() => {

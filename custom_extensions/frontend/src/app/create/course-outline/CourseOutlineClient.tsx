@@ -208,6 +208,9 @@ export default function CourseOutlineClient() {
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
+  
+  // Knowledge base context for creation from knowledge base
+  const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
   const [userText, setUserText] = useState('');
   
   // Retrieve user text from sessionStorage
@@ -443,6 +446,7 @@ export default function CourseOutlineClient() {
           modules: parsedData.modules,
           lessonsPerModule: parsedData.lessonsPerModule,
           language: parsedData.language,
+          isFromKnowledgeBase: false, // Session storage doesn't include this context
         };
       } catch (e) {
         console.error("Failed to parse advanced mode data", e);
@@ -496,7 +500,8 @@ export default function CourseOutlineClient() {
       lastPreviewParamsRef.current.language === language &&
       lastPreviewParamsRef.current.userText === userText &&
       lastPreviewParamsRef.current.textMode === textMode &&
-      lastPreviewParamsRef.current.isFromText === isFromText;
+      lastPreviewParamsRef.current.isFromText === isFromText &&
+      lastPreviewParamsRef.current.isFromKnowledgeBase === isFromKnowledgeBase;
 
     if (same) return;
 
@@ -550,6 +555,11 @@ export default function CourseOutlineClient() {
             requestBody.userText = userText;
           }
 
+          // Add knowledge base context if creating from knowledge base
+          if (isFromKnowledgeBase) {
+            requestBody.fromKnowledgeBase = true;
+          }
+
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -592,7 +602,8 @@ export default function CourseOutlineClient() {
                   language,
                   userText,
                   textMode: textMode || undefined,
-                  isFromText
+                  isFromText,
+                  isFromKnowledgeBase
                 };
               }
             }
@@ -620,7 +631,8 @@ export default function CourseOutlineClient() {
                   language,
                   userText,
                   textMode: textMode || undefined,
-                  isFromText
+                  isFromText,
+                  isFromKnowledgeBase
                 };
               }
             } catch {/* ignore */}
@@ -653,7 +665,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, isFromKnowledgeBase, hasUserEdits, isAdvancedEditInProgress]);
 
   const handleModuleChange = (index: number, value: string) => {
     setHasUserEdits(true);
@@ -737,6 +749,11 @@ export default function CourseOutlineClient() {
         finalizeBody.fromText = true;
         finalizeBody.textMode = textMode;
         finalizeBody.userText = userText;
+      }
+
+      // Add knowledge base context if creating from knowledge base
+      if (isFromKnowledgeBase) {
+        finalizeBody.fromKnowledgeBase = true;
       }
 
       // Add folder context if coming from inside a folder
@@ -993,6 +1010,7 @@ export default function CourseOutlineClient() {
     userText?: string;
     textMode?: string;
     isFromText?: boolean;
+    isFromKnowledgeBase?: boolean;
   } | null>(null);
 
 
@@ -1037,6 +1055,7 @@ export default function CourseOutlineClient() {
       modules,
       lessonsPerModule,
       language,
+      isFromKnowledgeBase,
     };
 
     try {
@@ -1100,7 +1119,8 @@ export default function CourseOutlineClient() {
               language,
               userText,
               textMode: textMode || undefined,
-              isFromText
+              isFromText,
+              isFromKnowledgeBase
             };
             
             // Don't update the prompt state to avoid triggering useEffect

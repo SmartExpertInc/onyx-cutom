@@ -51,6 +51,7 @@ export default function QuizClient() {
   const language = searchParams?.get("lang") || "en";
   const fromFiles = searchParams?.get("fromFiles") === "true";
   const fromText = searchParams?.get("fromText") === "true";
+  const fromKnowledgeBase = searchParams?.get("fromKnowledgeBase") === "true";
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
@@ -246,7 +247,7 @@ export default function QuizClient() {
     }
 
     // Don't start generation if there's no valid input
-    const hasValidInput = (selectedOutlineId && selectedLesson) || promptQuery || fromFiles || fromText;
+    const hasValidInput = (selectedOutlineId && selectedLesson) || promptQuery || fromFiles || fromText || fromKnowledgeBase;
     if (!hasValidInput) {
       return;
     }
@@ -281,6 +282,7 @@ export default function QuizClient() {
             fromText: fromText,
             textMode: textMode,
             userText: fromText ? sessionStorage.getItem('userText') : undefined,
+            fromKnowledgeBase: fromKnowledgeBase,
             questionCount: selectedQuestionCount,
           };
 
@@ -408,7 +410,7 @@ export default function QuizClient() {
         previewAbortRef.current.abort();
       }
     };
-  }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
+  }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, fromKnowledgeBase, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {
@@ -469,6 +471,7 @@ export default function QuizClient() {
           language: selectedLanguage,
           fromFiles: fromFiles,
           fromText: fromText,
+          fromKnowledgeBase: fromKnowledgeBase,
           folderIds: memoizedFolderIds.join(','),
           fileIds: memoizedFileIds.join(','),
           textMode: textMode,
@@ -521,6 +524,7 @@ export default function QuizClient() {
           language: selectedLanguage,
           fromFiles: fromFiles,
           fromText: fromText,
+          fromKnowledgeBase: fromKnowledgeBase,
           folderIds: memoizedFolderIds.join(','),
           fileIds: memoizedFileIds.join(','),
           textMode: textMode,

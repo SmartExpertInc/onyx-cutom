@@ -170,6 +170,9 @@ export default function LessonPresentationClient() {
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
+  
+  // Knowledge base context for creation from knowledge base
+  const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
   const [userText, setUserText] = useState('');
   
   // Check for folder context from sessionStorage (when coming from inside a folder)
@@ -447,6 +450,11 @@ export default function LessonPresentationClient() {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
             requestBody.userText = userText;
+          }
+
+          // Add knowledge base context if creating from knowledge base
+          if (isFromKnowledgeBase) {
+            requestBody.fromKnowledgeBase = true;
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
@@ -844,6 +852,11 @@ export default function LessonPresentationClient() {
         editRequestBody.fromText = true;
         editRequestBody.textMode = textMode;
         editRequestBody.userText = userText;
+      }
+
+      // Add knowledge base context if creating from knowledge base
+      if (isFromKnowledgeBase) {
+        editRequestBody.fromKnowledgeBase = true;
       }
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
