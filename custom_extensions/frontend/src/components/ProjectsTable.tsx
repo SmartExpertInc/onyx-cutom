@@ -598,10 +598,6 @@ const PreviewModal: React.FC<{
                                       
                                       // Calculate summary stats exactly like PDF generation (using unified backend data)
                                       const allProjects = data.projects || [];
-                                      // Use total_completion_time for learning hours (like PDF template)
-                                      const totalLearningHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_completion_time || 0), 0);
-                                      // Use total_creation_hours for production hours (like PDF template)
-                                      const totalProductionHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
 
                                       return (
                                         <>
@@ -649,7 +645,11 @@ const PreviewModal: React.FC<{
                                               fontWeight: '600',
                                               fontSize: '1.1rem'
                                             }}>
-                                              Subtotal: {formatTimeLikePDF(totalLearningHours)} of learning content → {formatTimeLikePDF(totalProductionHours)} production
+                                              Subtotal: {(() => {
+                                                const totalLearningMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_completion_time || 0), 0);
+                                                const totalProductionMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
+                                                return `${formatTimeLikePDF(totalLearningMinutes)} of learning content → ${formatTimeLikePDF(totalProductionMinutes)} production`;
+                                              })()}
                                             </td>
                                           </tr>
                                         </>
@@ -720,15 +720,46 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // 🔧 COMPLETE REWRITE: Copy exact logic from PDF template
+                                                                            // 🔧 COMPLETE REWRITE: Copy exact logic from PDF template
+                                      
+                                      // Define types for better type safety
+                                      type QualityTierData = {
+                                        completion_time: number;
+                                        creation_time: number;
+                                      };
+                                      
+                                      type QualityTierSums = {
+                                        basic: QualityTierData;
+                                        interactive: QualityTierData;
+                                        advanced: QualityTierData;
+                                        immersive: QualityTierData;
+                                      };
+                                      
+                                      type TierNames = {
+                                        basic: string;
+                                        interactive: string;
+                                        advanced: string;
+                                        immersive: string;
+                                      };
+                                      
+                                      type Section = {
+                                        quality_tier?: string;
+                                        lessons?: Lesson[];
+                                      };
+                                      
+                                      type Lesson = {
+                                        quality_tier?: string;
+                                        completionTime?: string | number;
+                                        hours?: number;
+                                      };
                                       
                                       // Helper function to get effective quality tier (EXACTLY like backend)
-                                      const getEffectiveQualityTier = (lessonQualityTier: string | null, sectionQualityTier: string | null, projectQualityTier: string | null, folderQualityTier = 'interactive'): string => {
+                                      const getEffectiveQualityTier = (lessonQualityTier: string | null, sectionQualityTier: string | null, projectQualityTier: string | null, folderQualityTier = 'interactive'): keyof QualityTierSums => {
                                         // Priority: lesson -> section -> project -> folder -> default
                                         const tier = (lessonQualityTier || sectionQualityTier || projectQualityTier || folderQualityTier || 'interactive').toLowerCase();
                                         
                                         // Support both old and new tier names (EXACTLY like backend)
-                                        const tierMapping: Record<string, string> = {
+                                        const tierMapping: Record<string, keyof QualityTierSums> = {
                                           // New tier names
                                           'basic': 'basic',
                                           'interactive': 'interactive', 
@@ -743,8 +774,8 @@ const PreviewModal: React.FC<{
                                       };
                                       
                                       // Calculate quality tier sums (EXACTLY like backend function)
-                                      const calculateQualityTierSums = (projects: (Project | BackendProject)[]) => {
-                                        const qualityTierData = {
+                                      const calculateQualityTierSums = (projects: (Project | BackendProject)[]): QualityTierSums => {
+                                        const qualityTierData: QualityTierSums = {
                                           'basic': { completion_time: 0, creation_time: 0 },
                                           'interactive': { completion_time: 0, creation_time: 0 },
                                           'advanced': { completion_time: 0, creation_time: 0 },
@@ -760,12 +791,12 @@ const PreviewModal: React.FC<{
                                           if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
                                             const sections = microproductContent.sections;
                                             if (Array.isArray(sections)) {
-                                              sections.forEach((section: any) => {
+                                              sections.forEach((section: Section) => {
                                                 if (section && typeof section === 'object' && section.lessons) {
                                                   const sectionQualityTier = section.quality_tier;
                                                   const lessons = section.lessons;
                                                   if (Array.isArray(lessons)) {
-                                                    lessons.forEach((lesson: any) => {
+                                                    lessons.forEach((lesson: Lesson) => {
                                                       if (lesson && typeof lesson === 'object') {
                                                         const lessonQualityTier = lesson.quality_tier;
                                                         const effectiveTier = getEffectiveQualityTier(
@@ -785,14 +816,12 @@ const PreviewModal: React.FC<{
                                                           // Remove 'm' suffix and convert to int
                                                           lessonCompletionTime = parseInt(lessonCompletionTimeRaw.replace('m', '')) || 0;
                                                         } else {
-                                                          lessonCompletionTime = parseInt(lessonCompletionTimeRaw) || 0;
+                                                          lessonCompletionTime = parseInt(lessonCompletionTimeRaw.toString()) || 0;
                                                         }
                                                         
-                                                        if (effectiveTier in qualityTierData) {
-                                                          qualityTierData[effectiveTier as keyof typeof qualityTierData].completion_time += lessonCompletionTime;
-                                                          // Convert hours to minutes for consistency (EXACTLY like backend)
-                                                          qualityTierData[effectiveTier as keyof typeof qualityTierData].creation_time += lessonCreationHours * 60;
-                                                        }
+                                                        qualityTierData[effectiveTier].completion_time += lessonCompletionTime;
+                                                        // Convert hours to minutes for consistency (EXACTLY like backend)
+                                                        qualityTierData[effectiveTier].creation_time += lessonCreationHours * 60;
                                                       }
                                                     });
                                                   }
@@ -806,7 +835,7 @@ const PreviewModal: React.FC<{
                                       };
                                       
                                       // Get quality tier sums (use backend data if available, otherwise calculate)
-                                      let qualityTierSums = data?.quality_tier_sums;
+                                      let qualityTierSums: QualityTierSums | undefined = data?.quality_tier_sums;
                                       if (!qualityTierSums) {
                                         console.log('🔧 Block 2: Calculating quality_tier_sums from projects data (EXACTLY like backend)');
                                         qualityTierSums = calculateQualityTierSums(data.projects || []);
@@ -816,7 +845,7 @@ const PreviewModal: React.FC<{
                                       }
                                       
                                       // Define tier names (EXACTLY like PDF template)
-                                      const tierNames = {
+                                      const tierNames: TierNames = {
                                         'basic': 'Level 1 - Basic',
                                         'interactive': 'Level 2 - Interactive', 
                                         'advanced': 'Level 3 - Advanced',
@@ -825,7 +854,7 @@ const PreviewModal: React.FC<{
                                       
                                       // Render rows (EXACTLY like PDF template)
                                       return Object.entries(tierNames).map(([tierKey, tierName], index) => {
-                                        const tierData = qualityTierSums?.[tierKey];
+                                        const tierData = qualityTierSums?.[tierKey as keyof QualityTierSums];
                                         
                                         // Format completion time (EXACTLY like PDF template)
                                         let completionTimeFormatted = '-';
