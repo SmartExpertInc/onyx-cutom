@@ -8821,6 +8821,94 @@ def _save_section_content(section_name: str, content_lines: list, local_vars: di
     elif section_name == "relevant_sources":
         local_vars["relevant_sources"] = content
 
+async def enhanced_stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str]) -> str:
+    """Enhanced version of stream_chat_message specifically for Knowledge Base searches with better streaming handling."""
+    logger.info(f"[enhanced_stream_chat_message] Starting Knowledge Base search - chat_id={chat_session_id} len(message)={len(message)}")
+
+    async with httpx.AsyncClient(timeout=600.0) as client:  # Longer timeout for KB searches
+        retrieval_options = {
+            "run_search": "always",  # Always search for Knowledge Base
+            "real_time": False,
+        }
+        payload = {
+            "chat_session_id": chat_session_id,
+            "message": message,
+            "parent_message_id": None,
+            "file_descriptors": [],
+            "user_file_ids": [],
+            "user_folder_ids": [],
+            "prompt_id": None,
+            "search_doc_ids": None,
+            "retrieval_options": retrieval_options,
+            "stream_response": True,  # Force streaming for better control
+        }
+        
+        logger.info(f"[enhanced_stream_chat_message] Sending request to {ONYX_API_SERVER_URL}/chat/send-message")
+        resp = await client.post(
+            f"{ONYX_API_SERVER_URL}/chat/send-message",
+            json=payload,
+            cookies=cookies,
+        )
+        
+        logger.info(f"[enhanced_stream_chat_message] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
+        resp.raise_for_status()
+        
+        # Handle the response
+        ctype = resp.headers.get("content-type", "")
+        if ctype.startswith("text/event-stream"):
+            logger.info(f"[enhanced_stream_chat_message] Processing streaming response...")
+            full_answer = ""
+            line_count = 0
+            done_received = False
+            last_log_length = 0
+            
+            async for line in resp.aiter_lines():
+                line_count += 1
+                if not line:
+                    continue
+                    
+                if not line.startswith("data: "):
+                    continue
+                    
+                payload_text = line.removeprefix("data: ").strip()
+                if payload_text == "[DONE]":
+                    logger.info(f"[enhanced_stream_chat_message] Received [DONE] signal after {line_count} lines")
+                    done_received = True
+                    break
+                    
+                try:
+                    packet = json.loads(payload_text)
+                except Exception as e:
+                    logger.debug(f"[enhanced_stream_chat_message] Failed to parse JSON: {str(e)}")
+                    continue
+                    
+                if packet.get("answer_piece"):
+                    answer_piece = packet["answer_piece"]
+                    full_answer += answer_piece
+                    
+                    # Log progress every 200 chars to track streaming
+                    if len(full_answer) - last_log_length >= 200:
+                        logger.info(f"[enhanced_stream_chat_message] Accumulated {len(full_answer)} chars so far...")
+                        last_log_length = len(full_answer)
+                        
+            logger.info(f"[enhanced_stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}")
+            
+            if not done_received:
+                logger.warning(f"[enhanced_stream_chat_message] Stream ended without [DONE] signal - may be incomplete")
+                
+            return full_answer
+        else:
+            # Non-streaming response
+            logger.info(f"[enhanced_stream_chat_message] Processing non-streaming response")
+            try:
+                data = resp.json()
+                result = data.get("answer") or data.get("answer_citationless") or ""
+                logger.info(f"[enhanced_stream_chat_message] Non-streaming result: {len(result)} chars")
+                return result
+            except Exception as e:
+                logger.error(f"[enhanced_stream_chat_message] Failed to parse non-streaming response: {e}")
+                return resp.text.strip()
+
 async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Extract context from the entire Knowledge Base using the Search persona.
@@ -8856,7 +8944,7 @@ async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) ->
         
         # Use the Search persona to perform the Knowledge Base search
         logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Sending search request to Search persona")
-        search_result = await stream_chat_message(temp_chat_id, search_prompt, cookies, enable_search=True)
+        search_result = await enhanced_stream_chat_message(temp_chat_id, search_prompt, cookies)
         logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Received search result ({len(search_result)} chars)")
         
         # Log the full response for debugging
@@ -12094,10 +12182,12 @@ async def create_onyx_chat_session(persona_id: int, cookies: Dict[str, str]) -> 
         return data.get("chat_session_id") or data.get("chatSessionId")
 
 async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str], enable_search: bool = False) -> str:
-    """Send message via Onyx non-streaming simple API and return the full answer."""
-    logger.debug(f"[stream_chat_message] chat_id={chat_session_id} len(message)={len(message)} enable_search={enable_search}")
+    """Send message via Onyx and return the full answer, handling both streaming and non-streaming responses."""
+    logger.info(f"[stream_chat_message] chat_id={chat_session_id} len(message)={len(message)} enable_search={enable_search}")
 
-    async with httpx.AsyncClient(timeout=300.0) as client:
+    # Use longer timeout for Knowledge Base searches
+    timeout_duration = 600.0 if enable_search else 300.0
+    async with httpx.AsyncClient(timeout=timeout_duration) as client:
         # Enable search when needed for Knowledge Base searches
         retrieval_options = {
             "run_search": "always" if enable_search else "never",
@@ -12130,24 +12220,44 @@ async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[
                 json=payload,
                 cookies=cookies,
             )
-        logger.debug(f"[stream_chat_message] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
+        logger.info(f"[stream_chat_message] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
         resp.raise_for_status()
         # Depending on deployment, Onyx may return SSE stream or JSON.
         ctype = resp.headers.get("content-type", "")
         if ctype.startswith("text/event-stream"):
+            logger.info(f"[stream_chat_message] Processing streaming response...")
             full_answer = ""
+            line_count = 0
+            done_received = False
+            
             async for line in resp.aiter_lines():
-                if not line or not line.startswith("data: "):
+                line_count += 1
+                if not line:
                     continue
-                payload = line.removeprefix("data: ").strip()
-                if payload == "[DONE]":
+                    
+                if not line.startswith("data: "):
+                    logger.debug(f"[stream_chat_message] Skipping non-data line: {line[:100]}")
+                    continue
+                    
+                payload_text = line.removeprefix("data: ").strip()
+                if payload_text == "[DONE]":
+                    logger.info(f"[stream_chat_message] Received [DONE] signal after {line_count} lines")
+                    done_received = True
                     break
+                    
                 try:
-                    packet = json.loads(payload)
-                except Exception:
+                    packet = json.loads(payload_text)
+                except Exception as e:
+                    logger.debug(f"[stream_chat_message] Failed to parse JSON: {payload_text[:100]} - {e}")
                     continue
+                    
                 if packet.get("answer_piece"):
-                    full_answer += packet["answer_piece"]
+                    answer_piece = packet["answer_piece"]
+                    full_answer += answer_piece
+                    if len(full_answer) % 500 == 0:  # Log progress every 500 chars
+                        logger.debug(f"[stream_chat_message] Accumulated {len(full_answer)} chars so far...")
+                        
+            logger.info(f"[stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}")
             return full_answer
         # Fallback JSON response
         try:
