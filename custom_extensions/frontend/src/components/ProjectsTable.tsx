@@ -710,6 +710,9 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
+                                      console.log('[FRONTEND_DEBUG] === BLOCK 2 QUALITY TIER SUMS START ===');
+                                      console.log('[FRONTEND_DEBUG] Input data:', data);
+                                      
                                       // Calculate quality tier sums dynamically (same as PDF)
                                       const qualityTierSums = {
                                         'basic': { completionTime: 0, creationTime: 0 },
@@ -718,11 +721,11 @@ const PreviewModal: React.FC<{
                                         'immersive': { completionTime: 0, creationTime: 0 }
                                       };
                                       
-                                      // Helper function to get effective quality tier
+                                      // Helper function to get effective quality tier (same as backend)
                                       const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
                                         if (project.quality_tier) {
                                           const tier = project.quality_tier.toLowerCase();
-                                          // Support both old and new tier names
+                                          // Support both old and new tier names (same mapping as backend)
                                           const tierMapping: Record<string, keyof typeof qualityTierSums> = {
                                             // New tier names
                                             'basic': 'basic',
@@ -742,7 +745,26 @@ const PreviewModal: React.FC<{
                                       // Process all projects to calculate quality tier sums (exactly like PDF backend)
                                       const allProjects = data.projects || [];
                                       console.log('[FRONTEND_DEBUG] Processing projects for quality tier sums:', allProjects.length);
+                                      console.log('[FRONTEND_DEBUG] Raw projects data:', allProjects);
                                       
+                                      // Detailed logging of each project
+                                      console.log('[FRONTEND_DEBUG] === DETAILED PROJECT ANALYSIS ===');
+                                      allProjects.forEach((project: Project | BackendProject, index: number) => {
+                                        const backendProject = project as BackendProject;
+                                        console.log(`[FRONTEND_DEBUG] Project ${index + 1}:`, {
+                                          id: project.id,
+                                          title: backendProject.project_name || backendProject.microproduct_name || 'Untitled',
+                                          quality_tier: project.quality_tier,
+                                          total_completion_time: project.total_completion_time,
+                                          total_creation_hours: project.total_creation_hours,
+                                          folder_id: backendProject.folder_id,
+                                          created_at: backendProject.created_at
+                                        });
+                                      });
+                                      console.log('[FRONTEND_DEBUG] === END PROJECT ANALYSIS ===');
+                                      
+                                      // Quality tier processing with detailed logging
+                                      console.log('[FRONTEND_DEBUG] === QUALITY TIER PROCESSING ===');
                                       allProjects.forEach((project: Project | BackendProject) => {
                                         // Use the same logic as backend: check project quality_tier first, fallback to 'interactive'
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
@@ -755,6 +777,7 @@ const PreviewModal: React.FC<{
                                       });
                                       
                                       console.log('[FRONTEND_DEBUG] Final quality tier sums:', qualityTierSums);
+                                      console.log('[FRONTEND_DEBUG] === END QUALITY TIER PROCESSING ===');
                                       
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
@@ -772,6 +795,8 @@ const PreviewModal: React.FC<{
                                         const creationTimeFormatted = tierData.creationTime > 0 
                                           ? formatTimeLikePDF(tierData.creationTime) 
                                           : '-';
+                                        
+                                        console.log(`[FRONTEND_DEBUG] Rendering row for ${level.name}: completionTime=${tierData.completionTime}, creationTime=${tierData.creationTime}`);
                                         
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
@@ -1155,6 +1180,8 @@ interface BackendProject {
   total_completion_time: number;
   total_modules: number;
   total_creation_hours: number;
+  project_name?: string;
+  microproduct_name?: string;
 }
 
 interface Folder {

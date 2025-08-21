@@ -6745,6 +6745,7 @@ class ProjectApiResponse(BaseModel):
     order: Optional[int] = None
     source_chat_session_id: Optional[str] = None
     is_standalone: Optional[bool] = None  # Track whether this is standalone or part of an outline
+    quality_tier: Optional[str] = None  # Add quality tier field
     total_lessons: Optional[int] = 0
     total_hours: Optional[float] = 0.0
     total_completion_time: Optional[int] = 0
@@ -10363,6 +10364,9 @@ async def get_user_projects_list_from_db(
         folder_id = row_dict.get("folder_id")
         quality_tier = row_dict.get("quality_tier")
         
+        # Debug logging for quality tier
+        logger.info(f"[PDF_ANALYTICS] /api/custom/projects: Project {row_dict['id']}: quality_tier={quality_tier}, folder_id={folder_id}")
+        
         if content and component_name == COMPONENT_NAME_TRAINING_PLAN:
             try:
                 if isinstance(content, dict):
@@ -10440,12 +10444,27 @@ async def get_user_projects_list_from_db(
             microproduct_content=row_dict.get("microproduct_content"),
             source_chat_session_id=source_chat_session_id,
             is_standalone=row_dict.get("is_standalone"),
+            quality_tier=quality_tier,  # Add quality tier to response
             total_lessons=total_lessons,
             total_hours=round(total_hours),
             total_completion_time=total_completion_time,
             total_modules=total_modules,
             total_creation_hours=total_creation_hours
         ))
+        
+        # Debug logging for final project data
+        logger.info(f"[PDF_ANALYTICS] /api/custom/projects: Final project {row_dict['id']}: quality_tier={quality_tier}, total_completion_time={total_completion_time}, total_creation_hours={total_creation_hours}")
+    
+    # Debug logging for final projects list being sent to frontend
+    logger.info(f"[PDF_ANALYTICS] /api/custom/projects: Sending {len(projects_list)} projects to frontend")
+    quality_tier_count = {}
+    for project in projects_list:
+        tier = project.quality_tier or 'None'
+        quality_tier_count[tier] = quality_tier_count.get(tier, 0) + 1
+        logger.info(f"[PDF_ANALYTICS] Frontend Project {project.id}: quality_tier='{tier}', title='{getattr(project, 'project_name', None) or getattr(project, 'microproduct_name', None) or 'Untitled'}'")
+    
+    logger.info(f"[PDF_ANALYTICS] Quality tier distribution being sent to frontend: {quality_tier_count}")
+    
     return projects_list
 
 @app.get("/api/custom/projects/view/{project_id}", response_model=MicroProductApiResponse, responses={404: {"model": ErrorDetail}})
