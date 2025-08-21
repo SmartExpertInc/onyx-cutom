@@ -620,13 +620,13 @@ const PreviewModal: React.FC<{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.learningDuration || '-'}
+                                                {formatTimeForPreview(course.learningDuration)}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {course.productionTime ? course.productionTime.toLocaleString() : '-'}
+                                                {formatTimeForPreview(course.productionTime)}
                                               </td>
                                             </tr>
                                           ))}
@@ -637,7 +637,7 @@ const PreviewModal: React.FC<{
                                               fontWeight: '600',
                                               fontSize: '1.1rem'
                                             }}>
-                                              Subtotal: {totalLearningHours}h of learning content → {totalProductionHours.toLocaleString()}h production
+                                              Subtotal: {formatTimeForPreview(totalLearningHours)} of learning content → {formatTimeForPreview(totalProductionHours)} production
                                             </td>
                                           </tr>
                                         </>
@@ -735,22 +735,22 @@ const PreviewModal: React.FC<{
                                         qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;  // Production Time (H)
                                       });
                                       
-                                      // Define quality level names
+                                      // Define quality level names (matching PDF exactly)
                                       const qualityLevels = [
-                                        { key: 'basic', name: 'Level 1 - Basic' },
-                                        { key: 'interactive', name: 'Level 2 - Interactive' },
-                                        { key: 'advanced', name: 'Level 3 - Advanced' },
-                                        { key: 'immersive', name: 'Level 4 - Immersive' }
+                                        { key: 'basic', name: 'Basic' },
+                                        { key: 'interactive', name: 'Interactive' },
+                                        { key: 'advanced', name: 'Advanced' },
+                                        { key: 'immersive', name: 'Immersive' }
                                       ];
 
                                       return qualityLevels.map((level, index) => {
                                         const tierData = qualityTierSums[level.key as keyof typeof qualityTierSums];
                                         const completionTimeFormatted = tierData.completionTime > 0 
-                                          ? formatCompletionTimeLocalized(tierData.completionTime) 
-                                          : '0';
+                                          ? formatTimeForPreview(tierData.completionTime) 
+                                          : '0h';
                                         const creationTimeFormatted = tierData.creationTime > 0 
-                                          ? formatCompletionTimeLocalized(tierData.creationTime) 
-                                          : '0';
+                                          ? formatTimeForPreview(tierData.creationTime) 
+                                          : '0h';
                                         
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
@@ -1065,6 +1065,20 @@ const formatCompletionTimeLocalized = (completionTime: string | number, language
         } else {
             return `${hours}h ${remainingMinutes}${timeUnits[lang].minuteUnit}`;
         }
+    }
+};
+
+// Function to format time for preview to match PDF format exactly
+const formatTimeForPreview = (time: number | undefined | null): string => {
+    if (!time || time === 0) return '-';
+    
+    const hours = Math.floor(time);
+    const minutes = Math.round((time - hours) * 60);
+    
+    if (minutes === 0) {
+        return `${hours}h`;
+    } else {
+        return `${hours}h ${minutes}m`;
     }
 };
 
