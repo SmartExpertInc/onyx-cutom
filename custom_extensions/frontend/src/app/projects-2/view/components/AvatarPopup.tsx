@@ -290,7 +290,7 @@ export default function AvatarPopup({
     return (
       <div 
         ref={popupRef}
-        className={`absolute z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
+        className={`fixed z-50 bg-white shadow-xl border border-gray-200 overflow-hidden ${className}`} 
         style={{ 
           borderRadius: '12px',
           left: position?.x || 0,
