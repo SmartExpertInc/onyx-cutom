@@ -475,15 +475,23 @@ app.add_middleware(
 
 # Include video lesson router
 try:
-    import video_lesson_api
-    from video_lesson_api import router as video_lesson_router
-    
-    # Replace the placeholder functions with the real ones
-    video_lesson_api.get_current_onyx_user_id = get_current_onyx_user_id
-    video_lesson_api.get_db_pool = get_db_pool
-    
+    from video_lesson_api import router as video_lesson_router, set_dependencies
     app.include_router(video_lesson_router)
     logger.info("Video lesson API router included successfully")
+    
+    # Inject dependencies to avoid circular imports
+    # Note: These will be defined later in this file
+    def _inject_dependencies():
+        # Import locally to avoid circular imports at module level
+        try:
+            set_dependencies(get_current_onyx_user_id, get_db_pool)
+            logger.info("Video lesson dependencies injected successfully")
+        except NameError:
+            logger.warning("Dependencies not yet available for video lesson router")
+    
+    # Store the injection function to call later
+    app._inject_video_lesson_deps = _inject_dependencies
+    
 except ImportError as e:
     logger.warning(f"Could not include video lesson router: {e}")
 
@@ -5269,6 +5277,13 @@ async def startup_event():
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
         DB_POOL = None
+    
+    # Inject dependencies for video lesson router after everything is initialized
+    if hasattr(app, '_inject_video_lesson_deps'):
+        try:
+            app._inject_video_lesson_deps()
+        except Exception as e:
+            logger.warning(f"Failed to inject video lesson dependencies: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_event():

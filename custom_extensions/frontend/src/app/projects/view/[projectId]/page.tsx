@@ -1435,16 +1435,16 @@ export default function ProjectInstanceViewPage() {
                       projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
                         ? t('interface.projectView.downloadVideo', 'Download video lesson')
                         : projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                          ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
-                          : t('interface.projectView.downloadPdf', 'Download content as PDF')
+                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
+                        : t('interface.projectView.downloadPdf', 'Download content as PDF')
                     }
                   >
                    <Download size={16} className="mr-2" /> {
                      projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
                        ? t('interface.projectView.downloadVideo', 'Download Video')
                        : projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                         ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
-                         : t('interface.projectView.downloadPdf', 'Download PDF')
+                       ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
+                       : t('interface.projectView.downloadPdf', 'Download PDF')
                    }
                   </button>
             )}

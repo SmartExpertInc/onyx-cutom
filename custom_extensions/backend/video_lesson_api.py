@@ -85,7 +85,7 @@ class VideoCompositionResponse(BaseModel):
     file_size: Optional[int] = None
     message: str
 
-# Video Lesson Data Models (moved here to avoid circular imports)
+# Video Lesson Data Models (local definitions to avoid circular imports)
 class VideoSlide(BaseModel):
     slideId: str
     slideTitle: str
@@ -97,14 +97,35 @@ class VideoLessonData(BaseModel):
     slides: List[VideoSlide] = []
     description: Optional[str] = None
 
-# Dependency functions - will be overridden by main.py
-def get_current_onyx_user_id():
-    """Get current user ID - will be overridden by main.py"""
-    return "default_user_id"
+# Global variables to hold dependencies (will be set by main.py)
+_get_current_onyx_user_id_func = None
+_get_db_pool_func = None
 
-def get_db_pool():
-    """Get database pool - will be overridden by main.py"""
-    return None
+def set_dependencies(get_user_func, get_pool_func):
+    """Set the dependency functions from main.py to avoid circular imports."""
+    global _get_current_onyx_user_id_func, _get_db_pool_func
+    _get_current_onyx_user_id_func = get_user_func
+    _get_db_pool_func = get_pool_func
+
+async def get_current_onyx_user_id():
+    """Get current user ID using the injected dependency."""
+    if _get_current_onyx_user_id_func:
+        # Handle both sync and async functions
+        result = _get_current_onyx_user_id_func()
+        if hasattr(result, '__await__'):
+            return await result
+        return result
+    return "default_user_id"  # Fallback
+
+async def get_db_pool():
+    """Get database pool using the injected dependency.""" 
+    if _get_db_pool_func:
+        # Handle both sync and async functions
+        result = _get_db_pool_func()
+        if hasattr(result, '__await__'):
+            return await result
+        return result
+    return None  # Fallback
 
 @router.get("/avatars")
 async def get_available_avatars():
@@ -175,8 +196,7 @@ async def get_available_avatars():
 @router.post("/generate-avatar", response_model=VideoGenerationResponse)
 async def generate_avatar_video(
     request: VideoGenerationRequest,
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-    pool: asyncpg.Pool = Depends(get_db_pool)
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
 ):
     """
     Generate an avatar video for a specific slide using Elai API.
