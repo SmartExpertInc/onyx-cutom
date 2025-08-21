@@ -775,6 +775,8 @@ const PreviewModal: React.FC<{
                                       
                                       // Calculate quality tier sums (EXACTLY like backend function)
                                       const calculateQualityTierSums = (projects: (Project | BackendProject)[]): QualityTierSums => {
+                                        console.log('🔧 calculateQualityTierSums: Starting calculation with', projects.length, 'projects');
+                                        
                                         const qualityTierData: QualityTierSums = {
                                           'basic': { completion_time: 0, creation_time: 0 },
                                           'interactive': { completion_time: 0, creation_time: 0 },
@@ -783,7 +785,14 @@ const PreviewModal: React.FC<{
                                         };
                                         
                                         // Process all projects (EXACTLY like backend)
-                                        projects.forEach((project) => {
+                                        projects.forEach((project, projectIndex) => {
+                                          console.log(`🔧 Processing project ${projectIndex + 1}:`, project.name || 'Unnamed project');
+                                          console.log(`🔧 Project structure:`, {
+                                            hasQualityTier: !!project.quality_tier,
+                                            hasMicroproductContent: 'microproduct_content' in project,
+                                            hasSections: project.microproduct_content?.sections?.length || 0
+                                          });
+                                          
                                           const projectQualityTier = project.quality_tier || null;
                                           
                                           // Process microproduct_content to get module-level quality tiers (EXACTLY like backend)
@@ -819,6 +828,8 @@ const PreviewModal: React.FC<{
                                                           lessonCompletionTime = parseInt(lessonCompletionTimeRaw.toString()) || 0;
                                                         }
                                                         
+                                                        console.log(`🔧 Lesson: tier=${effectiveTier}, completion=${lessonCompletionTime}m, creation=${lessonCreationHours}h`);
+                                                        
                                                         qualityTierData[effectiveTier].completion_time += lessonCompletionTime;
                                                         // Convert hours to minutes for consistency (EXACTLY like backend)
                                                         qualityTierData[effectiveTier].creation_time += lessonCreationHours * 60;
@@ -828,14 +839,36 @@ const PreviewModal: React.FC<{
                                                 }
                                               });
                                             }
+                                          } else {
+                                            // Fallback: Use project-level data if microproduct_content is not available
+                                            console.log(`🔧 Fallback: Using project-level data for ${project.name}`);
+                                            const effectiveTier = getEffectiveQualityTier(
+                                              null, 
+                                              null, 
+                                              projectQualityTier, 
+                                              'interactive'
+                                            );
+                                            
+                                            // Use project totals
+                                            const projectCompletionTime = project.total_completion_time || 0;
+                                            const projectCreationHours = project.total_creation_hours || 0;
+                                            
+                                            console.log(`🔧 Project fallback: tier=${effectiveTier}, completion=${projectCompletionTime}m, creation=${projectCreationHours}h`);
+                                            
+                                            qualityTierData[effectiveTier].completion_time += projectCompletionTime;
+                                            qualityTierData[effectiveTier].creation_time += projectCreationHours * 60;
                                           }
                                         });
                                         
+                                        console.log('🔧 calculateQualityTierSums: Final result:', qualityTierData);
                                         return qualityTierData;
                                       };
                                       
                                       // Get quality tier sums (use backend data if available, otherwise calculate)
                                       let qualityTierSums: QualityTierSums | undefined = data?.quality_tier_sums;
+                                      console.log('🔧 Block 2: Initial quality_tier_sums from data:', qualityTierSums);
+                                      console.log('🔧 Block 2: Projects count:', data?.projects?.length || 0);
+                                      
                                       if (!qualityTierSums) {
                                         console.log('🔧 Block 2: Calculating quality_tier_sums from projects data (EXACTLY like backend)');
                                         qualityTierSums = calculateQualityTierSums(data.projects || []);
@@ -843,6 +876,14 @@ const PreviewModal: React.FC<{
                                       } else {
                                         console.log('🔧 Block 2: Using quality_tier_sums from backend:', qualityTierSums);
                                       }
+                                      
+                                      // 🔧 DEBUG: Force calculation to ensure we have correct data
+                                      console.log('🔧 Block 2: Forcing recalculation for debugging...');
+                                      const recalculatedSums = calculateQualityTierSums(data.projects || []);
+                                      console.log('🔧 Block 2: Recalculated sums:', recalculatedSums);
+                                      
+                                      // Use recalculated sums to ensure correctness
+                                      qualityTierSums = recalculatedSums;
                                       
                                       // Define tier names (EXACTLY like PDF template)
                                       const tierNames: TierNames = {
