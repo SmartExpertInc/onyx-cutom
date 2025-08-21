@@ -16811,11 +16811,33 @@ async def download_projects_list_pdf(
                 # Check project-level quality tier first
                 if project.get('quality_tier'):
                     tier = project['quality_tier'].lower()
-                    # Validate tier is one of the supported ones
-                    if tier in ['basic', 'interactive', 'advanced', 'immersive']:
-                        return tier
+                    # Support both old and new tier names
+                    tier_mapping = {
+                        # New tier names
+                        'basic': 'basic',
+                        'interactive': 'interactive', 
+                        'advanced': 'advanced',
+                        'immersive': 'immersive',
+                        # Old tier names (legacy support)
+                        'starter': 'basic',
+                        'medium': 'interactive',
+                        'professional': 'immersive'
+                    }
+                    if tier in tier_mapping:
+                        return tier_mapping[tier]
                 # Fall back to folder quality tier
-                return folder_quality_tier.lower()
+                folder_tier = folder_quality_tier.lower()
+                # Map folder tier as well
+                tier_mapping = {
+                    'basic': 'basic',
+                    'interactive': 'interactive',
+                    'advanced': 'advanced', 
+                    'immersive': 'immersive',
+                    'starter': 'basic',
+                    'medium': 'interactive',
+                    'professional': 'immersive'
+                }
+                return tier_mapping.get(folder_tier, 'interactive')
             
             # Process folder projects
             for folder in folders:

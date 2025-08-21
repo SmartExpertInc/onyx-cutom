@@ -722,9 +722,19 @@ const PreviewModal: React.FC<{
                                       const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
                                         if (project.quality_tier) {
                                           const tier = project.quality_tier.toLowerCase();
-                                          return (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') 
-                                            ? tier as keyof typeof qualityTierSums 
-                                            : 'interactive';
+                                          // Support both old and new tier names
+                                          const tierMapping: Record<string, keyof typeof qualityTierSums> = {
+                                            // New tier names
+                                            'basic': 'basic',
+                                            'interactive': 'interactive',
+                                            'advanced': 'advanced',
+                                            'immersive': 'immersive',
+                                            // Old tier names (legacy support)
+                                            'starter': 'basic',
+                                            'medium': 'interactive',
+                                            'professional': 'immersive'
+                                          };
+                                          return tierMapping[tier] || 'interactive';
                                         }
                                         return 'interactive';
                                       };
@@ -733,13 +743,7 @@ const PreviewModal: React.FC<{
                                       const allProjects = data.projects || [];
                                       allProjects.forEach((project: Project | BackendProject) => {
                                         // Use the same logic as backend: check project quality_tier first, fallback to 'interactive'
-                                        let effectiveTier: 'basic' | 'interactive' | 'advanced' | 'immersive' = 'interactive';
-                                        if (project.quality_tier) {
-                                          const tier = project.quality_tier.toLowerCase();
-                                          if (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') {
-                                            effectiveTier = tier as 'basic' | 'interactive' | 'advanced' | 'immersive';
-                                          }
-                                        }
+                                        const effectiveTier = getEffectiveQualityTier(project, 'interactive');
                                         
                                         // Learning Duration uses total_completion_time (like PDF template)
                                         qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
