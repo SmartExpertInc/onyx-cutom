@@ -817,9 +817,10 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Total: {(() => {
-                                    // Calculate total learning hours exactly like PDF generation
+                                    // Calculate total learning hours exactly like PDF generation (using total_completion_time)
                                     const allProjects = data.projects || [];
-                                    const totalLearningHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_hours || 0), 0);
+                                    const totalLearningMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_completion_time || 0), 0);
+                                    const totalLearningHours = Math.floor(totalLearningMinutes / 60);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
