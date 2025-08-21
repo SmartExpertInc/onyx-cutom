@@ -754,7 +754,7 @@ const PreviewModal: React.FC<{
                                       };
                                       
                                       // Helper function to get effective quality tier (EXACTLY like backend)
-                                      const getEffectiveQualityTier = (lessonQualityTier: string | null, sectionQualityTier: string | null, projectQualityTier: string | null, folderQualityTier = 'interactive'): keyof QualityTierSums => {
+                                      const getEffectiveQualityTier = (lessonQualityTier: string | null | undefined, sectionQualityTier: string | null | undefined, projectQualityTier: string | null | undefined, folderQualityTier = 'interactive'): keyof QualityTierSums => {
                                         // Priority: lesson -> section -> project -> folder -> default
                                         const tier = (lessonQualityTier || sectionQualityTier || projectQualityTier || folderQualityTier || 'interactive').toLowerCase();
                                         
@@ -798,10 +798,10 @@ const PreviewModal: React.FC<{
                                                   if (Array.isArray(lessons)) {
                                                     lessons.forEach((lesson: Lesson) => {
                                                       if (lesson && typeof lesson === 'object') {
-                                                        const lessonQualityTier = lesson.quality_tier;
+                                                        const lessonQualityTier = lesson.quality_tier || null;
                                                         const effectiveTier = getEffectiveQualityTier(
                                                           lessonQualityTier, 
-                                                          sectionQualityTier, 
+                                                          sectionQualityTier || null, 
                                                           projectQualityTier, 
                                                           'interactive'  // Default for unassigned projects
                                                         );
