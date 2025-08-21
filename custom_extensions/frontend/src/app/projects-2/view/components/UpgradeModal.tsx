@@ -85,13 +85,17 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           <div className="w-1/3 p-4">
             <div className="bg-white rounded-lg p-4">
               {/* Current Plan Info */}
-              <div className="text-xs text-gray-500 mb-1">You are currently on</div>
+              <div className="text-xs text-gray-500 mb-3">You are currently on</div>
               <div className="mb-1">
                 <div className="text-2xl text-black mb-1">Business</div>
                 <div className="text-xs text-gray-500 mb-2">For professionals or small teams</div>
-                <div className="text-2xl font-semibold text-black">$70</div>
-                <div className="text-xs text-gray-500">Billed annually</div>
-                <div className="text-xs text-gray-500">at $840</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-3xl font-semibold text-black">$70</div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-500">Billed annually</div>
+                    <div className="text-xs text-gray-500">at $840</div>
+                  </div>
+                </div>
               </div>
               
               {/* Seat Selection */}
@@ -162,7 +166,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 Manage
               </button>
               <div className="text-center text-xs text-gray-500 mb-3">or</div>
-              <button className="w-full bg-transparent text-gray-600 border border-gray-300 rounded-full py-2 px-4 text-sm font-medium hover:bg-gray-100 transition-colors mb-6">
+              <button className="w-full bg-transparent text-black rounded-full py-2 px-4 text-sm font-medium hover:bg-gray-100 transition-colors mb-6">
                 Cancel subscription
               </button>
 
