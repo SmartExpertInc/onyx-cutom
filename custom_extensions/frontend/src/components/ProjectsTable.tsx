@@ -738,6 +738,7 @@ const PreviewModal: React.FC<{
                                       // Log each tier's data
                                       Object.entries(qualityTierSums).forEach(([tier, data]) => {
                                         console.log(`[FRONTEND_DEBUG] ${tier}: completion_time=${data.completion_time}, creation_time=${data.creation_time}`);
+                                        console.log(`[FRONTEND_DEBUG] ${tier} formatted: completion=${formatTimeLikePDF(data.completion_time)}, creation=${formatTimeLikePDF(data.creation_time)}`);
                                       });
                                       
                                       // Define quality level names (matching PDF template exactly)

@@ -16875,10 +16875,11 @@ async def download_projects_list_pdf(
                                                     )
                                                     
                                                     # Get lesson completion time and creation hours
-                                                    lesson_completion_time = lesson.get('completion_time', 0) or 0
+                                                    lesson_completion_time = lesson.get('completionTime', 0) or 0
                                                     lesson_creation_hours = lesson.get('hours', 0) or 0
                                                     
                                                     logger.info(f"[PDF_ANALYTICS] Lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
+                                                    logger.info(f"[PDF_ANALYTICS] Raw lesson data: {lesson}")
                                                     
                                                     if effective_tier in quality_tier_data:
                                                         quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
@@ -16920,7 +16921,7 @@ async def download_projects_list_pdf(
                                             )
                                             
                                             # Get lesson completion time and creation hours
-                                            lesson_completion_time = lesson.get('completion_time', 0) or 0
+                                            lesson_completion_time = lesson.get('completionTime', 0) or 0
                                             lesson_creation_hours = lesson.get('hours', 0) or 0
                                             
                                             logger.info(f"[PDF_ANALYTICS] Unassigned lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
@@ -19773,10 +19774,11 @@ async def get_projects_data_for_preview(
                                             )
                                             
                                             # Get lesson completion time and creation hours
-                                            lesson_completion_time = lesson.get('completion_time', 0) or 0
+                                            lesson_completion_time = lesson.get('completionTime', 0) or 0
                                             lesson_creation_hours = lesson.get('hours', 0) or 0
                                             
                                             logger.info(f"[PROJECTS_DATA] Lesson {lesson_idx} in project {project_id}, section {section_idx}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
+                                            logger.info(f"[PROJECTS_DATA] Raw lesson data: {lesson}")
                                             
                                             if effective_tier in quality_tier_sums:
                                                 quality_tier_sums[effective_tier]['completion_time'] += lesson_completion_time
