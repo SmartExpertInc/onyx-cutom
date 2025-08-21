@@ -124,6 +124,7 @@ function GenerateProductPicker() {
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
+  const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
   
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -200,7 +201,7 @@ function GenerateProductPicker() {
     process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
   const handleCourseOutlineStart = async () => {
-    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
 
     let chatId: string | undefined;
     try {
@@ -222,6 +223,8 @@ function GenerateProductPicker() {
       finalPrompt = textMode === 'context' 
         ? "Create educational content using the provided text as context"
         : "Create educational content based on the provided text structure";
+    } else if (isFromKnowledgeBase && !finalPrompt) {
+      finalPrompt = "Create educational content using the knowledge base";
     }
 
     const params = new URLSearchParams({
@@ -248,6 +251,11 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    }
+    
+    // Add knowledge base context if coming from knowledge base
+    if (isFromKnowledgeBase) {
+      params.set("fromKnowledgeBase", "true");
     }
 
     router.push(`/create/course-outline?${params.toString()}`);
@@ -634,8 +642,8 @@ function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone lesson, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone lesson, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -661,6 +669,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create lesson content using the knowledge base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -675,8 +686,8 @@ function GenerateProductPicker() {
     if (useExistingQuizOutline === true) {
       if (!selectedQuizOutlineId || !selectedQuizLesson) return;
     } else {
-      // If standalone quiz, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone quiz, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -710,6 +721,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create quiz content using the knowledge base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -846,8 +860,8 @@ function GenerateProductPicker() {
     if (useExistingTextOutline === true) {
       if (!selectedTextOutlineId || !selectedTextLesson) return;
     } else {
-      // If standalone text presentation, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone text presentation, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -881,6 +895,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create text presentation content using the knowledge base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
@@ -889,8 +906,8 @@ function GenerateProductPicker() {
   };
 
   const handleVideoLessonStart = () => {
-    // Check if prompt entered or coming from files/text
-    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    // Check if prompt entered or coming from files/text/knowledge base
+    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
 
     const params = new URLSearchParams();
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
@@ -911,6 +928,9 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create video lesson content using the knowledge base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
