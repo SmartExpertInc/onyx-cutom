@@ -733,11 +733,11 @@ const PreviewModal: React.FC<{
                                       const allProjects = data.projects || [];
                                       allProjects.forEach((project: Project | BackendProject) => {
                                         // Use the same logic as backend: check project quality_tier first, fallback to 'interactive'
-                                        let effectiveTier = 'interactive';
+                                        let effectiveTier: 'basic' | 'interactive' | 'advanced' | 'immersive' = 'interactive';
                                         if (project.quality_tier) {
                                           const tier = project.quality_tier.toLowerCase();
                                           if (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') {
-                                            effectiveTier = tier;
+                                            effectiveTier = tier as 'basic' | 'interactive' | 'advanced' | 'immersive';
                                           }
                                         }
                                         
