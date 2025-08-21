@@ -720,40 +720,44 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // 🔧 FIX: Use quality tier sums from backend (same calculation as PDF)
-                                      const qualityTierSums = data?.quality_tier_sums || {
-                                        'basic': { completion_time: 0, creation_time: 0 },
-                                        'interactive': { completion_time: 0, creation_time: 0 },
-                                        'advanced': { completion_time: 0, creation_time: 0 },
-                                        'immersive': { completion_time: 0, creation_time: 0 }
+                                      // 🔧 COMPLETE REWRITE: Copy exact logic from PDF template
+                                      
+                                      // Helper function to get effective quality tier (EXACTLY like backend)
+                                      const getEffectiveQualityTier = (lessonQualityTier: string | null, sectionQualityTier: string | null, projectQualityTier: string | null, folderQualityTier = 'interactive'): string => {
+                                        // Priority: lesson -> section -> project -> folder -> default
+                                        const tier = (lessonQualityTier || sectionQualityTier || projectQualityTier || folderQualityTier || 'interactive').toLowerCase();
+                                        
+                                        // Support both old and new tier names (EXACTLY like backend)
+                                        const tierMapping: Record<string, string> = {
+                                          // New tier names
+                                          'basic': 'basic',
+                                          'interactive': 'interactive', 
+                                          'advanced': 'advanced',
+                                          'immersive': 'immersive',
+                                          // Old tier names (legacy support)
+                                          'starter': 'basic',
+                                          'medium': 'interactive',
+                                          'professional': 'immersive'
+                                        };
+                                        return tierMapping[tier] || 'interactive';
                                       };
                                       
-                                      // Debug: Log what we're using for Block 2
-                                      console.log('🔍 Block 2 Debug - using quality_tier_sums:', qualityTierSums);
-                                      console.log('🔍 Block 2 Debug - data source:', data?.quality_tier_sums ? 'backend' : 'fallback');
-                                      console.log('🔍 Block 2 Debug - data object:', data);
-                                      
-                                      // 🔧 FIX: If quality_tier_sums is not available, calculate it from projects data
-                                      let finalQualityTierSums = qualityTierSums;
-                                      if (!data?.quality_tier_sums) {
-                                        console.log('⚠️ Block 2 Debug - No quality_tier_sums from backend, calculating from projects...');
-                                        
-                                        // Calculate quality tier sums from projects data (same logic as backend)
-                                        const calculatedQualityTierSums = {
+                                      // Calculate quality tier sums (EXACTLY like backend function)
+                                      const calculateQualityTierSums = (projects: (Project | BackendProject)[]) => {
+                                        const qualityTierData = {
                                           'basic': { completion_time: 0, creation_time: 0 },
                                           'interactive': { completion_time: 0, creation_time: 0 },
                                           'advanced': { completion_time: 0, creation_time: 0 },
                                           'immersive': { completion_time: 0, creation_time: 0 }
                                         };
                                         
-                                        const allProjects = data.projects || [];
-                                        allProjects.forEach((project: Project | BackendProject) => {
-                                          const projectQualityTier = project.quality_tier || 'interactive';
+                                        // Process all projects (EXACTLY like backend)
+                                        projects.forEach((project) => {
+                                          const projectQualityTier = project.quality_tier || null;
                                           
-                                          // Check if we have microproduct_content for module-level calculation
+                                          // Process microproduct_content to get module-level quality tiers (EXACTLY like backend)
                                           const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
                                           if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
-                                            // Use module-level calculation (EXACTLY like backend)
                                             const sections = microproductContent.sections;
                                             if (Array.isArray(sections)) {
                                               sections.forEach((section: any) => {
@@ -764,23 +768,30 @@ const PreviewModal: React.FC<{
                                                     lessons.forEach((lesson: any) => {
                                                       if (lesson && typeof lesson === 'object') {
                                                         const lessonQualityTier = lesson.quality_tier;
-                                                        const effectiveTier = lessonQualityTier || sectionQualityTier || projectQualityTier || 'interactive';
+                                                        const effectiveTier = getEffectiveQualityTier(
+                                                          lessonQualityTier, 
+                                                          sectionQualityTier, 
+                                                          projectQualityTier, 
+                                                          'interactive'  // Default for unassigned projects
+                                                        );
                                                         
-                                                        // Get lesson completion time and creation hours
+                                                        // Get lesson completion time and creation hours (EXACTLY like backend)
                                                         let lessonCompletionTimeRaw = lesson.completionTime || 0;
                                                         const lessonCreationHours = lesson.hours || 0;
                                                         
-                                                        // Convert completionTime from string (e.g., "6m") to integer minutes
+                                                        // Convert completionTime from string (e.g., "6m") to integer minutes (EXACTLY like backend)
                                                         let lessonCompletionTime: number;
                                                         if (typeof lessonCompletionTimeRaw === 'string') {
+                                                          // Remove 'm' suffix and convert to int
                                                           lessonCompletionTime = parseInt(lessonCompletionTimeRaw.replace('m', '')) || 0;
                                                         } else {
                                                           lessonCompletionTime = parseInt(lessonCompletionTimeRaw) || 0;
                                                         }
                                                         
-                                                        if (calculatedQualityTierSums[effectiveTier as keyof typeof calculatedQualityTierSums]) {
-                                                          calculatedQualityTierSums[effectiveTier as keyof typeof calculatedQualityTierSums].completion_time += lessonCompletionTime;
-                                                          calculatedQualityTierSums[effectiveTier as keyof typeof calculatedQualityTierSums].creation_time += lessonCreationHours * 60;
+                                                        if (effectiveTier in qualityTierData) {
+                                                          qualityTierData[effectiveTier as keyof typeof qualityTierData].completion_time += lessonCompletionTime;
+                                                          // Convert hours to minutes for consistency (EXACTLY like backend)
+                                                          qualityTierData[effectiveTier as keyof typeof qualityTierData].creation_time += lessonCreationHours * 60;
                                                         }
                                                       }
                                                     });
@@ -788,46 +799,66 @@ const PreviewModal: React.FC<{
                                                 }
                                               });
                                             }
-                                          } else {
-                                            // Fallback to project-level calculation
-                                            const effectiveTier = projectQualityTier;
-                                            if (calculatedQualityTierSums[effectiveTier as keyof typeof calculatedQualityTierSums]) {
-                                              calculatedQualityTierSums[effectiveTier as keyof typeof calculatedQualityTierSums].completion_time += project.total_completion_time || 0;
-                                              calculatedQualityTierSums[effectiveTier as keyof typeof calculatedQualityTierSums].creation_time += (project.total_creation_hours || 0) * 60;
-                                            }
                                           }
                                         });
                                         
-                                        finalQualityTierSums = calculatedQualityTierSums;
-                                        console.log('🔧 Block 2 Debug - Calculated quality_tier_sums:', calculatedQualityTierSums);
+                                        return qualityTierData;
+                                      };
+                                      
+                                      // Get quality tier sums (use backend data if available, otherwise calculate)
+                                      let qualityTierSums = data?.quality_tier_sums;
+                                      if (!qualityTierSums) {
+                                        console.log('🔧 Block 2: Calculating quality_tier_sums from projects data (EXACTLY like backend)');
+                                        qualityTierSums = calculateQualityTierSums(data.projects || []);
+                                        console.log('🔧 Block 2: Calculated quality_tier_sums:', qualityTierSums);
+                                      } else {
+                                        console.log('🔧 Block 2: Using quality_tier_sums from backend:', qualityTierSums);
                                       }
                                       
-                                      // Define quality level names (matching PDF template exactly)
-                                      const qualityLevels = [
-                                        { key: 'basic', name: 'Level 1 - Basic' },
-                                        { key: 'interactive', name: 'Level 2 - Interactive' },
-                                        { key: 'advanced', name: 'Level 3 - Advanced' },
-                                        { key: 'immersive', name: 'Level 4 - Immersive' }
-                                      ];
-
-                                      return qualityLevels.map((level, index) => {
-                                        const tierData = finalQualityTierSums[level.key as keyof typeof finalQualityTierSums];
+                                      // Define tier names (EXACTLY like PDF template)
+                                      const tierNames = {
+                                        'basic': 'Level 1 - Basic',
+                                        'interactive': 'Level 2 - Interactive', 
+                                        'advanced': 'Level 3 - Advanced',
+                                        'immersive': 'Level 4 - Immersive'
+                                      };
+                                      
+                                      // Render rows (EXACTLY like PDF template)
+                                      return Object.entries(tierNames).map(([tierKey, tierName], index) => {
+                                        const tierData = qualityTierSums?.[tierKey];
                                         
-                                        // 🔧 FIX: Ensure we're using the correct data structure
-                                        const completionTime = tierData?.completion_time || 0;
-                                        const creationTime = tierData?.creation_time || 0;
+                                        // Format completion time (EXACTLY like PDF template)
+                                        let completionTimeFormatted = '-';
+                                        if (tierData && tierData.completion_time && tierData.completion_time > 0) {
+                                          const h = Math.floor(tierData.completion_time / 60);
+                                          const m = tierData.completion_time % 60;
+                                          if (h > 0 && m > 0) {
+                                            completionTimeFormatted = `${h}h ${m}m`;
+                                          } else if (h > 0) {
+                                            completionTimeFormatted = `${h}h`;
+                                          } else if (m > 0) {
+                                            completionTimeFormatted = `${m}m`;
+                                          }
+                                        }
                                         
-                                        const completionTimeFormatted = completionTime > 0 
-                                          ? formatTimeLikePDF(completionTime) 
-                                          : '-';
-                                        const creationTimeFormatted = creationTime > 0 
-                                          ? formatTimeLikePDF(creationTime) 
-                                          : '-';
+                                        // Format creation time (EXACTLY like PDF template)
+                                        let creationTimeFormatted = '-';
+                                        if (tierData && tierData.creation_time && tierData.creation_time > 0) {
+                                          const h = Math.floor(tierData.creation_time / 60);
+                                          const m = tierData.creation_time % 60;
+                                          if (h > 0 && m > 0) {
+                                            creationTimeFormatted = `${h}h ${m}m`;
+                                          } else if (h > 0) {
+                                            creationTimeFormatted = `${h}h`;
+                                          } else if (m > 0) {
+                                            creationTimeFormatted = `${m}m`;
+                                          }
+                                        }
                                         
-                                        console.log(`🔍 Block 2 Debug - ${level.name}: completion_time=${completionTime}, creation_time=${creationTime}`);
+                                        console.log(`🔧 Block 2: ${tierName} - completion_time=${tierData?.completion_time || 0}, creation_time=${tierData?.creation_time || 0}`);
                                         
                                         return (
-                                          <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
+                                          <tr key={tierName} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
                                             background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
                                             transition: 'background-color 0.2s ease'
                                           }}>
@@ -835,7 +866,7 @@ const PreviewModal: React.FC<{
                                               padding: '16px 20px',
                                               fontWeight: '600'
                                             }}>
-                                              {level.name}
+                                              {tierName}
                                             </td>
                                             <td className="p-4 font-medium text-black" style={{
                                               padding: '16px 20px',
