@@ -16803,13 +16803,21 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
 
 # Import video generation service safely
 video_generation_service = None
+presentation_service = None
 try:
     from app.services.video_generation_service import video_generation_service
-from app.services.presentation_service import presentation_service, PresentationRequest
     logger.info("Video generation service imported successfully")
 except Exception as e:
     logger.warning(f"Video generation service not available: {e}")
     video_generation_service = None
+
+# Import presentation service safely
+try:
+    from app.services.presentation_service import presentation_service, PresentationRequest
+    logger.info("Presentation service imported successfully")
+except Exception as e:
+    logger.warning(f"Presentation service not available: {e}")
+    presentation_service = None
 
 @app.get("/api/custom/video/avatars")
 async def get_avatars():
