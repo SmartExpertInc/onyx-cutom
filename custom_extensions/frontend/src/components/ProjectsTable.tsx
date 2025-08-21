@@ -722,6 +722,8 @@ const PreviewModal: React.FC<{
                                       console.log('[FRONTEND_DEBUG] Data keys:', Object.keys(data || {}));
                                       console.log('[FRONTEND_DEBUG] quality_tier_sums exists:', data?.quality_tier_sums ? 'YES' : 'NO');
                                       console.log('[FRONTEND_DEBUG] quality_tier_sums value:', data?.quality_tier_sums);
+                                      console.log('[FRONTEND_DEBUG] quality_tier_sums type:', typeof data?.quality_tier_sums);
+                                      console.log('[FRONTEND_DEBUG] quality_tier_sums keys:', Object.keys(data?.quality_tier_sums || {}));
                                       
                                       // Use quality tier sums from backend (module-level calculation)
                                       const qualityTierSums = data?.quality_tier_sums || {
@@ -3891,6 +3893,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 
                 console.log('[FRONTEND_DEBUG] Backend data received:', backendData);
                 console.log('[FRONTEND_DEBUG] Backend quality_tier_sums:', backendData.quality_tier_sums);
+                console.log('[FRONTEND_DEBUG] Backend quality_tier_sums type:', typeof backendData.quality_tier_sums);
+                console.log('[FRONTEND_DEBUG] Backend quality_tier_sums keys:', Object.keys(backendData.quality_tier_sums || {}));
+                console.log('[FRONTEND_DEBUG] Setting preview data with quality_tier_sums:', backendData.quality_tier_sums);
                 
                 setPreviewData({
                     clientName,
@@ -3899,6 +3904,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     quality_tier_sums: backendData.quality_tier_sums
                 });
             } else {
+                console.log('[FRONTEND_DEBUG] Backend response not ok, using fallback data');
                 // Fallback to frontend data if backend fails
                 const projectsToShow = visibleProjects.filter(project => 
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
@@ -3930,6 +3936,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             }
         } catch (error) {
             console.error('Failed to fetch preview data from backend:', error);
+            console.log('[FRONTEND_DEBUG] Using catch block fallback data');
             // Fallback to frontend data
             const projectsToShow = visibleProjects.filter(project => 
                 selectedProjects.length === 0 || selectedProjects.includes(project.id)
