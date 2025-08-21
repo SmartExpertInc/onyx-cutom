@@ -69,7 +69,7 @@ export default function AvatarPopup({
           <div className="w-64 bg-white px-6 py-4 flex flex-col">
                     {/* Three buttons at the top */}
         <div className="mb-4 flex justify-center">
-          <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1" style={{ width: 'fit-content', height: '40px' }}>
+                        <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1" style={{ width: 'fit-content', height: '36px' }}>
                 <button 
                   onClick={() => setActiveButton('button1')}
                   className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
@@ -272,7 +272,7 @@ export default function AvatarPopup({
             </div>
 
             {/* Grey horizontal line */}
-            <div className="w-full h-px bg-gray-200 mb-4 -mx-4"></div>
+            <div className="w-full h-px bg-gray-200 mb-4 -mx-6"></div>
 
             {/* Footer with Add to Scene button */}
             <div className="flex justify-center flex-shrink-0">
@@ -298,12 +298,12 @@ export default function AvatarPopup({
                   type="text"
                   placeholder="Search"
                   className="w-full pl-10 pr-4 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
-                  style={{ height: '40px' }}
+                  style={{ height: '36px' }}
                 />
               </div>
               
               {/* Create button */}
-              <button className="px-3 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-30 transition-colors font-medium text-sm" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', height: '40px' }}>
+              <button className="px-3 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-30 transition-colors font-medium text-sm" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', height: '36px' }}>
                 + Create
               </button>
             </div>
@@ -330,7 +330,7 @@ export default function AvatarPopup({
                       onClick={() => handleAvatarClick(avatar)}
                     >
                       {/* Plus button that appears on hover */}
-                      <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50">
+                      <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-lg flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 cursor-pointer">
                         <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
