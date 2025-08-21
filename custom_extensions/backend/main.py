@@ -16257,6 +16257,91 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
         logger.error(f"Error getting lesson data for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail="Failed to get lesson data")
 
+# Unified function to process projects data for both PDF generation and preview
+def process_projects_data_unified(projects_rows, folders_data=None):
+    """
+    Unified function to process projects data for both PDF generation and preview.
+    This ensures both PDF and preview use exactly the same data and calculations.
+    """
+    projects_data = []
+    for row in projects_rows:
+        row_dict = dict(row)
+        
+        # Calculate individual project times using consistent logic
+        total_lessons = 0
+        total_hours = 0.0
+        total_completion_time = 0
+        total_creation_hours = 0.0
+        total_modules = 0
+        
+        if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
+            content = row_dict['microproduct_content']
+            if content.get('sections') and isinstance(content['sections'], list):
+                total_modules = len(content['sections'])  # Count modules
+                for section in content['sections']:
+                    if section.get('lessons') and isinstance(section['lessons'], list):
+                        for lesson in section['lessons']:
+                            total_lessons += 1
+                            if lesson.get('hours'):
+                                try:
+                                    total_hours += float(lesson['hours'])
+                                except (ValueError, TypeError):
+                                    pass
+                            
+                            # Calculate completion time - treat missing completion time as 5 minutes
+                            completion_time_str = lesson.get('completionTime', '')
+                            if completion_time_str:
+                                time_str = str(completion_time_str).strip()
+                                if time_str and time_str != '':
+                                    if time_str.endswith('m'):
+                                        try:
+                                            minutes = int(time_str[:-1])
+                                            total_completion_time += minutes
+                                        except ValueError:
+                                            total_completion_time += 5  # Fallback to 5 minutes
+                                    elif time_str.endswith('h'):
+                                        try:
+                                            hours = int(time_str[:-1])
+                                            total_completion_time += (hours * 60)
+                                        except ValueError:
+                                            total_completion_time += 5  # Fallback to 5 minutes
+                                    elif time_str.isdigit():
+                                        try:
+                                            total_completion_time += int(time_str)
+                                        except ValueError:
+                                            total_completion_time += 5  # Fallback to 5 minutes
+                                    else:
+                                        total_completion_time += 5  # Fallback to 5 minutes
+                                else:
+                                    total_completion_time += 5  # Empty string, use 5 minutes
+                            else:
+                                total_completion_time += 5  # No completion time, use 5 minutes
+                            
+                            # Calculate creation hours using proper function
+                            lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
+                                lesson, section, get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
+                            )
+                            total_creation_hours += lesson_creation_hours
+        
+        projects_data.append({
+            'id': row_dict['id'],
+            'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
+            'created_at': row_dict['created_at'],
+            'created_by': 'You',
+            'design_microproduct_type': row_dict.get('design_microproduct_type'),
+            'folder_id': row_dict.get('folder_id'),
+            'order': row_dict.get('order', 0),
+            'microproduct_content': row_dict.get('microproduct_content'),
+            'quality_tier': row_dict.get('quality_tier', 'interactive'),
+            'total_lessons': total_lessons,
+            'total_modules': total_modules,
+            'total_hours': round(total_hours, 1),  # Learning Duration (H)
+            'total_completion_time': total_completion_time,
+            'total_creation_hours': round(total_creation_hours, 1)  # Production Time (H)
+        })
+    
+    return projects_data
+
 @app.get("/api/custom/pdf/projects-list", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_projects_list_pdf(
     folder_id: Optional[int] = Query(None),
@@ -16391,83 +16476,8 @@ async def download_projects_list_pdf(
                 folders_rows = await conn.fetch(folders_query, onyx_user_id)
                 folders_data = [dict(row) for row in folders_rows]
 
-        # Process projects data
-        projects_data = []
-        for row in projects_rows:
-            row_dict = dict(row)
-            
-            # Calculate individual project times using proper creation hours calculation
-            total_lessons = 0
-            total_hours = 0.0
-            total_completion_time = 0
-            total_creation_hours = 0.0
-            total_modules = 0
-            
-            if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
-                content = row_dict['microproduct_content']
-                if content.get('sections') and isinstance(content['sections'], list):
-                    total_modules = len(content['sections'])  # Count modules
-                    for section in content['sections']:
-                        if section.get('lessons') and isinstance(section['lessons'], list):
-                            for lesson in section['lessons']:
-                                total_lessons += 1
-                                if lesson.get('hours'):
-                                    try:
-                                        total_hours += float(lesson['hours'])
-                                    except (ValueError, TypeError):
-                                        pass
-                                
-                                # Calculate completion time - treat missing completion time as 5 minutes
-                                completion_time_str = lesson.get('completionTime', '')
-                                if completion_time_str:
-                                    time_str = str(completion_time_str).strip()
-                                    if time_str and time_str != '':
-                                        if time_str.endswith('m'):
-                                            try:
-                                                minutes = int(time_str[:-1])
-                                                total_completion_time += minutes
-                                            except ValueError:
-                                                total_completion_time += 5  # Fallback to 5 minutes
-                                        elif time_str.endswith('h'):
-                                            try:
-                                                hours = int(time_str[:-1])
-                                                total_completion_time += (hours * 60)
-                                            except ValueError:
-                                                total_completion_time += 5  # Fallback to 5 minutes
-                                        elif time_str.isdigit():
-                                            try:
-                                                total_completion_time += int(time_str)
-                                            except ValueError:
-                                                total_completion_time += 5  # Fallback to 5 minutes
-                                        else:
-                                            total_completion_time += 5  # Fallback to 5 minutes
-                                    else:
-                                        total_completion_time += 5  # Empty string, use 5 minutes
-                                else:
-                                    total_completion_time += 5  # No completion time, use 5 minutes
-                                
-                                # Calculate creation hours using proper function
-                                lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
-                                    lesson, section, get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
-                                )
-                                total_creation_hours += lesson_creation_hours
-            
-            projects_data.append({
-                'id': row_dict['id'],
-                'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
-                'created_at': row_dict['created_at'],
-                'created_by': 'You',
-                'design_microproduct_type': row_dict.get('design_microproduct_type'),
-                'folder_id': row_dict.get('folder_id'),
-                'order': row_dict.get('order', 0),
-                'microproduct_content': row_dict.get('microproduct_content'),
-                'quality_tier': row_dict.get('quality_tier'),  # Add quality_tier field
-                'total_lessons': total_lessons,
-                'total_modules': total_modules,
-                'total_hours': round(total_hours),  # Sum of lesson hours (like in original)
-                'total_completion_time': total_completion_time,
-                'total_creation_hours': round(total_creation_hours)
-            })
+        # Process projects data using unified function for consistency
+        projects_data = process_projects_data_unified(projects_rows, folders_data)
 
         # --- Deduplicate projects: only show top-level products and outlines, hide lessons/quizzes that belong to an outline ---
         def deduplicate_projects(projects_arr):
@@ -19363,115 +19373,8 @@ async def get_projects_data_for_preview(
             
             projects_rows = await conn.fetch(projects_query, *params)
             
-            # Process projects data
-            projects_data = []
-            for row in projects_rows:
-                row_dict = dict(row)
-                
-                # Calculate individual project times
-                total_lessons = 0
-                total_hours = 0.0
-                total_completion_time = 0
-                total_creation_hours = 0  # Production time (H)
-                
-                if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
-                    content = row_dict['microproduct_content']
-                    if content.get('sections') and isinstance(content['sections'], list):
-                        for section in content['sections']:
-                            if section.get('lessons') and isinstance(section['lessons'], list):
-                                for lesson in section['lessons']:
-                                    total_lessons += 1
-                                    if lesson.get('hours'):
-                                        try:
-                                            total_hours += float(lesson['hours'])
-                                        except (ValueError, TypeError):
-                                            pass
-                                    
-                                    # Calculate completion time
-                                    completion_time_str = lesson.get('completionTime', '')
-                                    if completion_time_str:
-                                        time_str = str(completion_time_str).strip()
-                                        if time_str and time_str != '':
-                                            if time_str.endswith('m'):
-                                                try:
-                                                    minutes = int(time_str[:-1])
-                                                    total_completion_time += minutes
-                                                except ValueError:
-                                                    total_completion_time += 5
-                                            elif time_str.endswith('h'):
-                                                try:
-                                                    hours = int(time_str[:-1])
-                                                    total_completion_time += (hours * 60)
-                                                except ValueError:
-                                                    total_completion_time += 5
-                                            elif time_str.isdigit():
-                                                try:
-                                                    total_completion_time += int(time_str)
-                                                except ValueError:
-                                                    total_completion_time += 5
-                                            else:
-                                                total_completion_time += 5
-                                        else:
-                                            total_completion_time += 5
-                                    else:
-                                        total_completion_time += 5
-                
-                # Calculate production time based on quality tier
-                effective_quality_tier = row_dict.get('quality_tier', 'interactive').lower()
-                if effective_quality_tier == 'basic':
-                    total_creation_hours = total_hours * 20  # 20h per 1h learning
-                elif effective_quality_tier == 'interactive':
-                    total_creation_hours = total_hours * 25  # 25h per 1h learning
-                elif effective_quality_tier == 'advanced':
-                    total_creation_hours = total_hours * 40  # 40h per 1h learning
-                elif effective_quality_tier == 'immersive':
-                    total_creation_hours = total_hours * 80  # 80h per 1h learning
-                else:
-                    total_creation_hours = total_hours * 25  # Default to interactive
-                
-                # Extract project title
-                project_title = 'Untitled'
-                if row_dict.get('project_name') and row_dict['project_name'].strip():
-                    project_title = row_dict['project_name'].strip()
-                elif row_dict.get('microproduct_name') and row_dict['microproduct_name'].strip():
-                    project_title = row_dict['microproduct_name'].strip()
-                
-                # Try to extract from microproduct_content
-                if project_title == 'Untitled' or not project_title or project_title in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
-                    content = row_dict.get('microproduct_content')
-                    if content and isinstance(content, dict):
-                        content_title = None
-                        
-                        if content.get('mainTitle'):
-                            content_title = content['mainTitle']
-                        elif content.get('lessonTitle'):
-                            content_title = content['lessonTitle']
-                        elif content.get('mainPresentationTitle'):
-                            content_title = content['mainPresentationTitle']
-                        elif content.get('quizTitle'):
-                            content_title = content['quizTitle']
-                        elif content.get('textTitle'):
-                            content_title = content['textTitle']
-                        
-                        if content_title and content_title.strip() and content_title.strip() not in ['New Training Plan', 'New PDF Lesson', 'New Slide Deck', 'New Video Lesson', 'New Quiz', 'New Text Presentation']:
-                            project_title = content_title.strip()
-                
-                projects_data.append({
-                    'id': row_dict['id'],
-                    'title': project_title,
-                    'created_at': row_dict['created_at'].isoformat() if row_dict['created_at'] else None,
-                    'created_by': 'You',
-                    'design_microproduct_type': row_dict.get('design_microproduct_type'),
-                    'folder_id': row_dict.get('folder_id'),
-                    'order': row_dict.get('order', 0),
-                    'microproduct_content': row_dict.get('microproduct_content'),
-                    'quality_tier': row_dict.get('quality_tier', 'interactive'),
-                    'total_lessons': total_lessons,
-                    'total_hours': round(total_hours, 1),
-                    'total_completion_time': total_completion_time,
-                    'total_creation_hours': round(total_creation_hours, 1),  # Production time (H)
-                    'total_modules': 1  # Default to 1 module per project
-                })
+            # Process projects data using unified function for consistency
+            projects_data = process_projects_data_unified(projects_rows)
             
             return {
                 'projects': projects_data,

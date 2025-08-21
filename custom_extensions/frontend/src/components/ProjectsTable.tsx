@@ -586,7 +586,7 @@ const PreviewModal: React.FC<{
                                       // 🔧 FIX: Use consistent data processing for Block 1. Course Overview (same as PDF)
                                       const courses = processBlock1CourseOverview(data.projects).slice(0, 4);
                                       
-                                      // Calculate summary stats exactly like PDF generation
+                                      // Calculate summary stats exactly like PDF generation (using unified backend data)
                                       const allProjects = data.projects || [];
                                       const totalLearningHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_hours || 0), 0);
                                       const totalProductionHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
