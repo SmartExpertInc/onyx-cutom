@@ -3929,7 +3929,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     const projectQualityTier = project.quality_tier;
                     
                     // Check if we have microproduct_content for module-level calculation
-                    const microproductContent = project.microproduct_content;
+                    const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
                     if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
                         // Use module-level calculation (like backend)
                         const sections = microproductContent.sections;
@@ -4038,7 +4038,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 const projectQualityTier = project.quality_tier;
                 
                 // Check if we have microproduct_content for module-level calculation
-                const microproductContent = project.microproduct_content;
+                const microproductContent = 'microproduct_content' in project ? project.microproduct_content : null;
                 if (microproductContent && typeof microproductContent === 'object' && microproductContent.sections) {
                     // Use module-level calculation (like backend)
                     const sections = microproductContent.sections;
