@@ -553,16 +553,14 @@ def delete_cc_pair(
     cc_pair_id: int,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: str = Depends(get_current_tenant_id),
 ) -> StatusResponse[int]:
     """Delete a connector-credential pair"""
     # Admin check disabled for Smart Drive functionality
     # All authenticated users can delete their own cc-pairs
     
     cc_pair = get_connector_credential_pair_from_id_for_user(
-        cc_pair_id=cc_pair_id,
-        db_session=db_session,
-        user=user,
-        get_editable=True,
+        cc_pair_id, db_session, user, get_editable=True
     )
 
     if not cc_pair:
@@ -571,6 +569,16 @@ def delete_cc_pair(
             detail="Connector-credential pair not found for current user's permissions",
         )
 
-    return remove_credential_from_connector(
-        cc_pair.connector_id, cc_pair.credential_id, user, db_session
-    )
+    # Get connector_id and credential_id from the cc_pair object
+    try:
+        connector_id = cc_pair.connector.id if hasattr(cc_pair, 'connector') else cc_pair.connector_id
+        credential_id = cc_pair.credential.id if hasattr(cc_pair, 'credential') else cc_pair.credential_id
+        
+        return remove_credential_from_connector(
+            connector_id, credential_id, user, db_session
+        )
+    except AttributeError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to extract connector/credential IDs: {str(e)}",
+        )
