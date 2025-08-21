@@ -112,10 +112,6 @@ export default function Projects2ViewPage() {
     setIsLanguageVariantModalOpen(false);
   };
 
-  // Debug modal state changes
-  useEffect(() => {
-  }, [isLanguageVariantModalOpen]);
-
   const handleAiButtonClick = (position: { x: number; y: number }) => {
     setAiPopupPosition(position);
     setIsAiPopupOpen(true);

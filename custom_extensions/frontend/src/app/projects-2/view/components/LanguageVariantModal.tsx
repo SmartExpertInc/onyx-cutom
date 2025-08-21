@@ -15,6 +15,7 @@ const languages = [
 ];
 
 export default function LanguageVariantModal({ isOpen, onClose }: LanguageVariantModalProps) {
+  console.log('🔧 LanguageVariantModal render - isOpen:', isOpen);
   
   const [selectedLanguage, setSelectedLanguage] = useState('Spanish');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -48,13 +49,13 @@ export default function LanguageVariantModal({ isOpen, onClose }: LanguageVarian
     return null;
   }
 
-  const modalContent = (
+  return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Background overlay */}
       <div 
         className="absolute inset-0"
         style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-        onClick={handleBackdropClick}
+        // onClick={handleBackdropClick}
       ></div>
       
       {/* Modal content */}
@@ -64,6 +65,10 @@ export default function LanguageVariantModal({ isOpen, onClose }: LanguageVarian
       >
         {/* Content */}
         <div className="px-6 py-8">
+          {/* Test element */}
+          <div className="bg-red-500 text-white p-4 mb-4 text-center font-bold text-xl">
+            MODAL IS RENDERING!
+          </div>
           
           {/* Row 1: Language variant title */}
           <div className="mb-4">
@@ -202,6 +207,4 @@ export default function LanguageVariantModal({ isOpen, onClose }: LanguageVarian
       </div>
     </div>
   );
-
-  return modalContent;
 }
