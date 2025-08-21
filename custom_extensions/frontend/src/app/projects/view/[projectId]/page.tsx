@@ -25,6 +25,7 @@ import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
+import { VideoDownloadButton } from '@/components/VideoDownloadButton';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
@@ -93,8 +94,7 @@ const slugify = (text: string | null | undefined): string => {
 const PdfExportLoadingModal: React.FC<{
   isOpen: boolean;
   projectName: string;
-  projectInstanceData?: ProjectInstanceDetail | null;
-}> = ({ isOpen, projectName, projectInstanceData }) => {
+}> = ({ isOpen, projectName }) => {
   const { t } = useLanguage();
   
   if (!isOpen) return null;
@@ -103,23 +103,12 @@ const PdfExportLoadingModal: React.FC<{
     <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          {projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION 
-            ? t('actions.generatingVideo', 'Generating Video')
-            : t('actions.generatingPdf', 'Generating PDF')
-          }
-        </h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
         <p className="text-gray-600 text-center mb-4">
-          {projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-            ? t('actions.creatingVideoLesson', 'Creating video lesson for presentation')
-            : t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')
-          } <span className="font-semibold text-blue-600">"{projectName}"</span>
+          {t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')} <span className="font-semibold text-blue-600">"{projectName}"</span>
         </p>
         <p className="text-sm text-gray-500 text-center">
-          {projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-            ? t('modals.videoExport.description', 'This may take several minutes depending on the presentation size...')
-            : t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')
-          }
+          {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
         </p>
       </div>
     </div>,
@@ -940,108 +929,6 @@ export default function ProjectInstanceViewPage() {
     window.open(pdfUrl, '_blank');
   };
 
-  const handleVideoDownload = async () => {
-    if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
-        alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
-        return;
-    }
-    
-    // Only handle video lesson presentations
-    if (projectInstanceData.component_name !== COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
-        alert(t('interface.projectView.videoDownloadOnlyForVideoLessons', 'Video download is only available for video lesson presentations.'));
-        return;
-    }
-    
-    const slideDeckData = editableData as ComponentBasedSlideDeck;
-    if (!slideDeckData || !slideDeckData.slides || slideDeckData.slides.length === 0) {
-        alert(t('interface.projectView.noSlidesForVideo', 'No slides available for video generation.'));
-        return;
-    }
-    
-    // Show loading modal
-    setIsExportingPdf(true); // Reuse the PDF loading modal for video generation
-    
-    try {
-        // Start video generation process
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/video-lesson/generate-avatar`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                project_id: projectInstanceData.project_id.toString(),
-                slide_id: slideDeckData.slides[0]?.slideId || 'slide-1',
-                avatar_code: 'gia.1',
-                voice: 'en-US-JennyNeural',
-                background_color: '#00FF00',
-                language: 'en',
-                video_format: 'mp4',
-                resolution: '1920x1080'
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Video generation failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Video generation started:', result);
-        
-        // Poll for completion
-        let attempts = 0;
-        const maxAttempts = 60; // 5 minutes with 5-second intervals
-        
-        const pollForCompletion = async () => {
-            if (attempts >= maxAttempts) {
-                throw new Error('Video generation timeout');
-            }
-            
-            const progressResponse = await fetch(`${CUSTOM_BACKEND_URL}/video-lesson/progress/${projectInstanceData.project_id}`);
-            if (!progressResponse.ok) {
-                throw new Error(`Progress check failed: ${progressResponse.status}`);
-            }
-            
-            const progressData = await progressResponse.json();
-            console.log('Video generation progress:', progressData);
-            
-            if (progressData.status === 'completed' && progressData.download_url) {
-                // Download the video
-                const videoResponse = await fetch(progressData.download_url);
-                if (!videoResponse.ok) {
-                    throw new Error('Failed to download video');
-                }
-                
-                const videoBlob = await videoResponse.blob();
-                const url = window.URL.createObjectURL(videoBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${projectInstanceData.name || 'video-lesson'}_${new Date().toISOString().split('T')[0]}.mp4`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                
-                return; // Success, exit polling
-            } else if (progressData.status === 'failed') {
-                throw new Error(progressData.error_message || 'Video generation failed');
-            }
-            
-            // Continue polling
-            attempts++;
-            setTimeout(pollForCompletion, 5000); // Poll every 5 seconds
-        };
-        
-        await pollForCompletion();
-        
-    } catch (error) {
-        console.error('Error generating video:', error);
-        alert(t('interface.projectView.videoGenerationError', 'Failed to generate video. Please try again.'));
-    } finally {
-        // Hide loading modal
-        setIsExportingPdf(false);
-    }
-  };
-
   // Theme management for slide decks
   const slideDeckData = projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK 
     ? (editableData as ComponentBasedSlideDeck) 
@@ -1278,7 +1165,6 @@ export default function ProjectInstanceViewPage() {
             <SmartSlideDeckViewer
               deck={videoLessonPresentationData}
               isEditable={true}
-              isVideoLesson={true}
               onSave={(updatedDeck) => {
                 // Update the editableData state with the new deck and trigger save
                 console.log('🔍 page.tsx: Received updated video lesson deck:', updatedDeck);
@@ -1427,26 +1313,28 @@ export default function ProjectInstanceViewPage() {
             )}
             
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-                  <button
-                    onClick={projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? handleVideoDownload : handlePdfDownload}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title={
-                      projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-                        ? t('interface.projectView.downloadVideo', 'Download video lesson')
-                        : projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
-                        : t('interface.projectView.downloadPdf', 'Download content as PDF')
-                    }
-                  >
-                   <Download size={16} className="mr-2" /> {
-                     projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
-                       ? t('interface.projectView.downloadVideo', 'Download Video')
-                       : projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                       ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
-                       : t('interface.projectView.downloadPdf', 'Download PDF')
-                   }
-                  </button>
+              projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
+              projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
+                <VideoDownloadButton
+                  projectName={projectInstanceData.name}
+                  onError={(error) => {
+                    console.error('Video generation error:', error);
+                    alert(`Video generation failed: ${error}`);
+                  }}
+                  onSuccess={(downloadUrl) => {
+                    console.log('Video generated successfully:', downloadUrl);
+                  }}
+                />
+              ) : (
+                <button
+                  onClick={handlePdfDownload}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                  title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
+                >
+                 <Download size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
+                </button>
+              )
             )}
             
             {/* Smart Edit button for Training Plans */}
@@ -1567,7 +1455,6 @@ export default function ProjectInstanceViewPage() {
       <PdfExportLoadingModal 
         isOpen={isExportingPdf} 
         projectName={projectInstanceData?.name || 'Presentation'} 
-        projectInstanceData={projectInstanceData}
       />
     </main>
   );

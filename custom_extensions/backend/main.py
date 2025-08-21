@@ -39,17 +39,6 @@ try:
 except ImportError:
     PdfMerger = None
 
-# NEW: Video lesson generation imports
-try:
-    from elai_service import ElaiAPIService, ElaiVideoConfig
-    from video_composition_service import VideoCompositionService, VideoCompositionResult
-    from slide_image_generator import SlideImageGenerator
-    from video_lesson_generator import VideoLessonGenerator
-    VIDEO_LESSON_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"Video lesson generation services not available: {e}")
-    VIDEO_LESSON_AVAILABLE = False
-
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
@@ -60,10 +49,6 @@ if IS_PRODUCTION:
     logging.basicConfig(level=logging.ERROR) # Production: Log only ERROR and CRITICAL
 else:
     logging.basicConfig(level=logging.INFO)  # Development: Log INFO, WARNING, ERROR, CRITICAL
-
-# --- Elai API Configuration ---
-ELAI_API_TOKEN = os.getenv("ELAI_API_TOKEN", "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e")
-ELAI_BASE_URL = os.getenv("ELAI_BASE_URL", "https://api.elai.io")
 
 
 # --- Constants & DB Setup ---
@@ -472,30 +457,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Include video lesson router
-try:
-    from video_lesson_api import router as video_lesson_router, set_dependencies
-    app.include_router(video_lesson_router)
-    logger.info("Video lesson API router included successfully")
-    
-    # Inject dependencies to avoid circular imports
-    # Note: These will be defined later in this file
-    def _inject_dependencies():
-        # Import locally to avoid circular imports at module level
-        try:
-            set_dependencies(get_current_onyx_user_id, get_db_pool)
-            logger.info("Video lesson dependencies injected successfully")
-        except NameError:
-            logger.warning("Dependencies not yet available for video lesson router")
-    
-    # Store the injection function to call later
-    app._inject_video_lesson_deps = _inject_dependencies
-    
-except ImportError as e:
-    logger.warning(f"Could not include video lesson router: {e}")
-except Exception as e:
-    logger.error(f"Unexpected error importing video lesson router: {e}")
 
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
@@ -5244,48 +5205,10 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
 
-            # --- Ensure video generation tasks table ---
-            try:
-                await connection.execute("""
-                    CREATE TABLE IF NOT EXISTS video_generation_tasks (
-                        id SERIAL PRIMARY KEY,
-                        project_id VARCHAR(255) NOT NULL,
-                        slide_id VARCHAR(255) NOT NULL,
-                        video_id VARCHAR(255) NOT NULL,
-                        avatar_code VARCHAR(100) NOT NULL DEFAULT 'gia.1',
-                        voice VARCHAR(100) NOT NULL DEFAULT 'en-US-JennyNeural',
-                        background_color VARCHAR(20) NOT NULL DEFAULT '#00FF00',
-                        status VARCHAR(50) NOT NULL DEFAULT 'pending',
-                        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-                        updated_at TIMESTAMP WITH TIME ZONE,
-                        onyx_user_id VARCHAR(255) NOT NULL,
-                        download_url TEXT,
-                        error_message TEXT
-                    );
-                """)
-                
-                # Create indexes for video generation tasks
-                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_project_id ON video_generation_tasks(project_id);")
-                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_user_id ON video_generation_tasks(onyx_user_id);")
-                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_status ON video_generation_tasks(status);")
-                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_video_id ON video_generation_tasks(video_id);")
-                await connection.execute("CREATE INDEX IF NOT EXISTS idx_video_tasks_created_at ON video_generation_tasks(created_at);")
-                logger.info("'video_generation_tasks' table ensured with indexes.")
-                
-            except Exception as e:
-                logger.warning(f"Error creating video_generation_tasks table (may already exist): {e}")
-
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
         DB_POOL = None
-    
-    # Inject dependencies for video lesson router after everything is initialized
-    if hasattr(app, '_inject_video_lesson_deps'):
-        try:
-            app._inject_video_lesson_deps()
-        except Exception as e:
-            logger.warning(f"Failed to inject video lesson dependencies: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -16875,3 +16798,89 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     status_code=500, 
                     detail=f"Failed to duplicate project: {str(e)}"
                 )
+
+# --- Video Generation API Endpoints ---
+
+# Import video generation service
+try:
+    from app.services.video_generation_service import video_generation_service
+except ImportError:
+    logger.error("Failed to import video generation service")
+    video_generation_service = None
+
+@app.get("/api/custom/video/avatars")
+async def get_avatars():
+    """Get available avatars from Elai API."""
+    try:
+        if not video_generation_service:
+            raise HTTPException(status_code=500, detail="Video generation service not available")
+        
+        result = await video_generation_service.get_avatars()
+        
+        if result["success"]:
+            return {"success": True, "avatars": result["avatars"]}
+        else:
+            raise HTTPException(status_code=500, detail=result["error"])
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching avatars: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch avatars: {str(e)}")
+
+@app.post("/api/custom/video/generate")
+async def generate_video(request: Request):
+    """Generate video from slides and avatar data."""
+    try:
+        if not video_generation_service:
+            raise HTTPException(status_code=500, detail="Video generation service not available")
+        
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        avatar_data = body.get("avatar", {})
+        
+        # Validate request data
+        if not slides_data:
+            raise HTTPException(status_code=400, detail="No slides data provided")
+        
+        if not avatar_data:
+            raise HTTPException(status_code=400, detail="No avatar data provided")
+        
+        # Generate video
+        result = await video_generation_service.generate_video(slides_data, avatar_data)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_id": result["video_id"],
+                "download_url": result["download_url"]
+            }
+        else:
+            raise HTTPException(status_code=500, detail=result["error"])
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating video: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate video: {str(e)}")
+
+@app.get("/api/custom/video/status/{video_id}")
+async def get_video_status(video_id: str):
+    """Get the status of a video generation."""
+    try:
+        if not video_generation_service:
+            raise HTTPException(status_code=500, detail="Video generation service not available")
+        
+        status_data = await video_generation_service.check_video_status(video_id)
+        
+        if status_data:
+            return {"success": True, "status": status_data}
+        else:
+            raise HTTPException(status_code=404, detail="Video not found")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error checking video status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to check video status: {str(e)}")

@@ -10,7 +10,6 @@ import { ThemePicker } from './theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
 import { Plus, ChevronDown, X, Volume2, Palette} from 'lucide-react';
-import AvatarPreview from './AvatarPreview';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -33,9 +32,6 @@ interface SmartSlideDeckViewerProps {
 
   /** Project ID for theme persistence */
   projectId?: string;
-
-  /** Whether this is a video lesson presentation (shows avatar placeholders) */
-  isVideoLesson?: boolean;
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
@@ -45,8 +41,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   showFormatInfo = false,
   theme,
   hasVoiceover = false,
-  projectId,
-  isVideoLesson = false
+  projectId
 }: SmartSlideDeckViewerProps) => {
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -467,7 +462,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
           </div>
         </div>
-        <h1>Hello</h1>
       </div>
 
       {/* Main Content Area - Static white container */}
@@ -576,7 +570,6 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                     onTemplateChange={isEditable ? handleTemplateChange : undefined}
                     theme={currentTheme}
-                    isVideoLesson={isVideoLesson}
                   />
                 </div>
               </div>
@@ -827,8 +820,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             </div>
           )}
 
-          {/* Voiceover Button - Show for video lessons or when voiceover exists */}
-          {(hasAnyVoiceover || isVideoLesson) && (
+          {/* Voiceover Button - Only show for video lessons */}
+          {hasAnyVoiceover && (
             <button
               style={{
                 width: '32px',
@@ -863,7 +856,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       )}
 
       {/* Voiceover Panel */}
-      {(hasAnyVoiceover || isVideoLesson) && (
+      {hasAnyVoiceover && (
         <VoiceoverPanel
           isOpen={isVoiceoverPanelOpen}
           onClose={() => setIsVoiceoverPanelOpen(false)}
