@@ -700,7 +700,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Completion Time (h)
+                                        Learning Duration (h)
                                       </th>
 
                                       <th className="p-4 text-left font-semibold uppercase tracking-wider" style={{
@@ -710,7 +710,7 @@ const PreviewModal: React.FC<{
                                         fontSize: '0.9rem',
                                         letterSpacing: '0.5px'
                                       }}>
-                                        Creation Time (h)
+                                        Production Hours
                                       </th>
                                     </tr>
                                   </thead>
@@ -3929,7 +3929,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     return tierMapping[tier] || 'interactive';
                 };
 
-                // Process all projects with module-level quality tiers (like backend)
+                // Process all projects with quality tier grouping (like PDF)
                 projectsToShow.forEach((project: Project | BackendProject) => {
                     const projectQualityTier = project.quality_tier || null;
                     
@@ -3977,7 +3977,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                             });
                         }
                     } else {
-                        // Fallback to project-level calculation if no microproduct_content
+                        // Use project-level calculation for Block 2 (like PDF)
                         const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
                         qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
                         // total_creation_hours is already in minutes (like backend)
@@ -4039,7 +4039,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 return tierMapping[tier] || 'interactive';
             };
 
-            // Process all projects with module-level quality tiers (like backend)
+            // Process all projects with quality tier grouping (like PDF)
             projectsToShow.forEach((project: Project | BackendProject) => {
                 const projectQualityTier = project.quality_tier || null;
                 
@@ -4086,13 +4086,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                             }
                         });
                     }
-                                    } else {
-                        // Fallback to project-level calculation if no microproduct_content
-                        const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
-                        qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
-                        // total_creation_hours is already in minutes (like backend)
-                        qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
-                    }
+                } else {
+                    // Use project-level calculation for Block 2 (like PDF)
+                    const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
+                    qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
+                    // total_creation_hours is already in minutes (like backend)
+                    qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+                }
             });
 
             console.log('🔄 Setting fallback preview data with quality_tier_sums:', qualityTierSums);
