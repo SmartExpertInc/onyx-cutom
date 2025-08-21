@@ -79,14 +79,6 @@ class ElaiVideoGenerationService:
     async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
         """
         Create a video from voiceover texts and avatar code.
-        
-        Args:
-            project_name: Name of the project
-            voiceover_texts: List of voiceover text strings
-            avatar_code: Avatar code (e.g., "gia.casual")
-            
-        Returns:
-            Dict containing video creation response
         """
         if not self.client:
             return {
@@ -95,7 +87,54 @@ class ElaiVideoGenerationService:
             }
         
         try:
-            # Get avatar details first
+            # Validate inputs
+            if not voiceover_texts or len(voiceover_texts) == 0:
+                return {
+                    "success": False,
+                    "error": "No voiceover texts provided"
+                }
+            
+            if not avatar_code:
+                return {
+                    "success": False,
+                    "error": "No avatar code provided"
+                }
+            
+            # Clean and validate voiceover texts
+            cleaned_texts = []
+            for i, text in enumerate(voiceover_texts):
+                if not text or not isinstance(text, str):
+                    logger.warning(f"Skipping invalid voiceover text at index {i}: {text}")
+                    continue
+                
+                # Clean the text
+                cleaned_text = text.strip()
+                cleaned_text = ' '.join(cleaned_text.split())  # Remove extra whitespace
+                
+                # Remove problematic characters that might cause API issues
+                cleaned_text = cleaned_text.replace('"', '"').replace('"', '"')
+                cleaned_text = cleaned_text.replace(''', "'").replace(''', "'")
+                cleaned_text = cleaned_text.replace('…', '...')
+                
+                # Validate length
+                if len(cleaned_text) < 5:
+                    logger.warning(f"Voiceover text too short at index {i}: '{cleaned_text}'")
+                    continue
+                
+                if len(cleaned_text) > 1000:
+                    logger.warning(f"Voiceover text too long at index {i}, truncating")
+                    cleaned_text = cleaned_text[:1000] + "..."
+                
+                cleaned_texts.append(cleaned_text)
+                logger.info(f"Cleaned voiceover text {i+1}: {cleaned_text[:100]}...")
+            
+            if not cleaned_texts:
+                return {
+                    "success": False,
+                    "error": "No valid voiceover texts after cleaning"
+                }
+            
+            # Get avatars to find the specified one
             avatars_response = await self.get_avatars()
             if not avatars_response["success"]:
                 return {
@@ -118,7 +157,7 @@ class ElaiVideoGenerationService:
             
             # Prepare slides for Elai API
             elai_slides = []
-            for i, voiceover_text in enumerate(voiceover_texts):
+            for i, voiceover_text in enumerate(cleaned_texts):
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
@@ -171,6 +210,8 @@ class ElaiVideoGenerationService:
                 }
             }
             
+            logger.info(f"Creating video with {len(elai_slides)} slides")
+            
             # Create video
             response = await self.client.post(
                 f"{self.api_base}/videos",
@@ -184,7 +225,7 @@ class ElaiVideoGenerationService:
                 logger.info(f"Video created successfully: {video_id}")
                 return {
                     "success": True,
-                    "video_id": video_id,
+                    "videoId": video_id,
                     "message": "Video created successfully"
                 }
             else:
@@ -361,7 +402,7 @@ class ElaiVideoGenerationService:
                 video_data = response.json()
                 status = video_data.get("status", "unknown")
                 
-                # Calculate progress based on status
+                # Calculate progress based on status with better handling of cycling states
                 progress = 0
                 if status == "draft":
                     progress = 10
@@ -373,6 +414,10 @@ class ElaiVideoGenerationService:
                     progress = 80
                 elif status in ["rendered", "ready"]:
                     progress = 100
+                elif status == "error":
+                    # Don't set progress to 0 for error status - maintain previous progress
+                    # This helps with the cycling issue where status alternates between rendering and error
+                    progress = 50  # Keep at rendering level
                 
                 # Get download URL if available
                 download_url = (
@@ -380,6 +425,11 @@ class ElaiVideoGenerationService:
                     video_data.get("url") or 
                     video_data.get("playerData", {}).get("url")
                 )
+                
+                # Log detailed status information for debugging
+                logger.info(f"Video {video_id} status: {status}, progress: {progress}%")
+                if status == "error":
+                    logger.warning(f"Video {video_id} reported error status - this may be temporary")
                 
                 return {
                     "success": True,
@@ -400,7 +450,7 @@ class ElaiVideoGenerationService:
             logger.error(f"Error checking video status: {str(e)}")
             return {
                 "success": False,
-                "error": f"Failed to check video status: {str(e)}"
+                "error": f"Error checking video status: {str(e)}"
             }
     
     async def wait_for_completion(self, video_id: str) -> Optional[str]:

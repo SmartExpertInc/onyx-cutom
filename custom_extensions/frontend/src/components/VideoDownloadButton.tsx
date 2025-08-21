@@ -25,36 +25,74 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
     
     const voiceoverTexts: string[] = [];
     
-    // Find all voiceover elements on the page
+    // Method 1: Look for specific voiceover text attributes
     const voiceoverElements = document.querySelectorAll('[data-voiceover-text], .voiceover-text, .slide-voiceover');
-    
     console.log('🎬 [VIDEO_DOWNLOAD] Found voiceover elements:', voiceoverElements.length);
     
     voiceoverElements.forEach((element, index) => {
       const text = element.textContent?.trim();
-      if (text && text.length > 0) {
-        voiceoverTexts.push(text);
-        console.log(`🎬 [VIDEO_DOWNLOAD] Voiceover ${index + 1}:`, text.substring(0, 100) + '...');
+      if (text && text.length > 0 && text.length < 1000) { // Sanity check for reasonable length
+        // Clean the text - remove excessive whitespace and special characters
+        const cleanText = text.replace(/\s+/g, ' ').trim();
+        if (cleanText.length > 10) { // Only include substantial content
+          voiceoverTexts.push(cleanText);
+          console.log(`🎬 [VIDEO_DOWNLOAD] Voiceover ${index + 1}:`, cleanText.substring(0, 100) + '...');
+        }
       }
     });
 
-    // If no voiceover elements found, try to extract from slide content
+    // Method 2: If no voiceover elements found, try to extract from slide titles and content
     if (voiceoverTexts.length === 0) {
       console.log('🎬 [VIDEO_DOWNLOAD] No voiceover elements found, extracting from slide content...');
       
-      const slideElements = document.querySelectorAll('.slide-content, .real-slide, [data-slide-id]');
+      // Look for slide titles and main content
+      const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [data-slide-title]');
+      const slideContent = document.querySelectorAll('.slide-content, .real-slide, [data-slide-id]');
       
-      slideElements.forEach((slideElement, index) => {
-        // Extract text content from slide
-        const slideText = slideElement.textContent?.trim();
-        if (slideText && slideText.length > 10) { // Only include slides with substantial content
-          voiceoverTexts.push(slideText);
-          console.log(`🎬 [VIDEO_DOWNLOAD] Slide ${index + 1} content:`, slideText.substring(0, 100) + '...');
+      // Extract from titles first
+      slideTitles.forEach((titleElement, index) => {
+        const titleText = titleElement.textContent?.trim();
+        if (titleText && titleText.length > 5 && titleText.length < 200) {
+          const cleanTitle = titleText.replace(/\s+/g, ' ').trim();
+          voiceoverTexts.push(cleanTitle);
+          console.log(`🎬 [VIDEO_DOWNLOAD] Slide title ${index + 1}:`, cleanTitle);
         }
       });
+      
+      // Extract from main content if we still don't have enough
+      if (voiceoverTexts.length < 2) {
+        slideContent.forEach((contentElement, index) => {
+          const contentText = contentElement.textContent?.trim();
+          if (contentText && contentText.length > 20 && contentText.length < 500) {
+            // Clean and extract meaningful content
+            const cleanContent = contentText
+              .replace(/\s+/g, ' ')
+              .replace(/[^\w\s.,!?-]/g, '') // Remove special characters except basic punctuation
+              .trim();
+            
+            if (cleanContent.length > 20) {
+              voiceoverTexts.push(cleanContent);
+              console.log(`🎬 [VIDEO_DOWNLOAD] Slide content ${index + 1}:`, cleanContent.substring(0, 100) + '...');
+            }
+          }
+        });
+      }
     }
 
-    return voiceoverTexts;
+    // Method 3: Fallback - create a simple default voiceover if nothing found
+    if (voiceoverTexts.length === 0) {
+      console.log('🎬 [VIDEO_DOWNLOAD] No content found, creating default voiceover...');
+      voiceoverTexts.push("Welcome to this presentation. This is a demonstration of our video generation system.");
+    }
+
+    // Final validation and cleaning
+    const finalTexts = voiceoverTexts
+      .filter(text => text && text.length > 5 && text.length < 1000)
+      .map(text => text.replace(/\s+/g, ' ').trim())
+      .slice(0, 5); // Limit to 5 slides maximum
+
+    console.log('🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts:', finalTexts);
+    return finalTexts;
   };
 
   // Function to monitor rendering progress
@@ -64,6 +102,8 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
     const maxWaitTime = 15 * 60 * 1000; // 15 minutes
     const checkInterval = 5000; // Check every 5 seconds
     const startTime = Date.now();
+    let consecutiveErrors = 0;
+    const maxConsecutiveErrors = 3;
     
     while (Date.now() - startTime < maxWaitTime) {
       try {
@@ -90,7 +130,9 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         const status = statusData.status;
         const progress = statusData.progress || 0;
 
-        console.log('🎬 [VIDEO_DOWNLOAD] Video status:', status, 'Progress:', progress + '%');
+        console.log('🎬 [VIDEO_DOWNLOAD] Video status:', statusData.status, 'Progress:', progress + '%');
+        
+        // Use the actual progress value from the backend
         onProgressUpdate(progress);
 
         if (status === 'rendered' || status === 'ready') {
@@ -99,8 +141,20 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         }
 
         if (status === 'failed' || status === 'error') {
-          throw new Error(statusData.error || 'Video rendering failed');
+          consecutiveErrors++;
+          console.warn(`🎬 [VIDEO_DOWNLOAD] Video status is 'error' (attempt ${consecutiveErrors}/${maxConsecutiveErrors})`);
+          
+          if (consecutiveErrors >= maxConsecutiveErrors) {
+            throw new Error(`Video rendering failed after ${maxConsecutiveErrors} consecutive error statuses`);
+          }
+          
+          // Continue monitoring even on error status (Elai sometimes reports error temporarily)
+          await new Promise(resolve => setTimeout(resolve, checkInterval));
+          continue;
         }
+
+        // Reset error counter on successful status
+        consecutiveErrors = 0;
 
         // Wait before next check
         await new Promise(resolve => setTimeout(resolve, checkInterval));
