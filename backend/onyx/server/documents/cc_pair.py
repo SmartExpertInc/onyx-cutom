@@ -560,63 +560,119 @@ def delete_cc_pair(
     # Admin check disabled for Smart Drive functionality
     # All authenticated users can delete their own cc-pairs
     
-    cc_pair = get_connector_credential_pair_from_id_for_user(
-        cc_pair_id, db_session, user, get_editable=True
-    )
-
-    if not cc_pair:
-        raise HTTPException(
-            status_code=404,
-            detail="Connector-credential pair not found for current user's permissions",
-        )
-
-    # Get connector_id and credential_id from the cc_pair object
+    logger.info(f"[DELETE_CC_PAIR] Starting deletion for cc_pair_id={cc_pair_id}, user={user.id if user else 'None'}, tenant_id={tenant_id}")
+    
     try:
-        connector_id = cc_pair.connector.id if hasattr(cc_pair, 'connector') else cc_pair.connector_id
-        credential_id = cc_pair.credential.id if hasattr(cc_pair, 'credential') else cc_pair.credential_id
-        
-        # Use Onyx's proper deletion approach: call the same logic as the admin deletion endpoint
-        # Import the necessary modules
-        from onyx.background.celery.celery import client_app
-        from onyx.configs.constants import OnyxCeleryTask, OnyxCeleryPriority
-        from onyx.db.connector_credential_pair import get_connector_credential_pair_for_user
-        from onyx.db.connector_credential_pair import update_connector_credential_pair_from_id
-        from onyx.db.enums import ConnectorCredentialPairStatus
-        from onyx.background.indexing.run_indexing import cancel_indexing_attempts_for_ccpair
-        
-        # Cancel any scheduled indexing attempts
-        cancel_indexing_attempts_for_ccpair(
-            cc_pair_id=cc_pair_id, db_session=db_session, include_secondary_index=True
+        cc_pair = get_connector_credential_pair_from_id_for_user(
+            cc_pair_id, db_session, user, get_editable=True
         )
+        logger.info(f"[DELETE_CC_PAIR] Retrieved cc_pair: {cc_pair}")
+
+        if not cc_pair:
+            logger.error(f"[DELETE_CC_PAIR] CC pair not found for user {user.id if user else 'None'}")
+            raise HTTPException(
+                status_code=404,
+                detail="Connector-credential pair not found for current user's permissions",
+            )
+
+        # Get connector_id and credential_id from the cc_pair object
+        logger.info(f"[DELETE_CC_PAIR] CC pair object type: {type(cc_pair)}")
+        logger.info(f"[DELETE_CC_PAIR] CC pair attributes: {dir(cc_pair)}")
         
-        # Mark as deleting
-        update_connector_credential_pair_from_id(
-            db_session=db_session,
-            cc_pair_id=cc_pair_id,
-            status=ConnectorCredentialPairStatus.DELETING,
-        )
-        
-        db_session.commit()
-        
-        # Run the beat task to pick up this deletion from the db immediately
-        client_app.send_task(
-            OnyxCeleryTask.CHECK_FOR_CONNECTOR_DELETION,
-            priority=OnyxCeleryPriority.HIGH,
-            kwargs={"tenant_id": tenant_id},
-        )
-        
-        return StatusResponse(
-            success=True,
-            message=f"Deletion job scheduled for connector credential pair with id '{cc_pair_id}'.",
-            data=cc_pair_id,
-        )
-    except AttributeError as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to extract connector/credential IDs: {str(e)}",
-        )
+        try:
+            # Try different ways to access the IDs
+            if hasattr(cc_pair, 'connector') and cc_pair.connector:
+                connector_id = cc_pair.connector.id
+                logger.info(f"[DELETE_CC_PAIR] Got connector_id from cc_pair.connector.id: {connector_id}")
+            elif hasattr(cc_pair, 'connector_id'):
+                connector_id = cc_pair.connector_id
+                logger.info(f"[DELETE_CC_PAIR] Got connector_id from cc_pair.connector_id: {connector_id}")
+            else:
+                logger.error(f"[DELETE_CC_PAIR] Cannot find connector_id in cc_pair object")
+                raise AttributeError("Cannot access connector_id")
+                
+            if hasattr(cc_pair, 'credential') and cc_pair.credential:
+                credential_id = cc_pair.credential.id
+                logger.info(f"[DELETE_CC_PAIR] Got credential_id from cc_pair.credential.id: {credential_id}")
+            elif hasattr(cc_pair, 'credential_id'):
+                credential_id = cc_pair.credential_id
+                logger.info(f"[DELETE_CC_PAIR] Got credential_id from cc_pair.credential_id: {credential_id}")
+            else:
+                logger.error(f"[DELETE_CC_PAIR] Cannot find credential_id in cc_pair object")
+                raise AttributeError("Cannot access credential_id")
+            
+            logger.info(f"[DELETE_CC_PAIR] Using connector_id={connector_id}, credential_id={credential_id}")
+            
+            # Import the necessary modules
+            logger.info(f"[DELETE_CC_PAIR] Importing required modules...")
+            from onyx.background.celery.celery import client_app
+            from onyx.configs.constants import OnyxCeleryTask, OnyxCeleryPriority
+            from onyx.db.connector_credential_pair import get_connector_credential_pair_for_user
+            from onyx.db.connector_credential_pair import update_connector_credential_pair_from_id
+            from onyx.db.enums import ConnectorCredentialPairStatus
+            from onyx.background.indexing.run_indexing import cancel_indexing_attempts_for_ccpair
+            logger.info(f"[DELETE_CC_PAIR] Modules imported successfully")
+            
+            # Cancel any scheduled indexing attempts
+            logger.info(f"[DELETE_CC_PAIR] Canceling indexing attempts for cc_pair_id={cc_pair_id}")
+            cancel_indexing_attempts_for_ccpair(
+                cc_pair_id=cc_pair_id, db_session=db_session, include_secondary_index=True
+            )
+            logger.info(f"[DELETE_CC_PAIR] Indexing attempts canceled")
+            
+            # Mark as deleting
+            logger.info(f"[DELETE_CC_PAIR] Marking cc_pair as DELETING")
+            update_connector_credential_pair_from_id(
+                db_session=db_session,
+                cc_pair_id=cc_pair_id,
+                status=ConnectorCredentialPairStatus.DELETING,
+            )
+            logger.info(f"[DELETE_CC_PAIR] CC pair marked as DELETING")
+            
+            logger.info(f"[DELETE_CC_PAIR] Committing database changes")
+            db_session.commit()
+            logger.info(f"[DELETE_CC_PAIR] Database changes committed")
+            
+            # Run the beat task to pick up this deletion from the db immediately
+            logger.info(f"[DELETE_CC_PAIR] Sending Celery task for deletion")
+            client_app.send_task(
+                OnyxCeleryTask.CHECK_FOR_CONNECTOR_DELETION,
+                priority=OnyxCeleryPriority.HIGH,
+                kwargs={"tenant_id": tenant_id},
+            )
+            logger.info(f"[DELETE_CC_PAIR] Celery task sent successfully")
+            
+            logger.info(f"[DELETE_CC_PAIR] Deletion scheduling completed successfully")
+            return StatusResponse(
+                success=True,
+                message=f"Deletion job scheduled for connector credential pair with id '{cc_pair_id}'.",
+                data=cc_pair_id,
+            )
+        except AttributeError as e:
+            logger.error(f"[DELETE_CC_PAIR] AttributeError: {str(e)}")
+            logger.error(f"[DELETE_CC_PAIR] CC pair object details: {cc_pair.__dict__ if hasattr(cc_pair, '__dict__') else 'No __dict__'}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to extract connector/credential IDs: {str(e)}",
+            )
+        except Exception as e:
+            logger.error(f"[DELETE_CC_PAIR] Unexpected error during deletion process: {str(e)}")
+            logger.error(f"[DELETE_CC_PAIR] Error type: {type(e)}")
+            import traceback
+            logger.error(f"[DELETE_CC_PAIR] Traceback: {traceback.format_exc()}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to schedule deletion: {str(e)}",
+            )
+    except HTTPException:
+        # Re-raise HTTP exceptions without wrapping
+        raise
     except Exception as e:
+        logger.error(f"[DELETE_CC_PAIR] Top-level error: {str(e)}")
+        logger.error(f"[DELETE_CC_PAIR] Error type: {type(e)}")
+        import traceback
+        logger.error(f"[DELETE_CC_PAIR] Traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to schedule deletion: {str(e)}",
+            detail=f"Unexpected error during deletion: {str(e)}",
         )

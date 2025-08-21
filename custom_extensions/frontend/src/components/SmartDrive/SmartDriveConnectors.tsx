@@ -32,6 +32,8 @@ interface SmartDriveConnectorsProps {
 }
 
 const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '' }) => {
+  console.log('[POPUP_DEBUG] SmartDriveConnectors component rendering');
+  
   const [showFrame, setShowFrame] = useState(false);
   const [userConnectors, setUserConnectors] = useState<UserConnector[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null);
   const [isManagementOpening, setIsManagementOpening] = useState(false);
   const isLoadingRef = useRef(false);
+  
+  console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
   // Define all available connectors organized by category
   const connectorCategories = {
@@ -341,7 +345,17 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   // Load user's existing connectors
   const loadUserConnectors = useCallback(async () => {
+    console.log('[POPUP_DEBUG] loadUserConnectors called, isLoadingRef.current:', isLoadingRef.current);
+    
+    // Prevent multiple simultaneous calls
+    if (isLoadingRef.current) {
+      console.log('[POPUP_DEBUG] Already loading, skipping...');
+      return;
+    }
+    
     try {
+      console.log('[POPUP_DEBUG] Starting to load connectors...');
+      isLoadingRef.current = true;
       setLoading(true);
       
               const connectorsResponse = await fetch('/api/manage/admin/connector/status', { 
@@ -373,14 +387,17 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         setUserConnectors(userConnectors);
       }
     } catch (error) {
-      console.error('Error loading user connectors:', error);
+      console.error('[POPUP_DEBUG] Error loading user connectors:', error);
       setUserConnectors([]);
     } finally {
+      console.log('[POPUP_DEBUG] Loading finished');
       setLoading(false);
+      isLoadingRef.current = false;
     }
   }, []); // useCallback dependency array
 
   useEffect(() => {
+    console.log('[POPUP_DEBUG] useEffect triggered - loading connectors');
     loadUserConnectors();
   }, []); // Remove loadUserConnectors from dependencies to prevent multiple calls
 
@@ -561,12 +578,22 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                   key={userConnector.id}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    console.log('Opening management for cc-pair:', userConnector.id);
+                                    console.log('[POPUP_DEBUG] Click event triggered for connector:', userConnector.id);
+                                    console.log('[POPUP_DEBUG] Current state - showManagementPage:', showManagementPage, 'isManagementOpening:', isManagementOpening);
+                                    console.log('[POPUP_DEBUG] Event target:', e.target);
+                                    console.log('[POPUP_DEBUG] Event current target:', e.currentTarget);
+                                    
                                     if (!showManagementPage && !isManagementOpening) {
+                                      console.log('[POPUP_DEBUG] Opening management page for connector:', userConnector.id);
                                       setIsManagementOpening(true);
                                       setSelectedConnectorId(userConnector.id);
                                       setShowManagementPage(true);
-                                      setTimeout(() => setIsManagementOpening(false), 500);
+                                      setTimeout(() => {
+                                        console.log('[POPUP_DEBUG] Resetting isManagementOpening flag');
+                                        setIsManagementOpening(false);
+                                      }, 500);
+                                    } else {
+                                      console.log('[POPUP_DEBUG] Click ignored - already opening or open');
                                     }
                                   }}
                                   className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
@@ -580,12 +607,22 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log('Opening management for cc-pair:', userConnectorsForSource[0].id);
+                              console.log('[POPUP_DEBUG] Single manage button clicked for connector:', userConnectorsForSource[0].id);
+                              console.log('[POPUP_DEBUG] Current state - showManagementPage:', showManagementPage, 'isManagementOpening:', isManagementOpening);
+                              console.log('[POPUP_DEBUG] Event target:', e.target);
+                              console.log('[POPUP_DEBUG] Event current target:', e.currentTarget);
+                              
                               if (!showManagementPage && !isManagementOpening) {
+                                console.log('[POPUP_DEBUG] Opening management page for single connector:', userConnectorsForSource[0].id);
                                 setIsManagementOpening(true);
                                 setSelectedConnectorId(userConnectorsForSource[0].id);
                                 setShowManagementPage(true);
-                                setTimeout(() => setIsManagementOpening(false), 500);
+                                setTimeout(() => {
+                                  console.log('[POPUP_DEBUG] Resetting isManagementOpening flag (single)');
+                                  setIsManagementOpening(false);
+                                }, 500);
+                              } else {
+                                console.log('[POPUP_DEBUG] Single click ignored - already opening or open');
                               }
                             }}
                             className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
@@ -613,6 +650,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <ConnectorManagementPage
           ccPairId={selectedConnectorId}
           onClose={() => {
+            console.log('[POPUP_DEBUG] Management page closing');
             setShowManagementPage(false);
             setSelectedConnectorId(null);
             setIsManagementOpening(false);
