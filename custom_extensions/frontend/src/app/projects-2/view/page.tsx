@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import VideoEditorHeader from './components/VideoEditorHeader';
 import Toolbar from './components/Toolbar';
 import Script from './components/Script';
@@ -111,6 +111,10 @@ export default function Projects2ViewPage() {
   const handleLanguageVariantModalClose = () => {
     setIsLanguageVariantModalOpen(false);
   };
+
+  // Debug modal state changes
+  useEffect(() => {
+  }, [isLanguageVariantModalOpen]);
 
   const handleAiButtonClick = (position: { x: number; y: number }) => {
     setAiPopupPosition(position);
@@ -275,6 +279,7 @@ export default function Projects2ViewPage() {
         isOpen={isLanguageVariantModalOpen}
         onClose={handleLanguageVariantModalClose}
       />
+      
     </div>
   );
 }
