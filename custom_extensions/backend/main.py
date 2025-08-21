@@ -16466,7 +16466,35 @@ async def download_projects_list_pdf(
                                     ELSE 0 
                                 END
                             ), 0
-                        ) as total_completion_time
+                        ) as total_completion_time,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
+                                        SELECT COALESCE(SUM(
+                                            CASE 
+                                                WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
+                                                THEN (
+                                                    CASE 
+                                                        WHEN p.quality_tier = 'basic' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 20
+                                                        WHEN p.quality_tier = 'interactive' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 25
+                                                        WHEN p.quality_tier = 'advanced' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 40
+                                                        WHEN p.quality_tier = 'immersive' THEN (REPLACE(lesson->>'completionTime', 'm', '')::int) * 80
+                                                        ELSE (REPLACE(lesson->>'completionTime', 'm', '')::int) * 25
+                                                    END
+                                                )
+                                                ELSE 5 * 25  -- Default 5 minutes * 25 (interactive rate)
+                                            END
+                                        ), 0)
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_creation_hours
                     FROM project_folders pf
                     LEFT JOIN projects p ON pf.id = p.folder_id
                     WHERE pf.onyx_user_id = $1
@@ -16555,13 +16583,12 @@ async def download_projects_list_pdf(
 
         # Calculate recursive totals for folders (including subfolder projects)
         def calculate_recursive_totals(folder):
-            # Start with direct project totals
-            direct_projects = folder_projects.get(folder['id'], [])
-            total_lessons = sum(p['total_lessons'] for p in direct_projects)
-            total_modules = sum(p.get('total_modules', 0) for p in direct_projects)
-            total_completion_time = sum(p['total_completion_time'] for p in direct_projects)  # Learning Duration
-            total_creation_hours = sum(p.get('total_creation_hours', 0) for p in direct_projects)  # Production Time
-            total_items = len(direct_projects)
+            # Start with folder's own data from SQL query (if available)
+            total_lessons = folder.get('total_lessons', 0)
+            total_modules = folder.get('total_modules', 0)
+            total_completion_time = folder.get('total_completion_time', 0)  # Learning Duration
+            total_creation_hours = folder.get('total_creation_hours', 0)  # Production Time
+            total_items = folder.get('project_count', 0)
             
             # Add subfolder totals recursively
             if folder.get('children'):
