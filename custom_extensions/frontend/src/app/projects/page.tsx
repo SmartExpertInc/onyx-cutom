@@ -607,11 +607,11 @@ const ProjectsPageInner: React.FC = () => {
           // Process projects to get folder mappings
           const folderProjectsMap: Record<number, any[]> = {};
           projectsData.forEach((project: any) => {
-            if (project.folder_id) {
-              if (!folderProjectsMap[project.folder_id]) {
-                folderProjectsMap[project.folder_id] = [];
-              }
-              folderProjectsMap[project.folder_id].push(project);
+                    if ((project as any).folder_id) {
+          if (!folderProjectsMap[(project as any).folder_id]) {
+            folderProjectsMap[(project as any).folder_id] = [];
+          }
+          folderProjectsMap[(project as any).folder_id].push(project);
             }
           });
 

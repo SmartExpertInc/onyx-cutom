@@ -750,14 +750,15 @@ const PreviewModal: React.FC<{
         // Detailed logging of each project
         console.log('[FRONTEND_DEBUG] === DETAILED PROJECT ANALYSIS ===');
         allProjects.forEach((project: Project | BackendProject, index: number) => {
+            const projectAny = project as any;
             console.log(`[FRONTEND_DEBUG] Project ${index + 1}:`, {
                 id: project.id,
-                title: (project as any).project_name || (project as any).microproduct_name || 'Untitled',
+                title: projectAny.project_name || projectAny.microproduct_name || 'Untitled',
                 quality_tier: project.quality_tier,
                 total_completion_time: project.total_completion_time,
                 total_creation_hours: project.total_creation_hours,
-                folder_id: project.folder_id,
-                created_at: project.created_at
+                folder_id: projectAny.folder_id,
+                created_at: projectAny.created_at
             });
         });
         console.log('[FRONTEND_DEBUG] === END PROJECT ANALYSIS ===');
