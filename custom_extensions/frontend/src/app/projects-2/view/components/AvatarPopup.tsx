@@ -55,37 +55,34 @@ export default function AvatarPopup({
       <div className="w-64 bg-white px-6 py-4 flex flex-col">
         {/* Three buttons at the top */}
         <div className="mb-4">
-          <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg p-1">
+          <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg p-1">
             <button 
               onClick={() => setActiveButton('button1')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeButton === 'button1' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
               }`}
-              style={{ width: 'fit-content' }}
             >
               All
             </button>
             <button 
               onClick={() => setActiveButton('button2')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeButton === 'button2' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
               }`}
-              style={{ width: 'fit-content' }}
             >
               Custom
             </button>
             <button 
               onClick={() => setActiveButton('button3')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeButton === 'button3' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
               }`}
-              style={{ width: 'fit-content' }}
             >
               Stock
             </button>
@@ -97,7 +94,7 @@ export default function AvatarPopup({
           {/* Sex */}
           <div className="mb-4">
             <h4 className="text-xs font-medium text-gray-500 mb-2">Sex</h4>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <label className="flex items-center cursor-pointer pl-2">
                 <input
                   type="checkbox"
@@ -122,7 +119,7 @@ export default function AvatarPopup({
           {/* Feature */}
           <div className="mb-4">
             <h4 className="text-xs font-medium text-gray-500 mb-2">Feature</h4>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {['NEO avatar', 'Hand gesture', 'Emotions', 'Side view', 'Logo addition'].map((feature) => (
                 <label key={feature} className="flex items-center cursor-pointer pl-2">
                   <input
@@ -140,7 +137,7 @@ export default function AvatarPopup({
           {/* Age */}
           <div className="mb-4">
             <h4 className="text-xs font-medium text-gray-500 mb-2">Age</h4>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {['Young', 'Middle-aged', 'Senior'].map((age) => (
                 <label key={age} className="flex items-center cursor-pointer pl-2">
                   <input
@@ -158,7 +155,7 @@ export default function AvatarPopup({
           {/* Ethnicity */}
           <div className="mb-4">
             <h4 className="text-xs font-medium text-gray-500 mb-2">Ethnicity</h4>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {['Caucasian', 'Black / African American', 'East Asian', 'Hispanic / Latino', 'South Asian'].map((ethnicity) => (
                 <label key={ethnicity} className="flex items-center cursor-pointer pl-2">
                   <input
@@ -176,7 +173,7 @@ export default function AvatarPopup({
           {/* Scenario */}
           <div className="mb-4">
             <h4 className="text-xs font-medium text-gray-500 mb-2">Scenario</h4>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {['Office', 'Healthcare', 'Factory', 'Education', 'Construction', 'Heavy machinery', 'Retail & hospitality', 'Government', 'Customer support', 'Storage facility', 'Other'].map((scenario) => (
                 <label key={scenario} className="flex items-center cursor-pointer pl-2">
                   <input
@@ -194,7 +191,7 @@ export default function AvatarPopup({
           {/* Avatar type */}
           <div className="mb-4">
             <h4 className="text-xs font-medium text-gray-500 mb-2">Avatar type</h4>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {['Studio avatar', 'Instant avatar', 'Scenario avatar'].map((avatarType) => (
                 <label key={avatarType} className="flex items-center cursor-pointer pl-2">
                   <input
@@ -215,7 +212,8 @@ export default function AvatarPopup({
           <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6">
             <button 
               onClick={() => setSelectedItems({})}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+              className="flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+              style={{ width: 'fit-content' }}
             >
               <span className="text-base">×</span>
               <span>Reset filter ({Object.values(selectedItems).filter(Boolean).length})</span>
@@ -247,7 +245,7 @@ export default function AvatarPopup({
           </div>
           
           {/* Create button */}
-          <button className="px-4 py-1.5 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-10 transition-colors font-medium text-xs" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+          <button className="px-4 py-2 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-10 transition-colors font-medium" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
             + Create
           </button>
         </div>
