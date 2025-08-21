@@ -31,6 +31,20 @@ interface SmartDriveConnectorsProps {
   className?: string;
 }
 
+// Helper function to determine actual connector status (based on Onyx's logic)
+const getActualConnectorStatus = (connectorStatus: any): string => {
+  // Use the same logic as Onyx's CCPairIndexingStatusTable
+  if (!connectorStatus) return 'unknown';
+  
+  if (connectorStatus.last_finished_status !== null) {
+    return connectorStatus.cc_pair_status || 'unknown';
+  } else if (connectorStatus.last_status === "not_started") {
+    return "SCHEDULED";
+  } else {
+    return "INITIAL_INDEXING";
+  }
+};
+
 const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '' }) => {
   console.log('[POPUP_DEBUG] SmartDriveConnectors component rendering');
   
@@ -358,7 +372,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       isLoadingRef.current = true;
       setLoading(true);
       
-              const connectorsResponse = await fetch('/api/manage/admin/connector/status', { 
+              const connectorsResponse = await fetch('/api/manage/admin/connector/indexing-status', { 
           credentials: 'same-origin' 
         });
 
@@ -371,37 +385,37 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         if (allConnectorStatuses.length > 0) {
           const firstConnector = allConnectorStatuses[0];
           console.log('Status fields in first connector:', {
-            status: firstConnector.status,
             cc_pair_status: firstConnector.cc_pair_status,
             last_status: firstConnector.last_status,
             last_finished_status: firstConnector.last_finished_status,
+            computed_status: getActualConnectorStatus(firstConnector),
             available_fields: Object.keys(firstConnector)
           });
         }
         
-        // Check for deleting connectors (status field is cc_pair_status)
-        const deletingConnectors = allConnectorStatuses.filter((connectorStatus: any) => 
-          connectorStatus.access_type === 'private' && 
-          connectorStatus.cc_pair_status === 'DELETING'
-        );
+        // Check for deleting connectors using Onyx's status logic
+        const deletingConnectors = allConnectorStatuses.filter((connectorStatus: any) => {
+          const actualStatus = getActualConnectorStatus(connectorStatus);
+          return connectorStatus.access_type === 'private' && actualStatus === 'DELETING';
+        });
         if (deletingConnectors.length > 0) {
-          console.log('Found connectors being deleted (hiding from UI):', deletingConnectors.map((c: any) => ({ name: c.name, id: c.cc_pair_id, status: c.cc_pair_status })));
+          console.log('Found connectors being deleted (hiding from UI):', deletingConnectors.map((c: any) => ({ name: c.name, id: c.cc_pair_id, status: getActualConnectorStatus(c) })));
         }
         
         // Filter to show connectors that have private access (Smart Drive connectors) and are not being deleted
-        const smartDriveConnectors = allConnectorStatuses.filter((connectorStatus: any) => 
-          connectorStatus.access_type === 'private' && 
-          connectorStatus.cc_pair_status !== 'DELETING'
-        );
+        const smartDriveConnectors = allConnectorStatuses.filter((connectorStatus: any) => {
+          const actualStatus = getActualConnectorStatus(connectorStatus);
+          return connectorStatus.access_type === 'private' && actualStatus !== 'DELETING';
+        });
         
         const userConnectors = smartDriveConnectors.map((connectorStatus: any) => ({
           id: connectorStatus.cc_pair_id, // IMPORTANT: Use cc_pair_id (not connector.id) for management API
           name: connectorStatus.name,
           source: connectorStatus.connector.source,
-          status: connectorStatus.cc_pair_status || 'unknown', // Use cc_pair_status for actual connector status
+          status: getActualConnectorStatus(connectorStatus), // Use Onyx's status logic
           last_sync_at: connectorStatus.last_sync_at,
           total_docs_indexed: connectorStatus.docs_indexed || 0,
-          last_error: connectorStatus.last_index_attempt?.error_msg,
+          last_error: connectorStatus.latest_index_attempt?.error_msg, // Use latest_index_attempt
           access_type: connectorStatus.access_type || 'unknown',
         }));
         
