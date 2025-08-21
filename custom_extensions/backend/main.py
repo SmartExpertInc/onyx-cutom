@@ -16375,6 +16375,148 @@ def process_projects_data_unified(projects_rows, folders_data=None):
     
     return projects_data
 
+# Helper function to build folder tree structure (used by both PDF and preview)
+def build_folder_tree(folders):
+    folder_map = {}
+    root_folders = []
+    
+    # Create folder map
+    for folder in folders:
+        folder['children'] = []
+        folder_map[folder['id']] = folder
+    
+    # Build hierarchy
+    for folder in folders:
+        if folder['parent_id'] is None:
+            root_folders.append(folder)
+        else:
+            parent = folder_map.get(folder['parent_id'])
+            if parent:
+                parent['children'].append(folder)
+    
+    return root_folders
+
+# Helper function to calculate quality tier sums (used by both PDF and preview)
+def calculate_quality_tier_sums(folders, folder_projects, unassigned_projects):
+    quality_tier_data = {
+        'basic': {'completion_time': 0, 'creation_time': 0},
+        'interactive': {'completion_time': 0, 'creation_time': 0},
+        'advanced': {'completion_time': 0, 'creation_time': 0},
+        'immersive': {'completion_time': 0, 'creation_time': 0}
+    }
+    
+    # Helper function to get effective quality tier
+    def get_effective_quality_tier(lesson_quality_tier, section_quality_tier, project_quality_tier, folder_quality_tier='interactive'):
+        # Priority: lesson -> section -> project -> folder -> default
+        tier = (lesson_quality_tier or section_quality_tier or project_quality_tier or folder_quality_tier or 'interactive').lower()
+        
+        # Support both old and new tier names
+        tier_mapping = {
+            # New tier names
+            'basic': 'basic',
+            'interactive': 'interactive', 
+            'advanced': 'advanced',
+            'immersive': 'immersive',
+            # Old tier names (legacy support)
+            'starter': 'basic',
+            'medium': 'interactive',
+            'professional': 'immersive'
+        }
+        return tier_mapping.get(tier, 'interactive')
+    
+    # Process folder projects with module-level quality tiers
+    for folder in folders:
+        folder_quality_tier = folder.get('quality_tier', 'interactive')
+        
+        if folder['id'] in folder_projects:
+            for project in folder_projects[folder['id']]:
+                project_quality_tier = project.get('quality_tier')
+                
+                # Process microproduct_content to get module-level quality tiers
+                microproduct_content = project.get('microproduct_content')
+                if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
+                    sections = microproduct_content['sections']
+                    if isinstance(sections, list):
+                        for section in sections:
+                            if isinstance(section, dict) and 'lessons' in section:
+                                section_quality_tier = section.get('quality_tier')
+                                lessons = section['lessons']
+                                if isinstance(lessons, list):
+                                    for lesson in lessons:
+                                        if isinstance(lesson, dict):
+                                            lesson_quality_tier = lesson.get('quality_tier')
+                                            effective_tier = get_effective_quality_tier(
+                                                lesson_quality_tier, 
+                                                section_quality_tier, 
+                                                project_quality_tier, 
+                                                folder_quality_tier
+                                            )
+                                            
+                                            # Get lesson completion time and creation hours
+                                            lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
+                                            lesson_creation_hours = lesson.get('hours', 0) or 0
+                                            
+                                            # Convert completionTime from string (e.g., "6m") to integer minutes
+                                            if isinstance(lesson_completion_time_raw, str):
+                                                # Remove 'm' suffix and convert to int
+                                                lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
+                                            else:
+                                                lesson_completion_time = int(lesson_completion_time_raw)
+                                            
+                                            if effective_tier in quality_tier_data:
+                                                quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
+                                                # Convert hours to minutes for consistency
+                                                quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours * 60
+        
+        # Recursively process subfolders
+        if folder.get('children'):
+            child_data = calculate_quality_tier_sums(folder['children'], folder_projects, [])
+            for tier in quality_tier_data:
+                quality_tier_data[tier]['completion_time'] += child_data[tier]['completion_time']
+                quality_tier_data[tier]['creation_time'] += child_data[tier]['creation_time']
+    
+    # Process unassigned projects with module-level quality tiers
+    for project in unassigned_projects:
+        project_quality_tier = project.get('quality_tier')
+        
+        # Process microproduct_content to get module-level quality tiers
+        microproduct_content = project.get('microproduct_content')
+        if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
+            sections = microproduct_content['sections']
+            if isinstance(sections, list):
+                for section in sections:
+                    if isinstance(section, dict) and 'lessons' in section:
+                        section_quality_tier = section.get('quality_tier')
+                        lessons = section['lessons']
+                        if isinstance(lessons, list):
+                            for lesson in lessons:
+                                if isinstance(lesson, dict):
+                                    lesson_quality_tier = lesson.get('quality_tier')
+                                    effective_tier = get_effective_quality_tier(
+                                        lesson_quality_tier, 
+                                        section_quality_tier, 
+                                        project_quality_tier, 
+                                        'interactive'  # Default for unassigned projects
+                                    )
+                                    
+                                    # Get lesson completion time and creation hours
+                                    lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
+                                    lesson_creation_hours = lesson.get('hours', 0) or 0
+                                    
+                                    # Convert completionTime from string (e.g., "6m") to integer minutes
+                                    if isinstance(lesson_completion_time_raw, str):
+                                        # Remove 'm' suffix and convert to int
+                                        lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
+                                    else:
+                                        lesson_completion_time = int(lesson_completion_time_raw)
+                                    
+                                    if effective_tier in quality_tier_data:
+                                        quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
+                                        # Convert hours to minutes for consistency
+                                        quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours * 60
+    
+    return quality_tier_data
+
 @app.get("/api/custom/pdf/projects-list", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_projects_list_pdf(
     folder_id: Optional[int] = Query(None),
@@ -16578,26 +16720,7 @@ async def download_projects_list_pdf(
 
         projects_data = deduplicate_projects(projects_data)
 
-        # Build folder tree structure
-        def build_folder_tree(folders):
-            folder_map = {}
-            root_folders = []
-            
-            # Create folder map
-            for folder in folders:
-                folder['children'] = []
-                folder_map[folder['id']] = folder
-            
-            # Build tree structure
-            for folder in folders:
-                if folder['parent_id'] is None:
-                    root_folders.append(folder)
-                else:
-                    parent = folder_map.get(folder['parent_id'])
-                    if parent:
-                        parent['children'].append(folder)
-            
-            return root_folders
+
 
         # Group projects by folder
         folder_projects = {}
@@ -16816,138 +16939,7 @@ async def download_projects_list_pdf(
         # summary_stats already contains total_hours (Creation Time) and total_completion_time
         # No need for additional calculation
         
-        # Calculate dynamic Block 2 data based on quality tier sums
-        def calculate_quality_tier_sums(folders, folder_projects, unassigned_projects):
-            quality_tier_data = {
-                'basic': {'completion_time': 0, 'creation_time': 0},
-                'interactive': {'completion_time': 0, 'creation_time': 0},
-                'advanced': {'completion_time': 0, 'creation_time': 0},
-                'immersive': {'completion_time': 0, 'creation_time': 0}
-            }
-            
-            # Helper function to get effective quality tier (same as quality distribution endpoint)
-            def get_effective_quality_tier(lesson_quality_tier, section_quality_tier, project_quality_tier, folder_quality_tier='interactive'):
-                # Priority: lesson -> section -> project -> folder -> default
-                tier = (lesson_quality_tier or section_quality_tier or project_quality_tier or folder_quality_tier or 'interactive').lower()
-                
-                # Support both old and new tier names
-                tier_mapping = {
-                    # New tier names
-                    'basic': 'basic',
-                    'interactive': 'interactive', 
-                    'advanced': 'advanced',
-                    'immersive': 'immersive',
-                    # Old tier names (legacy support)
-                    'starter': 'basic',
-                    'medium': 'interactive',
-                    'professional': 'immersive'
-                }
-                return tier_mapping.get(tier, 'interactive')
-            
-            # Process folder projects with module-level quality tiers
-            for folder in folders:
-                folder_quality_tier = folder.get('quality_tier', 'interactive')
-                logger.info(f"[PDF_ANALYTICS] Processing folder {folder.get('id')} with quality_tier: {folder_quality_tier}")
-                
-                if folder['id'] in folder_projects:
-                    for project in folder_projects[folder['id']]:
-                        project_quality_tier = project.get('quality_tier')
-                        logger.info(f"[PDF_ANALYTICS] Processing project {project.get('id')} with project_quality_tier: {project_quality_tier}")
-                        
-                        # Process microproduct_content to get module-level quality tiers
-                        microproduct_content = project.get('microproduct_content')
-                        if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
-                            sections = microproduct_content['sections']
-                            if isinstance(sections, list):
-                                for section in sections:
-                                    if isinstance(section, dict) and 'lessons' in section:
-                                        section_quality_tier = section.get('quality_tier')
-                                        lessons = section['lessons']
-                                        if isinstance(lessons, list):
-                                            for lesson in lessons:
-                                                if isinstance(lesson, dict):
-                                                    lesson_quality_tier = lesson.get('quality_tier')
-                                                    effective_tier = get_effective_quality_tier(
-                                                        lesson_quality_tier, 
-                                                        section_quality_tier, 
-                                                        project_quality_tier, 
-                                                        folder_quality_tier
-                                                    )
-                                                    
-                                                    # Get lesson completion time and creation hours
-                                                    lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
-                                                    lesson_creation_hours = lesson.get('hours', 0) or 0
-                                                    
-                                                    # Convert completionTime from string (e.g., "6m") to integer minutes
-                                                    if isinstance(lesson_completion_time_raw, str):
-                                                        # Remove 'm' suffix and convert to int
-                                                        lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
-                                                    else:
-                                                        lesson_completion_time = int(lesson_completion_time_raw)
-                                                    
-                                                    logger.info(f"[PDF_ANALYTICS] Lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
-                                                    logger.info(f"[PDF_ANALYTICS] Raw lesson data: {lesson}")
-                                                    
-                                                    if effective_tier in quality_tier_data:
-                                                        quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
-                                                        # Convert hours to minutes for consistency
-                                                        quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours * 60
-                                                        logger.info(f"[PDF_ANALYTICS] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours * 60} minutes")
-                
-                # Recursively process subfolders
-                if folder.get('children'):
-                    child_data = calculate_quality_tier_sums(folder['children'], folder_projects, [])
-                    for tier in quality_tier_data:
-                        quality_tier_data[tier]['completion_time'] += child_data[tier]['completion_time']
-                        quality_tier_data[tier]['creation_time'] += child_data[tier]['creation_time']
-            
-            # Process unassigned projects with module-level quality tiers
-            logger.info(f"[PDF_ANALYTICS] Processing {len(unassigned_projects)} unassigned projects")
-            for project in unassigned_projects:
-                project_quality_tier = project.get('quality_tier')
-                logger.info(f"[PDF_ANALYTICS] Processing unassigned project {project.get('id')} with project_quality_tier: {project_quality_tier}")
-                
-                # Process microproduct_content to get module-level quality tiers
-                microproduct_content = project.get('microproduct_content')
-                if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
-                    sections = microproduct_content['sections']
-                    if isinstance(sections, list):
-                        for section in sections:
-                            if isinstance(section, dict) and 'lessons' in section:
-                                section_quality_tier = section.get('quality_tier')
-                                lessons = section['lessons']
-                                if isinstance(lessons, list):
-                                    for lesson in lessons:
-                                        if isinstance(lesson, dict):
-                                            lesson_quality_tier = lesson.get('quality_tier')
-                                            effective_tier = get_effective_quality_tier(
-                                                lesson_quality_tier, 
-                                                section_quality_tier, 
-                                                project_quality_tier, 
-                                                'interactive'  # Default for unassigned projects
-                                            )
-                                            
-                                            # Get lesson completion time and creation hours
-                                            lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
-                                            lesson_creation_hours = lesson.get('hours', 0) or 0
-                                            
-                                            # Convert completionTime from string (e.g., "6m") to integer minutes
-                                            if isinstance(lesson_completion_time_raw, str):
-                                                # Remove 'm' suffix and convert to int
-                                                lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
-                                            else:
-                                                lesson_completion_time = int(lesson_completion_time_raw)
-                                            
-                                            logger.info(f"[PDF_ANALYTICS] Unassigned lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
-                                            
-                                            if effective_tier in quality_tier_data:
-                                                quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
-                                                # Convert hours to minutes for consistency
-                                                quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours * 60
-                                                logger.info(f"[PDF_ANALYTICS] Added unassigned lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours * 60} minutes")
-            
-            logger.info(f"[PDF_ANALYTICS] Final quality tier data: {quality_tier_data}")
-            return quality_tier_data
+
         
         # Calculate quality tier sums for Block 2
         quality_tier_sums = calculate_quality_tier_sums(folder_tree, folder_projects, unassigned_projects)
@@ -19714,112 +19706,35 @@ async def get_projects_data_for_preview(
             # Process projects data using unified function for consistency
             projects_data = process_projects_data_unified(projects_rows)
             
-            # Calculate quality tier sums for Block 2 using module-level quality tiers
-            quality_tier_sums = {
-                'basic': {'completion_time': 0, 'creation_time': 0},
-                'interactive': {'completion_time': 0, 'creation_time': 0},
-                'advanced': {'completion_time': 0, 'creation_time': 0},
-                'immersive': {'completion_time': 0, 'creation_time': 0}
-            }
+            # Use the same quality tier calculation as PDF generation for consistency
+            # Get folder tree for quality tier calculations
+            folders_query = """
+                SELECT id, name, quality_tier, parent_id, "order", created_at
+                FROM project_folders
+                WHERE onyx_user_id = $1 AND deleted_at IS NULL
+                ORDER BY parent_id NULLS FIRST, "order" ASC, created_at ASC
+            """
+            folders_rows = await conn.fetch(folders_query, onyx_user_id)
+            folder_tree = build_folder_tree(folders_rows)
             
-            logger.info(f"[PROJECTS_DATA] Starting quality tier sums calculation for {len(projects_rows)} projects")
+            # Group projects by folder for quality tier calculation
+            folder_projects = {}
+            unassigned_projects = []
             
-            # Helper function to get effective quality tier
-            def get_effective_quality_tier(lesson_quality_tier, section_quality_tier, project_quality_tier, folder_quality_tier='interactive'):
-                # Priority: lesson -> section -> project -> folder -> default
-                tier = (lesson_quality_tier or section_quality_tier or project_quality_tier or folder_quality_tier or 'interactive').lower()
-                
-                # Support both old and new tier names
-                tier_mapping = {
-                    # New tier names
-                    'basic': 'basic',
-                    'interactive': 'interactive', 
-                    'advanced': 'advanced',
-                    'immersive': 'immersive',
-                    # Old tier names (legacy support)
-                    'starter': 'basic',
-                    'medium': 'interactive',
-                    'professional': 'immersive'
-                }
-                return tier_mapping.get(tier, 'interactive')
-            
-            # Get folder quality tiers for reference
-            folder_quality_tiers = {}
-            if projects_rows:
-                folder_ids = list(set(row['folder_id'] for row in projects_rows if row['folder_id'] is not None))
-                if folder_ids:
-                    folder_query = "SELECT id, quality_tier FROM project_folders WHERE id = ANY($1)"
-                    folder_rows = await conn.fetch(folder_query, folder_ids)
-                    for folder_row in folder_rows:
-                        folder_quality_tiers[folder_row['id']] = folder_row.get('quality_tier', 'interactive')
-            
-            logger.info(f"[PROJECTS_DATA] Found folder quality tiers: {folder_quality_tiers}")
-            
-            # Process each project for quality tier sums
             for row in projects_rows:
-                row_dict = dict(row)
-                project_id = row_dict['id']
-                project_quality_tier = row_dict.get('quality_tier')
-                folder_id = row_dict.get('folder_id')
-                folder_quality_tier = folder_quality_tiers.get(folder_id, 'interactive') if folder_id else 'interactive'
-                microproduct_content = row_dict.get('microproduct_content')
-                
-                logger.info(f"[PROJECTS_DATA] Processing project {project_id} for quality tier sums: project_tier={project_quality_tier}, folder_tier={folder_quality_tier}")
-                logger.info(f"[PROJECTS_DATA] Project {project_id} has microproduct_content: {microproduct_content is not None}")
-                
-                if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
-                    sections = microproduct_content['sections']
-                    if isinstance(sections, list):
-                        logger.info(f"[PROJECTS_DATA] Project {project_id} has {len(sections)} sections")
-                        for section_idx, section in enumerate(sections):
-                            if isinstance(section, dict) and 'lessons' in section:
-                                section_quality_tier = section.get('quality_tier')
-                                lessons = section['lessons']
-                                if isinstance(lessons, list):
-                                    logger.info(f"[PROJECTS_DATA] Project {project_id}, Section {section_idx} has {len(lessons)} lessons")
-                                    for lesson_idx, lesson in enumerate(lessons):
-                                        if isinstance(lesson, dict):
-                                            lesson_quality_tier = lesson.get('quality_tier')
-                                            effective_tier = get_effective_quality_tier(
-                                                lesson_quality_tier, 
-                                                section_quality_tier, 
-                                                project_quality_tier, 
-                                                folder_quality_tier
-                                            )
-                                            
-                                            # Get lesson completion time and creation hours
-                                            lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
-                                            lesson_creation_hours = lesson.get('hours', 0) or 0
-                                            
-                                            # Convert completionTime from string (e.g., "6m") to integer minutes
-                                            if isinstance(lesson_completion_time_raw, str):
-                                                # Remove 'm' suffix and convert to int
-                                                lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
-                                            else:
-                                                lesson_completion_time = int(lesson_completion_time_raw)
-                                            
-                                            logger.info(f"[PROJECTS_DATA] Lesson {lesson_idx} in project {project_id}, section {section_idx}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
-                                            logger.info(f"[PROJECTS_DATA] Raw lesson data: {lesson}")
-                                            
-                                            if effective_tier in quality_tier_sums:
-                                                quality_tier_sums[effective_tier]['completion_time'] += lesson_completion_time
-                                                # Convert hours to minutes for frontend compatibility
-                                                quality_tier_sums[effective_tier]['creation_time'] += lesson_creation_hours * 60
-                                                logger.info(f"[PROJECTS_DATA] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours * 60} minutes")
-                                                logger.info(f"[PROJECTS_DATA] Current totals for {effective_tier}: completion_time={quality_tier_sums[effective_tier]['completion_time']}, creation_time={quality_tier_sums[effective_tier]['creation_time']} minutes")
+                project_dict = dict(row)
+                folder_id = project_dict.get('folder_id')
+                if folder_id:
+                    if folder_id not in folder_projects:
+                        folder_projects[folder_id] = []
+                    folder_projects[folder_id].append(project_dict)
                 else:
-                    logger.info(f"[PROJECTS_DATA] Project {project_id} has no valid microproduct_content")
+                    unassigned_projects.append(project_dict)
             
-            logger.info(f"[PROJECTS_DATA] Final quality tier sums: {quality_tier_sums}")
+            # Use the same calculate_quality_tier_sums function as PDF generation
+            quality_tier_sums = calculate_quality_tier_sums(folder_tree, folder_projects, unassigned_projects)
             
-            # Log the exact response being sent
-            response_data = {
-                'projects': projects_data,
-                'client_name': client_name,
-                'manager_name': manager_name,
-                'quality_tier_sums': quality_tier_sums
-            }
-            logger.info(f"[PROJECTS_DATA] Sending response with quality_tier_sums: {response_data['quality_tier_sums']}")
+
             
             return {
                 'projects': projects_data,

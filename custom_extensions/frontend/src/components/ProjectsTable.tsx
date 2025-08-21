@@ -716,33 +716,13 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      console.log('[FRONTEND_DEBUG] === BLOCK 2 QUALITY TIER SUMS START ===');
-                                      console.log('[FRONTEND_DEBUG] Input data:', data);
-                                      console.log('[FRONTEND_DEBUG] Data type:', typeof data);
-                                      console.log('[FRONTEND_DEBUG] Data keys:', Object.keys(data || {}));
-                                      console.log('[FRONTEND_DEBUG] quality_tier_sums exists:', data?.quality_tier_sums ? 'YES' : 'NO');
-                                      console.log('[FRONTEND_DEBUG] quality_tier_sums value:', data?.quality_tier_sums);
-                                      console.log('[FRONTEND_DEBUG] quality_tier_sums type:', typeof data?.quality_tier_sums);
-                                      console.log('[FRONTEND_DEBUG] quality_tier_sums keys:', Object.keys(data?.quality_tier_sums || {}));
-                                      
-                                      // Use quality tier sums from backend (module-level calculation)
+                                      // Use quality tier sums from backend (same calculation as PDF)
                                       const qualityTierSums = data?.quality_tier_sums || {
                                         'basic': { completion_time: 0, creation_time: 0 },
                                         'interactive': { completion_time: 0, creation_time: 0 },
                                         'advanced': { completion_time: 0, creation_time: 0 },
                                         'immersive': { completion_time: 0, creation_time: 0 }
                                       };
-                                      
-                                      console.log('[FRONTEND_DEBUG] Using backend quality tier sums:', qualityTierSums);
-                                      console.log('[FRONTEND_DEBUG] Quality tier sums type:', typeof qualityTierSums);
-                                      console.log('[FRONTEND_DEBUG] Quality tier sums keys:', Object.keys(qualityTierSums));
-                                      
-                                      // Log each tier's data
-                                      Object.entries(qualityTierSums).forEach(([tier, data]) => {
-                                        console.log(`[FRONTEND_DEBUG] ${tier}: completion_time=${data.completion_time} (type: ${typeof data.completion_time}), creation_time=${data.creation_time} (type: ${typeof data.creation_time})`);
-                                        console.log(`[FRONTEND_DEBUG] ${tier} > 0 check: completion_time > 0 = ${data.completion_time > 0}, creation_time > 0 = ${data.creation_time > 0}`);
-                                        console.log(`[FRONTEND_DEBUG] ${tier} formatted: completion=${formatTimeLikePDF(data.completion_time)}, creation=${formatTimeLikePDF(data.creation_time)}`);
-                                      });
                                       
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
@@ -760,8 +740,6 @@ const PreviewModal: React.FC<{
                                         const creationTimeFormatted = tierData.creation_time > 0 
                                           ? formatTimeLikePDF(tierData.creation_time) 
                                           : '-';
-                                        
-                                        console.log(`[FRONTEND_DEBUG] Rendering row for ${level.name}: completion_time=${tierData.completion_time}, creation_time=${tierData.creation_time}`);
                                         
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
@@ -3892,11 +3870,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
                 );
                 
-                console.log('[FRONTEND_DEBUG] Backend data received:', backendData);
-                console.log('[FRONTEND_DEBUG] Backend quality_tier_sums:', backendData.quality_tier_sums);
-                console.log('[FRONTEND_DEBUG] Backend quality_tier_sums type:', typeof backendData.quality_tier_sums);
-                console.log('[FRONTEND_DEBUG] Backend quality_tier_sums keys:', Object.keys(backendData.quality_tier_sums || {}));
-                console.log('[FRONTEND_DEBUG] Setting preview data with quality_tier_sums:', backendData.quality_tier_sums);
+
                 
                 setPreviewData({
                     clientName,
@@ -3905,9 +3879,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     quality_tier_sums: backendData.quality_tier_sums
                 });
             } else {
-                console.log('[FRONTEND_DEBUG] Backend response not ok, using fallback data');
-                console.log('[FRONTEND_DEBUG] Response status:', response.status);
-                console.log('[FRONTEND_DEBUG] Response text:', await response.text());
                 // Fallback to frontend data if backend fails
                 const projectsToShow = visibleProjects.filter(project => 
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
@@ -3939,8 +3910,6 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             }
         } catch (error) {
             console.error('Failed to fetch preview data from backend:', error);
-            console.log('[FRONTEND_DEBUG] Using catch block fallback data');
-            console.log('[FRONTEND_DEBUG] Error details:', error);
             // Fallback to frontend data
             const projectsToShow = visibleProjects.filter(project => 
                 selectedProjects.length === 0 || selectedProjects.includes(project.id)
