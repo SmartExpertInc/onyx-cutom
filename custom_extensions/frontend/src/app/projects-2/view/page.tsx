@@ -14,6 +14,7 @@ import ShapesPopup from './components/ShapesPopup';
 import InteractionPopup from './components/InteractionPopup';
 import InteractionModal from './components/InteractionModal';
 import AiPopup from './components/AiPopup';
+import LanguageVariantModal from './components/LanguageVariantModal';
 
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
@@ -23,6 +24,7 @@ export default function Projects2ViewPage() {
   const [isInteractionPopupOpen, setIsInteractionPopupOpen] = useState<boolean>(false);
   const [isInteractionModalOpen, setIsInteractionModalOpen] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
+  const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [interactionPopupPosition, setInteractionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -142,19 +144,20 @@ export default function Projects2ViewPage() {
           onInteractionButtonClick={handleInteractionButtonClick}
           onMusicButtonClick={handleMusicButtonClick}
           onTransitionButtonClick={handleTransitionButtonClick}
+          onLanguageVariantModalOpen={setIsLanguageVariantModalOpen}
         />
       </div>
       
       {/* Main Content Area - Horizontal layout under toolbar */}
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
-      <div className="flex gap-4 overflow-hidden mt-[5px] mx-4" style={{ height: 'calc(100vh - 145px)' }}>
+      <div className="flex gap-4 mt-[5px] mx-4" style={{ height: 'calc(100vh - 145px)' }}>
         {/* Sidebar - 30% width, full height of available space */}
-        <div className="w-[30%] h-full">
+        <div className="w-[30%] h-full overflow-visible">
           {renderSidebarComponent()}
         </div>
 
         {/* Main Container - 70% width, full height of available space */}
-        <div className="w-[70%] h-full flex flex-col gap-2">
+        <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 70% of main container height */}
           <div className="bg-gray-200 rounded-md overflow-auto" style={{ height: '80%' }}>
           </div>
@@ -256,6 +259,12 @@ export default function Projects2ViewPage() {
         isOpen={isAiPopupOpen} 
         onClose={() => setIsAiPopupOpen(false)} 
         position={aiPopupPosition}
+      />
+
+      {/* Language Variant Modal */}
+      <LanguageVariantModal 
+        isOpen={isLanguageVariantModalOpen}
+        onClose={() => setIsLanguageVariantModalOpen(false)}
       />
     </div>
   );
