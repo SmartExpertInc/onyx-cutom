@@ -91,9 +91,9 @@ export function processBlock1CourseOverview(projects: any[]): any {
   let totalCompletionTime = 0;
   let totalProductionTime = 0;
 
-  // Process folders first (like backend template)
+  // Process folders first (like backend template) - but don't add to totals
   folders.forEach(folder => {
-    // Add folder row
+    // Add folder row (for display only, not for totals)
     result.push({
       name: folder.name,
       modules: folder.total_modules,
@@ -103,9 +103,8 @@ export function processBlock1CourseOverview(projects: any[]): any {
       isFolder: true
     });
     
-    totalLessons += folder.total_lessons;
-    totalCompletionTime += folder.total_completion_time;
-    totalProductionTime += folder.total_creation_hours;
+    // Don't add folder totals to overall totals (avoid double counting)
+    // Only add individual project data to totals
 
     // Add individual projects under folder (like backend template)
     folder.projects.forEach((project: any) => {
@@ -118,6 +117,7 @@ export function processBlock1CourseOverview(projects: any[]): any {
         isProject: true
       });
       
+      // Add only project data to totals (not folder data)
       totalLessons += project.total_lessons || 0;
       totalCompletionTime += project.total_completion_time || 0;
       totalProductionTime += project.total_creation_hours || 0;

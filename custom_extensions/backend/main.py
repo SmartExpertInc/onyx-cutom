@@ -17075,14 +17075,44 @@ async def download_projects_list_pdf(
             total_completion_time = 0  # Learning Duration (H) - sum of total_completion_time
             total_creation_hours = 0  # Production Time (H) - sum of total_creation_hours
             
-            # Calculate from folders and their projects
-            for folder in folders:
+            # Helper function to calculate totals from a folder recursively
+            def calculate_folder_totals(folder):
+                folder_total_lessons = 0
+                folder_total_modules = 0
+                folder_total_completion_time = 0
+                folder_total_creation_hours = 0
+                
+                # Add direct projects in this folder
                 if folder['id'] in folder_projects:
                     for project in folder_projects[folder['id']]:
-                        total_lessons += project.get('total_lessons', 0) or 0
-                        total_modules += project.get('total_modules', 0) or 0
-                        total_completion_time += project.get('total_completion_time', 0) or 0  # Learning Duration
-                        total_creation_hours += project.get('total_creation_hours', 0) or 0  # Production Time
+                        folder_total_lessons += project.get('total_lessons', 0) or 0
+                        folder_total_modules += project.get('total_modules', 0) or 0
+                        folder_total_completion_time += project.get('total_completion_time', 0) or 0
+                        folder_total_creation_hours += project.get('total_creation_hours', 0) or 0
+                
+                # Add subfolder totals recursively
+                if folder.get('children'):
+                    for child_folder in folder['children']:
+                        child_totals = calculate_folder_totals(child_folder)
+                        folder_total_lessons += child_totals['total_lessons']
+                        folder_total_modules += child_totals['total_modules']
+                        folder_total_completion_time += child_totals['total_completion_time']
+                        folder_total_creation_hours += child_totals['total_creation_hours']
+                
+                return {
+                    'total_lessons': folder_total_lessons,
+                    'total_modules': folder_total_modules,
+                    'total_completion_time': folder_total_completion_time,
+                    'total_creation_hours': folder_total_creation_hours
+                }
+            
+            # Calculate from all root folders
+            for folder in folders:
+                folder_totals = calculate_folder_totals(folder)
+                total_lessons += folder_totals['total_lessons']
+                total_modules += folder_totals['total_modules']
+                total_completion_time += folder_totals['total_completion_time']
+                total_creation_hours += folder_totals['total_creation_hours']
             
             # Add unassigned projects
             for project in unassigned_projects:
