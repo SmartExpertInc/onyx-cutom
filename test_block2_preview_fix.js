@@ -52,13 +52,55 @@ const testData = {
                     }
                 ]
             }
+        },
+        {
+            id: 3,
+            title: 'Test Project 3',
+            total_completion_time: 90, // 1.5 hours in minutes
+            total_creation_hours: 2, // 2 hours
+            quality_tier: 'basic',
+            microproduct_content: {
+                sections: [
+                    {
+                        quality_tier: 'basic',
+                        lessons: [
+                            {
+                                quality_tier: 'basic',
+                                completionTime: '90', // 90 minutes
+                                hours: 2 // 2 hours
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            id: 4,
+            title: 'Test Project 4',
+            total_completion_time: 240, // 4 hours in minutes
+            total_creation_hours: 8, // 8 hours
+            quality_tier: 'immersive',
+            microproduct_content: {
+                sections: [
+                    {
+                        quality_tier: 'immersive',
+                        lessons: [
+                            {
+                                quality_tier: 'immersive',
+                                completionTime: '240', // 240 minutes
+                                hours: 8 // 8 hours
+                            }
+                        ]
+                    }
+                ]
+            }
         }
     ],
     quality_tier_sums: {
-        basic: { completion_time: 0, creation_time: 0 },
+        basic: { completion_time: 90, creation_time: 120 }, // 90 minutes, 2 hours * 60
         interactive: { completion_time: 75, creation_time: 180 }, // 30+45 minutes, 1+2 hours * 60
         advanced: { completion_time: 120, creation_time: 300 }, // 60 minutes, 3 hours * 60
-        immersive: { completion_time: 0, creation_time: 0 }
+        immersive: { completion_time: 240, creation_time: 480 } // 240 minutes, 8 hours * 60
     }
 };
 
