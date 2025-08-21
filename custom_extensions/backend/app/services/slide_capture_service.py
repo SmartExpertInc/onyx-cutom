@@ -103,18 +103,18 @@ class ProfessionalSlideCapture:
             
             logger.info(f"Starting slide capture: {config.slide_url}")
             
-            # Create context with optimal settings and video recording enabled
+            # Create context with optimal settings
             context = await self.browser.new_context(
                 viewport={'width': config.width, 'height': config.height},
-                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                record_video_dir="temp",
-                record_video_size={'width': config.width, 'height': config.height}
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             )
             
             # Create page
             page = await context.new_page()
             
-            # Video recording is automatically started when context is created with record_video_dir
+            # Start video recording using the page.video API
+            video_path = f"temp/slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}.webm"
+            await page.video.start(path=video_path)
             
             # Navigate to slide URL with better error handling
             logger.info(f"Navigating to slide URL: {config.slide_url}")
@@ -188,15 +188,15 @@ class ProfessionalSlideCapture:
             logger.info(f"Recording for {config.duration} seconds")
             await page.wait_for_timeout(int(config.duration * 1000))
             
-            # Close page and context to stop recording
+            # Stop video recording
+            captured_video_path = await page.video.stop()
             await page.close()
             await context.close()
             
-            # Get the video path from the context
-            video_path = context.video.path() if context.video else None
-            
-            if not video_path:
+            if not captured_video_path:
                 raise Exception("Failed to capture video")
+            
+            video_path = captured_video_path
             
             logger.info(f"Video captured: {video_path}")
             
