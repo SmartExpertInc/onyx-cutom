@@ -18,6 +18,7 @@ import {
   Plus
 } from 'lucide-react';
 import AvatarPopup from './AvatarPopup';
+import LanguageVariantModal from './LanguageVariantModal';
 
 interface ToolbarProps {
   onActiveToolChange?: (toolId: string) => void;
@@ -39,6 +40,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
+  const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const textButtonRef = useRef<HTMLDivElement>(null);
   const shapesButtonRef = useRef<HTMLDivElement>(null);
   const interactionButtonRef = useRef<HTMLDivElement>(null);
@@ -212,6 +214,11 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   const handleChevronClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation(); // Prevent the default button click
     setIsLanguagePopupOpen(!isLanguagePopupOpen);
+  };
+
+  const handleAddNewLanguageVariant = () => {
+    setIsLanguagePopupOpen(false);
+    setIsLanguageVariantModalOpen(true);
   };
 
   // Close popup when clicking outside
@@ -400,7 +407,10 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
                       <div className="border-t border-gray-300 my-2 -mx-4"></div>
 
                       {/* Add New Language Variant Row */}
-                      <div className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer">
+                      <div 
+                        className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
+                        onClick={handleAddNewLanguageVariant}
+                      >
                         {/* Plus Icon */}
                         <Plus size={14} className="text-gray-500" />
 
@@ -450,6 +460,12 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
           }}
         />
       )}
+
+      {/* Language Variant Modal */}
+      <LanguageVariantModal 
+        isOpen={isLanguageVariantModalOpen}
+        onClose={() => setIsLanguageVariantModalOpen(false)}
+      />
     </div>
   );
 }
