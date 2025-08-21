@@ -55,10 +55,10 @@ export default function AvatarPopup({
       <div className="w-64 bg-white px-6 py-4 flex flex-col">
         {/* Three buttons at the top */}
         <div className="mb-4">
-          <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg p-2">
+          <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg p-1">
             <button 
               onClick={() => setActiveButton('button1')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeButton === 'button1' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
@@ -69,7 +69,7 @@ export default function AvatarPopup({
             </button>
             <button 
               onClick={() => setActiveButton('button2')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeButton === 'button2' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
@@ -80,7 +80,7 @@ export default function AvatarPopup({
             </button>
             <button 
               onClick={() => setActiveButton('button3')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeButton === 'button3' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
@@ -103,7 +103,7 @@ export default function AvatarPopup({
                   type="checkbox"
                   checked={selectedItems['male'] || false}
                   onChange={() => handleCheckboxChange('male')}
-                  className="mr-2 border-gray-400 text-black focus:ring-black focus:ring-2 focus:ring-offset-0"
+                  className="mr-2 border-gray-400 text-black focus:ring-0"
                 />
                 <span className="text-sm text-black">Male</span>
               </label>
@@ -112,7 +112,7 @@ export default function AvatarPopup({
                   type="checkbox"
                   checked={selectedItems['female'] || false}
                   onChange={() => handleCheckboxChange('female')}
-                  className="mr-2 border-gray-400 text-black focus:ring-black focus:ring-2 focus:ring-offset-0"
+                  className="mr-2 border-gray-400 text-black focus:ring-0"
                 />
                 <span className="text-sm text-black">Female</span>
               </label>
@@ -129,7 +129,7 @@ export default function AvatarPopup({
                     type="checkbox"
                     checked={selectedItems[feature.toLowerCase().replace(/\s+/g, '_')] || false}
                     onChange={() => handleCheckboxChange(feature.toLowerCase().replace(/\s+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-black focus:ring-2 focus:ring-offset-0"
+                    className="mr-2 border-gray-400 text-black focus:ring-0"
                   />
                   <span className="text-sm text-black">{feature}</span>
                 </label>
@@ -147,7 +147,7 @@ export default function AvatarPopup({
                     type="checkbox"
                     checked={selectedItems[age.toLowerCase().replace(/\s+/g, '_')] || false}
                     onChange={() => handleCheckboxChange(age.toLowerCase().replace(/\s+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-black focus:ring-2 focus:ring-offset-0"
+                    className="mr-2 border-gray-400 text-black focus:ring-0"
                   />
                   <span className="text-sm text-black">{age}</span>
                 </label>
@@ -165,7 +165,7 @@ export default function AvatarPopup({
                     type="checkbox"
                     checked={selectedItems[ethnicity.toLowerCase().replace(/[\/\s]+/g, '_')] || false}
                     onChange={() => handleCheckboxChange(ethnicity.toLowerCase().replace(/[\/\s]+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-black focus:ring-2 focus:ring-offset-0"
+                    className="mr-2 border-gray-400 text-black focus:ring-0"
                   />
                   <span className="text-sm text-black">{ethnicity}</span>
                 </label>
@@ -183,7 +183,7 @@ export default function AvatarPopup({
                     type="checkbox"
                     checked={selectedItems[scenario.toLowerCase().replace(/[&\s]+/g, '_')] || false}
                     onChange={() => handleCheckboxChange(scenario.toLowerCase().replace(/[&\s]+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-black focus:ring-2 focus:ring-offset-0"
+                    className="mr-2 border-gray-400 text-black focus:ring-0"
                   />
                   <span className="text-sm text-black">{scenario}</span>
                 </label>
@@ -201,7 +201,7 @@ export default function AvatarPopup({
                     type="checkbox"
                     checked={selectedItems[avatarType.toLowerCase().replace(/\s+/g, '_')] || false}
                     onChange={() => handleCheckboxChange(avatarType.toLowerCase().replace(/\s+/g, '_'))}
-                    className="mr-2 border-gray-400 text-black focus:ring-black focus:ring-2 focus:ring-offset-0"
+                    className="mr-2 border-gray-400 text-black focus:ring-0"
                   />
                   <span className="text-sm text-black">{avatarType}</span>
                 </label>
@@ -212,12 +212,12 @@ export default function AvatarPopup({
 
         {/* Footer - appears when items are checked */}
         {Object.values(selectedItems).some(Boolean) && (
-          <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg">
+          <div className="mt-4 pt-4 border-t border-gray-200 rounded-bl-lg -mx-6">
             <button 
               onClick={() => setSelectedItems({})}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium"
             >
-              <span>×</span>
+              <span className="text-base">×</span>
               <span>Reset filter ({Object.values(selectedItems).filter(Boolean).length})</span>
             </button>
           </div>
@@ -247,7 +247,7 @@ export default function AvatarPopup({
           </div>
           
           {/* Create button */}
-          <button className="px-4 py-1.5 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-10 transition-colors font-medium" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+          <button className="px-4 py-1.5 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-10 transition-colors font-medium text-xs" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
             + Create
           </button>
         </div>
@@ -293,7 +293,7 @@ export default function AvatarPopup({
         
         {/* Modal content */}
         <div 
-          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[460px] overflow-hidden ${className}`}
+          className={`relative bg-white shadow-xl max-w-4xl w-full mx-4 z-10 h-[420px] overflow-hidden ${className}`}
           style={{ borderRadius: '12px' }}
         >
           {/* Main content area with sidebar */}
@@ -314,7 +314,7 @@ export default function AvatarPopup({
           left: position?.x || 0,
           top: position?.y || 0,
           width: '800px',
-          height: '460px'
+          height: '420px'
         }}
       >
         {/* Main content area with sidebar */}
