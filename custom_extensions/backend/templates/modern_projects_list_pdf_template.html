@@ -423,7 +423,7 @@
                         </tbody>
                     </table>
                                          <div class="subtotal">
-                         Subtotal: {{ (total_completion_time // 60) if total_completion_time else 0 }}h of learning content → {{ (total_creation_hours // 60) if total_creation_hours else 0 }}h production
+                         Subtotal: {% if total_completion_time and total_completion_time > 0 %}{% set h = total_completion_time // 60 %}{% set m = total_completion_time % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %} of learning content → {% if total_creation_hours and total_creation_hours > 0 %}{% set h = total_creation_hours // 60 %}{% set m = total_creation_hours % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %} production
                      </div>
                 </div>
             </div>
@@ -499,8 +499,8 @@
                     Summary:
                 </div>
                                  <ul class="summary-list">
-                     <li>Total: {{ (total_completion_time // 60) if total_completion_time else 0 }} hours of learning content</li>
-                     <li>Estimated Production Time: ≈ {{ (total_creation_hours // 60) if total_creation_hours else 0 }} hours</li>
+                     <li>Total: {% if total_completion_time and total_completion_time > 0 %}{% set h = total_completion_time // 60 %}{% set m = total_completion_time % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %} of learning content</li>
+                     <li>Estimated Production Time: ≈ {% if total_creation_hours and total_creation_hours > 0 %}{% set h = total_creation_hours // 60 %}{% set m = total_creation_hours % 60 %}{% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}{% else %}0h{% endif %}</li>
                      <li>Production scaling depends on chosen quality tier (200-800h per 1h learning).</li>
                  </ul>
             </div>
