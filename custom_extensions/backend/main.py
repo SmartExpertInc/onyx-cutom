@@ -16825,52 +16825,65 @@ async def download_projects_list_pdf(
                 'immersive': {'completion_time': 0, 'creation_time': 0}
             }
             
-            # Helper function to get effective quality tier
-            def get_effective_quality_tier(project, folder_quality_tier='interactive'):
-                # Check project-level quality tier first
-                if project.get('quality_tier'):
-                    tier = project['quality_tier'].lower()
-                    # Support both old and new tier names
-                    tier_mapping = {
-                        # New tier names
-                        'basic': 'basic',
-                        'interactive': 'interactive', 
-                        'advanced': 'advanced',
-                        'immersive': 'immersive',
-                        # Old tier names (legacy support)
-                        'starter': 'basic',
-                        'medium': 'interactive',
-                        'professional': 'immersive'
-                    }
-                    if tier in tier_mapping:
-                        return tier_mapping[tier]
-                # Fall back to folder quality tier
-                folder_tier = folder_quality_tier.lower()
-                # Map folder tier as well
+            # Helper function to get effective quality tier (same as quality distribution endpoint)
+            def get_effective_quality_tier(lesson_quality_tier, section_quality_tier, project_quality_tier, folder_quality_tier='interactive'):
+                # Priority: lesson -> section -> project -> folder -> default
+                tier = (lesson_quality_tier or section_quality_tier or project_quality_tier or folder_quality_tier or 'interactive').lower()
+                
+                # Support both old and new tier names
                 tier_mapping = {
+                    # New tier names
                     'basic': 'basic',
-                    'interactive': 'interactive',
-                    'advanced': 'advanced', 
+                    'interactive': 'interactive', 
+                    'advanced': 'advanced',
                     'immersive': 'immersive',
+                    # Old tier names (legacy support)
                     'starter': 'basic',
                     'medium': 'interactive',
                     'professional': 'immersive'
                 }
-                return tier_mapping.get(folder_tier, 'interactive')
+                return tier_mapping.get(tier, 'interactive')
             
-            # Process folder projects
+            # Process folder projects with module-level quality tiers
             for folder in folders:
-                folder_quality_tier = folder.get('quality_tier', 'interactive').lower()
+                folder_quality_tier = folder.get('quality_tier', 'interactive')
                 logger.info(f"[PDF_ANALYTICS] Processing folder {folder.get('id')} with quality_tier: {folder_quality_tier}")
                 
                 if folder['id'] in folder_projects:
                     for project in folder_projects[folder['id']]:
-                        effective_tier = get_effective_quality_tier(project, folder_quality_tier)
-                        logger.info(f"[PDF_ANALYTICS] Project {project.get('id')} from folder {folder.get('id')}: project_tier={project.get('quality_tier')}, effective_tier={effective_tier}")
-                        if effective_tier in quality_tier_data:
-                            quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
-                            quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0
-                            logger.info(f"[PDF_ANALYTICS] Added to {effective_tier}: completion_time={project.get('total_completion_time', 0)}, creation_time={project.get('total_creation_hours', 0)}")
+                        project_quality_tier = project.get('quality_tier')
+                        logger.info(f"[PDF_ANALYTICS] Processing project {project.get('id')} with project_quality_tier: {project_quality_tier}")
+                        
+                        # Process microproduct_content to get module-level quality tiers
+                        microproduct_content = project.get('microproduct_content')
+                        if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
+                            sections = microproduct_content['sections']
+                            if isinstance(sections, list):
+                                for section in sections:
+                                    if isinstance(section, dict) and 'lessons' in section:
+                                        section_quality_tier = section.get('quality_tier')
+                                        lessons = section['lessons']
+                                        if isinstance(lessons, list):
+                                            for lesson in lessons:
+                                                if isinstance(lesson, dict):
+                                                    lesson_quality_tier = lesson.get('quality_tier')
+                                                    effective_tier = get_effective_quality_tier(
+                                                        lesson_quality_tier, 
+                                                        section_quality_tier, 
+                                                        project_quality_tier, 
+                                                        folder_quality_tier
+                                                    )
+                                                    
+                                                    # Get lesson completion time and creation hours
+                                                    lesson_completion_time = lesson.get('completion_time', 0) or 0
+                                                    lesson_creation_hours = lesson.get('hours', 0) or 0
+                                                    
+                                                    logger.info(f"[PDF_ANALYTICS] Lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
+                                                    
+                                                    if effective_tier in quality_tier_data:
+                                                        quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
+                                                        quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours
+                                                        logger.info(f"[PDF_ANALYTICS] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours}")
                 
                 # Recursively process subfolders
                 if folder.get('children'):
@@ -16879,15 +16892,42 @@ async def download_projects_list_pdf(
                         quality_tier_data[tier]['completion_time'] += child_data[tier]['completion_time']
                         quality_tier_data[tier]['creation_time'] += child_data[tier]['creation_time']
             
-            # Process unassigned projects (use default tier)
+            # Process unassigned projects with module-level quality tiers
             logger.info(f"[PDF_ANALYTICS] Processing {len(unassigned_projects)} unassigned projects")
             for project in unassigned_projects:
-                effective_tier = get_effective_quality_tier(project, 'interactive')
-                logger.info(f"[PDF_ANALYTICS] Unassigned project {project.get('id')}: project_tier={project.get('quality_tier')}, effective_tier={effective_tier}")
-                if effective_tier in quality_tier_data:
-                    quality_tier_data[effective_tier]['completion_time'] += project.get('total_completion_time', 0) or 0
-                    quality_tier_data[effective_tier]['creation_time'] += project.get('total_creation_hours', 0) or 0
-                    logger.info(f"[PDF_ANALYTICS] Added unassigned to {effective_tier}: completion_time={project.get('total_completion_time', 0)}, creation_time={project.get('total_creation_hours', 0)}")
+                project_quality_tier = project.get('quality_tier')
+                logger.info(f"[PDF_ANALYTICS] Processing unassigned project {project.get('id')} with project_quality_tier: {project_quality_tier}")
+                
+                # Process microproduct_content to get module-level quality tiers
+                microproduct_content = project.get('microproduct_content')
+                if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
+                    sections = microproduct_content['sections']
+                    if isinstance(sections, list):
+                        for section in sections:
+                            if isinstance(section, dict) and 'lessons' in section:
+                                section_quality_tier = section.get('quality_tier')
+                                lessons = section['lessons']
+                                if isinstance(lessons, list):
+                                    for lesson in lessons:
+                                        if isinstance(lesson, dict):
+                                            lesson_quality_tier = lesson.get('quality_tier')
+                                            effective_tier = get_effective_quality_tier(
+                                                lesson_quality_tier, 
+                                                section_quality_tier, 
+                                                project_quality_tier, 
+                                                'interactive'  # Default for unassigned projects
+                                            )
+                                            
+                                            # Get lesson completion time and creation hours
+                                            lesson_completion_time = lesson.get('completion_time', 0) or 0
+                                            lesson_creation_hours = lesson.get('hours', 0) or 0
+                                            
+                                            logger.info(f"[PDF_ANALYTICS] Unassigned lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
+                                            
+                                            if effective_tier in quality_tier_data:
+                                                quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
+                                                quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours
+                                                logger.info(f"[PDF_ANALYTICS] Added unassigned lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours}")
             
             logger.info(f"[PDF_ANALYTICS] Final quality tier data: {quality_tier_data}")
             return quality_tier_data
@@ -19478,6 +19518,113 @@ async def get_quality_distribution(
         logger.error(f"Error getting quality distribution: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get quality distribution: {str(e)}")
 
+@app.get("/api/custom/projects/quality-tier-sums")
+async def get_quality_tier_sums_for_block2(
+    folder_id: Optional[int] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get quality tier sums for Block 2 using module-level quality tiers."""
+    try:
+        async with pool.acquire() as conn:
+            # Build query to get all projects with their microproduct_content
+            query = """
+                SELECT p.id, p.project_name, p.microproduct_name, p.microproduct_content, 
+                       p.quality_tier as project_quality_tier, p.folder_id,
+                       pf.quality_tier as folder_quality_tier
+                FROM projects p
+                LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                WHERE p.onyx_user_id = $1
+                AND p.microproduct_content IS NOT NULL
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """
+            params = [onyx_user_id]
+            
+            if folder_id is not None:
+                query += " AND p.folder_id = $2"
+                params.append(folder_id)
+            
+            query += " ORDER BY p.created_at DESC"
+            
+            rows = await conn.fetch(query, *params)
+            
+            # Initialize quality tier sums
+            quality_tier_sums = {
+                'basic': {'completion_time': 0, 'creation_time': 0},
+                'interactive': {'completion_time': 0, 'creation_time': 0},
+                'advanced': {'completion_time': 0, 'creation_time': 0},
+                'immersive': {'completion_time': 0, 'creation_time': 0}
+            }
+            
+            # Helper function to get effective quality tier
+            def get_effective_quality_tier(lesson_quality_tier, section_quality_tier, project_quality_tier, folder_quality_tier='interactive'):
+                # Priority: lesson -> section -> project -> folder -> default
+                tier = (lesson_quality_tier or section_quality_tier or project_quality_tier or folder_quality_tier or 'interactive').lower()
+                
+                # Support both old and new tier names
+                tier_mapping = {
+                    # New tier names
+                    'basic': 'basic',
+                    'interactive': 'interactive', 
+                    'advanced': 'advanced',
+                    'immersive': 'immersive',
+                    # Old tier names (legacy support)
+                    'starter': 'basic',
+                    'medium': 'interactive',
+                    'professional': 'immersive'
+                }
+                return tier_mapping.get(tier, 'interactive')
+            
+            # Process each project
+            for row in rows:
+                row_dict = dict(row)
+                project_id = row_dict['id']
+                project_quality_tier = row_dict.get('project_quality_tier')
+                folder_quality_tier = row_dict.get('folder_quality_tier', 'interactive')
+                microproduct_content = row_dict.get('microproduct_content')
+                
+                logger.info(f"[QUALITY_TIER_SUMS] Processing project {project_id}: project_tier={project_quality_tier}, folder_tier={folder_quality_tier}")
+                
+                if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
+                    sections = microproduct_content['sections']
+                    if isinstance(sections, list):
+                        for section in sections:
+                            if isinstance(section, dict) and 'lessons' in section:
+                                section_quality_tier = section.get('quality_tier')
+                                lessons = section['lessons']
+                                if isinstance(lessons, list):
+                                    for lesson in lessons:
+                                        if isinstance(lesson, dict):
+                                            lesson_quality_tier = lesson.get('quality_tier')
+                                            effective_tier = get_effective_quality_tier(
+                                                lesson_quality_tier, 
+                                                section_quality_tier, 
+                                                project_quality_tier, 
+                                                folder_quality_tier
+                                            )
+                                            
+                                            # Get lesson completion time and creation hours
+                                            lesson_completion_time = lesson.get('completion_time', 0) or 0
+                                            lesson_creation_hours = lesson.get('hours', 0) or 0
+                                            
+                                            logger.info(f"[QUALITY_TIER_SUMS] Lesson in project {project_id}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
+                                            
+                                            if effective_tier in quality_tier_sums:
+                                                quality_tier_sums[effective_tier]['completion_time'] += lesson_completion_time
+                                                quality_tier_sums[effective_tier]['creation_time'] += lesson_creation_hours
+                                                logger.info(f"[QUALITY_TIER_SUMS] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours}")
+            
+            logger.info(f"[QUALITY_TIER_SUMS] Final quality tier sums: {quality_tier_sums}")
+            
+            return {
+                "quality_tier_sums": quality_tier_sums,
+                "total_projects_processed": len(rows)
+            }
+            
+    except Exception as e:
+        logger.error(f"Error getting quality tier sums: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get quality tier sums: {str(e)}")
+
 @app.get("/api/custom/projects-data")
 async def get_projects_data_for_preview(
     folder_id: Optional[int] = Query(None),
@@ -19545,10 +19692,90 @@ async def get_projects_data_for_preview(
             # Process projects data using unified function for consistency
             projects_data = process_projects_data_unified(projects_rows)
             
+            # Calculate quality tier sums for Block 2 using module-level quality tiers
+            quality_tier_sums = {
+                'basic': {'completion_time': 0, 'creation_time': 0},
+                'interactive': {'completion_time': 0, 'creation_time': 0},
+                'advanced': {'completion_time': 0, 'creation_time': 0},
+                'immersive': {'completion_time': 0, 'creation_time': 0}
+            }
+            
+            # Helper function to get effective quality tier
+            def get_effective_quality_tier(lesson_quality_tier, section_quality_tier, project_quality_tier, folder_quality_tier='interactive'):
+                # Priority: lesson -> section -> project -> folder -> default
+                tier = (lesson_quality_tier or section_quality_tier or project_quality_tier or folder_quality_tier or 'interactive').lower()
+                
+                # Support both old and new tier names
+                tier_mapping = {
+                    # New tier names
+                    'basic': 'basic',
+                    'interactive': 'interactive', 
+                    'advanced': 'advanced',
+                    'immersive': 'immersive',
+                    # Old tier names (legacy support)
+                    'starter': 'basic',
+                    'medium': 'interactive',
+                    'professional': 'immersive'
+                }
+                return tier_mapping.get(tier, 'interactive')
+            
+            # Get folder quality tiers for reference
+            folder_quality_tiers = {}
+            if projects_rows:
+                folder_ids = list(set(row['folder_id'] for row in projects_rows if row['folder_id'] is not None))
+                if folder_ids:
+                    folder_query = "SELECT id, quality_tier FROM project_folders WHERE id = ANY($1)"
+                    folder_rows = await conn.fetch(folder_query, folder_ids)
+                    for folder_row in folder_rows:
+                        folder_quality_tiers[folder_row['id']] = folder_row.get('quality_tier', 'interactive')
+            
+            # Process each project for quality tier sums
+            for row in projects_rows:
+                row_dict = dict(row)
+                project_id = row_dict['id']
+                project_quality_tier = row_dict.get('quality_tier')
+                folder_id = row_dict.get('folder_id')
+                folder_quality_tier = folder_quality_tiers.get(folder_id, 'interactive') if folder_id else 'interactive'
+                microproduct_content = row_dict.get('microproduct_content')
+                
+                logger.info(f"[PROJECTS_DATA] Processing project {project_id} for quality tier sums: project_tier={project_quality_tier}, folder_tier={folder_quality_tier}")
+                
+                if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
+                    sections = microproduct_content['sections']
+                    if isinstance(sections, list):
+                        for section in sections:
+                            if isinstance(section, dict) and 'lessons' in section:
+                                section_quality_tier = section.get('quality_tier')
+                                lessons = section['lessons']
+                                if isinstance(lessons, list):
+                                    for lesson in lessons:
+                                        if isinstance(lesson, dict):
+                                            lesson_quality_tier = lesson.get('quality_tier')
+                                            effective_tier = get_effective_quality_tier(
+                                                lesson_quality_tier, 
+                                                section_quality_tier, 
+                                                project_quality_tier, 
+                                                folder_quality_tier
+                                            )
+                                            
+                                            # Get lesson completion time and creation hours
+                                            lesson_completion_time = lesson.get('completion_time', 0) or 0
+                                            lesson_creation_hours = lesson.get('hours', 0) or 0
+                                            
+                                            logger.info(f"[PROJECTS_DATA] Lesson in project {project_id}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
+                                            
+                                            if effective_tier in quality_tier_sums:
+                                                quality_tier_sums[effective_tier]['completion_time'] += lesson_completion_time
+                                                quality_tier_sums[effective_tier]['creation_time'] += lesson_creation_hours
+                                                logger.info(f"[PROJECTS_DATA] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours}")
+            
+            logger.info(f"[PROJECTS_DATA] Final quality tier sums: {quality_tier_sums}")
+            
             return {
                 'projects': projects_data,
                 'client_name': client_name,
-                'manager_name': manager_name
+                'manager_name': manager_name,
+                'quality_tier_sums': quality_tier_sums
             }
             
     except Exception as e:

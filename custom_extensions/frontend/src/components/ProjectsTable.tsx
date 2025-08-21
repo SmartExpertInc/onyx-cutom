@@ -713,71 +713,15 @@ const PreviewModal: React.FC<{
                                       console.log('[FRONTEND_DEBUG] === BLOCK 2 QUALITY TIER SUMS START ===');
                                       console.log('[FRONTEND_DEBUG] Input data:', data);
                                       
-                                      // Calculate quality tier sums dynamically (same as PDF)
-                                      const qualityTierSums = {
-                                        'basic': { completionTime: 0, creationTime: 0 },
-                                        'interactive': { completionTime: 0, creationTime: 0 },
-                                        'advanced': { completionTime: 0, creationTime: 0 },
-                                        'immersive': { completionTime: 0, creationTime: 0 }
+                                      // Use quality tier sums from backend (module-level calculation)
+                                      const qualityTierSums = data.quality_tier_sums || {
+                                        'basic': { completion_time: 0, creation_time: 0 },
+                                        'interactive': { completion_time: 0, creation_time: 0 },
+                                        'advanced': { completion_time: 0, creation_time: 0 },
+                                        'immersive': { completion_time: 0, creation_time: 0 }
                                       };
                                       
-                                      // Helper function to get effective quality tier (same as backend)
-                                      const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
-                                        if (project.quality_tier) {
-                                          const tier = project.quality_tier.toLowerCase();
-                                          // Support both old and new tier names (same mapping as backend)
-                                          const tierMapping: Record<string, keyof typeof qualityTierSums> = {
-                                            // New tier names
-                                            'basic': 'basic',
-                                            'interactive': 'interactive',
-                                            'advanced': 'advanced',
-                                            'immersive': 'immersive',
-                                            // Old tier names (legacy support)
-                                            'starter': 'basic',
-                                            'medium': 'interactive',
-                                            'professional': 'immersive'
-                                          };
-                                          return tierMapping[tier] || 'interactive';
-                                        }
-                                        return 'interactive';
-                                      };
-                                      
-                                      // Process all projects to calculate quality tier sums (exactly like PDF backend)
-                                      const allProjects = data.projects || [];
-                                      console.log('[FRONTEND_DEBUG] Processing projects for quality tier sums:', allProjects.length);
-                                      console.log('[FRONTEND_DEBUG] Raw projects data:', allProjects);
-                                      
-                                      // Detailed logging of each project
-                                      console.log('[FRONTEND_DEBUG] === DETAILED PROJECT ANALYSIS ===');
-                                      allProjects.forEach((project: Project | BackendProject, index: number) => {
-                                        const backendProject = project as BackendProject;
-                                        console.log(`[FRONTEND_DEBUG] Project ${index + 1}:`, {
-                                          id: project.id,
-                                          title: backendProject.project_name || backendProject.microproduct_name || 'Untitled',
-                                          quality_tier: project.quality_tier,
-                                          total_completion_time: project.total_completion_time,
-                                          total_creation_hours: project.total_creation_hours,
-                                          folder_id: backendProject.folder_id,
-                                          created_at: backendProject.created_at
-                                        });
-                                      });
-                                      console.log('[FRONTEND_DEBUG] === END PROJECT ANALYSIS ===');
-                                      
-                                      // Quality tier processing with detailed logging
-                                      console.log('[FRONTEND_DEBUG] === QUALITY TIER PROCESSING ===');
-                                      allProjects.forEach((project: Project | BackendProject) => {
-                                        // Use the same logic as backend: check project quality_tier first, fallback to 'interactive'
-                                        const effectiveTier = getEffectiveQualityTier(project, 'interactive');
-                                        console.log(`[FRONTEND_DEBUG] Project ${project.id}: quality_tier=${project.quality_tier}, effective_tier=${effectiveTier}, completion_time=${project.total_completion_time}, creation_hours=${project.total_creation_hours}`);
-                                        
-                                        // Learning Duration uses total_completion_time (like PDF template)
-                                        qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
-                                        // Production Time uses total_creation_hours (like PDF template)
-                                        qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;
-                                      });
-                                      
-                                      console.log('[FRONTEND_DEBUG] Final quality tier sums:', qualityTierSums);
-                                      console.log('[FRONTEND_DEBUG] === END QUALITY TIER PROCESSING ===');
+                                      console.log('[FRONTEND_DEBUG] Using backend quality tier sums:', qualityTierSums);
                                       
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
@@ -789,14 +733,14 @@ const PreviewModal: React.FC<{
 
                                       return qualityLevels.map((level, index) => {
                                         const tierData = qualityTierSums[level.key as keyof typeof qualityTierSums];
-                                        const completionTimeFormatted = tierData.completionTime > 0 
-                                          ? formatTimeLikePDF(tierData.completionTime) 
+                                        const completionTimeFormatted = tierData.completion_time > 0 
+                                          ? formatTimeLikePDF(tierData.completion_time) 
                                           : '-';
-                                        const creationTimeFormatted = tierData.creationTime > 0 
-                                          ? formatTimeLikePDF(tierData.creationTime) 
+                                        const creationTimeFormatted = tierData.creation_time > 0 
+                                          ? formatTimeLikePDF(tierData.creation_time) 
                                           : '-';
                                         
-                                        console.log(`[FRONTEND_DEBUG] Rendering row for ${level.name}: completionTime=${tierData.completionTime}, creationTime=${tierData.creationTime}`);
+                                        console.log(`[FRONTEND_DEBUG] Rendering row for ${level.name}: completion_time=${tierData.completion_time}, creation_time=${tierData.creation_time}`);
                                         
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
