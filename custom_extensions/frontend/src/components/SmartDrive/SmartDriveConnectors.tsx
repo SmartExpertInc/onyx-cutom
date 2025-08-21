@@ -367,26 +367,38 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         
         console.log('All connector statuses:', allConnectorStatuses);
         
-        // Check for deleting connectors
+        // Debug: Show status fields for the first connector
+        if (allConnectorStatuses.length > 0) {
+          const firstConnector = allConnectorStatuses[0];
+          console.log('Status fields in first connector:', {
+            status: firstConnector.status,
+            cc_pair_status: firstConnector.cc_pair_status,
+            last_status: firstConnector.last_status,
+            last_finished_status: firstConnector.last_finished_status,
+            available_fields: Object.keys(firstConnector)
+          });
+        }
+        
+        // Check for deleting connectors (status field is cc_pair_status)
         const deletingConnectors = allConnectorStatuses.filter((connectorStatus: any) => 
           connectorStatus.access_type === 'private' && 
-          connectorStatus.status === 'DELETING'
+          connectorStatus.cc_pair_status === 'DELETING'
         );
         if (deletingConnectors.length > 0) {
-          console.log('Found connectors being deleted (hiding from UI):', deletingConnectors.map((c: any) => ({ name: c.name, id: c.cc_pair_id, status: c.status })));
+          console.log('Found connectors being deleted (hiding from UI):', deletingConnectors.map((c: any) => ({ name: c.name, id: c.cc_pair_id, status: c.cc_pair_status })));
         }
         
         // Filter to show connectors that have private access (Smart Drive connectors) and are not being deleted
         const smartDriveConnectors = allConnectorStatuses.filter((connectorStatus: any) => 
           connectorStatus.access_type === 'private' && 
-          connectorStatus.status !== 'DELETING'
+          connectorStatus.cc_pair_status !== 'DELETING'
         );
         
         const userConnectors = smartDriveConnectors.map((connectorStatus: any) => ({
           id: connectorStatus.cc_pair_id, // IMPORTANT: Use cc_pair_id (not connector.id) for management API
           name: connectorStatus.name,
           source: connectorStatus.connector.source,
-          status: connectorStatus.last_status || 'unknown',
+          status: connectorStatus.cc_pair_status || 'unknown', // Use cc_pair_status for actual connector status
           last_sync_at: connectorStatus.last_sync_at,
           total_docs_indexed: connectorStatus.docs_indexed || 0,
           last_error: connectorStatus.last_index_attempt?.error_msg,
