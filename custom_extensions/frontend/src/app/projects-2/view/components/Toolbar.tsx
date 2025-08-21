@@ -219,17 +219,23 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      console.log('🔧 Click outside detected, target:', event.target);
       if (defaultButtonRef.current && !defaultButtonRef.current.contains(event.target as Node)) {
+        console.log('🔧 Closing popup due to click outside');
         setIsLanguagePopupOpen(false);
       }
     };
 
     if (isLanguagePopupOpen) {
+      console.log('🔧 Adding click outside listener');
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      if (isLanguagePopupOpen) {
+        console.log('🔧 Removing click outside listener');
+        document.removeEventListener('mousedown', handleClickOutside);
+      }
     };
   }, [isLanguagePopupOpen]);
 
@@ -411,10 +417,17 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
                       <div 
                         className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer bg-blue-100"
                         onClick={(e) => {
-                          console.log('🔧 Add new variant button clicked, popup open:', isLanguagePopupOpen);
+                          console.log('🔧 Add new variant button clicked - START');
+                          console.log('🔧 Event target:', e.target);
+                          console.log('🔧 Event currentTarget:', e.currentTarget);
+                          console.log('🔧 Popup open:', isLanguagePopupOpen);
+                          
                           e.preventDefault();
                           e.stopPropagation();
+                          
+                          console.log('🔧 About to call handleAddNewLanguageVariant');
                           handleAddNewLanguageVariant();
+                          console.log('🔧 handleAddNewLanguageVariant called - END');
                         }}
                       >
                         {/* Plus Icon */}
