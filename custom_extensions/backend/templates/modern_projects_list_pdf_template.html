@@ -277,8 +277,8 @@
                             {% set total_modules = 0 %}
                             {% set total_hours = 0 %}
                             {% set total_production_time = 0 %}
-                            {% set total_completion_time = 0 %}
-                            {% set total_creation_hours = 0 %}
+                            {% set total_completion_time = total_completion_time %}
+                            {% set total_creation_hours = total_creation_hours %}
                             
                             {% if folders %}
                                 {% for folder in folders %}
@@ -305,8 +305,6 @@
                                     {% set total_modules = total_modules + (folder.total_modules if folder.total_modules is not none else 0) %}
                                     {% set total_hours = total_hours + (folder.total_hours if folder.total_hours is not none else 0) %}
                                     {% set total_production_time = total_production_time + (folder.total_creation_hours if folder.total_creation_hours is not none else 0) %}
-                                    {% set total_completion_time = total_completion_time + (folder.total_hours if folder.total_hours is not none else 0) %}
-                                    {% set total_creation_hours = total_creation_hours + (folder.total_creation_hours if folder.total_creation_hours is not none else 0) %}
                                     
                                     {% if folder.id in folder_projects and folder_projects[folder.id] %}
                                         {% for project in folder_projects[folder.id] %}
@@ -333,8 +331,6 @@
                                             {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
                                             {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
                                             {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
-                                            {% set total_completion_time = total_completion_time + (project.total_completion_time if project.total_completion_time is not none else 0) %}
-                                            {% set total_creation_hours = total_creation_hours + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
                                         {% endfor %}
                                     {% endif %}
                                     
@@ -364,8 +360,6 @@
                                             {% set total_modules = total_modules + (child_folder.total_modules if child_folder.total_modules is not none else 0) %}
                                             {% set total_hours = total_hours + (child_folder.total_hours if child_folder.total_hours is not none else 0) %}
                                             {% set total_production_time = total_production_time + (child_folder.total_creation_hours if child_folder.total_creation_hours is not none else 0) %}
-                                            {% set total_completion_time = total_completion_time + (child_folder.total_hours if child_folder.total_hours is not none else 0) %}
-                                            {% set total_creation_hours = total_creation_hours + (child_folder.total_creation_hours if child_folder.total_creation_hours is not none else 0) %}
                                             
                                             {% if child_folder.id in folder_projects and folder_projects[child_folder.id] %}
                                                 {% for project in folder_projects[child_folder.id] %}
@@ -392,8 +386,6 @@
                                                     {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
                                                     {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
                                                     {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
-                                                    {% set total_completion_time = total_completion_time + (project.total_completion_time if project.total_completion_time is not none else 0) %}
-                                                    {% set total_creation_hours = total_creation_hours + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
                                                 {% endfor %}
                                             {% endif %}
                                         {% endfor %}
@@ -426,8 +418,6 @@
                                     {% set total_modules = total_modules + (project.total_modules if project.total_modules is not none else 0) %}
                                     {% set total_hours = total_hours + (project.total_hours if project.total_hours is not none else 0) %}
                                     {% set total_production_time = total_production_time + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
-                                    {% set total_completion_time = total_completion_time + (project.total_completion_time if project.total_completion_time is not none else 0) %}
-                                    {% set total_creation_hours = total_creation_hours + (project.total_creation_hours if project.total_creation_hours is not none else 0) %}
                                 {% endfor %}
                             {% endif %}
                         </tbody>

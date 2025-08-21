@@ -17076,8 +17076,8 @@ async def download_projects_list_pdf(
         def calculate_table_sums_for_template(folders, folder_projects, unassigned_projects):
             total_lessons = 0
             total_modules = 0
-            total_hours = 0  # Learning Duration (H) - sum of total_hours
-            total_production_time = 0  # Production Time (H) - sum of total_creation_hours
+            total_completion_time = 0  # Learning Duration (H) - sum of total_completion_time
+            total_creation_hours = 0  # Production Time (H) - sum of total_creation_hours
             
             # Calculate from folders and their projects
             for folder in folders:
@@ -17085,21 +17085,21 @@ async def download_projects_list_pdf(
                     for project in folder_projects[folder['id']]:
                         total_lessons += project.get('total_lessons', 0) or 0
                         total_modules += project.get('total_modules', 0) or 0
-                        total_hours += project.get('total_hours', 0) or 0  # Learning Duration
-                        total_production_time += project.get('total_creation_hours', 0) or 0  # Production Time
+                        total_completion_time += project.get('total_completion_time', 0) or 0  # Learning Duration
+                        total_creation_hours += project.get('total_creation_hours', 0) or 0  # Production Time
             
             # Add unassigned projects
             for project in unassigned_projects:
                 total_lessons += project.get('total_lessons', 0) or 0
                 total_modules += project.get('total_modules', 0) or 0
-                total_hours += project.get('total_hours', 0) or 0  # Learning Duration
-                total_production_time += project.get('total_creation_hours', 0) or 0  # Production Time
+                total_completion_time += project.get('total_completion_time', 0) or 0  # Learning Duration
+                total_creation_hours += project.get('total_creation_hours', 0) or 0  # Production Time
             
             return {
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
-                'total_hours': total_hours,  # Learning Duration (H)
-                'total_production_time': total_production_time  # Production Time (H)
+                'total_completion_time': total_completion_time,  # Learning Duration (minutes)
+                'total_creation_hours': total_creation_hours  # Production Time (minutes)
             }
         
         # Calculate table sums for template
@@ -17121,8 +17121,8 @@ async def download_projects_list_pdf(
             'product_distribution': product_distribution,  # Add real product distribution data
             'quality_distribution': quality_distribution,   # Add real quality distribution data
             'quality_tier_sums': quality_tier_sums,  # Add quality tier sums for Block 2
-            'total_hours': table_sums['total_hours'],  # Add total hours for template (from table sums)
-            'total_production_time': table_sums['total_production_time']  # Add total production time for template (from table sums)
+            'total_completion_time': table_sums['total_completion_time'],  # Add total completion time for template (from table sums)
+            'total_creation_hours': table_sums['total_creation_hours']  # Add total creation hours for template (from table sums)
         }
         
         logger.info(f"[PDF_ANALYTICS] Template data prepared:")
