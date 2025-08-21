@@ -588,12 +588,12 @@ const PreviewModal: React.FC<{
                                       
                                       // Calculate summary stats exactly like PDF generation
                                       const allProjects = data.projects || [];
-                                      const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
-                                      const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_creation_hours || 0), 0);
+                                      const totalLearningHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_hours || 0), 0);
+                                      const totalProductionHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
 
                                       return (
                                         <>
-                                          {courses.map((course: any, index: number) => (
+                                          {courses.map((course: { name: string; modules?: number; lessons?: number; learningDuration?: number; productionTime?: number }, index: number) => (
                                             <tr key={course.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
                                               background: index % 2 === 0 ? 'linear-gradient(135deg, #f7f7f7 0%, #f3f3f3 100%)' : 'white',
                                               transition: 'background-color 0.2s ease'
@@ -717,7 +717,7 @@ const PreviewModal: React.FC<{
                                       };
                                       
                                       // Helper function to get effective quality tier
-                                      const getEffectiveQualityTier = (project: any, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
+                                      const getEffectiveQualityTier = (project: Project | BackendProject, folderQualityTier = 'interactive'): keyof typeof qualityTierSums => {
                                         if (project.quality_tier) {
                                           const tier = project.quality_tier.toLowerCase();
                                           return (tier === 'basic' || tier === 'interactive' || tier === 'advanced' || tier === 'immersive') 
@@ -729,7 +729,7 @@ const PreviewModal: React.FC<{
                                       
                                       // Process all projects to calculate quality tier sums
                                       const allProjects = data.projects || [];
-                                      allProjects.forEach((project: any) => {
+                                      allProjects.forEach((project: Project | BackendProject) => {
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
                                         qualityTierSums[effectiveTier].completionTime += project.total_hours || 0;  // Learning Duration (H)
                                         qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;  // Production Time (H)
@@ -815,7 +815,7 @@ const PreviewModal: React.FC<{
                                   Total: {(() => {
                                     // Calculate total learning hours exactly like PDF generation
                                     const allProjects = data.projects || [];
-                                    const totalLearningHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_hours || 0), 0);
+                                    const totalLearningHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_hours || 0), 0);
                                     return `${totalLearningHours} hours of learning content`;
                                   })()}
                                 </li>
@@ -830,7 +830,7 @@ const PreviewModal: React.FC<{
                                   Estimated Production Time: ≈ {(() => {
                                     // Calculate total production hours exactly like PDF generation
                                     const allProjects = data.projects || [];
-                                    const totalProductionHours = allProjects.reduce((sum: number, project: any) => sum + (project.total_creation_hours || 0), 0);
+                                    const totalProductionHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
                                     return `${totalProductionHours.toLocaleString()} hours`;
                                   })()}
                                 </li>
@@ -3858,11 +3858,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     const lessonData = lessonDataCache[project.id] || {};
                     return {
                         ...project,
-                        total_hours: lessonData.totalHours || 0,
-                        total_creation_hours: lessonData.totalCreationHours || 0,
-                        total_lessons: lessonData.lessonCount || 0,
-                        total_modules: lessonData.totalModules || 1,
-                        total_completion_time: lessonData.completionTime || 0,
+                        total_hours: Number(lessonData.totalHours) || 0,
+                        total_creation_hours: Number(lessonData.totalCreationHours) || 0,
+                        total_lessons: Number(lessonData.lessonCount) || 0,
+                        total_modules: Number(lessonData.totalModules) || 1,
+                        total_completion_time: Number(lessonData.completionTime) || 0,
                         quality_tier: project.quality_tier || 'interactive'
                     };
                 });
@@ -3883,11 +3883,11 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 const lessonData = lessonDataCache[project.id] || {};
                 return {
                     ...project,
-                    total_hours: lessonData.totalHours || 0,
-                    total_creation_hours: lessonData.totalCreationHours || 0,
-                    total_lessons: lessonData.lessonCount || 0,
-                    total_modules: lessonData.totalModules || 1,
-                    total_completion_time: lessonData.completionTime || 0,
+                    total_hours: Number(lessonData.totalHours) || 0,
+                    total_creation_hours: Number(lessonData.totalCreationHours) || 0,
+                    total_lessons: Number(lessonData.lessonCount) || 0,
+                    total_modules: Number(lessonData.totalModules) || 1,
+                    total_completion_time: Number(lessonData.completionTime) || 0,
                     quality_tier: project.quality_tier || 'interactive'
                 };
             });
