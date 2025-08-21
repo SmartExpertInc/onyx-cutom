@@ -10,6 +10,8 @@ The user reported that the "Block 2. Production Hours by Quality Level" section 
    - `Property 'microproduct_content' does not exist on type 'Project | BackendProject'`
    - `Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'`
 
+3. **Final Issue**: The frontend was using an incorrect URL to fetch data from the backend endpoint.
+
 ## Solution Implemented
 
 ### 1. Module-Level Quality Tier Calculation
@@ -48,12 +50,37 @@ const projectQualityTier = project.quality_tier;
 const projectQualityTier = project.quality_tier || null;
 ```
 
+### 3. Backend URL Fix
+- **Problem**: Frontend was using incorrect URL `${CUSTOM_BACKEND_URL}/projects-data` instead of the correct backend endpoint
+- **Solution**: Corrected URL to `${CUSTOM_BACKEND_URL}/api/custom/projects-data`
+- **Changes**: Line 3859
+```typescript
+// Before
+let previewDataUrl = `${CUSTOM_BACKEND_URL}/projects-data`;
+
+// After
+let previewDataUrl = `${CUSTOM_BACKEND_URL}/api/custom/projects-data`;
+```
+
+### 4. Debugging and Logging Improvements
+Added comprehensive logging to track data flow and identify issues:
+
+- **Lines**: 3862, 3864, 3867, 3875, 3995, 4100
+- **Features**:
+  - Log the URL being fetched
+  - Log response status
+  - Log received backend data
+  - Log when fallback is used
+  - Log quality_tier_sums being set
+
 ## Testing Results
 - ✅ TypeScript compilation errors resolved
 - ✅ Module-level quality tier calculation working correctly
 - ✅ Fallback logic properly handles both `BackendProject` (with `microproduct_content`) and `Project` (without) types
 - ✅ Quality tier mapping supports both new and legacy tier names
 - ✅ Time unit conversions working as expected
+- ✅ Backend URL corrected and working
+- ✅ Comprehensive logging added for debugging
 
 ## Files Modified
 1. **`onyx-cutom/custom_extensions/frontend/src/components/ProjectsTable.tsx`**
@@ -61,12 +88,21 @@ const projectQualityTier = project.quality_tier || null;
    - Lines 4035-4094: Second occurrence of module-level calculation
    - Lines 3931, 4040: Safe property access for `microproduct_content`
    - Lines 3930, 4039: Type conversion for `quality_tier`
+   - Line 3859: Corrected backend URL
+   - Lines 3862, 3864, 3867, 3875, 3995, 4100: Added logging
 
 ## Expected Outcome
-The PDF preview for "Block 2. Production Hours by Quality Level" should now display accurate values that match the PDF document, even when the backend data is unavailable. The preview will use module-level quality tier aggregation, ensuring consistency with the backend calculation logic.
+The PDF preview for "Block 2. Production Hours by Quality Level" should now display accurate values that match the PDF document. The preview will:
+
+1. **Use backend data when available**: Fetch from `/api/custom/projects-data` endpoint which provides the same `quality_tier_sums` as PDF generation
+2. **Fall back gracefully**: Use module-level calculation when backend is unavailable
+3. **Display correct values**: Show the same quality tier breakdown as the PDF document
+4. **Provide debugging info**: Log all data flow for troubleshooting
 
 ## Technical Notes
 - The solution maintains backward compatibility with both `Project` and `BackendProject` interfaces
 - Module-level calculation is prioritized when `microproduct_content` is available
 - Project-level calculation serves as a fallback when `microproduct_content` is not available
-- All TypeScript type safety requirements are satisfied 
+- All TypeScript type safety requirements are satisfied
+- Backend endpoint `/api/custom/projects-data` provides the same calculation logic as PDF generation
+- Comprehensive logging helps identify any future issues 

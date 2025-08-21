@@ -3856,14 +3856,17 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         // Get real data from backend for preview (use same data as PDF)
         try {
             // Use the same endpoint as PDF to ensure data consistency
-            let previewDataUrl = `${CUSTOM_BACKEND_URL}/projects-data`;
+            let previewDataUrl = `${CUSTOM_BACKEND_URL}/api/custom/projects-data`;
             if (queryParams.toString()) {
                 previewDataUrl += `?${queryParams.toString()}`;
             }
             
+            console.log('🔍 Fetching preview data from:', previewDataUrl);
             const response = await fetch(previewDataUrl);
+            console.log('📡 Response status:', response.status);
             if (response.ok) {
                 const backendData = await response.json();
+                console.log('📊 Backend data received:', backendData);
                 
                 // Filter projects based on selection
                 const filteredProjects = backendData.projects.filter((project: BackendProject) => 
@@ -3872,6 +3875,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 
 
                 
+                console.log('✅ Setting preview data with quality_tier_sums:', backendData.quality_tier_sums);
                 setPreviewData({
                     clientName,
                     managerName,
@@ -3879,6 +3883,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                     quality_tier_sums: backendData.quality_tier_sums
                 });
             } else {
+                console.log('⚠️ Backend request failed, using fallback data');
                 // Fallback to frontend data if backend fails
                 const projectsToShow = visibleProjects.filter(project => 
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
@@ -3987,7 +3992,7 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 });
             }
         } catch (error) {
-            console.error('Failed to fetch preview data from backend:', error);
+            console.error('❌ Failed to fetch preview data from backend:', error);
             // Fallback to frontend data
             const projectsToShow = visibleProjects.filter(project => 
                 selectedProjects.length === 0 || selectedProjects.includes(project.id)
@@ -4088,12 +4093,16 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 }
             });
 
+            console.log('🔄 Setting fallback preview data with quality_tier_sums:', qualityTierSums);
             setPreviewData({
                 clientName,
                 managerName,
                 projects: projectsToShow,
                 quality_tier_sums: qualityTierSums
             });
+        }
+        
+        setShowPreviewModal(true);
         }
         
         setShowPreviewModal(true);
