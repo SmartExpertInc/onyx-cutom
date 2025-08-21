@@ -16875,8 +16875,15 @@ async def download_projects_list_pdf(
                                                     )
                                                     
                                                     # Get lesson completion time and creation hours
-                                                    lesson_completion_time = lesson.get('completionTime', 0) or 0
+                                                    lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
                                                     lesson_creation_hours = lesson.get('hours', 0) or 0
+                                                    
+                                                    # Convert completionTime from string (e.g., "6m") to integer minutes
+                                                    if isinstance(lesson_completion_time_raw, str):
+                                                        # Remove 'm' suffix and convert to int
+                                                        lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
+                                                    else:
+                                                        lesson_completion_time = int(lesson_completion_time_raw)
                                                     
                                                     logger.info(f"[PDF_ANALYTICS] Lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
                                                     logger.info(f"[PDF_ANALYTICS] Raw lesson data: {lesson}")
@@ -16921,8 +16928,15 @@ async def download_projects_list_pdf(
                                             )
                                             
                                             # Get lesson completion time and creation hours
-                                            lesson_completion_time = lesson.get('completionTime', 0) or 0
+                                            lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
                                             lesson_creation_hours = lesson.get('hours', 0) or 0
+                                            
+                                            # Convert completionTime from string (e.g., "6m") to integer minutes
+                                            if isinstance(lesson_completion_time_raw, str):
+                                                # Remove 'm' suffix and convert to int
+                                                lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
+                                            else:
+                                                lesson_completion_time = int(lesson_completion_time_raw)
                                             
                                             logger.info(f"[PDF_ANALYTICS] Unassigned lesson in project {project.get('id')}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
                                             
@@ -19774,8 +19788,15 @@ async def get_projects_data_for_preview(
                                             )
                                             
                                             # Get lesson completion time and creation hours
-                                            lesson_completion_time = lesson.get('completionTime', 0) or 0
+                                            lesson_completion_time_raw = lesson.get('completionTime', 0) or 0
                                             lesson_creation_hours = lesson.get('hours', 0) or 0
+                                            
+                                            # Convert completionTime from string (e.g., "6m") to integer minutes
+                                            if isinstance(lesson_completion_time_raw, str):
+                                                # Remove 'm' suffix and convert to int
+                                                lesson_completion_time = int(lesson_completion_time_raw.replace('m', ''))
+                                            else:
+                                                lesson_completion_time = int(lesson_completion_time_raw)
                                             
                                             logger.info(f"[PROJECTS_DATA] Lesson {lesson_idx} in project {project_id}, section {section_idx}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
                                             logger.info(f"[PROJECTS_DATA] Raw lesson data: {lesson}")
