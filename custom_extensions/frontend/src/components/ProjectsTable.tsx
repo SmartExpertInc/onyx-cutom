@@ -833,10 +833,11 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Estimated Production Time: ≈ {(() => {
-                                    // Calculate total production hours exactly like PDF generation
+                                    // Calculate total production hours exactly like PDF generation (convert minutes to hours)
                                     const allProjects = data.projects || [];
-                                    const totalProductionHours = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
-                                    return `${totalProductionHours.toLocaleString()} hours`;
+                                    const totalProductionMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
+                                    const totalProductionHours = Math.floor(totalProductionMinutes / 60);
+                                    return `${totalProductionHours} hours`;
                                   })()}
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 
