@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import VideoEditorHeader from './components/VideoEditorHeader';
 import Toolbar from './components/Toolbar';
 import Script from './components/Script';
@@ -41,6 +42,7 @@ export default function Projects2ViewPage() {
     { id: 'scene-1', name: 'Scene 1', order: 1 }
   ]);
   const [openMenuSceneId, setOpenMenuSceneId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
   // Function to add a new scene
   const handleAddScene = () => {
@@ -56,13 +58,26 @@ export default function Projects2ViewPage() {
   };
 
   // Function to handle three-dot menu click
-  const handleMenuClick = (sceneId: string) => {
-    setOpenMenuSceneId(openMenuSceneId === sceneId ? null : sceneId);
+  const handleMenuClick = (sceneId: string, event: React.MouseEvent) => {
+    const button = event.currentTarget as HTMLElement;
+    const rect = button.getBoundingClientRect();
+    
+    if (openMenuSceneId === sceneId) {
+      setOpenMenuSceneId(null);
+      setMenuPosition(null);
+    } else {
+      setOpenMenuSceneId(sceneId);
+      setMenuPosition({
+        x: rect.right - 180, // Align to right edge of button, minus popup width
+        y: rect.top - 10 // Position above the button
+      });
+    }
   };
 
   // Function to close menu
   const closeMenu = () => {
     setOpenMenuSceneId(null);
+    setMenuPosition(null);
   };
 
   // Function to handle menu actions
@@ -243,7 +258,7 @@ export default function Projects2ViewPage() {
                         className="w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleMenuClick(scene.id);
+                          handleMenuClick(scene.id, e);
                         }}
                       >
                         <svg 
@@ -258,56 +273,7 @@ export default function Projects2ViewPage() {
                       </button>
                     </div>
 
-                    {/* Popup Menu */}
-                    {openMenuSceneId === scene.id && (
-                      <div className="absolute -top-2 right-0 z-50 bg-white rounded-md shadow-lg border border-gray-200 min-w-[180px] py-1">
-                        <button 
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                          onClick={() => handleMenuAction('Save as Scene Layout', scene.id)}
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24">
-                            <path d="M7.558 3.75H7.25a3.5 3.5 0 0 0-3.5 3.5v9.827a3.173 3.173 0 0 0 3.173 3.173v0m.635-16.5v2.442a2 2 0 0 0 2 2h2.346a2 2 0 0 0 2-2V3.75m-6.346 0h6.346m0 0h.026a3 3 0 0 1 2.122.879l3.173 3.173a3.5 3.5 0 0 1 1.025 2.475v6.8a3.173 3.173 0 0 1-3.173 3.173v0m-10.154 0V15a3 3 0 0 1 3-3h4.154a3 3 0 0 1 3 3v5.25m-10.154 0h10.154"/>
-                          </svg>
-                          Save as Scene Layout
-                        </button>
-                        <button 
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                          onClick={() => handleMenuAction('Duplicate Scene', scene.id)}
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24">
-                            <g>
-                              <path d="M19.4 20H9.6a.6.6 0 0 1-.6-.6V9.6a.6.6 0 0 1 .6-.6h9.8a.6.6 0 0 1 .6.6v9.8a.6.6 0 0 1-.6.6Z"/>
-                              <path d="M15 9V4.6a.6.6 0 0 0-.6-.6H4.6a.6.6 0 0 0-.6.6v9.8a.6.6 0 0 0 .6.6H9"/>
-                            </g>
-                          </svg>
-                          Duplicate Scene
-                        </button>
-                        <button 
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                          onClick={() => handleMenuAction('Insert Scene', scene.id)}
-                        >
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2Z"/>
-                          </svg>
-                          Insert Scene
-                        </button>
-                        <div className="border-t border-gray-200 my-1"></div>
-                        <button 
-                          className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center gap-2 ${
-                            scene.id === 'scene-1' 
-                              ? 'text-gray-400 cursor-not-allowed' 
-                              : 'text-gray-700 hover:bg-gray-50'
-                          }`}
-                          onClick={() => handleDeleteScene(scene.id)}
-                          disabled={scene.id === 'scene-1'}
-                        >
-                          <svg className="w-4 h-4" fill="currentColor" fillRule="evenodd" viewBox="0 0 16 16">
-                            <path d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
-                          </svg>
-                          Delete Scene
-                        </button>
-                      </div>
-                    )}
+
                   </div>
                   <div className="absolute top-full left-0 mt-2 flex items-center gap-2">
                     <span className="text-sm font-medium">{scene.name}</span>
@@ -401,6 +367,64 @@ export default function Projects2ViewPage() {
         isOpen={isLanguageVariantModalOpen}
         onClose={handleLanguageVariantModalClose}
       />
+
+      {/* Portal Popup Menu */}
+      {openMenuSceneId && menuPosition && typeof window !== 'undefined' && createPortal(
+        <div 
+          className="fixed z-[9999] bg-white rounded-md shadow-lg border border-gray-200 min-w-[180px] py-1"
+          style={{
+            left: menuPosition.x,
+            top: menuPosition.y,
+          }}
+        >
+          <button 
+            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            onClick={() => handleMenuAction('Save as Scene Layout', openMenuSceneId)}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path d="M7.558 3.75H7.25a3.5 3.5 0 0 0-3.5 3.5v9.827a3.173 3.173 0 0 0 3.173 3.173v0m.635-16.5v2.442a2 2 0 0 0 2 2h2.346a2 2 0 0 0 2-2V3.75m-6.346 0h6.346m0 0h.026a3 3 0 0 1 2.122.879l3.173 3.173a3.5 3.5 0 0 1 1.025 2.475v6.8a3.173 3.173 0 0 1-3.173 3.173v0m-10.154 0V15a3 3 0 0 1 3-3h4.154a3 3 0 0 1 3 3v5.25m-10.154 0h10.154"/>
+            </svg>
+            Save as Scene Layout
+          </button>
+          <button 
+            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            onClick={() => handleMenuAction('Duplicate Scene', openMenuSceneId)}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24">
+              <g>
+                <path d="M19.4 20H9.6a.6.6 0 0 1-.6-.6V9.6a.6.6 0 0 1 .6-.6h9.8a.6.6 0 0 1 .6.6v9.8a.6.6 0 0 1-.6.6Z"/>
+                <path d="M15 9V4.6a.6.6 0 0 0-.6-.6H4.6a.6.6 0 0 0-.6.6v9.8a.6.6 0 0 0 .6.6H9"/>
+              </g>
+            </svg>
+            Duplicate Scene
+          </button>
+          <button 
+            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            onClick={() => handleMenuAction('Insert Scene', openMenuSceneId)}
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2Z"/>
+            </svg>
+            Insert Scene
+          </button>
+          <div className="border-t border-gray-200 my-1"></div>
+          <button 
+            className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center gap-2 ${
+              openMenuSceneId === 'scene-1' 
+                ? 'text-gray-400 cursor-not-allowed' 
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+            onClick={() => handleDeleteScene(openMenuSceneId)}
+            disabled={openMenuSceneId === 'scene-1'}
+          >
+            <svg className="w-4 h-4" fill="currentColor" fillRule="evenodd" viewBox="0 0 16 16">
+              <path d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+            </svg>
+            Delete Scene
+          </button>
+        </div>,
+        document.body
+      )}
       
     </div>
   );
