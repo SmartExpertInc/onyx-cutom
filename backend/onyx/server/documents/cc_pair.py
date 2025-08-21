@@ -30,8 +30,7 @@ from onyx.db.connector_credential_pair import (
     get_connector_credential_pair_from_id_for_user,
 )
 from onyx.db.connector_credential_pair import remove_credential_from_connector
-from onyx.db.models import IndexAttempt, IndexAttemptError
-from sqlalchemy import delete
+
 from onyx.db.connector_credential_pair import (
     update_connector_credential_pair_from_id,
 )
@@ -557,7 +556,7 @@ def delete_cc_pair(
     db_session: Session = Depends(get_session),
     tenant_id: str = Depends(get_current_tenant_id),
 ) -> StatusResponse[int]:
-    """Delete a connector-credential pair"""
+    """Delete a connector-credential pair by scheduling a deletion job"""
     # Admin check disabled for Smart Drive functionality
     # All authenticated users can delete their own cc-pairs
     
@@ -576,38 +575,39 @@ def delete_cc_pair(
         connector_id = cc_pair.connector.id if hasattr(cc_pair, 'connector') else cc_pair.connector_id
         credential_id = cc_pair.credential.id if hasattr(cc_pair, 'credential') else cc_pair.credential_id
         
-        # Delete related index attempts before removing the cc-pair to avoid constraint violation
+        # Use Onyx's proper deletion approach: call the same logic as the admin deletion endpoint
+        # Import the necessary modules
+        from onyx.background.celery.celery import client_app
+        from onyx.configs.constants import OnyxCeleryTask, OnyxCeleryPriority
+        from onyx.db.connector_credential_pair import get_connector_credential_pair_for_user
+        from onyx.db.connector_credential_pair import update_connector_credential_pair_from_id
+        from onyx.db.enums import ConnectorCredentialPairStatus
+        from onyx.background.indexing.run_indexing import cancel_indexing_attempts_for_ccpair
         
-        # Delete index attempt errors first (they reference index_attempt)
-        db_session.execute(
-            delete(IndexAttemptError).where(
-                IndexAttemptError.connector_credential_pair_id == cc_pair_id
-            )
+        # Cancel any scheduled indexing attempts
+        cancel_indexing_attempts_for_ccpair(
+            cc_pair_id=cc_pair_id, db_session=db_session, include_secondary_index=True
         )
         
-        # Delete index attempts
-        db_session.execute(
-            delete(IndexAttempt).where(
-                IndexAttempt.connector_credential_pair_id == cc_pair_id
-            )
-        )
-        
-        # Now delete the cc-pair itself instead of using remove_credential_from_connector
-        # to avoid multiple transaction commits
-        fetch_ee_implementation_or_noop(
-            "onyx.db.external_perm",
-            "delete_user__ext_group_for_cc_pair__no_commit",
-        )(
+        # Mark as deleting
+        update_connector_credential_pair_from_id(
             db_session=db_session,
             cc_pair_id=cc_pair_id,
+            status=ConnectorCredentialPairStatus.DELETING,
         )
         
-        db_session.delete(cc_pair)
         db_session.commit()
+        
+        # Run the beat task to pick up this deletion from the db immediately
+        client_app.send_task(
+            OnyxCeleryTask.CHECK_FOR_CONNECTOR_DELETION,
+            priority=OnyxCeleryPriority.HIGH,
+            kwargs={"tenant_id": tenant_id},
+        )
         
         return StatusResponse(
             success=True,
-            message=f"Connector credential pair with id '{cc_pair_id}' was deleted successfully.",
+            message=f"Deletion job scheduled for connector credential pair with id '{cc_pair_id}'.",
             data=cc_pair_id,
         )
     except AttributeError as e:
@@ -616,9 +616,7 @@ def delete_cc_pair(
             detail=f"Failed to extract connector/credential IDs: {str(e)}",
         )
     except Exception as e:
-        # Rollback in case of any error
-        db_session.rollback()
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to delete connector: {str(e)}",
+            detail=f"Failed to schedule deletion: {str(e)}",
         )

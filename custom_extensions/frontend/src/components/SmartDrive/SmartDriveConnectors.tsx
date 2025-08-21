@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
 import { ChevronDown, Upload, Settings } from 'lucide-react';
@@ -40,6 +40,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [showManagementPage, setShowManagementPage] = useState(false);
   const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null);
   const [isManagementOpening, setIsManagementOpening] = useState(false);
+  const isLoadingRef = useRef(false);
 
   // Define all available connectors organized by category
   const connectorCategories = {
@@ -381,7 +382,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   useEffect(() => {
     loadUserConnectors();
-  }, [loadUserConnectors]);
+  }, []); // Remove loadUserConnectors from dependencies to prevent multiple calls
 
   const handleBrowseClick = () => {
     setShowFrame(true);
