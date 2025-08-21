@@ -5,6 +5,7 @@ import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
 import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
+import UpgradeModal from './UpgradeModal';
 
 interface EmailInput {
   id: string;
@@ -19,6 +20,7 @@ export default function VideoEditorHeader() {
   const [isPlayModalOpen, setIsPlayModalOpen] = useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   const [isGenerationCompletedModalOpen, setIsGenerationCompletedModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [videoTitle, setVideoTitle] = useState('Create your first AI video');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
@@ -83,6 +85,10 @@ export default function VideoEditorHeader() {
 
   const handleGenerateClick = () => {
     setIsGenerateModalOpen(true);
+  };
+
+  const handleUpgradeClick = () => {
+    setIsUpgradeModalOpen(true);
   };
 
   const handleEmailChange = (id: string, email: string) => {
@@ -345,6 +351,7 @@ export default function VideoEditorHeader() {
 
             {/* Upgrade button */}
             <button
+              onClick={handleUpgradeClick}
               className="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-[7px] px-3 py-1.5 gap-2 lg:gap-3 flex items-center h-8 cursor-pointer"
             >
               <Gem className="w-4 h-4 text-purple-700" />
@@ -549,6 +556,12 @@ export default function VideoEditorHeader() {
         isOpen={isGenerationCompletedModalOpen}
         onClose={() => setIsGenerationCompletedModalOpen(false)}
         videoTitle={videoTitle}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
       />
     </header>
   );
