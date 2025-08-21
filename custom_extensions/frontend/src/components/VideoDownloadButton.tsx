@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Video, Loader, CheckCircle, AlertTriangle } from 'lucide-react';
 
+const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
 interface VideoDownloadButtonProps {
   projectName?: string;
   onError?: (error: string) => void;
@@ -19,42 +21,107 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
 
   const handleDownloadVideo = async () => {
     try {
+      console.log('🎬 [VIDEO_DOWNLOAD] Starting video download process...');
+      console.log('🎬 [VIDEO_DOWNLOAD] Environment check:');
+      console.log('  - CUSTOM_BACKEND_URL:', CUSTOM_BACKEND_URL);
+      console.log('  - NEXT_PUBLIC_CUSTOM_BACKEND_URL:', process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL);
+      console.log('  - Window location:', window.location.href);
+      
       setStatus('generating');
       setProgress(0);
 
       // Test the backend API first
-      const avatarResponse = await fetch('/api/custom/video/avatars');
+      const apiUrl = `${CUSTOM_BACKEND_URL}/video/avatars`;
+      console.log('🎬 [VIDEO_DOWNLOAD] Making API request to:', apiUrl);
+      console.log('🎬 [VIDEO_DOWNLOAD] Full URL will be:', new URL(apiUrl, window.location.origin).href);
+      
+      const startTime = Date.now();
+      console.log('🎬 [VIDEO_DOWNLOAD] Request start time:', new Date(startTime).toISOString());
+      
+      const avatarResponse = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+      });
+      const endTime = Date.now();
+      
+      console.log('🎬 [VIDEO_DOWNLOAD] Response received after:', endTime - startTime, 'ms');
+      console.log('🎬 [VIDEO_DOWNLOAD] Response status:', avatarResponse.status);
+      console.log('🎬 [VIDEO_DOWNLOAD] Response status text:', avatarResponse.statusText);
+      console.log('🎬 [VIDEO_DOWNLOAD] Response headers:', Object.fromEntries(avatarResponse.headers.entries()));
+      console.log('🎬 [VIDEO_DOWNLOAD] Response URL:', avatarResponse.url);
+      console.log('🎬 [VIDEO_DOWNLOAD] Response type:', avatarResponse.type);
+      console.log('🎬 [VIDEO_DOWNLOAD] Response redirected:', avatarResponse.redirected);
+      
+      if (!avatarResponse.ok) {
+        console.error('🎬 [VIDEO_DOWNLOAD] Response not OK!');
+        console.error('🎬 [VIDEO_DOWNLOAD] Status:', avatarResponse.status);
+        console.error('🎬 [VIDEO_DOWNLOAD] Status text:', avatarResponse.statusText);
+        
+        const errorText = await avatarResponse.text();
+        console.error('🎬 [VIDEO_DOWNLOAD] Error response body:', errorText);
+        
+        throw new Error(`HTTP ${avatarResponse.status}: ${avatarResponse.statusText} - ${errorText}`);
+      }
+      
+      console.log('🎬 [VIDEO_DOWNLOAD] Parsing JSON response...');
       const avatarData = await avatarResponse.json();
+      console.log('🎬 [VIDEO_DOWNLOAD] Parsed response data:', avatarData);
 
       if (!avatarData.success) {
+        console.error('🎬 [VIDEO_DOWNLOAD] API returned success: false');
+        console.error('🎬 [VIDEO_DOWNLOAD] Error from API:', avatarData.error);
         throw new Error(avatarData.error || 'Failed to fetch avatars');
       }
 
+      console.log('🎬 [VIDEO_DOWNLOAD] Avatar fetch successful! Starting video generation simulation...');
+      
       // Simulate progress
       const progressInterval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
+            console.log('🎬 [VIDEO_DOWNLOAD] Progress simulation completed (90%)');
             return 90;
           }
-          return prev + 10;
+          const newProgress = prev + 10;
+          console.log('🎬 [VIDEO_DOWNLOAD] Progress update:', newProgress + '%');
+          return newProgress;
         });
       }, 500);
 
       // Simulate video generation (replace with actual implementation later)
+      console.log('🎬 [VIDEO_DOWNLOAD] Simulating video generation (3 seconds)...');
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       clearInterval(progressInterval);
       setProgress(100);
       setStatus('completed');
+      console.log('🎬 [VIDEO_DOWNLOAD] Video generation simulation completed successfully!');
 
       // Simulate success
-      onSuccess?.('https://example.com/video.mp4');
+      const downloadUrl = 'https://example.com/video.mp4';
+      console.log('🎬 [VIDEO_DOWNLOAD] Calling onSuccess with download URL:', downloadUrl);
+      onSuccess?.(downloadUrl);
 
     } catch (error) {
-      console.error('Video generation failed:', error);
+      console.error('🎬 [VIDEO_DOWNLOAD] Video generation failed with error:', error);
+      console.error('🎬 [VIDEO_DOWNLOAD] Error type:', typeof error);
+      console.error('🎬 [VIDEO_DOWNLOAD] Error constructor:', error?.constructor?.name);
+      console.error('🎬 [VIDEO_DOWNLOAD] Error stack:', (error as Error)?.stack);
+      
+      if (error instanceof Error) {
+        console.error('🎬 [VIDEO_DOWNLOAD] Error message:', error.message);
+        console.error('🎬 [VIDEO_DOWNLOAD] Error name:', error.name);
+      }
+      
       setStatus('error');
-      onError?.(error instanceof Error ? error.message : 'Unknown error occurred');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.log('🎬 [VIDEO_DOWNLOAD] Calling onError with message:', errorMessage);
+      onError?.(errorMessage);
     }
   };
 
