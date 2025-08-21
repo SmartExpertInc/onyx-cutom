@@ -210,7 +210,7 @@ def parse_id_list(id_string: str, context_name: str) -> List[int]:
 def should_use_hybrid_approach(payload) -> bool:
     """
     Determine if we should use the hybrid approach (Onyx for context extraction + OpenAI for generation).
-    Returns True when file context is present.
+    Returns True when file context is present or knowledge base is used.
     """
     # Check if files are explicitly provided
     has_files = (
@@ -225,10 +225,13 @@ def should_use_hybrid_approach(payload) -> bool:
         hasattr(payload, 'userText') and payload.userText
     )
     
-    # Use hybrid approach when there's file context or text context
-    use_hybrid = has_files or has_text_context
+    # Check if knowledge base context is provided
+    has_knowledge_base = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
     
-    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_hybrid={use_hybrid}")
+    # Use hybrid approach when there's file context, text context, or knowledge base context
+    use_hybrid = has_files or has_text_context or has_knowledge_base
+    
+    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, has_knowledge_base={has_knowledge_base}, use_hybrid={use_hybrid}")
     return use_hybrid
 
 DB_POOL = None
@@ -11880,6 +11883,8 @@ class OutlineWizardPreview(BaseModel):
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
     theme: Optional[str] = None  # Selected theme from frontend
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 class OutlineWizardFinalize(BaseModel):
     prompt: str
@@ -11899,11 +11904,19 @@ class OutlineWizardFinalize(BaseModel):
     theme: Optional[str] = None  # Selected theme from frontend
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
-async def get_contentbuilder_persona_id(cookies: Dict[str, str]) -> int:
-    """Return persona id of the default ContentBuilder assistant (cached)."""
+async def get_contentbuilder_persona_id(cookies: Dict[str, str], context: Optional[Dict[str, Any]] = None) -> int:
+    """Return persona id based on context. Uses Search persona (ID 0) for knowledge base, ContentBuilder for others."""
+    # Check if we should use the Search persona for knowledge base creation
+    if context and context.get("fromKnowledgeBase"):
+        # Return Search persona ID (0) for knowledge base creation
+        return 0
+    
+    # For all other cases, use the default ContentBuilder persona
     global _CONTENTBUILDER_PERSONA_CACHE
     if _CONTENTBUILDER_PERSONA_CACHE is not None:
         return _CONTENTBUILDER_PERSONA_CACHE
@@ -12228,7 +12241,9 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"[PREVIEW_CHAT] Creating new chat session")
         try:
             logger.info(f"[PREVIEW_CHAT] Attempting to get contentbuilder persona ID")
-            persona_id = await get_contentbuilder_persona_id(cookies)
+            # Create context for persona selection
+            context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
+            persona_id = await get_contentbuilder_persona_id(cookies, context)
             logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id}")
             logger.info(f"[PREVIEW_CHAT] Attempting to create Onyx chat session")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
@@ -13116,7 +13131,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
     else:
-        persona_id = await get_contentbuilder_persona_id(cookies)
+        # Create context for persona selection
+        context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
+        persona_id = await get_contentbuilder_persona_id(cookies, context)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Helper: check whether the user made ANY changes (structure or content)
@@ -13803,6 +13820,8 @@ class LessonWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 
 class LessonWizardFinalize(BaseModel):
@@ -13816,6 +13835,8 @@ class LessonWizardFinalize(BaseModel):
     theme: Optional[str] = None            # Selected theme for presentation
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -13828,7 +13849,9 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
     else:
-        persona_id = await get_contentbuilder_persona_id(cookies)
+        # Create context for persona selection
+        context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
+        persona_id = await get_contentbuilder_persona_id(cookies, context)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Build wizard request for assistant persona
@@ -16593,6 +16616,8 @@ class QuizWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
@@ -16613,6 +16638,8 @@ class QuizWizardFinalize(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 class QuizEditRequest(BaseModel):
     currentContent: str
@@ -16684,7 +16711,9 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     else:
         logger.info(f"[QUIZ_PREVIEW_CHAT] Creating new chat session")
         try:
-            persona_id = await get_contentbuilder_persona_id(cookies)
+            # Create context for persona selection
+            context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
+            persona_id = await get_contentbuilder_persona_id(cookies, context)
             logger.info(f"[QUIZ_PREVIEW_CHAT] Got persona ID: {persona_id}")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[QUIZ_PREVIEW_CHAT] Created new chat session: {chat_id}")
@@ -17440,6 +17469,8 @@ class TextPresentationWizardPreview(BaseModel):
     textMode: Optional[str] = None
     userText: Optional[str] = None
     chatSessionId: Optional[str] = None
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 class TextPresentationWizardFinalize(BaseModel):
     aiResponse: str
@@ -17450,6 +17481,8 @@ class TextPresentationWizardFinalize(BaseModel):
     chatSessionId: Optional[str] = None
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: knowledge base context for creation from knowledge base
+    fromKnowledgeBase: Optional[bool] = None
 
 class TextPresentationEditRequest(BaseModel):
     content: str
@@ -17476,7 +17509,9 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     else:
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Creating new chat session")
         try:
-            persona_id = await get_contentbuilder_persona_id(cookies)
+            # Create context for persona selection
+            context = {"fromKnowledgeBase": payload.fromKnowledgeBase}
+            persona_id = await get_contentbuilder_persona_id(cookies, context)
             logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id}")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Created new chat session: {chat_id}")
