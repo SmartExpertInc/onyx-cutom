@@ -8821,54 +8821,11 @@ def _save_section_content(section_name: str, content_lines: list, local_vars: di
     elif section_name == "relevant_sources":
         local_vars["relevant_sources"] = content
 
-async def fallback_non_streaming_request(chat_session_id: str, message: str, cookies: Dict[str, str]) -> str:
-    """Fallback function to try a non-streaming request if streaming fails."""
-    logger.info(f"[fallback_non_streaming_request] Attempting non-streaming request for chat_id={chat_session_id}")
-    
-    async with httpx.AsyncClient(timeout=300.0) as client:
-        retrieval_options = {
-            "run_search": "always",
-            "real_time": False,
-        }
-        payload = {
-            "chat_session_id": chat_session_id,
-            "message": message,
-            "parent_message_id": None,
-            "file_descriptors": [],
-            "user_file_ids": [],
-            "user_folder_ids": [],
-            "prompt_id": None,
-            "search_doc_ids": None,
-            "retrieval_options": retrieval_options,
-            "stream_response": False,  # Force non-streaming
-        }
-        
-        try:
-            resp = await client.post(
-                f"{ONYX_API_SERVER_URL}/chat/send-message",
-                json=payload,
-                cookies=cookies,
-            )
-            resp.raise_for_status()
-            
-            logger.info(f"[fallback_non_streaming_request] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
-            
-            data = resp.json()
-            result = data.get("answer") or data.get("answer_citationless") or data.get("message") or ""
-            logger.info(f"[fallback_non_streaming_request] Fallback result: {len(result)} chars")
-            return result
-            
-        except Exception as e:
-            logger.error(f"[fallback_non_streaming_request] Fallback request failed: {e}")
-            return ""
-
 async def enhanced_stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str]) -> str:
     """Enhanced version of stream_chat_message specifically for Knowledge Base searches with better streaming handling."""
     logger.info(f"[enhanced_stream_chat_message] Starting Knowledge Base search - chat_id={chat_session_id} len(message)={len(message)}")
 
-    # Create httpx client with very generous timeouts for Knowledge Base searches
-    timeout = httpx.Timeout(connect=30.0, read=600.0, write=30.0, pool=600.0)
-    async with httpx.AsyncClient(timeout=timeout) as client:
+    async with httpx.AsyncClient(timeout=600.0) as client:  # Longer timeout for KB searches
         retrieval_options = {
             "run_search": "always",  # Always search for Knowledge Base
             "real_time": False,
@@ -8910,35 +8867,36 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
             max_idle_time = 120.0  # Wait up to 2 minutes without new content
             max_total_time = 600.0  # Maximum 10 minutes total
             
-            try:
-                async for line in resp.aiter_lines():
-                    line_count += 1
-                    current_time = time.time()
-                    elapsed_time = current_time - start_time
-                    idle_time = current_time - last_activity_time
+            logger.info(f"[enhanced_stream_chat_message] Starting to read lines from stream...")
+            async for line in resp.aiter_lines():
+                line_count += 1
+                current_time = time.time()
+                elapsed_time = current_time - start_time
+                idle_time = current_time - last_activity_time
+                
+                # Log progress every 25 lines to track what's happening
+                if line_count % 25 == 0:
+                    logger.info(f"[enhanced_stream_chat_message] Progress: Line {line_count}, Elapsed: {elapsed_time:.1f}s, Idle: {idle_time:.1f}s, Chars: {len(full_answer)}")
+                
+                # Check for timeouts - but be more patient
+                if elapsed_time > max_total_time:
+                    logger.warning(f"[enhanced_stream_chat_message] Maximum total time ({max_total_time}s) exceeded after {line_count} lines, {len(full_answer)} chars")
+                    break
                     
-                    # Log progress every 50 lines to track what's happening
-                    if line_count % 50 == 0:
-                        logger.info(f"[enhanced_stream_chat_message] Progress: {line_count} lines, {len(full_answer)} chars, {elapsed_time:.1f}s elapsed, {idle_time:.1f}s idle")
+                # Only timeout on idle if we have NO content after significant time
+                if idle_time > max_idle_time and len(full_answer) == 0 and elapsed_time > 60.0:
+                    logger.warning(f"[enhanced_stream_chat_message] Maximum idle time ({max_idle_time}s) exceeded since last content, still no answer content after {line_count} lines, elapsed: {elapsed_time:.1f}s")
+                    break
+                
+                if not line:
+                    if line_count <= 5:  # Log first few empty lines
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count}: Empty line")
+                    continue
                     
-                    # Check for timeouts - but be more lenient when we're getting data
-                    if elapsed_time > max_total_time:
-                        logger.warning(f"[enhanced_stream_chat_message] Maximum total time ({max_total_time}s) exceeded after {line_count} lines, {len(full_answer)} chars")
-                        break
-                    
-                    # Only timeout on idle if we haven't seen any answer content AND we've been idle too long
-                    if len(full_answer) == 0 and idle_time > max_idle_time:
-                        logger.warning(f"[enhanced_stream_chat_message] Maximum idle time ({max_idle_time}s) exceeded since last content, still no answer content after {line_count} lines")
-                        break
-                    
-                    if not line:
-                        continue
-                        
-                    if not line.startswith("data: "):
-                        # Log non-data lines occasionally for debugging
-                        if line_count <= 5:
-                            logger.debug(f"[enhanced_stream_chat_message] Non-data line {line_count}: {line[:100]}")
-                        continue
+                if not line.startswith("data: "):
+                    if line_count <= 5:  # Log first few non-data lines
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count}: Non-data line: {line[:100]}")
+                    continue
                     
                 payload_text = line.removeprefix("data: ").strip()
                 if payload_text == "[DONE]":
@@ -8956,6 +8914,11 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
                 if line_count % 50 == 0:
                     packet_keys = list(packet.keys()) if isinstance(packet, dict) else "not-dict"
                     logger.info(f"[enhanced_stream_chat_message] Line {line_count} packet keys: {packet_keys}")
+                
+                # For the first 10 packets, log full content to understand structure
+                if line_count <= 10:
+                    packet_str = str(packet)[:500] if packet else "empty"
+                    logger.info(f"[enhanced_stream_chat_message] Packet {line_count} content: {packet_str}")
                     
                 if packet.get("answer_piece"):
                     answer_piece = packet["answer_piece"]
@@ -8981,23 +8944,29 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
                         logger.info(f"[enhanced_stream_chat_message] Found potential answer in different field: {type(potential_answer)}")
                         full_answer += str(potential_answer)
                         last_activity_time = current_time  # Reset activity timer on content
-                        
-            except Exception as e:
-                logger.error(f"[enhanced_stream_chat_message] Exception during streaming after {line_count} lines: {e}", exc_info=True)
-                        
-            end_time = time.time()
-            total_time = end_time - start_time
-            logger.info(f"[enhanced_stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}, Total time: {total_time:.1f}s")
             
-            if not done_received and line_count > 0:
-                logger.warning(f"[enhanced_stream_chat_message] Stream ended without [DONE] signal after {total_time:.1f}s - may be incomplete. Trying to parse partial response.")
-            elif not done_received and line_count == 0:
-                logger.error(f"[enhanced_stream_chat_message] No data received at all - possible connection issue")
+            # Stream ended - determine why
+            logger.info(f"[enhanced_stream_chat_message] Stream reading loop ended naturally")
+            final_elapsed = time.time() - start_time
+            logger.info(f"[enhanced_stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}, Elapsed: {final_elapsed:.1f}s")
             
-            # If we got no answer but the stream seemed to be working, try a fallback approach
-            if len(full_answer) == 0 and line_count > 100:
-                logger.info(f"[enhanced_stream_chat_message] Got {line_count} lines but no answer content. Trying fallback non-streaming request...")
-                return await fallback_non_streaming_request(chat_session_id, message, cookies)
+            # If we got no content and stream ended quickly, something went wrong
+            if len(full_answer) == 0 and final_elapsed < 60.0 and not done_received:
+                logger.error(f"[enhanced_stream_chat_message] Stream ended prematurely! Only {final_elapsed:.1f}s elapsed, {line_count} lines processed, no content received")
+                logger.error(f"[enhanced_stream_chat_message] This suggests an issue with the Onyx search or streaming connection")
+                
+            if not done_received and len(full_answer) == 0:
+                logger.warning(f"[enhanced_stream_chat_message] Stream ended without [DONE] signal and no content - may be incomplete")
+            elif not done_received:
+                logger.warning(f"[enhanced_stream_chat_message] Stream ended without [DONE] signal but got {len(full_answer)} chars")
+                
+            # Ensure we have some minimum content or waited minimum time
+            if len(full_answer) == 0 and final_elapsed < 60.0:
+                logger.warning(f"[enhanced_stream_chat_message] No content received and insufficient wait time ({final_elapsed:.1f}s < 60s)")
+                # Wait a bit more to see if content comes
+                logger.info(f"[enhanced_stream_chat_message] Attempting extended wait for delayed response...")
+                import asyncio
+                await asyncio.sleep(5.0)  # Wait 5 more seconds
                 
             return full_answer
         else:
