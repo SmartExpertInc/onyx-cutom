@@ -211,6 +211,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   };
 
   const handleAddNewLanguageVariant = () => {
+    console.log('🔧 handleAddNewLanguageVariant called');
     setIsLanguagePopupOpen(false);
     onLanguageVariantModalOpen?.();
   };
@@ -232,6 +233,10 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
     };
   }, [isLanguagePopupOpen]);
 
+  // Debug popup state
+  useEffect(() => {
+    console.log('🔧 Language popup state changed:', isLanguagePopupOpen);
+  }, [isLanguagePopupOpen]);
 
 
   return (
@@ -406,6 +411,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
                       <div 
                         className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
                         onClick={(e) => {
+                          console.log('🔧 Add new variant button clicked, popup open:', isLanguagePopupOpen);
                           e.preventDefault();
                           e.stopPropagation();
                           handleAddNewLanguageVariant();
