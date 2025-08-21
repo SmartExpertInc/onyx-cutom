@@ -296,7 +296,7 @@ export default function Projects2ViewPage() {
                   {/* Transition button - show between scenes (not after the last one) */}
                   {index < scenes.length - 1 && (
                     <div className="relative group">
-                      <button className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer">
+                      <button className="w-8 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                         <svg 
                           className="w-4 h-4 text-gray-600" 
                           fill="currentColor" 
@@ -307,7 +307,7 @@ export default function Projects2ViewPage() {
                       </button>
                       
                       {/* Tooltip */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                         <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
                           Add transition
                         </div>
