@@ -70,7 +70,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
       {/* Modal content */}
       <div className="relative bg-white shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto z-10" style={{ borderRadius: '12px' }}>
         {/* Header */}
-        <div className="flex items-center justify-end p-4 bg-blue-600 text-white">
+        <div className="flex items-center justify-end p-2 bg-blue-600 text-white">
           <button
             onClick={onClose}
             className="p-2 hover:bg-blue-700 rounded-full transition-colors"
@@ -86,15 +86,12 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
             <div className="bg-white rounded-lg p-4">
               {/* Current Plan Info */}
               <div className="text-xs text-gray-500 mb-1">You are currently on</div>
-              <div className="flex items-center justify-between mb-1">
-                <div>
-                  <div className="text-xl font-bold text-black mb-1">Business</div>
-                  <div className="text-xs text-gray-500">For professionals or small teams</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xl font-bold text-black">$70</div>
-                  <div className="text-xs text-gray-500">Billed annually at $840</div>
-                </div>
+              <div className="mb-1">
+                <div className="text-2xl text-black mb-1">Business</div>
+                <div className="text-xs text-gray-500 mb-2">For professionals or small teams</div>
+                <div className="text-2xl font-semibold text-black">$70</div>
+                <div className="text-xs text-gray-500">Billed annually</div>
+                <div className="text-xs text-gray-500">at $840</div>
               </div>
               
               {/* Seat Selection */}
@@ -134,7 +131,6 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
               </div>
 
               {/* Current Plan Features */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Current Plan</h3>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start gap-3">
                   <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -152,12 +148,12 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                   <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-white" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-700">10 Custom Avatars + 2 Voices per editor</span>
-                    <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-xs text-gray-600 font-medium">i</span>
+                                      <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">10 Custom Avatars + 2 Voices per editor</span>
+                      <div className="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+                        <span className="text-xs text-gray-400 font-medium">i</span>
+                      </div>
                     </div>
-                  </div>
                 </li>
               </ul>
 
@@ -166,12 +162,11 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 Manage
               </button>
               <div className="text-center text-xs text-gray-500 mb-3">or</div>
-              <button className="w-full text-gray-600 text-sm hover:text-gray-800 transition-colors mb-6">
+              <button className="w-full bg-transparent text-gray-600 border border-gray-300 rounded-full py-2 px-4 text-sm font-medium hover:bg-gray-100 transition-colors mb-6">
                 Cancel subscription
               </button>
 
               {/* Additional Features */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Features</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -179,8 +174,8 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-700">170+ AI Avatars</span>
-                    <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-xs text-gray-600 font-medium">i</span>
+                    <div className="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-xs text-gray-400 font-medium">i</span>
                     </div>
                   </div>
                 </li>
@@ -190,8 +185,8 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-700">Access to 70 avatar scenarios</span>
-                    <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-xs text-gray-600 font-medium">i</span>
+                    <div className="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-xs text-gray-400 font-medium">i</span>
                     </div>
                   </div>
                 </li>
@@ -201,8 +196,8 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-700">Avatar conversation (limited)</span>
-                    <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-xs text-gray-600 font-medium">i</span>
+                    <div className="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-xs text-gray-400 font-medium">i</span>
                     </div>
                   </div>
                 </li>
