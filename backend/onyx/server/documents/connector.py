@@ -657,9 +657,11 @@ def get_currently_failed_indexing_status(
 
 @router.get("/admin/connector/status")
 def get_connector_status(
-    user: User = Depends(current_curator_or_admin_user),
+    user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> list[ConnectorStatus]:
+    # Admin check disabled for Smart Drive functionality
+    # All authenticated users can view their own connector status
     cc_pairs = get_connector_credential_pairs_for_user(
         db_session=db_session,
         user=user,
