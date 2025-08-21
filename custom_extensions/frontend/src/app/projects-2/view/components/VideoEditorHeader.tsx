@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Eye, EyeOff, Play, Undo2, Redo2, Gem } from 'lucide-react';
 import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
+import GenerationCompletedModal from './GenerationCompletedModal';
 
 interface EmailInput {
   id: string;
@@ -17,6 +18,7 @@ export default function VideoEditorHeader() {
   const [isEyeVisible, setIsEyeVisible] = useState(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [isGenerationCompletedModalOpen, setIsGenerationCompletedModalOpen] = useState(false);
   const [videoTitle, setVideoTitle] = useState('Create your first AI video');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [emailInputs, setEmailInputs] = useState<EmailInput[]>([
@@ -539,6 +541,14 @@ export default function VideoEditorHeader() {
         isOpen={isGenerateModalOpen} 
         onClose={() => setIsGenerateModalOpen(false)} 
         title={videoTitle}
+        onGenerationStart={() => setIsGenerationCompletedModalOpen(true)}
+      />
+
+      {/* Generation Completed Modal */}
+      <GenerationCompletedModal
+        isOpen={isGenerationCompletedModalOpen}
+        onClose={() => setIsGenerationCompletedModalOpen(false)}
+        videoTitle={videoTitle}
       />
     </header>
   );
