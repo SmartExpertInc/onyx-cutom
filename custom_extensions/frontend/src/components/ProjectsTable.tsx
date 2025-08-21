@@ -897,7 +897,7 @@ const getModalState = (): boolean => {
   return windowFlag || domDetection;
 };
 
-// Helper function to redirect to main app's auth endpoint
+// !Helper function to redirect to main app's auth endpoint
 const redirectToMainAuth = (path: string) => {
   // Get the current domain and protocol
   const protocol = window.location.protocol;
