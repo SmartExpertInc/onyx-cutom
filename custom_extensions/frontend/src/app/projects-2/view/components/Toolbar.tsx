@@ -220,10 +220,22 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       console.log('🔧 Click outside detected, target:', event.target);
-      if (defaultButtonRef.current && !defaultButtonRef.current.contains(event.target as Node)) {
-        console.log('🔧 Closing popup due to click outside');
-        setIsLanguagePopupOpen(false);
+      
+      // Check if the click is inside the popup container
+      const popupElement = document.querySelector('[data-popup="language-variants"]');
+      if (popupElement && popupElement.contains(event.target as Node)) {
+        console.log('🔧 Click is inside popup, not closing');
+        return;
       }
+      
+      // Check if the click is inside the button
+      if (defaultButtonRef.current && defaultButtonRef.current.contains(event.target as Node)) {
+        console.log('🔧 Click is inside button, not closing');
+        return;
+      }
+      
+      console.log('🔧 Closing popup due to click outside');
+      setIsLanguagePopupOpen(false);
     };
 
     if (isLanguagePopupOpen) {
@@ -341,6 +353,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
                     <div 
                       className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[380px] z-50"
                       style={{ marginRight: '10px' }} // Keep popup within page boundaries
+                      data-popup="language-variants"
                     >
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">

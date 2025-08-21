@@ -16,6 +16,12 @@ import InteractionModal from './components/InteractionModal';
 import AiPopup from './components/AiPopup';
 import LanguageVariantModal from './components/LanguageVariantModal';
 
+interface Scene {
+  id: string;
+  name: string;
+  order: number;
+}
+
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
@@ -29,6 +35,49 @@ export default function Projects2ViewPage() {
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [interactionPopupPosition, setInteractionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [aiPopupPosition, setAiPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  
+  // Scene management state
+  const [scenes, setScenes] = useState<Scene[]>([
+    { id: 'scene-1', name: 'Scene 1', order: 1 }
+  ]);
+  const [openMenuSceneId, setOpenMenuSceneId] = useState<string | null>(null);
+
+  // Function to add a new scene
+  const handleAddScene = () => {
+    const newSceneNumber = scenes.length + 1;
+    const newScene: Scene = {
+      id: `scene-${newSceneNumber}`,
+      name: `Scene ${newSceneNumber}`,
+      order: newSceneNumber
+    };
+    
+    // Add the new scene after existing scenes (at the end)
+    setScenes(prevScenes => [...prevScenes, newScene]);
+  };
+
+  // Function to handle three-dot menu click
+  const handleMenuClick = (sceneId: string) => {
+    setOpenMenuSceneId(openMenuSceneId === sceneId ? null : sceneId);
+  };
+
+  // Function to close menu
+  const closeMenu = () => {
+    setOpenMenuSceneId(null);
+  };
+
+  // Function to handle menu actions
+  const handleMenuAction = (action: string, sceneId: string) => {
+    console.log(`${action} for ${sceneId}`);
+    // TODO: Implement actual actions
+    closeMenu();
+  };
+
+  // Function to delete scene
+  const handleDeleteScene = (sceneId: string) => {
+    if (sceneId === 'scene-1') return; // Prevent deletion of first scene
+    setScenes(prevScenes => prevScenes.filter(scene => scene.id !== sceneId));
+    closeMenu();
+  };
 
   const handleActiveToolChange = (toolId: string) => {
     if (toolId === 'media') {
@@ -140,7 +189,7 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col p-2 relative">
+    <div className="h-screen bg-background flex flex-col p-2 relative" onClick={closeMenu}>
       {/* Header */}
       <VideoEditorHeader />
 
@@ -182,31 +231,93 @@ export default function Projects2ViewPage() {
                 <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-sm text-gray-600">00:00</span>
               </div>
 
-              {/* Scene 1 Rectangle */}
-              <div className="relative">
-                <div className="w-24 h-16 bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center">
-                  <div className="w-8 h-8 bg-blue-500 rounded"></div>
+              {/* Dynamic Scene Rectangles */}
+              {scenes.map((scene) => (
+                <div key={scene.id} className="relative group">
+                  <div className="w-24 h-16 bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center relative">
+                    <div className="w-8 h-8 bg-blue-500 rounded"></div>
+                    
+                    {/* Three-dot menu button - visible on hover */}
+                    <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <button 
+                        className="w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMenuClick(scene.id);
+                        }}
+                      >
+                        <svg 
+                          className="w-3 h-3 text-gray-600" 
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <circle cx="12" cy="6" r="2"/>
+                          <circle cx="12" cy="12" r="2"/>
+                          <circle cx="12" cy="18" r="2"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Popup Menu */}
+                    {openMenuSceneId === scene.id && (
+                      <div className="absolute top-8 right-0 z-50 bg-white rounded-md shadow-lg border border-gray-200 min-w-[160px] py-1">
+                        <button 
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => handleMenuAction('Save as Scene Layout', scene.id)}
+                        >
+                          Save as Scene Layout
+                        </button>
+                        <button 
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => handleMenuAction('Duplicate Scene', scene.id)}
+                        >
+                          Duplicate Scene
+                        </button>
+                        <button 
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => handleMenuAction('Insert Scene', scene.id)}
+                        >
+                          Insert Scene
+                        </button>
+                        <div className="border-t border-gray-200 my-1"></div>
+                        <button 
+                          className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                            scene.id === 'scene-1' 
+                              ? 'text-gray-400 cursor-not-allowed' 
+                              : 'text-red-600 hover:bg-red-50'
+                          }`}
+                          onClick={() => handleDeleteScene(scene.id)}
+                          disabled={scene.id === 'scene-1'}
+                        >
+                          Delete Scene
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute top-full left-0 mt-2 flex items-center gap-2">
+                    <span className="text-sm font-medium">{scene.name}</span>
+                    <svg 
+                      className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
+                      />
+                    </svg>
+                  </div>
                 </div>
-                <div className="absolute top-full left-0 mt-2 flex items-center gap-2">
-                  <span className="text-sm font-medium">Scene 1</span>
-                  <svg 
-                    className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
-                    />
-                  </svg>
-                </div>
-              </div>
+              ))}
 
               {/* Add Scene Rectangle */}
-              <div className="w-24 h-16 bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors">
+              <div 
+                className="w-24 h-16 bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                onClick={handleAddScene}
+              >
                 <svg 
                   className="w-8 h-8 text-gray-600" 
                   fill="none" 
