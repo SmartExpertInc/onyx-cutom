@@ -41,6 +41,8 @@ export default function AvatarPopup({
 
   const [activeButton, setActiveButton] = useState<string>('button1');
   const [selectedItems, setSelectedItems] = useState<{[key: string]: boolean}>({});
+  const [previewMode, setPreviewMode] = useState<boolean>(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<{name: string} | null>(null);
 
   const handleCheckboxChange = (itemKey: string) => {
     setSelectedItems(prev => ({
@@ -49,16 +51,26 @@ export default function AvatarPopup({
     }));
   };
 
+  const handleAvatarClick = (avatar: {name: string}) => {
+    setSelectedAvatar(avatar);
+    setPreviewMode(true);
+  };
+
+  const handleBackClick = () => {
+    setPreviewMode(false);
+    setSelectedAvatar(null);
+  };
+
   const content = (
     <div className="flex h-full">
       {/* Left sidebar */}
       <div className="w-64 bg-white px-6 py-4 flex flex-col">
         {/* Three buttons at the top */}
         <div className="mb-4">
-          <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg py-2 px-1" style={{ width: 'fit-content' }}>
+          <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1" style={{ width: 'fit-content', height: '40px' }}>
             <button 
               onClick={() => setActiveButton('button1')}
-              className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
                 activeButton === 'button1' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
@@ -68,7 +80,7 @@ export default function AvatarPopup({
             </button>
             <button 
               onClick={() => setActiveButton('button2')}
-              className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
                 activeButton === 'button2' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
@@ -78,7 +90,7 @@ export default function AvatarPopup({
             </button>
             <button 
               onClick={() => setActiveButton('button3')}
-              className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 rounded-md font-medium transition-colors h-8 text-sm ${
                 activeButton === 'button3' 
                   ? 'bg-gray-200 text-black' 
                   : 'bg-white text-gray-600'
@@ -227,53 +239,97 @@ export default function AvatarPopup({
 
       {/* Right main area */}
       <div className="flex-1 flex flex-col p-4">
-        {/* Search bar and create button - fixed at top */}
-        <div className="flex items-center gap-4 mb-6 flex-shrink-0">
-          {/* Search bar */}
-          <div className="flex-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              {/* Black magnifying glass icon */}
-              <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+        {previewMode ? (
+          // Preview mode content
+          <>
+            {/* Header with back button and avatar name */}
+            <div className="flex items-center gap-3 mb-6 flex-shrink-0">
+              <button 
+                onClick={handleBackClick}
+                className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span className="text-lg font-medium text-black">{selectedAvatar?.name}</span>
             </div>
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
-            />
-          </div>
-          
-          {/* Create button */}
-          <button className="px-3 py-2 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-30 transition-colors font-medium" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
-            + Create
-          </button>
-        </div>
 
-        {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto pb-4">
-          {/* Avatar rectangles grid */}
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { name: 'Sarah Johnson' },
-              { name: 'Michael Chen' },
-              { name: 'Emma Rodriguez' },
-              { name: 'David Thompson' },
-              { name: 'Lisa Park' },
-              { name: 'James Wilson' },
-              { name: 'Maria Garcia' },
-              { name: 'Robert Kim' },
-              { name: 'Jennifer Lee' }
-            ].map((avatar, index) => (
-              <div key={index} className="flex flex-col items-center">
-                {/* Avatar rectangle */}
-                <div className="w-full h-32 bg-gray-200 rounded-lg mb-2"></div>
-                {/* Name */}
-                <span className="text-sm text-black font-medium">{avatar.name}</span>
+            {/* Main preview area */}
+            <div className="flex-1 flex flex-col items-center justify-center">
+              {/* Big rectangle with play button */}
+              <div className="relative w-80 h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center">
+                <button className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow">
+                  <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+
+            {/* Footer with Add to Scene button */}
+            <div className="flex justify-center flex-shrink-0">
+              <button className="px-6 py-3 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors">
+                + Add to scene
+              </button>
+            </div>
+          </>
+        ) : (
+          // Normal mode content
+          <>
+            {/* Search bar and create button - fixed at top */}
+            <div className="flex items-center gap-4 mb-6 flex-shrink-0">
+              {/* Search bar */}
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  {/* Black magnifying glass icon */}
+                  <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  className="w-full pl-10 pr-4 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-black focus:ring-0"
+                  style={{ height: '40px' }}
+                />
+              </div>
+              
+              {/* Create button */}
+              <button className="px-3 text-blue-600 rounded-lg hover:bg-blue-500 hover:bg-opacity-30 transition-colors font-medium text-sm" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', height: '40px' }}>
+                + Create
+              </button>
+            </div>
+
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-y-auto pb-4">
+              {/* Avatar rectangles grid */}
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { name: 'Sarah Johnson' },
+                  { name: 'Michael Chen' },
+                  { name: 'Emma Rodriguez' },
+                  { name: 'David Thompson' },
+                  { name: 'Lisa Park' },
+                  { name: 'James Wilson' },
+                  { name: 'Maria Garcia' },
+                  { name: 'Robert Kim' },
+                  { name: 'Jennifer Lee' }
+                ].map((avatar, index) => (
+                  <div key={index} className="flex flex-col items-center">
+                    {/* Avatar rectangle */}
+                    <div 
+                      className="w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-colors"
+                      onClick={() => handleAvatarClick(avatar)}
+                    ></div>
+                    {/* Name */}
+                    <span className="text-sm text-black font-medium">{avatar.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
