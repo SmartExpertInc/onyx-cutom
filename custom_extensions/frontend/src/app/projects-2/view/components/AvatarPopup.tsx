@@ -230,7 +230,7 @@ export default function AvatarPopup({
                   style={{ width: 'fit-content' }}
                 >
                   <span className="text-base">×</span>
-                  <span>Reset filter ({Object.values(selectedItems).filter(Boolean).length})</span>
+                  <span>Reset filters ({Object.values(selectedItems).filter(Boolean).length})</span>
                 </button>
               </div>
             )}

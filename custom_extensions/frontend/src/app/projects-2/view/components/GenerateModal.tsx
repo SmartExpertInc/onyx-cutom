@@ -7,9 +7,10 @@ interface GenerateModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
+  onGenerationStart?: () => void;
 }
 
-export default function GenerateModal({ isOpen, onClose, title }: GenerateModalProps) {
+export default function GenerateModal({ isOpen, onClose, title, onGenerationStart }: GenerateModalProps) {
   const [videoTitle, setVideoTitle] = useState(title);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isSubtitleDropdownOpen, setIsSubtitleDropdownOpen] = useState(false);
@@ -270,7 +271,13 @@ export default function GenerateModal({ isOpen, onClose, title }: GenerateModalP
             >
               Cancel
             </button>
-            <button className="flex-1 bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors font-medium text-sm">
+            <button 
+              onClick={() => {
+                onClose();
+                onGenerationStart?.();
+              }}
+              className="flex-1 bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors font-medium text-sm"
+            >
               Start generation
             </button>
           </div>
