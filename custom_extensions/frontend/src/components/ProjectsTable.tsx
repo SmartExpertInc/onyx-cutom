@@ -467,6 +467,10 @@ const PreviewModal: React.FC<{
 
   if (!isOpen || !data) return null;
 
+  // 🔧 DEBUG: Log data received by PreviewModal
+  console.log('🔍 PreviewModal Debug - Received data:', data);
+  console.log('🔍 PreviewModal Debug - quality_tier_sums:', data.quality_tier_sums);
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30" onClick={handleBackdropClick}>
       <div className="bg-white shadow-2xl w-full max-w-6xl max-h-[95vh] relative overflow-y-scroll rounded-xl">
@@ -716,7 +720,7 @@ const PreviewModal: React.FC<{
                                   </thead>
                                   <tbody>
                                     {(() => {
-                                      // Use quality tier sums from backend (same calculation as PDF)
+                                      // 🔧 FIX: Use quality tier sums from backend (same calculation as PDF)
                                       const qualityTierSums = data?.quality_tier_sums || {
                                         'basic': { completion_time: 0, creation_time: 0 },
                                         'interactive': { completion_time: 0, creation_time: 0 },
@@ -727,6 +731,7 @@ const PreviewModal: React.FC<{
                                       // Debug: Log what we're using for Block 2
                                       console.log('🔍 Block 2 Debug - using quality_tier_sums:', qualityTierSums);
                                       console.log('🔍 Block 2 Debug - data source:', data?.quality_tier_sums ? 'backend' : 'fallback');
+                                      console.log('🔍 Block 2 Debug - data object:', data);
                                       
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
@@ -738,12 +743,19 @@ const PreviewModal: React.FC<{
 
                                       return qualityLevels.map((level, index) => {
                                         const tierData = qualityTierSums[level.key as keyof typeof qualityTierSums];
-                                        const completionTimeFormatted = tierData.completion_time > 0 
-                                          ? formatTimeLikePDF(tierData.completion_time) 
+                                        
+                                        // 🔧 FIX: Ensure we're using the correct data structure
+                                        const completionTime = tierData?.completion_time || 0;
+                                        const creationTime = tierData?.creation_time || 0;
+                                        
+                                        const completionTimeFormatted = completionTime > 0 
+                                          ? formatTimeLikePDF(completionTime) 
                                           : '-';
-                                        const creationTimeFormatted = tierData.creation_time > 0 
-                                          ? formatTimeLikePDF(tierData.creation_time) 
+                                        const creationTimeFormatted = creationTime > 0 
+                                          ? formatTimeLikePDF(creationTime) 
                                           : '-';
+                                        
+                                        console.log(`🔍 Block 2 Debug - ${level.name}: completion_time=${completionTime}, creation_time=${creationTime}`);
                                         
                                         return (
                                           <tr key={level.name} className={index % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-white'} style={{
@@ -3880,12 +3892,15 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
                 
                 console.log('✅ Setting preview data with quality_tier_sums:', backendData.quality_tier_sums);
-                setPreviewData({
+                console.log('✅ Backend data structure:', backendData);
+                const previewDataToSet = {
                     clientName,
                     managerName,
                     projects: filteredProjects,
                     quality_tier_sums: backendData.quality_tier_sums
-                });
+                };
+                console.log('✅ Preview data to set:', previewDataToSet);
+                setPreviewData(previewDataToSet);
             } else {
                 console.log('⚠️ Backend request failed, using fallback data');
                 // Fallback to frontend data if backend fails
@@ -3992,12 +4007,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
                 console.log('🔄 Setting preview data with quality_tier_sums (try block):', qualityTierSums);
                 console.log('🔄 Projects data (try block):', projectsToShow);
-                setPreviewData({
+                const fallbackPreviewData = {
                     clientName,
                     managerName,
                     projects: projectsToShow,
                     quality_tier_sums: qualityTierSums
-                });
+                };
+                console.log('🔄 Fallback preview data to set:', fallbackPreviewData);
+                setPreviewData(fallbackPreviewData);
             }
         } catch (error) {
             console.error('❌ Failed to fetch preview data from backend:', error);
@@ -4105,12 +4122,14 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
 
             console.log('🔄 Setting fallback preview data with quality_tier_sums:', qualityTierSums);
             console.log('🔄 Fallback projects data:', projectsToShow);
-            setPreviewData({
+            const catchFallbackPreviewData = {
                 clientName,
                 managerName,
                 projects: projectsToShow,
                 quality_tier_sums: qualityTierSums
-            });
+            };
+            console.log('🔄 Catch fallback preview data to set:', catchFallbackPreviewData);
+            setPreviewData(catchFallbackPreviewData);
         }
         
         setShowPreviewModal(true);
