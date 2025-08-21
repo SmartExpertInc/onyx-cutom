@@ -1,12 +1,9 @@
 # custom_extensions/backend/app/services/video_generation_service.py
 
 import asyncio
-import httpx
-import json
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -16,13 +13,68 @@ class ElaiVideoGenerationService:
     def __init__(self):
         self.api_base = "https://apis.elai.io/api/v1"
         self.api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
-        self.headers = {
+        self.max_wait_time = 15 * 60  # 15 minutes
+        self.poll_interval = 30  # 30 seconds
+        
+        # Initialize httpx client safely
+        self.client = None
+        self._init_client()
+    
+    def _init_client(self):
+        """Initialize the HTTP client safely."""
+        try:
+            import httpx
+            self.client = httpx.AsyncClient(timeout=60.0)
+            logger.info("HTTP client initialized successfully")
+        except ImportError:
+            logger.error("httpx not available - video generation will not work")
+            self.client = None
+        except Exception as e:
+            logger.error(f"Failed to initialize HTTP client: {e}")
+            self.client = None
+    
+    @property
+    def headers(self):
+        """Get headers for API requests."""
+        return {
             "Authorization": f"Bearer {self.api_token}",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
-        self.max_wait_time = 15 * 60  # 15 minutes
-        self.poll_interval = 30  # 30 seconds
+    
+    async def get_avatars(self) -> Dict[str, Any]:
+        """
+        Fetch available avatars from Elai API.
+        
+        Returns:
+            Dict containing avatar list or error
+        """
+        if not self.client:
+            return {
+                "success": False, 
+                "error": "HTTP client not available - httpx may not be installed"
+            }
+        
+        try:
+            response = await self.client.get(
+                f"{self.api_base}/avatars",
+                headers=self.headers
+            )
+            
+            if response.is_success:
+                avatars = response.json()
+                logger.info(f"Successfully fetched {len(avatars)} avatars")
+                return {"success": True, "avatars": avatars}
+            else:
+                logger.error(f"Failed to fetch avatars: {response.status_code} - {response.text}")
+                return {
+                    "success": False, 
+                    "error": f"Failed to fetch avatars: {response.status_code}"
+                }
+                
+        except Exception as e:
+            logger.error(f"Error fetching avatars: {str(e)}")
+            return {"success": False, "error": str(e)}
     
     async def create_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -35,6 +87,12 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing video creation response
         """
+        if not self.client:
+            return {
+                "success": False,
+                "error": "HTTP client not available - httpx may not be installed"
+            }
+        
         try:
             # Prepare slides for Elai API
             elai_slides = []
@@ -92,21 +150,19 @@ class ElaiVideoGenerationService:
             }
             
             # Create video
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.api_base}/videos",
-                    headers=self.headers,
-                    json=video_request,
-                    timeout=60.0
-                )
-                
-                if not response.is_success:
-                    logger.error(f"Failed to create video: {response.status_code} - {response.text}")
-                    raise Exception(f"Video creation failed: {response.status_code}")
-                
+            response = await self.client.post(
+                f"{self.api_base}/videos",
+                headers=self.headers,
+                json=video_request
+            )
+            
+            if response.is_success:
                 result = response.json()
                 logger.info(f"Video created successfully: {result.get('_id')}")
                 return result
+            else:
+                logger.error(f"Failed to create video: {response.status_code} - {response.text}")
+                raise Exception(f"Video creation failed: {response.status_code}")
                 
         except Exception as e:
             logger.error(f"Error creating video: {str(e)}")
@@ -122,21 +178,22 @@ class ElaiVideoGenerationService:
         Returns:
             True if render started successfully
         """
+        if not self.client:
+            return False
+        
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.api_base}/videos/render/{video_id}",
-                    headers=self.headers,
-                    timeout=30.0
-                )
+            response = await self.client.post(
+                f"{self.api_base}/videos/render/{video_id}",
+                headers=self.headers
+            )
+            
+            if response.is_success:
+                logger.info(f"Video render started for {video_id}")
+                return True
+            else:
+                logger.error(f"Failed to start render: {response.status_code} - {response.text}")
+                return False
                 
-                if response.is_success:
-                    logger.info(f"Video render started for {video_id}")
-                    return True
-                else:
-                    logger.error(f"Failed to start render: {response.status_code} - {response.text}")
-                    return False
-                    
         except Exception as e:
             logger.error(f"Error starting video render: {str(e)}")
             return False
@@ -151,20 +208,21 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing video status information
         """
+        if not self.client:
+            return {}
+        
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.api_base}/videos/{video_id}",
-                    headers=self.headers,
-                    timeout=30.0
-                )
+            response = await self.client.get(
+                f"{self.api_base}/videos/{video_id}",
+                headers=self.headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to get video status: {response.status_code} - {response.text}")
+                return {}
                 
-                if response.is_success:
-                    return response.json()
-                else:
-                    logger.error(f"Failed to get video status: {response.status_code} - {response.text}")
-                    return {}
-                    
         except Exception as e:
             logger.error(f"Error checking video status: {str(e)}")
             return {}
@@ -279,31 +337,10 @@ class ElaiVideoGenerationService:
             logger.error(f"Video generation failed: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    async def get_avatars(self) -> Dict[str, Any]:
-        """
-        Fetch available avatars from Elai API.
-        
-        Returns:
-            Dict containing avatar list or error
-        """
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.api_base}/avatars",
-                    headers=self.headers,
-                    timeout=30.0
-                )
-                
-                if response.is_success:
-                    avatars = response.json()
-                    return {"success": True, "avatars": avatars}
-                else:
-                    logger.error(f"Failed to fetch avatars: {response.status_code} - {response.text}")
-                    return {"success": False, "error": f"Failed to fetch avatars: {response.status_code}"}
-                    
-        except Exception as e:
-            logger.error(f"Error fetching avatars: {str(e)}")
-            return {"success": False, "error": str(e)}
+    async def close(self):
+        """Close the HTTP client."""
+        if self.client:
+            await self.client.aclose()
 
 # Global instance
 video_generation_service = ElaiVideoGenerationService()

@@ -16799,88 +16799,98 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     detail=f"Failed to duplicate project: {str(e)}"
                 )
 
-# # --- Video Generation API Endpoints ---
+# --- Video Generation API Endpoints ---
 
-# # Import video generation service
-# try:
-#     from app.services.video_generation_service import video_generation_service
-# except ImportError:
-#     logger.error("Failed to import video generation service")
-#     video_generation_service = None
+# Import video generation service safely
+video_generation_service = None
+try:
+    from app.services.video_generation_service import video_generation_service
+    logger.info("Video generation service imported successfully")
+except Exception as e:
+    logger.warning(f"Video generation service not available: {e}")
+    video_generation_service = None
 
-# @app.get("/api/custom/video/avatars")
-# async def get_avatars():
-#     """Get available avatars from Elai API."""
-#     try:
-#         if not video_generation_service:
-#             raise HTTPException(status_code=500, detail="Video generation service not available")
+@app.get("/api/custom/video/avatars")
+async def get_avatars():
+    """Get available avatars from Elai API."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False, 
+                "error": "Video generation service not available. Please check backend configuration.",
+                "avatars": []
+            }
         
-#         result = await video_generation_service.get_avatars()
+        result = await video_generation_service.get_avatars()
         
-#         if result["success"]:
-#             return {"success": True, "avatars": result["avatars"]}
-#         else:
-#             raise HTTPException(status_code=500, detail=result["error"])
+        if result["success"]:
+            return {"success": True, "avatars": result["avatars"]}
+        else:
+            return {"success": False, "error": result["error"], "avatars": []}
             
-#     except HTTPException:
-#         raise
-#     except Exception as e:
-#         logger.error(f"Error fetching avatars: {str(e)}")
-#         raise HTTPException(status_code=500, detail=f"Failed to fetch avatars: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error fetching avatars: {str(e)}")
+        return {
+            "success": False, 
+            "error": f"Failed to fetch avatars: {str(e)}",
+            "avatars": []
+        }
 
-# @app.post("/api/custom/video/generate")
-# async def generate_video(request: Request):
-#     """Generate video from slides and avatar data."""
-#     try:
-#         if not video_generation_service:
-#             raise HTTPException(status_code=500, detail="Video generation service not available")
+@app.post("/api/custom/video/generate")
+async def generate_video(request: Request):
+    """Generate video from slides and avatar data."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
         
-#         # Parse request body
-#         body = await request.json()
-#         slides_data = body.get("slides", [])
-#         avatar_data = body.get("avatar", {})
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        avatar_data = body.get("avatar", {})
         
-#         # Validate request data
-#         if not slides_data:
-#             raise HTTPException(status_code=400, detail="No slides data provided")
+        # Validate request data
+        if not slides_data:
+            return {"success": False, "error": "No slides data provided"}
         
-#         if not avatar_data:
-#             raise HTTPException(status_code=400, detail="No avatar data provided")
+        if not avatar_data:
+            return {"success": False, "error": "No avatar data provided"}
         
-#         # Generate video
-#         result = await video_generation_service.generate_video(slides_data, avatar_data)
+        # Generate video
+        result = await video_generation_service.generate_video(slides_data, avatar_data)
         
-#         if result["success"]:
-#             return {
-#                 "success": True,
-#                 "video_id": result["video_id"],
-#                 "download_url": result["download_url"]
-#             }
-#         else:
-#             raise HTTPException(status_code=500, detail=result["error"])
+        if result["success"]:
+            return {
+                "success": True,
+                "video_id": result["video_id"],
+                "download_url": result["download_url"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
             
-#     except HTTPException:
-#         raise
-#     except Exception as e:
-#         logger.error(f"Error generating video: {str(e)}")
-#         raise HTTPException(status_code=500, detail=f"Failed to generate video: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error generating video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
 
-# @app.get("/api/custom/video/status/{video_id}")
-# async def get_video_status(video_id: str):
-#     """Get the status of a video generation."""
-#     try:
-#         if not video_generation_service:
-#             raise HTTPException(status_code=500, detail="Video generation service not available")
+@app.get("/api/custom/video/status/{video_id}")
+async def get_video_status(video_id: str):
+    """Get the status of a video generation."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
         
-#         status_data = await video_generation_service.check_video_status(video_id)
+        status_data = await video_generation_service.check_video_status(video_id)
         
-#         if status_data:
-#             return {"success": True, "status": status_data}
-#         else:
-#             raise HTTPException(status_code=404, detail="Video not found")
+        if status_data:
+            return {"success": True, "status": status_data}
+        else:
+            return {"success": False, "error": "Video not found"}
             
-#     except HTTPException:
-#         raise
-#     except Exception as e:
-#         logger.error(f"Error checking video status: {str(e)}")
-#         raise HTTPException(status_code=500, detail=f"Failed to check video status: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error checking video status: {str(e)}")
+        return {"success": False, "error": f"Failed to check video status: {str(e)}"}
