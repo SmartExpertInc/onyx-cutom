@@ -134,10 +134,18 @@ class ProfessionalPresentationService:
                 quality=request.quality
             )
             
-            slide_video_path = await slide_capture_service.capture_slide_video(slide_config)
-            job.progress = 30.0
+            try:
+                slide_video_path = await slide_capture_service.capture_slide_video(slide_config)
+                logger.info(f"Slide video captured: {slide_video_path}")
+            except Exception as slide_error:
+                logger.warning(f"Primary slide capture failed: {slide_error}")
+                logger.info("Attempting screenshot fallback method")
+                
+                # Try fallback method
+                slide_video_path = await slide_capture_service.capture_with_screenshots(slide_config)
+                logger.info(f"Screenshot fallback successful: {slide_video_path}")
             
-            logger.info(f"Slide video captured: {slide_video_path}")
+            job.progress = 30.0
             
             # Step 2: Generate avatar video via Elai API
             logger.info(f"Step 2: Generating avatar video for job {job_id}")
