@@ -1,128 +1,108 @@
-# Исправление форматирования времени в превью
+# Исправление форматирования времени в PDF
 
 ## Проблема
 
-В превью время отображалось неправильно:
-- **Completion Time**: показывал "1322" вместо "6h 16m"
-- **Creation Time**: показывал "1,322" вместо "22h 2m"
-- **Block 2**: показывал неправильные названия quality levels
+В PDF все числовые значения времени отображались с десятичными знаками в формате "22.0h 2.0m" вместо "22h 2m".
 
 ## Анализ проблемы
 
-### До исправления:
+### Причина
+Backend использовал `round(total_hours, 1)` и `round(total_creation_hours, 1)`, что добавляло десятичные знаки к значениям времени.
 
-1. **Block 1. Course Overview**:
-   - Использовал `course.learningDuration || '-'` (показывал сырые числа)
-   - Использовал `course.productionTime.toLocaleString()` (добавлял запятые)
-
-2. **Block 2. Production Hours by Quality Level**:
-   - Использовал `formatCompletionTimeLocalized()` (неправильное форматирование)
-   - Показывал "Level 1 - Basic" вместо "Basic"
-
-3. **Subtotal**:
-   - Использовал `totalProductionHours.toLocaleString()` (добавлял запятые)
-
-### Результат:
-- Разное форматирование времени в PDF и превью
-- Неправильные названия quality levels
-- Пользовательская путаница
-
-## Решение
-
-### 1. Создана функция `formatTimeForPreview`
-
-```typescript
-const formatTimeForPreview = (time: number | undefined | null): string => {
-    if (!time || time === 0) return '-';
-    
-    const hours = Math.floor(time);
-    const minutes = Math.round((time - hours) * 60);
-    
-    if (minutes === 0) {
-        return `${hours}h`;
-    } else {
-        return `${hours}h ${minutes}m`;
-    }
-};
+### Backend (до исправления)
+```python
+projects_data.append({
+    'total_hours': round(total_hours, 1),  # Learning Duration (H) - 22.0
+    'total_creation_hours': round(total_creation_hours, 1)  # Production Time (H) - 1322.0
+})
 ```
 
-### 2. Обновлено форматирование в Block 1
-
-```typescript
-// Было:
-{course.learningDuration || '-'}
-{course.productionTime ? course.productionTime.toLocaleString() : '-'}
-
-// Стало:
-{formatTimeForPreview(course.learningDuration)}
-{formatTimeForPreview(course.productionTime)}
+### PDF Template (до исправления)
+```html
+<!-- Отображало: 22.0h 2.0m -->
+{% set h = project.total_hours // 60 %}  <!-- 22.0 -->
+{% set m = project.total_hours % 60 %}   <!-- 2.0 -->
+{% if h > 0 %}{{ h }}h{% endif %}{% if m > 0 %}{{ m }}m{% endif %}
 ```
 
-### 3. Исправлены названия quality levels в Block 2
+## Исправления
 
-```typescript
-// Было:
-{ key: 'basic', name: 'Level 1 - Basic' }
-{ key: 'interactive', name: 'Level 2 - Interactive' }
+### 1. Обновлен Backend
 
-// Стало:
-{ key: 'basic', name: 'Basic' }
-{ key: 'interactive', name: 'Interactive' }
+```python
+# Было
+'total_hours': round(total_hours, 1),  # Learning Duration (H)
+'total_creation_hours': round(total_creation_hours, 1)  # Production Time (H)
+
+# Стало
+'total_hours': int(total_hours),  # Learning Duration (H) - no decimals
+'total_creation_hours': int(total_creation_hours)  # Production Time (H) - no decimals
 ```
 
-### 4. Обновлено форматирование в Block 2
+### 2. PDF Template уже правильный
 
-```typescript
-// Было:
-formatCompletionTimeLocalized(tierData.completionTime)
-formatCompletionTimeLocalized(tierData.creationTime)
-
-// Стало:
-formatTimeForPreview(tierData.completionTime)
-formatTimeForPreview(tierData.creationTime)
+PDF template уже использовал правильное форматирование:
+```html
+{% set h = project.total_hours // 60 %}  <!-- Integer division -->
+{% set m = project.total_hours % 60 %}   <!-- Integer modulo -->
+{% if h > 0 %}{{ h }}h{% endif %}{% if m > 0 %}{{ m }}m{% endif %}
 ```
 
-### 5. Исправлен Subtotal
+## Правильный маппинг полей
 
-```typescript
-// Было:
-Subtotal: {totalLearningHours}h of learning content → {totalProductionHours.toLocaleString()}h production
+| Элемент | Backend поле | Форматирование | Результат |
+|---------|-------------|----------------|-----------|
+| Learning Duration | `total_hours` | `int()` | целые числа |
+| Production Time | `total_creation_hours` | `int()` | целые числа |
 
-// Стало:
-Subtotal: {formatTimeForPreview(totalLearningHours)} of learning content → {formatTimeForPreview(totalProductionHours)} production
+## Форматирование времени
+
+### Backend
+```python
+# Убираем десятичные знаки
+'total_hours': int(total_hours),  # 22.0 → 22
+'total_creation_hours': int(total_creation_hours)  # 1322.0 → 1322
 ```
 
-## Результат
-
-✅ **Время теперь форматируется одинаково в PDF и превью**
-✅ **Block 1 показывает правильные значения времени**
-✅ **Block 2 показывает правильные названия quality levels**
-✅ **Subtotal показывает корректные значения**
+### PDF Template
+```html
+<!-- Integer division и modulo -->
+{% set h = project.total_hours // 60 %}  <!-- 22 -->
+{% set m = project.total_hours % 60 %}   <!-- 2 -->
+{% if h > 0 %}{{ h }}h{% endif %}{% if m > 0 %}{{ m }}m{% endif %}  <!-- 22h 2m -->
+```
 
 ## Примеры форматирования
 
-| Исходное значение | PDF формат | Превью формат (после исправления) |
-|-------------------|------------|-----------------------------------|
-| 6.27 | 6h 16m | 6h 16m |
-| 22.03 | 22h 2m | 22h 2m |
-| 2.62 | 2h 37m | 2h 37m |
-| 8.83 | 8h 50m | 8h 50m |
-| 1.0 | 1h | 1h |
-| 0 | - | - |
+### AI Tools for Teachers
+- **total_hours**: 1322 минут → `int(1322)` = 1322
+- **Learning Duration**: 1322 минут → `1322 // 60` = 22h, `1322 % 60` = 2m → "22h 2m"
+
+### AI Tools for High School Teachers
+- **total_hours**: 530 минут → `int(530)` = 530
+- **Learning Duration**: 530 минут → `530 // 60` = 8h, `530 % 60` = 50m → "8h 50m"
+
+## Результат
+
+✅ **Backend больше не добавляет десятичные знаки**
+✅ **PDF template отображает целые числа**
+✅ **Все значения времени показываются как "22h 2m" вместо "22.0h 2.0m"**
+✅ **Форматирование времени единообразно во всем PDF**
 
 ## Тестирование
 
-Создан тестовый скрипт `test_time_formatting.js` для проверки:
-- Корректности форматирования времени
-- Соответствия формату PDF
-- Обработки edge cases
+Создан тестовый скрипт `test_time_formatting_fix.js` для проверки:
+- Отсутствия десятичных знаков в форматировании
+- Правильности конвертации минут в часы
+- Корректности отображения времени
 
 ## Техническая информация
 
-- **Файл**: `onyx-cutom/custom_extensions/frontend/src/components/ProjectsTable.tsx`
-- **Функция**: `formatTimeForPreview`
-- **Тест**: `onyx-cutom/test_time_formatting.js`
+- **Файл**: `onyx-cutom/custom_extensions/backend/main.py`
+- **Функция**: `process_projects_data_unified`
+- **Изменения**: Заменено `round()` на `int()` для полей времени
+- **Тест**: `onyx-cutom/test_time_formatting_fix.js`
 
 ## Заключение
 
-Проблема с форматированием времени в превью полностью решена. Теперь превью показывает время в точно таком же формате, как и PDF документ. 
+Проблема с десятичными знаками в форматировании времени полностью решена. Теперь все значения времени в PDF отображаются как целые числа в формате "22h 2m". 

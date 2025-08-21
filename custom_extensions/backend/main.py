@@ -16335,9 +16335,9 @@ def process_projects_data_unified(projects_rows, folders_data=None):
             'quality_tier': row_dict.get('quality_tier', 'interactive'),
             'total_lessons': total_lessons,
             'total_modules': total_modules,
-            'total_hours': round(total_hours, 1),  # Learning Duration (H)
+            'total_hours': int(total_hours),  # Learning Duration (H) - no decimals
             'total_completion_time': total_completion_time,
-            'total_creation_hours': round(total_creation_hours, 1)  # Production Time (H)
+            'total_creation_hours': int(total_creation_hours)  # Production Time (H) - no decimals
         })
     
     return projects_data
