@@ -272,7 +272,7 @@ export default function AvatarPopup({
             </div>
 
             {/* Grey horizontal line */}
-            <div className="w-full h-px bg-gray-200 mb-4"></div>
+            <div className="w-full h-px bg-gray-200 mb-4 -mx-4"></div>
 
             {/* Footer with Add to Scene button */}
             <div className="flex justify-center flex-shrink-0">
@@ -326,9 +326,16 @@ export default function AvatarPopup({
                   <div key={index} className="flex flex-col items-center">
                     {/* Avatar rectangle */}
                     <div 
-                      className="w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-colors"
+                      className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-colors group"
                       onClick={() => handleAvatarClick(avatar)}
-                    ></div>
+                    >
+                      {/* Plus button that appears on hover */}
+                      <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50">
+                        <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    </div>
                     {/* Name */}
                     <span className="text-sm text-black font-medium">{avatar.name}</span>
                   </div>
