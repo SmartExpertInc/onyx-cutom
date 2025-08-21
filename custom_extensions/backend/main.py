@@ -16559,9 +16559,8 @@ async def download_projects_list_pdf(
             direct_projects = folder_projects.get(folder['id'], [])
             total_lessons = sum(p['total_lessons'] for p in direct_projects)
             total_modules = sum(p.get('total_modules', 0) for p in direct_projects)
-            total_hours = sum(p['total_hours'] for p in direct_projects)  # This is now real creation time
-            total_completion_time = sum(p['total_completion_time'] for p in direct_projects)
-            total_creation_hours = sum(p.get('total_creation_hours', 0) for p in direct_projects)
+            total_completion_time = sum(p['total_completion_time'] for p in direct_projects)  # Learning Duration
+            total_creation_hours = sum(p.get('total_creation_hours', 0) for p in direct_projects)  # Production Time
             total_items = len(direct_projects)
             
             # Add subfolder totals recursively
@@ -16570,7 +16569,6 @@ async def download_projects_list_pdf(
                     child_totals = calculate_recursive_totals(child)
                     total_lessons += child_totals['total_lessons']
                     total_modules += child_totals['total_modules']
-                    total_hours += child_totals['total_hours']
                     total_completion_time += child_totals['total_completion_time']
                     total_creation_hours += child_totals['total_creation_hours']
                     total_items += child_totals['total_items']
@@ -16578,17 +16576,15 @@ async def download_projects_list_pdf(
             # Update folder with recursive totals
             folder['total_lessons'] = total_lessons
             folder['total_modules'] = total_modules
-            folder['total_hours'] = total_hours  # Real creation time
-            folder['total_completion_time'] = total_completion_time
-            folder['total_creation_hours'] = total_creation_hours
+            folder['total_completion_time'] = total_completion_time  # Learning Duration
+            folder['total_creation_hours'] = total_creation_hours  # Production Time
             folder['project_count'] = total_items
             
             return {
                 'total_lessons': total_lessons,
                 'total_modules': total_modules,
-                'total_hours': total_hours,  # Real creation time
-                'total_completion_time': total_completion_time,
-                'total_creation_hours': total_creation_hours,
+                'total_completion_time': total_completion_time,  # Learning Duration
+                'total_creation_hours': total_creation_hours,  # Production Time
                 'total_items': total_items
             }
 

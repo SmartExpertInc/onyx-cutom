@@ -282,16 +282,16 @@
                                         <td>{{ folder.total_modules if folder.total_modules else '-' }}</td>
                                         <td>{{ folder.total_lessons if folder.total_lessons else '-' }}</td>
                                         <td>
-                                            {% if folder.total_hours and folder.total_hours > 0 %}
-                                                {% set h = folder.total_hours // 60 %}
-                                                {% set m = folder.total_hours % 60 %}
+                                            {% if folder.total_completion_time and folder.total_completion_time > 0 %}
+                                                {% set h = folder.total_completion_time // 60 %}
+                                                {% set m = folder.total_completion_time % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
                                         <td>
-                                            {% if folder.total_completion_time and folder.total_completion_time > 0 %}
-                                                {% set h = folder.total_completion_time // 60 %}
-                                                {% set m = folder.total_completion_time % 60 %}
+                                            {% if folder.total_creation_hours and folder.total_creation_hours > 0 %}
+                                                {% set h = folder.total_creation_hours // 60 %}
+                                                {% set m = folder.total_creation_hours % 60 %}
                                                 {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                             {% else %}-{% endif %}
                                         </td>
@@ -331,16 +331,16 @@
                                                 <td>{{ child_folder.total_modules if child_folder.total_modules else '-' }}</td>
                                                 <td>{{ child_folder.total_lessons if child_folder.total_lessons else '-' }}</td>
                                                 <td>
-                                                    {% if child_folder.total_hours and child_folder.total_hours > 0 %}
-                                                        {% set h = child_folder.total_hours // 60 %}
-                                                        {% set m = child_folder.total_hours % 60 %}
+                                                    {% if child_folder.total_completion_time and child_folder.total_completion_time > 0 %}
+                                                        {% set h = child_folder.total_completion_time // 60 %}
+                                                        {% set m = child_folder.total_completion_time % 60 %}
                                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>
                                                 <td>
-                                                    {% if child_folder.total_completion_time and child_folder.total_completion_time > 0 %}
-                                                        {% set h = child_folder.total_completion_time // 60 %}
-                                                        {% set m = child_folder.total_completion_time % 60 %}
+                                                    {% if child_folder.total_creation_hours and child_folder.total_creation_hours > 0 %}
+                                                        {% set h = child_folder.total_creation_hours // 60 %}
+                                                        {% set m = child_folder.total_creation_hours % 60 %}
                                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                                     {% else %}-{% endif %}
                                                 </td>

@@ -70,7 +70,7 @@ export function processBlock1CourseOverview(projects: any[]): any {
   Object.keys(folderProjects).forEach(folderId => {
     const folderProjectsList = folderProjects[parseInt(folderId)];
     const totalLessons = folderProjectsList.reduce((sum, project) => sum + (project.total_lessons || 0), 0);
-    const totalHours = folderProjectsList.reduce((sum, project) => sum + (project.total_hours || 0), 0);
+    const totalCompletionTime = folderProjectsList.reduce((sum, project) => sum + (project.total_completion_time || 0), 0);
     const totalModules = folderProjectsList.reduce((sum, project) => sum + (project.total_modules || 0), 0);
     const totalCreationHours = folderProjectsList.reduce((sum, project) => sum + (project.total_creation_hours || 0), 0);
     
@@ -79,7 +79,7 @@ export function processBlock1CourseOverview(projects: any[]): any {
       name: `Folder ${folderId}`, // We don't have folder names from backend
       projects: folderProjectsList,
       total_lessons: totalLessons,
-      total_hours: totalHours,
+      total_completion_time: totalCompletionTime,
       total_modules: totalModules,
       total_creation_hours: totalCreationHours
     });
@@ -88,7 +88,7 @@ export function processBlock1CourseOverview(projects: any[]): any {
   // Process data exactly like the backend PDF template
   const result: any[] = [];
   let totalLessons = 0;
-  let totalHours = 0;
+  let totalCompletionTime = 0;
   let totalProductionTime = 0;
 
   // Process folders first (like backend template)
@@ -98,13 +98,13 @@ export function processBlock1CourseOverview(projects: any[]): any {
       name: folder.name,
       modules: folder.total_modules,
       lessons: folder.total_lessons,
-      learningDuration: folder.total_hours, // Learning Duration uses total_hours (like PDF template)
+      learningDuration: folder.total_completion_time, // Learning Duration uses total_completion_time (like PDF template)
       productionTime: folder.total_creation_hours, // Production Time uses total_creation_hours (like PDF template)
       isFolder: true
     });
     
     totalLessons += folder.total_lessons;
-    totalHours += folder.total_hours;
+    totalCompletionTime += folder.total_completion_time;
     totalProductionTime += folder.total_creation_hours;
 
     // Add individual projects under folder (like backend template)
@@ -114,12 +114,12 @@ export function processBlock1CourseOverview(projects: any[]): any {
         modules: project.total_modules || 1,
         lessons: project.total_lessons || 0,
         learningDuration: project.total_completion_time || 0, // Learning Duration uses total_completion_time (like PDF template)
-        productionTime: project.total_hours || 0, // Production Time uses total_hours (like PDF template)
+        productionTime: project.total_creation_hours || 0, // Production Time uses total_creation_hours (like PDF template)
         isProject: true
       });
       
       totalLessons += project.total_lessons || 0;
-      totalHours += project.total_hours || 0;
+      totalCompletionTime += project.total_completion_time || 0;
       totalProductionTime += project.total_creation_hours || 0;
     });
   });
@@ -131,12 +131,12 @@ export function processBlock1CourseOverview(projects: any[]): any {
       modules: project.total_modules || 1,
       lessons: project.total_lessons || 0,
       learningDuration: project.total_completion_time || 0, // Learning Duration uses total_completion_time (like PDF template)
-      productionTime: project.total_hours || 0, // Production Time uses total_hours (like PDF template)
+      productionTime: project.total_creation_hours || 0, // Production Time uses total_creation_hours (like PDF template)
       isUnassigned: true
     });
     
     totalLessons += project.total_lessons || 0;
-    totalHours += project.total_hours || 0;
+    totalCompletionTime += project.total_completion_time || 0;
     totalProductionTime += project.total_creation_hours || 0;
   });
 
