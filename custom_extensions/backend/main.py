@@ -474,13 +474,9 @@ app.add_middleware(
 )
 
 # Include video lesson router
-print("🔄 Attempting to import video lesson router...")
 try:
     from video_lesson_api import router as video_lesson_router, set_dependencies
-    print("✅ video_lesson_api imported successfully")
-    
     app.include_router(video_lesson_router)
-    print("✅ Video lesson router included in app")
     logger.info("Video lesson API router included successfully")
     
     # Inject dependencies to avoid circular imports
@@ -489,21 +485,16 @@ try:
         # Import locally to avoid circular imports at module level
         try:
             set_dependencies(get_current_onyx_user_id, get_db_pool)
-            print("✅ Video lesson dependencies injected successfully")
             logger.info("Video lesson dependencies injected successfully")
         except NameError:
-            print("⚠️ Dependencies not yet available for video lesson router")
             logger.warning("Dependencies not yet available for video lesson router")
     
     # Store the injection function to call later
     app._inject_video_lesson_deps = _inject_dependencies
-    print("✅ Video lesson dependency injection function stored")
     
 except ImportError as e:
-    print(f"❌ Failed to import video lesson router: {e}")
     logger.warning(f"Could not include video lesson router: {e}")
 except Exception as e:
-    print(f"❌ Unexpected error importing video lesson router: {e}")
     logger.error(f"Unexpected error importing video lesson router: {e}")
 
 # --- Pydantic Models ---
@@ -5290,17 +5281,11 @@ async def startup_event():
         DB_POOL = None
     
     # Inject dependencies for video lesson router after everything is initialized
-    print("🔄 Checking for video lesson dependency injection...")
     if hasattr(app, '_inject_video_lesson_deps'):
-        print("✅ Found video lesson dependency injection function")
         try:
             app._inject_video_lesson_deps()
-            print("✅ Video lesson dependencies injected successfully in startup")
         except Exception as e:
-            print(f"❌ Failed to inject video lesson dependencies: {e}")
             logger.warning(f"Failed to inject video lesson dependencies: {e}")
-    else:
-        print("⚠️ No video lesson dependency injection function found")
 
 @app.on_event("shutdown")
 async def shutdown_event():
