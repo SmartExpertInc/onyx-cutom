@@ -30,13 +30,30 @@ import asyncpg
 
 # Import video lesson services
 try:
+    print("🔄 Importing elai_service...")
     from elai_service import ElaiAPIService, ElaiVideoConfig
+    print("✅ elai_service imported successfully")
+    
+    print("🔄 Importing video_composition_service...")
     from video_composition_service import VideoCompositionService, VideoCompositionResult
+    print("✅ video_composition_service imported successfully")
+    
+    print("🔄 Importing slide_image_generator...")
     from slide_image_generator import SlideImageGenerator
+    print("✅ slide_image_generator imported successfully")
+    
+    print("🔄 Importing video_lesson_generator...")
     from video_lesson_generator import VideoLessonGenerator
+    print("✅ video_lesson_generator imported successfully")
+    
+    print("🔄 Importing moviepy...")
     from moviepy.editor import VideoFileClip, concatenate_videoclips
+    print("✅ moviepy imported successfully")
+    
     VIDEO_LESSON_AVAILABLE = True
+    print("✅ All video lesson services imported successfully")
 except ImportError as e:
+    print(f"❌ Import error: {e}")
     logging.warning(f"Video lesson generation services not available: {e}")
     VIDEO_LESSON_AVAILABLE = False
 
