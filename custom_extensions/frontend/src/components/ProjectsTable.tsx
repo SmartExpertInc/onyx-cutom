@@ -2838,6 +2838,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ trashMode = false, folder
         clientName: string | null;
         managerName: string | null;
         projects: Project[];
+        quality_tier_sums?: {
+            basic: { completion_time: number; creation_time: number };
+            interactive: { completion_time: number; creation_time: number };
+            advanced: { completion_time: number; creation_time: number };
+            immersive: { completion_time: number; creation_time: number };
+        };
     } | null>(null);
 
 
@@ -3868,7 +3874,8 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 setPreviewData({
                     clientName,
                     managerName,
-                    projects: filteredProjects
+                    projects: filteredProjects,
+                    quality_tier_sums: backendData.quality_tier_sums
                 });
             } else {
                 // Fallback to frontend data if backend fails
@@ -3891,7 +3898,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 setPreviewData({
                     clientName,
                     managerName,
-                    projects: projectsToShow
+                    projects: projectsToShow,
+                    quality_tier_sums: {
+                        basic: { completion_time: 0, creation_time: 0 },
+                        interactive: { completion_time: 0, creation_time: 0 },
+                        advanced: { completion_time: 0, creation_time: 0 },
+                        immersive: { completion_time: 0, creation_time: 0 }
+                    }
                 });
             }
         } catch (error) {
@@ -3916,7 +3929,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
             setPreviewData({
                 clientName,
                 managerName,
-                projects: projectsToShow
+                projects: projectsToShow,
+                quality_tier_sums: {
+                    basic: { completion_time: 0, creation_time: 0 },
+                    interactive: { completion_time: 0, creation_time: 0 },
+                    advanced: { completion_time: 0, creation_time: 0 },
+                    immersive: { completion_time: 0, creation_time: 0 }
+                }
             });
         }
         
