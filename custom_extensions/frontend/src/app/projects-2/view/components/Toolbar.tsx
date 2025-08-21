@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   MessageSquareText, 
   User, 
-  Sparkles, 
   Shapes, 
   Type, 
   Music, 
@@ -26,7 +25,7 @@ interface ToolbarProps {
   onInteractionButtonClick?: (position: { x: number; y: number }) => void;
   onMusicButtonClick?: () => void;
   onTransitionButtonClick?: () => void;
-  onLanguageVariantModalOpen?: (isOpen: boolean) => void;
+  onLanguageVariantModalOpen?: () => void;
 }
 
 interface Tool {
@@ -137,7 +136,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
     }
   ];
 
-  const handleToolClick = (toolId: string, event?: React.MouseEvent<HTMLDivElement>) => {
+  const handleToolClick = (toolId: string, _event?: React.MouseEvent<HTMLDivElement>) => {
     // Always set the active tool ID first
     setActiveToolId(toolId);
     
@@ -199,10 +198,6 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
         x = viewportWidth - popupWidth - 20;
       }
       
-      const position = {
-        x: x,
-        y: rect.bottom + 8 // Position popup 8px below the button
-      };
       setIsAvatarPopupOpen(true);
       return;
     }
@@ -217,7 +212,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
 
   const handleAddNewLanguageVariant = () => {
     setIsLanguagePopupOpen(false);
-    onLanguageVariantModalOpen?.(true);
+    onLanguageVariantModalOpen?.();
   };
 
   // Close popup when clicking outside

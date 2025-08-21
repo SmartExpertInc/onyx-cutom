@@ -103,6 +103,15 @@ export default function Projects2ViewPage() {
     setIsInteractionModalOpen(false);
   };
 
+  const handleLanguageVariantModalOpen = () => {
+    setIsLanguageVariantModalOpen(true);
+    // Note: We don't need to close any popup here since this is triggered from the toolbar
+  };
+
+  const handleLanguageVariantModalClose = () => {
+    setIsLanguageVariantModalOpen(false);
+  };
+
   const handleAiButtonClick = (position: { x: number; y: number }) => {
     setAiPopupPosition(position);
     setIsAiPopupOpen(true);
@@ -144,7 +153,7 @@ export default function Projects2ViewPage() {
           onInteractionButtonClick={handleInteractionButtonClick}
           onMusicButtonClick={handleMusicButtonClick}
           onTransitionButtonClick={handleTransitionButtonClick}
-          onLanguageVariantModalOpen={setIsLanguageVariantModalOpen}
+          onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
         />
       </div>
       
@@ -264,7 +273,7 @@ export default function Projects2ViewPage() {
       {/* Language Variant Modal */}
       <LanguageVariantModal 
         isOpen={isLanguageVariantModalOpen}
-        onClose={() => setIsLanguageVariantModalOpen(false)}
+        onClose={handleLanguageVariantModalClose}
       />
     </div>
   );
