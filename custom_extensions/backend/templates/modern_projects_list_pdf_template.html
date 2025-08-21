@@ -163,22 +163,61 @@
         .course-name {
             font-weight: 600;
             color: #000;
-            min-width: 300px;
-            width: 50%;
+            min-width: 200px;
+            max-width: 300px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
-        /* Make first column (Quality Level) wider */
-        .table-header th:first-child,
-        .table-row td:first-child {
-            width: 50%;
-            min-width: 300px;
+        /* Block 1 specific column widths */
+        .block:first-of-type .table-header th:nth-child(1),
+        .block:first-of-type .table-row td:nth-child(1) {
+            width: 35%;
+            min-width: 200px;
+            max-width: 300px;
         }
         
-        /* Make other columns narrower */
-        .table-header th:not(:first-child),
-        .table-row td:not(:first-child) {
-            width: 25%;
+        .block:first-of-type .table-header th:nth-child(2),
+        .block:first-of-type .table-row td:nth-child(2) {
+            width: 15%;
+            min-width: 80px;
+        }
+        
+        .block:first-of-type .table-header th:nth-child(3),
+        .block:first-of-type .table-row td:nth-child(3) {
+            width: 15%;
+            min-width: 80px;
+        }
+        
+        .block:first-of-type .table-header th:nth-child(4),
+        .block:first-of-type .table-row td:nth-child(4) {
+            width: 17.5%;
             min-width: 100px;
+        }
+        
+        .block:first-of-type .table-header th:nth-child(5),
+        .block:first-of-type .table-row td:nth-child(5) {
+            width: 17.5%;
+            min-width: 100px;
+        }
+        
+        /* Block 2 specific column widths */
+        .block:nth-of-type(2) .table-header th:nth-child(1),
+        .block:nth-of-type(2) .table-row td:nth-child(1) {
+            width: 40%;
+            min-width: 200px;
+        }
+        
+        .block:nth-of-type(2) .table-header th:nth-child(2),
+        .block:nth-of-type(2) .table-row td:nth-child(2) {
+            width: 30%;
+            min-width: 120px;
+        }
+        
+        .block:nth-of-type(2) .table-header th:nth-child(3),
+        .block:nth-of-type(2) .table-row td:nth-child(3) {
+            width: 30%;
+            min-width: 120px;
         }
 
         .subtotal {

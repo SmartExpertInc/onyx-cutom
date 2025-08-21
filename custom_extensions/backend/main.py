@@ -16893,6 +16893,40 @@ async def download_projects_list_pdf(
         for project in all_projects:
             logger.info(f"[PDF_ANALYTICS] Project {project.get('id')}: quality_tier={project.get('quality_tier')}, completion_time={project.get('total_completion_time')}, creation_hours={project.get('total_creation_hours')}")
         
+        # Debug quality tier distribution
+        quality_tier_counts = {}
+        for project in all_projects:
+            tier = project.get('quality_tier', 'None')
+            quality_tier_counts[tier] = quality_tier_counts.get(tier, 0) + 1
+        
+        logger.info(f"[PDF_ANALYTICS] Quality tier distribution: {quality_tier_counts}")
+        
+        # Check if projects have any data at all
+        projects_with_data = [p for p in all_projects if p.get('total_completion_time', 0) > 0 or p.get('total_creation_hours', 0) > 0]
+        logger.info(f"[PDF_ANALYTICS] Projects with data: {len(projects_with_data)} out of {len(all_projects)}")
+        
+        # Check quality tier mapping
+        def test_quality_tier_mapping():
+            test_tiers = ['basic', 'interactive', 'advanced', 'immersive', 'starter', 'medium', 'professional', None, '', 'unknown']
+            for tier in test_tiers:
+                if tier:
+                    tier_lower = tier.lower()
+                    tier_mapping = {
+                        'basic': 'basic',
+                        'interactive': 'interactive', 
+                        'advanced': 'advanced',
+                        'immersive': 'immersive',
+                        'starter': 'basic',
+                        'medium': 'interactive',
+                        'professional': 'immersive'
+                    }
+                    mapped = tier_mapping.get(tier_lower, 'interactive')
+                    logger.info(f"[PDF_ANALYTICS] Tier mapping test: '{tier}' -> '{mapped}'")
+                else:
+                    logger.info(f"[PDF_ANALYTICS] Tier mapping test: '{tier}' -> 'interactive' (default)")
+        
+        test_quality_tier_mapping()
+        
         # Add debug logging
         logger.info(f"[PDF_ANALYTICS] Total calculation:")
         logger.info(f"[PDF_ANALYTICS] - Total hours (Creation Time): {summary_stats['total_hours']}")

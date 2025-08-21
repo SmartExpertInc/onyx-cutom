@@ -741,15 +741,20 @@ const PreviewModal: React.FC<{
                                       
                                       // Process all projects to calculate quality tier sums (exactly like PDF backend)
                                       const allProjects = data.projects || [];
+                                      console.log('[FRONTEND_DEBUG] Processing projects for quality tier sums:', allProjects.length);
+                                      
                                       allProjects.forEach((project: Project | BackendProject) => {
                                         // Use the same logic as backend: check project quality_tier first, fallback to 'interactive'
                                         const effectiveTier = getEffectiveQualityTier(project, 'interactive');
+                                        console.log(`[FRONTEND_DEBUG] Project ${project.id}: quality_tier=${project.quality_tier}, effective_tier=${effectiveTier}, completion_time=${project.total_completion_time}, creation_hours=${project.total_creation_hours}`);
                                         
                                         // Learning Duration uses total_completion_time (like PDF template)
                                         qualityTierSums[effectiveTier].completionTime += project.total_completion_time || 0;
                                         // Production Time uses total_creation_hours (like PDF template)
                                         qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;
                                       });
+                                      
+                                      console.log('[FRONTEND_DEBUG] Final quality tier sums:', qualityTierSums);
                                       
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
