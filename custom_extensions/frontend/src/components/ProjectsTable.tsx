@@ -752,7 +752,7 @@ const PreviewModal: React.FC<{
         allProjects.forEach((project: Project | BackendProject, index: number) => {
             console.log(`[FRONTEND_DEBUG] Project ${index + 1}:`, {
                 id: project.id,
-                title: project.project_name || project.microproduct_name || 'Untitled',
+                title: (project as any).project_name || (project as any).microproduct_name || 'Untitled',
                 quality_tier: project.quality_tier,
                 total_completion_time: project.total_completion_time,
                 total_creation_hours: project.total_creation_hours,

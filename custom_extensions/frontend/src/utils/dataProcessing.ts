@@ -109,7 +109,7 @@ export function processBlock1CourseOverview(projects: any[]): any {
     // Add individual projects under folder (like backend template)
     folder.projects.forEach((project: any) => {
       result.push({
-        name: `  ${project.title || project.project_name || 'Untitled'}`, // Use title from frontend API
+        name: `  ${project.title || (project as any).project_name || 'Untitled'}`, // Use title from frontend API
         modules: project.total_modules || 1,
         lessons: project.total_lessons || 0,
         learningDuration: project.total_completion_time || 0, // Learning Duration uses total_completion_time (like PDF template)
@@ -127,7 +127,7 @@ export function processBlock1CourseOverview(projects: any[]): any {
   // Process unassigned projects (like backend template)
   unassignedProjects.forEach(project => {
     result.push({
-      name: project.title || project.project_name || 'Untitled', // Use title from frontend API
+              name: project.title || (project as any).project_name || 'Untitled', // Use title from frontend API
       modules: project.total_modules || 1,
       lessons: project.total_lessons || 0,
       learningDuration: project.total_completion_time || 0, // Learning Duration uses total_completion_time (like PDF template)

@@ -10461,7 +10461,7 @@ async def get_user_projects_list_from_db(
     for project in projects_list:
         tier = project.quality_tier or 'None'
         quality_tier_count[tier] = quality_tier_count.get(tier, 0) + 1
-        logger.info(f"[PDF_ANALYTICS] Frontend Project {project.id}: quality_tier='{tier}', title='{project.project_name or project.microproduct_name}'")
+        logger.info(f"[PDF_ANALYTICS] Frontend Project {project.id}: quality_tier='{tier}', title='{getattr(project, 'project_name', None) or getattr(project, 'microproduct_name', None) or 'Untitled'}'")
     
     logger.info(f"[PDF_ANALYTICS] Quality tier distribution being sent to frontend: {quality_tier_count}")
     
