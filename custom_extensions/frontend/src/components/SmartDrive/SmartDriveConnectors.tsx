@@ -367,9 +367,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         
         console.log('All connector statuses:', allConnectorStatuses);
         
-        // Filter to show connectors that have private access (Smart Drive connectors)
+        // Check for deleting connectors
+        const deletingConnectors = allConnectorStatuses.filter((connectorStatus: any) => 
+          connectorStatus.access_type === 'private' && 
+          connectorStatus.status === 'DELETING'
+        );
+        if (deletingConnectors.length > 0) {
+          console.log('Found connectors being deleted (hiding from UI):', deletingConnectors.map((c: any) => ({ name: c.name, id: c.cc_pair_id, status: c.status })));
+        }
+        
+        // Filter to show connectors that have private access (Smart Drive connectors) and are not being deleted
         const smartDriveConnectors = allConnectorStatuses.filter((connectorStatus: any) => 
-          connectorStatus.access_type === 'private'
+          connectorStatus.access_type === 'private' && 
+          connectorStatus.status !== 'DELETING'
         );
         
         const userConnectors = smartDriveConnectors.map((connectorStatus: any) => ({
@@ -399,6 +409,17 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   useEffect(() => {
     console.log('[POPUP_DEBUG] useEffect triggered - loading connectors');
     loadUserConnectors();
+    
+    // Set up periodic refresh to update connector statuses (including removing fully deleted ones)
+    const refreshInterval = setInterval(() => {
+      console.log('[POPUP_DEBUG] Periodic refresh of connectors...');
+      loadUserConnectors();
+    }, 10000); // Refresh every 10 seconds
+    
+    return () => {
+      console.log('[POPUP_DEBUG] Cleaning up refresh interval');
+      clearInterval(refreshInterval);
+    };
   }, []); // Remove loadUserConnectors from dependencies to prevent multiple calls
 
   const handleBrowseClick = () => {
@@ -656,6 +677,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             setIsManagementOpening(false);
           }}
           onConnectorDeleted={() => {
+            console.log('[POPUP_DEBUG] Connector deleted, refreshing list...');
             loadUserConnectors();
           }}
         />
