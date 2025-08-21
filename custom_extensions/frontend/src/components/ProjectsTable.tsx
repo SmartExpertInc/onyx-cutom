@@ -718,9 +718,13 @@ const PreviewModal: React.FC<{
                                     {(() => {
                                       console.log('[FRONTEND_DEBUG] === BLOCK 2 QUALITY TIER SUMS START ===');
                                       console.log('[FRONTEND_DEBUG] Input data:', data);
+                                      console.log('[FRONTEND_DEBUG] Data type:', typeof data);
+                                      console.log('[FRONTEND_DEBUG] Data keys:', Object.keys(data || {}));
+                                      console.log('[FRONTEND_DEBUG] quality_tier_sums exists:', data?.quality_tier_sums ? 'YES' : 'NO');
+                                      console.log('[FRONTEND_DEBUG] quality_tier_sums value:', data?.quality_tier_sums);
                                       
                                       // Use quality tier sums from backend (module-level calculation)
-                                      const qualityTierSums = data.quality_tier_sums || {
+                                      const qualityTierSums = data?.quality_tier_sums || {
                                         'basic': { completion_time: 0, creation_time: 0 },
                                         'interactive': { completion_time: 0, creation_time: 0 },
                                         'advanced': { completion_time: 0, creation_time: 0 },
@@ -728,6 +732,13 @@ const PreviewModal: React.FC<{
                                       };
                                       
                                       console.log('[FRONTEND_DEBUG] Using backend quality tier sums:', qualityTierSums);
+                                      console.log('[FRONTEND_DEBUG] Quality tier sums type:', typeof qualityTierSums);
+                                      console.log('[FRONTEND_DEBUG] Quality tier sums keys:', Object.keys(qualityTierSums));
+                                      
+                                      // Log each tier's data
+                                      Object.entries(qualityTierSums).forEach(([tier, data]) => {
+                                        console.log(`[FRONTEND_DEBUG] ${tier}: completion_time=${data.completion_time}, creation_time=${data.creation_time}`);
+                                      });
                                       
                                       // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
@@ -3876,6 +3887,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                 const filteredProjects = backendData.projects.filter((project: BackendProject) => 
                     selectedProjects.length === 0 || selectedProjects.includes(project.id)
                 );
+                
+                console.log('[FRONTEND_DEBUG] Backend data received:', backendData);
+                console.log('[FRONTEND_DEBUG] Backend quality_tier_sums:', backendData.quality_tier_sums);
                 
                 setPreviewData({
                     clientName,

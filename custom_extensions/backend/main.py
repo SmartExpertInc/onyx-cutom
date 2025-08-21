@@ -16882,8 +16882,9 @@ async def download_projects_list_pdf(
                                                     
                                                     if effective_tier in quality_tier_data:
                                                         quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
-                                                        quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours
-                                                        logger.info(f"[PDF_ANALYTICS] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours}")
+                                                        # Convert hours to minutes for consistency
+                                                        quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours * 60
+                                                        logger.info(f"[PDF_ANALYTICS] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours * 60} minutes")
                 
                 # Recursively process subfolders
                 if folder.get('children'):
@@ -16926,8 +16927,9 @@ async def download_projects_list_pdf(
                                             
                                             if effective_tier in quality_tier_data:
                                                 quality_tier_data[effective_tier]['completion_time'] += lesson_completion_time
-                                                quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours
-                                                logger.info(f"[PDF_ANALYTICS] Added unassigned lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours}")
+                                                # Convert hours to minutes for consistency
+                                                quality_tier_data[effective_tier]['creation_time'] += lesson_creation_hours * 60
+                                                logger.info(f"[PDF_ANALYTICS] Added unassigned lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours * 60} minutes")
             
             logger.info(f"[PDF_ANALYTICS] Final quality tier data: {quality_tier_data}")
             return quality_tier_data
@@ -16941,6 +16943,11 @@ async def download_projects_list_pdf(
         logger.info(f"[PDF_ANALYTICS] - Folder projects count: {sum(len(projects) for projects in folder_projects.values())}")
         logger.info(f"[PDF_ANALYTICS] - Unassigned projects count: {len(unassigned_projects)}")
         logger.info(f"[PDF_ANALYTICS] - Quality tier sums: {quality_tier_sums}")
+        
+        # Log the exact values being passed to the template
+        logger.info(f"[PDF_ANALYTICS] Values being passed to PDF template:")
+        for tier, data in quality_tier_sums.items():
+            logger.info(f"[PDF_ANALYTICS] {tier}: completion_time={data['completion_time']} minutes, creation_time={data['creation_time']} minutes")
         
         # Additional debug: check each project's quality tier
         all_projects = []
@@ -19700,6 +19707,8 @@ async def get_projects_data_for_preview(
                 'immersive': {'completion_time': 0, 'creation_time': 0}
             }
             
+            logger.info(f"[PROJECTS_DATA] Starting quality tier sums calculation for {len(projects_rows)} projects")
+            
             # Helper function to get effective quality tier
             def get_effective_quality_tier(lesson_quality_tier, section_quality_tier, project_quality_tier, folder_quality_tier='interactive'):
                 # Priority: lesson -> section -> project -> folder -> default
@@ -19729,6 +19738,8 @@ async def get_projects_data_for_preview(
                     for folder_row in folder_rows:
                         folder_quality_tiers[folder_row['id']] = folder_row.get('quality_tier', 'interactive')
             
+            logger.info(f"[PROJECTS_DATA] Found folder quality tiers: {folder_quality_tiers}")
+            
             # Process each project for quality tier sums
             for row in projects_rows:
                 row_dict = dict(row)
@@ -19739,16 +19750,19 @@ async def get_projects_data_for_preview(
                 microproduct_content = row_dict.get('microproduct_content')
                 
                 logger.info(f"[PROJECTS_DATA] Processing project {project_id} for quality tier sums: project_tier={project_quality_tier}, folder_tier={folder_quality_tier}")
+                logger.info(f"[PROJECTS_DATA] Project {project_id} has microproduct_content: {microproduct_content is not None}")
                 
                 if microproduct_content and isinstance(microproduct_content, dict) and 'sections' in microproduct_content:
                     sections = microproduct_content['sections']
                     if isinstance(sections, list):
-                        for section in sections:
+                        logger.info(f"[PROJECTS_DATA] Project {project_id} has {len(sections)} sections")
+                        for section_idx, section in enumerate(sections):
                             if isinstance(section, dict) and 'lessons' in section:
                                 section_quality_tier = section.get('quality_tier')
                                 lessons = section['lessons']
                                 if isinstance(lessons, list):
-                                    for lesson in lessons:
+                                    logger.info(f"[PROJECTS_DATA] Project {project_id}, Section {section_idx} has {len(lessons)} lessons")
+                                    for lesson_idx, lesson in enumerate(lessons):
                                         if isinstance(lesson, dict):
                                             lesson_quality_tier = lesson.get('quality_tier')
                                             effective_tier = get_effective_quality_tier(
@@ -19762,14 +19776,27 @@ async def get_projects_data_for_preview(
                                             lesson_completion_time = lesson.get('completion_time', 0) or 0
                                             lesson_creation_hours = lesson.get('hours', 0) or 0
                                             
-                                            logger.info(f"[PROJECTS_DATA] Lesson in project {project_id}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
+                                            logger.info(f"[PROJECTS_DATA] Lesson {lesson_idx} in project {project_id}, section {section_idx}: lesson_tier={lesson_quality_tier}, section_tier={section_quality_tier}, effective_tier={effective_tier}, completion_time={lesson_completion_time}, creation_hours={lesson_creation_hours}")
                                             
                                             if effective_tier in quality_tier_sums:
                                                 quality_tier_sums[effective_tier]['completion_time'] += lesson_completion_time
-                                                quality_tier_sums[effective_tier]['creation_time'] += lesson_creation_hours
-                                                logger.info(f"[PROJECTS_DATA] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours}")
+                                                # Convert hours to minutes for frontend compatibility
+                                                quality_tier_sums[effective_tier]['creation_time'] += lesson_creation_hours * 60
+                                                logger.info(f"[PROJECTS_DATA] Added lesson to {effective_tier}: completion_time={lesson_completion_time}, creation_time={lesson_creation_hours * 60} minutes")
+                                                logger.info(f"[PROJECTS_DATA] Current totals for {effective_tier}: completion_time={quality_tier_sums[effective_tier]['completion_time']}, creation_time={quality_tier_sums[effective_tier]['creation_time']} minutes")
+                else:
+                    logger.info(f"[PROJECTS_DATA] Project {project_id} has no valid microproduct_content")
             
             logger.info(f"[PROJECTS_DATA] Final quality tier sums: {quality_tier_sums}")
+            
+            # Log the exact response being sent
+            response_data = {
+                'projects': projects_data,
+                'client_name': client_name,
+                'manager_name': manager_name,
+                'quality_tier_sums': quality_tier_sums
+            }
+            logger.info(f"[PROJECTS_DATA] Sending response with quality_tier_sums: {response_data['quality_tier_sums']}")
             
             return {
                 'projects': projects_data,
