@@ -273,9 +273,7 @@
                         </thead>
                         <tbody>
                             {% set product_counter = namespace(value=1) %}
-                            {# Use values from backend, don't accumulate locally #}
-                            {% set total_completion_time = total_completion_time %}
-                            {% set total_creation_hours = total_creation_hours %}
+                            {# Use values from backend directly, don't reassign #}
                             
                             {% if folders %}
                                 {% for folder in folders %}
