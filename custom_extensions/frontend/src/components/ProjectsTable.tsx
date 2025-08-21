@@ -620,13 +620,13 @@ const PreviewModal: React.FC<{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {formatTimeForPreview(course.learningDuration)}
+                                                {formatTimeLikePDF(course.learningDuration)}
                                               </td>
                                               <td className="p-4 font-medium text-black" style={{
                                                 padding: '16px 20px',
                                                 fontWeight: '500'
                                               }}>
-                                                {formatTimeForPreview(course.productionTime)}
+                                                {formatTimeLikePDF(course.productionTime)}
                                               </td>
                                             </tr>
                                           ))}
@@ -637,7 +637,7 @@ const PreviewModal: React.FC<{
                                               fontWeight: '600',
                                               fontSize: '1.1rem'
                                             }}>
-                                              Subtotal: {formatTimeForPreview(totalLearningHours)} of learning content → {formatTimeForPreview(totalProductionHours)} production
+                                              Subtotal: {formatTimeLikePDF(totalLearningHours)} of learning content → {formatTimeLikePDF(totalProductionHours)} production
                                             </td>
                                           </tr>
                                         </>
@@ -735,21 +735,21 @@ const PreviewModal: React.FC<{
                                         qualityTierSums[effectiveTier].creationTime += project.total_creation_hours || 0;  // Production Time (H)
                                       });
                                       
-                                      // Define quality level names (matching PDF exactly)
+                                      // Define quality level names (matching PDF template exactly)
                                       const qualityLevels = [
-                                        { key: 'basic', name: 'Basic' },
-                                        { key: 'interactive', name: 'Interactive' },
-                                        { key: 'advanced', name: 'Advanced' },
-                                        { key: 'immersive', name: 'Immersive' }
+                                        { key: 'basic', name: 'Level 1 - Basic' },
+                                        { key: 'interactive', name: 'Level 2 - Interactive' },
+                                        { key: 'advanced', name: 'Level 3 - Advanced' },
+                                        { key: 'immersive', name: 'Level 4 - Immersive' }
                                       ];
 
                                       return qualityLevels.map((level, index) => {
                                         const tierData = qualityTierSums[level.key as keyof typeof qualityTierSums];
                                         const completionTimeFormatted = tierData.completionTime > 0 
-                                          ? formatTimeForPreview(tierData.completionTime) 
+                                          ? formatTimeLikePDF(tierData.completionTime) 
                                           : '0h';
                                         const creationTimeFormatted = tierData.creationTime > 0 
-                                          ? formatTimeForPreview(tierData.creationTime) 
+                                          ? formatTimeLikePDF(tierData.creationTime) 
                                           : '0h';
                                         
                                         return (
@@ -1079,6 +1079,20 @@ const formatTimeForPreview = (time: number | undefined | null): string => {
         return `${hours}h`;
     } else {
         return `${hours}h ${minutes}m`;
+    }
+};
+
+// Function to format time like PDF template (converts minutes to hours and minutes)
+const formatTimeLikePDF = (minutes: number | undefined | null): string => {
+    if (!minutes || minutes === 0) return '-';
+    
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (remainingMinutes === 0) {
+        return `${hours}h`;
+    } else {
+        return `${hours}h ${remainingMinutes}m`;
     }
 };
 
@@ -3842,8 +3856,9 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
         a.click();
         document.body.removeChild(a);
         
-        // Get real data from backend for preview
+        // Get real data from backend for preview (use same data as PDF)
         try {
+            // Use the same endpoint as PDF to ensure data consistency
             let previewDataUrl = `${CUSTOM_BACKEND_URL}/projects-data`;
             if (queryParams.toString()) {
                 previewDataUrl += `?${queryParams.toString()}`;
