@@ -8811,6 +8811,16 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "metadata": {"error": str(e)}
         }
 
+def _save_section_content(section_name: str, content_lines: list, local_vars: dict):
+    """Helper function to save accumulated section content"""
+    content = " ".join(content_lines).strip()
+    if section_name == "summary":
+        local_vars["summary"] = content
+    elif section_name == "important_details":
+        local_vars["important_details"] = content
+    elif section_name == "relevant_sources":
+        local_vars["relevant_sources"] = content
+
 async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Extract context from the entire Knowledge Base using the Search persona.
@@ -8848,33 +8858,65 @@ async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) ->
         logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Sending search request to Search persona")
         search_result = await stream_chat_message(temp_chat_id, search_prompt, cookies, enable_search=True)
         logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Received search result ({len(search_result)} chars)")
-        if len(search_result) > 0:
-            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] First 500 chars of search result: {search_result[:500]}")
-        else:
+        
+        # Log the full response for debugging
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Full search response: {search_result}")
+        
+        if len(search_result) == 0:
             logger.warning(f"[KNOWLEDGE_BASE_CONTEXT] Search result is empty! This might indicate no documents in Knowledge Base or search failed")
         
-        # Parse the search result
+        # Parse the search result - handle Onyx response format  
         summary = ""
         key_topics = []
         important_details = ""
         relevant_sources = ""
         
-        lines = search_result.split('\n')
-        for line in lines:
-            if line.startswith("SUMMARY:"):
-                summary = line.replace("SUMMARY:", "").strip()
-            elif line.startswith("KEY_TOPICS:"):
-                topics_text = line.replace("KEY_TOPICS:", "").strip()
-                key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
-            elif line.startswith("IMPORTANT_DETAILS:"):
-                important_details = line.replace("IMPORTANT_DETAILS:", "").strip()
-            elif line.startswith("RELEVANT_SOURCES:"):
-                relevant_sources = line.replace("RELEVANT_SOURCES:", "").strip()
+        # Extract content flexibly using string searching
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Starting content extraction from search result")
         
-        # If parsing failed, use the raw result as summary
-        if not summary:
+        if "SUMMARY:" in search_result:
+            summary_start = search_result.find("SUMMARY:") + 8
+            summary_end = search_result.find("KEY_TOPICS:", summary_start)
+            if summary_end == -1:
+                summary_end = search_result.find("IMPORTANT_DETAILS:", summary_start)
+            if summary_end == -1:
+                summary_end = search_result.find("RELEVANT_SOURCES:", summary_start)
+            if summary_end == -1:
+                summary_end = len(search_result)
+            summary = search_result[summary_start:summary_end].strip()
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted summary: {len(summary)} chars")
+        
+        if "KEY_TOPICS:" in search_result:
+            topics_start = search_result.find("KEY_TOPICS:") + 11
+            topics_end = search_result.find("IMPORTANT_DETAILS:", topics_start)
+            if topics_end == -1:
+                topics_end = search_result.find("RELEVANT_SOURCES:", topics_start)
+            if topics_end == -1:
+                # Look for next section marker or end of text
+                next_section = search_result.find("\n\n", topics_start)
+                topics_end = next_section if next_section != -1 else len(search_result)
+            topics_text = search_result[topics_start:topics_end].strip()
+            key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted {len(key_topics)} key topics")
+        
+        if "IMPORTANT_DETAILS:" in search_result:
+            details_start = search_result.find("IMPORTANT_DETAILS:") + 18
+            details_end = search_result.find("RELEVANT_SOURCES:", details_start)
+            if details_end == -1:
+                details_end = len(search_result)
+            important_details = search_result[details_start:details_end].strip()
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted important details: {len(important_details)} chars")
+        
+        if "RELEVANT_SOURCES:" in search_result:
+            sources_start = search_result.find("RELEVANT_SOURCES:") + 17
+            relevant_sources = search_result[sources_start:].strip()
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted relevant sources: {len(relevant_sources)} chars")
+        
+        # Final fallback if still no content
+        if not summary and not key_topics:
             summary = search_result[:1000] + "..." if len(search_result) > 1000 else search_result
             key_topics = ["knowledge base search"]
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Using fallback summary from raw response")
         
         # Log the extracted information
         logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted summary: {summary[:200]}...")
