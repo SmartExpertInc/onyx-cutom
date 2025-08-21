@@ -605,7 +605,7 @@ def delete_cc_pair(
             
             # Import the necessary modules
             logger.info(f"[DELETE_CC_PAIR] Importing required modules...")
-            from onyx.background.celery.celery import client_app
+            from onyx.background.celery.versioned_apps.client import app as client_app
             from onyx.configs.constants import OnyxCeleryTask, OnyxCeleryPriority
             from onyx.db.connector_credential_pair import get_connector_credential_pair_for_user
             from onyx.db.connector_credential_pair import update_connector_credential_pair_from_id

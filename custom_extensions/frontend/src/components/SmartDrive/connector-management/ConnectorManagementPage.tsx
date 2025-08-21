@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CCPairFullInfo, ConnectorCredentialPairStatus, statusIsNotCurrentlyActive } from "./types";
 import { buildCCPairInfoUrl, triggerIndexing, getTooltipMessage } from "./lib";
 import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X } from "lucide-react";
@@ -20,23 +20,41 @@ export default function ConnectorManagementPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [popup, setPopup] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const isLoadingRef = useRef(false);
+  
+  console.log('[MANAGEMENT_DEBUG] ConnectorManagementPage rendered for ccPairId:', ccPairId);
 
   // Fetch connector data
   useEffect(() => {
     const fetchConnectorData = async () => {
+      // Prevent multiple simultaneous requests
+      if (isLoadingRef.current) {
+        console.log('[MANAGEMENT_DEBUG] Already loading, skipping fetch for ccPairId:', ccPairId);
+        return;
+      }
+
       try {
+        console.log('[MANAGEMENT_DEBUG] Starting fetch for ccPairId:', ccPairId);
+        isLoadingRef.current = true;
         setLoading(true);
         const response = await fetch(buildCCPairInfoUrl(ccPairId));
+        console.log('[MANAGEMENT_DEBUG] Fetch response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('[MANAGEMENT_DEBUG] Received data:', data);
           setCcPair(data);
         } else {
+          console.error('[MANAGEMENT_DEBUG] Failed to load connector data, status:', response.status);
           setError('Failed to load connector data');
         }
       } catch (err) {
+        console.error('[MANAGEMENT_DEBUG] Error loading connector data:', err);
         setError('Failed to load connector data');
       } finally {
+        console.log('[MANAGEMENT_DEBUG] Fetch completed for ccPairId:', ccPairId);
         setLoading(false);
+        isLoadingRef.current = false;
       }
     };
 
@@ -45,14 +63,28 @@ export default function ConnectorManagementPage({
 
   // Refresh data
   const refreshData = async () => {
+    // Prevent multiple simultaneous refresh requests
+    if (isLoadingRef.current) {
+      console.log('[MANAGEMENT_DEBUG] Already loading, skipping refresh for ccPairId:', ccPairId);
+      return;
+    }
+
     try {
+      console.log('[MANAGEMENT_DEBUG] Starting refresh for ccPairId:', ccPairId);
+      isLoadingRef.current = true;
       const response = await fetch(buildCCPairInfoUrl(ccPairId));
+      console.log('[MANAGEMENT_DEBUG] Refresh response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('[MANAGEMENT_DEBUG] Refreshed data:', data);
         setCcPair(data);
       }
     } catch (err) {
-      console.error('Failed to refresh data:', err);
+      console.error('[MANAGEMENT_DEBUG] Failed to refresh data:', err);
+    } finally {
+      console.log('[MANAGEMENT_DEBUG] Refresh completed for ccPairId:', ccPairId);
+      isLoadingRef.current = false;
     }
   };
 
@@ -71,7 +103,7 @@ export default function ConnectorManagementPage({
       if (result.success) {
         setPopup({ message: result.message, type: 'success' });
         // Refresh data after a short delay
-        setTimeout(refreshData, 1000);
+        // Commented out to prevent excessive API calls - setTimeout(refreshData, 1000);
       } else {
         setPopup({ message: result.message, type: 'error' });
       }
