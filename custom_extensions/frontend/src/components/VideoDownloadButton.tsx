@@ -19,6 +19,101 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   const [status, setStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
 
+  // Function to extract voiceover text from slides
+  const extractVoiceoverTexts = async (): Promise<string[]> => {
+    console.log('🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from DOM...');
+    
+    const voiceoverTexts: string[] = [];
+    
+    // Find all voiceover elements on the page
+    const voiceoverElements = document.querySelectorAll('[data-voiceover-text], .voiceover-text, .slide-voiceover');
+    
+    console.log('🎬 [VIDEO_DOWNLOAD] Found voiceover elements:', voiceoverElements.length);
+    
+    voiceoverElements.forEach((element, index) => {
+      const text = element.textContent?.trim();
+      if (text && text.length > 0) {
+        voiceoverTexts.push(text);
+        console.log(`🎬 [VIDEO_DOWNLOAD] Voiceover ${index + 1}:`, text.substring(0, 100) + '...');
+      }
+    });
+
+    // If no voiceover elements found, try to extract from slide content
+    if (voiceoverTexts.length === 0) {
+      console.log('🎬 [VIDEO_DOWNLOAD] No voiceover elements found, extracting from slide content...');
+      
+      const slideElements = document.querySelectorAll('.slide-content, .real-slide, [data-slide-id]');
+      
+      slideElements.forEach((slideElement, index) => {
+        // Extract text content from slide
+        const slideText = slideElement.textContent?.trim();
+        if (slideText && slideText.length > 10) { // Only include slides with substantial content
+          voiceoverTexts.push(slideText);
+          console.log(`🎬 [VIDEO_DOWNLOAD] Slide ${index + 1} content:`, slideText.substring(0, 100) + '...');
+        }
+      });
+    }
+
+    return voiceoverTexts;
+  };
+
+  // Function to monitor rendering progress
+  const monitorRenderingProgress = async (videoId: string, onProgressUpdate: (progress: number) => void): Promise<string> => {
+    console.log('🎬 [VIDEO_DOWNLOAD] Starting to monitor rendering progress for video:', videoId);
+    
+    const maxWaitTime = 15 * 60 * 1000; // 15 minutes
+    const checkInterval = 5000; // Check every 5 seconds
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < maxWaitTime) {
+      try {
+        const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/video/status/${videoId}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+        });
+
+        if (!statusResponse.ok) {
+          throw new Error(`Status check failed: ${statusResponse.status}`);
+        }
+
+        const statusData = await statusResponse.json();
+        console.log('🎬 [VIDEO_DOWNLOAD] Status check response:', statusData);
+
+        if (!statusData.success) {
+          throw new Error(statusData.error || 'Status check failed');
+        }
+
+        const status = statusData.status;
+        const progress = statusData.progress || 0;
+
+        console.log('🎬 [VIDEO_DOWNLOAD] Video status:', status, 'Progress:', progress + '%');
+        onProgressUpdate(progress);
+
+        if (status === 'rendered' || status === 'ready') {
+          console.log('🎬 [VIDEO_DOWNLOAD] Video rendering completed!');
+          return statusData.downloadUrl || statusData.videoUrl || '';
+        }
+
+        if (status === 'failed' || status === 'error') {
+          throw new Error(statusData.error || 'Video rendering failed');
+        }
+
+        // Wait before next check
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+        
+      } catch (error) {
+        console.error('🎬 [VIDEO_DOWNLOAD] Error checking video status:', error);
+        throw error;
+      }
+    }
+
+    throw new Error('Video rendering timeout after 15 minutes');
+  };
+
   const handleDownloadVideo = async () => {
     try {
       console.log('🎬 [VIDEO_DOWNLOAD] Starting video download process...');
@@ -77,34 +172,93 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         throw new Error(avatarData.error || 'Failed to fetch avatars');
       }
 
-      console.log('🎬 [VIDEO_DOWNLOAD] Avatar fetch successful! Starting video generation simulation...');
+      console.log('🎬 [VIDEO_DOWNLOAD] Avatar fetch successful! Starting actual video generation...');
       
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            console.log('🎬 [VIDEO_DOWNLOAD] Progress simulation completed (90%)');
-            return 90;
-          }
-          const newProgress = prev + 10;
-          console.log('🎬 [VIDEO_DOWNLOAD] Progress update:', newProgress + '%');
-          return newProgress;
-        });
-      }, 500);
+      // Step 1: Extract voiceover text from slides
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...');
+      setProgress(10);
+      
+      const voiceoverTexts = await extractVoiceoverTexts();
+      console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
+      
+      if (!voiceoverTexts || voiceoverTexts.length === 0) {
+        throw new Error('No voiceover text found in slides');
+      }
 
-      // Simulate video generation (replace with actual implementation later)
-      console.log('🎬 [VIDEO_DOWNLOAD] Simulating video generation (3 seconds)...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Step 2: Create video with Elai API
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 2: Creating video with Elai API...');
+      setProgress(20);
+      
+      const createVideoResponse = await fetch(`${CUSTOM_BACKEND_URL}/video/create`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          projectName: projectName || 'Generated Video',
+          voiceoverTexts: voiceoverTexts,
+          avatarCode: avatarData.avatars[0]?.code || 'gia.casual' // Use first avatar as default
+        })
+      });
 
-      clearInterval(progressInterval);
+      if (!createVideoResponse.ok) {
+        const errorText = await createVideoResponse.text();
+        throw new Error(`Failed to create video: ${createVideoResponse.status} - ${errorText}`);
+      }
+
+      const createVideoData = await createVideoResponse.json();
+      console.log('🎬 [VIDEO_DOWNLOAD] Video creation response:', createVideoData);
+
+      if (!createVideoData.success) {
+        throw new Error(createVideoData.error || 'Failed to create video');
+      }
+
+      const videoId = createVideoData.videoId;
+      console.log('🎬 [VIDEO_DOWNLOAD] Video created with ID:', videoId);
+
+      // Step 3: Start rendering
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 3: Starting video rendering...');
+      setProgress(30);
+      
+      const renderResponse = await fetch(`${CUSTOM_BACKEND_URL}/video/render/${videoId}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+      });
+
+      if (!renderResponse.ok) {
+        const errorText = await renderResponse.text();
+        throw new Error(`Failed to start rendering: ${renderResponse.status} - ${errorText}`);
+      }
+
+      const renderData = await renderResponse.json();
+      console.log('🎬 [VIDEO_DOWNLOAD] Render response:', renderData);
+
+      if (!renderData.success) {
+        throw new Error(renderData.error || 'Failed to start rendering');
+      }
+
+      // Step 4: Monitor rendering progress
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 4: Monitoring rendering progress...');
+      setProgress(40);
+      
+      const downloadUrl = await monitorRenderingProgress(videoId, (progressPercent) => {
+        // Update progress from 40% to 90% based on rendering progress
+        const newProgress = 40 + (progressPercent * 0.5); // 40% to 90%
+        setProgress(newProgress);
+        console.log('🎬 [VIDEO_DOWNLOAD] Rendering progress:', progressPercent + '%');
+      });
+
+      // Step 5: Complete
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 5: Video generation completed!');
       setProgress(100);
       setStatus('completed');
-      console.log('🎬 [VIDEO_DOWNLOAD] Video generation simulation completed successfully!');
-
-      // Simulate success
-      const downloadUrl = 'https://example.com/video.mp4';
-      console.log('🎬 [VIDEO_DOWNLOAD] Calling onSuccess with download URL:', downloadUrl);
+      console.log('🎬 [VIDEO_DOWNLOAD] Final download URL:', downloadUrl);
       onSuccess?.(downloadUrl);
 
     } catch (error) {

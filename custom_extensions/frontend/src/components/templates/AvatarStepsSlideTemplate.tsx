@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { AvatarWithStepsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -363,13 +364,9 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
 
         {/* Right content - Avatar */}
         <div style={rightContentStyles}>
-          <ClickableImagePlaceholder
-            imagePath={avatarPath}
-            onImageUploaded={handleAvatarUploaded}
+          <AvatarImageDisplay
             size="MEDIUM"
             position="CENTER"
-            description="Click to upload avatar"
-            prompt="Professional headshot with transparent background"
             style={placeholderStyles}
           />
         </div>

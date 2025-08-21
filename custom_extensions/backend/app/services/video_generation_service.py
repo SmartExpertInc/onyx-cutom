@@ -76,6 +76,131 @@ class ElaiVideoGenerationService:
             logger.error(f"Error fetching avatars: {str(e)}")
             return {"success": False, "error": str(e)}
     
+    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
+        """
+        Create a video from voiceover texts and avatar code.
+        
+        Args:
+            project_name: Name of the project
+            voiceover_texts: List of voiceover text strings
+            avatar_code: Avatar code (e.g., "gia.casual")
+            
+        Returns:
+            Dict containing video creation response
+        """
+        if not self.client:
+            return {
+                "success": False,
+                "error": "HTTP client not available - httpx may not be installed"
+            }
+        
+        try:
+            # Get avatar details first
+            avatars_response = await self.get_avatars()
+            if not avatars_response["success"]:
+                return {
+                    "success": False,
+                    "error": f"Failed to get avatars: {avatars_response['error']}"
+                }
+            
+            # Find the specified avatar
+            avatar = None
+            for av in avatars_response["avatars"]:
+                if av.get("code") == avatar_code:
+                    avatar = av
+                    break
+            
+            if not avatar:
+                return {
+                    "success": False,
+                    "error": f"Avatar with code '{avatar_code}' not found"
+                }
+            
+            # Prepare slides for Elai API
+            elai_slides = []
+            for i, voiceover_text in enumerate(voiceover_texts):
+                elai_slide = {
+                    "id": i + 1,
+                    "status": "edited",
+                    "canvas": {
+                        "objects": [{
+                            "type": "avatar",
+                            "left": 510,
+                            "top": 255,
+                            "fill": "#4868FF",
+                            "scaleX": 0.1,
+                            "scaleY": 0.1,
+                            "width": 1080,
+                            "height": 1080,
+                            "src": avatar.get("canvas"),
+                            "avatarType": "transparent",
+                            "animation": {
+                                "type": None,
+                                "exitType": None
+                            }
+                        }],
+                        "background": "#ffffff",
+                        "version": "4.4.0"
+                    },
+                    "avatar": {
+                        "code": avatar.get("code"),
+                        "name": avatar.get("name"),
+                        "gender": avatar.get("gender"),
+                        "canvas": avatar.get("canvas")
+                    },
+                    "animation": "fade_in",
+                    "language": "English",
+                    "speech": voiceover_text,
+                    "voice": "en-US-AriaNeural",
+                    "voiceType": "text",
+                    "voiceProvider": "azure"
+                }
+                elai_slides.append(elai_slide)
+            
+            # Prepare video request
+            video_request = {
+                "name": project_name,
+                "slides": elai_slides,
+                "tags": ["video_lesson", "generated", "presentation"],
+                "public": False,
+                "data": {
+                    "skipEmails": False,
+                    "subtitlesEnabled": "false",
+                    "format": "16_9",
+                    "resolution": "FullHD"
+                }
+            }
+            
+            # Create video
+            response = await self.client.post(
+                f"{self.api_base}/videos",
+                headers=self.headers,
+                json=video_request
+            )
+            
+            if response.is_success:
+                result = response.json()
+                video_id = result.get("_id")
+                logger.info(f"Video created successfully: {video_id}")
+                return {
+                    "success": True,
+                    "video_id": video_id,
+                    "message": "Video created successfully"
+                }
+            else:
+                logger.error(f"Failed to create video: {response.status_code} - {response.text}")
+                return {
+                    "success": False,
+                    "error": f"Video creation failed: {response.status_code} - {response.text}"
+                }
+                
+        except Exception as e:
+            logger.error(f"Error creating video: {str(e)}")
+            return {
+                "success": False,
+                "error": f"Failed to create video: {str(e)}"
+            }
+
     async def create_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a video with the given slides and avatar data.
@@ -168,7 +293,7 @@ class ElaiVideoGenerationService:
             logger.error(f"Error creating video: {str(e)}")
             raise
     
-    async def render_video(self, video_id: str) -> bool:
+    async def render_video(self, video_id: str) -> Dict[str, Any]:
         """
         Start rendering the video.
         
@@ -176,10 +301,13 @@ class ElaiVideoGenerationService:
             video_id: The ID of the video to render
             
         Returns:
-            True if render started successfully
+            Dict containing render response
         """
         if not self.client:
-            return False
+            return {
+                "success": False,
+                "error": "HTTP client not available - httpx may not be installed"
+            }
         
         try:
             response = await self.client.post(
@@ -189,14 +317,23 @@ class ElaiVideoGenerationService:
             
             if response.is_success:
                 logger.info(f"Video render started for {video_id}")
-                return True
+                return {
+                    "success": True,
+                    "message": "Video rendering started successfully"
+                }
             else:
                 logger.error(f"Failed to start render: {response.status_code} - {response.text}")
-                return False
+                return {
+                    "success": False,
+                    "error": f"Failed to start render: {response.status_code} - {response.text}"
+                }
                 
         except Exception as e:
             logger.error(f"Error starting video render: {str(e)}")
-            return False
+            return {
+                "success": False,
+                "error": f"Failed to start video render: {str(e)}"
+            }
     
     async def check_video_status(self, video_id: str) -> Dict[str, Any]:
         """
@@ -209,7 +346,10 @@ class ElaiVideoGenerationService:
             Dict containing video status information
         """
         if not self.client:
-            return {}
+            return {
+                "success": False,
+                "error": "HTTP client not available - httpx may not be installed"
+            }
         
         try:
             response = await self.client.get(
@@ -218,14 +358,50 @@ class ElaiVideoGenerationService:
             )
             
             if response.is_success:
-                return response.json()
+                video_data = response.json()
+                status = video_data.get("status", "unknown")
+                
+                # Calculate progress based on status
+                progress = 0
+                if status == "draft":
+                    progress = 10
+                elif status == "queued":
+                    progress = 20
+                elif status == "rendering":
+                    progress = 50
+                elif status == "validating":
+                    progress = 80
+                elif status in ["rendered", "ready"]:
+                    progress = 100
+                
+                # Get download URL if available
+                download_url = (
+                    video_data.get("videoUrl") or 
+                    video_data.get("url") or 
+                    video_data.get("playerData", {}).get("url")
+                )
+                
+                return {
+                    "success": True,
+                    "status": status,
+                    "progress": progress,
+                    "downloadUrl": download_url,
+                    "videoUrl": download_url,
+                    "data": video_data
+                }
             else:
                 logger.error(f"Failed to get video status: {response.status_code} - {response.text}")
-                return {}
+                return {
+                    "success": False,
+                    "error": f"Failed to get video status: {response.status_code} - {response.text}"
+                }
                 
         except Exception as e:
             logger.error(f"Error checking video status: {str(e)}")
-            return {}
+            return {
+                "success": False,
+                "error": f"Failed to check video status: {str(e)}"
+            }
     
     async def wait_for_completion(self, video_id: str) -> Optional[str]:
         """

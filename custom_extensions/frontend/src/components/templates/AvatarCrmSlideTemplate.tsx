@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { AvatarSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -526,14 +527,10 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
       {/* Right Panel - Image Only */}
       <div style={rightPanelStyles}>
-        {/* Image Placeholder - full width of right panel, full height */}
-        <ClickableImagePlaceholder
-          imagePath={avatarPath}
-          onImageUploaded={handleAvatarUploaded}
+        {/* Avatar Display - full width of right panel, full height */}
+        <AvatarImageDisplay
           size="LARGE"
           position="CENTER"
-          description="Click to upload image"
-          prompt="Professional business or beauty industry image"
           className="!h-screen !max-h-none !min-h-screen !w-full"
           style={{
             width: '100%',

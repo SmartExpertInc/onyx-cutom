@@ -10,6 +10,7 @@ import { ThemePicker } from './theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
 import { Plus, ChevronDown, X, Volume2, Palette} from 'lucide-react';
+import { AvatarDisplayManager } from './AvatarDisplayManager';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -435,7 +436,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Success: Render component-based viewer with right-side menu
   return (
-    <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh' }}>
+    <AvatarDisplayManager>
+      <div className="slide-deck-viewer" style={{ position: 'relative', minHeight: '100vh' }}>
       {/* Professional Header */}
       <div 
         className="professional-header"
@@ -887,7 +889,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         onThemeSelect={changeTheme}
         isChanging={isChangingTheme}
       />
-    </div>
+      </div>
+    </AvatarDisplayManager>
   );
 };
 

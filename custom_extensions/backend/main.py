@@ -16894,3 +16894,64 @@ async def get_video_status(video_id: str):
     except Exception as e:
         logger.error(f"Error checking video status: {str(e)}")
         return {"success": False, "error": f"Failed to check video status: {str(e)}"}
+
+@app.post("/api/custom/video/create")
+async def create_video(request: Request):
+    """Create a new video with Elai API."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        # Parse request body
+        body = await request.json()
+        project_name = body.get("projectName", "Generated Video")
+        voiceover_texts = body.get("voiceoverTexts", [])
+        avatar_code = body.get("avatarCode", "gia.casual")
+        
+        # Validate request data
+        if not voiceover_texts:
+            return {"success": False, "error": "No voiceover texts provided"}
+        
+        # Create video
+        result = await video_generation_service.create_video_from_texts(project_name, voiceover_texts, avatar_code)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "videoId": result["video_id"],
+                "message": "Video created successfully"
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error creating video: {str(e)}")
+        return {"success": False, "error": f"Failed to create video: {str(e)}"}
+
+@app.post("/api/custom/video/render/{video_id}")
+async def render_video(video_id: str):
+    """Start rendering a video."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        # Start rendering
+        result = await video_generation_service.render_video(video_id)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "message": "Video rendering started successfully"
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error starting video render: {str(e)}")
+        return {"success": False, "error": f"Failed to start video render: {str(e)}"}
