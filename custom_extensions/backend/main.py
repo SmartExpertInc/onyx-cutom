@@ -16805,6 +16805,7 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
 video_generation_service = None
 try:
     from app.services.video_generation_service import video_generation_service
+from app.services.presentation_service import presentation_service, PresentationRequest
     logger.info("Video generation service imported successfully")
 except Exception as e:
     logger.warning(f"Video generation service not available: {e}")
@@ -16961,3 +16962,183 @@ async def render_video(video_id: str):
     except Exception as e:
         logger.error(f"Error starting video render: {str(e)}")
         return {"success": False, "error": f"Failed to start video render: {str(e)}"}
+
+# ============================================================================
+# Professional Presentation API Endpoints
+# ============================================================================
+
+@app.post("/api/custom/presentations")
+async def create_presentation(request: Request):
+    """Create a new professional video presentation."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slide_url = body.get("slideUrl")
+        voiceover_texts = body.get("voiceoverTexts", [])
+        avatar_code = body.get("avatarCode", "gia.casual")
+        duration = body.get("duration", 30.0)
+        layout = body.get("layout", "side_by_side")
+        quality = body.get("quality", "high")
+        resolution = body.get("resolution", [1920, 1080])
+        project_name = body.get("projectName", "Generated Presentation")
+        
+        # Validate required parameters
+        if not slide_url:
+            return {"success": False, "error": "slideUrl is required"}
+        
+        if not voiceover_texts or len(voiceover_texts) == 0:
+            return {"success": False, "error": "voiceoverTexts is required"}
+        
+        # Validate layout
+        allowed_layouts = ["side_by_side", "picture_in_picture", "split_screen"]
+        if layout not in allowed_layouts:
+            return {"success": False, "error": f"layout must be one of {allowed_layouts}"}
+        
+        # Create presentation request
+        presentation_request = PresentationRequest(
+            slide_url=slide_url,
+            voiceover_texts=voiceover_texts,
+            avatar_code=avatar_code,
+            duration=duration,
+            layout=layout,
+            quality=quality,
+            resolution=tuple(resolution),
+            project_name=project_name
+        )
+        
+        # Create presentation
+        job_id = await presentation_service.create_presentation(presentation_request)
+        
+        return {
+            "success": True,
+            "jobId": job_id,
+            "message": "Presentation generation started"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error creating presentation: {str(e)}")
+        return {"success": False, "error": f"Failed to create presentation: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}")
+async def get_presentation_status(job_id: str):
+    """Get presentation processing status."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        job = await presentation_service.get_job_status(job_id)
+        
+        if not job:
+            return {"success": False, "error": "Job not found"}
+        
+        return {
+            "success": True,
+            "jobId": job.job_id,
+            "status": job.status,
+            "progress": job.progress,
+            "error": job.error,
+            "videoUrl": job.video_url,
+            "thumbnailUrl": job.thumbnail_url,
+            "createdAt": job.created_at.isoformat() if job.created_at else None,
+            "completedAt": job.completed_at.isoformat() if job.completed_at else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting presentation status: {str(e)}")
+        return {"success": False, "error": f"Failed to get presentation status: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}/video")
+async def download_presentation_video(job_id: str):
+    """Download the completed presentation video."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        video_path = await presentation_service.get_presentation_video(job_id)
+        
+        if not video_path:
+            return {"success": False, "error": "Video not found or not completed"}
+        
+        # Return file response
+        return FileResponse(
+            path=video_path,
+            media_type="video/mp4",
+            filename=f"presentation_{job_id}.mp4"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error downloading presentation video: {str(e)}")
+        return {"success": False, "error": f"Failed to download video: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}/thumbnail")
+async def get_presentation_thumbnail(job_id: str):
+    """Get the presentation thumbnail."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        thumbnail_path = await presentation_service.get_presentation_thumbnail(job_id)
+        
+        if not thumbnail_path:
+            return {"success": False, "error": "Thumbnail not found or not completed"}
+        
+        # Return file response
+        return FileResponse(
+            path=thumbnail_path,
+            media_type="image/jpeg",
+            filename=f"thumbnail_{job_id}.jpg"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error getting presentation thumbnail: {str(e)}")
+        return {"success": False, "error": f"Failed to get thumbnail: {str(e)}"}
+
+@app.get("/api/custom/presentations")
+async def list_presentations(limit: int = 50):
+    """List recent presentation jobs."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        jobs = await presentation_service.list_jobs(limit)
+        
+        return {
+            "success": True,
+            "jobs": [
+                {
+                    "jobId": job.job_id,
+                    "status": job.status,
+                    "progress": job.progress,
+                    "error": job.error,
+                    "videoUrl": job.video_url,
+                    "thumbnailUrl": job.thumbnail_url,
+                    "createdAt": job.created_at.isoformat() if job.created_at else None,
+                    "completedAt": job.completed_at.isoformat() if job.completed_at else None
+                }
+                for job in jobs
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing presentations: {str(e)}")
+        return {"success": False, "error": f"Failed to list presentations: {str(e)}"}
