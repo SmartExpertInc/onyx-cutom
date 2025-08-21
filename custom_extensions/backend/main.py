@@ -12330,6 +12330,11 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     elif payload.fromText:
         logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
+    # Add knowledge base context if provided
+    if payload.fromKnowledgeBase:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding knowledge base context: fromKnowledgeBase=True")
+        wiz_payload["fromKnowledgeBase"] = True
+
     if payload.originalOutline:
         logger.info(f"[PREVIEW_PAYLOAD] Adding originalOutline ({len(payload.originalOutline)} chars)")
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -13456,6 +13461,10 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             wiz_payload["textMode"] = payload.textMode
             wiz_payload["userText"] = payload.userText
 
+        # Add knowledge base context if provided
+        if payload.fromKnowledgeBase:
+            wiz_payload["fromKnowledgeBase"] = True
+
         wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
         logger.info(f"[FINALIZE_PAYLOAD] Final wizard message structure: {list(wiz_payload.keys())}")
         logger.info(f"[FINALIZE_PAYLOAD] Wizard message length: {len(wizard_message)} chars")
@@ -13928,6 +13937,10 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         # Don't process fromText if userText is empty to avoid confusing the AI
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Add knowledge base context if provided
+    if payload.fromKnowledgeBase:
+        wizard_dict["fromKnowledgeBase"] = True
 
     # Decompress text if it was compressed
     if wizard_dict.get("textCompressed") and wizard_dict.get("userText"):
@@ -16799,6 +16812,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
+    # Add knowledge base context if provided
+    if payload.fromKnowledgeBase:
+        wiz_payload["fromKnowledgeBase"] = True
+
     # Decompress text if it was compressed
     if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
         try:
@@ -17599,6 +17616,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         # Don't process fromText if userText is empty to avoid confusing the AI
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Add knowledge base context if provided
+    if payload.fromKnowledgeBase:
+        wiz_payload["fromKnowledgeBase"] = True
 
     # Decompress text if it was compressed
     if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
