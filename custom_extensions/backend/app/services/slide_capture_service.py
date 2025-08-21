@@ -36,8 +36,12 @@ class ProfessionalSlideCapture:
     
     def __init__(self):
         self.browser = None
-        self.temp_dir = Path("temp/slides")
+        self.temp_dir = Path("temp")
         self.temp_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create slides subdirectory
+        self.slides_dir = Path("temp/slides")
+        self.slides_dir.mkdir(parents=True, exist_ok=True)
         
         # Quality presets for FFmpeg
         self.quality_presets = {
@@ -99,17 +103,18 @@ class ProfessionalSlideCapture:
             
             logger.info(f"Starting slide capture: {config.slide_url}")
             
-            # Create context with optimal settings
+            # Create context with optimal settings and video recording enabled
             context = await self.browser.new_context(
                 viewport={'width': config.width, 'height': config.height},
-                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                record_video_dir="temp",
+                record_video_size={'width': config.width, 'height': config.height}
             )
             
             # Create page
             page = await context.new_page()
             
-            # Enable video recording
-            await page.video.start(path=f"temp/slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}.webm")
+            # Video recording is automatically started when context is created with record_video_dir
             
             # Navigate to slide URL
             logger.info(f"Navigating to slide URL: {config.slide_url}")
@@ -126,10 +131,12 @@ class ProfessionalSlideCapture:
             logger.info(f"Recording for {config.duration} seconds")
             await page.wait_for_timeout(int(config.duration * 1000))
             
-            # Stop recording
-            video_path = await page.video.stop()
+            # Close page and context to stop recording
             await page.close()
             await context.close()
+            
+            # Get the video path from the context
+            video_path = context.video.path() if context.video else None
             
             if not video_path:
                 raise Exception("Failed to capture video")
