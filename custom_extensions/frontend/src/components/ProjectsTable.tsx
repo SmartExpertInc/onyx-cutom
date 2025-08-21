@@ -828,8 +828,7 @@ const PreviewModal: React.FC<{
                                     // Calculate total learning hours exactly like PDF generation (using total_completion_time)
                                     const allProjects = data.projects || [];
                                     const totalLearningMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_completion_time || 0), 0);
-                                    const totalLearningHours = Math.floor(totalLearningMinutes / 60);
-                                    return `${totalLearningHours} hours of learning content`;
+                                    return formatTimeLikePDF(totalLearningMinutes) + ' of learning content';
                                   })()}
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 
@@ -844,8 +843,7 @@ const PreviewModal: React.FC<{
                                     // Calculate total production hours exactly like PDF generation (convert minutes to hours)
                                     const allProjects = data.projects || [];
                                     const totalProductionMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
-                                    const totalProductionHours = Math.floor(totalProductionMinutes / 60);
-                                    return `${totalProductionHours} hours`;
+                                    return formatTimeLikePDF(totalProductionMinutes);
                                   })()}
                                 </li>
                                 <li className="flex items-center gap-3 text-lg" style={{ 
