@@ -8861,9 +8861,24 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
             line_count = 0
             done_received = False
             last_log_length = 0
+            import time
+            start_time = time.time()
+            last_activity_time = start_time
+            max_idle_time = 120.0  # Wait up to 2 minutes without new content
+            max_total_time = 600.0  # Maximum 10 minutes total
             
             async for line in resp.aiter_lines():
                 line_count += 1
+                current_time = time.time()
+                
+                # Check for timeouts
+                if current_time - start_time > max_total_time:
+                    logger.warning(f"[enhanced_stream_chat_message] Maximum total time ({max_total_time}s) exceeded after {line_count} lines, {len(full_answer)} chars")
+                    break
+                if current_time - last_activity_time > max_idle_time and len(full_answer) == 0:
+                    logger.warning(f"[enhanced_stream_chat_message] Maximum idle time ({max_idle_time}s) exceeded since last content, still no answer content after {line_count} lines")
+                    break
+                
                 if not line:
                     continue
                     
@@ -8879,17 +8894,38 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
                 try:
                     packet = json.loads(payload_text)
                 except Exception as e:
-                    logger.debug(f"[enhanced_stream_chat_message] Failed to parse JSON: {str(e)}")
+                    logger.debug(f"[enhanced_stream_chat_message] Failed to parse JSON line {line_count}: {str(e)}")
                     continue
+                
+                # Log packet structure for debugging (every 50 lines to avoid spam)
+                if line_count % 50 == 0:
+                    packet_keys = list(packet.keys()) if isinstance(packet, dict) else "not-dict"
+                    logger.info(f"[enhanced_stream_chat_message] Line {line_count} packet keys: {packet_keys}")
                     
                 if packet.get("answer_piece"):
                     answer_piece = packet["answer_piece"]
                     full_answer += answer_piece
+                    last_activity_time = current_time  # Reset activity timer on content
                     
                     # Log progress every 200 chars to track streaming
                     if len(full_answer) - last_log_length >= 200:
                         logger.info(f"[enhanced_stream_chat_message] Accumulated {len(full_answer)} chars so far...")
                         last_log_length = len(full_answer)
+                else:
+                    # Log what we're getting instead of answer_piece
+                    if line_count <= 10 or line_count % 100 == 0:  # Log first 10 and every 100th
+                        packet_preview = str(packet)[:200] if packet else "empty"
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count} - no answer_piece: {packet_preview}")
+                    
+                    # Check for other potential answer fields
+                    potential_answer = (packet.get("answer") or 
+                                      packet.get("message") or 
+                                      packet.get("content") or
+                                      packet.get("response"))
+                    if potential_answer:
+                        logger.info(f"[enhanced_stream_chat_message] Found potential answer in different field: {type(potential_answer)}")
+                        full_answer += str(potential_answer)
+                        last_activity_time = current_time  # Reset activity timer on content
                         
             logger.info(f"[enhanced_stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}")
             
