@@ -10408,11 +10408,23 @@ async def get_user_projects_list_from_db(
                                     
                                     total_completion_time += completion_time_minutes
                                     
-                                    # Calculate creation hours using the same logic as PDF generation
-                                    lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
-                                        lesson, section, get_tier_ratio(quality_tier)
-                                    )
-                                    total_creation_hours += lesson_creation_hours
+                                    # Use real data from database if available, otherwise calculate
+                                    if lesson.get('hours'):
+                                        try:
+                                            lesson_creation_hours = float(lesson['hours'])
+                                            total_creation_hours += lesson_creation_hours
+                                        except (ValueError, TypeError):
+                                            # Fallback to calculation if hours is invalid
+                                            lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
+                                                lesson, section, get_tier_ratio(quality_tier)
+                                            )
+                                            total_creation_hours += lesson_creation_hours
+                                    else:
+                                        # Calculate if no hours data available
+                                        lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
+                                            lesson, section, get_tier_ratio(quality_tier)
+                                        )
+                                        total_creation_hours += lesson_creation_hours
             except Exception as e:
                 logger.warning(f"Error calculating totals for project {row_dict['id']}: {e}")
         
@@ -16307,11 +16319,23 @@ def process_projects_data_unified(projects_rows, folders_data=None):
                             else:
                                 total_completion_time += 5  # No completion time, use 5 minutes
                             
-                            # Calculate creation hours using proper function
-                            lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
-                                lesson, section, get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
-                            )
-                            total_creation_hours += lesson_creation_hours
+                            # Use real data from database if available, otherwise calculate
+                            if lesson.get('hours'):
+                                try:
+                                    lesson_creation_hours = float(lesson['hours'])
+                                    total_creation_hours += lesson_creation_hours
+                                except (ValueError, TypeError):
+                                    # Fallback to calculation if hours is invalid
+                                    lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
+                                        lesson, section, get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
+                                    )
+                                    total_creation_hours += lesson_creation_hours
+                            else:
+                                # Calculate if no hours data available
+                                lesson_creation_hours = calculate_lesson_creation_hours_with_module_fallback(
+                                    lesson, section, get_tier_ratio(row_dict.get('quality_tier', 'interactive'))
+                                )
+                                total_creation_hours += lesson_creation_hours
         
         projects_data.append({
             'id': row_dict['id'],
