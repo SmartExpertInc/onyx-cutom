@@ -153,22 +153,25 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
           throw new Error(statusData.error || 'Status check failed');
         }
 
-        const status = statusData.status;
-        const progress = statusData.progress || 0;
+        // Extract status and progress from the nested status object
+        const videoStatus = statusData.status;
+        const status = videoStatus.status || videoStatus;
+        const progress = videoStatus.progress || statusData.progress || 0;
+        const downloadUrl = videoStatus.downloadUrl || videoStatus.videoUrl || statusData.downloadUrl || statusData.videoUrl;
 
-        console.log('🎬 [VIDEO_DOWNLOAD] Video status:', statusData.status, 'Progress:', progress + '%');
+        console.log('🎬 [VIDEO_DOWNLOAD] Video status:', status, 'Progress:', progress + '%');
         
         // Use the actual progress value from the backend
         onProgressUpdate(progress);
 
         if (status === 'rendered' || status === 'ready') {
           console.log('🎬 [VIDEO_DOWNLOAD] Video rendering completed!');
-          return statusData.downloadUrl || statusData.videoUrl || '';
+          return downloadUrl || '';
         }
 
         if (status === 'failed' || status === 'error') {
           consecutiveErrors++;
-          console.warn(`🎬 [VIDEO_DOWNLOAD] Video status is 'error' (attempt ${consecutiveErrors}/${maxConsecutiveErrors})`);
+          console.warn(`🎬 [VIDEO_DOWNLOAD] Video status is '${status}' (attempt ${consecutiveErrors}/${maxConsecutiveErrors})`);
           
           if (consecutiveErrors >= maxConsecutiveErrors) {
             throw new Error(`Video rendering failed after ${maxConsecutiveErrors} consecutive error statuses`);

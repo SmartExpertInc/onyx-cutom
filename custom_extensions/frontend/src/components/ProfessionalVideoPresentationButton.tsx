@@ -1,153 +1,84 @@
 // Professional Video Presentation Button Component
 // This component creates professional video presentations by combining slide capture with avatar videos
 
-import React, { useState, useEffect } from 'react';
-import { Video, Loader, CheckCircle, AlertTriangle, Download, Eye } from 'lucide-react';
-
-const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+import React, { useState } from 'react';
+import { Video, Loader, CheckCircle, AlertTriangle, Download } from 'lucide-react';
 
 interface ProfessionalVideoPresentationButtonProps {
   projectName?: string;
+  onSuccess?: (downloadUrl: string) => void;
   onError?: (error: string) => void;
-  onSuccess?: (jobId: string, videoUrl: string) => void;
-  onProgress?: (progress: number, status: string) => void;
 }
 
-interface PresentationJob {
-  jobId: string;
-  status: string;
-  progress: number;
-  error?: string;
-  videoUrl?: string;
-  thumbnailUrl?: string;
-  createdAt?: string;
-  completedAt?: string;
-}
-
-export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentationButtonProps> = ({
-  projectName,
-  onError,
+const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentationButtonProps> = ({
+  projectName = 'Professional Video Presentation',
   onSuccess,
-  onProgress
+  onError
 }) => {
   const [status, setStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
-  const [currentJob, setCurrentJob] = useState<PresentationJob | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [jobId, setJobId] = useState<string | null>(null);
 
-  // Function to extract voiceover text from slides
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+  // Function to extract voiceover texts from slides
   const extractVoiceoverTexts = async (): Promise<string[]> => {
     console.log('🎬 [PROFESSIONAL_VIDEO] Extracting voiceover texts from DOM...');
     
-    const voiceoverTexts: string[] = [];
-    
-    // Method 1: Look for specific voiceover text attributes
-    const voiceoverElements = document.querySelectorAll('[data-voiceover-text], .voiceover-text, .slide-voiceover');
+    const voiceoverElements = document.querySelectorAll('[data-voiceover], .voiceover-text, [class*="voiceover"]');
     console.log('🎬 [PROFESSIONAL_VIDEO] Found voiceover elements:', voiceoverElements.length);
     
-    voiceoverElements.forEach((element, index) => {
-      const text = element.textContent?.trim();
-      if (text && text.length > 0 && text.length < 1000) {
-        const cleanText = text.replace(/\s+/g, ' ').trim();
-        if (cleanText.length > 10) {
-          voiceoverTexts.push(cleanText);
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Voiceover ${index + 1}:`, cleanText.substring(0, 100) + '...');
+    if (voiceoverElements.length > 0) {
+      const texts: string[] = [];
+      voiceoverElements.forEach((element, index) => {
+        const text = element.textContent?.trim();
+        if (text && text.length > 10) {
+          texts.push(text);
+          console.log(`🎬 [PROFESSIONAL_VIDEO] Voiceover ${index + 1}:`, text.substring(0, 100) + '...');
+        }
+      });
+      return texts;
+    }
+    
+    // Fallback: extract from slide titles and content
+    console.log('🎬 [PROFESSIONAL_VIDEO] No voiceover elements found, extracting from slide content...');
+    const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [class*="title"]');
+    const texts: string[] = [];
+    
+    slideTitles.forEach((titleElement, index) => {
+      const title = titleElement.textContent?.trim();
+      if (title && title.length > 10) {
+        // Filter out problematic titles
+        if (!title.toLowerCase().includes('voiceover') && 
+            !title.toLowerCase().includes('presentation themes') &&
+            !/[\u0400-\u04FF]/.test(title)) { // Filter out Cyrillic characters
+          texts.push(title);
+          console.log(`🎬 [PROFESSIONAL_VIDEO] Slide title ${index + 1}:`, title);
+        } else {
+          console.log(`🎬 [PROFESSIONAL_VIDEO] Skipping problematic title:`, title);
         }
       }
     });
-
-    // Method 2: If no voiceover elements found, try to extract from slide titles and content
-    if (voiceoverTexts.length === 0) {
-      console.log('🎬 [PROFESSIONAL_VIDEO] No voiceover elements found, extracting from slide content...');
-      
-      const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [data-slide-title]');
-      const slideContent = document.querySelectorAll('.slide-content, .real-slide, [data-slide-id]');
-      
-      // Extract from titles first
-      slideTitles.forEach((titleElement, index) => {
-        const titleText = titleElement.textContent?.trim();
-        if (titleText && titleText.length > 5 && titleText.length < 200) {
-          const cleanTitle = titleText.replace(/\s+/g, ' ').trim();
-          
-          // Filter out problematic titles
-          const lowerTitle = cleanTitle.toLowerCase();
-          if (lowerTitle === 'voiceover' || 
-              lowerTitle === 'presentation themes' ||
-              lowerTitle === 'themes' ||
-              lowerTitle === 'slide' ||
-              lowerTitle === 'title') {
-            console.log(`🎬 [PROFESSIONAL_VIDEO] Skipping problematic title: ${cleanTitle}`);
-            return;
-          }
-          
-          // Check if title contains non-English characters
-          const hasNonEnglish = /[а-яё]/i.test(cleanTitle);
-          if (hasNonEnglish) {
-            console.log(`🎬 [PROFESSIONAL_VIDEO] Skipping non-English title: ${cleanTitle}`);
-            return;
-          }
-          
-          voiceoverTexts.push(cleanTitle);
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Slide title ${index + 1}:`, cleanTitle);
-        }
-      });
-      
-      // Extract from main content if we still don't have enough
-      if (voiceoverTexts.length < 2) {
-        slideContent.forEach((contentElement, index) => {
-          const contentText = contentElement.textContent?.trim();
-          if (contentText && contentText.length > 20 && contentText.length < 500) {
-            const cleanContent = contentText
-              .replace(/\s+/g, ' ')
-              .replace(/[^\w\s.,!?-]/g, '')
-              .trim();
-            
-            // Check if content contains non-English characters
-            const hasNonEnglish = /[а-яё]/i.test(cleanContent);
-            if (hasNonEnglish) {
-              console.log(`🎬 [PROFESSIONAL_VIDEO] Skipping non-English content: ${cleanContent.substring(0, 50)}...`);
-              return;
-            }
-            
-            if (cleanContent.length > 20) {
-              voiceoverTexts.push(cleanContent);
-              console.log(`🎬 [PROFESSIONAL_VIDEO] Slide content ${index + 1}:`, cleanContent.substring(0, 100) + '...');
-            }
-          }
-        });
-      }
-    }
-
-    // Method 3: Fallback - create a simple default voiceover if nothing found
-    if (voiceoverTexts.length === 0) {
-      console.log('🎬 [PROFESSIONAL_VIDEO] No content found, creating default voiceover...');
-      voiceoverTexts.push("Welcome to this presentation. Today we will explore important topics and share valuable insights with you.");
-    }
-
-    // Final validation and cleaning
-    const finalTexts = voiceoverTexts
-      .filter(text => text && text.length > 5 && text.length < 1000)
-      .map(text => text.replace(/\s+/g, ' ').trim())
-      .slice(0, 5); // Limit to 5 slides maximum
-
-    console.log('🎬 [PROFESSIONAL_VIDEO] Final extracted voiceover texts:', finalTexts);
-    return finalTexts;
+    
+    console.log('🎬 [PROFESSIONAL_VIDEO] Final extracted voiceover texts:', texts);
+    return texts;
   };
 
   // Function to get current slide URL
   const getCurrentSlideUrl = (): string => {
-    // Get the current page URL
-    const currentUrl = window.location.href;
-    console.log('🎬 [PROFESSIONAL_VIDEO] Current slide URL:', currentUrl);
-    return currentUrl;
+    // Return the current page URL for slide capture
+    return window.location.href;
   };
 
-  // Function to monitor presentation job progress
-  const monitorPresentationProgress = async (jobId: string): Promise<string> => {
+  // Function to monitor presentation progress
+  const monitorPresentationProgress = async (
+    jobId: string, 
+    onProgressUpdate: (progress: number) => void
+  ): Promise<string> => {
     console.log('🎬 [PROFESSIONAL_VIDEO] Starting to monitor presentation progress for job:', jobId);
     
-    const maxWaitTime = 20 * 60 * 1000; // 20 minutes
-    const checkInterval = 5000; // Check every 5 seconds
+    const maxWaitTime = 30 * 60 * 1000; // 30 minutes for professional processing
+    const checkInterval = 10000; // Check every 10 seconds
     const startTime = Date.now();
     
     while (Date.now() - startTime < maxWaitTime) {
@@ -172,22 +103,22 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
           throw new Error(statusData.error || 'Status check failed');
         }
 
-        const job: PresentationJob = statusData;
-        setCurrentJob(job);
+        const jobStatus = statusData.status;
+        const jobProgress = statusData.progress || 0;
+        const videoUrl = statusData.videoUrl;
+
+        console.log('🎬 [PROFESSIONAL_VIDEO] Job status:', jobStatus, 'Progress:', jobProgress + '%');
         
         // Update progress
-        setProgress(job.progress);
-        onProgress?.(job.progress, job.status);
+        onProgressUpdate(jobProgress);
 
-        console.log('🎬 [PROFESSIONAL_VIDEO] Presentation status:', job.status, 'Progress:', job.progress + '%');
-
-        if (job.status === 'completed') {
-          console.log('🎬 [PROFESSIONAL_VIDEO] Presentation completed!');
-          return job.videoUrl || '';
+        if (jobStatus === 'completed' && videoUrl) {
+          console.log('🎬 [PROFESSIONAL_VIDEO] Presentation generation completed!');
+          return videoUrl;
         }
 
-        if (job.status === 'failed') {
-          throw new Error(job.error || 'Presentation generation failed');
+        if (jobStatus === 'failed') {
+          throw new Error(statusData.error || 'Presentation generation failed');
         }
 
         // Wait before next check
@@ -199,23 +130,19 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
       }
     }
 
-    throw new Error('Presentation generation timeout after 20 minutes');
+    throw new Error('Presentation generation timeout after 30 minutes');
   };
 
   const handleCreatePresentation = async () => {
     try {
       console.log('🎬 [PROFESSIONAL_VIDEO] Starting professional video presentation generation...');
-      console.log('🎬 [PROFESSIONAL_VIDEO] Environment check:');
-      console.log('  - CUSTOM_BACKEND_URL:', CUSTOM_BACKEND_URL);
-      console.log('  - Window location:', window.location.href);
       
       setStatus('generating');
       setProgress(0);
-      setCurrentJob(null);
 
       // Step 1: Extract voiceover text from slides
       console.log('🎬 [PROFESSIONAL_VIDEO] Step 1: Extracting voiceover text from slides...');
-      setProgress(5);
+      setProgress(10);
       
       const voiceoverTexts = await extractVoiceoverTexts();
       console.log('🎬 [PROFESSIONAL_VIDEO] Extracted voiceover texts:', voiceoverTexts);
@@ -226,13 +153,14 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
 
       // Step 2: Get current slide URL
       console.log('🎬 [PROFESSIONAL_VIDEO] Step 2: Getting current slide URL...');
-      setProgress(10);
+      setProgress(20);
       
       const slideUrl = getCurrentSlideUrl();
+      console.log('🎬 [PROFESSIONAL_VIDEO] Slide URL:', slideUrl);
 
       // Step 3: Create professional presentation
       console.log('🎬 [PROFESSIONAL_VIDEO] Step 3: Creating professional presentation...');
-      setProgress(15);
+      setProgress(30);
       
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
         method: 'POST',
@@ -244,12 +172,12 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
         body: JSON.stringify({
           slideUrl: slideUrl,
           voiceoverTexts: voiceoverTexts,
-          avatarCode: 'gia.casual', // Use default avatar
-          duration: 30.0, // 30 seconds per slide
-          layout: 'side_by_side', // Professional side-by-side layout
-          quality: 'high', // High quality output
-          resolution: [1920, 1080], // Full HD
-          projectName: projectName || 'Professional Presentation'
+          avatarCode: 'gia.casual', // Default avatar
+          duration: 30.0,
+          layout: 'side_by_side', // side_by_side, picture_in_picture, split_screen
+          quality: 'high',
+          resolution: [1920, 1080],
+          projectName: projectName
         })
       });
 
@@ -265,32 +193,30 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
         throw new Error(createData.error || 'Failed to create presentation');
       }
 
-      const jobId = createData.jobId;
-      console.log('🎬 [PROFESSIONAL_VIDEO] Presentation created with job ID:', jobId);
+      const presentationJobId = createData.jobId;
+      setJobId(presentationJobId);
+      console.log('🎬 [PROFESSIONAL_VIDEO] Presentation job created with ID:', presentationJobId);
 
       // Step 4: Monitor presentation progress
       console.log('🎬 [PROFESSIONAL_VIDEO] Step 4: Monitoring presentation progress...');
-      setProgress(20);
+      setProgress(40);
       
-      const videoUrl = await monitorPresentationProgress(jobId);
+      const videoUrl = await monitorPresentationProgress(presentationJobId, (progressPercent) => {
+        // Update progress from 40% to 90% based on processing progress
+        const newProgress = 40 + (progressPercent * 0.5); // 40% to 90%
+        setProgress(newProgress);
+        console.log('🎬 [PROFESSIONAL_VIDEO] Processing progress:', progressPercent + '%');
+      });
 
       // Step 5: Complete
-      console.log('🎬 [PROFESSIONAL_VIDEO] Step 5: Professional presentation completed!');
+      console.log('🎬 [PROFESSIONAL_VIDEO] Step 5: Professional presentation generation completed!');
       setProgress(100);
       setStatus('completed');
       console.log('🎬 [PROFESSIONAL_VIDEO] Final video URL:', videoUrl);
-      onSuccess?.(jobId, videoUrl);
+      onSuccess?.(videoUrl);
 
     } catch (error) {
       console.error('🎬 [PROFESSIONAL_VIDEO] Professional presentation generation failed with error:', error);
-      console.error('🎬 [PROFESSIONAL_VIDEO] Error type:', typeof error);
-      console.error('🎬 [PROFESSIONAL_VIDEO] Error constructor:', error?.constructor?.name);
-      console.error('🎬 [PROFESSIONAL_VIDEO] Error stack:', (error as Error)?.stack);
-      
-      if (error instanceof Error) {
-        console.error('🎬 [PROFESSIONAL_VIDEO] Error message:', error.message);
-        console.error('🎬 [PROFESSIONAL_VIDEO] Error name:', error.name);
-      }
       
       setStatus('error');
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -299,35 +225,47 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
     }
   };
 
-  const handleDownloadVideo = () => {
-    if (currentJob?.videoUrl) {
-      const downloadUrl = `${CUSTOM_BACKEND_URL}${currentJob.videoUrl}`;
-      console.log('🎬 [PROFESSIONAL_VIDEO] Downloading video from:', downloadUrl);
+  const handleDownloadVideo = async () => {
+    if (!jobId) return;
+    
+    try {
+      console.log('🎬 [PROFESSIONAL_VIDEO] Downloading video for job:', jobId);
       
-      // Create a temporary link and trigger download
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `professional_presentation_${currentJob.jobId}.mp4`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'video/mp4',
+        },
+        credentials: 'same-origin',
+      });
 
-  const handlePreviewVideo = () => {
-    if (currentJob?.videoUrl) {
-      const videoUrl = `${CUSTOM_BACKEND_URL}${currentJob.videoUrl}`;
-      console.log('🎬 [PROFESSIONAL_VIDEO] Previewing video:', videoUrl);
+      if (!downloadResponse.ok) {
+        throw new Error(`Download failed: ${downloadResponse.status}`);
+      }
+
+      // Create blob and download
+      const blob = await downloadResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `professional_presentation_${jobId}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
       
-      // Open video in new tab
-      window.open(videoUrl, '_blank');
+      console.log('🎬 [PROFESSIONAL_VIDEO] Video downloaded successfully');
+      
+    } catch (error) {
+      console.error('🎬 [PROFESSIONAL_VIDEO] Download failed:', error);
+      onError?.(error instanceof Error ? error.message : 'Download failed');
     }
   };
 
   const getButtonText = () => {
     switch (status) {
       case 'generating':
-        return `Creating Professional Video... ${Math.round(progress)}%`;
+        return `Creating Professional Video... ${progress}%`;
       case 'completed':
         return 'Professional Video Ready';
       case 'error':
@@ -355,7 +293,7 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
     
     switch (status) {
       case 'generating':
-        return `${baseClasses} text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 disabled:opacity-60`;
+        return `${baseClasses} text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 disabled:opacity-60`;
       case 'completed':
         return `${baseClasses} text-white bg-green-600 hover:bg-green-700 focus:ring-green-500`;
       case 'error':
@@ -367,67 +305,37 @@ export const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPres
 
   return (
     <div className="space-y-4">
-      {/* Main Button */}
       <button
-        onClick={handleCreatePresentation}
+        onClick={status === 'completed' ? handleDownloadVideo : handleCreatePresentation}
         disabled={status === 'generating'}
         className={getButtonClassName()}
-        title={
-          status === 'generating' 
-            ? 'Professional video generation in progress...' 
-            : 'Create professional video presentation with slide capture and AI avatar'
-        }
       >
-        {getButtonIcon()}
+        {status === 'completed' ? <Download size={16} className="mr-2" /> : getButtonIcon()}
         {getButtonText()}
       </button>
-
-      {/* Progress Bar */}
+      
       {status === 'generating' && (
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-purple-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
-          ></div>
+          />
         </div>
       )}
-
-      {/* Action Buttons (when completed) */}
-      {status === 'completed' && currentJob && (
-        <div className="flex space-x-2">
-          <button
-            onClick={handlePreviewVideo}
-            className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md flex items-center transition-colors"
-            title="Preview the generated video"
-          >
-            <Eye size={14} className="mr-1" />
-            Preview
-          </button>
-          
-          <button
-            onClick={handleDownloadVideo}
-            className="px-3 py-1 text-sm font-medium text-green-600 bg-green-100 hover:bg-green-200 rounded-md flex items-center transition-colors"
-            title="Download the generated video"
-          >
-            <Download size={14} className="mr-1" />
-            Download
-          </button>
+      
+      {status === 'completed' && (
+        <div className="text-sm text-green-600">
+          ✅ Professional video presentation created successfully! Click the button above to download.
         </div>
       )}
-
-      {/* Job Details */}
-      {currentJob && (
-        <div className="text-xs text-gray-600 space-y-1">
-          <div>Job ID: {currentJob.jobId}</div>
-          <div>Status: {currentJob.status}</div>
-          {currentJob.createdAt && (
-            <div>Created: {new Date(currentJob.createdAt).toLocaleString()}</div>
-          )}
-          {currentJob.completedAt && (
-            <div>Completed: {new Date(currentJob.completedAt).toLocaleString()}</div>
-          )}
+      
+      {status === 'error' && (
+        <div className="text-sm text-red-600">
+          ❌ Failed to create professional video presentation. Please try again.
         </div>
       )}
     </div>
   );
 };
+
+export default ProfessionalVideoPresentationButton;
