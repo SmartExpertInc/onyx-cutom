@@ -802,15 +802,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Total: {(() => {
-                                    // Calculate total learning time from quality tier sums (same as PDF)
-                                    const qualityTierSums = data?.quality_tier_sums || {
-                                      'basic': { completion_time: 0, creation_time: 0 },
-                                      'interactive': { completion_time: 0, creation_time: 0 },
-                                      'advanced': { completion_time: 0, creation_time: 0 },
-                                      'immersive': { completion_time: 0, creation_time: 0 }
-                                    };
-                                    
-                                    const totalLearningMinutes = Object.values(qualityTierSums).reduce((sum, tier) => sum + tier.completion_time, 0);
+                                    // Calculate total learning time from projects (original logic)
+                                    const allProjects = data.projects || [];
+                                    const totalLearningMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_completion_time || 0), 0);
                                     return totalLearningMinutes > 0 ? formatTimeLikePDF(totalLearningMinutes) + ' of learning content' : '- of learning content';
                                   })()}
                                 </li>
@@ -823,15 +817,9 @@ const PreviewModal: React.FC<{
                                 }}>
                                   <span className="text-blue-600 font-bold absolute left-0">•</span>
                                   Estimated Production Time: ≈ {(() => {
-                                    // Calculate total production time from quality tier sums (same as PDF)
-                                    const qualityTierSums = data?.quality_tier_sums || {
-                                      'basic': { completion_time: 0, creation_time: 0 },
-                                      'interactive': { completion_time: 0, creation_time: 0 },
-                                      'advanced': { completion_time: 0, creation_time: 0 },
-                                      'immersive': { completion_time: 0, creation_time: 0 }
-                                    };
-                                    
-                                    const totalProductionMinutes = Object.values(qualityTierSums).reduce((sum, tier) => sum + tier.creation_time, 0);
+                                    // Calculate total production time from projects (original logic)
+                                    const allProjects = data.projects || [];
+                                    const totalProductionMinutes = allProjects.reduce((sum: number, project: Project | BackendProject) => sum + (project.total_creation_hours || 0), 0);
                                     return totalProductionMinutes > 0 ? formatTimeLikePDF(totalProductionMinutes) : '-';
                                   })()}
                                 </li>
@@ -3992,8 +3980,8 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                         // Fallback to project-level calculation if no microproduct_content
                         const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
                         qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
-                        // Use total_creation_hours * 60 to convert to minutes (like backend)
-                        qualityTierSums[effectiveTier].creation_time += (project.total_creation_hours || 0) * 60;
+                        // total_creation_hours is already in minutes (like backend)
+                        qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
                     }
                 });
 
@@ -4098,13 +4086,13 @@ const getProjectsForFolder = useCallback((targetFolderId: number | null) => {
                             }
                         });
                     }
-                } else {
-                    // Fallback to project-level calculation if no microproduct_content
-                    const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
-                    qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
-                    // Use total_creation_hours * 60 to convert to minutes (like backend)
-                    qualityTierSums[effectiveTier].creation_time += (project.total_creation_hours || 0) * 60;
-                }
+                                    } else {
+                        // Fallback to project-level calculation if no microproduct_content
+                        const effectiveTier = getEffectiveQualityTier(null, null, projectQualityTier, 'interactive');
+                        qualityTierSums[effectiveTier].completion_time += project.total_completion_time || 0;
+                        // total_creation_hours is already in minutes (like backend)
+                        qualityTierSums[effectiveTier].creation_time += project.total_creation_hours || 0;
+                    }
             });
 
             console.log('🔄 Setting fallback preview data with quality_tier_sums:', qualityTierSums);
