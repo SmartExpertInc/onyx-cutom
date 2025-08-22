@@ -320,7 +320,14 @@ export const uk = {
       onePager: 'Ставка односторінки',
       quiz: 'Ставка тесту',
       videoLesson: 'Ставка відео-уроку'
-    }
+    },
+    completionTimes: {
+      presentation: 'Презентація',
+      onePager: 'Односторінка',
+      quiz: 'Тест',
+      videoLesson: 'Відео-урок'
+    },
+    advanced: 'Розширений'
   },
   projects: {
     loading: "Завантаження продуктів...",

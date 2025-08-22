@@ -324,7 +324,14 @@ export const es = {
       onePager: 'Tarifa de una página',
       quiz: 'Tarifa de cuestionario',
       videoLesson: 'Tarifa de lección de video'
-    }
+    },
+    completionTimes: {
+      presentation: 'Presentación',
+      onePager: 'Una página',
+      quiz: 'Cuestionario',
+      videoLesson: 'Lección de video'
+    },
+    advanced: 'Avanzado'
   },
   projects: {
     loading: "Cargando productos...",

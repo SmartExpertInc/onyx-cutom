@@ -346,7 +346,14 @@ export const en = {
       onePager: 'One‑pager rate',
       quiz: 'Quiz rate',
       videoLesson: 'Video lesson rate'
-    }
+    },
+    completionTimes: {
+      presentation: 'Presentation',
+      onePager: 'One‑pager',
+      quiz: 'Quiz',
+      videoLesson: 'Video lesson'
+    },
+    advanced: 'Advanced'
   },
   projects: {
     loading: "Loading products...",
