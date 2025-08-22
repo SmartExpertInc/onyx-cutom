@@ -17141,7 +17141,7 @@ async def download_projects_list_pdf(
                 SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                        dt.template_name as design_template_name,
                        dt.microproduct_type as design_microproduct_type,
-                       p.folder_id, p."order", p.microproduct_content
+                       p.folder_id, p."order", p.microproduct_content, p.quality_tier
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.onyx_user_id = $1
@@ -17508,6 +17508,303 @@ async def download_projects_list_pdf(
                 logger.warning(f"Error parsing column widths: {e}. Using default widths.")
                 column_widths_settings = {}
 
+        # Calculate summary statistics for the mini table
+        def calculate_summary_stats(folders, folder_projects, unassigned_projects):
+            total_projects = 0
+            total_lessons = 0
+            total_creation_time = 0
+            total_completion_time = 0
+            
+            # Calculate from folders and their projects
+            for folder in folders:
+                if folder['id'] in folder_projects:
+                    for project in folder_projects[folder['id']]:
+                        total_projects += 1
+                        total_lessons += project.get('total_lessons', 0) or 0
+                        total_creation_time += project.get('total_hours', 0) or 0
+                        total_completion_time += project.get('total_completion_time', 0) or 0
+                
+                # Recursively calculate from subfolders
+                if folder.get('children'):
+                    child_stats = calculate_summary_stats(folder['children'], folder_projects, [])
+                    total_projects += child_stats['total_projects']
+                    total_lessons += child_stats['total_lessons']
+                    total_creation_time += child_stats['total_creation_time']
+                    total_completion_time += child_stats['total_completion_time']
+            
+            # Add unassigned projects
+            for project in unassigned_projects:
+                total_projects += 1
+                total_lessons += project.get('total_lessons', 0) or 0
+                total_creation_time += project.get('total_hours', 0) or 0
+                total_completion_time += project.get('total_completion_time', 0) or 0
+            
+            return {
+                'total_projects': total_projects,
+                'total_lessons': total_lessons,
+                'total_creation_time': total_creation_time,
+                'total_completion_time': total_completion_time
+            }
+
+        # Calculate summary statistics
+        summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
+
+        # Collect all project IDs that are actually included in the filtered PDF data
+        included_project_ids = set()
+        
+        # Add projects from filtered folders
+        for folder_id_key, projects in folder_projects.items():
+            for project in projects:
+                included_project_ids.add(project['id'])
+        
+        # Add filtered unassigned projects
+        for project in unassigned_projects:
+            included_project_ids.add(project['id'])
+        
+        logger.info(f"[PDF_ANALYTICS] Found {len(included_project_ids)} projects included in PDF: {list(included_project_ids)}")
+
+        # Fetch real analytics data for pie charts using only the projects actually included in the PDF
+        product_distribution = None
+        quality_distribution = None
+        
+        logger.info(f"[PDF_ANALYTICS] Starting analytics data fetch for user: {onyx_user_id}, included projects: {len(included_project_ids)}")
+        
+        try:
+            # Use a new connection for analytics queries since the original conn might be released
+            async with pool.acquire() as analytics_conn:
+                # Get product distribution data - since lessons don't have pre-computed recommendations,
+                # we'll generate them on-the-fly using Python logic
+                if included_project_ids:
+                    # Convert project IDs to a format suitable for SQL IN clause
+                    project_ids_list = list(included_project_ids)
+                    project_ids_placeholder = ','.join(['$' + str(i+2) for i in range(len(project_ids_list))])
+                    
+                    lessons_query = f"""
+                        SELECT 
+                            p.id as project_id,
+                            lesson->>'title' as lesson_title,
+                            lesson->>'quality_tier' as lesson_quality_tier,
+                            p.quality_tier as project_quality_tier,
+                            pf.quality_tier as folder_quality_tier
+                        FROM projects p
+                        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                        LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                        CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        WHERE p.onyx_user_id = $1
+                        AND p.id IN ({project_ids_placeholder})
+                        AND p.microproduct_content IS NOT NULL
+                        AND p.microproduct_content->>'sections' IS NOT NULL
+                        AND dt.component_name = 'TrainingPlanTable'
+                    """
+                    product_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    lessons_query = "SELECT NULL as project_id, NULL as lesson_title, NULL as lesson_quality_tier, NULL as project_quality_tier, NULL as folder_quality_tier WHERE FALSE"
+                    product_params = []
+                
+                logger.info(f"[PDF_ANALYTICS] Lessons query: {lessons_query}")
+                logger.info(f"[PDF_ANALYTICS] Lessons params: {product_params}")
+                
+                lessons_rows = await analytics_conn.fetch(lessons_query, *product_params)
+                logger.info(f"[PDF_ANALYTICS] Found {len(lessons_rows)} lessons for product analysis")
+                
+                # Generate recommendations for each lesson using the existing function
+                product_counts = {}
+                total_products = 0
+                
+                for row in lessons_rows:
+                    lesson_title = row['lesson_title'] or ''
+                    # Determine effective quality tier
+                    quality_tier = (
+                        row['lesson_quality_tier'] or 
+                        row['project_quality_tier'] or 
+                        row['folder_quality_tier'] or 
+                        'interactive'
+                    )
+                    
+                    logger.info(f"[PDF_ANALYTICS] Processing lesson: '{lesson_title}' (quality: {quality_tier})")
+                    
+                    # Generate recommendations using the existing function
+                    recommendations = analyze_lesson_content_recommendations(lesson_title, quality_tier)
+                    primary_types = recommendations.get('primary', [])
+                    
+                    logger.info(f"[PDF_ANALYTICS] Generated recommendations: {primary_types}")
+                    
+                    # Count each recommended product type
+                    for product_type_str in primary_types:
+                        total_products += 1
+                        
+                        # Map to our ProductType enum
+                        product_type_mapping = {
+                            'one-pager': ProductType.ONE_PAGER,
+                            'presentation': ProductType.PRESENTATION,
+                            'quiz': ProductType.QUIZ,
+                            'video-lesson': ProductType.VIDEO_LESSON
+                        }
+                        
+                        product_type = product_type_mapping.get(product_type_str)
+                        if product_type:
+                            if product_type not in product_counts:
+                                product_counts[product_type] = 0
+                            product_counts[product_type] += 1
+                            logger.info(f"[PDF_ANALYTICS] Added {product_type_str} -> {product_type}, count now: {product_counts[product_type]}")
+                        else:
+                            logger.warning(f"[PDF_ANALYTICS] Unknown product type: {product_type_str}")
+                
+                # We've already computed product_counts and total_products above using Python logic
+                
+                logger.info(f"[PDF_ANALYTICS] Total products: {total_products}")
+                logger.info(f"[PDF_ANALYTICS] Product counts: {product_counts}")
+                
+                # Create product distribution data for template
+                product_distribution = {
+                    'total_products': total_products,
+                    'one_pager_count': product_counts.get(ProductType.ONE_PAGER, 0),
+                    'presentation_count': product_counts.get(ProductType.PRESENTATION, 0),
+                    'quiz_count': product_counts.get(ProductType.QUIZ, 0),
+                    'video_lesson_count': product_counts.get(ProductType.VIDEO_LESSON, 0)
+                }
+                
+                logger.info(f"[PDF_ANALYTICS] Product distribution before percentages: {product_distribution}")
+                
+                # Calculate percentages
+                if total_products > 0:
+                    product_distribution['one_pager_percentage'] = round((product_distribution['one_pager_count'] / total_products * 100), 1)
+                    product_distribution['presentation_percentage'] = round((product_distribution['presentation_count'] / total_products * 100), 1)
+                    product_distribution['quiz_percentage'] = round((product_distribution['quiz_count'] / total_products * 100), 1)
+                    product_distribution['video_lesson_percentage'] = round((product_distribution['video_lesson_count'] / total_products * 100), 1)
+                else:
+                    product_distribution['one_pager_percentage'] = 0
+                    product_distribution['presentation_percentage'] = 0
+                    product_distribution['quiz_percentage'] = 0
+                    product_distribution['video_lesson_percentage'] = 0
+                
+                logger.info(f"[PDF_ANALYTICS] Final product distribution: {product_distribution}")
+                
+                # Get quality distribution data using the same project filtering
+                if included_project_ids:
+                    # Use the same project IDs that were included in the product analysis
+                    quality_query = f"""
+                        WITH lesson_quality_tiers AS (
+                            SELECT 
+                                COALESCE(
+                                    lesson->>'quality_tier',
+                                    section->>'quality_tier', 
+                                    p.quality_tier,
+                                    pf.quality_tier,
+                                    'interactive'
+                                ) as effective_quality_tier
+                            FROM projects p
+                            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                            CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                            WHERE p.onyx_user_id = $1
+                            AND p.id IN ({project_ids_placeholder})
+                            AND p.microproduct_content IS NOT NULL
+                            AND p.microproduct_content->>'sections' IS NOT NULL
+                        )
+                        SELECT 
+                            LOWER(effective_quality_tier) as quality_tier,
+                            COUNT(*) as count
+                        FROM lesson_quality_tiers
+                        GROUP BY LOWER(effective_quality_tier)
+                        ORDER BY count DESC
+                    """
+                    quality_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    quality_query = "SELECT NULL as quality_tier, 0 as count WHERE FALSE"
+                    quality_params = []
+                
+                logger.info(f"[PDF_ANALYTICS] Quality query: {quality_query}")
+                logger.info(f"[PDF_ANALYTICS] Quality params: {quality_params}")
+                
+                quality_rows = await analytics_conn.fetch(quality_query, *quality_params)
+                logger.info(f"[PDF_ANALYTICS] Quality query returned {len(quality_rows)} rows")
+                
+                # Process quality distribution
+                tier_counts = {}
+                total_lessons = 0
+                
+                for row in quality_rows:
+                    tier_name = row['quality_tier'].lower()
+                    count = row['count']
+                    total_lessons += count
+                    logger.info(f"[PDF_ANALYTICS] Raw quality tier: {tier_name}, count: {count}")
+                    
+                    # Map tier names to enum values
+                    tier_mapping = {
+                        'basic': 'basic',
+                        'interactive': 'interactive',
+                        'advanced': 'advanced',
+                        'immersive': 'immersive',
+                        'medium': 'interactive',  # Map medium to interactive
+                        'premium': 'advanced',    # Map premium to advanced
+                    }
+                    
+                    tier = tier_mapping.get(tier_name, 'interactive')
+                    logger.info(f"[PDF_ANALYTICS] Mapped quality tier {tier_name} -> {tier}")
+                    if tier not in tier_counts:
+                        tier_counts[tier] = 0
+                    tier_counts[tier] += count
+                    logger.info(f"[PDF_ANALYTICS] Added {count} to {tier}, total now: {tier_counts[tier]}")
+                
+                logger.info(f"[PDF_ANALYTICS] Total lessons: {total_lessons}")
+                logger.info(f"[PDF_ANALYTICS] Tier counts: {tier_counts}")
+                
+                # Create quality distribution data for template
+                quality_distribution = {
+                    'total_lessons': total_lessons,
+                    'basic_count': tier_counts.get('basic', 0),
+                    'interactive_count': tier_counts.get('interactive', 0),
+                    'advanced_count': tier_counts.get('advanced', 0),
+                    'immersive_count': tier_counts.get('immersive', 0)
+                }
+                
+                logger.info(f"[PDF_ANALYTICS] Quality distribution before percentages: {quality_distribution}")
+                
+                # Calculate percentages
+                if total_lessons > 0:
+                    quality_distribution['basic_percentage'] = round((quality_distribution['basic_count'] / total_lessons * 100), 1)
+                    quality_distribution['interactive_percentage'] = round((quality_distribution['interactive_count'] / total_lessons * 100), 1)
+                    quality_distribution['advanced_percentage'] = round((quality_distribution['advanced_count'] / total_lessons * 100), 1)
+                    quality_distribution['immersive_percentage'] = round((quality_distribution['immersive_count'] / total_lessons * 100), 1)
+                else:
+                    quality_distribution['basic_percentage'] = 0
+                    quality_distribution['interactive_percentage'] = 0
+                    quality_distribution['advanced_percentage'] = 0
+                    quality_distribution['immersive_percentage'] = 0
+                
+                logger.info(f"[PDF_ANALYTICS] Final quality distribution: {quality_distribution}")
+                
+        except Exception as e:
+            logger.error(f"[PDF_ANALYTICS] Failed to fetch analytics data for PDF: {str(e)}", exc_info=True)
+            # Use fallback data if analytics fetch fails
+            product_distribution = {
+                'total_products': 0,
+                'one_pager_count': 0,
+                'presentation_count': 0,
+                'quiz_count': 0,
+                'video_lesson_count': 0,
+                'one_pager_percentage': 0,
+                'presentation_percentage': 0,
+                'quiz_percentage': 0,
+                'video_lesson_percentage': 0
+            }
+            quality_distribution = {
+                'total_lessons': 0,
+                'basic_count': 0,
+                'interactive_count': 0,
+                'advanced_count': 0,
+                'immersive_count': 0,
+                'basic_percentage': 0,
+                'interactive_percentage': 0,
+                'advanced_percentage': 0,
+                'immersive_percentage': 0
+            }
+            logger.info(f"[PDF_ANALYTICS] Using fallback data due to error")
+
         # Prepare data for template
         template_data = {
             'folders': folder_tree,  # Use hierarchical structure
@@ -17517,10 +17814,26 @@ async def download_projects_list_pdf(
             'column_widths': column_widths_settings,
             'folder_id': folder_id,
             'client_name': client_name,  # Client name for header customization
-            'generated_at': datetime.now().isoformat()
+            'generated_at': datetime.now().isoformat(),
+            'summary_stats': summary_stats,  # Add summary statistics to template data
+            'product_distribution': product_distribution,  # Add real product distribution data
+            'quality_distribution': quality_distribution   # Add real quality distribution data
         }
+        
+        logger.info(f"[PDF_ANALYTICS] Template data prepared:")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {product_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {quality_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - summary_stats: {summary_stats}")
 
         # Generate PDF
+        logger.info(f"[PDF_ANALYTICS] About to generate PDF with template data keys: {list(template_data.keys())}")
+        logger.info(f"[PDF_ANALYTICS] Template data summary:")
+        logger.info(f"[PDF_ANALYTICS] - folders count: {len(template_data.get('folders', []))}")
+        logger.info(f"[PDF_ANALYTICS] - folder_projects count: {len(template_data.get('folder_projects', {}))}")
+        logger.info(f"[PDF_ANALYTICS] - unassigned_projects count: {len(template_data.get('unassigned_projects', []))}")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {template_data.get('product_distribution')}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {template_data.get('quality_distribution')}")
+        
         unique_output_filename = f"projects_list_{onyx_user_id}_{uuid.uuid4().hex[:12]}.pdf"
         pdf_path = await generate_pdf_from_html_template("projects_list_pdf_template.html", template_data, unique_output_filename)
         
@@ -19573,6 +19886,224 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     status_code=500, 
                     detail=f"Failed to duplicate project: {str(e)}"
                 )
+
+
+# --- Analytics Response Models ---
+from enum import Enum
+
+class ProductType(str, Enum):
+    ONE_PAGER = "one_pager"
+    PRESENTATION = "presentation"
+    QUIZ = "quiz"
+    VIDEO_LESSON = "video_lesson"
+
+class QualityTier(str, Enum):
+    BASIC = "basic"
+    INTERACTIVE = "interactive"
+    ADVANCED = "advanced"
+    IMMERSIVE = "immersive"
+
+class ProductTypeDistribution(BaseModel):
+    type: ProductType
+    count: int
+    percentage: float
+    color: str
+
+class ProductsDistributionResponse(BaseModel):
+    total_products: int
+    distribution: List[ProductTypeDistribution]
+
+class QualityTierDistribution(BaseModel):
+    tier: QualityTier
+    count: int
+    percentage: float
+    color: str
+
+class QualityTiersDistributionResponse(BaseModel):
+    total_lessons: int
+    distribution: List[QualityTierDistribution]
+
+# Color mappings for consistency
+PRODUCT_TYPE_COLORS = {
+    ProductType.ONE_PAGER: "#9333ea",     # Purple
+    ProductType.PRESENTATION: "#2563eb",   # Blue  
+    ProductType.QUIZ: "#16a34a",          # Green
+    ProductType.VIDEO_LESSON: "#ea580c"   # Orange
+}
+
+QUALITY_TIER_COLORS = {
+    QualityTier.BASIC: "#059669",        # Green
+    QualityTier.INTERACTIVE: "#ea580c",   # Orange  
+    QualityTier.ADVANCED: "#7c3aed",      # Purple
+    QualityTier.IMMERSIVE: "#2563eb"      # Blue
+}
+
+# Component to Product Type mapping
+COMPONENT_TO_PRODUCT_TYPE = {
+    COMPONENT_NAME_TEXT_PRESENTATION: ProductType.ONE_PAGER,
+    COMPONENT_NAME_SLIDE_DECK: ProductType.PRESENTATION,
+    COMPONENT_NAME_QUIZ: ProductType.QUIZ,
+    COMPONENT_NAME_VIDEO_LESSON: ProductType.VIDEO_LESSON,
+    COMPONENT_NAME_VIDEO_LESSON_PRESENTATION: ProductType.VIDEO_LESSON,
+    COMPONENT_NAME_PDF_LESSON: ProductType.ONE_PAGER,  # PDF lessons are considered one-pagers
+    # Note: TrainingPlanTable components contain lessons, we need to count the lesson products, not the outline itself
+}
+
+@app.get("/api/custom/projects/analytics/product-distribution", response_model=ProductsDistributionResponse)
+async def get_product_distribution(
+    folder_id: Optional[int] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get product type distribution for analytics pie chart."""
+    try:
+        async with pool.acquire() as conn:
+            # Build query to get all projects with their component types
+            query = """
+                SELECT dt.component_name, COUNT(*) as count
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.onyx_user_id = $1
+            """
+            params = [onyx_user_id]
+            
+            if folder_id is not None:
+                query += " AND p.folder_id = $2"
+                params.append(folder_id)
+            
+            query += " GROUP BY dt.component_name ORDER BY count DESC"
+            
+            rows = await conn.fetch(query, *params)
+            
+            # Process results
+            product_counts = {}
+            total_products = 0
+            
+            for row in rows:
+                component_name = row['component_name']
+                count = row['count']
+                total_products += count
+                
+                # Map component to product type
+                product_type = COMPONENT_TO_PRODUCT_TYPE.get(component_name)
+                if product_type:
+                    if product_type not in product_counts:
+                        product_counts[product_type] = 0
+                    product_counts[product_type] += count
+            
+            # Create distribution list
+            distribution = []
+            for product_type in ProductType:
+                count = product_counts.get(product_type, 0)
+                percentage = (count / total_products * 100) if total_products > 0 else 0
+                
+                distribution.append(ProductTypeDistribution(
+                    type=product_type,
+                    count=count,
+                    percentage=round(percentage, 1),
+                    color=PRODUCT_TYPE_COLORS[product_type]
+                ))
+            
+            return ProductsDistributionResponse(
+                total_products=total_products,
+                distribution=distribution
+            )
+            
+    except Exception as e:
+        logger.error(f"Error getting product distribution: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get product distribution: {str(e)}")
+
+@app.get("/api/custom/projects/analytics/quality-distribution", response_model=QualityTiersDistributionResponse)
+async def get_quality_distribution(
+    folder_id: Optional[int] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get quality tiers distribution for analytics pie chart."""
+    try:
+        async with pool.acquire() as conn:
+            # Build query to get all lessons with their quality tiers
+            query = """
+                WITH lesson_quality_tiers AS (
+                    SELECT 
+                        COALESCE(
+                            lesson->>'quality_tier',
+                            section->>'quality_tier', 
+                            p.quality_tier,
+                            pf.quality_tier,
+                            'interactive'
+                        ) as effective_quality_tier
+                    FROM projects p
+                    LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                    CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                    CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                    WHERE p.onyx_user_id = $1
+                    AND p.microproduct_content IS NOT NULL
+                    AND p.microproduct_content->>'sections' IS NOT NULL
+            """
+            params = [onyx_user_id]
+            
+            if folder_id is not None:
+                query += " AND p.folder_id = $2"
+                params.append(folder_id)
+            
+            query += """
+                )
+                SELECT 
+                    LOWER(effective_quality_tier) as quality_tier,
+                    COUNT(*) as count
+                FROM lesson_quality_tiers
+                GROUP BY LOWER(effective_quality_tier)
+                ORDER BY count DESC
+            """
+            
+            rows = await conn.fetch(query, *params)
+            
+            # Process results
+            tier_counts = {}
+            total_lessons = 0
+            
+            for row in rows:
+                tier_name = row['quality_tier'].lower()
+                count = row['count']
+                total_lessons += count
+                
+                # Map tier names to enum values
+                tier_mapping = {
+                    'basic': QualityTier.BASIC,
+                    'interactive': QualityTier.INTERACTIVE,
+                    'advanced': QualityTier.ADVANCED,
+                    'immersive': QualityTier.IMMERSIVE,
+                    'medium': QualityTier.INTERACTIVE,  # Map medium to interactive
+                    'premium': QualityTier.ADVANCED,    # Map premium to advanced
+                }
+                
+                tier = tier_mapping.get(tier_name, QualityTier.INTERACTIVE)
+                if tier not in tier_counts:
+                    tier_counts[tier] = 0
+                tier_counts[tier] += count
+            
+            # Create distribution list
+            distribution = []
+            for tier in QualityTier:
+                count = tier_counts.get(tier, 0)
+                percentage = (count / total_lessons * 100) if total_lessons > 0 else 0
+                
+                distribution.append(QualityTierDistribution(
+                    tier=tier,
+                    count=count,
+                    percentage=round(percentage, 1),
+                    color=QUALITY_TIER_COLORS[tier]
+                ))
+            
+            return QualityTiersDistributionResponse(
+                total_lessons=total_lessons,
+                distribution=distribution
+            )
+            
+    except Exception as e:
+        logger.error(f"Error getting quality distribution: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get quality distribution: {str(e)}")
 
 # ============================
 # SMART DRIVE API ENDPOINTS
