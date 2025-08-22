@@ -1,4 +1,4 @@
-﻿# custom_extensions/backend/main.py
+﻿﻿# custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -13908,8 +13908,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             # Success when we have valid parsed content
             if content_valid:
                 logger.info(f"Direct parser path successful for project {direct_path_project_id}")
-                print('FULL CONTENT', project_db_candidate.microproduct_content)
-                return JSONResponse(content={"type": "done", "id": project_db_candidate.id})
+                logger.debug(f'Full content for project {direct_path_project_id}: {project_db_candidate.microproduct_content}')                return JSONResponse(content={"type": "done", "id": project_db_candidate.id})
             else:
                 # Direct parser path validation failed - clean up the created project and fall back to assistant
                 logger.warning(f"Direct parser path validation failed for project {direct_path_project_id} - LLM parsing likely failed")

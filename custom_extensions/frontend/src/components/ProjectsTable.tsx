@@ -4775,7 +4775,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "interface.estCompletionTimeShort",
                             "Est. completion time"
                           ),
-                        },,
+                        },
                                         { key: 'customOffer', label: t('interface.customOffer', 'Custom Offer') }
                       ].map((column) => (
                         <label
