@@ -17144,15 +17144,6 @@ async def get_video_system_status():
 @app.post("/api/custom/presentations")
 async def create_presentation(request: Request):
     """Create a new professional video presentation."""
-    import asyncio
-    
-    # Set longer timeout for this endpoint
-    try:
-        # Override request timeout for video processing
-        request.scope["timeout"] = 300  # 5 minutes
-    except:
-        pass  # Ignore if timeout setting fails
-    
     try:
         if not presentation_service:
             return {
@@ -17200,7 +17191,8 @@ async def create_presentation(request: Request):
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)
         
-        return {
+        # Immediate response to prevent timeout
+        response = {
             "success": True,
             "jobId": job_id,
             "status": "processing",
@@ -17208,6 +17200,9 @@ async def create_presentation(request: Request):
             "message": "Presentation generation started - check status with job ID",
             "estimatedTime": "60-90 seconds"
         }
+        
+        logger.info(f"Returning immediate response for job {job_id}")
+        return response
         
     except Exception as e:
         logger.error(f"Error creating presentation: {str(e)}")
