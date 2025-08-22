@@ -533,7 +533,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
       {/* Header Section */}
-      <div className="mb-6">
+      <div className="mb-8">
+                <div className="mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Smart Drive Connectors</h2>
             <p className="text-gray-900 text-lg">Connect your data sources to import content into your Smart Drive</p>
@@ -599,15 +600,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   </div>
 
                   <div className="flex gap-2">
-                    <button
+                      <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleConnectClick(connector.id, connector.name);
                       }}
                       className="flex-1 text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
-                    >
-                      Connect
-                    </button>
+                      >
+                        Connect
+                      </button>
 
                     {hasConnectors && (
                       <div className="relative">
@@ -681,9 +682,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         {userConnectorsForSource.some(c => c.status === 'active') && (
                           <span className="text-green-600 font-medium">● Active</span>
                         )}
-                      </div>
-                    </div>
-                  )}
+                                </div>
+        </div>
+      )}
                 </div>
               );
             })}
@@ -703,6 +704,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </button>
           </div>
         </div>
+      </div>
 
       {/* All Connectors Grid - Expandable */}
       {showAllConnectors && (
@@ -719,10 +721,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   const hasMultipleConnectors = userConnectorsForSource.length > 1;
 
                   return (
-                    <div
-                      key={connector.id}
-                      className="group relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all duration-200"
-                    >
+                                      <div
+                    key={connector.id}
+                    className="group relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all duration-200"
+                  >
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                           <Image
@@ -780,7 +782,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                           setSelectedConnectorId(userConnector.id);
                                           setShowManagementPage(true);
                                           setTimeout(() => {
-                                            setIsManagementOpening(false);
+            setIsManagementOpening(false);
                                           }, 500);
                                         }
                                       }}
@@ -806,7 +808,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                     }, 500);
                                   }
                                 }}
-                                className="text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                                className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                               >
                                 Manage
                               </button>
@@ -824,13 +826,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+      )}
+    </div>
+  );
+})}
+          </div>
+        </div>
+      ))}
         </>
       )}
 
