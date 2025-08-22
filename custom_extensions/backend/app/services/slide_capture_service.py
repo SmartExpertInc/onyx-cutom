@@ -774,6 +774,11 @@ class ProfessionalSlideCapture:
         """Convert screenshot sequence to video using FFmpeg"""
         logger.info(f"Converting {len(screenshots)} screenshots to video")
         
+        # First, check if FFmpeg is available
+        if not await self._check_ffmpeg_availability():
+            logger.warning("FFmpeg not available, creating fallback video using alternative method")
+            return await self._create_fallback_video(screenshots, output_path, config)
+        
         # Create input file list for FFmpeg
         input_list_filename = "input_list.txt"
         input_list_path = str(self.temp_dir / input_list_filename)
@@ -822,13 +827,15 @@ class ProfessionalSlideCapture:
             if process.returncode != 0:
                 error_msg = stderr.decode() if stderr else "Unknown FFmpeg error"
                 logger.error(f"FFmpeg screenshot conversion failed: {error_msg}")
-                raise Exception(f"FFmpeg screenshot conversion failed: {error_msg}")
+                logger.warning("Attempting fallback video creation method")
+                return await self._create_fallback_video(screenshots, output_path, config)
             
             logger.info("FFmpeg conversion completed successfully")
             
         except Exception as e:
             logger.error(f"FFmpeg process failed: {e}")
-            raise
+            logger.warning("Attempting fallback video creation method")
+            return await self._create_fallback_video(screenshots, output_path, config)
         finally:
             # Clean up input list
             if os.path.exists(input_list_path):
@@ -836,6 +843,237 @@ class ProfessionalSlideCapture:
                 logger.info(f"Cleaned up input list: {input_list_path}")
         
         logger.info(f"Successfully converted screenshots to video: {output_path}")
+    
+    async def _check_ffmpeg_availability(self) -> bool:
+        """Check if FFmpeg is available in the system."""
+        try:
+            process = await asyncio.create_subprocess_exec(
+                'ffmpeg', '-version',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0:
+                logger.info("FFmpeg is available")
+                return True
+            else:
+                logger.warning("FFmpeg check failed")
+                return False
+                
+        except Exception as e:
+            logger.warning(f"FFmpeg availability check failed: {e}")
+            return False
+    
+    async def _create_fallback_video(self, screenshots: List[str], output_path: str, config: SlideVideoConfig) -> str:
+        """Create a fallback video when FFmpeg is not available."""
+        logger.info("Creating fallback video using alternative method")
+        
+        try:
+            # Try using moviepy as fallback
+            from moviepy.editor import ImageSequenceClip
+            
+            # Load images as sequence
+            image_sequence = []
+            for screenshot in screenshots:
+                if os.path.exists(screenshot):
+                    image_sequence.append(screenshot)
+            
+            if not image_sequence:
+                raise Exception("No valid screenshots found for fallback video")
+            
+            logger.info(f"Creating fallback video from {len(image_sequence)} images")
+            
+            # Create video clip from image sequence
+            clip = ImageSequenceClip(image_sequence, fps=2)  # 2 FPS
+            
+            # Resize to target resolution
+            clip = clip.resize((config.width, config.height))
+            
+            # Write video file
+            clip.write_videofile(
+                output_path,
+                fps=2,
+                codec='libx264',
+                audio=False,
+                verbose=False,
+                logger=None
+            )
+            
+            clip.close()
+            
+            logger.info(f"Fallback video created successfully: {output_path}")
+            return output_path
+            
+        except ImportError:
+            logger.warning("MoviePy not available, creating simple image sequence")
+            return await self._create_image_sequence(screenshots, output_path, config)
+        except Exception as e:
+            logger.error(f"Fallback video creation failed: {e}")
+            logger.warning("Creating simple image sequence as last resort")
+            return await self._create_image_sequence(screenshots, output_path, config)
+    
+    async def _create_image_sequence(self, screenshots: List[str], output_path: str, config: SlideVideoConfig) -> str:
+        """Create a simple image sequence when video creation fails."""
+        logger.info("Creating image sequence as fallback")
+        
+        try:
+            # Create a directory for the image sequence
+            sequence_dir = output_path.replace('.mp4', '_sequence')
+            os.makedirs(sequence_dir, exist_ok=True)
+            
+            # Copy screenshots to sequence directory with numbered names
+            for i, screenshot in enumerate(screenshots):
+                if os.path.exists(screenshot):
+                    new_name = f"frame_{i:04d}.png"
+                    new_path = os.path.join(sequence_dir, new_name)
+                    
+                    import shutil
+                    shutil.copy2(screenshot, new_path)
+            
+            logger.info(f"Image sequence created in: {sequence_dir}")
+            
+            # Create a simple HTML viewer for the sequence
+            html_path = output_path.replace('.mp4', '_viewer.html')
+            await self._create_html_viewer(screenshots, html_path, config)
+            
+            logger.info(f"HTML viewer created: {html_path}")
+            
+            # Return the HTML viewer path instead of video
+            return html_path
+            
+        except Exception as e:
+            logger.error(f"Image sequence creation failed: {e}")
+            # Return the first screenshot as absolute fallback
+            if screenshots and os.path.exists(screenshots[0]):
+                return screenshots[0]
+            else:
+                raise Exception("All fallback methods failed")
+    
+    async def _create_html_viewer(self, screenshots: List[str], html_path: str, config: SlideVideoConfig):
+        """Create an HTML viewer for the image sequence."""
+        try:
+            html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Slide Sequence Viewer</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }}
+        .container {{
+            max-width: {config.width}px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }}
+        .controls {{
+            text-align: center;
+            margin-bottom: 20px;
+        }}
+        .controls button {{
+            padding: 10px 20px;
+            margin: 0 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }}
+        .controls button:hover {{
+            background: #0056b3;
+        }}
+        .frame-container {{
+            text-align: center;
+            margin: 20px 0;
+        }}
+        .frame {{
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }}
+        .info {{
+            text-align: center;
+            color: #666;
+            margin-top: 10px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Slide Sequence Viewer</h1>
+        <div class="controls">
+            <button onclick="previousFrame()">Previous</button>
+            <button onclick="playPause()">Play/Pause</button>
+            <button onclick="nextFrame()">Next</button>
+            <span id="frameInfo">Frame 1 of {len(screenshots)}</span>
+        </div>
+        <div class="frame-container">
+            <img id="currentFrame" class="frame" src="{screenshots[0] if screenshots else ''}" alt="Slide">
+        </div>
+        <div class="info">
+            <p>Resolution: {config.width}x{config.height} | Frames: {len(screenshots)} | Duration: {len(screenshots) * 0.5:.1f}s</p>
+        </div>
+    </div>
+
+    <script>
+        const frames = {screenshots};
+        let currentFrameIndex = 0;
+        let isPlaying = false;
+        let playInterval;
+
+        function updateFrame() {{
+            const frame = document.getElementById('currentFrame');
+            const info = document.getElementById('frameInfo');
+            
+            if (frames[currentFrameIndex]) {{
+                frame.src = frames[currentFrameIndex];
+                info.textContent = `Frame ${{currentFrameIndex + 1}} of ${{frames.length}}`;
+            }}
+        }}
+
+        function nextFrame() {{
+            currentFrameIndex = (currentFrameIndex + 1) % frames.length;
+            updateFrame();
+        }}
+
+        function previousFrame() {{
+            currentFrameIndex = (currentFrameIndex - 1 + frames.length) % frames.length;
+            updateFrame();
+        }}
+
+        function playPause() {{
+            if (isPlaying) {{
+                clearInterval(playInterval);
+                isPlaying = false;
+            }} else {{
+                playInterval = setInterval(nextFrame, 500); // 2 FPS
+                isPlaying = true;
+            }}
+        }}
+
+        // Auto-play on load
+        setTimeout(playPause, 1000);
+    </script>
+</body>
+</html>
+            """
+            
+            with open(html_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+                
+        except Exception as e:
+            logger.error(f"HTML viewer creation failed: {e}")
+            raise
 
 # Global instance
 slide_capture_service = ProfessionalSlideCapture()

@@ -3,7 +3,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies for Pyppeteer/Chromium
+# Install system dependencies for Pyppeteer/Chromium and FFmpeg
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     fonts-liberation \
@@ -44,6 +44,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xdg-utils \
     chromium \
     fonts-inter \
+    # FFmpeg and video processing dependencies
+    ffmpeg \
+    libx264-dev \
+    libx265-dev \
+    libvpx-dev \
+    libaom-dev \
+    libmp3lame-dev \
+    libopus-dev \
+    libvorbis-dev \
+    libass-dev \
+    libfreetype6-dev \
+    libfontconfig1-dev \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -56,8 +68,8 @@ RUN playwright install chromium
 
 COPY . .
 
-RUN mkdir -p /app/data /tmp/generated_pdfs
-RUN chmod -R 777 /tmp/generated_pdfs # Ensure /tmp is writable
+RUN mkdir -p /app/data /tmp/generated_pdfs /app/temp
+RUN chmod -R 777 /tmp/generated_pdfs /app/temp # Ensure directories are writable
 
 EXPOSE 8001
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]

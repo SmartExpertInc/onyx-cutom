@@ -18,6 +18,7 @@ playwright
 Pillow
 opencv-python
 asyncio-mqtt
+moviepy # For fallback video creation
 
 # File handling
 pathlib2
