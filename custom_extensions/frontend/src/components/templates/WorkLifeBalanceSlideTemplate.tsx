@@ -325,18 +325,18 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        {/* Arch background */}
-        <div style={{
-          position: 'absolute',
-          right: '0',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          width: '100%',
-          height: '80%',
-          backgroundColor: slideAccentColor,
-          borderRadius: '50% 0 0 50%',
-          zIndex: 1
-        }} />
+                 {/* Arch background */}
+         <div style={{
+           position: 'absolute',
+           right: '0',
+           top: '50%',
+           transform: 'translateY(-50%)',
+           width: '100%',
+           height: '80%',
+           backgroundColor: '#9CAF88', // Light olive green like in original
+           borderRadius: '50% 0 0 50%',
+           zIndex: 1
+         }} />
 
         {/* Image */}
         <div style={{
