@@ -618,21 +618,67 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     </button>
 
                     {hasConnectors && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log('Manage button clicked for connector:', connector.id);
-                          console.log('User connectors for source:', userConnectorsForSource);
-                          if (userConnectorsForSource.length === 1) {
-                            console.log('Opening management page for connector ID:', userConnectorsForSource[0].id);
-                            setSelectedConnectorId(userConnectorsForSource[0].id);
-                            setShowManagementPage(true);
-                          }
-                        }}
-                        className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
-                      >
-                        Manage
-                      </button>
+                      <div className="relative">
+                        {userConnectorsForSource.length > 1 ? (
+                          <div className="relative group">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenDropdownId(connector.id);
+                              }}
+                              className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1"
+                            >
+                              Manage
+                              <ChevronDown className="w-3 h-3" />
+                            </button>
+                            <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
+                              openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
+                            }`}>
+                              {userConnectorsForSource.map((userConnector) => (
+                                <button
+                                  key={userConnector.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('Popular dropdown manage button clicked for connector:', userConnector.id);
+                                    setOpenDropdownId(null); // Close dropdown
+                                    if (!showManagementPage && !isManagementOpening) {
+                                      console.log('Opening management page from popular dropdown for connector ID:', userConnector.id);
+                                      setIsManagementOpening(true);
+                                      setSelectedConnectorId(userConnector.id);
+                                      setShowManagementPage(true);
+                                      setTimeout(() => {
+                                        setIsManagementOpening(false);
+                                      }, 500);
+                                    }
+                                  }}
+                                  className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                >
+                                  {userConnector.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
+                              if (!showManagementPage && !isManagementOpening) {
+                                console.log('Opening management page from single button for connector ID:', userConnectorsForSource[0].id);
+                                setIsManagementOpening(true);
+                                setSelectedConnectorId(userConnectorsForSource[0].id);
+                                setShowManagementPage(true);
+                                setTimeout(() => {
+                                  setIsManagementOpening(false);
+                                }, 500);
+                              }
+                            }}
+                            className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                          >
+                            Manage
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
 

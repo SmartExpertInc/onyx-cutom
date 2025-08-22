@@ -363,8 +363,13 @@ export default function ConnectorManagementPage({
             {/* Delete Button */}
             <button
               onClick={handleDelete}
-              disabled={isDeleting || isIndexing}
-              className="px-6 py-3 rounded-lg flex items-center gap-3 font-medium bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg disabled:bg-gray-200 disabled:text-gray-500 transition-all duration-200"
+              disabled={isDeleting || isIndexing || !isPaused}
+              title={!isPaused ? "Connector must be paused before deletion" : ""}
+              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
+                isDeleting || isIndexing || !isPaused
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg'
+              }`}
             >
               <Trash2Icon className="w-5 h-5" />
               Delete
