@@ -49,6 +49,11 @@ export default function Projects2ViewPage() {
   // Aspect ratio state
   const [aspectRatio, setAspectRatio] = useState<string>('16:9');
 
+  // Debug aspect ratio changes
+  useEffect(() => {
+    console.log('Aspect ratio changed to:', aspectRatio);
+  }, [aspectRatio]);
+
 
 
   // Function to add a new scene

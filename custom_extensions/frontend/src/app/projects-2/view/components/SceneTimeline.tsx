@@ -19,6 +19,8 @@ export default function SceneTimeline({
   onAddScene, 
   onMenuClick 
 }: SceneTimelineProps) {
+  // Debug aspect ratio changes
+  console.log('SceneTimeline received aspectRatio:', aspectRatio);
   // Function to get scene rectangle dimensions based on aspect ratio
   const getSceneRectangleStyles = () => {
     const baseHeight = 64; // 16 * 4 (h-16)

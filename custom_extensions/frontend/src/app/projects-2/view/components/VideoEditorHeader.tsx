@@ -77,7 +77,9 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
   };
 
   const handleResizeOptionClick = (ratio: string) => {
+    console.log('Resize option clicked:', ratio);
     if (ratio !== 'Custom') {
+      console.log('Updating aspect ratio to:', ratio);
       onAspectRatioChange(ratio);
     }
     setIsResizePopupOpen(false);
