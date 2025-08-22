@@ -1089,8 +1089,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       textColor: { type: 'color', label: 'Text Color', default: '#d9e1ff' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' }
-    },
-  },
+    }
+  }
 };
 
 // Utility functions for working with the registry

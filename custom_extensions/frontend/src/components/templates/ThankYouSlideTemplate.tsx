@@ -226,15 +226,34 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     }
   };
 
-  const handleCancel = (setter: () => void, originalValue: string) => {
-    setter();
-    // Reset to original value
-    if (setter === setEditingTitle) setCurrentTitle(originalValue);
-    else if (setter === setEditingEmail) setCurrentEmail(originalValue);
-    else if (setter === setEditingPhone) setCurrentPhone(originalValue);
-    else if (setter === setEditingAddress) setCurrentAddress(originalValue);
-    else if (setter === setEditingPostalCode) setCurrentPostalCode(originalValue);
-    else if (setter === setEditingCompanyName) setCurrentCompanyName(originalValue);
+  const handleTitleCancel = () => {
+    setCurrentTitle(title);
+    setEditingTitle(false);
+  };
+
+  const handleEmailCancel = () => {
+    setCurrentEmail(email);
+    setEditingEmail(false);
+  };
+
+  const handlePhoneCancel = () => {
+    setCurrentPhone(phone);
+    setEditingPhone(false);
+  };
+
+  const handleAddressCancel = () => {
+    setCurrentAddress(address);
+    setEditingAddress(false);
+  };
+
+  const handlePostalCodeCancel = () => {
+    setCurrentPostalCode(postalCode);
+    setEditingPostalCode(false);
+  };
+
+  const handleCompanyNameCancel = () => {
+    setCurrentCompanyName(companyName);
+    setEditingCompanyName(false);
   };
 
   return (
@@ -247,7 +266,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <InlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
-            onCancel={() => handleCancel(setEditingTitle, title)}
+            onCancel={handleTitleCancel}
             className="thank-you-title-editor"
             style={{
               fontSize: '48px',
@@ -311,7 +330,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <InlineEditor
                   initialValue={currentEmail}
                   onSave={handleEmailSave}
-                  onCancel={() => handleCancel(setEditingEmail, email)}
+                  onCancel={handleEmailCancel}
                   className="thank-you-email-editor"
                   style={{
                     fontSize: '18px',
@@ -340,7 +359,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <InlineEditor
                   initialValue={currentPhone}
                   onSave={handlePhoneSave}
-                  onCancel={() => handleCancel(setEditingPhone, phone)}
+                  onCancel={handlePhoneCancel}
                   className="thank-you-phone-editor"
                   style={{
                     fontSize: '18px',
@@ -381,7 +400,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <InlineEditor
                   initialValue={currentAddress}
                   onSave={handleAddressSave}
-                  onCancel={() => handleCancel(setEditingAddress, address)}
+                  onCancel={handleAddressCancel}
                   className="thank-you-address-editor"
                   style={{
                     fontSize: '18px',
@@ -410,7 +429,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <InlineEditor
                   initialValue={currentPostalCode}
                   onSave={handlePostalCodeSave}
-                  onCancel={() => handleCancel(setEditingPostalCode, postalCode)}
+                  onCancel={handlePostalCodeCancel}
                   className="thank-you-postal-code-editor"
                   style={{
                     fontSize: '18px',
@@ -504,7 +523,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             <InlineEditor
               initialValue={currentCompanyName}
               onSave={handleCompanyNameSave}
-              onCancel={() => handleCancel(setEditingCompanyName, companyName)}
+              onCancel={handleCompanyNameCancel}
               className="thank-you-company-name-editor"
               style={{
                 fontSize: '14px',
