@@ -348,6 +348,47 @@ export interface AvatarWithQuoteProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
+// New slide templates based on provided images
+export interface CourseOverviewSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  imagePath?: string;
+  imageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  imagePath?: string;
+  imageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface ThankYouSlideProps extends BaseTemplateProps {
+  title: string;
+  email: string;
+  phone: string;
+  address: string;
+  postalCode: string;
+  companyName: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  textColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -368,7 +409,10 @@ export type TemplateId =
   | 'avatar-with-buttons'
   | 'avatar-checklist'
   | 'avatar-steps'
-  | 'avatar-crm';
+  | 'avatar-crm'
+  | 'course-overview-slide'
+  | 'work-life-balance-slide'
+  | 'thank-you-slide';
 
 export interface TemplatePreview {
   templateId: string;

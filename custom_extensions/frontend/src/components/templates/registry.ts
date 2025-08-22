@@ -22,6 +22,9 @@ import { AvatarWithButtonsSlideTemplate } from './AvatarWithButtonsSlideTemplate
 import { AvatarChecklistSlideTemplate } from './AvatarChecklistSlideTemplate';
 import { AvatarCrmSlideTemplate } from './AvatarCrmSlideTemplate';
 import { AvatarStepsSlideTemplate } from './AvatarStepsSlideTemplate';
+import { CourseOverviewSlideTemplate } from './CourseOverviewSlideTemplate';
+import { WorkLifeBalanceSlideTemplate } from './WorkLifeBalanceSlideTemplate';
+import { ThankYouSlideTemplate } from './ThankYouSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -991,6 +994,101 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
       subtitleColor: { type: 'color', label: 'Subtitle Color', default: '#ffffff' },
       contentColor: { type: 'color', label: 'Content Color', default: '#ffffff' }
+    },
+  },
+
+  'course-overview-slide': {
+    id: 'course-overview-slide',
+    name: 'Course Overview Slide',
+    description: 'Slide with purple panel on left and image on right',
+    category: 'title',
+    icon: '📚',
+    component: CourseOverviewSlideTemplate,
+    defaultProps: {
+      title: 'Course',
+      subtitle: 'Overview',
+      imagePath: '',
+      imageAlt: 'Course overview image',
+      backgroundColor: '#110c35',
+      titleColor: '#ffffff',
+      subtitleColor: '#d9e1ff',
+      accentColor: '#f35657'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
+      subtitle: { type: 'text', label: 'Subtitle', maxLength: 50 },
+      imagePath: { type: 'image', label: 'Image' },
+      imageAlt: { type: 'text', label: 'Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#110c35' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      subtitleColor: { type: 'color', label: 'Subtitle Color', default: '#d9e1ff' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' }
+    },
+  },
+
+  'work-life-balance-slide': {
+    id: 'work-life-balance-slide',
+    name: 'Work-Life Balance Slide',
+    description: 'Slide with dark olive background and arched image area',
+    category: 'content',
+    icon: '⚖️',
+    component: WorkLifeBalanceSlideTemplate,
+    defaultProps: {
+      title: 'Work-life balance',
+      content: 'Maintaining a healthy work-life balance allows me to be more present and engaged both at work and in my personal life, resulting in increased productivity and overall satisfaction.',
+      imagePath: '',
+      imageAlt: 'Work-life balance image',
+      backgroundColor: '#110c35',
+      titleColor: '#ffffff',
+      contentColor: '#d9e1ff',
+      accentColor: '#f35657'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      content: { type: 'text', label: 'Content', maxLength: 500 },
+      imagePath: { type: 'image', label: 'Image' },
+      imageAlt: { type: 'text', label: 'Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#110c35' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' }
+    },
+  },
+
+  'thank-you-slide': {
+    id: 'thank-you-slide',
+    name: 'Thank You Slide',
+    description: 'Contact information slide with profile image',
+    category: 'special',
+    icon: '🙏',
+    component: ThankYouSlideTemplate,
+    defaultProps: {
+      title: 'Thank you',
+      email: 'hello@gmail.com',
+      phone: '+1 (305) 212-4253',
+      address: '374 Creekside Road Palmetto',
+      postalCode: 'F134221',
+      companyName: 'Company name',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      backgroundColor: '#110c35',
+      titleColor: '#ffffff',
+      textColor: '#d9e1ff',
+      accentColor: '#f35657'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
+      email: { type: 'text', label: 'Email', required: true },
+      phone: { type: 'text', label: 'Phone', required: true },
+      address: { type: 'text', label: 'Address', required: true },
+      postalCode: { type: 'text', label: 'Postal Code', required: true },
+      companyName: { type: 'text', label: 'Company Name', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#110c35' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      textColor: { type: 'color', label: 'Text Color', default: '#d9e1ff' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' }
     },
   },
 };

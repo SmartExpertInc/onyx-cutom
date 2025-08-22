@@ -1,0 +1,535 @@
+// custom_extensions/frontend/src/components/templates/ThankYouSlideTemplate.tsx
+
+import React, { useState, useRef, useEffect } from 'react';
+import { ThankYouSlideProps } from '@/types/slideTemplates';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block',
+      }}
+    />
+  );
+}
+
+export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
+  theme?: string;
+}> = ({
+  slideId,
+  title = 'Thank you',
+  email = 'hello@gmail.com',
+  phone = '+1 (305) 212-4253',
+  address = '374 Creekside Road Palmetto',
+  postalCode = 'F134221',
+  companyName = 'Company name',
+  profileImagePath = '',
+  profileImageAlt = 'Profile image',
+  backgroundColor,
+  titleColor,
+  textColor,
+  accentColor,
+  isEditable = false,
+  onUpdate,
+  theme = DEFAULT_SLIDE_THEME,
+  voiceoverText
+}) => {
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [editingPostalCode, setEditingPostalCode] = useState(false);
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
+  
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentEmail, setCurrentEmail] = useState(email);
+  const [currentPhone, setCurrentPhone] = useState(phone);
+  const [currentAddress, setCurrentAddress] = useState(address);
+  const [currentPostalCode, setCurrentPostalCode] = useState(postalCode);
+  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+
+  // Get theme colors
+  const currentTheme = getSlideTheme(theme);
+  const themeColors = currentTheme.colors;
+
+  // Use theme colors if not provided - adapt to site themes
+  const slideBackgroundColor = backgroundColor || themeColors.backgroundColor;
+  const slideTitleColor = titleColor || themeColors.titleColor;
+  const slideTextColor = textColor || themeColors.contentColor;
+  const slideAccentColor = accentColor || themeColors.accentColor;
+
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    backgroundColor: slideBackgroundColor,
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    overflow: 'hidden',
+    fontFamily: currentTheme.fonts.titleFont,
+    padding: '60px',
+    boxSizing: 'border-box'
+  };
+
+  const handleTitleSave = (newTitle: string) => {
+    setCurrentTitle(newTitle);
+    setEditingTitle(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, title: newTitle });
+    }
+  };
+
+  const handleEmailSave = (newEmail: string) => {
+    setCurrentEmail(newEmail);
+    setEditingEmail(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, email: newEmail });
+    }
+  };
+
+  const handlePhoneSave = (newPhone: string) => {
+    setCurrentPhone(newPhone);
+    setEditingPhone(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, phone: newPhone });
+    }
+  };
+
+  const handleAddressSave = (newAddress: string) => {
+    setCurrentAddress(newAddress);
+    setEditingAddress(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, address: newAddress });
+    }
+  };
+
+  const handlePostalCodeSave = (newPostalCode: string) => {
+    setCurrentPostalCode(newPostalCode);
+    setEditingPostalCode(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, postalCode: newPostalCode });
+    }
+  };
+
+  const handleCompanyNameSave = (newCompanyName: string) => {
+    setCurrentCompanyName(newCompanyName);
+    setEditingCompanyName(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, companyName: newCompanyName });
+    }
+  };
+
+  const handleCancel = (setter: () => void, originalValue: string) => {
+    setter();
+    // Reset to original value
+    if (setter === setEditingTitle) setCurrentTitle(originalValue);
+    else if (setter === setEditingEmail) setCurrentEmail(originalValue);
+    else if (setter === setEditingPhone) setCurrentPhone(originalValue);
+    else if (setter === setEditingAddress) setCurrentAddress(originalValue);
+    else if (setter === setEditingPostalCode) setCurrentPostalCode(originalValue);
+    else if (setter === setEditingCompanyName) setCurrentCompanyName(originalValue);
+  };
+
+  return (
+    <div className="thank-you-slide-template" style={slideStyles}>
+      {/* Main Title */}
+      <div style={{
+        marginBottom: '40px'
+      }}>
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={currentTitle}
+            onSave={handleTitleSave}
+            onCancel={() => handleCancel(setEditingTitle, title)}
+            className="thank-you-title-editor"
+            style={{
+              fontSize: '48px',
+              fontWeight: 'bold',
+              color: slideTitleColor,
+              lineHeight: '1.1',
+              fontFamily: currentTheme.fonts.titleFont
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingTitle(true)}
+            style={{
+              fontSize: '48px',
+              fontWeight: 'bold',
+              color: slideTitleColor,
+              lineHeight: '1.1',
+              cursor: isEditable ? 'pointer' : 'default',
+              fontFamily: currentTheme.fonts.titleFont,
+              userSelect: 'none'
+            }}
+          >
+            {currentTitle}
+          </div>
+        )}
+      </div>
+
+      {/* Horizontal separator line */}
+      <div style={{
+        width: '100%',
+        height: '1px',
+        backgroundColor: '#6b7280',
+        marginBottom: '40px'
+      }} />
+
+      {/* Content area */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        flex: 1
+      }}>
+        {/* Left side - Contact and Address */}
+        <div style={{
+          display: 'flex',
+          gap: '80px'
+        }}>
+          {/* Contacts */}
+          <div>
+            <div style={{
+              fontSize: '14px',
+              color: '#9ca3af',
+              marginBottom: '10px',
+              fontWeight: '300'
+            }}>
+              Contacts
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              {isEditable && editingEmail ? (
+                <InlineEditor
+                  initialValue={currentEmail}
+                  onSave={handleEmailSave}
+                  onCancel={() => handleCancel(setEditingEmail, email)}
+                  className="thank-you-email-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingEmail(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentEmail}
+                </div>
+              )}
+            </div>
+
+            <div>
+              {isEditable && editingPhone ? (
+                <InlineEditor
+                  initialValue={currentPhone}
+                  onSave={handlePhoneSave}
+                  onCancel={() => handleCancel(setEditingPhone, phone)}
+                  className="thank-you-phone-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingPhone(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentPhone}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Address */}
+          <div>
+            <div style={{
+              fontSize: '14px',
+              color: '#9ca3af',
+              marginBottom: '10px',
+              fontWeight: '300'
+            }}>
+              Our address
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              {isEditable && editingAddress ? (
+                <InlineEditor
+                  initialValue={currentAddress}
+                  onSave={handleAddressSave}
+                  onCancel={() => handleCancel(setEditingAddress, address)}
+                  className="thank-you-address-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingAddress(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentAddress}
+                </div>
+              )}
+            </div>
+
+            <div>
+              {isEditable && editingPostalCode ? (
+                <InlineEditor
+                  initialValue={currentPostalCode}
+                  onSave={handlePostalCodeSave}
+                  onCancel={() => handleCancel(setEditingPostalCode, postalCode)}
+                  className="thank-you-postal-code-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingPostalCode(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentPostalCode}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right side - Profile Image */}
+        <div style={{
+          width: '200px',
+          height: '200px',
+          borderRadius: '50%',
+          backgroundColor: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          border: '4px solid white'
+        }}>
+          {profileImagePath ? (
+            <img
+              src={profileImagePath}
+              alt={profileImageAlt}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '50%'
+              }}
+            />
+          ) : (
+            <div style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#f3f4f6',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#9ca3af',
+              fontSize: '16px',
+              border: '2px dashed #d1d5db'
+            }}>
+              {isEditable ? 'Add photo' : 'No photo'}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom horizontal separator line */}
+      <div style={{
+        width: '100%',
+        height: '1px',
+        backgroundColor: '#6b7280',
+        marginTop: '40px',
+        marginBottom: '20px'
+      }} />
+
+      {/* Company name */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }}>
+        <div style={{
+          width: '16px',
+          height: '16px',
+          backgroundColor: '#6b7280',
+          transform: 'rotate(45deg)'
+        }} />
+        <div>
+          {isEditable && editingCompanyName ? (
+            <InlineEditor
+              initialValue={currentCompanyName}
+              onSave={handleCompanyNameSave}
+              onCancel={() => handleCancel(setEditingCompanyName, companyName)}
+              className="thank-you-company-name-editor"
+              style={{
+                fontSize: '14px',
+                color: '#9ca3af',
+                fontFamily: currentTheme.fonts.contentFont
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingCompanyName(true)}
+              style={{
+                fontSize: '14px',
+                color: '#9ca3af',
+                cursor: isEditable ? 'pointer' : 'default',
+                fontFamily: currentTheme.fonts.contentFont,
+                userSelect: 'none'
+              }}
+            >
+              {currentCompanyName}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ThankYouSlideTemplate; 
