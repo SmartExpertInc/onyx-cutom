@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Trash2, Image as ImageIcon } from 'lucide-react';
+import Media from './Media';
 
 export default function ImageSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate' | 'filters'>('format');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="h-full bg-white rounded-lg border border-gray-200">
@@ -20,7 +22,10 @@ export default function ImageSettings() {
         
         <div className="flex items-center space-x-2">
           {/* Replace image button */}
-          <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors"
+          >
             Replace image
           </button>
           
@@ -195,7 +200,7 @@ export default function ImageSettings() {
               {/* No filter - white square with stop icon */}
               <div className="flex flex-col items-center">
                 <button className="w-full aspect-[4/3] bg-white border-2 border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 20 20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" className="text-gray-500">
                     <path fill="currentColor" d="M10 0C4.478 0 0 4.478 0 10s4.478 10 10 10s10-4.478 10-10S15.522 0 10 0Zm0 18.304A8.305 8.305 0 0 1 3.56 4.759l11.681 11.68A8.266 8.266 0 0 1 10 18.305Zm6.44-3.063L4.759 3.561a8.305 8.305 0 0 1 11.68 11.68Z"/>
                   </svg>
                 </button>
@@ -214,6 +219,14 @@ export default function ImageSettings() {
           </div>
         )}
       </div>
+      
+      {/* Media component for modal selection */}
+      <Media 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Choose Media"
+        displayMode="modal"
+      />
     </div>
   );
 }
