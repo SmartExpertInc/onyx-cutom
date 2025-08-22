@@ -539,13 +539,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Smart Drive Connectors</h2>
             <p className="text-gray-900 text-lg">Connect your data sources to import content into your Smart Drive</p>
           </div>
-          <button
-            onClick={loadUserConnectors}
-            disabled={loading}
-            className="px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            {loading ? 'Refreshing...' : 'Refresh'}
-          </button>
+          
         </div>
 
         {/* Prominent Browse Section */}
