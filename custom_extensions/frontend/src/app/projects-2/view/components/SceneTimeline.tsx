@@ -62,9 +62,9 @@ export default function SceneTimeline({
           {/* Dynamic Scene Rectangles */}
           {scenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
-              <div className="relative group flex flex-col items-center">
+              <div className="relative group">
                 <div 
-                  className="bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center relative mb-3"
+                  className="bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center relative"
                   style={getSceneRectangleStyles()}
                 >
                   <div className="w-8 h-8 bg-blue-500 rounded"></div>
@@ -90,7 +90,7 @@ export default function SceneTimeline({
                     </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 flex items-center gap-2">
                   <span className="text-sm font-medium">{scene.name}</span>
                   <svg 
                     className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
@@ -134,9 +134,9 @@ export default function SceneTimeline({
           ))}
 
           {/* Add Scene Rectangle */}
-          <div className="flex flex-col items-center">
+          <div className="relative">
             <div 
-              className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors mb-3"
+              className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
               style={getSceneRectangleStyles()}
               onClick={onAddScene}
             >
