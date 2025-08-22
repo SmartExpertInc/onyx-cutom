@@ -16,8 +16,11 @@ import InteractionPopup from './components/InteractionPopup';
 import InteractionModal from './components/InteractionModal';
 import AiPopup from './components/AiPopup';
 import LanguageVariantModal from './components/LanguageVariantModal';
-import VideoPreview from './components/VideoPreview';
+import VideoPresentation from './components/VideoPresentation';
 import SceneTimeline from './components/SceneTimeline';
+import TextSettings from './components/TextSettings';
+import ImageSettings from './components/ImageSettings';
+import AvatarSettings from './components/AvatarSettings';
 
 interface Scene {
   id: string;
@@ -48,6 +51,9 @@ export default function Projects2ViewPage() {
 
   // Aspect ratio state
   const [aspectRatio, setAspectRatio] = useState<string>('16:9');
+  
+  // Selected element state for presentation
+  const [selectedElement, setSelectedElement] = useState<string | null>(null);
 
   // Function to add a new scene
   const handleAddScene = () => {
@@ -101,6 +107,11 @@ export default function Projects2ViewPage() {
     closeMenu();
   };
 
+  // Function to handle element selection in presentation
+  const handleElementSelect = (elementType: string | null) => {
+    setSelectedElement(elementType);
+  };
+
   const handleActiveToolChange = (toolId: string) => {
     if (toolId === 'media') {
       setIsMediaPopupOpen(true);
@@ -113,6 +124,8 @@ export default function Projects2ViewPage() {
     setIsShapesPopupOpen(false);
     setIsInteractionPopupOpen(false);
     setIsAiPopupOpen(false);
+    // Clear selected element when switching tools
+    setSelectedElement(null);
   };
 
   const handleMusicButtonClick = () => {
@@ -194,6 +207,21 @@ export default function Projects2ViewPage() {
   };
 
   const renderSidebarComponent = () => {
+    // If an element is selected, show its settings
+    if (selectedElement) {
+      switch (selectedElement) {
+        case 'text':
+          return <TextSettings />;
+        case 'image':
+          return <ImageSettings />;
+        case 'avatar':
+          return <AvatarSettings />;
+        default:
+          return <Script onAiButtonClick={handleAiButtonClick} />;
+      }
+    }
+
+    // Otherwise show the active component
     switch (activeComponent) {
       case 'script':
         return <Script onAiButtonClick={handleAiButtonClick} />;
@@ -242,7 +270,11 @@ export default function Projects2ViewPage() {
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 70% of main container height */}
-          <VideoPreview aspectRatio={aspectRatio} />
+          <VideoPresentation 
+            aspectRatio={aspectRatio} 
+            onElementSelect={handleElementSelect}
+            selectedElement={selectedElement}
+          />
 
           {/* Bottom Container - Takes 30% of main container height */}
           <SceneTimeline 
