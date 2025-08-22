@@ -20,7 +20,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
 }) => {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
-    company_id: selectedClient?.id || '',
+    company_id: 0,
     offer_name: '',
     manager: '',
     status: 'Draft',
@@ -30,11 +30,17 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clientProjects, setClientProjects] = useState<any[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-  // Don't render if not open
-  if (!open) return null;
+  // Ensure component only renders after hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render if not open or not mounted (prevents hydration errors)
+  if (!open || !isMounted) return null;
 
   // Update form data when selectedClient changes
   useEffect(() => {
@@ -43,6 +49,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
       fetchClientProjects(selectedClient.id);
     }
   }, [selectedClient]);
+
+  // Initialize company_id from selectedClient on mount
+  useEffect(() => {
+    if (selectedClient?.id && formData.company_id === 0) {
+      setFormData(prev => ({ ...prev, company_id: selectedClient.id }));
+    }
+  }, [selectedClient, formData.company_id]);
 
   // Fetch client projects when company_id changes
   useEffect(() => {
@@ -82,6 +95,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+
+    // Validate required fields
+    if (!formData.company_id || !formData.offer_name || !formData.manager) {
+      setError('Please fill in all required fields');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${CUSTOM_BACKEND_URL}/offers`, {
@@ -141,7 +161,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 >
-                  <option value="">{t('interface.selectCompany', 'Select company...')}</option>
+                  <option value={0}>{t('interface.selectCompany', 'Select company...')}</option>
                   {folders.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.name}
