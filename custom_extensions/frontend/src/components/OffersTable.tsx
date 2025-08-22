@@ -62,10 +62,8 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   const [sortBy, setSortBy] = useState<"offer_name" | "created_on" | "manager" | "status" | "total_hours">("created_on");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
-  const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -230,10 +228,8 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
 
   // Handle offer created/updated
   const handleOfferSaved = () => {
-    setShowCreateModal(false);
     setShowEditModal(false);
     setEditingOffer(null);
-    setSelectedClientForOffer(null);
     fetchOffers();
   };
 
@@ -268,12 +264,14 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{t('interface.offers', 'Offers')}</h2>
-          <p className="text-gray-600">
-            {offers.length} {offers.length === 1 ? t('interface.offer', 'offer') : t('interface.offers', 'offers')}
-          </p>
         </div>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => {
+            // Dispatch event to open create offer modal in parent component
+            window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
+              detail: { folder: null }
+            }));
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           <Plus size={16} />
@@ -290,24 +288,24 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
             placeholder={t('interface.searchOffers', 'Search offers...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
         >
-          <option value="">{t('interface.allStatuses', 'All Statuses')}</option>
-          <option value="Draft">{t('interface.draft', 'Draft')}</option>
-          <option value="Internal Review">{t('interface.internalReview', 'Internal Review')}</option>
-          <option value="Approved">{t('interface.approved', 'Approved')}</option>
-          <option value="Sent to Client">{t('interface.sentToClient', 'Sent to Client')}</option>
-          <option value="Viewed by Client">{t('interface.viewedByClient', 'Viewed by Client')}</option>
-          <option value="Negotiation">{t('interface.negotiation', 'Negotiation')}</option>
-          <option value="Accepted">{t('interface.accepted', 'Accepted')}</option>
-          <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
-          <option value="Archived">{t('interface.archived', 'Archived')}</option>
+          <option value="" className="text-black">{t('interface.allStatuses', 'All Statuses')}</option>
+          <option value="Draft" className="text-black">{t('interface.draft', 'Draft')}</option>
+          <option value="Internal Review" className="text-black">{t('interface.internalReview', 'Internal Review')}</option>
+          <option value="Approved" className="text-black">{t('interface.approved', 'Approved')}</option>
+          <option value="Sent to Client" className="text-black">{t('interface.sentToClient', 'Sent to Client')}</option>
+          <option value="Viewed by Client" className="text-black">{t('interface.viewedByClient', 'Viewed by Client')}</option>
+          <option value="Negotiation" className="text-black">{t('interface.negotiation', 'Negotiation')}</option>
+          <option value="Accepted" className="text-black">{t('interface.accepted', 'Accepted')}</option>
+          <option value="Rejected" className="text-black">{t('interface.rejected', 'Rejected')}</option>
+          <option value="Archived" className="text-black">{t('interface.archived', 'Archived')}</option>
         </select>
       </div>
 

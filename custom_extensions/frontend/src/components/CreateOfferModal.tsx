@@ -83,12 +83,25 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
 
         if (response.ok) {
           const projects = await response.json();
-          // Calculate total hours from all projects
-          // This is a placeholder calculation - adjust based on your project structure
+          // Calculate total hours from all projects based on microproduct content
           const totalHours = projects.reduce((sum: number, project: any) => {
-            // Assuming each project has some hour calculation logic
-            // You might need to adjust this based on your actual project data structure
-            return sum + (project.estimated_hours || 0);
+            let projectHours = 0;
+            
+            // Calculate hours from microproduct_content
+            if (project.microproduct_content && project.microproduct_content.sections) {
+              for (const section of project.microproduct_content.sections) {
+                if (section.lessons) {
+                  for (const lesson of section.lessons) {
+                    // Add lesson hours if available
+                    if (lesson.hours) {
+                      projectHours += lesson.hours;
+                    }
+                  }
+                }
+              }
+            }
+            
+            return sum + projectHours;
           }, 0);
           
           setFormData(prev => ({ ...prev, total_hours: totalHours }));

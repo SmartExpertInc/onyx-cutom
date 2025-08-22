@@ -18,5 +18,14 @@ module.exports = {
       sans: ['Inter', 'ui-sans-serif', 'system-ui'],
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.placeholder-black::placeholder': {
+          color: '#000000',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 }; 
