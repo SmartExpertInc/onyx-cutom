@@ -35,13 +35,42 @@ class ProfessionalSlideCapture:
     """Professional slide capture service using Playwright."""
     
     def __init__(self):
-        self.browser = None
-        self.temp_dir = Path("temp")
-        self.temp_dir.mkdir(parents=True, exist_ok=True)
+        logger.info("Initializing Professional Slide Capture Service...")
         
-        # Create slides subdirectory
-        self.slides_dir = Path("temp/slides")
-        self.slides_dir.mkdir(parents=True, exist_ok=True)
+        self.browser = None
+        
+        # Create temp directory with absolute path and detailed logging
+        try:
+            # Get current working directory
+            current_dir = os.getcwd()
+            logger.info(f"Current working directory: {current_dir}")
+            
+            # Create temp directory with absolute path
+            self.temp_dir = Path(current_dir) / "temp"
+            logger.info(f"Creating temp directory: {self.temp_dir}")
+            
+            # Create temp directory and all parent directories
+            self.temp_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Temp directory created/verified: {self.temp_dir}")
+            
+            # Verify directory exists and is writable
+            if not self.temp_dir.exists():
+                raise Exception(f"Failed to create temp directory: {self.temp_dir}")
+            
+            if not os.access(self.temp_dir, os.W_OK):
+                raise Exception(f"Temp directory not writable: {self.temp_dir}")
+            
+            logger.info(f"Temp directory is writable: {self.temp_dir}")
+            
+            # Create slides subdirectory
+            self.slides_dir = self.temp_dir / "slides"
+            logger.info(f"Creating slides directory: {self.slides_dir}")
+            self.slides_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Slides directory created/verified: {self.slides_dir}")
+            
+        except Exception as e:
+            logger.error(f"Failed to create directories: {e}")
+            raise
         
         # Quality presets for FFmpeg
         self.quality_presets = {
@@ -50,16 +79,20 @@ class ProfessionalSlideCapture:
             'low': {'crf': 28, 'preset': 'fast'}
         }
         
-        logger.info("Professional Slide Capture Service initialized")
+        logger.info("Professional Slide Capture Service initialized successfully")
     
     async def initialize_browser(self):
         """Initialize the Playwright browser with optimal settings."""
         try:
+            logger.info("Initializing Playwright browser...")
+            
             from playwright.async_api import async_playwright
             
             self.playwright = await async_playwright().start()
+            logger.info("Playwright started successfully")
             
             # Launch browser with optimal settings for video capture
+            logger.info("Launching Chromium browser...")
             self.browser = await self.playwright.chromium.launch(
                 headless=True,
                 args=[
@@ -98,32 +131,52 @@ class ProfessionalSlideCapture:
             Path to the captured video file
         """
         try:
+            logger.info(f"Starting slide capture process...")
+            logger.info(f"Config: URL={config.slide_url}, Duration={config.duration}s, Resolution={config.width}x{config.height}")
+            
             if not self.browser:
+                logger.info("Browser not initialized, initializing now...")
                 await self.initialize_browser()
             
             logger.info(f"Starting slide capture: {config.slide_url}")
             
             # Validate video recording environment
+            logger.info("Validating video recording environment...")
             await self.validate_video_environment()
             
             # Create context with optimal settings
+            logger.info("Creating browser context...")
             context = await self.browser.new_context(
                 viewport={'width': config.width, 'height': config.height},
                 user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             )
+            logger.info("Browser context created")
             
             # Create page
+            logger.info("Creating browser page...")
             page = await context.new_page()
+            logger.info("Browser page created")
             
             # Validate video recording capability
+            logger.info("Checking video recording capability...")
             if not hasattr(page, 'video') or page.video is None:
-                await context.close()
                 logger.warning("Video recording not available, using screenshot fallback")
+                await context.close()
                 return await self.capture_with_screenshots(config)
             
+            logger.info("Video recording capability confirmed")
+            
             # Start video recording using the page.video API
-            video_path = f"temp/slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}.webm"
+            video_filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}.webm"
+            video_path = str(self.temp_dir / video_filename)
+            logger.info(f"Starting video recording to: {video_path}")
+            
+            # Ensure the temp directory exists before starting recording
+            self.temp_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Ensured temp directory exists: {self.temp_dir}")
+            
             await page.video.start(path=video_path)
+            logger.info("Video recording started")
             
             # Navigate to slide URL with better error handling
             logger.info(f"Navigating to slide URL: {config.slide_url}")
@@ -191,71 +244,96 @@ class ProfessionalSlideCapture:
                 logger.info("Fallback slide content created successfully")
             
             # Wait for all resources to load
+            logger.info("Waiting for page resources to load...")
             await self._wait_for_all_resources(page)
             
             # Wait for the specified duration
-            logger.info(f"Recording for {config.duration} seconds")
+            logger.info(f"Recording for {config.duration} seconds...")
             await page.wait_for_timeout(int(config.duration * 1000))
             
             # Stop video recording
+            logger.info("Stopping video recording...")
             captured_video_path = await page.video.stop()
+            logger.info(f"Video recording stopped: {captured_video_path}")
+            
             await page.close()
             await context.close()
+            logger.info("Browser page and context closed")
             
             if not captured_video_path:
-                raise Exception("Failed to capture video")
+                raise Exception("Failed to capture video - no path returned")
             
             video_path = captured_video_path
             
-            logger.info(f"Video captured: {video_path}")
+            # Verify the video file exists
+            if not os.path.exists(video_path):
+                raise Exception(f"Video file not found at: {video_path}")
+            
+            file_size = os.path.getsize(video_path)
+            logger.info(f"Video captured successfully: {video_path} ({file_size} bytes)")
             
             # Convert to optimized MP4
+            logger.info("Converting to optimized MP4...")
             output_path = await self._convert_to_optimized_mp4(video_path, config)
             
             # Clean up temporary file
             if os.path.exists(video_path):
                 os.remove(video_path)
+                logger.info(f"Cleaned up temporary video: {video_path}")
             
             logger.info(f"Slide video completed: {output_path}")
             return output_path
             
         except Exception as e:
             logger.error(f"Slide capture failed: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+            import traceback
+            logger.error(f"Stack trace: {traceback.format_exc()}")
             raise
     
     async def _wait_for_all_resources(self, page):
         """Wait for all page resources to load completely."""
         try:
+            logger.info("Starting resource wait process...")
+            
             # Set a shorter timeout to prevent hanging on auth errors
+            logger.info("Waiting 2 seconds for initial page load...")
             await page.wait_for_timeout(2000)  # Wait 2 seconds for initial load
             
             # Check if page is accessible (not showing auth error)
             try:
+                logger.info("Checking page content for authentication errors...")
                 page_content = await page.content()
                 if "401" in page_content or "Unauthorized" in page_content:
                     logger.warning("Page shows authentication error, skipping resource wait")
                     return
-            except:
-                logger.warning("Could not check page content, continuing")
+                logger.info("Page content check passed - no auth errors detected")
+            except Exception as content_error:
+                logger.warning(f"Could not check page content: {content_error}, continuing")
             
             # Wait for fonts to load (with timeout)
             try:
+                logger.info("Waiting for fonts to load...")
                 await page.wait_for_function("document.fonts.ready", timeout=5000)
-            except:
-                logger.warning("Font loading timeout, continuing...")
+                logger.info("Fonts loaded successfully")
+            except Exception as font_error:
+                logger.warning(f"Font loading timeout: {font_error}, continuing...")
             
             # Wait for images to load (with timeout)
             try:
+                logger.info("Waiting for images to load...")
                 await page.wait_for_function("""
                     () => {
                         const images = Array.from(document.images);
                         return images.every(img => img.complete && img.naturalHeight !== 0);
                     }
                 """, timeout=5000)
-            except:
-                logger.warning("Image loading timeout, continuing...")
+                logger.info("Images loaded successfully")
+            except Exception as image_error:
+                logger.warning(f"Image loading timeout: {image_error}, continuing...")
             
             # Wait for any CSS animations to settle
+            logger.info("Waiting for CSS animations to settle...")
             await page.wait_for_timeout(1000)
             
             logger.info("Page resources loaded (or timeout reached)")
@@ -276,10 +354,21 @@ class ProfessionalSlideCapture:
             Path to optimized MP4 file
         """
         try:
+            logger.info(f"Converting video to optimized MP4...")
+            logger.info(f"Input path: {input_path}")
+            
+            # Verify input file exists
+            if not os.path.exists(input_path):
+                raise Exception(f"Input video file not found: {input_path}")
+            
+            input_size = os.path.getsize(input_path)
+            logger.info(f"Input file size: {input_size} bytes")
+            
             output_path = input_path.replace('.webm', '.mp4')
             quality_settings = self.quality_presets[config.quality]
             
-            logger.info(f"Converting to MP4: {output_path}")
+            logger.info(f"Output path: {output_path}")
+            logger.info(f"Quality settings: {quality_settings}")
             
             # FFmpeg command for professional encoding
             cmd = [
@@ -296,6 +385,8 @@ class ProfessionalSlideCapture:
                 output_path
             ]
             
+            logger.info(f"Running FFmpeg command: {' '.join(cmd)}")
+            
             # Execute FFmpeg command
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -306,14 +397,25 @@ class ProfessionalSlideCapture:
             stdout, stderr = await process.communicate()
             
             if process.returncode != 0:
-                logger.error(f"FFmpeg conversion failed: {stderr.decode()}")
-                raise Exception(f"Video conversion failed: {stderr.decode()}")
+                error_msg = stderr.decode() if stderr else "Unknown FFmpeg error"
+                logger.error(f"FFmpeg conversion failed: {error_msg}")
+                raise Exception(f"Video conversion failed: {error_msg}")
             
+            # Verify output file exists
+            if not os.path.exists(output_path):
+                raise Exception(f"Output video file not created: {output_path}")
+            
+            output_size = os.path.getsize(output_path)
+            logger.info(f"Output file size: {output_size} bytes")
             logger.info(f"Video conversion completed: {output_path}")
+            
             return output_path
             
         except Exception as e:
             logger.error(f"Video conversion failed: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+            import traceback
+            logger.error(f"Stack trace: {traceback.format_exc()}")
             raise
     
     async def capture_slide_as_image(self, slide_url: str, output_path: str, 
@@ -331,46 +433,79 @@ class ProfessionalSlideCapture:
             Path to the captured image
         """
         try:
+            logger.info(f"Starting slide image capture...")
+            logger.info(f"Config: URL={slide_url}, Output={output_path}, Resolution={width}x{height}")
+            
             if not self.browser:
+                logger.info("Browser not initialized, initializing now...")
                 await self.initialize_browser()
             
             logger.info(f"Capturing slide as image: {slide_url}")
             
+            logger.info("Creating browser context for image capture...")
             context = await self.browser.new_context(
                 viewport={'width': width, 'height': height}
             )
-            
             page = await context.new_page()
+            logger.info("Browser page created for image capture")
             
             # Navigate to slide
+            logger.info(f"Navigating to slide URL: {slide_url}")
             await page.goto(slide_url, wait_until='networkidle', timeout=30000)
+            logger.info("Navigation completed")
             
             # Wait for resources
+            logger.info("Waiting for page resources to load...")
             await self._wait_for_all_resources(page)
             
+            # Ensure output directory exists
+            output_dir = Path(output_path).parent
+            output_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Ensured output directory exists: {output_dir}")
+            
             # Capture screenshot
+            logger.info(f"Taking screenshot: {output_path}")
             await page.screenshot(path=output_path, full_page=False)
+            
+            # Verify screenshot was created
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                logger.info(f"Slide image captured successfully: {output_path} ({file_size} bytes)")
+            else:
+                raise Exception(f"Screenshot file not created: {output_path}")
             
             await page.close()
             await context.close()
+            logger.info("Browser page and context closed")
             
-            logger.info(f"Slide image captured: {output_path}")
             return output_path
             
         except Exception as e:
             logger.error(f"Image capture failed: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+            import traceback
+            logger.error(f"Stack trace: {traceback.format_exc()}")
             raise
     
     async def close(self):
         """Close the browser and cleanup resources."""
         try:
+            logger.info("Closing slide capture service...")
+            
             if self.browser:
+                logger.info("Closing browser...")
                 await self.browser.close()
+                logger.info("Browser closed")
+                
             if hasattr(self, 'playwright'):
+                logger.info("Stopping Playwright...")
                 await self.playwright.stop()
-            logger.info("Slide capture service closed")
+                logger.info("Playwright stopped")
+                
+            logger.info("Slide capture service closed successfully")
         except Exception as e:
             logger.error(f"Error closing slide capture service: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
     
     async def validate_video_environment(self):
         """Validate that video recording is supported before attempting capture."""
@@ -378,29 +513,45 @@ class ProfessionalSlideCapture:
             logger.info("Validating video recording environment...")
             
             # Test browser video recording capability
+            logger.info("Creating test browser context...")
             test_context = await self.browser.new_context()
             test_page = await test_context.new_page()
+            logger.info("Test browser page created")
             
             if not hasattr(test_page, 'video') or test_page.video is None:
-                await test_context.close()
                 logger.warning("Video recording not supported in current environment")
+                await test_context.close()
                 return False
             
+            logger.info("Video recording capability detected")
+            
             # Test video initialization
-            test_video_path = "temp/test_video_check.webm"
+            test_video_filename = "test_video_check.webm"
+            test_video_path = str(self.temp_dir / test_video_filename)
+            logger.info(f"Testing video recording to: {test_video_path}")
+            
+            # Ensure temp directory exists
+            self.temp_dir.mkdir(parents=True, exist_ok=True)
+            
             await test_page.video.start(path=test_video_path)
+            logger.info("Test video recording started")
+            
             await test_page.video.stop()
+            logger.info("Test video recording stopped")
             
             # Clean up test files
             if os.path.exists(test_video_path):
                 os.remove(test_video_path)
+                logger.info(f"Cleaned up test video: {test_video_path}")
                 
             await test_context.close()
+            logger.info("Test browser context closed")
             logger.info("Video recording environment validated successfully")
             return True
             
         except Exception as e:
             logger.warning(f"Video recording validation failed: {e}")
+            logger.warning(f"Error details: {type(e).__name__}: {str(e)}")
             return False
     
     async def capture_with_screenshots(self, config: SlideVideoConfig) -> str:
@@ -408,12 +559,15 @@ class ProfessionalSlideCapture:
         logger.info("Using screenshot fallback method for slide capture")
         
         if not self.browser:
+            logger.info("Browser not initialized, initializing now...")
             await self.initialize_browser()
             
+        logger.info("Creating browser context for screenshot capture...")
         context = await self.browser.new_context(
             viewport={'width': config.width, 'height': config.height}
         )
         page = await context.new_page()
+        logger.info("Browser page created for screenshot capture")
         
         try:
             # Navigate to slide with authentication handling
@@ -519,6 +673,7 @@ class ProfessionalSlideCapture:
                 await page.set_content(fallback_html)
                 logger.info("Professional fallback slide content created successfully")
             
+            logger.info("Waiting for page resources to load...")
             await self._wait_for_all_resources(page)
             
             # Take multiple screenshots over duration with timeout protection
@@ -531,6 +686,10 @@ class ProfessionalSlideCapture:
             screenshot_start_time = datetime.now()
             max_screenshot_time = 60  # Maximum 60 seconds for screenshot capture
             
+            # Ensure temp directory exists
+            self.temp_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Ensured temp directory exists for screenshots: {self.temp_dir}")
+            
             for i in range(frame_count):
                 # Check if we've exceeded the maximum time
                 if (datetime.now() - screenshot_start_time).total_seconds() > max_screenshot_time:
@@ -538,49 +697,102 @@ class ProfessionalSlideCapture:
                     break
                 
                 try:
-                    screenshot_path = f"temp/screenshot_{i:04d}.png"
+                    screenshot_filename = f"screenshot_{i:04d}.png"
+                    screenshot_path = str(self.temp_dir / screenshot_filename)
+                    logger.info(f"Taking screenshot {i+1}/{frame_count}: {screenshot_path}")
+                    
                     await page.screenshot(path=screenshot_path, full_page=True)
-                    screenshots.append(screenshot_path)
+                    
+                    # Verify screenshot was created
+                    if os.path.exists(screenshot_path):
+                        file_size = os.path.getsize(screenshot_path)
+                        logger.info(f"Screenshot {i+1} captured: {screenshot_path} ({file_size} bytes)")
+                        screenshots.append(screenshot_path)
+                    else:
+                        logger.error(f"Screenshot {i+1} file not found: {screenshot_path}")
+                        break
                     
                     if i < frame_count - 1:  # Don't wait after last frame
                         await page.wait_for_timeout(500)  # 0.5 second intervals
                         
                 except Exception as screenshot_error:
-                    logger.warning(f"Screenshot {i} failed: {screenshot_error}, continuing with available screenshots")
+                    logger.warning(f"Screenshot {i+1} failed: {screenshot_error}, continuing with available screenshots")
                     break
             
             if not screenshots:
                 logger.error("No screenshots captured, creating minimal video")
                 # Create a single screenshot as fallback
-                screenshot_path = f"temp/screenshot_0000.png"
+                screenshot_filename = "screenshot_0000.png"
+                screenshot_path = str(self.temp_dir / screenshot_filename)
+                logger.info(f"Creating fallback screenshot: {screenshot_path}")
+                
                 await page.screenshot(path=screenshot_path, full_page=True)
-                screenshots = [screenshot_path]
+                
+                if os.path.exists(screenshot_path):
+                    file_size = os.path.getsize(screenshot_path)
+                    logger.info(f"Fallback screenshot created: {screenshot_path} ({file_size} bytes)")
+                    screenshots = [screenshot_path]
+                else:
+                    raise Exception(f"Failed to create fallback screenshot: {screenshot_path}")
+            
+            logger.info(f"Total screenshots captured: {len(screenshots)}")
             
             # Convert screenshots to video using FFmpeg
-            output_path = f"temp/slide_video_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
+            output_filename = f"slide_video_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
+            output_path = str(self.temp_dir / output_filename)
+            logger.info(f"Converting screenshots to video: {output_path}")
+            
             await self._convert_screenshots_to_video(screenshots, output_path, config)
             
             # Clean up screenshots
+            logger.info("Cleaning up screenshot files...")
             for screenshot in screenshots:
                 if os.path.exists(screenshot):
                     os.remove(screenshot)
+                    logger.info(f"Cleaned up: {screenshot}")
             
-            logger.info(f"Screenshot fallback completed: {output_path}")
-            return output_path
+            # Verify final video exists
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                logger.info(f"Screenshot fallback completed: {output_path} ({file_size} bytes)")
+                return output_path
+            else:
+                raise Exception(f"Final video file not found: {output_path}")
             
+        except Exception as e:
+            logger.error(f"Screenshot fallback failed: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+            import traceback
+            logger.error(f"Stack trace: {traceback.format_exc()}")
+            raise
         finally:
+            logger.info("Closing browser context...")
             await context.close()
+            logger.info("Browser context closed")
     
     async def _convert_screenshots_to_video(self, screenshots: List[str], output_path: str, config: SlideVideoConfig):
         """Convert screenshot sequence to video using FFmpeg"""
         logger.info(f"Converting {len(screenshots)} screenshots to video")
         
         # Create input file list for FFmpeg
-        input_list_path = "temp/input_list.txt"
-        with open(input_list_path, 'w') as f:
-            for screenshot in screenshots:
-                f.write(f"file '{os.path.abspath(screenshot)}'\n")
-                f.write("duration 0.5\n")  # 0.5 seconds per frame
+        input_list_filename = "input_list.txt"
+        input_list_path = str(self.temp_dir / input_list_filename)
+        logger.info(f"Creating FFmpeg input list: {input_list_path}")
+        
+        try:
+            with open(input_list_path, 'w') as f:
+                for screenshot in screenshots:
+                    # Use absolute paths for FFmpeg
+                    abs_screenshot_path = os.path.abspath(screenshot)
+                    logger.info(f"Adding to input list: {abs_screenshot_path}")
+                    f.write(f"file '{abs_screenshot_path}'\n")
+                    f.write("duration 0.5\n")  # 0.5 seconds per frame
+            
+            logger.info(f"Input list created with {len(screenshots)} screenshots")
+            
+        except Exception as e:
+            logger.error(f"Failed to create input list: {e}")
+            raise
         
         # FFmpeg command to create video from images
         cmd = [
@@ -596,20 +808,32 @@ class ProfessionalSlideCapture:
             output_path
         ]
         
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
+        logger.info(f"Running FFmpeg command: {' '.join(cmd)}")
         
-        stdout, stderr = await process.communicate()
-        
-        if process.returncode != 0:
-            raise Exception(f"FFmpeg screenshot conversion failed: {stderr.decode()}")
-        
-        # Clean up input list
-        if os.path.exists(input_list_path):
-            os.remove(input_list_path)
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode != 0:
+                error_msg = stderr.decode() if stderr else "Unknown FFmpeg error"
+                logger.error(f"FFmpeg screenshot conversion failed: {error_msg}")
+                raise Exception(f"FFmpeg screenshot conversion failed: {error_msg}")
+            
+            logger.info("FFmpeg conversion completed successfully")
+            
+        except Exception as e:
+            logger.error(f"FFmpeg process failed: {e}")
+            raise
+        finally:
+            # Clean up input list
+            if os.path.exists(input_list_path):
+                os.remove(input_list_path)
+                logger.info(f"Cleaned up input list: {input_list_path}")
         
         logger.info(f"Successfully converted screenshots to video: {output_path}")
 

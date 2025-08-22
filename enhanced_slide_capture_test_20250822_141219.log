@@ -1,0 +1,91 @@
+2025-08-22 14:12:19,058 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-08-22 14:12:19,179 - app.services.slide_capture_service - INFO - Initializing Professional Slide Capture Service...
+2025-08-22 14:12:19,180 - app.services.slide_capture_service - INFO - Current working directory: D:\project\onyx-cutom
+2025-08-22 14:12:19,180 - app.services.slide_capture_service - INFO - Creating temp directory: D:\project\onyx-cutom\temp
+2025-08-22 14:12:19,181 - app.services.slide_capture_service - INFO - Temp directory created/verified: D:\project\onyx-cutom\temp
+2025-08-22 14:12:19,181 - app.services.slide_capture_service - INFO - Temp directory is writable: D:\project\onyx-cutom\temp
+2025-08-22 14:12:19,182 - app.services.slide_capture_service - INFO - Creating slides directory: D:\project\onyx-cutom\temp\slides
+2025-08-22 14:12:19,182 - app.services.slide_capture_service - INFO - Slides directory created/verified: D:\project\onyx-cutom\temp\slides
+2025-08-22 14:12:19,182 - app.services.slide_capture_service - INFO - Professional Slide Capture Service initialized successfully
+2025-08-22 14:12:19,182 - app.services.slide_capture_service - INFO - Initializing Professional Slide Capture Service...
+2025-08-22 14:12:19,183 - app.services.slide_capture_service - INFO - Current working directory: D:\project\onyx-cutom
+2025-08-22 14:12:19,183 - app.services.slide_capture_service - INFO - Creating temp directory: D:\project\onyx-cutom\temp
+2025-08-22 14:12:19,183 - app.services.slide_capture_service - INFO - Temp directory created/verified: D:\project\onyx-cutom\temp
+2025-08-22 14:12:19,183 - app.services.slide_capture_service - INFO - Temp directory is writable: D:\project\onyx-cutom\temp
+2025-08-22 14:12:19,183 - app.services.slide_capture_service - INFO - Creating slides directory: D:\project\onyx-cutom\temp\slides
+2025-08-22 14:12:19,184 - app.services.slide_capture_service - INFO - Slides directory created/verified: D:\project\onyx-cutom\temp\slides
+2025-08-22 14:12:19,184 - app.services.slide_capture_service - INFO - Professional Slide Capture Service initialized successfully
+2025-08-22 14:12:19,184 - app.services.slide_capture_service - INFO - Starting slide capture process...
+2025-08-22 14:12:19,184 - app.services.slide_capture_service - INFO - Config: URL=https://example.com, Duration=5.0s, Resolution=1280x720
+2025-08-22 14:12:19,185 - app.services.slide_capture_service - INFO - Browser not initialized, initializing now...
+2025-08-22 14:12:19,185 - app.services.slide_capture_service - INFO - Initializing Playwright browser...
+2025-08-22 14:12:20,907 - app.services.slide_capture_service - INFO - Playwright started successfully
+2025-08-22 14:12:20,907 - app.services.slide_capture_service - INFO - Launching Chromium browser...
+2025-08-22 14:12:22,397 - app.services.slide_capture_service - INFO - Browser initialized successfully
+2025-08-22 14:12:22,417 - app.services.slide_capture_service - INFO - Starting slide capture: https://example.com
+2025-08-22 14:12:22,450 - app.services.slide_capture_service - INFO - Validating video recording environment...
+2025-08-22 14:12:22,450 - app.services.slide_capture_service - INFO - Validating video recording environment...
+2025-08-22 14:12:22,451 - app.services.slide_capture_service - INFO - Creating test browser context...
+2025-08-22 14:12:23,951 - app.services.slide_capture_service - INFO - Test browser page created
+2025-08-22 14:12:23,953 - app.services.slide_capture_service - WARNING - Video recording not supported in current environment
+2025-08-22 14:12:24,020 - app.services.slide_capture_service - INFO - Creating browser context...
+2025-08-22 14:12:24,040 - app.services.slide_capture_service - INFO - Browser context created
+2025-08-22 14:12:24,041 - app.services.slide_capture_service - INFO - Creating browser page...
+2025-08-22 14:12:24,170 - app.services.slide_capture_service - INFO - Browser page created
+2025-08-22 14:12:24,171 - app.services.slide_capture_service - INFO - Checking video recording capability...
+2025-08-22 14:12:24,171 - app.services.slide_capture_service - WARNING - Video recording not available, using screenshot fallback
+2025-08-22 14:12:24,196 - app.services.slide_capture_service - INFO - Using screenshot fallback method for slide capture
+2025-08-22 14:12:24,197 - app.services.slide_capture_service - INFO - Creating browser context for screenshot capture...
+2025-08-22 14:12:24,321 - app.services.slide_capture_service - INFO - Browser page created for screenshot capture
+2025-08-22 14:12:24,322 - app.services.slide_capture_service - INFO - Navigating to slide URL: https://example.com
+2025-08-22 14:12:39,630 - app.services.slide_capture_service - INFO - Closing browser context...
+2025-08-22 14:12:39,694 - app.services.slide_capture_service - ERROR - Slide capture failed: BrowserContext.close: Target page, context or browser has been closed
+Browser logs:
+
+<launching> C:\Users\Maksym\AppData\Local\ms-playwright\chromium_headless_shell-1181\chrome-win\headless_shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-web-security --enable-features=VaapiVideoDecoder --use-gl=egl --enable-accelerated-video-decode --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=TranslateUI --disable-ipc-flooding-protection --user-data-dir=C:\Users\Maksym\AppData\Local\Temp\playwright_chromiumdev_profile-HvX1mc --remote-debugging-pipe --no-startup-window
+<launched> pid=18220
+[pid=18220][err] [0822/141222.557:ERROR:ui\gl\init\gl_factory.cc:102] Requested GL implementation (gl=egl-gles2,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[pid=18220][err] [0822/141222.565:ERROR:components\viz\service\main\viz_main_impl.cc:189] Exiting GPU process due to errors during initialization
+[pid=18220] <gracefully close start>
+2025-08-22 14:12:39,696 - app.services.slide_capture_service - ERROR - Error details: TargetClosedError: BrowserContext.close: Target page, context or browser has been closed
+Browser logs:
+
+<launching> C:\Users\Maksym\AppData\Local\ms-playwright\chromium_headless_shell-1181\chrome-win\headless_shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-web-security --enable-features=VaapiVideoDecoder --use-gl=egl --enable-accelerated-video-decode --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=TranslateUI --disable-ipc-flooding-protection --user-data-dir=C:\Users\Maksym\AppData\Local\Temp\playwright_chromiumdev_profile-HvX1mc --remote-debugging-pipe --no-startup-window
+<launched> pid=18220
+[pid=18220][err] [0822/141222.557:ERROR:ui\gl\init\gl_factory.cc:102] Requested GL implementation (gl=egl-gles2,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[pid=18220][err] [0822/141222.565:ERROR:components\viz\service\main\viz_main_impl.cc:189] Exiting GPU process due to errors during initialization
+[pid=18220] <gracefully close start>
+2025-08-22 14:12:39,701 - app.services.slide_capture_service - ERROR - Stack trace: Traceback (most recent call last):
+  File "D:\project\onyx-cutom\custom_extensions/backend\app\services\slide_capture_service.py", line 165, in capture_slide_video
+    return await self.capture_with_screenshots(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\project\onyx-cutom\custom_extensions/backend\app\services\slide_capture_service.py", line 770, in capture_with_screenshots
+    await context.close()
+  File "C:\Users\Maksym\AppData\Roaming\Python\Python313\site-packages\playwright\async_api\_generated.py", line 13451, in close
+    return mapping.from_maybe_impl(await self._impl_obj.close(reason=reason))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maksym\AppData\Roaming\Python\Python313\site-packages\playwright\_impl\_browser_context.py", line 620, in close
+    await self._channel.send("close", None, {"reason": reason})
+  File "C:\Users\Maksym\AppData\Roaming\Python\Python313\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Maksym\AppData\Roaming\Python\Python313\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: BrowserContext.close: Target page, context or browser has been closed
+Browser logs:
+
+<launching> C:\Users\Maksym\AppData\Local\ms-playwright\chromium_headless_shell-1181\chrome-win\headless_shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-web-security --enable-features=VaapiVideoDecoder --use-gl=egl --enable-accelerated-video-decode --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=TranslateUI --disable-ipc-flooding-protection --user-data-dir=C:\Users\Maksym\AppData\Local\Temp\playwright_chromiumdev_profile-HvX1mc --remote-debugging-pipe --no-startup-window
+<launched> pid=18220
+[pid=18220][err] [0822/141222.557:ERROR:ui\gl\init\gl_factory.cc:102] Requested GL implementation (gl=egl-gles2,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[pid=18220][err] [0822/141222.565:ERROR:components\viz\service\main\viz_main_impl.cc:189] Exiting GPU process due to errors during initialization
+[pid=18220] <gracefully close start>
+
+2025-08-22 14:12:39,760 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=Error('net::ERR_ABORTED at https://example.com/\nCall log:\n  - navigating to "https://example.com/", waiting until "domcontentloaded"\n')>
+playwright._impl._errors.Error: net::ERR_ABORTED at https://example.com/
+Call log:
+  - navigating to "https://example.com/", waiting until "domcontentloaded"
+
