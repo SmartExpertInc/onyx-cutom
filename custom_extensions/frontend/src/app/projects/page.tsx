@@ -421,13 +421,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <div className="relative mb-6">
         <div className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
+            <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
               <svg 
                 version="1.2" 
                 xmlns="http://www.w3.org/2000/svg" 
                 viewBox="0 0 1545 1333" 
-                width="28" 
-                height="28"
+                width="32" 
+                height="32"
               >
                 <title>Deloitte-svg</title>
                 <style>
@@ -445,8 +445,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
               </svg>
             </div>
             <div className="text-gray-900">
-              <div className="font-bold text-sm leading-tight text-gray-900">Deloitte</div>
-              <div className="font-semibold text-xs leading-tight text-gray-600">ContentBuilder</div>
+              <div className="font-bold text-base leading-tight text-gray-900">Deloitte</div>
+              <div className="font-semibold text-sm leading-tight text-gray-600">ContentBuilder</div>
             </div>
           </div>
         </div>
