@@ -20,6 +20,10 @@ export default function AvatarPopup({
   position
 }: AvatarPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
+  const [activeButton, setActiveButton] = useState<string>('button1');
+  const [selectedItems, setSelectedItems] = useState<{[key: string]: boolean}>({});
+  const [previewMode, setPreviewMode] = useState<boolean>(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<{name: string} | null>(null);
 
   // Handle click outside for popup mode
   useEffect(() => {
@@ -38,11 +42,6 @@ export default function AvatarPopup({
   }, [isOpen, displayMode, onClose]);
 
   if (!isOpen) return null;
-
-  const [activeButton, setActiveButton] = useState<string>('button1');
-  const [selectedItems, setSelectedItems] = useState<{[key: string]: boolean}>({});
-  const [previewMode, setPreviewMode] = useState<boolean>(false);
-  const [selectedAvatar, setSelectedAvatar] = useState<{name: string} | null>(null);
 
   const handleCheckboxChange = (itemKey: string) => {
     setSelectedItems(prev => ({
