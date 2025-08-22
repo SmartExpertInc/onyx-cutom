@@ -17116,15 +17116,21 @@ async def get_supported_avatar_templates():
 async def get_video_system_status():
     """Get video generation system status."""
     try:
+        # Check HTML to Image service status
+        from app.services.html_to_image_service import html_to_image_service
+        image_service_status = html_to_image_service.get_status()
+        
         return {
             "success": True,
             "system": "Clean Video Generation Pipeline",
             "screenshot_services": "DISABLED",
+            "chromium_browser": "NOT REQUIRED",
             "clean_pipeline": "ACTIVE",
             "avatar_selection": "DYNAMIC",
+            "image_conversion": image_service_status,
             "supported_formats": ["avatar-checklist", "avatar-crm", "avatar-service", "avatar-buttons", "avatar-steps"],
             "output_resolution": "1920x1080",
-            "pipeline": "HTML → PNG → Video"
+            "pipeline": "Props → HTML → PNG → Video"
         }
         
     except Exception as e:

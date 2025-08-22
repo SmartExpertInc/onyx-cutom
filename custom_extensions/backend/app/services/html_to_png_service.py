@@ -34,8 +34,6 @@ class HTMLToPNGService:
                 '--disable-features=VizDisplayCompositor',
                 '--disable-extensions',
                 '--disable-plugins',
-                '--disable-images',
-                '--disable-javascript',
                 '--disable-default-apps',
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
@@ -50,13 +48,11 @@ class HTMLToPNGService:
                 '--single-process',
                 '--deterministic-fetch',
                 '--memory-pressure-off',
-                '--max_old_space_size=4096',
                 f'--window-size={self.video_width},{self.video_height}',
                 '--hide-scrollbars',
                 '--disable-scrollbars'
             ],
-            'ignoreDefaultArgs': ['--enable-automation'],
-            'timeout': 60000
+            # Removed 'ignoreDefaultArgs' as it's not supported in all Playwright versions
         }
     
     async def _init_browser(self):

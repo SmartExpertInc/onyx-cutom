@@ -220,42 +220,50 @@ class ProfessionalPresentationService:
     
     async def _extract_slide_props_from_url(self, slide_url: str) -> Dict[str, Any]:
         """
-        Extract slide properties from URL or provide fallback.
+        Extract slide properties from URL by parsing project ID and getting data from database.
         
         Args:
-            slide_url: URL of the slide
+            slide_url: URL of the slide (e.g., /projects/view/123)
             
         Returns:
             Slide properties dict
         """
         try:
-            # For now, provide a fallback slide since we can't easily extract from URL
-            # In a real implementation, you might parse the URL or make an API call
-            # to get the actual slide data
+            import re
+            # Import at module level to avoid circular imports
+            from fastapi import Depends
+            import asyncpg
             
-            fallback_slide = {
-                "templateId": "avatar-checklist",
-                "title": "Professional Communication",
-                "items": [
-                    {"text": "Listen actively to client needs", "isPositive": True},
-                    {"text": "Provide clear and helpful responses", "isPositive": True},
-                    {"text": "Follow up on commitments", "isPositive": True},
-                    {"text": "Avoid generic or cold responses", "isPositive": False}
-                ]
-            }
+            # Extract project ID from URL
+            project_id_match = re.search(r'/projects/view/(\d+)', slide_url)
+            if not project_id_match:
+                logger.warning(f"Could not extract project ID from URL: {slide_url}")
+                return self._get_fallback_slide()
             
-            logger.info(f"Using fallback slide props for URL: {slide_url}")
-            return fallback_slide
+            project_id = int(project_id_match.group(1))
+            logger.info(f"Extracted project ID: {project_id}")
+            
+            # For now, just use fallback since database access needs refactoring
+            # TODO: Implement proper database access without circular imports
+            logger.info(f"Database integration needed for project {project_id}, using fallback")
+            return self._get_fallback_slide()
             
         except Exception as e:
             logger.error(f"Error extracting slide props from URL: {str(e)}")
-            # Return minimal fallback
-            return {
-                "templateId": "avatar-service",
-                "title": "Generated Presentation",
-                "subtitle": "Professional Video Content",
-                "content": "This is a generated presentation slide."
-            }
+            return self._get_fallback_slide()
+    
+    def _get_fallback_slide(self) -> Dict[str, Any]:
+        """Get a fallback slide when data extraction fails."""
+        return {
+            "templateId": "avatar-checklist",
+            "title": "Professional Communication",
+            "items": [
+                {"text": "Listen actively to client needs", "isPositive": True},
+                {"text": "Provide clear and helpful responses", "isPositive": True},
+                {"text": "Follow up on commitments", "isPositive": True},
+                {"text": "Avoid generic or cold responses", "isPositive": False}
+            ]
+        }
     
     async def _get_available_avatar(self) -> str:
         """

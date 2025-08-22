@@ -189,8 +189,8 @@ class VideoAssemblyService:
         try:
             logger.info(f"Creating video from {len(slides_props)} slides")
             
-            # Import services
-            from .html_to_png_service import html_to_png_service
+            # Import services (Chromium-free)
+            from .html_to_image_service import html_to_image_service
             
             # Generate PNG for each slide
             for i, slide_props in enumerate(slides_props):
@@ -207,8 +207,8 @@ class VideoAssemblyService:
                 temp_png.close()
                 temp_files.append(temp_png.name)
                 
-                # Convert slide to PNG
-                success = await html_to_png_service.convert_slide_to_png(
+                # Convert slide to PNG (Chromium-free)
+                success = await html_to_image_service.convert_slide_to_png(
                     template_id=template_id,
                     props=slide_props,
                     theme=theme,
