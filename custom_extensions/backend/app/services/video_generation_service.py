@@ -13,8 +13,8 @@ class ElaiVideoGenerationService:
     def __init__(self):
         self.api_base = "https://apis.elai.io/api/v1"
         self.api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
-        self.max_wait_time = 8 * 60  # 8 minutes (reduced for faster response)
-        self.poll_interval = 20  # 20 seconds (faster polling)
+        self.max_wait_time = 15 * 60  # 15 minutes
+        self.poll_interval = 30  # 30 seconds
         
         # Initialize httpx client safely
         self.client = None
@@ -475,14 +475,7 @@ class ElaiVideoGenerationService:
                     continue
                 
                 status = status_data.get("status", "unknown")
-                progress = status_data.get("progress", 0)
-                elapsed = (datetime.now() - start_time).total_seconds()
-                
-                logger.info(f"Video {video_id} status: {status}, progress: {progress}%")
-                
-                # Add timeout warning for long rendering
-                if status == "rendering" and elapsed > 300:  # 5 minutes
-                    logger.warning(f"Video {video_id} has been rendering for {elapsed:.0f}s - this may take a while")
+                logger.info(f"Video {video_id} status: {status}")
                 
                 if status in ["rendered", "ready"]:
                     # Try different possible URL fields
