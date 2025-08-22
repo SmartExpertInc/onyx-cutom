@@ -424,7 +424,6 @@ export const en = {
     moveToFolder: "Move to Folder",
     settings: "Settings",
     addClient: "Add Client",
-    customOffer: "Custom Offer",
     createNewClient: "Create New Client",
     organizeProjectsByClient: "Organize your projects by client for better management",
     enterClientNamePlaceholder: "Enter client name...",

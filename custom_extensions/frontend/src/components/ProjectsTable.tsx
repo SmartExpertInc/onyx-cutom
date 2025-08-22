@@ -835,7 +835,6 @@ interface ColumnVisibility {
   numberOfLessons: boolean;
   estCreationTime: boolean;
   estCompletionTime: boolean;
-  customOffer: boolean;
 }
 
 interface ColumnWidths {
@@ -845,7 +844,6 @@ interface ColumnWidths {
     numberOfLessons: number;
     estCreationTime: number;
     estCompletionTime: number;
-    customOffer: number;
 }
 
 // Recursive folder row component for nested display in list view
@@ -1046,12 +1044,6 @@ const FolderRow: React.FC<{
                         })()}
                     </td>
                 )}
-                {columnVisibility.customOffer && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                        {/* Custom Offer content - placeholder for now */}
-                        -
-                    </td>
-                )}
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                     <FolderRowMenu 
                         folder={folder} 
@@ -1177,12 +1169,6 @@ const FolderRow: React.FC<{
                                 })()}
                             </td>
                         )}
-                        {columnVisibility.customOffer && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                {/* Custom Offer content - placeholder for now */}
-                                -
-                            </td>
-                        )}
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                             <ProjectRowMenu 
                                 project={p} 
@@ -1201,7 +1187,7 @@ const FolderRow: React.FC<{
             {/* Loading state for folder projects */}
             {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
                 <tr>
-                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + (columnVisibility.customOffer ? 2 : 1)} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 1} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                         Loading projects...
                     </td>
                 </tr>
@@ -1437,18 +1423,6 @@ const ClientRow: React.FC<{
                         })()}
                     </td>
                 )}
-                {columnVisibility.customOffer && (
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <button
-                            onClick={() => handleClientPdfDownload(folder.id, folder.name, folderProjectsList)}
-                            className="flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
-                            title={t('common.downloadPdf', 'Download PDF')}
-                        >
-                            <ArrowDownToLine size={14} />
-                            {t('common.downloadPdf', 'Download PDF')}
-                        </button>
-                    </td>
-                )}
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                     <FolderRowMenu 
                         folder={folder} 
@@ -1574,17 +1548,6 @@ const ClientRow: React.FC<{
                                 })()}
                             </td>
                         )}
-                        {columnVisibility.customOffer && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                {/* Custom Offer content - placeholder for now */}
-                                -
-                            </td>
-                        )}
-                        {/* Empty cell to align with client PDF download button column */}
-                        {columnVisibility.customOffer && (
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                            </td>
-                        )}
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
                             <ProjectRowMenu 
                                 project={p} 
@@ -1603,7 +1566,7 @@ const ClientRow: React.FC<{
             {/* Loading state for client projects */}
             {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
                 <tr>
-                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + (columnVisibility.customOffer ? 3 : 2)} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 2} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
                         Loading projects...
                     </td>
                 </tr>
@@ -3369,7 +3332,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     numberOfLessons: true,
     estCreationTime: true,
     estCompletionTime: true,
-    customOffer: true,
   });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
     title: 40,
@@ -3378,7 +3340,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     numberOfLessons: 13,
     estCreationTime: 13.5,
     estCompletionTime: 13.5,
-    customOffer: 15,
   });
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
@@ -4776,7 +4737,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "Est. completion time"
                           ),
                         },
-                                        { key: 'customOffer', label: t('interface.customOffer', 'Custom Offer') }
                       ].map((column) => (
                         <label
                           key={column.key}
@@ -4955,9 +4915,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                                 onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
                                             />
                                         </th>
-                                    )}
-                                    {columnVisibility.customOffer && (
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '120px' }}>{t('interface.customOffer', 'Custom Offer')}</th>
                                     )}
                                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50" style={{ width: '80px' }}>&nbsp;</th>
                                 </tr>
@@ -5157,12 +5114,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                                     const lessonData = lessonDataCache[p.id];
                                                     return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
                                                 })()}
-                                            </td>
-                                        )}
-                                        {columnVisibility.customOffer && (
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                {/* Custom Offer content - placeholder for now */}
-                                                -
                                             </td>
                                         )}
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
