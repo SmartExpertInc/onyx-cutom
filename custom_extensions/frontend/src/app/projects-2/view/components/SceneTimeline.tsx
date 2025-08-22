@@ -50,7 +50,7 @@ export default function SceneTimeline({
 
   return (
     <div className="bg-white rounded-md overflow-auto p-4" style={{ height: 'calc(25% + 20px)' }}>
-      <div className="flex items-center gap-6">
+      <div className="flex items-end gap-6">
           {/* Play Button with Time */}
           <div className="relative flex items-center justify-center h-16">
             <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
