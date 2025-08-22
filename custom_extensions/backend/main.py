@@ -21772,6 +21772,7 @@ async def get_offer_details(
             course_modules = []
             total_lessons = 0
             total_learning_duration = 0
+            total_production_time = 0
             
             for project_row in projects_rows:
                 project_dict = dict(project_row)
@@ -21779,11 +21780,13 @@ async def get_offer_details(
                 
                 if content and content.get('sections'):
                     project_lessons = 0
+                    project_modules = 0
                     project_completion_time = 0
                     project_hours = 0
                     
                     for section in content['sections']:
                         if section.get('lessons'):
+                            project_modules += 1  # Count modules (sections)
                             for lesson in section['lessons']:
                                 project_lessons += 1
                                 
@@ -21795,7 +21798,7 @@ async def get_offer_details(
                                 except (ValueError, AttributeError):
                                     project_completion_time += 5
                                 
-                                # Get lesson hours
+                                # Get lesson hours (creation time)
                                 lesson_hours = lesson.get('hours', 0)
                                 project_hours += lesson_hours
                     
@@ -21803,6 +21806,7 @@ async def get_offer_details(
                         learning_duration_hours = round(project_completion_time / 60.0, 1)
                         course_modules.append({
                             'title': project_dict['project_name'],
+                            'modules': project_modules,
                             'lessons': project_lessons,
                             'learningDuration': f"{learning_duration_hours}h",
                             'productionTime': f"{project_hours}h"
@@ -21810,32 +21814,29 @@ async def get_offer_details(
                         
                         total_lessons += project_lessons
                         total_learning_duration += learning_duration_hours
+                        total_production_time += project_hours
             
-            # Generate quality levels data
+            # Generate quality levels data - using actual totals from all courses
             quality_levels = [
                 {
                     'level': 'Level 1 - Basic',
                     'learningDuration': f"{total_learning_duration}h",
-                    'productionRatio': f"1:200",
-                    'productionTime': f"{int(total_learning_duration * 200)}h"
+                    'productionTime': f"{total_production_time}h"
                 },
                 {
                     'level': 'Level 2 - Interactive',
                     'learningDuration': f"{total_learning_duration}h", 
-                    'productionRatio': f"1:300",
-                    'productionTime': f"{int(total_learning_duration * 300)}h"
+                    'productionTime': f"{int(total_production_time * 1.5)}h"  # 50% more for interactive
                 },
                 {
                     'level': 'Level 3 - Advanced',
                     'learningDuration': f"{total_learning_duration}h",
-                    'productionRatio': f"1:400",
-                    'productionTime': f"{int(total_learning_duration * 400)}h"
+                    'productionTime': f"{int(total_production_time * 2)}h"  # 2x for advanced
                 },
                 {
                     'level': 'Level 4 - Immersive',
                     'learningDuration': f"{total_learning_duration}h",
-                    'productionRatio': f"1:600",
-                    'productionTime': f"{int(total_learning_duration * 600)}h"
+                    'productionTime': f"{int(total_production_time * 3)}h"  # 3x for immersive
                 }
             ]
             

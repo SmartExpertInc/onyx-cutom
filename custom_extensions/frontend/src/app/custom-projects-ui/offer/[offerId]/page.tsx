@@ -17,6 +17,7 @@ interface OfferDetail {
 
 interface CourseModule {
   title: string;
+  modules: number;
   lessons: number;
   learningDuration: string;
   productionTime: string;
@@ -25,7 +26,6 @@ interface CourseModule {
 interface QualityLevel {
   level: string;
   learningDuration: string;
-  productionRatio: string;
   productionTime: string;
 }
 
@@ -146,7 +146,11 @@ export default function OfferDetailPage() {
   };
 
   const totalLessons = courseModules.reduce((sum, module) => sum + module.lessons, 0);
-  const totalLearningContent = `${totalLessons}h of learning content`;
+  const totalLearningDuration = courseModules.reduce((sum, module) => {
+    const hours = parseFloat(module.learningDuration.replace('h', ''));
+    return sum + hours;
+  }, 0);
+  const totalLearningContent = `${formatHoursToHoursMinutes(totalLearningDuration)} of learning content`;
   const totalProductionTime = `${formatHoursToHoursMinutes(offer.total_hours)} production`;
 
   return (
@@ -213,7 +217,7 @@ export default function OfferDetailPage() {
                 {courseModules.map((module, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-medium">{module.title}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">1</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{module.modules}</td>
                     <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{module.lessons}</td>
                     <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">
                       {(() => {
@@ -250,7 +254,6 @@ export default function OfferDetailPage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Quality Level</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Learning Duration (h)</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Production Ratio (0 min / 1h learning)</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Production Time</th>
                 </tr>
               </thead>
@@ -265,7 +268,6 @@ export default function OfferDetailPage() {
                         return formatHoursToHoursMinutes(hours);
                       })()}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{level.productionRatio}</td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {(() => {
                         // Parse and format production time
@@ -290,7 +292,7 @@ export default function OfferDetailPage() {
             <ul className="space-y-3 text-sm text-gray-700">
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-medium">•</span>
-                <span>Total: <strong className="text-gray-900">{totalLessons} hours</strong> of learning content</span>
+                <span>Total: <strong className="text-gray-900">{formatHoursToHoursMinutes(totalLearningDuration)}</strong> of learning content</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-medium">•</span>
