@@ -5,12 +5,13 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TrainingPlanData, Section as SectionType, Lesson as LessonType } from '@/types/trainingPlan';
 import { ProjectListItem } from '@/types/products';
 import { CreateContentTypeModal } from './CreateContentTypeModal';
+import { AllContentTypesModal } from './AllContentTypesModal';
 import OpenOrCreateModal from './OpenOrCreateModal';
 import OpenContentModal from './OpenContentModal';
 import LessonSettingsModal from '../app/projects/LessonSettingsModal';
 import ModuleSettingsModal from '../app/projects/ModuleSettingsModal';
-import { useSearchParams } from 'next/navigation';
-import { Settings, Edit3 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Settings, Edit3, BookText, FileText, HelpCircle, Video } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // --- Custom SVG Icons ---
@@ -100,14 +101,17 @@ const StatusBadge = ({
 
 interface TrainingPlanTableProps {
   dataToDisplay?: TrainingPlanData | null;
-  onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
+  onTextChange?: (path: (string | number)[], newValue: string | number | boolean | any) => void;
   onAutoSave?: () => void;
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
   sourceChatSessionId?: string | null;
   theme?: string;
+  projectId?: number; // Add projectId for fetching effective rates
   projectCustomRate?: number | null; // Project-level custom rate for fallback
   projectQualityTier?: string | null; // Project-level quality tier for fallback
+  projectIsAdvanced?: boolean | null;
+  projectAdvancedRates?: { presentation?: number; one_pager?: number; quiz?: number; video_lesson?: number } | null;
   columnVisibility?: {
     knowledgeCheck: boolean;
     contentAvailability: boolean;
@@ -279,10 +283,15 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   parentProjectName,
   sourceChatSessionId,
   theme = 'cherry', // Default theme
+  projectId,
   projectCustomRate,
   projectQualityTier,
+  projectIsAdvanced,
+  projectAdvancedRates,
   columnVisibility,
 }) => {
+  const router = useRouter();
+  
   // Inline editing state management
   const [editingField, setEditingField] = useState<{
     type: 'mainTitle' | 'sectionId' | 'sectionTitle' | 'lessonTitle' | 'source' | 'hours' | 'completionTime' | 'check' | 'contentAvailable';
@@ -343,7 +352,11 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   }, [onAutoSave]);
 
   const [contentModalState, setContentModalState] = useState<{
-    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
+    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number; recommended?: any;
+  }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
+
+  const [allContentTypesModalState, setAllContentTypesModalState] = useState<{
+    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number; recommended?: any;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
 
   const [openOrCreateModalState, setOpenOrCreateModalState] = useState<{
@@ -774,6 +787,116 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return undefined;
   };
 
+  const extractPersistedRecommendations = (lesson: LessonType | undefined, effectiveTier: string) => {
+    const rec: any = (lesson as any)?.recommended_content_types;
+    if (!rec) return null;
+    let primary: any = rec.primary;
+    if (typeof primary === 'string') {
+      try { primary = JSON.parse(primary); } catch (_) { primary = []; }
+    }
+    if (Array.isArray(primary) && primary.length > 0) {
+      return {
+        primary,
+        reasoning: rec.reasoning || 'manual',
+        last_updated: rec.last_updated || new Date().toISOString(),
+        quality_tier_used: rec.quality_tier_used || effectiveTier,
+      };
+    }
+    return null;
+  };
+
+  const computeRecommendations = (
+    lessonTitle: string,
+    tier: string,
+    existing: { hasLesson: boolean; hasQuiz: boolean; hasOnePager: boolean; hasVideoLesson: boolean }
+  ) => {
+    const t = (tier || 'interactive').trim().toLowerCase();
+    const title = (lessonTitle || '').trim().toLowerCase();
+
+    // Keyword signals
+    const kwOnePager = ["introduction", "overview", "basics", "summary", "quick", "reference", "primer", "cheatsheet"];
+    const kwPresentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to", "walkthrough"];
+    const kwVideo = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical", "screencast", "recording"];
+    const kwQuiz = ["test", "check", "verify", "practice", "exercise", "assessment", "evaluation", "quiz"];
+
+    const scoreFor = (keys: string[]) => {
+      const hits = keys.reduce((acc, k) => acc + (title.includes(k) ? 1 : 0), 0);
+      return Math.min(1, hits / 3);
+    };
+
+    const sOne = scoreFor(kwOnePager);
+    const sPres = scoreFor(kwPresentation);
+    const sVid = scoreFor(kwVideo);
+    const sQuiz = scoreFor(kwQuiz);
+
+    // Deterministic jitter (seeded by title+tier)
+    const seedStr = `${title}|${t}`;
+    let hash = 5381;
+    for (let i = 0; i < seedStr.length; i++) hash = ((hash << 5) + hash) + seedStr.charCodeAt(i);
+    const seedVal = (hash >>> 0) / 0xffffffff; // [0,1)
+
+    // Candidate combos per tier
+    let combos: string[][] = [];
+    let weights: number[] = [];
+
+    if (t === 'basic') {
+      combos = [["one-pager"], ["presentation"]];
+      weights = [
+        0.55 + 0.35 * sOne - 0.10 * sPres,
+        0.45 + 0.35 * sPres - 0.10 * sOne,
+      ];
+    } else if (t === 'interactive') {
+      combos = [["presentation", "quiz"], ["presentation"], ["one-pager", "quiz"]];
+      weights = [
+        0.40 + 0.30 * sPres + 0.30 * sQuiz,
+        0.30 + 0.50 * sPres - 0.10 * sQuiz,
+        0.30 + 0.40 * sOne + 0.30 * sQuiz,
+      ];
+    } else if (t === 'advanced') {
+      combos = [["presentation", "quiz"], ["video-lesson", "quiz"]];
+      weights = [
+        0.50 + 0.30 * sPres + 0.20 * sQuiz,
+        0.50 + 0.40 * sVid + 0.20 * sQuiz,
+      ];
+    } else { // immersive
+      combos = [["video-lesson", "quiz"], ["video-lesson"]];
+      weights = [
+        0.60 + 0.25 * sVid + 0.15 * sQuiz,
+        0.40 + 0.60 * sVid - 0.10 * sQuiz,
+      ];
+    }
+
+    // Normalize weights with jitter
+    const norm = weights.map((w, i) => Math.max(1e-6, w + (i + 1) * 0.0005 * seedVal));
+    const totalW = norm.reduce((a, b) => a + b, 0) || 1;
+    const r = (seedVal % 1) * totalW;
+    let acc = 0;
+    let chosenIdx = 0;
+    for (let i = 0; i < norm.length; i++) {
+      acc += norm[i];
+      if (r <= acc) { chosenIdx = i; break; }
+    }
+    const others = norm.map((w,i)=>({i,w})).filter(o=>o.i!==chosenIdx).sort((a,b)=>b.w-a.w).map(o=>o.i);
+
+    // Choose first viable combo; if items exist, keep only missing ones; skip if all exist
+    let chosen: string[] | null = null;
+    for (const idx of [chosenIdx, ...others]) {
+      const combo = combos[idx];
+      const missing = combo.filter(k => !((k === 'presentation' && existing.hasLesson) ||
+                                           (k === 'one-pager' && existing.hasOnePager) ||
+                                           (k === 'quiz' && existing.hasQuiz) ||
+                                           (k === 'video-lesson' && existing.hasVideoLesson)));
+      if (missing.length > 0) { chosen = missing; break; }
+    }
+    if (!chosen) chosen = combos[chosenIdx];
+
+    return { primary: chosen, quality_tier_used: t, reasoning: `tier=${t}; s(one=${sOne.toFixed(2)},pres=${sPres.toFixed(2)},vid=${sVid.toFixed(2)},quiz=${sQuiz.toFixed(2)}) seed=${seedVal.toFixed(3)}` };
+  };
+
+  const getEffectiveLessonTier = (section: SectionType | undefined, lesson: LessonType | undefined) => {
+    return (lesson?.quality_tier || section?.quality_tier || projectQualityTier || 'interactive');
+  };
+
   const handleLessonClick = (lesson: LessonType, moduleName: string, lessonNumber: number) => {
     const lessonTitle = lesson.title;
     
@@ -832,11 +955,18 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     
     // Scenario 1: No content exists - show create modal
     if (!hasLesson && !hasQuiz && !hasVideoLesson && !hasOnePager) {
+      const section = (sections || []).find(s => s.title === moduleName);
+      const effectiveTier = String(getEffectiveLessonTier(section, lesson));
+      const persisted = extractPersistedRecommendations(lesson, effectiveTier);
+      const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
+      
+      // Show CreateContentTypeModal first (with recommended content types)
       setContentModalState({ 
         isOpen: true, 
         lessonTitle, 
         moduleName, 
-        lessonNumber 
+        lessonNumber,
+        recommended
       });
     }
     // Scenario 2: Only lesson exists (no quiz/video lesson/one-pager) - show open or create modal
@@ -936,16 +1066,53 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   const handleOpenOrCreateCreate = () => {
-    const { lessonTitle, moduleName, lessonNumber, hasLesson, hasQuiz } = openOrCreateModalState;
-    
+    const { lessonTitle, moduleName, lessonNumber } = openOrCreateModalState;
+
+    const existingLesson = findExistingLesson(lessonTitle);
+    const existingQuiz = findExistingQuiz(lessonTitle);
+    const existingVideoLesson = findExistingVideoLesson(lessonTitle);
+    const existingOnePager = findExistingOnePager(lessonTitle);
+
+    const hasLesson = !!existingLesson;
+    const hasQuiz = !!existingQuiz;
+    const hasVideoLesson = !!existingVideoLesson;
+    const hasOnePager = !!existingOnePager;
+
+    const section = (sections || []).find(s => s.title === moduleName);
+    const lessonObj = section?.lessons?.find(l => l.title === lessonTitle);
+    const effectiveTier = String(getEffectiveLessonTier(section, lessonObj));
+    const persisted = extractPersistedRecommendations(lessonObj, effectiveTier);
+    const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
+
     setContentModalState({ 
       isOpen: true, 
       lessonTitle, 
       moduleName, 
-      lessonNumber 
+      lessonNumber,
+      recommended
     });
     
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false });
+  };
+
+  const handleOpenAllContentTypesModal = (lessonTitle: string, moduleName: string, lessonNumber: number, recommended?: any) => {
+    setAllContentTypesModalState({
+      isOpen: true,
+      lessonTitle,
+      moduleName,
+      lessonNumber,
+      recommended
+    });
+  };
+
+  const handleOpenCreateContentTypeModal = (lessonTitle: string, moduleName: string, lessonNumber: number, recommended?: any) => {
+    setContentModalState({
+      isOpen: true,
+      lessonTitle,
+      moduleName,
+      lessonNumber,
+      recommended
+    });
   };
 
   // Handle opening lesson settings modal
@@ -962,37 +1129,101 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   // Handle saving lesson settings
-  const handleLessonSettingsSave = (customRate: number, qualityTier: string) => {
+  const handleLessonSettingsSave = (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }, completionTimes?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
     const { sectionIndex, lessonIndex } = lessonSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0 && lessonIndex >= 0) {
       // Update lesson's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
+      if (advancedEnabled !== undefined) {
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'advanced'], !!advancedEnabled);
+      }
+      if (advancedRates) {
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'advancedRates'], advancedRates);
+      }
+      if (completionTimes) {
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTimes'], completionTimes);
+      }
       
-      // Recalculate hours based on new rate
-      const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex];
-      
+      // Recalculate hours based on new rate or advanced configuration
+      const lesson = dataToDisplay?.sections[sectionIndex]?.lessons[lessonIndex] as any;
       if (lesson) {
-        // Use completion time if available, otherwise default to 5 minutes
-        const completionTime = lesson.completionTime || '5m';
-        const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
-        const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+        // Update recommended products to match the new tier
+        const lessonTitle = lesson.title || '';
+        const newRecommendations = computeRecommendations(lessonTitle, qualityTier, {
+          hasLesson: false,
+          hasQuiz: false,
+          hasOnePager: false,
+          hasVideoLesson: false
+        });
         
+        // Update the recommendations
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'primary'], JSON.stringify(newRecommendations.primary));
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'reasoning'], newRecommendations.reasoning);
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'last_updated'], new Date().toISOString());
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'quality_tier_used'], qualityTier);
+        
+        // Update completion time and breakdown based on new recommendations and custom completion times
+        let breakdown: Record<string, number> = {};
+        let totalMinutes = 0;
+        
+        if (completionTimes && advancedEnabled) {
+          // Use custom completion times
+          newRecommendations.primary.forEach(product => {
+            const key = product === 'one-pager' ? 'onePager' : (product === 'video-lesson' ? 'videoLesson' : product);
+            const minutes = completionTimes[key as keyof typeof completionTimes] || 5;
+            breakdown[product] = minutes;
+            totalMinutes += minutes;
+          });
+        } else {
+          // Use default breakdown
+          const agg = computeCompletionAggregate(newRecommendations.primary);
+          breakdown = agg.breakdown;
+          totalMinutes = agg.total;
+        }
+        
+        const newCT = `${totalMinutes}m`;
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], newCT);
+        onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
+        
+        const completionTime = newCT; // Use the new completion time
+        const completionTimeMinutes = totalMinutes || 5;
+        let newHours: number;
+        if (advancedEnabled) {
+          // Use the new recommendations instead of existing ones
+          const primary: string[] = newRecommendations.primary;
+          if (primary.length > 0) {
+            const rates = {
+              presentation: advancedRates?.presentation ?? customRate,
+              one_pager: advancedRates?.onePager ?? customRate,
+              quiz: advancedRates?.quiz ?? customRate,
+              video_lesson: advancedRates?.videoLesson ?? customRate,
+            } as any;
+            const total = primary.reduce((sum, p) => {
+              const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+              const minutes = breakdown[p] || 0;
+              const rate = rates[key] ?? customRate;
+              return sum + (Number(minutes) / 60.0) * Number(rate);
+            }, 0);
+            newHours = Math.round(total);
+          } else {
+            newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+          }
+        } else {
+          newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+        }
         onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
         
-        // Auto-recalculate module total hours
         const section = dataToDisplay?.sections[sectionIndex];
         if (section && section.lessons) {
           const updatedLessons = [...section.lessons];
-          updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newHours };
+          updatedLessons[lessonIndex] = { ...updatedLessons[lessonIndex], hours: newHours } as any;
           const newTotalHours = updatedLessons.reduce((total, l) => total + (l.hours || 0), 0);
-          
           onTextChange(['sections', sectionIndex, 'totalHours'], newTotalHours);
           onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
         }
       }
-      // Clear any existing timeout and mark for pending save
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
@@ -1017,38 +1248,99 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   // Handle saving module settings
-  const handleModuleSettingsSave = async (customRate: number, qualityTier: string) => {
+  const handleModuleSettingsSave = async (customRate: number, qualityTier: string, advancedEnabled?: boolean, advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number }, completionTimes?: { presentation: number; onePager: number; quiz: number; videoLesson: number }) => {
     const { sectionIndex } = moduleSettingsModalState;
     
     if (onTextChange && sectionIndex >= 0) {
       // Update module's custom rate and quality tier
       onTextChange(['sections', sectionIndex, 'custom_rate'], customRate);
       onTextChange(['sections', sectionIndex, 'quality_tier'], qualityTier);
+      if (advancedEnabled !== undefined) {
+        onTextChange(['sections', sectionIndex, 'advanced'], !!advancedEnabled);
+      }
+      if (advancedRates) {
+        onTextChange(['sections', sectionIndex, 'advancedRates'], advancedRates);
+      }
+      if (completionTimes) {
+        onTextChange(['sections', sectionIndex, 'completionTimes'], completionTimes);
+      }
       
-      // Recalculate hours for all lessons in this module and update their quality_tier
-      const section = dataToDisplay?.sections[sectionIndex];
-      
+      const section = dataToDisplay?.sections[sectionIndex] as any;
       if (section && section.lessons) {
         let totalSectionHours = 0;
-        
-        section.lessons.forEach((lesson, lessonIndex) => {
-          // Update lesson's quality_tier to match the new module tier
+        section.lessons.forEach((lesson: any, lessonIndex: number) => {
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'quality_tier'], qualityTier);
           
-          // Use completion time if available, otherwise default to 5 minutes
-          const completionTime = lesson.completionTime || '5m';
-          const completionTimeMinutes = parseInt(completionTime.replace(/[^0-9]/g, '')) || 5;
-          const newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+          // Update recommended products to match the new tier
+          const lessonTitle = lesson.title || '';
+          const newRecommendations = computeRecommendations(lessonTitle, qualityTier, {
+            hasLesson: false,
+            hasQuiz: false,
+            hasOnePager: false,
+            hasVideoLesson: false
+          });
           
+          // Update the recommendations
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'primary'], JSON.stringify(newRecommendations.primary));
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'reasoning'], newRecommendations.reasoning);
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'last_updated'], new Date().toISOString());
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'recommended_content_types', 'quality_tier_used'], qualityTier);
+          
+          // Update completion time and breakdown based on new recommendations and custom completion times
+          let breakdown: Record<string, number> = {};
+          let totalMinutes = 0;
+          
+          if (completionTimes && advancedEnabled) {
+            // Use custom completion times
+            newRecommendations.primary.forEach(product => {
+              const key = product === 'one-pager' ? 'onePager' : (product === 'video-lesson' ? 'videoLesson' : product);
+              const minutes = completionTimes[key as keyof typeof completionTimes] || 5;
+              breakdown[product] = minutes;
+              totalMinutes += minutes;
+            });
+          } else {
+            // Use default breakdown
+            const agg = computeCompletionAggregate(newRecommendations.primary);
+            breakdown = agg.breakdown;
+            totalMinutes = agg.total;
+          }
+          
+          const newCT = `${totalMinutes}m`;
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completionTime'], newCT);
+          onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'completion_breakdown'], breakdown);
+          
+          const completionTime = newCT; // Use the new completion time
+          const completionTimeMinutes = totalMinutes || 5;
+          let newHours: number;
+          if (advancedEnabled) {
+            // Use the new recommendations instead of existing ones
+            const primary: string[] = newRecommendations.primary;
+            if (primary.length > 0) {
+              const rates = {
+                presentation: advancedRates?.presentation ?? customRate,
+                one_pager: advancedRates?.onePager ?? customRate,
+                quiz: advancedRates?.quiz ?? customRate,
+                video_lesson: advancedRates?.videoLesson ?? customRate,
+              } as any;
+              const total = primary.reduce((sum, p) => {
+                const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+                const minutes = breakdown[p] || 0;
+                const rate = rates[key] ?? customRate;
+                return sum + (Number(minutes) / 60.0) * Number(rate);
+              }, 0);
+              newHours = Math.round(total);
+            } else {
+              newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+            }
+          } else {
+            newHours = Math.round((completionTimeMinutes / 60.0) * customRate);
+          }
           onTextChange(['sections', sectionIndex, 'lessons', lessonIndex, 'hours'], newHours);
           totalSectionHours += newHours;
         });
-        
-        // Update section total hours and set autoCalculateHours to true
         onTextChange(['sections', sectionIndex, 'totalHours'], totalSectionHours);
         onTextChange(['sections', sectionIndex, 'autoCalculateHours'], true);
       }
-      // Clear any existing timeout and mark for pending save
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
@@ -1296,6 +1588,46 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   const { t } = useLanguage();
 
+  const computeCompletionAggregate = (primary: string[]) => {
+    // Deterministic midpoint values (rounded up):
+    // one-pager: 3, presentation: 8, quiz: 6, video-lesson: 4
+    const midpoint = (p: string) => {
+      if (p === 'one-pager') return 3;
+      if (p === 'presentation') return 8;
+      if (p === 'quiz') return 6;
+      if (p === 'video-lesson') return 4;
+      return 0;
+    };
+    const breakdown: Record<string, number> = {};
+    let total = 0;
+    primary.forEach(p => {
+      const m = midpoint(p);
+      breakdown[p] = m;
+      total += m;
+    });
+    if (total <= 0) total = 5;
+    return { total, breakdown };
+  };
+
+  const resolveEffectiveAdvanced = (section: any, lesson: any) => {
+    const enabled = (lesson?.advanced ?? section?.advanced ?? projectIsAdvanced ?? false) as boolean;
+    const baseRates = projectAdvancedRates || {};
+    const secRates = section?.advancedRates || {};
+    const lesRates = lesson?.advancedRates || {};
+    const rates: any = {
+      presentation: lesRates.presentation ?? secRates.presentation ?? baseRates.presentation ?? projectCustomRate ?? 200,
+      one_pager: lesRates.onePager ?? secRates.onePager ?? baseRates.one_pager ?? projectCustomRate ?? 200,
+      quiz: lesRates.quiz ?? secRates.quiz ?? baseRates.quiz ?? projectCustomRate ?? 200,
+      video_lesson: lesRates.videoLesson ?? secRates.videoLesson ?? baseRates.video_lesson ?? projectCustomRate ?? 200,
+    };
+    return { enabled, rates };
+  };
+
+  const computeCompletionTimeFromPrimary = (primary: string[]): string => {
+    const agg = computeCompletionAggregate(primary);
+    return `${agg.total}m`;
+  };
+
   return (
     <div className="font-['Inter',_sans-serif] bg-gray-50">
       <CreateContentTypeModal
@@ -1309,6 +1641,168 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasQuiz={!!findExistingQuiz(contentModalState.lessonTitle)}
         hasOnePager={!!findExistingOnePager(contentModalState.lessonTitle)}
         parentProjectName={parentProjectName}
+        recommendedContentTypes={contentModalState.recommended}
+        existingContent={{
+          hasLesson: !!findExistingLesson(contentModalState.lessonTitle),
+          hasQuiz: !!findExistingQuiz(contentModalState.lessonTitle),
+          hasOnePager: !!findExistingOnePager(contentModalState.lessonTitle),
+          hasVideoLesson: false
+        }}
+        onOpenAllContentTypes={() => handleOpenAllContentTypesModal(
+          contentModalState.lessonTitle,
+          contentModalState.moduleName,
+          contentModalState.lessonNumber,
+          contentModalState.recommended
+        )}
+        onUpdateRecommendations={(newPrimary) => {
+          const sectionIdx = sections?.findIndex(s => s.title === contentModalState.moduleName) ?? -1;
+          if (sectionIdx >= 0) {
+            const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex(l => l.title === contentModalState.lessonTitle) ?? -1;
+            if (lessonIdx >= 0 && onTextChange) {
+              const section = sections?.[sectionIdx];
+              const lessonObj = section?.lessons?.[lessonIdx];
+              const effTier = String(getEffectiveLessonTier(section, lessonObj));
+
+              // Persist recommended content types
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'primary'], JSON.stringify(newPrimary));
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'reasoning'], 'manual');
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'last_updated'], new Date().toISOString());
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'recommended_content_types', 'quality_tier_used'], effTier);
+
+              // Update completion time and breakdown
+              const agg = computeCompletionAggregate(newPrimary);
+              const newCT = `${agg.total}m`;
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completionTime'], newCT);
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'completion_breakdown'], agg.breakdown);
+
+              // Recalculate creation hours using advanced if enabled
+              const { enabled, rates } = resolveEffectiveAdvanced(section, lessonObj);
+              let newHours: number;
+              if (enabled) {
+                const total = (newPrimary as string[]).reduce((sum, p) => {
+                  const key = p === 'one-pager' ? 'one_pager' : (p === 'video-lesson' ? 'video_lesson' : p);
+                  const minutes = agg.breakdown[p] || 0;
+                  const rate = (rates as any)[key] || projectCustomRate || 200;
+                  return sum + (minutes / 60.0) * Number(rate);
+                }, 0);
+                newHours = Math.round(total);
+              } else {
+                const minutes = agg.total || 5;
+              const rate = (lessonObj?.custom_rate as number | undefined)
+                ?? (section?.custom_rate as number | undefined)
+                ?? (projectCustomRate as number | undefined)
+                  ?? 200;
+                newHours = Math.round((minutes / 60.0) * rate);
+              }
+              onTextChange(['sections', sectionIdx, 'lessons', lessonIdx, 'hours'], newHours);
+
+              // Update section total hours
+              const currentSection = sections?.[sectionIdx];
+              if (currentSection && currentSection.lessons) {
+                const updatedLessons = [...currentSection.lessons];
+                updatedLessons[lessonIdx] = { ...updatedLessons[lessonIdx], hours: newHours } as any;
+                const newTotalHours = updatedLessons.reduce((acc, l: any) => acc + (l?.hours || 0), 0);
+                onTextChange(['sections', sectionIdx, 'totalHours'], newTotalHours);
+                onTextChange(['sections', sectionIdx, 'autoCalculateHours'], true);
+              }
+
+              if (onAutoSave) {
+                if (autoSaveTimeoutRef.current) {
+                  clearTimeout(autoSaveTimeoutRef.current);
+                }
+                autoSaveTimeoutRef.current = setTimeout(() => {
+                  onAutoSave();
+                  autoSaveTimeoutRef.current = null;
+                }, 400);
+              }
+            }
+          }
+        }}
+      />
+      <AllContentTypesModal
+        isOpen={allContentTypesModalState.isOpen}
+        onClose={() => setAllContentTypesModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 })}
+        onBackToRecommended={() => handleOpenCreateContentTypeModal(
+          allContentTypesModalState.lessonTitle,
+          allContentTypesModalState.moduleName,
+          allContentTypesModalState.lessonNumber,
+          allContentTypesModalState.recommended
+        )}
+        contentTypes={[
+          { 
+            name: "lessonPresentation", 
+            key: "presentation",
+            icon: <BookText className="w-6 h-6" />, 
+            label: t('modals.createContent.presentation'),
+            description: t('modals.createContent.presentationDescription'),
+            color: "blue",
+            disabled: false 
+          },
+          { 
+            name: "textPresentation", 
+            key: "one-pager",
+            icon: <FileText className="w-6 h-6" />, 
+            label: t('modals.createContent.onePager'),
+            description: t('modals.createContent.onePagerDescription'),
+            color: "purple",
+            disabled: false 
+          },
+          { 
+            name: "multiple-choice", 
+            key: "quiz",
+            icon: <HelpCircle className="w-6 h-6" />, 
+            label: t('modals.createContent.quiz'),
+            description: t('modals.createContent.quizDescription'),
+            color: "green",
+            disabled: false 
+          },
+          { 
+            name: "videoLesson", 
+            key: "video-lesson",
+            icon: <Video className="w-6 h-6" />, 
+            label: t('modals.createContent.videoLesson'),
+            description: t('modals.createContent.videoLessonDescription'),
+            color: "orange",
+            disabled: true,
+            soon: true
+          },
+        ]}
+        onContentCreate={(contentType) => {
+          let product = '';
+          let lessonType = '';
+          
+          switch (contentType) {
+            case 'lessonPresentation':
+              product = 'lesson';
+              lessonType = contentType;
+              break;
+            case 'textPresentation':
+              product = 'text-presentation';
+              lessonType = contentType;
+              break;
+            case 'multiple-choice':
+              product = 'quiz';
+              lessonType = contentType;
+              break;
+            case 'videoLesson':
+              product = 'video-lesson';
+              lessonType = contentType;
+              break;
+          }
+
+          const params = new URLSearchParams({
+            product: product,
+            lessonType: lessonType,
+            lessonTitle: allContentTypesModalState.lessonTitle,
+            moduleName: allContentTypesModalState.moduleName,
+            lessonNumber: String(allContentTypesModalState.lessonNumber)
+          });
+          if (parentProjectName) {
+            params.set('courseName', parentProjectName);
+          }
+          router.push(`/create?${params.toString()}`);
+          setAllContentTypesModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
+        }}
       />
       <OpenOrCreateModal
         isOpen={openOrCreateModalState.isOpen}
@@ -1340,11 +1834,40 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       />
       <LessonSettingsModal
         isOpen={lessonSettingsModalState.isOpen}
-        onClose={() => setLessonSettingsModalState({ isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' })}
-        lessonTitle={lessonSettingsModalState.lessonTitle}
+        onClose={() => setLessonSettingsModalState({ 
+          isOpen: false, lessonTitle: '', sectionIndex: -1, lessonIndex: -1, completionTime: '' 
+        })}
         currentCustomRate={lessonSettingsModalState.currentCustomRate}
         currentQualityTier={lessonSettingsModalState.currentQualityTier}
         completionTime={lessonSettingsModalState.completionTime}
+        projectId={projectId}
+        sectionIndex={lessonSettingsModalState.sectionIndex}
+        lessonIndex={lessonSettingsModalState.lessonIndex}
+        // Preselect current advanced values from the effective context
+        {...(() => {
+          const sIdx = lessonSettingsModalState.sectionIndex;
+          const lIdx = lessonSettingsModalState.lessonIndex;
+          if (sIdx !== undefined && sIdx >= 0 && lIdx !== undefined && lIdx >= 0) {
+            const section: any = dataToDisplay?.sections[sIdx];
+            const les: any = section?.lessons?.[lIdx];
+            const eff = resolveEffectiveAdvanced(section, les);
+            const effSingle = (les?.custom_rate as number | undefined)
+              ?? (section?.custom_rate as number | undefined)
+              ?? (projectCustomRate as number | undefined)
+              ?? 200;
+            return {
+              currentAdvancedEnabled: !!eff.enabled,
+              currentAdvancedRates: {
+                presentation: eff.rates.presentation,
+                onePager: eff.rates.one_pager,
+                quiz: eff.rates.quiz,
+                videoLesson: eff.rates.video_lesson,
+              },
+              currentEffectiveCustomRate: effSingle,
+            } as any;
+          }
+          return {} as any;
+        })()}
         onSave={handleLessonSettingsSave}
       />
       <ModuleSettingsModal
@@ -1353,6 +1876,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         moduleTitle={moduleSettingsModalState.moduleTitle}
         currentCustomRate={moduleSettingsModalState.currentCustomRate}
         currentQualityTier={moduleSettingsModalState.currentQualityTier}
+        projectId={projectId}
+        sectionIndex={moduleSettingsModalState.sectionIndex}
         onSave={handleModuleSettingsSave}
       />
       <div className="shadow-lg rounded-lg overflow-hidden border border-gray-300 bg-white">

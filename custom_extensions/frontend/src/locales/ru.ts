@@ -186,6 +186,14 @@ export const ru = {
         "Создать видео-урок с озвучкой и визуальными элементами",
       soon: "Скоро",
       alreadyCreated: "Уже создано",
+      recommended: "Рекомендуемые",
+      recommendedDescription: "Типы контента, предложенные ИИ, идеально подходящие для этого урока",
+      orExploreMore: "или изучить больше вариантов",
+      customizeRecommendations: "Настроить рекомендации",
+      selectRecommendedProducts: "Выберите, какие продукты должны отображаться как рекомендуемые для этого урока.",
+      allOptions: "Все типы контента",
+      seeAllContentTypes: "Посмотреть все типы контента",
+      backToRecommended: "Вернуться к рекомендуемым"
     },
     openContent: {
       title: "Открыть контент",
@@ -290,9 +298,44 @@ export const ru = {
     folderExport: {
       title: "Создание PDF",
       subtitle: "Создание PDF экспорта для папки",
-      description:
-        "Это может занять несколько минут в зависимости от количества файлов...",
+      description: "Это может занять несколько минут в зависимости от количества файлов..."
     },
+    moduleSettings: {
+      title: 'Настройки модуля',
+      subtitle: 'Настройка качества производства для',
+      tier: 'Уровень',
+      contentExamples: 'Примеры контента',
+      hoursRange: 'Диапазон часов',
+      example: 'Пример',
+      moduleQualityTier: 'Уровень качества модуля установлен в',
+      perCompletionHour: 'ч за час завершения',
+      cancel: 'Отмена',
+      saveChanges: 'Сохранить изменения',
+      saving: 'Сохранение...',
+      failedToSave: 'Не удалось сохранить настройку уровня модуля'
+    },
+    lessonSettings: {
+      title: 'Настройки урока',
+      subtitle: 'Настройка качества производства для',
+      tier: 'Уровень',
+      contentExamples: 'Примеры контента',
+      hoursRange: 'Диапазон часов',
+      example: 'Пример',
+      lessonQualityTier: 'Уровень качества урока установлен в',
+      perCompletionHour: 'ч за час завершения',
+      cancel: 'Отмена',
+      saveChanges: 'Сохранить изменения',
+      saving: 'Сохранение...',
+      failedToSave: 'Не удалось со��ранить настройку уровня урока',
+      lessonTitle: 'Название урока',
+      advanced: 'Расширенный'
+    },
+    rates: {
+      presentation: 'Ставка презентации',
+      onePager: 'Ставка одностраничника',
+      quiz: 'Ставка теста',
+      videoLesson: 'Ставка видео-урока'
+    }
   },
   projects: {
     loading: "Загрузка продуктов...",
@@ -316,6 +359,9 @@ export const ru = {
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Поделились с вами",
     folders: "Папки",
+    clients: "Клиенты",
+    noClientsYet: "Пока нет клиентов",
+    showMoreClients: "Введите для поиска других клиентов...",
     createOrJoinFolder: "Создать или присоединиться к папке",
     organizeProducts:
       "Организуйте свои продукты по темам и делитесь ими с командой",
@@ -755,7 +801,7 @@ export const ru = {
       description: "Описание (необязательно)",
       enterFolderDescription: "Введите описание папки",
       cancel: "Отмена",
-      creating: "Создание...",
+      creating: "С��здание...",
       createFolder: "Создать папку",
       select: "Выбрать",
       selected: "Выбрано",
@@ -775,7 +821,7 @@ export const ru = {
       regenerate: "Перегенерировать",
       modulesAndLessons: "Модули и уроки",
       editsProtected: "Редактирование защищено",
-      moduleTitle: "Название модуля",
+      moduleTitle: "Название мод��ля",
       title: "название",
       lessonTitle: "Урок",
       addModule: "Добавить модуль",

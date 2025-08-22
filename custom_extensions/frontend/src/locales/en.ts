@@ -196,6 +196,14 @@ export const en = {
         "Create a video lesson with narration and visuals",
       soon: "Soon",
       alreadyCreated: "Already created",
+      recommended: "Recommended",
+      recommendedDescription: "AI-suggested content types perfect for this lesson",
+      orExploreMore: "or explore more options",
+      customizeRecommendations: "Customize Recommendations",
+      selectRecommendedProducts: "Select which products should be shown as recommended for this lesson.",
+      allOptions: "All content types",
+      seeAllContentTypes: "See all content types",
+      backToRecommended: "Back to recommended"
     },
     openContent: {
       title: "Open Content",
@@ -318,19 +326,27 @@ export const en = {
       failedToSave: "Failed to save module tier setting",
     },
     lessonSettings: {
-      title: "Lesson Settings",
-      subtitle: "Configure production quality for",
-      tier: "Tier",
-      contentExamples: "Content Examples",
-      hoursRange: "Hours Range",
-      example: "Example",
-      lessonQualityTier: "Lesson quality tier set to",
-      perCompletionHour: "h per completion hour",
-      cancel: "Cancel",
-      saveChanges: "Save Changes",
-      saving: "Saving...",
-      failedToSave: "Failed to save lesson tier setting",
+      title: 'Lesson Settings',
+      subtitle: 'Configure production quality for',
+      tier: 'Tier',
+      contentExamples: 'Content Examples',
+      hoursRange: 'Hours Range',
+      example: 'Example',
+      lessonQualityTier: 'Lesson quality tier set to',
+      perCompletionHour: 'h per completion hour',
+      cancel: 'Cancel',
+      saveChanges: 'Save Changes',
+      saving: 'Saving...',
+      failedToSave: 'Failed to save lesson tier setting',
+      lessonTitle: 'Lesson Title',
+      advanced: 'Advanced'
     },
+    rates: {
+      presentation: 'Presentation rate',
+      onePager: 'One‑pager rate',
+      quiz: 'Quiz rate',
+      videoLesson: 'Video lesson rate'
+    }
   },
   projects: {
     loading: "Loading products...",
@@ -363,6 +379,9 @@ export const en = {
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Shared with you",
     folders: "Folders",
+    clients: "Clients",
+    noClientsYet: "No clients yet",
+    showMoreClients: "Type to search more clients...",
     createOrJoinFolder: "Create or join a folder",
     organizeProducts:
       "Organize your products by topic and share them with your team",
@@ -371,6 +390,7 @@ export const en = {
 
     // Main content
     all: "All",
+    other: "Not Assigned",
     trainingPlans: "Training Plans",
     pdfLessons: "PDF Lessons",
     videoLessons: "Video Lessons",
@@ -403,7 +423,19 @@ export const en = {
     deletePermanently: "Delete Permanently",
     moveToFolder: "Move to Folder",
     settings: "Settings",
-
+    addClient: "Add Client",
+    customOffer: "Custom Offer",
+    createNewClient: "Create New Client",
+    organizeProjectsByClient: "Organize your projects by client for better management",
+    enterClientNamePlaceholder: "Enter client name...",
+    createAtTopLevel: "Create at top level (no parent client)",
+    existingClients: "Existing Clients",
+    searchClients: "Search clients...",
+    noClientsFound: "No clients found",
+    creatingClient: "Creating Client...",
+    createClient: "Create Client",
+    deleteClient: "Delete client",
+    
     // Folder actions
     folderSettings: "Folder Settings",
     renameFolder: "Rename Folder",
@@ -416,7 +448,6 @@ export const en = {
       "You can join a folder to keep track of what folks are working on.",
     findOrCreateFolder: "Find or create a new folder",
     createFolderButton: "Create folder",
-    createAtTopLevel: "Create at top level (no parent folder)",
     allFolders: "All folders",
     noFoldersFound: "No folders found.",
     done: "Done",

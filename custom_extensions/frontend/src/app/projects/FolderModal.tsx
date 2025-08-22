@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { Plus, Users, X } from 'lucide-react';
 
 interface FolderModalProps {
   open: boolean;
@@ -12,9 +13,9 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
   const [folderName, setFolderName] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
+
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
-  const [deletingFolderId, setDeletingFolderId] = useState<number | null>(null);
+
   const { t } = useLanguage();
 
   // Fetch all projects for folder content move
@@ -56,7 +57,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           quality_tier: 'interactive'
         })
       });
-      if (!res.ok) throw new Error('Failed to create folder');
+      if (!res.ok) throw new Error('Failed to create client');
       const data = await res.json();
       onFolderCreated(data);
       setFolderName('');
@@ -68,118 +69,109 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         window.location.reload();
       }, 500); // Small delay to show success state
     } catch (e: any) {
-      setError(e.message || 'Error creating folder');
+      setError(e.message || 'Error creating client');
     } finally {
       setCreating(false);
     }
   };
 
-  const handleDeleteFolder = async (folderId: number) => {
-    setDeletingFolderId(folderId);
-    setError('');
-    try {
-      // Find the folder and its parent
-      const folder = existingFolders.find(f => f.id === folderId);
-      const parentId = folder?.parent_id ?? null;
-      // Move all projects in this folder to the parent (or root)
-      const projectsToMove = allProjects.filter(p => p.folder_id === folderId);
-      for (const project of projectsToMove) {
-        await fetch(`/api/custom-projects-backend/projects/${project.id}/folder`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ folder_id: parentId })
-        });
-      }
-      // Delete the folder
-      const res = await fetch(`/api/custom-projects-backend/projects/folders/${folderId}`, {
-        method: 'DELETE',
-        credentials: 'same-origin',
-      });
-      if (!res.ok) throw new Error('Failed to delete folder');
-      
-      // Refresh UI
-      if (typeof window !== 'undefined') (window as any).__modalOpen = false;
-      onClose();
-      
-      // Reload the page to ensure all changes are visually applied
-      setTimeout(() => {
-        window.location.reload();
-      }, 500); // Small delay to show success state
-    } catch (e: any) {
-      setError(e.message || 'Error deleting folder');
-    } finally {
-      setDeletingFolderId(null);
-    }
-  };
 
-  const filteredFolders = existingFolders.filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
+
+
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
-        <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}>&times;</button>
-        <h2 className="text-2xl font-bold mb-2 text-black">{t('interface.createFolder', 'Create or join a folder')}</h2>
-        <p className="text-gray-600 mb-4">{t('interface.createFolderDescription', 'You can join a folder to keep track of what folks are working on.')}</p>
-        <div className="flex flex-col mb-4 gap-2">
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder={t('interface.findOrCreateFolder', 'Find or create a new folder')}
-              className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              value={folderName}
-              onChange={e => { setFolderName(e.target.value); setSearch(e.target.value); }}
-              onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
-            />
-            <button
-              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50"
-              onClick={handleCreate}
-              disabled={creating || !folderName.trim()}
-            >
-              {t('interface.createFolderButton', 'Create folder')}
-            </button>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/50" onClick={handleBackdropClick}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-gray-100">
+        <button 
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors" 
+          onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
+        >
+          <X size={20} />
+        </button>
+        
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+            <Users size={24} className="text-white" />
           </div>
-          {existingFolders.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h2>
+            <p className="text-gray-600 text-sm">{t('interface.organizeProjectsByClient', 'Organize your projects by client for better management')}</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Create New Client Section */}
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <select
-                className="w-full max-w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black truncate"
-                value={selectedParentId || ''}
-                onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
+              <Plus size={16} className="text-green-600" />
+              <h3 className="font-semibold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h3>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t('interface.enterClientNamePlaceholder', 'Enter client name...')}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                  value={folderName}
+                  onChange={e => setFolderName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
+                />
+              </div>
+              
+              {existingFolders.length > 0 && (
+                <div className="relative">
+                  <select
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 bg-white"
+                    value={selectedParentId || ''}
+                    onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
+                  >
+                    <option value="">{t('interface.createAtTopLevel', 'Create at top level (no parent client)')}</option>
+                    {existingFolders.map(folder => (
+                      <option key={folder.id} value={folder.id} title={folder.name}>
+                        {folder.name.length > 40 ? `${folder.name.substring(0, 40)}...` : folder.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
+              <button
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+                onClick={handleCreate}
+                disabled={creating || !folderName.trim()}
               >
-                <option value="">{t('interface.createAtTopLevel', 'Create at top level (no parent folder)')}</option>
-                {existingFolders.map(folder => (
-                  <option key={folder.id} value={folder.id} title={folder.name}>
-                    {folder.name.length > 40 ? `${folder.name.substring(0, 40)}...` : folder.name}
-                  </option>
-                ))}
-              </select>
+                {creating ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {t('interface.creatingClient', 'Creating Client...')}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <Plus size={16} />
+                    {t('interface.createClient', 'Create Client')}
+                  </div>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="text-red-600 text-sm">{error}</div>
             </div>
           )}
+
+
         </div>
-        {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-        <div className="mb-4">
-          <div className="text-xs text-gray-500 mb-2">{t('interface.allFolders', 'All folders')}</div>
-          <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
-            {filteredFolders.length === 0 && <div className="text-gray-400 text-sm">{t('interface.noFoldersFound', 'No folders found.')}</div>}
-            {filteredFolders.map(folder => (
-              <div key={folder.id} className="flex items-center justify-between gap-2 px-2 py-2 rounded border border-gray-200">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">{folder.name[0]?.toUpperCase()}</span>
-                  <span className="font-medium text-gray-800">{folder.name}</span>
-                </div>
-                <button 
-                  className="text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors disabled:opacity-50"
-                  disabled={deletingFolderId === folder.id}
-                  onClick={() => handleDeleteFolder(folder.id)}
-                >
-                  {deletingFolderId === folder.id ? t('interface.deleting', 'Deleting...') : t('interface.delete', 'Delete')}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="flex justify-end">
-          <button className="px-5 py-2 bg-blue-700 text-white rounded-full font-semibold" onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}>{t('interface.done', 'Done')}</button>
+
+        <div className="flex justify-end mt-8 pt-6 border-t border-gray-200">
+          <button 
+            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors" 
+            onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
+          >
+            Done
+          </button>
         </div>
       </div>
     </div>

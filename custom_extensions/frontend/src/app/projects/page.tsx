@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/app/projects/page.tsx 
 "use client";
 
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
@@ -344,9 +344,25 @@ const FolderItem: React.FC<{
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
   const { t } = useLanguage();
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
+
+  // Filter and limit clients
+  const filteredAndLimitedClients = useMemo(() => {
+    const filtered = folders.filter(folder => 
+      folder.name.toLowerCase().includes(clientSearchTerm.toLowerCase())
+    );
+    
+    if (clientSearchTerm) {
+      // Show all matching clients when searching
+      return filtered;
+    } else {
+      // Show only 5 most recent clients when not searching
+      return filtered.slice(0, 5);
+    }
+  }, [folders, clientSearchTerm]);
 
   const handleDragOver = (e: React.DragEvent) => {
     if (isModalOpen) {
@@ -402,19 +418,35 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
 
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
-      <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          placeholder={t('interface.jumpTo', 'Jump to')}
-          className="w-full bg-gray-100 rounded-md pl-8 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">{t('interface.keyboardShortcut', '⌘+K')}</div>
+      <div className="relative mb-6">
+        <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              {/* SVG Logo Placeholder - Replace with your actual logo */}
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-blue-600"
+              >
+                {/* Placeholder logo - replace this with your actual SVG */}
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <div className="text-white">
+              <div className="font-bold text-sm leading-tight">Content</div>
+              <div className="font-semibold text-xs leading-tight opacity-90">Builder</div>
+            </div>
+          </div>
+        </div>
       </div>
       <nav className="flex flex-col gap-1">
         <Link 
           href="/projects" 
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => onFolderSelect(null)}
         >
           <Home size={18} />
@@ -433,35 +465,82 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
         </Link>
       </nav>
-      <div className="mt-4">
-        <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
-          <span>{t('interface.folders', 'Folders')}</span>
-          <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
+
+      {/* Clients Section */}
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Users size={16} className="text-green-600" />
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('interface.clients', 'Clients')}</h3>
+          </div>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
+            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            title={t('interface.addClient', 'Add Client')}
+          >
+            <Plus size={14} />
+          </button>
         </div>
-        {folders.length === 0 ? (
-          <div className="bg-gray-100 p-4 rounded-lg text-center">
-            <p className="mb-2 text-gray-700">{t('interface.organizeProducts', 'Organize your products by topic and share them with your team')}</p>
-            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>{t('interface.createOrJoinFolder', 'Create or join a folder')}</button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-1">
-            {buildFolderTree(folders).map((folder) => (
-              <FolderItem
-                key={folder.id}
-                folder={folder}
-                level={0}
-                selectedFolderId={selectedFolderId}
-                onFolderSelect={onFolderSelect}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                folderProjects={folderProjects}
-                allFolders={folders}
-              />
-            ))}
-          </div>
-        )}
+
+        {/* Client Search */}
+        <div className="relative mb-3">
+          <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder={t('interface.searchClients', 'Search clients...')}
+            value={clientSearchTerm}
+            onChange={(e) => setClientSearchTerm(e.target.value)}
+            className="w-full bg-gray-50 rounded-md pl-8 pr-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white text-black placeholder-gray-500"
+          />
+        </div>
+        
+        <div className="space-y-1">
+          {folders.length === 0 ? (
+            <div className="text-xs text-gray-500 px-2 py-1">
+              {t('interface.noClientsYet', 'No clients yet')}
+            </div>
+          ) : filteredAndLimitedClients.length === 0 ? (
+            <div className="text-xs text-gray-500 px-2 py-1">
+              {t('interface.noClientsFound', 'No clients found')}
+            </div>
+          ) : (
+            <>
+              {filteredAndLimitedClients.map((folder) => {
+                const projectCount = folderProjects?.[folder.id]?.length || 0;
+                return (
+                  <button
+                    key={folder.id}
+                    onClick={() => onFolderSelect(folder.id)}
+                    className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition-colors ${
+                      selectedFolderId === folder.id
+                        ? 'bg-green-50 text-green-700 font-medium'
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, folder.id)}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                      <span className="truncate text-sm">{folder.name}</span>
+                    </div>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                      {projectCount}
+                    </span>
+                  </button>
+                );
+              })}
+              
+              {/* Show "Show more" when there are more clients and not searching */}
+              {!clientSearchTerm && folders.length > 5 && (
+                <div className="text-xs text-gray-500 px-2 py-1 text-center">
+                  {t('interface.showMoreClients', 'Type to search more clients...')}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">

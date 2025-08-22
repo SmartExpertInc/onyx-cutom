@@ -506,6 +506,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -1715,6 +1716,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -2338,6 +2340,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -3185,6 +3188,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -3814,6 +3818,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -4642,6 +4647,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -5265,6 +5271,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -6300,6 +6307,30 @@ async def startup_event():
                     logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
                     raise e
             
+            # Add is_advanced and advanced_rates to project_folders for advanced per-product rates
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS completion_times JSONB;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_is_advanced ON project_folders(is_advanced);")
+                logger.info("Ensured is_advanced, advanced_rates, and completion_times on project_folders")
+            except Exception as e:
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding is_advanced/advanced_rates to project_folders: {e}")
+                    raise e
+
+            # Add is_advanced and advanced_rates to projects for advanced per-product rates
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_times JSONB;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_advanced ON projects(is_advanced);")
+                logger.info("Ensured is_advanced, advanced_rates, and completion_times on projects")
+            except Exception as e:
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding is_advanced/advanced_rates to projects: {e}")
+                    raise e
+            
             # Add completionTime column to trashed_projects table to match projects table schema
             try:
                 await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
@@ -6634,6 +6665,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -6865,6 +6897,9 @@ class ProjectDB(BaseModel):
     created_at: datetime
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
     model_config = {"from_attributes": True}
 
 class MicroProductApiResponse(BaseModel):
@@ -6880,6 +6915,8 @@ class MicroProductApiResponse(BaseModel):
     sourceChatSessionId: Optional[uuid.UUID] = None
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
     model_config = {"from_attributes": True}
 
 class ProjectApiResponse(BaseModel):
@@ -6913,7 +6950,7 @@ class ProjectUpdateRequest(BaseModel):
     projectName: Optional[str] = None
     design_template_id: Optional[int] = None
     microProductName: Optional[str] = None
-    microProductContent: Optional[MicroProductContentType] = None
+    microProductContent: Optional[Dict[str, Any]] = None
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
     model_config = {"from_attributes": True}
@@ -6921,6 +6958,9 @@ class ProjectUpdateRequest(BaseModel):
 class ProjectTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 BulletListBlock.model_rebuild()
 NumberedListBlock.model_rebuild()
@@ -7376,6 +7416,145 @@ def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> 
     completion_hours = completion_time_minutes / 60.0
     creation_hours = completion_hours * custom_rate
     return round(creation_hours)
+
+
+def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Optional[str], existing_content: Optional[Dict[str, bool]] = None) -> Dict[str, Any]:
+    """Smart, robust combo recommendations per tier.
+    Returns a "primary" list of product types composing the chosen combo.
+    Types: 'one-pager' | 'presentation' | 'quiz' | 'video-lesson'
+    """
+    import hashlib
+
+    if existing_content is None:
+        existing_content = {}
+
+    title = (lesson_title or "").strip().lower()
+    tier = (quality_tier or "interactive").strip().lower()
+
+    # Keyword signals
+    kw_one_pager = ["introduction", "overview", "basics", "summary", "quick", "reference", "primer", "cheatsheet"]
+    kw_presentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to", "walkthrough"]
+    kw_video = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical", "screencast", "recording"]
+    kw_quiz = ["test", "check", "verify", "practice", "exercise", "assessment", "evaluation", "quiz"]
+
+    def score_for(keys: list[str]) -> float:
+        hits = sum(1 for k in keys if k in title)
+        return min(1.0, hits / 3.0)  # saturate after 3 hits
+
+    s_one = score_for(kw_one_pager)
+    s_pres = score_for(kw_presentation)
+    s_vid = score_for(kw_video)
+    s_quiz = score_for(kw_quiz)
+
+    # Deterministic variety seed per lesson
+    seed_val = int(hashlib.sha1(f"{title}|{tier}".encode("utf-8")).hexdigest()[:8], 16) / 0xFFFFFFFF
+
+    # Define candidate combos per tier
+    # combos are arrays of product types constituting the recommendation
+    if tier == "basic":
+        combos = [
+            ["one-pager"],
+            ["presentation"],
+        ]
+        # weights prefer brevity/overview to one-pager, procedural to presentation
+        weights = [
+            0.55 + 0.35 * s_one - 0.10 * s_pres,
+            0.45 + 0.35 * s_pres - 0.10 * s_one,
+        ]
+    elif tier == "interactive":
+        combos = [
+            ["presentation", "quiz"],
+            ["presentation"],
+            ["one-pager", "quiz"],
+        ]
+        weights = [
+            0.40 + 0.30 * s_pres + 0.30 * s_quiz,  # pres+quiz
+            0.30 + 0.50 * s_pres - 0.10 * s_quiz,  # pres
+            0.30 + 0.40 * s_one + 0.30 * s_quiz,   # one+quiz
+        ]
+    elif tier == "advanced":
+        combos = [
+            ["presentation", "quiz"],
+            ["video-lesson", "quiz"],
+        ]
+        weights = [
+            0.50 + 0.30 * s_pres + 0.20 * s_quiz,
+            0.50 + 0.40 * s_vid + 0.20 * s_quiz,
+        ]
+    else:  # immersive
+        combos = [
+            ["video-lesson", "quiz"],
+            ["video-lesson"],
+        ]
+        weights = [
+            0.60 + 0.25 * s_vid + 0.15 * s_quiz,
+            0.40 + 0.60 * s_vid - 0.10 * s_quiz,
+        ]
+
+    # Normalize weights, add small hash-based jitter for deterministic variety
+    eps = 1e-6
+    jitter = [(i + 1) * 0.0005 * seed_val for i in range(len(weights))]
+    norm_weights = [max(eps, w + jitter[i]) for i, w in enumerate(weights)]
+
+    # Sort combos by weight desc, break ties deterministically
+    ranked = sorted(range(len(combos)), key=lambda i: (-norm_weights[i], i))
+
+    # Choose the best combo that doesn’t fully collide with existing content
+    chosen: list[str] | None = None
+    for idx in ranked:
+        c = combos[idx]
+        # If combo has two items and one exists, we still propose the remaining one; if all exist, skip.
+        missing = [t for t in c if not existing_content.get(t, False)]
+        if missing:
+            chosen = missing
+            break
+
+    # Fallback to the top combo if everything existed (rare)
+    if not chosen:
+        chosen = combos[ranked[0]]
+
+    return {
+        "primary": chosen,
+        "reasoning": (
+            f"tier={tier}; signals(one={s_one:.2f}, pres={s_pres:.2f}, video={s_vid:.2f}, quiz={s_quiz:.2f}); "
+            f"seed={seed_val:.3f}; combos={combos}"
+        ),
+        "last_updated": datetime.utcnow().isoformat(),
+        "quality_tier_used": tier,
+    }
+
+# --- Completion time from recommendations ---
+PRODUCT_COMPLETION_RANGES = {
+    "one-pager": (2, 3),
+    "presentation": (5, 10),
+    "quiz": (5, 7),
+    "video-lesson": (2, 5),
+}
+
+def compute_completion_time_from_recommendations(primary_types: list[str]) -> str:
+    total = 0
+    for p in primary_types:
+        r = PRODUCT_COMPLETION_RANGES.get(p)
+        if not r:
+            continue
+        total += random.randint(r[0], r[1])
+    if total <= 0:
+        total = 5
+    return f"{total}m"
+
+def sanitize_training_plan_for_parse(content: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        sections = content.get('sections') or []
+        for section in sections:
+            lessons = section.get('lessons') or []
+            for lesson in lessons:
+                if isinstance(lesson, dict):
+                    # keep recommended_content_types for persistence
+                    pass
+    except Exception:
+        pass
+    return content
+
 
 def round_hours_in_content(content: Any) -> Any:
     """Recursively round all hours fields to integers in content structure"""
@@ -10657,7 +10836,8 @@ Return ONLY the JSON object.
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
                     db_content_dict = round_hours_in_content(db_content_dict)
-                    final_content_for_response = TrainingPlanDetails(**db_content_dict)
+                    # Preserve custom fields (e.g., recommended_content_types) for edit view
+                    final_content_for_response = db_content_dict
             except Exception as e_parse:
                 logger.error(f"Error parsing content from DB on add (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
 
@@ -10730,6 +10910,7 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_TEXT_PRESENTATION:
                     parsed_content_for_response = TextPresentationDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content_json = sanitize_training_plan_for_parse(db_content_json)
                     parsed_content_for_response = TrainingPlanDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_VIDEO_LESSON:
                     parsed_content_for_response = VideoLessonData(**db_content_json)
@@ -10871,7 +11052,9 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         sourceChatSessionId=row_dict.get("source_chat_session_id"),
         parentProjectName=row_dict.get('project_name'),
         custom_rate=row_dict.get("custom_rate"),
-        quality_tier=row_dict.get("quality_tier")
+        quality_tier=row_dict.get("quality_tier"),
+        is_advanced=row_dict.get("is_advanced"),
+        advanced_rates=row_dict.get("advanced_rates")
         # folder_id is not in MicroProductApiResponse, but can be added if needed
     )
 
@@ -13407,6 +13590,45 @@ async def generate_and_finalize_course_outline_for_position(
                                 content_available = {"type": "yes", "text": "0%"} if source == "Create from scratch" else {"type": "yes", "text": "0%"}
                                 lesson.setdefault("contentAvailable", content_available)
                                 lesson.setdefault("source", source)
+                                # Populate recommended content types if missing
+                                try:
+                                    existing_flags = {
+                                        "presentation": False,
+                                        "one-pager": False,
+                                        "quiz": False,
+                                        "video-lesson": False,
+                                    }
+                                    recommendations = analyze_lesson_content_recommendations(
+                                        lesson.get("title", ""),
+                                        lesson.get("quality_tier") or section.get("quality_tier") or content.get("quality_tier"),
+                                        existing_flags
+                                    )
+                                    lesson.setdefault("recommended_content_types", recommendations)
+                                    # Update completionTime from recommendations
+                                    try:
+                                        lesson["completionTime"] = compute_completion_time_from_recommendations(recommendations.get("primary", []))
+                                        # Also generate completion_breakdown for advanced mode support
+                                        primary = recommendations.get("primary", [])
+                                        ranges = {
+                                            'one-pager': (2,3),
+                                            'presentation': (5,10),
+                                            'quiz': (5,7),
+                                            'video-lesson': (2,5),
+                                        }
+                                        breakdown = {}
+                                        total_m = 0
+                                        for p in primary:
+                                            r = ranges.get(p)
+                                            if r:
+                                                mid = int(round((r[0]+r[1])/2))
+                                                breakdown[p] = mid
+                                                total_m += mid
+                                        if total_m > 0:
+                                            lesson['completion_breakdown'] = breakdown
+                                    except Exception:
+                                        lesson.setdefault("completionTime", "5m")
+                                except Exception:
+                                    pass
                                 updated_lessons.append(lesson)
                             else:
                                 # If lesson is just a string, convert to proper structure
@@ -13416,7 +13638,7 @@ async def generate_and_finalize_course_outline_for_position(
                                     "contentAvailable": {"type": "yes", "text": "0%"},
                                     "source": "Create from scratch",
                                     "hours": 1,
-                                    "completionTime": "5m"
+                                    "recommended_content_types": analyze_lesson_content_recommendations(str(lesson), content.get("quality_tier"), {"presentation": False, "one-pager": False, "quiz": False, "video-lesson": False})
                                 })
                         
                         # Calculate total hours from lesson hours
@@ -13686,6 +13908,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             # Success when we have valid parsed content
             if content_valid:
                 logger.info(f"Direct parser path successful for project {direct_path_project_id}")
+                print('FULL CONTENT', project_db_candidate.microproduct_content)
                 return JSONResponse(content={"type": "done", "id": project_db_candidate.id})
             else:
                 # Direct parser path validation failed - clean up the created project and fall back to assistant
@@ -15461,6 +15684,8 @@ class ProjectFolderCreateRequest(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None  # { presentation, one_pager, quiz, video_lesson }
 
 class ProjectFolderResponse(BaseModel):
     id: int
@@ -15469,6 +15694,9 @@ class ProjectFolderResponse(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 class ProjectFolderListResponse(BaseModel):
     id: int
@@ -15478,6 +15706,9 @@ class ProjectFolderListResponse(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
     project_count: int
     total_lessons: int
     total_hours: int
@@ -15493,6 +15724,9 @@ class ProjectFolderMoveRequest(BaseModel):
 class ProjectFolderTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
@@ -15506,6 +15740,9 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             pf.parent_id,
             COALESCE(pf.quality_tier, 'medium') as quality_tier,
             COALESCE(pf.custom_rate, 200) as custom_rate,
+            pf.is_advanced as is_advanced,
+            pf.advanced_rates as advanced_rates,
+            pf.completion_times as completion_times,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -15564,7 +15801,7 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
         FROM project_folders pf
         LEFT JOIN projects p ON pf.id = p.folder_id
         WHERE pf.onyx_user_id = $1
-        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id
+        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.is_advanced, pf.advanced_rates
         ORDER BY pf."order" ASC, pf.created_at ASC;
     """
     async with pool.acquire() as conn:
@@ -15583,13 +15820,13 @@ async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Dep
             if not parent_folder:
                 raise HTTPException(status_code=404, detail="Parent folder not found")
         
-        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate;"
-        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate)
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None)
     return ProjectFolderResponse(**dict(row))
 
 @app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
 async def rename_folder(folder_id: int, req: ProjectFolderRenameRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at;"
+    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
     async with pool.acquire() as conn:
         row = await conn.fetchrow(query, req.name, folder_id, onyx_user_id)
     if not row:
@@ -15664,10 +15901,10 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
         if not folder:
             raise HTTPException(status_code=404, detail="Folder not found")
         
-        # Update the folder's quality_tier and custom_rate
+        # Update the folder's quality_tier/custom_rate and advanced fields
         updated_folder = await conn.fetchrow(
-            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate",
-            req.quality_tier, req.custom_rate, folder_id, onyx_user_id
+            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates, completion_times",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, folder_id, onyx_user_id
         )
         
         # Get all projects in this folder (including subfolders recursively)
@@ -15719,6 +15956,43 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     
                                     # Update the tier name to match the new folder tier
                                     lesson['quality_tier'] = req.quality_tier
+
+                                    # Always update recommendations when tier changes to ensure they match the new tier
+                                    try:
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                                lesson.get('title', ''),
+                                                req.quality_tier,
+                                                {
+                                                    'presentation': False,
+                                                    'one-pager': False,
+                                                    'quiz': False,
+                                                    'video-lesson': False,
+                                                }
+                                            )
+                                        # Also record a deterministic completion_breakdown and completionTime
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
+                                    except Exception:
+                                        pass
                                     
                                     # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
@@ -15753,8 +16027,37 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     # Add to total completion time
                                     total_completion_time += completion_time_minutes
                                     
-                                    # Recalculate hours with new folder rate using completion time (or 5 minutes default)
-                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    # Recalculate hours considering advanced per-product rates if enabled
+                                    try:
+                                        primary = []
+                                        if isinstance(lesson.get('recommended_content_types'), dict):
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                        is_adv = bool(updated_folder.get('is_advanced'))
+                                        adv_rates = updated_folder.get('advanced_rates') if is_adv else None
+                                        if is_adv and primary:
+                                            breakdown = lesson.get('completion_breakdown') if isinstance(lesson.get('completion_breakdown'), dict) else None
+                                            rates = {
+                                                'presentation': (adv_rates or {}).get('presentation') or req.custom_rate,
+                                                'one_pager': (adv_rates or {}).get('one_pager') or req.custom_rate,
+                                                'quiz': (adv_rates or {}).get('quiz') or req.custom_rate,
+                                                'video_lesson': (adv_rates or {}).get('video_lesson') or req.custom_rate,
+                                            }
+                                            total_hours = 0.0
+                                            if breakdown:
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    minutes = breakdown.get(p, 0)
+                                                    total_hours += (minutes / 60.0) * float(rates.get(key, req.custom_rate))
+                                            else:
+                                                per = max(1, int(round(completion_time_minutes / max(1, len(primary)))))
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    total_hours += (per / 60.0) * float(rates.get(key, req.custom_rate))
+                                            lesson_creation_hours = int(round(total_hours))
+                                        else:
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    except Exception:
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
@@ -15805,7 +16108,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
             if design_row: db_microproduct_name_to_store = design_row["template_name"]
 
-        content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
+        content_to_store_for_db = project_update_data.microProductContent if project_update_data.microProductContent else None
         
         # 🔍 BACKEND SAVE LOGGING: What we're about to store in database
         if content_to_store_for_db:
@@ -15841,6 +16144,43 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         if project_update_data.microProductContent is not None: 
             update_clauses.append(f"microproduct_content = ${arg_idx}")
             update_values.append(content_to_store_for_db); arg_idx += 1
+            
+            # Ensure lessons have recommendations when storing training plan
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
+                try:
+                    for section in (content_to_store_for_db.get('sections') or []):
+                        lessons = section.get('lessons') or []
+                        for lesson in lessons:
+                            if isinstance(lesson, dict) and ('recommended_content_types' not in lesson or not lesson['recommended_content_types']):
+                                lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                    lesson.get('title', ''),
+                                    lesson.get('quality_tier') or section.get('quality_tier') or content_to_store_for_db.get('quality_tier'),
+                                    {'presentation': False, 'one-pager': False, 'quiz': False, 'video-lesson': False}
+                                )
+                                # Also generate completion_breakdown for advanced mode support
+                                try:
+                                    primary = lesson['recommended_content_types'].get('primary', [])
+                                    ranges = {
+                                        'one-pager': (2,3),
+                                        'presentation': (5,10),
+                                        'quiz': (5,7),
+                                        'video-lesson': (2,5),
+                                    }
+                                    breakdown = {}
+                                    total_m = 0
+                                    for p in primary:
+                                        r = ranges.get(p)
+                                        if r:
+                                            mid = int(round((r[0]+r[1])/2))
+                                            breakdown[p] = mid
+                                            total_m += mid
+                                    if total_m > 0:
+                                        lesson['completion_breakdown'] = breakdown
+                                        lesson['completionTime'] = f"{total_m}m"
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass
             
             # SYNC TITLES: For Training Plans, keep project_name and mainTitle synchronized
             if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
@@ -15879,7 +16219,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
 
         update_values.extend([project_id, onyx_user_id])
-        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier;"
+        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
 
         async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
         if not row:
@@ -16018,6 +16358,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     final_content_for_model = TextPresentationDetails(**db_content)
                     logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
                     final_content_for_model = VideoLessonData(**db_content)
@@ -16029,6 +16370,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                         db_content['slides'] = normalize_slide_props(db_content['slides'])
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 
                 # 🔍 BACKEND VALIDATION RESULT LOGGING
@@ -16091,6 +16433,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 
                 content = project['microproduct_content']
                 if isinstance(content, dict) and 'sections' in content:
+                    content = sanitize_training_plan_for_parse(dict(content))
                     sections = content['sections']
                     
                     # Update the hours in each lesson and recalculate section totals
@@ -16178,6 +16521,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
                     final_content_for_model = TextPresentationDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
                     final_content_for_model = VideoLessonData(**db_content)
@@ -16199,12 +16543,16 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
             microproduct_name=updated_project["microproduct_name"], 
             microproduct_content=final_content_for_model,
             design_template_id=updated_project["design_template_id"], 
-            created_at=updated_project["created_at"]
+            created_at=updated_project["created_at"],
+            custom_rate=updated_project.get("custom_rate"),
+            quality_tier=updated_project.get("quality_tier"),
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
         )
 
 @app.patch("/api/custom/projects/{project_id}/tier", response_model=ProjectDB)
 async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update the quality tier and custom rate of a project and recalculate creation hours"""
+    """Update the quality tier, custom rate, and advanced rates of a project and recalculate creation hours"""
     async with pool.acquire() as conn:
         # Verify the project exists and belongs to user
         project = await conn.fetchrow(
@@ -16214,10 +16562,10 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
-        # Update the project's quality_tier and custom_rate
+        # Update the project's quality_tier, custom_rate, and advanced fields
         updated_project = await conn.fetchrow(
-            "UPDATE projects SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING *",
-            req.quality_tier, req.custom_rate, project_id, onyx_user_id
+            "UPDATE projects SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING *",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, project_id, onyx_user_id
         )
         
         # If the project has content, recalculate creation hours
@@ -16227,31 +16575,61 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                 if isinstance(content, dict) and 'sections' in content:
                     sections = content['sections']
                     
-                    # Update tier names and sum existing hours for section totals
+                    # Update tier names, update recommendations, and sum existing hours for section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
-                            # Clear any existing module-level tier settings to ensure project-level tier takes precedence
                             if 'custom_rate' in section:
                                 del section['custom_rate']
                             if 'quality_tier' in section:
                                 del section['quality_tier']
-                            
-                            # Update the module's tier name to match the new project tier
                             section['quality_tier'] = req.quality_tier
-                                
+                            
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict):
-                                    # Clear any existing lesson-level tier settings to ensure project-level tier takes precedence
                                     if 'custom_rate' in lesson:
                                         del lesson['custom_rate']
                                     if 'quality_tier' in lesson:
                                         del lesson['quality_tier']
-                                    
-                                    # Update the tier name to match the new project tier  
                                     lesson['quality_tier'] = req.quality_tier
+
+                                    try:
+                                        # Always update recommendations when tier changes to ensure they match the new tier
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                            lesson.get('title', ''),
+                                            req.quality_tier,
+                                            {
+                                                'presentation': False,
+                                                'one-pager': False,
+                                                'quiz': False,
+                                                'video-lesson': False,
+                                            }
+                                        )
+                                        # Also generate completion_breakdown for advanced mode support
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
+                                    except Exception:
+                                        pass
                                     
-                                    # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
                                     completion_time_minutes = 5  # Default to 5 minutes
                                     
@@ -16352,8 +16730,200 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
             design_template_id=updated_project["design_template_id"], 
             created_at=updated_project["created_at"],
             custom_rate=updated_project["custom_rate"],
-            quality_tier=updated_project["quality_tier"]
+            quality_tier=updated_project["quality_tier"],
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
         )
+
+@app.get("/api/custom/projects/{project_id}/effective-rates")
+async def get_effective_rates(
+    project_id: int, 
+    section_index: Optional[int] = None, 
+    lesson_index: Optional[int] = None, 
+    onyx_user_id: str = Depends(get_current_onyx_user_id), 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get effective advanced rates for a project/section/lesson following inheritance chain"""
+    async with pool.acquire() as conn:
+        # Get project and folder data
+        project_row = await conn.fetchrow(
+            """
+            SELECT p.*, pf.is_advanced as folder_is_advanced, pf.advanced_rates as folder_advanced_rates, 
+                   pf.custom_rate as folder_custom_rate, pf.completion_times as folder_completion_times
+            FROM projects p
+            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+            """,
+            project_id, onyx_user_id
+        )
+        if not project_row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        project = dict(project_row)
+        
+        # Extract section and lesson if specified
+        section = None
+        lesson = None
+        if project.get("microproduct_content"):
+            content = project["microproduct_content"]
+            if isinstance(content, dict) and isinstance(content.get('sections'), list):
+                sections = content['sections']
+                if section_index is not None and 0 <= section_index < len(sections):
+                    section = sections[section_index]
+                    if isinstance(section, dict) and isinstance(section.get('lessons'), list):
+                        lessons = section['lessons']
+                        if lesson_index is not None and 0 <= lesson_index < len(lessons):
+                            lesson = lessons[lesson_index]
+        
+        # Resolve effective advanced config following inheritance: lesson > section > project > folder
+        is_advanced = False
+        rates = {}
+        completion_times = {}
+        completion_times = {}
+        
+        # Start with folder defaults
+        if project.get('folder_is_advanced'):
+            is_advanced = True
+            if project.get('folder_advanced_rates'):
+                try:
+                    folder_rates = project['folder_advanced_rates']
+                    if isinstance(folder_rates, str):
+                        folder_rates = json.loads(folder_rates)
+                    rates.update(folder_rates)
+                except:
+                    pass
+            if project.get('folder_completion_times'):
+                try:
+                    folder_completion_times = project['folder_completion_times']
+                    if isinstance(folder_completion_times, str):
+                        folder_completion_times = json.loads(folder_completion_times)
+                    completion_times.update(folder_completion_times)
+                except:
+                    pass
+        folder_single_rate = project.get('folder_custom_rate') or 200
+        
+        # Override with project level
+        if project.get('is_advanced') is not None:
+            is_advanced = bool(project['is_advanced'])
+        if project.get('advanced_rates'):
+            try:
+                project_rates = project['advanced_rates']
+                if isinstance(project_rates, str):
+                    project_rates = json.loads(project_rates)
+                rates.update(project_rates)
+            except:
+                pass
+        if project.get('completion_times'):
+            try:
+                project_completion_times = project['completion_times']
+                if isinstance(project_completion_times, str):
+                    project_completion_times = json.loads(project_completion_times)
+                completion_times.update(project_completion_times)
+            except:
+                pass
+        project_single_rate = project.get('custom_rate') or folder_single_rate
+        
+        # Override with section level
+        if section:
+            if section.get('advanced') is not None:
+                is_advanced = bool(section['advanced'])
+            if section.get('advancedRates'):
+                section_rates = section['advancedRates']
+                if isinstance(section_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in section_rates:
+                        backend_rates['presentation'] = section_rates['presentation']
+                    if 'onePager' in section_rates:
+                        backend_rates['one_pager'] = section_rates['onePager']
+                    if 'quiz' in section_rates:
+                        backend_rates['quiz'] = section_rates['quiz']
+                    if 'videoLesson' in section_rates:
+                        backend_rates['video_lesson'] = section_rates['videoLesson']
+                    rates.update(backend_rates)
+            if section.get('completionTimes'):
+                section_completion_times = section['completionTimes']
+                if isinstance(section_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in section_completion_times:
+                        backend_completion_times['presentation'] = section_completion_times['presentation']
+                    if 'onePager' in section_completion_times:
+                        backend_completion_times['one_pager'] = section_completion_times['onePager']
+                    if 'quiz' in section_completion_times:
+                        backend_completion_times['quiz'] = section_completion_times['quiz']
+                    if 'videoLesson' in section_completion_times:
+                        backend_completion_times['video_lesson'] = section_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
+            section_single_rate = section.get('custom_rate') or project_single_rate
+        else:
+            section_single_rate = project_single_rate
+        
+        # Override with lesson level
+        if lesson:
+            if lesson.get('advanced') is not None:
+                is_advanced = bool(lesson['advanced'])
+            if lesson.get('advancedRates'):
+                lesson_rates = lesson['advancedRates']
+                if isinstance(lesson_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in lesson_rates:
+                        backend_rates['presentation'] = lesson_rates['presentation']
+                    if 'onePager' in lesson_rates:
+                        backend_rates['one_pager'] = lesson_rates['onePager']
+                    if 'quiz' in lesson_rates:
+                        backend_rates['quiz'] = lesson_rates['quiz']
+                    if 'videoLesson' in lesson_rates:
+                        backend_rates['video_lesson'] = lesson_rates['videoLesson']
+                    rates.update(backend_rates)
+            if lesson.get('completionTimes'):
+                lesson_completion_times = lesson['completionTimes']
+                if isinstance(lesson_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in lesson_completion_times:
+                        backend_completion_times['presentation'] = lesson_completion_times['presentation']
+                    if 'onePager' in lesson_completion_times:
+                        backend_completion_times['one_pager'] = lesson_completion_times['onePager']
+                    if 'quiz' in lesson_completion_times:
+                        backend_completion_times['quiz'] = lesson_completion_times['quiz']
+                    if 'videoLesson' in lesson_completion_times:
+                        backend_completion_times['video_lesson'] = lesson_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
+            lesson_single_rate = lesson.get('custom_rate') or section_single_rate
+        else:
+            lesson_single_rate = section_single_rate
+        
+        fallback_single_rate = lesson_single_rate
+        
+        # Fill in missing rates with fallback
+        default_rates = {
+            'presentation': fallback_single_rate,
+            'one_pager': fallback_single_rate,
+            'quiz': fallback_single_rate,
+            'video_lesson': fallback_single_rate
+        }
+        for key in default_rates:
+            if key not in rates:
+                rates[key] = default_rates[key]
+        
+        return {
+            "is_advanced": is_advanced,
+            "rates": {
+                "presentation": rates.get('presentation', fallback_single_rate),
+                "one_pager": rates.get('one_pager', fallback_single_rate),
+                "quiz": rates.get('quiz', fallback_single_rate),
+                "video_lesson": rates.get('video_lesson', fallback_single_rate),
+            },
+            "completion_times": {
+                "presentation": completion_times.get('presentation', 8),  # Will be replaced with proper inheritance logic
+                "one_pager": completion_times.get('one_pager', 3),
+                "quiz": completion_times.get('quiz', 6),
+                "video_lesson": completion_times.get('video_lesson', 4),
+            },
+            "fallback_single_rate": fallback_single_rate
+        }
 
 class ProjectOrderUpdateRequest(BaseModel):
     orders: List[Dict[str, int]]  # List of {projectId: int, order: int}
@@ -16556,6 +17126,14 @@ async def download_projects_list_pdf(
             except json.JSONDecodeError:
                 logger.warning("Invalid column_visibility JSON, using defaults")
 
+        # Parse selected projects first to use in the query
+        selected_project_ids = set()
+        if selected_projects:
+            try:
+                selected_project_ids = set(json.loads(selected_projects))
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing selected_projects: {e}")
+
         # Fetch projects and folders data
         async with pool.acquire() as conn:
             # Fetch projects
@@ -16567,13 +17145,22 @@ async def download_projects_list_pdf(
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.onyx_user_id = $1
-                ORDER BY p."order" ASC, p.created_at DESC;
             """
             projects_params = [onyx_user_id]
+            param_count = 1
             
             if folder_id is not None:
-                projects_query = projects_query.replace("WHERE p.onyx_user_id = $1", "WHERE p.onyx_user_id = $1 AND p.folder_id = $2")
+                projects_query += f" AND p.folder_id = ${param_count + 1}"
                 projects_params.append(folder_id)
+                param_count += 1
+            
+            # Add selected projects filter if provided
+            if selected_project_ids:
+                placeholders = ','.join([f'${i + param_count + 1}' for i in range(len(selected_project_ids))])
+                projects_query += f" AND p.id IN ({placeholders})"
+                projects_params.extend(selected_project_ids)
+            
+            projects_query += " ORDER BY p.\"order\" ASC, p.created_at DESC;"
             
             projects_rows = await conn.fetch(projects_query, *projects_params)
             
@@ -16869,19 +17456,14 @@ async def download_projects_list_pdf(
         for folder in folder_tree:
             add_tier_info(folder)
 
-        # Filter data based on selected folders and projects
-        if selected_folders or selected_projects:
+        # Filter data based on selected folders (projects are already filtered in the query)
+        if selected_folders:
             try:
                 selected_folder_ids = set()
-                selected_project_ids = set()
                 
                 # Parse selected folders
                 if selected_folders:
                     selected_folder_ids = set(json.loads(selected_folders))
-                
-                # Parse selected projects
-                if selected_projects:
-                    selected_project_ids = set(json.loads(selected_projects))
                 
                 # Filter folders - only include selected folders and their children
                 def filter_folders_recursive(folders_list):
@@ -16906,26 +17488,15 @@ async def download_projects_list_pdf(
                 filtered_folder_projects = {}
                 for folder_id, projects in folder_projects.items():
                     if folder_id in selected_folder_ids:
-                        # Filter projects within this folder
-                        if selected_project_ids:
-                            filtered_projects = [p for p in projects if p['id'] in selected_project_ids]
-                            if filtered_projects:
-                                filtered_folder_projects[folder_id] = filtered_projects
-                        else:
-                            filtered_folder_projects[folder_id] = projects
-                
-                # Filter unassigned projects
-                filtered_unassigned_projects = unassigned_projects
-                if selected_project_ids:
-                    filtered_unassigned_projects = [p for p in unassigned_projects if p['id'] in selected_project_ids]
+                        filtered_folder_projects[folder_id] = projects
                 
                 # Use filtered data
                 folder_tree = filtered_folder_tree
                 folder_projects = filtered_folder_projects
-                unassigned_projects = filtered_unassigned_projects
+                # Note: unassigned_projects are already filtered by the query when selected_projects is provided
                 
             except (json.JSONDecodeError, TypeError) as e:
-                logger.warning(f"Error parsing selected folders/projects: {e}. Using all data.")
+                logger.warning(f"Error parsing selected folders: {e}. Using all data.")
                 # If parsing fails, use all data (fallback)
 
         # Parse column widths if provided

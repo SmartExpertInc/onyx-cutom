@@ -188,6 +188,14 @@ export const es = {
         "Crear una lección de video con narración y elementos visuales",
       soon: "Pronto",
       alreadyCreated: "Ya creado",
+      recommended: "Recomendado",
+      recommendedDescription: "Tipos de contenido sugeridos por IA perfectos para esta lección",
+      orExploreMore: "o explorar más opciones",
+      customizeRecommendations: "Personalizar Recomendaciones",
+      selectRecommendedProducts: "Selecciona qué productos deben mostrarse como recomendados para esta lección.",
+      allOptions: "Todos los tipos de contenido",
+      seeAllContentTypes: "Ver todos los tipos de contenido",
+      backToRecommended: "Volver a recomendados"
     },
     openContent: {
       title: "Abrir Contenido",
@@ -293,9 +301,30 @@ export const es = {
     folderExport: {
       title: "Generando PDF",
       subtitle: "Creando exportación PDF para carpeta",
-      description:
-        "Esto puede tomar unos momentos dependiendo del número de archivos...",
+      description: "Esto puede tomar unos momentos dependiendo del número de archivos..."
     },
+    lessonSettings: {
+      title: 'Configuración de la lección',
+      subtitle: 'Configurar calidad de producción para',
+      tier: 'Nivel',
+      contentExamples: 'Ejemplos de contenido',
+      hoursRange: 'Rango de horas',
+      example: 'Ejemplo',
+      lessonQualityTier: 'Nivel de calidad de la lección establecido en',
+      perCompletionHour: 'h por hora de finalización',
+      cancel: 'Cancelar',
+      saveChanges: 'Guardar cambios',
+      saving: 'Guardando...',
+      failedToSave: 'No se pudo guardar la configuración del nivel de la lección',
+      lessonTitle: 'Título de la lección',
+      advanced: 'Avanzado'
+    },
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video'
+    }
   },
   projects: {
     loading: "Cargando productos...",
@@ -968,7 +997,7 @@ export const es = {
 
     // Module and Lesson Settings Modals
     modals: {
-      // ... existing code ...
+
       moduleSettings: {
         title: "Configuración del módulo",
         subtitle: "Configurar calidad de producción para",
@@ -1000,6 +1029,12 @@ export const es = {
           "No se pudo guardar la configuración del nivel de la lección",
       },
     },
+
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video'
 
     // Theme picker translations
     themePicker: {

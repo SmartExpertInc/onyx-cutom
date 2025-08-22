@@ -185,6 +185,14 @@ export const uk = {
         "Створити відео-урок з озвучкою та візуальними елементами",
       soon: "Незабаром",
       alreadyCreated: "Вже створено",
+      recommended: "Рекомендовані",
+      recommendedDescription: "Типи контенту, запропоновані ШІ, ідеально підходять для цього уроку",
+      orExploreMore: "або дослідити більше варіантів",
+      customizeRecommendations: "Налаштувати рекомендації",
+      selectRecommendedProducts: "Виберіть, які продукти повинні відображатися як рекомендовані для цього уроку.",
+      allOptions: "Всі типи контенту",
+      seeAllContentTypes: "Переглянути всі типи контенту",
+      backToRecommended: "Повернутися до рекомендованих"
     },
     openContent: {
       title: "Відкрити контент",
@@ -240,7 +248,7 @@ export const uk = {
       hoursRange: "Діапазон годин",
       customRate: "Користувацька ставка",
       example: "Приклад",
-      tier: "Рівень",
+      tier: "Рівен��",
       contentExamples: "Приклади контенту",
       cancel: "Скасувати",
       // Content features
@@ -289,9 +297,30 @@ export const uk = {
     folderExport: {
       title: "Створення PDF",
       subtitle: "Створення PDF експорту для папки",
-      description:
-        "Це може зайняти кілька хвилин залежно від кількості файлів...",
+      description: "Це може зайняти кілька хвилин залежно від кількості файлів..."
     },
+    lessonSettings: {
+      title: 'Налаштування уроку',
+      subtitle: 'Налаштуйте якість виробництва для',
+      tier: 'Рівень',
+      contentExamples: 'Приклади контенту',
+      hoursRange: 'Діапазон годин',
+      example: 'Приклад',
+      lessonQualityTier: 'Рівень якості уроку встановлено на',
+      perCompletionHour: 'год за годину завершення',
+      cancel: 'Скасувати',
+      saveChanges: 'Зберегти зміни',
+      saving: 'Збереження...',
+      failedToSave: 'Не вдалося зберегти налаштування рівня уроку',
+      lessonTitle: 'Назва уроку',
+      advanced: 'Розширений'
+    },
+    rates: {
+      presentation: 'Ставка презентації',
+      onePager: 'Ставка односторінки',
+      quiz: 'Ставка тесту',
+      videoLesson: 'Ставка відео-уроку'
+    }
   },
   projects: {
     loading: "Завантаження продуктів...",
@@ -316,6 +345,9 @@ export const uk = {
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Поділилися з вами",
     folders: "Папки",
+    clients: "Клієнти",
+    noClientsYet: "Поки немає клієнтів",
+    showMoreClients: "Введіть для пошуку інших клієнтів...",
     createOrJoinFolder: "Створити або приєднатися до папки",
     organizeProducts:
       "Організуйте свої продукти за темами та діліться ними з командою",
@@ -595,7 +627,7 @@ export const uk = {
       openProducts: "Відкрити продукти",
       downloadPdf: "Завантажити PDF",
       smartEdit: "Розумне редагування",
-      editContent: "Редагувати контент",
+      editContent: "Редагувати конте��т",
       saveContent: "Зберегти контент",
       saving: "Збереження...",
       columns: "Стовпці",
@@ -793,7 +825,7 @@ export const uk = {
       brief: "Короткий",
       medium: "Середній",
       detailed: "Детальний",
-      imageSource: "Джерело зображень",
+      imageSource: "Джере��о зображень",
       aiImages: "ШІ зображення",
       stockImages: "Стокові зображення",
       noImages: "Без зображень",
@@ -978,6 +1010,12 @@ export const uk = {
         failedToSave: "Не вдалося зберегти налаштування рівня уроку",
       },
     },
+
+    rates: {
+      presentation: 'Ставка презентації',
+      onePager: 'Ставка односторінки',
+      quiz: 'Ставка тесту',
+      videoLesson: 'Ставка відео-уроку'
 
     // Theme picker translations
     themePicker: {

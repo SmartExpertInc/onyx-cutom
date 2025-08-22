@@ -1,17 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Settings, Clock, Calculator, Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import { X, Settings, Clock, Calculator, Check, BookOpen, Zap, Award, Crown, BookText, Video, HelpCircle, FileText } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface LessonSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lessonTitle: string;
   currentCustomRate?: number;
   currentQualityTier?: string;
   completionTime: string;
-  onSave: (customRate: number, qualityTier: string) => void;
+  onSave: (
+    customRate: number, 
+    qualityTier: string, 
+    advancedEnabled?: boolean, 
+    advancedRates?: { presentation: number; onePager: number; quiz: number; videoLesson: number },
+    completionTimes?: { presentation: number; onePager: number; quiz: number; videoLesson: number }
+  ) => void;
+  currentAdvancedEnabled?: boolean;
+  currentAdvancedRates?: { presentation?: number; onePager?: number; quiz?: number; videoLesson?: number };
+  currentEffectiveCustomRate?: number;
+  projectId?: number;
+  sectionIndex?: number;
+  lessonIndex?: number;
 }
 
 interface QualityTier {
@@ -30,16 +41,68 @@ interface QualityTier {
 export default function LessonSettingsModal({
   isOpen,
   onClose,
-  lessonTitle,
   currentCustomRate,
   currentQualityTier,
   completionTime,
-  onSave
+  onSave,
+  currentAdvancedEnabled,
+  currentAdvancedRates,
+  currentEffectiveCustomRate,
+  projectId,
+  sectionIndex,
+  lessonIndex
 }: LessonSettingsModalProps) {
   const { t } = useLanguage();
+  const effectiveRate = currentEffectiveCustomRate ?? currentCustomRate ?? 200;
+  
+  // Debug logging for props
+  console.log('🔍 [LESSON_MODAL] Props received:', {
+    isOpen,
+    projectId,
+    sectionIndex,
+    lessonIndex,
+    currentCustomRate,
+    currentAdvancedEnabled,
+    currentAdvancedRates,
+    currentEffectiveCustomRate,
+    effectiveRate
+  });
+  
   const [qualityTier, setQualityTier] = useState(currentQualityTier || 'interactive');
-  const [customRate, setCustomRate] = useState(currentCustomRate || 200);
+  const [customRate, setCustomRate] = useState(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
+  const [advancedEnabled, setAdvancedEnabled] = useState(false); // Initialize to false, will be set by fetch
+  const [perProductRates, setPerProductRates] = useState({
+    presentation: 0, // Initialize to 0, will be set by fetch
+    onePager: 0,
+    quiz: 0,
+    videoLesson: 0
+  });
+  const [perProductCompletionTimes, setPerProductCompletionTimes] = useState({
+    presentation: 8, // Default: 8 minutes for presentation
+    onePager: 3,    // Default: 3 minutes for one-pager
+    quiz: 6,        // Default: 6 minutes for quiz
+    videoLesson: 4  // Default: 4 minutes for video-lesson
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false); // Track if we've loaded backend data
+
+  // Debug logging when states change
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - customRate:', customRate);
+  }, [customRate]);
+
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - perProductRates:', perProductRates);
+  }, [perProductRates]);
+
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - advancedEnabled:', advancedEnabled);
+  }, [advancedEnabled]);
+
+  React.useEffect(() => {
+    console.log('🔍 [LESSON_MODAL] State changed - dataLoaded:', dataLoaded);
+  }, [dataLoaded]);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -114,13 +177,133 @@ export default function LessonSettingsModal({
     }
   ];
 
-  // Reset modal state when opened with new data
+  // Fetch effective rates from backend when modal opens
+  React.useEffect(() => {
+    if (!isOpen || !projectId) {
+      console.log('🔍 [LESSON_MODAL] Skip fetch:', { isOpen, projectId });
+      return;
+    }
+    
+    console.log('🔍 [LESSON_MODAL] Starting fetch for:', { projectId, sectionIndex, lessonIndex });
+    
+    const fetchEffectiveRates = async () => {
+      // Test if the endpoint exists first
+      try {
+        const testResponse = await fetch('/api/custom-projects-backend/projects', { credentials: 'same-origin' });
+        console.log('🔍 [LESSON_MODAL] Backend connectivity test status:', testResponse.status);
+      } catch (e) {
+        console.log('🔍 [LESSON_MODAL] Backend connectivity test error:', e);
+      }
+      
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (sectionIndex !== undefined) params.set('section_index', sectionIndex.toString());
+        if (lessonIndex !== undefined) params.set('lesson_index', lessonIndex.toString());
+        
+        const url = `/api/custom-projects-backend/projects/${projectId}/effective-rates?${params}`;
+        console.log('🔍 [LESSON_MODAL] Fetching URL:', url);
+        
+        const response = await fetch(url, {
+          credentials: 'same-origin'
+        });
+        
+        console.log('🔍 [LESSON_MODAL] Response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('🔍 [LESSON_MODAL] Backend response:', JSON.stringify(data, null, 2));
+          
+          // Set advanced enabled state
+          console.log('🔍 [LESSON_MODAL] Setting advancedEnabled to:', data.is_advanced);
+          setAdvancedEnabled(data.is_advanced);
+          
+          // Set per-product rates (convert backend naming to frontend naming)
+          const newRates = {
+            presentation: data.rates.presentation,
+            onePager: data.rates.one_pager,
+            quiz: data.rates.quiz,
+            videoLesson: data.rates.video_lesson
+          };
+          console.log('🔍 [LESSON_MODAL] Setting perProductRates to:', JSON.stringify(newRates, null, 2));
+          setPerProductRates(newRates);
+          
+          // Set completion times if available
+          if (data.completion_times) {
+            const newCompletionTimes = {
+              presentation: data.completion_times.presentation || 8,
+              onePager: data.completion_times.one_pager || 3,
+              quiz: data.completion_times.quiz || 6,
+              videoLesson: data.completion_times.video_lesson || 4
+            };
+            console.log('🔍 [LESSON_MODAL] Setting perProductCompletionTimes to:', JSON.stringify(newCompletionTimes, null, 2));
+            setPerProductCompletionTimes(newCompletionTimes);
+          }
+          
+          // Set single rate fallback
+          console.log('🔍 [LESSON_MODAL] Setting customRate to:', data.fallback_single_rate);
+          setCustomRate(data.fallback_single_rate);
+          setDataLoaded(true); // Mark data as loaded
+        } else {
+          console.warn('🔍 [LESSON_MODAL] Failed to fetch effective rates, using props');
+          console.log('🔍 [LESSON_MODAL] Fallback props:', { 
+            currentAdvancedEnabled, 
+            currentAdvancedRates, 
+            effectiveRate, 
+            currentCustomRate 
+          });
+          // Fallback to props if endpoint fails
+          setAdvancedEnabled(!!currentAdvancedEnabled);
+          setPerProductRates({
+            presentation: currentAdvancedRates?.presentation ?? effectiveRate,
+            onePager: currentAdvancedRates?.onePager ?? effectiveRate,
+            quiz: currentAdvancedRates?.quiz ?? effectiveRate,
+            videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+          });
+          // Set default completion times for fallback
+          setPerProductCompletionTimes({
+            presentation: 8,
+            onePager: 3,
+            quiz: 6,
+            videoLesson: 4
+          });
+          setCustomRate(currentCustomRate || 200);
+          setDataLoaded(true); // Mark data as loaded even on fallback
+        }
+      } catch (error) {
+        console.error('🔍 [LESSON_MODAL] Error fetching effective rates:', error);
+        // Fallback to props if fetch fails
+        setAdvancedEnabled(!!currentAdvancedEnabled);
+        setPerProductRates({
+          presentation: currentAdvancedRates?.presentation ?? effectiveRate,
+          onePager: currentAdvancedRates?.onePager ?? effectiveRate,
+          quiz: currentAdvancedRates?.quiz ?? effectiveRate,
+          videoLesson: currentAdvancedRates?.videoLesson ?? effectiveRate
+        });
+        // Set default completion times for fallback
+        setPerProductCompletionTimes({
+          presentation: 8,
+          onePager: 3,
+          quiz: 6,
+          videoLesson: 4
+        });
+        setCustomRate(currentCustomRate || 200);
+        setDataLoaded(true); // Mark data as loaded even on fallback
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchEffectiveRates();
+  }, [isOpen, projectId, sectionIndex, lessonIndex, currentAdvancedEnabled, currentAdvancedRates, effectiveRate, currentCustomRate]);
+
+  // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setQualityTier(currentQualityTier || 'interactive');
-      setCustomRate(currentCustomRate || 200);
+      // Don't reset rates here - let the fetch effect handle it
     }
-  }, [isOpen, currentQualityTier, currentCustomRate]);
+  }, [isOpen, currentQualityTier]);
 
   // Update custom rate when tier changes
   useEffect(() => {
@@ -134,6 +317,7 @@ export default function LessonSettingsModal({
     if (typeof window !== 'undefined') (window as any).__modalOpen = false;
     return null;
   }
+
   if (typeof window !== 'undefined') (window as any).__modalOpen = true;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -146,7 +330,7 @@ export default function LessonSettingsModal({
   const handleSave = async () => {
     setSaving(true);
     try {
-      onSave(customRate, qualityTier);
+      onSave(customRate, qualityTier, advancedEnabled, perProductRates, perProductCompletionTimes);
       onClose();
     } catch (error) {
       console.error('Error saving lesson settings:', error);
@@ -160,6 +344,7 @@ export default function LessonSettingsModal({
   const completionTimeMinutes = parseInt(completionTime.replace('m', ''));
   const creationHours = Math.round((completionTimeMinutes / 60.0) * customRate);
   const selectedTierData = qualityTiers.find(tier => tier.id === qualityTier);
+  const lessonTitle = 'Lesson Title'; // Placeholder, replace with actual lesson title if available
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={handleBackdropClick}>
@@ -176,10 +361,20 @@ export default function LessonSettingsModal({
         {/* Header - Fixed */}
         <div className="mb-6 text-center flex-shrink-0">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('modals.lessonSettings.title', 'Lesson Settings')}</h2>
-          <p className="text-gray-600">{t('modals.lessonSettings.subtitle', 'Configure production quality for')} <span className="font-semibold text-blue-600">{lessonTitle}</span></p>
+          <p className="text-gray-600">{t('modals.lessonSettings.lessonTitle', 'Lesson Title')}</p>
         </div>
 
-        {/* Scrollable Content */}
+        {/* Loading Overlay */}
+        {!dataLoaded && (
+          <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-xl">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
+              <div className="text-gray-600">Loading settings...</div>
+            </div>
+          </div>
+        )}
+
+        {/* Content - Scrollable */}
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="mb-6">
             
@@ -191,11 +386,32 @@ export default function LessonSettingsModal({
                   <div className="col-span-3">
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.lessonSettings.tier', 'Tier')}</h4>
                   </div>
-                  <div className="col-span-6">
+                  <div className="col-span-3">
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
-                  <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.hoursRange', 'Hours Range')}</h4>
+                  <div className="col-span-6">
+                    <h4 className="font-semibold text-gray-700 text-sm text-left flex items-center gap-2">
+                      {t('modals.folderSettings.hoursRange', 'Hours Range')}
+                      <label className="flex items-center gap-2 ml-3 text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={advancedEnabled}
+                          onChange={()=>{
+                            const next = !advancedEnabled; setAdvancedEnabled(next);
+                            if (next) {
+                              setPerProductRates(prev => ({
+                                presentation: prev.presentation ?? (currentAdvancedRates?.presentation ?? (currentCustomRate || 200)),
+                                onePager: prev.onePager ?? (currentAdvancedRates?.onePager ?? (currentCustomRate || 200)),
+                                quiz: prev.quiz ?? (currentAdvancedRates?.quiz ?? (currentCustomRate || 200)),
+                                videoLesson: prev.videoLesson ?? (currentAdvancedRates?.videoLesson ?? (currentCustomRate || 200))
+                              }));
+                            }
+                          }}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="font-medium text-gray-700">{t('modals.lessonSettings.advanced', 'Advanced')}</span>
+                      </label>
+                    </h4>
                   </div>
                 </div>
               </div>
@@ -229,7 +445,7 @@ export default function LessonSettingsModal({
                       </div>
 
                       {/* Content Examples Column */}
-                      <div className="col-span-6">
+                      <div className="col-span-3">
                         <div className="flex flex-wrap gap-1">
                           {tier.features.map((feature, index) => (
                             <span
@@ -247,10 +463,10 @@ export default function LessonSettingsModal({
                       </div>
 
                       {/* Hours Range Column */}
-                      <div className="col-span-3">
+                      <div className="col-span-6">
                         {qualityTier === tier.id ? (
                           <div className="space-y-3">
-                            {/* Slider */}
+                            {!advancedEnabled && (
                             <div>
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-medium text-gray-700">
@@ -264,17 +480,97 @@ export default function LessonSettingsModal({
                                   max={tier.hoursRange.max}
                                   value={customRate}
                                   onChange={(e) => setCustomRate(parseInt(e.target.value))}
-                                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                  className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                                   style={{
-                                    background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                    background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
                                   }}
                                 />
-                                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                  <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
-                                  <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                                <div className="flex justify-between text-xs text-gray-500 mt-2">
+                                  <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                  <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
                                 </div>
                               </div>
                             </div>
+                            )}
+                            {advancedEnabled && (
+                              <div className="space-y-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                {/* Two Column Layout: Creation Rates | Completion Times */}
+                                <div className="grid grid-cols-3 gap-6">
+                                  
+                                  {/* Left Column: Creation Rates (2/3 width) */}
+                                  <div className="col-span-2 space-y-3">
+                                    <div className="flex items-center gap-2 pb-2">
+                                      <Calculator size={16} className="text-blue-600" />
+                                      <h4 className="text-sm font-semibold text-blue-800">Creation Rates</h4>
+                                      <span className="text-xs text-blue-500">(hours per completion hour)</span>
+                                    </div>
+                                    {[
+                                      { key: 'presentation', label: t('modals.rates.presentation', 'Presentation'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-blue-600" /> },
+                                      { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-blue-600" /> },
+                                      { key: 'quiz', label: t('modals.rates.quiz', 'Quiz'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-blue-600" /> },
+                                      { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-blue-600" /> },
+                                    ].map((cfg)=> (
+                                      <div key={cfg.key} className="bg-white rounded-md p-3 border border-blue-100 h-20 flex flex-col justify-between">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-gray-700 flex items-center gap-2">
+                                            {cfg.icon}
+                                            {cfg.label}
+                                          </span>
+                                          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">
+                                            {cfg.value}h
+                                          </span>
+                                        </div>
+                                        <div className="mt-2">
+                                          <input
+                                            type="range"
+                                            min={tier.hoursRange.min}
+                                            max={tier.hoursRange.max}
+                                            value={cfg.value}
+                                            onChange={(e)=>cfg.setter(parseInt(e.target.value))}
+                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                            style={{
+                                              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  {/* Right Column: Completion Times (1/3 width) */}
+                                  <div className="space-y-3">
+                                    <div className="flex items-center gap-2 pb-2">
+                                      <Clock size={16} className="text-green-600" />
+                                      <h4 className="text-sm font-semibold text-green-800">Completion Time</h4>
+                                    </div>
+                                    {[
+                                      { key: 'presentation', label: t('modals.completionTimes.presentation', 'Presentation'), value: perProductCompletionTimes.presentation, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-green-600" /> },
+                                      { key: 'onePager', label: t('modals.completionTimes.onePager', 'One‑pager'), value: perProductCompletionTimes.onePager, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-green-600" /> },
+                                      { key: 'quiz', label: t('modals.completionTimes.quiz', 'Quiz'), value: perProductCompletionTimes.quiz, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-green-600" /> },
+                                      { key: 'videoLesson', label: t('modals.completionTimes.videoLesson', 'Video lesson'), value: perProductCompletionTimes.videoLesson, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-green-600" /> },
+                                    ].map((cfg)=> (
+                                      <div key={cfg.key} className="bg-white rounded-md p-3 border border-green-100 h-20 flex flex-col justify-center">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          {cfg.icon}
+                                          <span className="text-xs text-gray-600 truncate">{cfg.label}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <input
+                                            type="number"
+                                            min="1"
+                                            max="60"
+                                            value={cfg.value}
+                                            onChange={(e)=>cfg.setter(parseInt(e.target.value) || 1)}
+                                            className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-center font-medium text-black"
+                                          />
+                                          <span className="text-xs text-gray-500">min</span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
@@ -338,22 +634,34 @@ export default function LessonSettingsModal({
       <style jsx>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          height: 20px;
-          width: 20px;
+          height: 24px;
+          width: 24px;
           border-radius: 50%;
           background: #3b82f6;
           cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          border: 3px solid white;
+          box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4), 0 1px 3px rgba(0,0,0,0.1);
+          transition: all 0.2s ease;
+        }
+        .slider::-webkit-slider-thumb:hover {
+          background: #2563eb;
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6), 0 2px 4px rgba(0,0,0,0.1);
         }
         .slider::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
+          height: 24px;
+          width: 24px;
           border-radius: 50%;
           background: #3b82f6;
           cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          border: 3px solid white;
+          box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4), 0 1px 3px rgba(0,0,0,0.1);
+          transition: all 0.2s ease;
+        }
+        .slider::-moz-range-thumb:hover {
+          background: #2563eb;
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6), 0 2px 4px rgba(0,0,0,0.1);
         }
         .line-clamp-2 {
           display: -webkit-box;
@@ -364,4 +672,4 @@ export default function LessonSettingsModal({
       `}</style>
     </div>
   );
-} 
+}

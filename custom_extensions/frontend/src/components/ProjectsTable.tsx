@@ -12,16 +12,17 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Lock,
-  MoreHorizontal,
-  Home,
-  Clock,
-  User,
-  Star,
-  ArrowUpDown,
-  LayoutGrid,
-  List,
-  Plus,
+  Lock, 
+  MoreHorizontal, 
+  Home, 
+  Clock, 
+  User, 
+  Users,
+  Star, 
+  ArrowUpDown, 
+  LayoutGrid, 
+  List, 
+  Plus, 
   ChevronsUpDown,
   LucideIcon,
   Share2,
@@ -834,17 +835,17 @@ interface ColumnVisibility {
   numberOfLessons: boolean;
   estCreationTime: boolean;
   estCompletionTime: boolean;
-  type: boolean;
+  customOffer: boolean;
 }
 
 interface ColumnWidths {
-  title: number;
-  created: number;
-  creator: number;
-  numberOfLessons: number;
-  estCreationTime: number;
-  estCompletionTime: number;
-  type: number;
+    title: number;
+    created: number;
+    creator: number;
+    numberOfLessons: number;
+    estCreationTime: number;
+    estCompletionTime: number;
+    customOffer: number;
 }
 
 // Recursive folder row component for nested display in list view
@@ -922,381 +923,728 @@ const FolderRow: React.FC<{
   const isExpanded = expandedFolders.has(folder.id);
   const folderProjectsList = folderProjects[folder.id] || [];
 
-  return (
-    <>
-      {/* Folder row */}
-      <tr
-        key={`folder-${folder.id}`}
-        data-folder-id={folder.id}
-        className={`hover:bg-gray-50 transition group ${
-          !getModalState()
-            ? "cursor-grab active:cursor-grabbing"
-            : "cursor-default"
-        } ${
-          dragOverIndex === index ? "bg-blue-50 border-t-2 border-blue-300" : ""
-        } ${draggedFolder?.id === folder.id ? "opacity-50" : ""}`}
-        draggable={!trashMode && !getModalState()}
-        onDragStart={(e) => {
-          if (getModalState()) {
-            e.preventDefault();
-            e.stopPropagation();
-            return;
-          }
-          handleDragStart(e, folder, "folder");
-        }}
-        onDragOver={(e) => {
-          if (getModalState()) {
-            e.preventDefault();
-            return;
-          }
-          handleDragOver(e, index);
-        }}
-        onDragLeave={(e) => {
-          if (getModalState()) {
-            e.preventDefault();
-            return;
-          }
-          handleDragLeave(e);
-        }}
-        onDrop={(e) => {
-          if (getModalState()) {
-            e.preventDefault();
-            return;
-          }
-          handleDrop(e, index);
-        }}
-        onDragEnd={(e) => {
-          if (getModalState()) {
-            e.preventDefault();
-            return;
-          }
-          handleDragEnd(e);
-        }}
-        onClick={() => toggleFolder(folder.id)}
-      >
-        {columnVisibility.title && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-            <span
-              className="inline-flex items-center"
-              style={{ paddingLeft: `${level * 20}px` }}
+    return (
+        <>
+            {/* Folder row */}
+            <tr 
+                key={`folder-${folder.id}`}
+                data-folder-id={folder.id}
+                                  className={`hover:bg-gray-50 transition group ${
+                     !getModalState() 
+                          ? 'cursor-grab active:cursor-grabbing' 
+                          : 'cursor-default'
+                  } ${
+                      dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                  } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
+                draggable={!trashMode && !getModalState()}
+                onDragStart={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    handleDragStart(e, folder, 'folder');
+                }}
+                onDragOver={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragOver(e, index);
+                }}
+                onDragLeave={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragLeave(e);
+                }}
+                onDrop={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDrop(e, index);
+                }}
+                onDragEnd={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragEnd(e);
+                }}
+                onClick={() => toggleFolder(folder.id)}
             >
-              <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="opacity-60 group-hover:opacity-100"
-                >
-                  <circle cx="9" cy="5" r="2" />
-                  <circle cx="9" cy="12" r="2" />
-                  <circle cx="9" cy="19" r="2" />
-                  <circle cx="15" cy="5" r="2" />
-                  <circle cx="15" cy="12" r="2" />
-                  <circle cx="15" cy="19" r="2" />
-                </svg>
-              </div>
-              <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200 cursor-pointer">
-                <ChevronRight
-                  size={16}
-                  className={`transition-transform duration-200 ${
-                    isExpanded ? "rotate-90" : ""
-                  }`}
-                />
-              </button>
-              <Folder
-                size={16}
-                style={{ color: getFolderTierColor(folder, allFolders) }}
-                className="mr-2"
-              />
-              <DynamicText
-                text={folder.name}
-                columnWidthPercent={columnWidths.title}
-                className="font-semibold text-blue-700"
-                title={folder.name}
-              />
-              <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                {getTotalItemsInFolder(folder, folderProjects)}{" "}
-                {getTotalItemsInFolder(folder, folderProjects) === 1
-                  ? t("interface.item", "item")
-                  : t("interface.items", "items")}
-              </span>
-            </span>
-          </td>
-        )}
-        {columnVisibility.created && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {formatDate(folder.created_at)}
-          </td>
-        )}
-        {columnVisibility.creator && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            <span className="inline-flex items-center">
-              <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                <span className="text-xs font-bold text-gray-700">Y</span>
-              </span>
-              You
-            </span>
-          </td>
-        )}
-        {columnVisibility.type && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            -
-          </td>
-        )}
-        {columnVisibility.numberOfLessons && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalLessons = getTotalLessonsInFolder(folder);
-              return totalLessons > 0 ? totalLessons : "-";
-            })()}
-          </td>
-        )}
-        {columnVisibility.estCreationTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalHours = getTotalHoursInFolder(folder);
-              return totalHours > 0 ? `${totalHours}h` : "-";
-            })()}
-          </td>
-        )}
-        {columnVisibility.estCompletionTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalCompletionTime =
-                getTotalCompletionTimeInFolder(folder);
-              return totalCompletionTime > 0
-                ? formatCompletionTimeLocalized(totalCompletionTime)
-                : "-";
-            })()}
-          </td>
-        )}
-        <td
-          className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <FolderRowMenu
-            folder={folder}
-            formatDate={formatDate}
-            trashMode={trashMode}
-            onDeleteFolder={handleDeleteFolder}
-          />
-        </td>
-      </tr>
-
-      {/* Expanded folder content - projects */}
-      {isExpanded &&
-        folderProjectsList.length > 0 &&
-        folderProjectsList.map((p: Project, projectIndex: number) => (
-          <tr
-            key={`folder-project-${p.id}`}
-            className={`hover:bg-gray-50 transition group bg-gray-50 ${
-              !getModalState()
-                ? "cursor-grab active:cursor-grabbing"
-                : "cursor-default"
-            } ${
-              dragOverIndex === projectIndex
-                ? "bg-blue-50 border-t-2 border-blue-300"
-                : ""
-            } ${draggedProject?.id === p.id ? "opacity-50" : ""}`}
-            draggable={!trashMode && !getModalState()}
-            onDragStart={(e) => {
-              if (getModalState()) {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              handleDragStart(e, p, "project");
-            }}
-            onDragOver={(e) => {
-              if (getModalState()) {
-                e.preventDefault();
-                return;
-              }
-              handleDragOver(e, projectIndex);
-            }}
-            onDragLeave={(e) => {
-              if (getModalState()) {
-                e.preventDefault();
-                return;
-              }
-              handleDragLeave(e);
-            }}
-            onDrop={(e) => {
-              if (getModalState()) {
-                e.preventDefault();
-                return;
-              }
-              handleDrop(e, projectIndex);
-            }}
-            onDragEnd={(e) => {
-              if (getModalState()) {
-                e.preventDefault();
-                return;
-              }
-              handleDragEnd(e);
-            }}
-          >
-            {columnVisibility.title && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <span
-                  className="inline-flex items-center"
-                  style={{ paddingLeft: `${(level + 1) * 20}px` }}
-                >
-                  <div
-                    className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                      getModalState()
-                        ? "cursor-grab active:cursor-grabbing"
-                        : "cursor-default opacity-30"
-                    }`}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="opacity-60 group-hover:opacity-100"
-                    >
-                      <circle cx="9" cy="5" r="2" />
-                      <circle cx="9" cy="12" r="2" />
-                      <circle cx="9" cy="19" r="2" />
-                      <circle cx="15" cy="5" r="2" />
-                      <circle cx="15" cy="12" r="2" />
-                      <circle cx="15" cy="19" r="2" />
-                    </svg>
-                  </div>
-                  <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
-                  <Star size={16} className="text-gray-300 mr-2" />
-                  <DynamicText
-                    text={p.title}
-                    columnWidthPercent={columnWidths.title}
-                    href={trashMode ? "#" : `/projects/view/${p.id}`}
-                    title={p.title}
-                  />
-                </span>
-              </td>
-            )}
-            {columnVisibility.created && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(p.createdAt)}
-              </td>
-            )}
-            {columnVisibility.creator && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <span className="inline-flex items-center">
-                  <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                    <span className="text-xs font-bold text-gray-700">Y</span>
-                  </span>
-                  You
-                </span>
-              </td>
-            )}
-            {columnVisibility.numberOfLessons && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData ? lessonData.lessonCount : "-";
-                })()}
-              </td>
-            )}
-            {columnVisibility.estCreationTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData && lessonData.totalHours
-                    ? `${lessonData.totalHours}h`
-                    : "-";
-                })()}
-              </td>
-            )}
-            {columnVisibility.estCompletionTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData
-                    ? formatCompletionTimeLocalized(lessonData.completionTime)
-                    : "-";
-                })()}
-              </td>
-            )}
-            {columnVisibility.type && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {p.designMicroproductType ? (
-                  <div className="w-4 h-4 flex items-center justify-center">
-                    {getDesignMicroproductIcon(p.designMicroproductType)}
-                  </div>
-                ) : (
-                  "-"
+                {columnVisibility.title && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <span className="inline-flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
+                            <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                    <circle cx="9" cy="5" r="2"/>
+                                    <circle cx="9" cy="12" r="2"/>
+                                    <circle cx="9" cy="19" r="2"/>
+                                    <circle cx="15" cy="5" r="2"/>
+                                    <circle cx="15" cy="12" r="2"/>
+                                    <circle cx="15" cy="19" r="2"/>
+                                </svg>
+                            </div>
+                            <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
+                                <ChevronRight 
+                                    size={16} 
+                                    className={`transition-transform duration-200 ${
+                                        isExpanded ? 'rotate-90' : ''
+                                    }`}
+                                />
+                            </button>
+                            <Folder size={16} style={{ color: getFolderTierColor(folder, allFolders) }} className="mr-2" />
+                            <DynamicText 
+                                text={folder.name}
+                                columnWidthPercent={columnWidths.title}
+                                className="font-semibold text-blue-700"
+                                title={folder.name}
+                            />
+                            <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? t('interface.item', 'item') : t('interface.items', 'items')}
+                            </span>
+                        </span>
+                    </td>
                 )}
-              </td>
+                {columnVisibility.created && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(folder.created_at)}</td>
+                )}
+                {columnVisibility.creator && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span className="inline-flex items-center">
+                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span className="text-xs font-bold text-gray-700">Y</span>
+                            </span>
+                            You
+                        </span>
+                    </td>
+                )}
+                {columnVisibility.numberOfLessons && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalLessons = getTotalLessonsInFolder(folder);
+                            return totalLessons > 0 ? totalLessons : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.estCreationTime && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.estCompletionTime && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
+                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.customOffer && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        {/* Custom Offer content - placeholder for now */}
+                        -
+                    </td>
+                )}
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                    <FolderRowMenu 
+                        folder={folder} 
+                        formatDate={formatDate} 
+                        trashMode={trashMode}
+                        onDeleteFolder={handleDeleteFolder}
+                    />
+                </td>
+            </tr>
+            
+            {/* Expanded folder content - projects */}
+            {isExpanded && folderProjectsList.length > 0 && (
+                folderProjectsList.map((p: Project, projectIndex: number) => (
+                    <tr 
+                        key={`folder-project-${p.id}`} 
+                                                  className={`hover:bg-gray-50 transition group bg-gray-50 ${
+                             !getModalState() 
+                                  ? 'cursor-grab active:cursor-grabbing' 
+                                  : 'cursor-default'
+                          } ${
+                            dragOverIndex === projectIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                        draggable={!trashMode && !getModalState()}
+                        onDragStart={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return;
+                            }
+                            handleDragStart(e, p, 'project');
+                        }}
+                        onDragOver={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragOver(e, projectIndex);
+                        }}
+                        onDragLeave={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragLeave(e);
+                        }}
+                        onDrop={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDrop(e, projectIndex);
+                        }}
+                        onDragEnd={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragEnd(e);
+                        }}
+                    >
+                        {columnVisibility.title && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <span className="inline-flex items-center" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
+                                        getModalState() 
+                                            ? 'cursor-grab active:cursor-grabbing' 
+                                            : 'cursor-default opacity-30'
+                                    }`}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                            <circle cx="9" cy="5" r="2"/>
+                                            <circle cx="9" cy="12" r="2"/>
+                                            <circle cx="9" cy="19" r="2"/>
+                                            <circle cx="15" cy="5" r="2"/>
+                                            <circle cx="15" cy="12" r="2"/>
+                                            <circle cx="15" cy="19" r="2"/>
+                                        </svg>
+                                    </div>
+                                    <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
+                                    <Star size={16} className="text-gray-300 mr-2" />
+                                    <DynamicText 
+                                        text={p.title}
+                                        columnWidthPercent={columnWidths.title}
+                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
+                                        title={p.title}
+                                    />
+                                </span>
+                            </td>
+                        )}
+                        {columnVisibility.created && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                        )}
+                        {columnVisibility.creator && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <span className="inline-flex items-center">
+                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                    </span>
+                                    You
+                                </span>
+                            </td>
+                        )}
+                        {columnVisibility.numberOfLessons && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData ? lessonData.lessonCount : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.estCreationTime && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.estCompletionTime && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.customOffer && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                {/* Custom Offer content - placeholder for now */}
+                                -
+                            </td>
+                        )}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                            <ProjectRowMenu 
+                                project={p} 
+                                formatDate={formatDate} 
+                                trashMode={trashMode}
+                                onDelete={handleDeleteProject}
+                                onRestore={handleRestoreProject}
+                                onDeletePermanently={handleDeletePermanently}
+                                folderId={folder.id}
+                            />
+                        </td>
+                    </tr>
+                ))
             )}
-            <td
-              className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
-              onClick={(e) => e.stopPropagation()}
+            
+            {/* Loading state for folder projects */}
+            {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
+                <tr>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + (columnVisibility.customOffer ? 2 : 1)} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                        Loading projects...
+                    </td>
+                </tr>
+            )}
+            
+            {/* Recursively render child folders */}
+            {isExpanded && hasChildren && folder.children!.map((childFolder, childIndex) => (
+                <FolderRow
+                    key={`child-folder-${childFolder.id}`}
+                    folder={childFolder}
+                    level={level + 1}
+                    index={childIndex}
+                    trashMode={trashMode}
+                    columnVisibility={columnVisibility}
+                    columnWidths={columnWidths}
+                    expandedFolders={expandedFolders}
+                    folderProjects={folderProjects}
+                    lessonDataCache={lessonDataCache}
+                    draggedFolder={draggedFolder}
+                    draggedProject={draggedProject}
+                    dragOverIndex={dragOverIndex}
+                    isDragging={isDragging}
+                    isReordering={isReordering}
+                    formatDate={formatDate}
+                    formatCompletionTime={formatCompletionTimeLocalized}
+                    toggleFolder={toggleFolder}
+                    handleDragStart={handleDragStart}
+                    handleDragOver={handleDragOver}
+                    handleDragLeave={handleDragLeave}
+                    handleDrop={handleDrop}
+                    handleDragEnd={handleDragEnd}
+                    handleDeleteProject={handleDeleteProject}
+                    handleRestoreProject={handleRestoreProject}
+                    handleDeletePermanently={handleDeletePermanently}
+                    handleDeleteFolder={handleDeleteFolder}
+                    allFolders={allFolders}
+                />
+            ))}
+        </>
+    );
+};
+
+// Client row component for displaying folders as "Clients" in list view
+const ClientRow: React.FC<{
+    folder: Folder;
+    level: number;
+    index: number;
+    trashMode: boolean;
+    columnVisibility: ColumnVisibility;
+    columnWidths: ColumnWidths;
+    expandedFolders: Set<number>;
+    folderProjects: Record<number, Project[]>;
+    lessonDataCache: Record<number, { lessonCount: number | string, totalHours: number | string, completionTime: number | string }>;
+    draggedFolder: Folder | null;
+    draggedProject: Project | null;
+    dragOverIndex: number | null;
+    isDragging: boolean;
+    isReordering: boolean;
+    formatDate: (date: string) => string;
+    formatCompletionTime: (minutes: number | string) => string;
+    toggleFolder: (folderId: number) => void;
+    handleDragStart: (e: React.DragEvent, item: Folder | Project, type: 'folder' | 'project') => void;
+    handleDragOver: (e: React.DragEvent, index: number) => void;
+    handleDragLeave: (e: React.DragEvent) => void;
+    handleDrop: (e: React.DragEvent, index: number) => void;
+    handleDragEnd: (e: React.DragEvent) => void;
+    handleDeleteProject: (projectId: number, scope: 'self' | 'all') => void;
+    handleRestoreProject: (projectId: number) => void;
+    handleDeletePermanently: (projectId: number) => void;
+    handleDeleteFolder: (folderId: number) => void;
+    allFolders: Folder[];
+    isOtherSection?: boolean;
+    handleClientPdfDownload: (folderId: number, clientName: string, projects: Project[]) => void;
+}> = ({ 
+    folder, 
+    level, 
+    index, 
+    trashMode, 
+    columnVisibility, 
+    columnWidths,
+    expandedFolders, 
+    folderProjects, 
+    lessonDataCache,
+    draggedFolder,
+    draggedProject,
+    dragOverIndex,
+    isDragging,
+    isReordering,
+    formatDate, 
+    formatCompletionTime,
+    toggleFolder,
+    handleDragStart,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleDragEnd,
+    handleDeleteProject,
+    handleRestoreProject,
+    handleDeletePermanently,
+    handleDeleteFolder,
+    allFolders,
+    isOtherSection = false,
+    handleClientPdfDownload
+}) => {
+    const { t } = useLanguage();
+
+    const hasChildren = folder.children && folder.children.length > 0;
+    const isExpanded = expandedFolders.has(folder.id);
+    const folderProjectsList = folderProjects[folder.id] || [];
+
+    return (
+        <>
+            {/* Client row */}
+            <tr 
+                key={`client-${folder.id}`}
+                data-folder-id={folder.id}
+                className={`hover:bg-gray-50 transition group ${
+                    !getModalState() 
+                        ? 'cursor-grab active:cursor-grabbing' 
+                        : 'cursor-default'
+                } ${
+                    dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                } ${draggedFolder?.id === folder.id ? 'opacity-50' : ''}`}
+                draggable={!trashMode && !getModalState()}
+                onDragStart={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    handleDragStart(e, folder, 'folder');
+                }}
+                onDragOver={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragOver(e, index);
+                }}
+                onDragLeave={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragLeave(e);
+                }}
+                onDrop={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDrop(e, index);
+                }}
+                onDragEnd={(e) => {
+                    if (getModalState()) {
+                        e.preventDefault();
+                        return;
+                    }
+                    handleDragEnd(e);
+                }}
+                onClick={() => toggleFolder(folder.id)}
             >
-              <ProjectRowMenu
-                project={p}
-                formatDate={formatDate}
-                trashMode={trashMode}
-                onDelete={handleDeleteProject}
-                onRestore={handleRestoreProject}
-                onDeletePermanently={handleDeletePermanently}
-                folderId={folder.id}
-              />
-            </td>
-          </tr>
-        ))}
-
-      {/* Loading state for folder projects */}
-      {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
-        <tr>
-          <td
-            colSpan={Object.values(columnVisibility).filter(Boolean).length + 1}
-            className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50"
-            style={{ paddingLeft: `${(level + 1) * 20}px` }}
-          >
-            Loading projects...
-          </td>
-        </tr>
-      )}
-
-      {/* Recursively render child folders */}
-      {isExpanded &&
-        hasChildren &&
-        folder.children!.map((childFolder, childIndex) => (
-          <FolderRow
-            key={`child-folder-${childFolder.id}`}
-            folder={childFolder}
-            level={level + 1}
-            index={childIndex}
-            trashMode={trashMode}
-            columnVisibility={columnVisibility}
-            columnWidths={columnWidths}
-            expandedFolders={expandedFolders}
-            folderProjects={folderProjects}
-            lessonDataCache={lessonDataCache}
-            draggedFolder={draggedFolder}
-            draggedProject={draggedProject}
-            dragOverIndex={dragOverIndex}
-            isDragging={isDragging}
-            isReordering={isReordering}
-            formatDate={formatDate}
-            formatCompletionTime={formatCompletionTimeLocalized}
-            toggleFolder={toggleFolder}
-            handleDragStart={handleDragStart}
-            handleDragOver={handleDragOver}
-            handleDragLeave={handleDragLeave}
-            handleDrop={handleDrop}
-            handleDragEnd={handleDragEnd}
-            handleDeleteProject={handleDeleteProject}
-            handleRestoreProject={handleRestoreProject}
-            handleDeletePermanently={handleDeletePermanently}
-            handleDeleteFolder={handleDeleteFolder}
-            allFolders={allFolders}
-          />
-        ))}
-    </>
-  );
+                {columnVisibility.title && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <span className="inline-flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
+                            <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                    <circle cx="9" cy="5" r="2"/>
+                                    <circle cx="9" cy="12" r="2"/>
+                                    <circle cx="9" cy="19" r="2"/>
+                                    <circle cx="15" cy="5" r="2"/>
+                                    <circle cx="15" cy="12" r="2"/>
+                                    <circle cx="15" cy="19" r="2"/>
+                                </svg>
+                            </div>
+                            <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200">
+                                <ChevronRight 
+                                    size={16} 
+                                    className={`transition-transform duration-200 ${
+                                        isExpanded ? 'rotate-90' : ''
+                                    }`}
+                                />
+                            </button>
+                            <Users size={16} className="mr-2 text-green-600" />
+                            <DynamicText 
+                                text={isOtherSection ? t('interface.other', 'Other') : folder.name}
+                                columnWidthPercent={columnWidths.title}
+                                className="font-semibold text-green-700"
+                                title={isOtherSection ? t('interface.other', 'Other') : folder.name}
+                            />
+                            <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {getTotalItemsInFolder(folder, folderProjects)} {getTotalItemsInFolder(folder, folderProjects) === 1 ? t('interface.item', 'item') : t('interface.items', 'items')}
+                            </span>
+                        </span>
+                    </td>
+                )}
+                {columnVisibility.created && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {isOtherSection ? '-' : formatDate(folder.created_at)}
+                    </td>
+                )}
+                {columnVisibility.creator && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span className="inline-flex items-center">
+                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                <span className="text-xs font-bold text-gray-700">Y</span>
+                            </span>
+                            You
+                        </span>
+                    </td>
+                )}
+                {columnVisibility.numberOfLessons && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalLessons = getTotalLessonsInFolder(folder);
+                            return totalLessons > 0 ? totalLessons : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.estCreationTime && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalHours = getTotalHoursInFolder(folder);
+                            return totalHours > 0 ? `${totalHours}h` : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.estCompletionTime && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(() => {
+                            const totalCompletionTime = getTotalCompletionTimeInFolder(folder);
+                            return totalCompletionTime > 0 ? formatCompletionTimeLocalized(totalCompletionTime) : '-';
+                        })()}
+                    </td>
+                )}
+                {columnVisibility.customOffer && (
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button
+                            onClick={() => handleClientPdfDownload(folder.id, folder.name, folderProjectsList)}
+                            className="flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
+                            title={t('common.downloadPdf', 'Download PDF')}
+                        >
+                            <ArrowDownToLine size={14} />
+                            {t('common.downloadPdf', 'Download PDF')}
+                        </button>
+                    </td>
+                )}
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                    <FolderRowMenu 
+                        folder={folder} 
+                        formatDate={formatDate} 
+                        trashMode={trashMode}
+                        onDeleteFolder={handleDeleteFolder}
+                    />
+                </td>
+            </tr>
+            
+            {/* Expanded client content - projects */}
+            {isExpanded && folderProjectsList.length > 0 && (
+                folderProjectsList.map((p: Project, projectIndex: number) => (
+                    <tr 
+                        key={`client-project-${p.id}`} 
+                        className={`hover:bg-gray-50 transition group bg-gray-50 ${
+                            !getModalState() 
+                                ? 'cursor-grab active:cursor-grabbing' 
+                                : 'cursor-default'
+                        } ${
+                            dragOverIndex === projectIndex ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                        draggable={!trashMode && !getModalState()}
+                        onDragStart={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return;
+                            }
+                            handleDragStart(e, p, 'project');
+                        }}
+                        onDragOver={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragOver(e, projectIndex);
+                        }}
+                        onDragLeave={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragLeave(e);
+                        }}
+                        onDrop={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDrop(e, projectIndex);
+                        }}
+                        onDragEnd={(e) => {
+                            if (getModalState()) {
+                                e.preventDefault();
+                                return;
+                            }
+                            handleDragEnd(e);
+                        }}
+                    >
+                        {columnVisibility.title && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <span className="inline-flex items-center" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
+                                        getModalState() 
+                                            ? 'cursor-grab active:cursor-grabbing' 
+                                            : 'cursor-default opacity-30'
+                                    }`}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                            <circle cx="9" cy="5" r="2"/>
+                                            <circle cx="9" cy="12" r="2"/>
+                                            <circle cx="9" cy="19" r="2"/>
+                                            <circle cx="15" cy="5" r="2"/>
+                                            <circle cx="15" cy="12" r="2"/>
+                                            <circle cx="15" cy="19" r="2"/>
+                                        </svg>
+                                    </div>
+                                    <div className="w-4 h-4 border-l-2 border-green-200 mr-3"></div>
+                                    <Star size={16} className="text-gray-300 mr-2" />
+                                    <DynamicText 
+                                        text={p.title}
+                                        columnWidthPercent={columnWidths.title}
+                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
+                                        title={p.title}
+                                    />
+                                </span>
+                            </td>
+                        )}
+                        {columnVisibility.created && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                        )}
+                        {columnVisibility.creator && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <span className="inline-flex items-center">
+                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                    </span>
+                                    You
+                                </span>
+                            </td>
+                        )}
+                        {columnVisibility.numberOfLessons && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData ? lessonData.lessonCount : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.estCreationTime && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.estCompletionTime && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {(() => {
+                                    const lessonData = lessonDataCache[p.id];
+                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                })()}
+                            </td>
+                        )}
+                        {columnVisibility.customOffer && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                {/* Custom Offer content - placeholder for now */}
+                                -
+                            </td>
+                        )}
+                        {/* Empty cell to align with client PDF download button column */}
+                        {columnVisibility.customOffer && (
+                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            </td>
+                        )}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                            <ProjectRowMenu 
+                                project={p} 
+                                formatDate={formatDate} 
+                                trashMode={trashMode}
+                                onDelete={handleDeleteProject}
+                                onRestore={handleRestoreProject}
+                                onDeletePermanently={handleDeletePermanently}
+                                folderId={folder.id}
+                            />
+                        </td>
+                    </tr>
+                ))
+            )}
+            
+            {/* Loading state for client projects */}
+            {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
+                <tr>
+                    <td colSpan={Object.values(columnVisibility).filter(Boolean).length + (columnVisibility.customOffer ? 3 : 2)} className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50" style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                        Loading projects...
+                    </td>
+                </tr>
+            )}
+            
+            {/* Recursively render child folders */}
+            {isExpanded && hasChildren && folder.children!.map((childFolder, childIndex) => (
+                <ClientRow
+                    key={`child-client-${childFolder.id}`}
+                    folder={childFolder}
+                    level={level + 1}
+                    index={childIndex}
+                    trashMode={trashMode}
+                    columnVisibility={columnVisibility}
+                    columnWidths={columnWidths}
+                    expandedFolders={expandedFolders}
+                    folderProjects={folderProjects}
+                    lessonDataCache={lessonDataCache}
+                    draggedFolder={draggedFolder}
+                    draggedProject={draggedProject}
+                    dragOverIndex={dragOverIndex}
+                    isDragging={isDragging}
+                    isReordering={isReordering}
+                    formatDate={formatDate}
+                    formatCompletionTime={formatCompletionTimeLocalized}
+                    toggleFolder={toggleFolder}
+                    handleDragStart={handleDragStart}
+                    handleDragOver={handleDragOver}
+                    handleDragLeave={handleDragLeave}
+                    handleDrop={handleDrop}
+                    handleDragEnd={handleDragEnd}
+                    handleDeleteProject={handleDeleteProject}
+                    handleRestoreProject={handleRestoreProject}
+                    handleDeletePermanently={handleDeletePermanently}
+                    handleDeleteFolder={handleDeleteFolder}
+                    allFolders={allFolders}
+                    handleClientPdfDownload={handleClientPdfDownload}
+                />
+            ))}
+        </>
+    );
 };
 
 const ProjectCard: React.FC<{
@@ -3024,13 +3372,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     type: true,
   });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
-    title: 48,
+    title: 40,
     created: 15,
     creator: 15,
     numberOfLessons: 13,
     estCreationTime: 13.5,
     estCompletionTime: 13.5,
-    type: 8,
+    customOffer: 15,
   });
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
@@ -4203,10 +4551,43 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     [t("interface.favorites", "Favorites")]: Star,
   };
 
-  // Add PDF download function
-  const handlePdfDownload = () => {
-    setShowClientNameModal(true);
-  };
+    // Add PDF download function
+    const handlePdfDownload = () => {
+        setShowClientNameModal(true);
+    };
+
+    // Handle client-specific PDF download
+    const handleClientPdfDownload = (folderId: number, clientName: string, projects: Project[]) => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        
+        // Add folder_id
+        queryParams.append('folder_id', folderId.toString());
+        
+        // Add column visibility settings
+        queryParams.append('column_visibility', JSON.stringify(columnVisibility));
+        
+        // Add column widths settings
+        queryParams.append('column_widths', JSON.stringify(columnWidths));
+        
+        // Add client name
+        queryParams.append('client_name', clientName);
+        
+        // Add project IDs for this client
+        const projectIds = projects.map(p => p.id);
+        queryParams.append('selected_projects', JSON.stringify(projectIds));
+        
+        // Build the PDF URL
+        let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/projects-list`;
+        if (queryParams.toString()) {
+            pdfUrl += `?${queryParams.toString()}`;
+        }
+        
+        // Open PDF in new tab
+        window.open(pdfUrl, '_blank');
+    };
 
   // Handle client name confirmation
   const handleClientNameConfirm = (
@@ -4394,7 +4775,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "interface.estCompletionTimeShort",
                             "Est. completion time"
                           ),
-                        },
+                        },,
+                                        { key: 'customOffer', label: t('interface.customOffer', 'Custom Offer') }
                       ].map((column) => (
                         <label
                           key={column.key}
@@ -4433,18 +4815,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </div>
             )}
 
-            {/* PDF Download Button - only show in list view */}
+            {/* Add Client Button - only show in list view */}
             {viewMode === "list" && (
               <button
-                onClick={handlePdfDownload}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer"
+                onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors cursor-pointer"
                 title={t(
-                  "interface.downloadPDF",
-                  "Download projects list as PDF"
+                  "interface.addClient",
+                  "Add Client"
                 )}
               >
-                <ArrowDownToLine size={16} />
-                {t("common.downloadPdf", "Download PDF")}
+                <Plus size={16} />
+                {t("interface.addClient", "Add Client")}
               </button>
             )}
 
@@ -4470,532 +4852,351 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         </div>
       )}
 
-      {projects.length > 0 ? (
-        viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {getProjectsForFolder(folderId).map((p: Project) => (
-              <ProjectCard
-                key={p.id}
-                project={p}
-                onDelete={handleDeleteProject}
-                onRestore={handleRestoreProject}
-                onDeletePermanently={handleDeletePermanently}
-                isTrashMode={trashMode}
-                folderId={folderId}
-              />
-            ))}
-          </div>
-        ) : (
-          // List view (table/row style)
-          <div
-            className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${
-              isReordering ? "ring-2 ring-blue-200" : ""
-            }`}
-          >
-            <style jsx>{`
-              .cursor-col-resize {
-                cursor: col-resize !important;
-              }
-              .cursor-col-resize:hover {
-                background-color: #3b82f6 !important;
-              }
-              .resizing {
-                user-select: none;
-              }
-            `}</style>
-            <table
-              className={`min-w-full divide-y divide-gray-200 ${
-                resizingColumn ? "resizing" : ""
-              }`}
-            >
-              <thead className="bg-gray-50">
-                <tr>
-                  {columnVisibility.title && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.title}%` }}
-                    >
-                      {t("interface.title", "Title")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "title")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.created && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.created}%` }}
-                    >
-                      {t("interface.created", "Created")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "created")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.creator && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.creator}%` }}
-                    >
-                      {t("interface.creator", "Creator")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "creator")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.type && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.type}%` }}
-                    >
-                      {t("interface.type", "Type")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "type")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.numberOfLessons && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.numberOfLessons}%` }}
-                    >
-                      {t("interface.numberOfLessons", "Number of Lessons")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "numberOfLessons")
-                        }
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.estCreationTime && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.estCreationTime}%` }}
-                    >
-                      {t("interface.estCreationTime", "Est. Creation Time")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCreationTime")
-                        }
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.estCompletionTime && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.estCompletionTime}%` }}
-                    >
-                      {t("interface.estCompletionTime", "Est. Completion Time")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCompletionTime")
-                        }
-                      />
-                    </th>
-                  )}
-                  <th
-                    className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                    style={{ width: "80px" }}
-                  >
-                    {t("interface.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {/* Show nested folders as expandable rows when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  buildFolderTree(folders).map((folder, folderIndex) => (
-                    <FolderRow
-                      key={`folder-${folder.id}`}
-                      folder={folder}
-                      level={0}
-                      index={folderIndex}
-                      trashMode={trashMode}
-                      columnVisibility={columnVisibility}
-                      columnWidths={columnWidths}
-                      expandedFolders={expandedFolders}
-                      folderProjects={filteredFolderProjects}
-                      lessonDataCache={lessonDataCache}
-                      draggedFolder={draggedFolder}
-                      draggedProject={draggedProject}
-                      dragOverIndex={dragOverIndex}
-                      isDragging={isDragging}
-                      isReordering={isReordering}
-                      formatDate={formatDate}
-                      formatCompletionTime={formatCompletionTimeLocalized}
-                      toggleFolder={toggleFolder}
-                      handleDragStart={handleDragStart}
-                      handleDragOver={handleDragOver}
-                      handleDragLeave={handleDragLeave}
-                      handleDrop={handleDrop}
-                      handleDragEnd={handleDragEnd}
-                      handleDeleteProject={handleDeleteProject}
-                      handleRestoreProject={handleRestoreProject}
-                      handleDeletePermanently={handleDeletePermanently}
-                      handleDeleteFolder={handleDeleteFolder}
-                      allFolders={folders}
-                    />
-                  ))}
-
-                {/* Show unassigned projects when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  visibleUnassignedProjects.map((p: Project, index: number) => (
-                    <tr
-                      key={p.id}
-                      className={`hover:bg-gray-50 transition group ${
-                        !getModalState()
-                          ? "cursor-grab active:cursor-grabbing"
-                          : "cursor-default"
-                      } ${
-                        dragOverIndex === index
-                          ? "bg-blue-50 border-t-2 border-blue-300"
-                          : ""
-                      } ${draggedProject?.id === p.id ? "opacity-50" : ""}`}
-                      draggable={!trashMode && !getModalState()}
-                      onDragStart={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          return;
-                        }
-                        handleDragStart(e, p, "project");
-                      }}
-                      onDragOver={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragOver(e, index);
-                      }}
-                      onDragLeave={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragLeave(e);
-                      }}
-                      onDrop={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDrop(e, index);
-                      }}
-                      onDragEnd={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragEnd(e);
-                      }}
-                    >
-                      {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
-                            <DynamicText
-                              text={p.title}
-                              columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : `/projects/view/${p.id}`}
-                              title={p.title}
+            {projects.length > 0 ? (
+                viewMode === 'grid' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {getProjectsForFolder(folderId).map((p: Project) => (
+                            <ProjectCard
+                                key={p.id}
+                                project={p}
+                                onDelete={handleDeleteProject}
+                                onRestore={handleRestoreProject}
+                                onDeletePermanently={handleDeletePermanently}
+                                isTrashMode={trashMode}
+                                folderId={folderId}
                             />
-                          </span>
-                        </td>
-                      )}
-                      {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </td>
-                      )}
-                      {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-xs font-bold text-gray-700">
-                                Y
-                              </span>
-                            </span>
-                            You
-                          </span>
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <div className="w-4 h-4 flex items-center justify-center">
-                              {getDesignMicroproductIcon(
-                                p.designMicroproductType
-                              )}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                      )}
-                      {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      <td
-                        className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ProjectRowMenu
-                          project={p}
-                          formatDate={formatDate}
-                          trashMode={trashMode}
-                          onDelete={handleDeleteProject}
-                          onRestore={handleRestoreProject}
-                          onDeletePermanently={handleDeletePermanently}
-                          folderId={folderId}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+                        ))}
+                    </div>
+                ) : (
+                    // List view (table/row style)
+                    <div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${isReordering ? 'ring-2 ring-blue-200' : ''}`}>
+                        <style jsx>{`
+                            .cursor-col-resize {
+                                cursor: col-resize !important;
+                            }
+                            .cursor-col-resize:hover {
+                                background-color: #3b82f6 !important;
+                            }
+                            .resizing {
+                                user-select: none;
+                            }
+                        `}</style>
+                        <table className={`min-w-full divide-y divide-gray-200 ${resizingColumn ? 'resizing' : ''}`}>
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    {columnVisibility.title && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.title}%` }}
+                                        >
+                                            {t('interface.title', 'Title')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'title')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.created && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.created}%` }}
+                                        >
+                                            {t('interface.created', 'Created')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'created')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.creator && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.creator}%` }}
+                                        >
+                                            {t('interface.creator', 'Creator')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'creator')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.numberOfLessons && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.numberOfLessons}%` }}
+                                        >
+                                            {t('interface.numberOfLessons', 'Number of Lessons')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'numberOfLessons')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.estCreationTime && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.estCreationTime}%` }}
+                                        >
+                                            {t('interface.estCreationTime', 'Est. Creation Time')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'estCreationTime')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.estCompletionTime && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.estCompletionTime}%` }}
+                                        >
+                                            {t('interface.estCompletionTime', 'Est. Completion Time')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'estCompletionTime')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.customOffer && (
+                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: '120px' }}>{t('interface.customOffer', 'Custom Offer')}</th>
+                                    )}
+                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50" style={{ width: '80px' }}>&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
+                                {/* Show folders as "Clients" when not viewing a specific folder */}
+                                {!trashMode && folderId === null && buildFolderTree(folders).map((folder, folderIndex) => (
+                                                                    <ClientRow
+                                    key={`client-${folder.id}`}
+                                        folder={folder}
+                                        level={0}
+                                        index={folderIndex}
+                                        trashMode={trashMode}
+                                        columnVisibility={columnVisibility}
+                                        columnWidths={columnWidths}
+                                        expandedFolders={expandedFolders}
+                                        folderProjects={filteredFolderProjects}
+                                        lessonDataCache={lessonDataCache}
+                                        draggedFolder={draggedFolder}
+                                        draggedProject={draggedProject}
+                                        dragOverIndex={dragOverIndex}
+                                        isDragging={isDragging}
+                                        isReordering={isReordering}
+                                        formatDate={formatDate}
+                                        formatCompletionTime={formatCompletionTimeLocalized}
+                                        toggleFolder={toggleFolder}
+                                        handleDragStart={handleDragStart}
+                                        handleDragOver={handleDragOver}
+                                        handleDragLeave={handleDragLeave}
+                                        handleDrop={handleDrop}
+                                        handleDragEnd={handleDragEnd}
+                                        handleDeleteProject={handleDeleteProject}
+                                        handleRestoreProject={handleRestoreProject}
+                                        handleDeletePermanently={handleDeletePermanently}
+                                        handleDeleteFolder={handleDeleteFolder}
+                                        allFolders={folders}
+                                    handleClientPdfDownload={handleClientPdfDownload}
+                                    />
+                                ))}
+                                
+                                {/* Show "Other" section for unassigned projects when not viewing a specific folder */}
+                                {!trashMode && folderId === null && visibleUnassignedProjects.length > 0 && (
+                                    <ClientRow
+                                        key="client-other"
+                                        folder={{ 
+                                            id: -1, 
+                                            name: t('interface.other', 'Other'), 
+                                            created_at: "", 
+                                            project_count: visibleUnassignedProjects.length,
+                                            order: 0,
+                                            total_lessons: 0,
+                                            total_hours: 0,
+                                            total_completion_time: 0,
+                                            children: [] 
+                                        }}
+                                        level={0}
+                                        index={buildFolderTree(folders).length}
+                                                trashMode={trashMode}
+                                        columnVisibility={columnVisibility}
+                                        columnWidths={columnWidths}
+                                        expandedFolders={expandedFolders}
+                                        folderProjects={{ [-1]: visibleUnassignedProjects }}
+                                        lessonDataCache={lessonDataCache}
+                                        draggedFolder={draggedFolder}
+                                        draggedProject={draggedProject}
+                                        dragOverIndex={dragOverIndex}
+                                        isDragging={isDragging}
+                                        isReordering={isReordering}
+                                        formatDate={formatDate}
+                                        formatCompletionTime={formatCompletionTimeLocalized}
+                                        toggleFolder={toggleFolder}
+                                        handleDragStart={handleDragStart}
+                                        handleDragOver={handleDragOver}
+                                        handleDragLeave={handleDragLeave}
+                                        handleDrop={handleDrop}
+                                        handleDragEnd={handleDragEnd}
+                                        handleDeleteProject={handleDeleteProject}
+                                        handleRestoreProject={handleRestoreProject}
+                                        handleDeletePermanently={handleDeletePermanently}
+                                        handleDeleteFolder={handleDeleteFolder}
+                                        allFolders={folders}
+                                        isOtherSection={true}
+                                        handleClientPdfDownload={handleClientPdfDownload}
+                                    />
+                                )}
+                                
 
-                {/* Show projects for specific folder or all projects in trash mode */}
-                {(trashMode || folderId !== null) &&
-                  visibleProjects.map((p: Project, index: number) => (
-                    <tr
-                      key={p.id}
-                      className={`hover:bg-gray-50 transition group ${
-                        !getModalState()
-                          ? "cursor-grab active:cursor-grabbing"
-                          : "cursor-default"
-                      } ${
-                        dragOverIndex === index
-                          ? "bg-blue-50 border-t-2 border-blue-300"
-                          : ""
-                      } ${draggedProject?.id === p.id ? "opacity-50" : ""}`}
-                      draggable={!trashMode && !getModalState()}
-                      onDragStart={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          return;
-                        }
-                        handleDragStart(e, p, "project");
-                      }}
-                      onDragOver={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragOver(e, index);
-                      }}
-                      onDragLeave={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragLeave(e);
-                      }}
-                      onDrop={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDrop(e, index);
-                      }}
-                      onDragEnd={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragEnd(e);
-                      }}
-                    >
-                      {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
-                            <DynamicText
-                              text={p.title}
-                              columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : `/projects/view/${p.id}`}
-                              title={p.title}
-                            />
-                          </span>
-                        </td>
-                      )}
-                      {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </td>
-                      )}
-                      {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-xs font-bold text-gray-700">
-                                Y
-                              </span>
-                            </span>
-                            You
-                          </span>
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <div className="w-4 h-4 flex items-center justify-center">
-                              {getDesignMicroproductIcon(
-                                p.designMicroproductType
-                              )}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                      )}
-                      {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      <td
-                        className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ProjectRowMenu
-                          project={p}
-                          formatDate={formatDate}
-                          trashMode={trashMode}
-                          onDelete={handleDeleteProject}
-                          onRestore={handleRestoreProject}
-                          onDeletePermanently={handleDeletePermanently}
-                          folderId={folderId}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        )
-      ) : (
-        <div className="text-center p-8 text-gray-500">
-          {t("interface.noProjectsFound", "No projects found.")}
+                                
+                                {/* Show projects for specific folder or all projects in trash mode */}
+                                {(trashMode || folderId !== null) && visibleProjects.map((p: Project, index: number) => (
+                                    <tr 
+                                        key={p.id} 
+                                        className={`hover:bg-gray-50 transition group ${
+                                            !getModalState() 
+                                                ? 'cursor-grab active:cursor-grabbing' 
+                                                : 'cursor-default'
+                                        } ${
+                                            dragOverIndex === index ? 'bg-blue-50 border-t-2 border-blue-300' : ''
+                                        } ${draggedProject?.id === p.id ? 'opacity-50' : ''}`}
+                                        draggable={!trashMode && !getModalState()}
+                                        onDragStart={(e) => {
+                                            if (getModalState()) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                return;
+                                            }
+                                            handleDragStart(e, p, 'project');
+                                        }}
+                                        onDragOver={(e) => {
+                                            if (getModalState()) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragOver(e, index);
+                                        }}
+                                        onDragLeave={(e) => {
+                                            if (getModalState()) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragLeave(e);
+                                        }}
+                                        onDrop={(e) => {
+                                            if (getModalState()) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDrop(e, index);
+                                        }}
+                                        onDragEnd={(e) => {
+                                            if (getModalState()) {
+                                                e.preventDefault();
+                                                return;
+                                            }
+                                            handleDragEnd(e);
+                                        }}
+                                    >
+                                        {columnVisibility.title && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <div className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
+                                                        getModalState() 
+                                                            ? 'cursor-grab active:cursor-grabbing' 
+                                                            : 'cursor-default opacity-30'
+                                                    }`}>
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 group-hover:opacity-100">
+                                                            <circle cx="9" cy="5" r="2"/>
+                                                            <circle cx="9" cy="12" r="2"/>
+                                                            <circle cx="9" cy="19" r="2"/>
+                                                            <circle cx="15" cy="5" r="2"/>
+                                                            <circle cx="15" cy="12" r="2"/>
+                                                            <circle cx="15" cy="19" r="2"/>
+                                                        </svg>
+                                                    </div>
+                                                    <Star size={16} className="text-gray-300 mr-2" />
+                                                    <DynamicText 
+                                                        text={p.title}
+                                                        columnWidthPercent={columnWidths.title}
+                                                        href={trashMode ? '#' : `/projects/view/${p.id}`}
+                                                        title={p.title}
+                                                    />
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.created && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
+                                        )}
+                                        {columnVisibility.creator && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span className="inline-flex items-center">
+                                                    <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                                                        <span className="text-xs font-bold text-gray-700">Y</span>
+                                                    </span>
+                                                    You
+                                                </span>
+                                            </td>
+                                        )}
+                                        {columnVisibility.numberOfLessons && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? lessonData.lessonCount : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCreationTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData && lessonData.totalHours ? `${lessonData.totalHours}h` : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.estCompletionTime && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {(() => {
+                                                    const lessonData = lessonDataCache[p.id];
+                                                    return lessonData ? formatCompletionTimeLocalized(lessonData.completionTime) : '-';
+                                                })()}
+                                            </td>
+                                        )}
+                                        {columnVisibility.customOffer && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                {/* Custom Offer content - placeholder for now */}
+                                                -
+                                            </td>
+                                        )}
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" onClick={e => e.stopPropagation()}>
+                                            <ProjectRowMenu 
+                                                project={p} 
+                                                formatDate={formatDate} 
+                                                trashMode={trashMode}
+                                                onDelete={handleDeleteProject}
+                                                onRestore={handleRestoreProject}
+                                                onDeletePermanently={handleDeletePermanently}
+                                                folderId={folderId}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )
+            ) : (
+                <div className="text-center p-8 text-gray-500">{t('interface.noProjectsFound', 'No projects found.')}</div>
+            )}
+            
+            {/* Client Name Modal */}
+            <ClientNameModal
+                isOpen={showClientNameModal}
+                onClose={() => setShowClientNameModal(false)}
+                onConfirm={handleClientNameConfirm}
+                folders={folders}
+                folderProjects={folderProjects}
+                unassignedProjects={getProjectsForFolder(null).filter(p => !p.folderId)}
+            />
         </div>
-      )}
-
-      {/* Client Name Modal */}
-      <ClientNameModal
-        isOpen={showClientNameModal}
-        onClose={() => setShowClientNameModal(false)}
-        onConfirm={handleClientNameConfirm}
-        folders={folders}
-        folderProjects={folderProjects}
-        unassignedProjects={getProjectsForFolder(null).filter(
-          (p) => !p.folderId
-        )}
-      />
-    </div>
-  );
-};
+    );
+}
 
 export default ProjectsTable;
