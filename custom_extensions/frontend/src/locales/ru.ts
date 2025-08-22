@@ -335,14 +335,7 @@ export const ru = {
       onePager: 'Ставка одностраничника',
       quiz: 'Ставка теста',
       videoLesson: 'Ставка видео-урока'
-    },
-    completionTimes: {
-      presentation: 'Презентация',
-      onePager: 'Одностраничник',
-      quiz: 'Тест',
-      videoLesson: 'Видео-урок'
-    },
-    advanced: 'Расширенный'
+    }
   },
   projects: {
     loading: "Загрузка продуктов...",

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { locales } from '@/locales';
 
 export type Language = 'en' | 'ru' | 'uk' | 'es';
 
@@ -47,9 +48,28 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   };
 
   const t = (key: string, defaultValue?: string) => {
-    // For now, just return the default value or the key
-    // In a real implementation, you would have proper translation logic
-    return defaultValue || key;
+    // Get the current locale
+    const currentLocale = locales[language];
+    if (!currentLocale) {
+      return defaultValue || key;
+    }
+
+    // Split the key by dots to navigate the nested object
+    const keys = key.split('.');
+    let value: any = currentLocale;
+
+    // Navigate through the nested object
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        // Key not found, return default value or key
+        return defaultValue || key;
+      }
+    }
+
+    // Return the found value or fallback
+    return typeof value === 'string' ? value : (defaultValue || key);
   };
 
   return (
