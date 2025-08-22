@@ -609,76 +609,158 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
 
       {/* Share Offer Modal */}
       {shareModalOffer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('interface.shareOffer', 'Share Offer')}
-              </h3>
-              <button
-                onClick={() => setShareModalOffer(null)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <XCircle size={20} />
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
-                {t('interface.shareOfferDescription', 'Share this offer with anyone, even those without an account:')}
-              </p>
-              <p className="font-medium text-gray-900">{shareModalOffer.offer_name}</p>
+        <div 
+          className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShareModalOffer(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Share2 className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-black">
+                      {t('interface.shareOffer', 'Share Offer')}
+                    </h2>
+                    <p className="text-sm text-black/70 mt-1">
+                      {shareModalOffer.offer_name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShareModalOffer(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 hover:bg-gray-100 rounded-full group"
+                >
+                  <XCircle size={20} className="group-hover:rotate-90 transition-transform duration-200" />
+                </button>
+              </div>
             </div>
 
-            {generatingShareLink ? (
-              <div className="flex items-center justify-center py-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span className="ml-2 text-gray-600">
-                  {t('interface.generatingLink', 'Generating link...')}
-                </span>
+            {/* Content */}
+            <div className="p-6">
+              <div className="mb-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <Building className="h-5 w-5 text-blue-600 mt-0.5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-black">
+                        {t('interface.shareOfferDescription', 'Share this offer with anyone, even those without an account')}
+                      </p>
+                      <p className="text-xs text-black/70 mt-1">
+                        {t('interface.shareOfferSubtext', 'Recipients can view the full offer details without creating an account')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            ) : shareLink ? (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('interface.shareableLink', 'Shareable Link')}
-                </label>
-                <div className="flex">
-                  <input
-                    type="text"
-                    value={shareLink}
-                    readOnly
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
-                  />
+
+              {generatingShareLink ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <span className="ml-3 text-black font-medium">
+                    {t('interface.generatingLink', 'Generating link...')}
+                  </span>
+                </div>
+              ) : shareLink ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-3">
+                      {t('interface.shareableLink', 'Shareable Link')}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={shareLink}
+                        readOnly
+                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg bg-gray-50 text-black text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        onClick={(e) => e.currentTarget.select()}
+                      />
+                      <button
+                        onClick={handleCopyLink}
+                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-md transition-all duration-200 ${
+                          copySuccess
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                        title={copySuccess ? t('interface.copied', 'Copied!') : t('interface.copyLink', 'Copy Link')}
+                      >
+                        {copySuccess ? (
+                          <CheckCircle size={16} />
+                        ) : (
+                          <Copy size={16} />
+                        )}
+                      </button>
+                    </div>
+                    {copySuccess && (
+                      <div className="flex items-center mt-2 text-green-600">
+                        <CheckCircle size={16} className="mr-2" />
+                        <span className="text-sm font-medium">
+                          {t('interface.linkCopied', 'Link copied to clipboard!')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <Eye className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-black">
+                          {t('interface.sharePreview', 'What recipients will see:')}
+                        </p>
+                        <ul className="text-xs text-black/70 mt-1 space-y-1">
+                          <li>• {t('interface.shareItem1', 'Offer overview and details')}</li>
+                          <li>• {t('interface.shareItem2', 'Course structure and modules')}</li>
+                          <li>• {t('interface.shareItem3', 'Quality levels and pricing')}</li>
+                          <li>• {t('interface.shareItem4', 'Professional presentation')}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-100 bg-gray-50/50">
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShareModalOffer(null)}
+                  className="px-4 py-2 text-black bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium"
+                >
+                  {t('interface.close', 'Close')}
+                </button>
+                {shareLink && (
                   <button
                     onClick={handleCopyLink}
-                    className={`px-4 py-2 border border-l-0 rounded-r-md transition-colors ${
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                       copySuccess
-                        ? 'bg-green-100 border-green-300 text-green-700'
-                        : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-green-600 text-white hover:bg-green-700'
                     }`}
                   >
                     {copySuccess ? (
-                      <CheckCircle size={16} />
+                      <span className="flex items-center">
+                        <CheckCircle size={16} className="mr-2" />
+                        {t('interface.copied', 'Copied!')}
+                      </span>
                     ) : (
-                      <Copy size={16} />
+                      <span className="flex items-center">
+                        <Copy size={16} className="mr-2" />
+                        {t('interface.copyLink', 'Copy Link')}
+                      </span>
                     )}
                   </button>
-                </div>
-                {copySuccess && (
-                  <p className="text-sm text-green-600 mt-1">
-                    {t('interface.linkCopied', 'Link copied to clipboard!')}
-                  </p>
                 )}
               </div>
-            ) : null}
-
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setShareModalOffer(null)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-              >
-                {t('interface.close', 'Close')}
-              </button>
             </div>
           </div>
         </div>
