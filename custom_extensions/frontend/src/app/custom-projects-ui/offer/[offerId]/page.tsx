@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useLanguage } from '../../../../contexts/LanguageContext';
-import { CheckCircle, Clock, User, Calendar, Building, FileText } from 'lucide-react';
+import { CheckCircle, Clock, User, Calendar, Building, FileText, Printer } from 'lucide-react';
 
 interface OfferDetail {
   id: number;
@@ -140,83 +140,105 @@ export default function OfferDetailPage() {
   const totalProductionTime = `${offer.total_hours}h production`;
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-black mb-2">
-            Custom Offer for {offer.company_name}
-          </h1>
-          <div className="space-y-1 text-sm text-black">
-            <div className="flex items-center gap-2">
-              <Building className="h-4 w-4" />
-              <span><strong>Client:</strong> {offer.company_name}</span>
+    <div className="min-h-screen bg-gray-50 print:bg-white">
+      <div className="max-w-6xl mx-auto p-6 print:p-4">
+        <style jsx global>{`
+          @media print {
+            body { -webkit-print-color-adjust: exact; }
+            .print\\:hidden { display: none !important; }
+            .print\\:bg-white { background-color: white !important; }
+            .print\\:p-4 { padding: 1rem !important; }
+            .shadow-sm { box-shadow: none !important; }
+            .border { border-color: #e5e7eb !important; }
+          }
+        `}</style>
+        {/* Header with Print Button */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                Custom Offer for {offer.company_name}
+              </h1>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <Building className="h-4 w-4 text-gray-400" />
+                  <span><strong className="text-gray-700">Client:</strong> {offer.company_name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-gray-400" />
+                  <span><strong className="text-gray-700">Manager:</strong> {offer.manager}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <span><strong className="text-gray-700">Date:</strong> {formatDate(offer.created_on)}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span><strong>Manager:</strong> {offer.manager}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span><strong>Date:</strong> {formatDate(offer.created_on)}</span>
-            </div>
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors print:hidden"
+              title="Print Offer"
+            >
+              <Printer className="h-4 w-4" />
+              <span className="hidden sm:inline">Print</span>
+            </button>
           </div>
         </div>
 
         {/* Block 1: Course Overview */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-black mb-4">Block 1. Course Overview</h2>
-          <div className="border border-gray-300 rounded-lg overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Block 1. Course Overview</h2>
+          <div className="overflow-hidden rounded-lg border border-gray-200">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black border-r border-gray-300">Course Name</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black border-r border-gray-300">Modules</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black border-r border-gray-300">Lessons</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black border-r border-gray-300">Learning Duration (h)</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black">Production Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Course Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Modules</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Lessons</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Learning Duration (h)</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Production Time</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {courseModules.map((module, index) => (
-                  <tr key={index} className="border-t border-gray-300">
-                    <td className="px-4 py-3 text-sm text-black border-r border-gray-300">{module.title}</td>
-                    <td className="px-4 py-3 text-sm text-black border-r border-gray-300">1</td>
-                    <td className="px-4 py-3 text-sm text-black border-r border-gray-300">{module.lessons}</td>
-                    <td className="px-4 py-3 text-sm text-black border-r border-gray-300">{module.learningDuration}</td>
-                    <td className="px-4 py-3 text-sm text-black">{module.productionTime}</td>
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-medium">{module.title}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">1</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{module.lessons}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{module.learningDuration}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{module.productionTime}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="mt-4 p-3 bg-gray-50 border border-gray-300 rounded">
-            <p className="text-sm text-black">
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
               <strong>Subtotal:</strong> {totalLearningContent}, {totalProductionTime}
             </p>
           </div>
         </div>
 
         {/* Block 2: Production Hours by Quality Level */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-black mb-4">Block 2. Production Hours by Quality Level</h2>
-          <div className="border border-gray-300 rounded-lg overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Block 2. Production Hours by Quality Level</h2>
+          <div className="overflow-hidden rounded-lg border border-gray-200">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black border-r border-gray-300">Quality Level</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black border-r border-gray-300">Learning Duration (h)</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black border-r border-gray-300">Production Ratio (0 min / 1h learning)</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black">Production Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Quality Level</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Learning Duration (h)</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Production Ratio (0 min / 1h learning)</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Production Time</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {qualityLevels.map((level, index) => (
-                  <tr key={index} className="border-t border-gray-300">
-                    <td className="px-4 py-3 text-sm text-black border-r border-gray-300">{level.level}</td>
-                    <td className="px-4 py-3 text-sm text-black border-r border-gray-300">{level.learningDuration}</td>
-                    <td className="px-4 py-3 text-sm text-black border-r border-gray-300">{level.productionRatio}</td>
-                    <td className="px-4 py-3 text-sm text-black">{level.productionTime}</td>
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-medium">{level.level}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{level.learningDuration}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{level.productionRatio}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{level.productionTime}</td>
                   </tr>
                 ))}
               </tbody>
@@ -225,32 +247,27 @@ export default function OfferDetailPage() {
         </div>
 
         {/* Summary */}
-        <div className="mb-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="font-semibold text-black">Summary:</span>
+            <span className="text-xl font-semibold text-gray-900">Summary</span>
           </div>
-          <ul className="space-y-2 text-sm text-black ml-7">
-            <li>• Total: {totalLessons} hours of learning content</li>
-            <li>• Estimated Production Time: {offer.total_hours} hours</li>
-            <li>• Production scaling depends on chosen quality tier (200-800h per 1h learning)</li>
-          </ul>
-        </div>
-
-        {/* Print/Export Actions */}
-        <div className="flex gap-4 pt-6 border-t border-gray-300">
-          <button
-            onClick={() => window.print()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Print Offer
-          </button>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-          >
-            Back to Offers
-          </button>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <ul className="space-y-3 text-sm text-gray-700">
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-medium">•</span>
+                <span>Total: <strong className="text-gray-900">{totalLessons} hours</strong> of learning content</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-medium">•</span>
+                <span>Estimated Production Time: <strong className="text-gray-900">{offer.total_hours} hours</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 font-medium">•</span>
+                <span>Production scaling depends on chosen quality tier (200-800h per 1h learning)</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
