@@ -269,8 +269,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             <div
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                marginTop: '162px',
+                fontSize: '68px',
                 color: slideTitleColor,
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -311,7 +311,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             <div
               onClick={() => isEditable && setEditingContent(true)}
               style={{
-                fontSize: '18px',
+                marginTop: '43px',
+                marginLeft: '8px',
+                width: '611px',
+                fontSize: '23px',
                 color: slideContentColor,
                 lineHeight: '1.6',
                 cursor: isEditable ? 'pointer' : 'default',
