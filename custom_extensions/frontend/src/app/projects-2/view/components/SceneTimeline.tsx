@@ -49,7 +49,7 @@ export default function SceneTimeline({
   };
 
   return (
-    <div className="bg-white rounded-md overflow-auto p-4" style={{ height: 'calc(25% + 20px)' }}>
+    <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(25% + 20px)' }}>
       <div className="flex items-end gap-10">
           {/* Play Button with Time */}
           <div className="relative flex items-center justify-center h-16">
@@ -122,7 +122,7 @@ export default function SceneTimeline({
                   </button>
                   
                   {/* Tooltip */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
                     <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
                       Add transition
                     </div>
