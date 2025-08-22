@@ -16,6 +16,7 @@ import InteractionPopup from './components/InteractionPopup';
 import InteractionModal from './components/InteractionModal';
 import AiPopup from './components/AiPopup';
 import LanguageVariantModal from './components/LanguageVariantModal';
+import VideoPreview from './components/VideoPreview';
 
 interface Scene {
   id: string;
@@ -44,6 +45,9 @@ export default function Projects2ViewPage() {
   const [openMenuSceneId, setOpenMenuSceneId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
+  // Aspect ratio state
+  const [aspectRatio, setAspectRatio] = useState<string>('16:9');
+
   // Function to add a new scene
   const handleAddScene = () => {
     const newSceneNumber = scenes.length + 1;
@@ -56,6 +60,8 @@ export default function Projects2ViewPage() {
     // Add the new scene after existing scenes (at the end)
     setScenes(prevScenes => [...prevScenes, newScene]);
   };
+
+
 
   // Function to handle three-dot menu click
   const handleMenuClick = (sceneId: string, event: React.MouseEvent) => {
@@ -232,8 +238,7 @@ export default function Projects2ViewPage() {
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 70% of main container height */}
-          <div className="bg-gray-200 rounded-md overflow-auto" style={{ height: '80%' }}>
-          </div>
+          <VideoPreview aspectRatio={aspectRatio} />
 
           {/* Bottom Container - Takes 30% of main container height */}
           <div className="bg-white rounded-md overflow-auto p-4" style={{ height: 'calc(20% + 10px)' }}>
