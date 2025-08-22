@@ -97,12 +97,7 @@ const StepCard: React.FC<StepCardProps> = ({
           </div>
         )}
 
-        {isActive && (
-          <div className="flex items-center gap-2 mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <span className="text-sm text-green-700 font-medium">Ready to use</span>
-          </div>
-        )}
+
       </div>
 
       {/* Arrow for active state */}
@@ -138,9 +133,9 @@ export default function CreateFromFilesContent() {
       {/* Top-left back button */}
       <Link
         href="/create"
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-900 hover:text-gray-700 rounded-full px-4 py-2 border border-gray-300 bg-white shadow-sm hover:shadow-md transition-all duration-200"
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-black hover:text-black-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
       >
-        <ArrowLeft size={16} className="-ml-0.5" />
+        <ArrowLeft size={14} className="-ml-0.5" />
         {t('interface.generate.back', 'Back')}
       </Link>
 
