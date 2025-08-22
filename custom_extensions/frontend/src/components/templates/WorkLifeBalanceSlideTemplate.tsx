@@ -270,7 +270,27 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               }} />
             </div>
           )}
-          <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
+          
+          {/* Logo text or image */}
+          {logoPath ? (
+            // Show uploaded logo image instead of text
+            <ClickableImagePlaceholder
+              imagePath={logoPath}
+              onImageUploaded={handleLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo text"
+              isEditable={isEditable}
+              style={{
+                height: '20px',
+                maxWidth: '100px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default text
+            <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
+          )}
         </div>
 
         {/* Title - Centered vertically */}
