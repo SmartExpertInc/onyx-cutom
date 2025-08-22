@@ -135,9 +135,19 @@ export default function OfferDetailPage() {
     });
   };
 
+  const formatHoursToHoursMinutes = (decimalHours: number) => {
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    
+    if (hours === 0 && minutes === 0) return '0h';
+    if (hours === 0) return `${minutes}m`;
+    if (minutes === 0) return `${hours}h`;
+    return `${hours}h ${minutes}m`;
+  };
+
   const totalLessons = courseModules.reduce((sum, module) => sum + module.lessons, 0);
   const totalLearningContent = `${totalLessons}h of learning content`;
-  const totalProductionTime = `${offer.total_hours}h production`;
+  const totalProductionTime = `${formatHoursToHoursMinutes(offer.total_hours)} production`;
 
   return (
     <div className="min-h-screen bg-gray-50 print:bg-white">
@@ -205,8 +215,20 @@ export default function OfferDetailPage() {
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-medium">{module.title}</td>
                     <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">1</td>
                     <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{module.lessons}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{module.learningDuration}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{module.productionTime}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">
+                      {(() => {
+                        // Parse and format learning duration
+                        const hours = parseFloat(module.learningDuration.replace('h', ''));
+                        return formatHoursToHoursMinutes(hours);
+                      })()}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {(() => {
+                        // Parse and format production time
+                        const hours = parseFloat(module.productionTime.replace('h', ''));
+                        return formatHoursToHoursMinutes(hours);
+                      })()}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -236,9 +258,21 @@ export default function OfferDetailPage() {
                 {qualityLevels.map((level, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-medium">{level.level}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{level.learningDuration}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">
+                      {(() => {
+                        // Parse and format learning duration
+                        const hours = parseFloat(level.learningDuration.replace('h', ''));
+                        return formatHoursToHoursMinutes(hours);
+                      })()}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">{level.productionRatio}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{level.productionTime}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {(() => {
+                        // Parse and format production time
+                        const hours = parseFloat(level.productionTime.replace('h', ''));
+                        return formatHoursToHoursMinutes(hours);
+                      })()}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -260,7 +294,7 @@ export default function OfferDetailPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-medium">•</span>
-                <span>Estimated Production Time: <strong className="text-gray-900">{offer.total_hours} hours</strong></span>
+                <span>Estimated Production Time: <strong className="text-gray-900">{formatHoursToHoursMinutes(offer.total_hours)}</strong></span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-medium">•</span>
