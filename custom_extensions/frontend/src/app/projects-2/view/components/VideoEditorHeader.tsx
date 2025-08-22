@@ -79,18 +79,12 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
     };
   }, [isResizePopupOpen, isSharePopupOpen, openDropdownId]);
 
-  const handleResizeClick = (event: React.MouseEvent) => {
-    console.log('Resize button clicked, current state:', isResizePopupOpen);
-    console.log('Event target:', event.target);
-    event.preventDefault();
-    event.stopPropagation();
+  const handleResizeClick = () => {
     setIsResizePopupOpen(!isResizePopupOpen);
   };
 
   const handleResizeOptionClick = (ratio: string) => {
-    console.log('Resize option clicked:', ratio);
     if (ratio !== 'Custom') {
-      console.log('Updating aspect ratio to:', ratio);
       onAspectRatioChange(ratio);
     }
     setIsResizePopupOpen(false);
@@ -329,8 +323,8 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                       <button
                         key={index}
                         className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
-                          option.ratio === aspectRatio ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                        } ${option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                         onClick={() => handleResizeOptionClick(option.ratio)}
                         disabled={option.ratio === 'Custom'}
                       >

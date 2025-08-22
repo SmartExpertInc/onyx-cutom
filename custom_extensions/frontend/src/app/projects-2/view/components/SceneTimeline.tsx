@@ -19,8 +19,7 @@ export default function SceneTimeline({
   onAddScene, 
   onMenuClick 
 }: SceneTimelineProps) {
-  // Debug aspect ratio changes
-  console.log('SceneTimeline received aspectRatio:', aspectRatio);
+
   // Function to get scene rectangle dimensions based on aspect ratio
   const getSceneRectangleStyles = () => {
     const baseHeight = 64; // 16 * 4 (h-16)
@@ -63,7 +62,7 @@ export default function SceneTimeline({
         {/* Dynamic Scene Rectangles */}
         {scenes.map((scene, index) => (
           <React.Fragment key={scene.id}>
-            <div className="relative group">
+            <div className="relative group flex flex-col items-center" style={{ minHeight: '100px' }}>
               <div 
                 className="bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center relative"
                 style={getSceneRectangleStyles()}
@@ -91,7 +90,7 @@ export default function SceneTimeline({
                   </button>
                 </div>
               </div>
-              <div className="absolute top-full left-0 mt-2 flex items-center gap-2">
+              <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm font-medium">{scene.name}</span>
                 <svg 
                   className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
