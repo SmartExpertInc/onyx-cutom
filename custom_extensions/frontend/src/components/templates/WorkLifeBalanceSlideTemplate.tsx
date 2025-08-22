@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { WorkLifeBalanceSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -188,6 +189,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     setEditingContent(false);
   };
 
+  const handleImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, imagePath, imageAlt, backgroundColor, titleColor, contentColor, accentColor }, imagePath: newImagePath });
+    }
+  };
+
   return (
     <div className="work-life-balance-slide-template" style={slideStyles}>
       {/* Left Content Area */}
@@ -341,33 +348,19 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          {imagePath ? (
-            <img
-              src={imagePath}
-              alt={imageAlt}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: 'cover',
-                borderRadius: '10px'
-              }}
-            />
-          ) : (
-            <div style={{
-              width: '250px',
-              height: '350px',
-              backgroundColor: '#f3f4f6',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#9ca3af',
-              fontSize: '16px',
-              border: '2px dashed #d1d5db'
-            }}>
-              {isEditable ? 'Click to add image' : 'No image'}
-            </div>
-          )}
+          <ClickableImagePlaceholder
+            imagePath={imagePath}
+            onImageUploaded={handleImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Work-life balance image"
+            isEditable={isEditable}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              borderRadius: '10px'
+            }}
+          />
         </div>
       </div>
     </div>

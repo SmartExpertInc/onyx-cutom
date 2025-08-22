@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CourseOverviewSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -188,6 +189,12 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setEditingSubtitle(false);
   };
 
+  const handleImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, imagePath: newImagePath });
+    }
+  };
+
   return (
     <div className="course-overview-slide-template" style={slideStyles}>
       {/* Left Panel - Purple with rounded corners */}
@@ -320,33 +327,19 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         justifyContent: 'center',
         position: 'relative'
       }}>
-        {imagePath ? (
-          <img
-            src={imagePath}
-            alt={imageAlt}
-            style={{
-              maxWidth: '80%',
-              maxHeight: '80%',
-              objectFit: 'contain',
-              borderRadius: '10px'
-            }}
-          />
-        ) : (
-          <div style={{
-            width: '300px',
-            height: '400px',
-            backgroundColor: '#f3f4f6',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#9ca3af',
-            fontSize: '16px',
-            border: '2px dashed #d1d5db'
-          }}>
-            {isEditable ? 'Click to add image' : 'No image'}
-          </div>
-        )}
+        <ClickableImagePlaceholder
+          imagePath={imagePath}
+          onImageUploaded={handleImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Course overview image"
+          isEditable={isEditable}
+          style={{
+            maxWidth: '80%',
+            maxHeight: '80%',
+            borderRadius: '10px'
+          }}
+        />
       </div>
     </div>
   );

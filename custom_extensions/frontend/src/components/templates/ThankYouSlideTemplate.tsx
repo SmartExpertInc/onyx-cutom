@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -256,6 +257,12 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setEditingCompanyName(false);
   };
 
+  const handleProfileImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
   return (
     <div className="thank-you-slide-template" style={slideStyles}>
       {/* Main Title */}
@@ -467,33 +474,20 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           overflow: 'hidden',
           border: '4px solid white'
         }}>
-          {profileImagePath ? (
-            <img
-              src={profileImagePath}
-              alt={profileImageAlt}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: '50%'
-              }}
-            />
-          ) : (
-            <div style={{
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
+            style={{
               width: '100%',
               height: '100%',
-              backgroundColor: '#f3f4f6',
               borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#9ca3af',
-              fontSize: '16px',
-              border: '2px dashed #d1d5db'
-            }}>
-              {isEditable ? 'Add photo' : 'No photo'}
-            </div>
-          )}
+              overflow: 'hidden'
+            }}
+          />
         </div>
       </div>
 
