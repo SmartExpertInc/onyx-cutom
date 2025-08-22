@@ -267,7 +267,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
-        top: '255px',
+        top: '250px',
         left: '80px'
       }}>
         {isEditable && editingTitle ? (
@@ -287,7 +287,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
-              fontSize: '48px',
+              fontSize: '80px',
               fontWeight: 'bold',
               color: slideTitleColor,
               lineHeight: '1.1',
@@ -314,7 +314,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Content area */}
       <div style={{
         position: 'absolute',
-        top: '300px',
+        top: '373px',
         left: '80px',
         right: '80px'
       }}>
@@ -467,9 +467,9 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
       {/* Profile Image - Top right */}
       <div style={{
-        width: '200px',
+        width: '220px',
         marginTop: '-37px',
-        height: '200px',
+        height: '220px',
         borderRadius: '100%',
         display: 'flex',
         alignItems: 'center',
@@ -509,7 +509,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Company name */}
       <div style={{
         position: 'absolute',
-        bottom: '38px',
+        bottom: '55px',
         left: '7%',
         display: 'flex',
         alignItems: 'center',
@@ -530,7 +530,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               className="thank-you-company-name-editor"
               style={{
                 fontSize: '14px',
-                color: 'white',
+                color: 'rgb(156, 163, 175)',
                 fontFamily: currentTheme.fonts.contentFont
               }}
             />
