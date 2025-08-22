@@ -371,86 +371,6 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
 
   return (
     <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
-      {/* Header with Sync Button */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Smart Drive Browser</h3>
-          <p className="text-sm text-gray-600">
-            Browse your files and sync new content to Onyx
-            {lastSyncTime && <span className="ml-2">• Last sync: {lastSyncTime}</span>}
-          </p>
-        </div>
-        
-        <div className="flex space-x-3">
-          {!hasCredentials ? (
-            <>
-              <button
-                onClick={handleNextcloudAuth}
-                disabled={isAuthenticating}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg font-medium flex items-center"
-              >
-                {isAuthenticating ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Connecting...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                    </svg>
-                    Connect Nextcloud Account
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleSetCredentials}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium text-sm"
-              >
-                Manual Setup
-              </button>
-            </>
-          ) : (
-            <>
-              {getSyncButtonText() === 'Sync to Onyx' ? (
-                <button
-                  onClick={handleSyncToOnyx}
-                  disabled={isLoading}
-                  className={getSyncButtonClass()}
-                >
-                  {getSyncButtonIcon()}
-                  {getSyncButtonText()}
-                </button>
-              ) : (
-                <div className="px-4 py-2 bg-gray-100 rounded border">
-                  {getSyncButtonIcon()}
-                  {getSyncButtonText()}
-                </div>
-              )}
-              <button
-                onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
-                className={`text-sm px-3 py-1 rounded ${
-                  autoSyncEnabled 
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                title={autoSyncEnabled ? 'Auto-sync enabled (every 3s)' : 'Auto-sync disabled'}
-              >
-                {autoSyncEnabled ? '🔄 Auto' : '⏸️ Manual'}
-              </button>
-              <button
-                onClick={() => setHasCredentials(false)}
-                className="text-sm text-gray-600 hover:text-gray-800 px-2 py-1"
-              >
-                Disconnect
-              </button>
-            </>
-          )}
-        </div>
-      </div>
 
       {/* Iframe Container */}
       <div className="relative" style={{ height: '600px' }}>
@@ -479,38 +399,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
         )}
       </div>
 
-      {/* Footer Info */}
-      <div className="p-3 bg-gray-50 border-t border-gray-200">
-        <div className="flex justify-between items-center">
-          <p className="text-xs text-gray-500">
-            Files uploaded here are automatically available in your Onyx knowledge base.
-            {!autoSyncEnabled && " Use \"Sync to Onyx\" to import new or updated files."}
-          </p>
-          {hasCredentials && (
-            <div className="text-xs text-gray-500">
-              {autoSyncEnabled ? (
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    Auto-sync ON (every 3s)
-                  </span>
-                  {autoSyncCount > 0 && (
-                    <span>• {autoSyncCount} files synced</span>
-                  )}
-                  {lastAutoSyncTime && (
-                    <span>• Last: {lastAutoSyncTime}</span>
-                  )}
-                </div>
-              ) : (
-                <span className="inline-flex items-center gap-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  Auto-sync OFF
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+
 
       {/* Credentials Setup Modal */}
       {showCredentials && (
