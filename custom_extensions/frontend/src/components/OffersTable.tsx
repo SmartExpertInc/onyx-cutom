@@ -270,11 +270,13 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header with Create Button */}
-      <div className="flex justify-between items-center">
+      {/* Header with Title and Create Button */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('interface.offers', 'Offers')}</h1>
-          <p className="text-gray-600 mt-1">{t('interface.manageYourOffers', 'Manage and track your client offers')}</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('interface.offers', 'Offers')}</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            {offers.length} {offers.length === 1 ? t('interface.offer', 'offer') : t('interface.offers', 'offers')}
+          </p>
         </div>
         <button
           onClick={() => {
@@ -283,80 +285,52 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
               detail: { folder: null }
             }));
           }}
-          className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-all duration-200 shadow-lg"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
         >
-          <Plus size={16} className="text-white" />
+          <Plus size={16} />
           {t('interface.createOffer', 'Create Offer')}
         </button>
       </div>
 
-      {/* Search and Filter Controls */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search Section */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('interface.searchOffers', 'Search Offers')}
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder={t('interface.searchPlaceholder', 'Search by offer name, company, or manager...')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 transition-colors"
-              />
-            </div>
+      {/* Search, Filter, and Actions Row */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+          {/* Search */}
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder={t('interface.searchOffers', 'Search offers...')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 text-gray-900"
+            />
           </div>
-
-          {/* Filter Section */}
-          <div className="lg:w-64">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('interface.filterByStatus', 'Filter by Status')}
-            </label>
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white appearance-none cursor-pointer transition-colors"
-              >
-                <option value="">{t('interface.allStatuses', 'All Statuses')}</option>
-                <option value="Draft">{t('interface.draft', 'Draft')}</option>
-                <option value="Internal Review">{t('interface.internalReview', 'Internal Review')}</option>
-                <option value="Approved">{t('interface.approved', 'Approved')}</option>
-                <option value="Sent to Client">{t('interface.sentToClient', 'Sent to Client')}</option>
-                <option value="Viewed by Client">{t('interface.viewedByClient', 'Viewed by Client')}</option>
-                <option value="Negotiation">{t('interface.negotiation', 'Negotiation')}</option>
-                <option value="Accepted">{t('interface.accepted', 'Accepted')}</option>
-                <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
-                <option value="Archived">{t('interface.archived', 'Archived')}</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+          
+          {/* Status Filter */}
+          <div className="flex-shrink-0">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+            >
+              <option value="" className="text-gray-900">{t('interface.allStatuses', 'All Statuses')}</option>
+              <option value="Draft" className="text-gray-900">{t('interface.draft', 'Draft')}</option>
+              <option value="Internal Review" className="text-gray-900">{t('interface.internalReview', 'Internal Review')}</option>
+              <option value="Approved" className="text-gray-900">{t('interface.approved', 'Approved')}</option>
+              <option value="Sent to Client" className="text-gray-900">{t('interface.sentToClient', 'Sent to Client')}</option>
+              <option value="Viewed by Client" className="text-gray-900">{t('interface.viewedByClient', 'Viewed by Client')}</option>
+              <option value="Negotiation" className="text-gray-900">{t('interface.negotiation', 'Negotiation')}</option>
+              <option value="Accepted" className="text-gray-900">{t('interface.accepted', 'Accepted')}</option>
+              <option value="Rejected" className="text-gray-900">{t('interface.rejected', 'Rejected')}</option>
+              <option value="Archived" className="text-gray-900">{t('interface.archived', 'Archived')}</option>
+            </select>
           </div>
         </div>
-
-        {/* Results Count */}
-        {offers.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-600">
-              {t('interface.showingResults', 'Showing')} <span className="font-medium text-gray-900">{offers.length}</span> {offers.length === 1 ? t('interface.offer', 'offer') : t('interface.offers', 'offers')}
-              {statusFilter && (
-                <span> {t('interface.withStatus', 'with status')} <span className="font-medium text-gray-900">"{statusFilter}"</span></span>
-              )}
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -364,93 +338,63 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('offer_name')}
-                    className="flex items-center gap-2 hover:text-gray-900 transition-colors group"
+                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
                   >
-                    <FileText className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
                     {t('interface.offerName', 'Offer Name')}
-                    <ArrowUpDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                    <ArrowUpDown size={12} />
                   </button>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('created_on')}
-                    className="flex items-center gap-2 hover:text-gray-900 transition-colors group"
+                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
                   >
-                    <Calendar className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
                     {t('interface.createdOn', 'Created On')}
-                    <ArrowUpDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                    <ArrowUpDown size={12} />
                   </button>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('manager')}
-                    className="flex items-center gap-2 hover:text-gray-900 transition-colors group"
+                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
                   >
-                    <User className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
                     {t('interface.manager', 'Manager')}
-                    <ArrowUpDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                    <ArrowUpDown size={12} />
                   </button>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('status')}
-                    className="flex items-center gap-2 hover:text-gray-900 transition-colors group"
+                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
                   >
-                    <CheckCircle className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
                     {t('interface.status', 'Status')}
-                    <ArrowUpDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                    <ArrowUpDown size={12} />
                   </button>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('total_hours')}
-                    className="flex items-center gap-2 hover:text-gray-900 transition-colors group"
+                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
                   >
-                    <Clock className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
                     {t('interface.totalHours', 'Total Hours')}
-                    <ArrowUpDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                    <ArrowUpDown size={12} />
                   </button>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  <div className="flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4 text-gray-400" />
-                    {t('interface.link', 'Link')}
-                  </div>
+                  {t('interface.link', 'Link')}
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  <div className="flex items-center justify-end gap-2">
-                    <MoreHorizontal className="h-4 w-4 text-gray-400" />
-                    {t('interface.actions', 'Actions')}
-                  </div>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  {t('interface.actions', 'Actions')}
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedOffers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-16 text-center">
-                    <div className="flex flex-col items-center">
-                      <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                        <FileText className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {t('interface.noOffers', 'No offers found')}
-                      </h3>
-                      <p className="text-sm text-gray-500 mb-6">
-                        {t('interface.createYourFirstOffer', 'Create your first offer to get started')}
-                      </p>
-                      <button
-                        onClick={() => {
-                          window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
-                            detail: { folder: null }
-                          }));
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-150"
-                      >
-                        <Plus className="h-4 w-4" />
-                        {t('interface.createOffer', 'Create Offer')}
-                      </button>
-                    </div>
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                    <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-lg font-medium">{t('interface.noOffers', 'No offers found')}</p>
+                    <p className="text-sm">{t('interface.createYourFirstOffer', 'Create your first offer to get started')}</p>
                   </td>
                 </tr>
               ) : (
@@ -459,46 +403,38 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                   const StatusIcon = statusInfo.icon;
                   
                   return (
-                    <tr key={offer.id} className="hover:bg-gray-50 transition-colors duration-150">
-                      <td className="px-6 py-5 whitespace-nowrap">
+                    <tr key={offer.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                              <FileText className="h-5 w-5 text-blue-600" />
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-semibold text-gray-900">{offer.offer_name}</div>
+                          <Building className="h-5 w-5 text-gray-400 mr-3" />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{offer.offer_name}</div>
                             <div className="text-sm text-gray-500">{offer.company_name}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                          {formatDate(offer.created_on)}
-                        </div>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {formatDate(offer.created_on)}
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
                           <User className="h-4 w-4 text-gray-400 mr-2" />
                           {offer.manager}
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusInfo.bgColor} ${statusInfo.color} border`}>
-                          <StatusIcon className="h-3 w-3 mr-1.5" />
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
+                          <StatusIcon className="h-3 w-3 mr-1" />
                           {offer.status}
                         </span>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
                           <Clock className="h-4 w-4 text-gray-400 mr-2" />
-                          <span className="font-medium">{offer.total_hours}</span>
-                          <span className="text-gray-500 ml-1">{t('interface.hours', 'hours')}</span>
+                          {offer.total_hours} {t('interface.hours', 'hours')}
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {(() => {
                           // Debug logging
                           console.log(`Offer ${offer.id} link:`, offer.link, 'Type:', typeof offer.link);
@@ -511,29 +447,29 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                               href={viewLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-150"
+                              className="flex items-center text-blue-600 hover:text-blue-800"
                             >
-                              <ExternalLink className="h-4 w-4" />
+                              <ExternalLink className="h-4 w-4 mr-1" />
                               {t('interface.view', 'View')}
                             </a>
                           );
                         })()}
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleEditOffer(offer)}
-                            className="inline-flex items-center p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-150"
+                            className="text-blue-600 hover:text-blue-900"
                             title={t('interface.editOffer', 'Edit Offer')}
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit size={16} />
                           </button>
                           <button
                             onClick={() => handleDeleteOffer(offer.id)}
-                            className="inline-flex items-center p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150"
+                            className="text-red-600 hover:text-red-900"
                             title={t('interface.deleteOffer', 'Delete Offer')}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>
