@@ -7,7 +7,7 @@ export default function ShapeSettings() {
   // Format states
   const [fillColor, setFillColor] = useState('#3B82F6');
   const [strokeColor, setStrokeColor] = useState('#000000');
-  const [strokeWidth, setStrokeWidth] = useState('2px');
+  const [strokeWidth, setStrokeWidth] = useState(2);
   const [showStrokeWidthDropdown, setShowStrokeWidthDropdown] = useState(false);
   const [opacity, setOpacity] = useState('100%');
   const [showOpacityDropdown, setShowOpacityDropdown] = useState(false);
@@ -76,63 +76,62 @@ export default function ShapeSettings() {
       <div className="p-4">
         {activeTab === 'format' ? (
           <div className="space-y-4">
-            {/* Fill Color */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Fill color</span>
-              <button
-                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
-                style={{ backgroundColor: fillColor }}
-                title="Fill color"
-              />
-            </div>
-
-            {/* Stroke Color */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Stroke color</span>
-              <button
-                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
-                style={{ backgroundColor: strokeColor }}
-                title="Stroke color"
-              />
-            </div>
-
-            {/* Stroke Width */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Stroke width</span>
-              <div className="relative">
-                <button
-                  onClick={() => setShowStrokeWidthDropdown(!showStrokeWidthDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <span>{strokeWidth}</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+            {/* Fill section */}
+            <div className="space-y-3">
+              {/* Fill header with Remove button */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700 pl-2">Fill</span>
+                <button className="text-red-600 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                  Remove
                 </button>
-                
-                {showStrokeWidthDropdown && (
-                  <div className="absolute right-0 mt-1 w-20 bg-white border border-gray-300 rounded-md shadow-lg z-10">
-                    {strokeWidthOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setStrokeWidth(option.value);
-                          setShowStrokeWidthDropdown(false);
-                        }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
-                      >
-                        {strokeWidth === option.value ? (
-                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        ) : (
-                          <div className="w-4 h-4 mr-2"></div>
-                        )}
-                        <span>{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+              </div>
+              
+              {/* Fill Color */}
+              <div className="flex items-center justify-between pl-4">
+                <span className="text-sm text-gray-600">Color</span>
+                <button
+                  className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
+                  style={{ backgroundColor: fillColor }}
+                  title="Fill color"
+                />
+              </div>
+            </div>
+
+            {/* Stroke section */}
+            <div className="space-y-3">
+              {/* Stroke header with Remove button */}
+              <div className="flex items-center justify-between">
+                <button className="text-red-600 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                  Remove
+                </button>
+                <span className="text-sm font-medium text-gray-700">Stroke</span>
+              </div>
+              
+              {/* Stroke Color */}
+              <div className="flex items-center justify-between pl-4">
+                <span className="text-sm text-gray-600">Stroke color</span>
+                <button
+                  className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
+                  style={{ backgroundColor: strokeColor }}
+                  title="Stroke color"
+                />
+              </div>
+
+              {/* Stroke Width with Range Slider */}
+              <div className="flex items-center justify-between pl-4">
+                <span className="text-sm text-gray-600">Stroke width</span>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={strokeWidth}
+                    onChange={(e) => setStrokeWidth(parseInt(e.target.value))}
+                    className="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    title={`Stroke width: ${strokeWidth}`}
+                  />
+                  <span className="text-xs text-gray-500 min-w-[2rem]">{strokeWidth}</span>
+                </div>
               </div>
             </div>
 

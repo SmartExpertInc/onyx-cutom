@@ -41,13 +41,13 @@ export default function ImageSettings() {
           {/* Replace image button */}
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-white text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors"
+            className="bg-white text-gray-600 hover:text-gray-800 px-3 py-2 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors"
           >
             Replace image
           </button>
           
           {/* Trashcan button */}
-          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors group relative" title="Remove media">
+          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 px-3 py-2 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors group relative" title="Remove media">
             <Trash2 className="w-4 h-4" />
             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
               Remove media
