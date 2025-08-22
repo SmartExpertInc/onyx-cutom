@@ -42,11 +42,13 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
   };
 
   const handleElementClick = (elementType: string, event: React.MouseEvent) => {
+    console.log('Element clicked:', elementType);
     event.stopPropagation();
     onElementSelect(elementType);
   };
 
   const handleBackgroundClick = () => {
+    console.log('Background clicked');
     onElementSelect(null);
   };
 
@@ -64,40 +66,41 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
       >
         {/* Text Element */}
         <div 
-          className={`absolute top-4 left-4 p-3 bg-blue-100 border-2 rounded cursor-pointer transition-all ${
-            selectedElement === 'text' ? 'border-blue-500 shadow-lg' : 'border-transparent hover:border-blue-300'
+          className={`absolute top-8 left-8 p-4 bg-blue-100 border-2 rounded cursor-pointer transition-all z-20 hover:bg-blue-200 ${
+            selectedElement === 'text' ? 'border-blue-500 shadow-lg bg-blue-200' : 'border-blue-300 hover:border-blue-400'
           }`}
           onClick={(e) => handleElementClick('text', e)}
+          style={{ minWidth: '100px', minHeight: '50px' }}
         >
           <div className="text-sm font-medium text-blue-800">Sample Text</div>
         </div>
 
         {/* Image Element */}
         <div 
-          className={`absolute top-4 right-4 w-16 h-16 bg-gray-300 border-2 rounded cursor-pointer transition-all flex items-center justify-center ${
-            selectedElement === 'image' ? 'border-green-500 shadow-lg' : 'border-transparent hover:border-green-300'
+          className={`absolute top-8 right-8 w-20 h-20 bg-gray-300 border-2 rounded cursor-pointer transition-all flex items-center justify-center z-20 hover:bg-gray-400 ${
+            selectedElement === 'image' ? 'border-green-500 shadow-lg bg-gray-400' : 'border-green-300 hover:border-green-400'
           }`}
           onClick={(e) => handleElementClick('image', e)}
         >
-          <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
 
         {/* Avatar Element */}
         <div 
-          className={`absolute bottom-4 left-4 w-12 h-12 bg-purple-300 border-2 rounded-full cursor-pointer transition-all flex items-center justify-center ${
-            selectedElement === 'avatar' ? 'border-purple-500 shadow-lg' : 'border-transparent hover:border-purple-300'
+          className={`absolute bottom-8 left-8 w-16 h-16 bg-purple-300 border-2 rounded-full cursor-pointer transition-all flex items-center justify-center z-20 hover:bg-purple-400 ${
+            selectedElement === 'avatar' ? 'border-purple-500 shadow-lg bg-purple-400' : 'border-purple-300 hover:border-purple-400'
           }`}
           onClick={(e) => handleElementClick('avatar', e)}
         >
-          <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </div>
 
         {/* Center placeholder text */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
           <div className="text-gray-400 text-sm font-medium">
             {aspectRatio} Presentation
           </div>

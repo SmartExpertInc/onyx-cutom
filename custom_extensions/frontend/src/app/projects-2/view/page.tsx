@@ -109,6 +109,7 @@ export default function Projects2ViewPage() {
 
   // Function to handle element selection in presentation
   const handleElementSelect = (elementType: string | null) => {
+    console.log('handleElementSelect called with:', elementType);
     setSelectedElement(elementType);
   };
 
