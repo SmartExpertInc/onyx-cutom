@@ -155,7 +155,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100vh',
+    height: '596px',
     backgroundColor: slideBackgroundColor,
     display: 'flex',
     position: 'relative',
@@ -335,10 +335,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         <div style={{
           position: 'absolute',
           right: '0',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          width: '100%',
-          height: '80%',
+          top: '10%',
+          transform: 'rotate(90deg)',
+          width: '105%',
+          height: '75%',
           backgroundColor: '#9CAF88', // Light olive green like in original
           borderRadius: '50% 0 0 50%',
           zIndex: 1
@@ -346,10 +346,11 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
         {/* Image */}
         <div style={{
-          position: 'relative',
+          position: 'absolute',
+          left: '34px',
+          bottom: '-29px',
           zIndex: 2,
           width: '80%',
-          height: '80%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -357,13 +358,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           <ClickableImagePlaceholder
             imagePath={imagePath}
             onImageUploaded={handleImageUploaded}
-            size="LARGE"
             position="CENTER"
             description="Work-life balance image"
             isEditable={isEditable}
             style={{
-              maxWidth: '100%',
-              maxHeight: '100%',
+              width: '300px',
+              height: '304px',
               borderRadius: '10px'
             }}
           />
