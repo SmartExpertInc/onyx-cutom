@@ -669,12 +669,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     )}
                   </div>
 
-                  {hasConnectors && (
+                  {hasConnectors && userConnectorsForSource.some(c => c.status === 'active') && (
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <div className="flex items-center justify-between text-sm text-gray-900">
-                        {userConnectorsForSource.some(c => c.status === 'active') && (
-                          <span className="text-green-600 font-medium">● Active</span>
-                        )}
+                        <span className="text-green-600 font-medium">● Active</span>
                       </div>
                     </div>
                   )}
@@ -810,12 +808,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         )}
                       </div>
 
-                      {hasConnectors && (
+                      {hasConnectors && userConnectorsForSource.some(c => c.status === 'active') && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <div className="flex items-center justify-between text-xs text-gray-900">
-                            {userConnectorsForSource.some(c => c.status === 'active') && (
-                              <span className="text-green-600">● Active</span>
-                            )}
+                            <span className="text-green-600">● Active</span>
                           </div>
                         </div>
                       )}
