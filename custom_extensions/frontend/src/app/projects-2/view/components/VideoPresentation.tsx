@@ -4,9 +4,10 @@ interface VideoPresentationProps {
   aspectRatio: string;
   onElementSelect: (elementType: string | null) => void;
   selectedElement: string | null;
+  onRightClick: (position: { x: number; y: number }) => void;
 }
 
-export default function VideoPresentation({ aspectRatio, onElementSelect, selectedElement }: VideoPresentationProps) {
+export default function VideoPresentation({ aspectRatio, onElementSelect, selectedElement, onRightClick }: VideoPresentationProps) {
   // Function to get video container styles based on aspect ratio
   const getVideoContainerStyles = () => {
     switch (aspectRatio) {
@@ -52,6 +53,20 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
     onElementSelect(null);
   };
 
+  const handleRightClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('Right click on presentation area');
+    onRightClick({ x: event.clientX, y: event.clientY });
+  };
+
+  const handleElementRightClick = (elementType: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('Right click on element:', elementType);
+    onRightClick({ x: event.clientX, y: event.clientY });
+  };
+
   return (
     <div 
       className="bg-gray-200 rounded-md overflow-auto flex items-center justify-center" 
@@ -63,6 +78,7 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
         className="bg-white rounded-md shadow-lg relative"
         style={getVideoContainerStyles()}
         onClick={(e) => e.stopPropagation()}
+        onContextMenu={handleRightClick}
       >
         {/* Text Element */}
         <div 
@@ -70,6 +86,7 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
             selectedElement === 'text' ? 'border-blue-500 shadow-lg bg-blue-200' : 'border-blue-300 hover:border-blue-400'
           }`}
           onClick={(e) => handleElementClick('text', e)}
+          onContextMenu={(e) => handleElementRightClick('text', e)}
           style={{ minWidth: '100px', minHeight: '50px' }}
         >
           <div className="text-sm font-medium text-blue-800">Sample Text</div>
@@ -81,6 +98,7 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
             selectedElement === 'image' ? 'border-green-500 shadow-lg bg-gray-400' : 'border-green-300 hover:border-green-400'
           }`}
           onClick={(e) => handleElementClick('image', e)}
+          onContextMenu={(e) => handleElementRightClick('image', e)}
         >
           <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -93,6 +111,7 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
             selectedElement === 'avatar' ? 'border-purple-500 shadow-lg bg-purple-400' : 'border-purple-300 hover:border-purple-400'
           }`}
           onClick={(e) => handleElementClick('avatar', e)}
+          onContextMenu={(e) => handleElementRightClick('avatar', e)}
         >
           <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

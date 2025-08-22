@@ -21,6 +21,7 @@ import SceneTimeline from './components/SceneTimeline';
 import TextSettings from './components/TextSettings';
 import ImageSettings from './components/ImageSettings';
 import AvatarSettings from './components/AvatarSettings';
+import OptionPopup from './components/OptionPopup';
 
 interface Scene {
   id: string;
@@ -54,6 +55,10 @@ export default function Projects2ViewPage() {
   
   // Selected element state for presentation
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  
+  // Options popup state
+  const [isOptionPopupOpen, setIsOptionPopupOpen] = useState<boolean>(false);
+  const [optionPopupPosition, setOptionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Function to add a new scene
   const handleAddScene = () => {
@@ -111,6 +116,12 @@ export default function Projects2ViewPage() {
   const handleElementSelect = (elementType: string | null) => {
     console.log('handleElementSelect called with:', elementType);
     setSelectedElement(elementType);
+  };
+
+  // Function to handle right-click on presentation area
+  const handleRightClick = (position: { x: number; y: number }) => {
+    setOptionPopupPosition(position);
+    setIsOptionPopupOpen(true);
   };
 
   const handleActiveToolChange = (toolId: string) => {
@@ -240,7 +251,10 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col p-2 relative" onClick={closeMenu}>
+    <div className="h-screen bg-background flex flex-col p-2 relative" onClick={() => {
+      closeMenu();
+      setIsOptionPopupOpen(false);
+    }}>
       {/* Header */}
       <VideoEditorHeader 
         aspectRatio={aspectRatio}
@@ -275,6 +289,7 @@ export default function Projects2ViewPage() {
             aspectRatio={aspectRatio} 
             onElementSelect={handleElementSelect}
             selectedElement={selectedElement}
+            onRightClick={handleRightClick}
           />
 
           {/* Bottom Container - Takes 30% of main container height */}
@@ -394,6 +409,13 @@ export default function Projects2ViewPage() {
         </div>,
         document.body
       )}
+
+      {/* Options Popup */}
+      <OptionPopup 
+        isOpen={isOptionPopupOpen} 
+        onClose={() => setIsOptionPopupOpen(false)} 
+        position={optionPopupPosition}
+      />
       
     </div>
   );
