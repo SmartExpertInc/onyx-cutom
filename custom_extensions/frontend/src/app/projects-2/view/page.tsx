@@ -253,7 +253,6 @@ export default function Projects2ViewPage() {
   return (
     <div className="h-screen bg-background flex flex-col p-2 relative" onClick={() => {
       closeMenu();
-      setIsOptionPopupOpen(false);
     }}>
       {/* Header */}
       <VideoEditorHeader 

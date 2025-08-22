@@ -44,6 +44,27 @@ export default function OptionPopup({ isOpen, onClose, position }: OptionPopupPr
     }
   }, [isOpen, position]);
 
+  // Add click-outside detection for left mouse button clicks
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Only handle left mouse button clicks (button === 0)
+      if (event.button !== 0) return;
+      
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      // Use mousedown instead of click to handle the event before other click handlers
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleCommandClick = (command: string) => {
@@ -59,6 +80,8 @@ export default function OptionPopup({ isOpen, onClose, position }: OptionPopupPr
         left: adjustedPosition.x,
         top: adjustedPosition.y,
       }}
+      onClick={(e) => e.stopPropagation()} // Prevent clicks inside from bubbling up
+      onContextMenu={(e) => e.preventDefault()} // Prevent right-click context menu
     >
       {/* Cut */}
       <button 
