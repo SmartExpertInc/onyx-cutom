@@ -13,7 +13,12 @@ interface EmailInput {
   role: 'viewer' | 'editor' | 'admin';
 }
 
-export default function VideoEditorHeader() {
+interface VideoEditorHeaderProps {
+  aspectRatio: string;
+  onAspectRatioChange: (ratio: string) => void;
+}
+
+export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: VideoEditorHeaderProps) {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
   const [isEyeVisible, setIsEyeVisible] = useState(false);
@@ -69,6 +74,13 @@ export default function VideoEditorHeader() {
 
   const handleResizeClick = () => {
     setIsResizePopupOpen(!isResizePopupOpen);
+  };
+
+  const handleResizeOptionClick = (ratio: string) => {
+    if (ratio !== 'Custom') {
+      onAspectRatioChange(ratio);
+    }
+    setIsResizePopupOpen(false);
   };
 
   const handleShareClick = () => {
@@ -303,11 +315,11 @@ export default function VideoEditorHeader() {
                     {resizeOptions.map((option, index) => (
                       <button
                         key={index}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer"
-                        onClick={() => {
-                          // Handle resize option selection here
-                          setIsResizePopupOpen(false);
-                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
+                          option.ratio === aspectRatio ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                        } ${option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => handleResizeOptionClick(option.ratio)}
+                        disabled={option.ratio === 'Custom'}
                       >
                         <div>
                           {option.icon}
