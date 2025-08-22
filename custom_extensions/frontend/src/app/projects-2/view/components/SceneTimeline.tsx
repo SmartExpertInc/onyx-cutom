@@ -50,7 +50,7 @@ export default function SceneTimeline({
 
   return (
     <div className="bg-white rounded-md overflow-auto p-4" style={{ height: 'calc(25% + 20px)' }}>
-      <div className="flex items-end gap-6">
+      <div className="flex items-end gap-10">
           {/* Play Button with Time */}
           <div className="relative flex items-center justify-center h-16">
             <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
@@ -90,7 +90,7 @@ export default function SceneTimeline({
                     </button>
                   </div>
                 </div>
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 flex items-center gap-2">
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 flex items-center gap-2 min-w-[120px] justify-center">
                   <span className="text-sm font-medium">{scene.name}</span>
                   <svg 
                     className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
@@ -110,8 +110,8 @@ export default function SceneTimeline({
 
               {/* Transition button - show between scenes (not after the last one) */}
               {index < scenes.length - 1 && (
-                <div className="relative group">
-                  <button className="w-8 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <div className="relative group flex items-end">
+                  <button className="w-8 h-16 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <svg 
                       className="w-4 h-4 text-gray-600" 
                       fill="currentColor" 
