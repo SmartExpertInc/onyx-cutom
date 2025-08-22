@@ -168,7 +168,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '86vh',
+    height: '596px',
     backgroundColor: slideBackgroundColor,
     display: 'flex',
     flexDirection: 'column',
@@ -267,7 +267,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
-        top: '220px',
+        top: '255px',
         left: '80px'
       }}>
         {isEditable && editingTitle ? (
@@ -277,8 +277,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
             style={{
-              fontSize: '48px',
-              fontWeight: 'bold',
+              fontSize: '74px',
               color: slideTitleColor,
               lineHeight: '1.1',
               fontFamily: currentTheme.fonts.titleFont
@@ -305,7 +304,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Horizontal separator line */}
       <div style={{
         position: 'absolute',
-        top: '286px',
+        top: '352px',
         left: '80px',
         right: '80px',
         height: '1px',
@@ -413,7 +412,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onCancel={handleAddressCancel}
                   className="thank-you-address-editor"
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: slideTextColor,
                     fontFamily: currentTheme.fonts.contentFont
                   }}
@@ -422,7 +421,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <div
                   onClick={() => isEditable && setEditingAddress(true)}
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: slideTextColor,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
@@ -442,7 +441,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onCancel={handlePostalCodeCancel}
                   className="thank-you-postal-code-editor"
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: slideTextColor,
                     fontFamily: currentTheme.fonts.contentFont
                   }}
@@ -451,7 +450,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <div
                   onClick={() => isEditable && setEditingPostalCode(true)}
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: slideTextColor,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
@@ -511,8 +510,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       <div style={{
         position: 'absolute',
         bottom: '38px',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        left: '7%',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
