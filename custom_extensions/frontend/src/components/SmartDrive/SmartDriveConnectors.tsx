@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
-import { ChevronDown, Upload, Settings } from 'lucide-react';
+import { ChevronDown, Upload, Settings, X, ArrowLeft } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
@@ -515,16 +515,35 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   if (showFrame) {
     return (
       <div className={`space-y-6 ${className}`}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Smart Drive Browser</h2>
-          <button
-            onClick={handleCloseBrowser}
-            className="text-gray-500 hover:text-gray-700 text-sm font-medium flex items-center gap-2"
-          >
-            <Settings className="w-4 h-4" />
-            Close Browser
-          </button>
+        {/* Enhanced Header with Better UX */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleCloseBrowser}
+                className="group flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-800 rounded-lg border border-blue-200 hover:border-blue-300 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md"
+              >
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
+                Back to Connectors
+              </button>
+              <div className="h-6 w-px bg-gray-300"></div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Smart Drive Browser</h2>
+                <p className="text-sm text-gray-600 mt-1">Browse and manage your cloud files</p>
+              </div>
+            </div>
+            
+            {/* Close Button - More Prominent */}
+            <button
+              onClick={handleCloseBrowser}
+              className="group p-2.5 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-lg border border-gray-200 hover:border-red-200 transition-all duration-200 hover:shadow-md"
+              title="Close Browser"
+            >
+              <X className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+            </button>
+          </div>
         </div>
+        
         <SmartDriveFrame />
       </div>
     );
