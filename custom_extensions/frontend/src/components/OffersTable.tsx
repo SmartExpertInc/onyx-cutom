@@ -64,6 +64,8 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
+  const [editingStatus, setEditingStatus] = useState<number | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -122,6 +124,46 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   useEffect(() => {
     fetchOffers(searchTerm);
   }, [companyId, statusFilter]);
+
+  // Update offer status
+  const updateOfferStatus = async (offerId: number, newStatus: string) => {
+    try {
+      setUpdatingStatus(offerId);
+      
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers/${offerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          offer_name: offers.find(o => o.id === offerId)?.offer_name,
+          manager: offers.find(o => o.id === offerId)?.manager,
+          status: newStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update offer status: ${response.status}`);
+      }
+
+      // Update local state
+      setOffers(prevOffers => 
+        prevOffers.map(offer => 
+          offer.id === offerId 
+            ? { ...offer, status: newStatus }
+            : offer
+        )
+      );
+      
+      setEditingStatus(null);
+    } catch (error) {
+      console.error('Error updating offer status:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update offer status');
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
 
   // Sort offers
   const sortedOffers = useMemo(() => {
@@ -413,10 +455,37 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {offer.status}
-                        </span>
+                        {editingStatus === offer.id ? (
+                          <select
+                            value={offer.status}
+                            onChange={(e) => updateOfferStatus(offer.id, e.target.value)}
+                            onBlur={() => setEditingStatus(null)}
+                            autoFocus
+                            disabled={updatingStatus === offer.id}
+                            className="text-xs font-medium bg-white border border-gray-300 rounded-full px-2.5 py-0.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                          >
+                            <option value="Draft">{t('interface.draft', 'Draft')}</option>
+                            <option value="Internal Review">{t('interface.internalReview', 'Internal Review')}</option>
+                            <option value="Approved">{t('interface.approved', 'Approved')}</option>
+                            <option value="Sent to Client">{t('interface.sentToClient', 'Sent to Client')}</option>
+                            <option value="Viewed by Client">{t('interface.viewedByClient', 'Viewed by Client')}</option>
+                            <option value="Negotiation">{t('interface.negotiation', 'Negotiation')}</option>
+                            <option value="Accepted">{t('interface.accepted', 'Accepted')}</option>
+                            <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
+                            <option value="Archived">{t('interface.archived', 'Archived')}</option>
+                          </select>
+                        ) : (
+                          <span 
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${statusInfo.bgColor} ${statusInfo.color}`}
+                            onClick={() => setEditingStatus(offer.id)}
+                          >
+                            <StatusIcon className="h-3 w-3 mr-1" />
+                            {offer.status}
+                            {updatingStatus === offer.id && (
+                              <div className="ml-1 w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                            )}
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div className="flex items-center">
@@ -615,39 +684,9 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
                 <option value="Archived">{t('interface.archived', 'Archived')}</option>
               </select>
-            </div>
-            
-            {/* Auto-generated info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 text-sm font-medium">i</span>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-blue-900 mb-1">
-                    {t('interface.autoGeneratedFields', 'Auto-generated Fields')}
-                  </h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• {t('interface.totalHoursAuto', 'Total hours are calculated from client projects')}</li>
-                    <li>• {t('interface.linkAuto', 'Offer link is automatically managed')}</li>
-                    {formData.link && (
-                      <li>• <a
-                        href={formData.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        {t('interface.viewOffer', 'View offer details')}
-                      </a></li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            </div>
+                          </div>
 
-            {error && (
+              {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
