@@ -85,9 +85,12 @@ class ProfessionalPresentationService:
             
             logger.info(f"Created presentation job: {job_id}")
             
-            # Start background processing (non-blocking)
-            task = asyncio.create_task(self._process_presentation(job_id, request))
-            # Don't await the task - let it run in background
+            # Start background processing (truly non-blocking with delay)
+            async def delayed_start():
+                await asyncio.sleep(0.1)  # Small delay to ensure response is sent first
+                await self._process_presentation(job_id, request)
+            
+            asyncio.create_task(delayed_start())
             
             return job_id
             
@@ -121,6 +124,9 @@ class ProfessionalPresentationService:
             logger.info(f"Starting presentation processing for job: {job_id}")
             job.status = "processing"
             job.progress = 5.0
+            
+            # Small delay to ensure response is fully sent
+            await asyncio.sleep(0.2)
             
             # Step 1: Capture slide video
             logger.info(f"Step 1: Generating clean slide video for job {job_id}")
