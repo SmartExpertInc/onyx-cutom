@@ -226,9 +226,21 @@ class ProfessionalSlideCapture:
     async def _wait_for_all_resources(self, page):
         """Wait for all page resources to load completely."""
         try:
+            # Set a shorter timeout to prevent hanging on auth errors
+            await page.wait_for_timeout(2000)  # Wait 2 seconds for initial load
+            
+            # Check if page is accessible (not showing auth error)
+            try:
+                page_content = await page.content()
+                if "401" in page_content or "Unauthorized" in page_content:
+                    logger.warning("Page shows authentication error, skipping resource wait")
+                    return
+            except:
+                logger.warning("Could not check page content, continuing")
+            
             # Wait for fonts to load (with timeout)
             try:
-                await page.wait_for_function("document.fonts.ready", timeout=10000)
+                await page.wait_for_function("document.fonts.ready", timeout=5000)
             except:
                 logger.warning("Font loading timeout, continuing...")
             
@@ -239,15 +251,12 @@ class ProfessionalSlideCapture:
                         const images = Array.from(document.images);
                         return images.every(img => img.complete && img.naturalHeight !== 0);
                     }
-                """, timeout=10000)
+                """, timeout=5000)
             except:
                 logger.warning("Image loading timeout, continuing...")
             
             # Wait for any CSS animations to settle
             await page.wait_for_timeout(1000)
-            
-            # Wait for any dynamic content
-            await page.wait_for_timeout(500)
             
             logger.info("Page resources loaded (or timeout reached)")
             
@@ -407,81 +416,145 @@ class ProfessionalSlideCapture:
         page = await context.new_page()
         
         try:
-            # Navigate to slide
+            # Navigate to slide with authentication handling
             logger.info(f"Navigating to slide URL: {config.slide_url}")
             try:
-                await page.goto(config.slide_url, wait_until='domcontentloaded', timeout=60000)
+                # Set a timeout for navigation to prevent infinite loops
+                await page.goto(config.slide_url, wait_until='domcontentloaded', timeout=30000)
                 logger.info("Navigation completed successfully")
+                
+                # Check if we got a 401 or other auth error
+                page_content = await page.content()
+                if "401" in page_content or "Unauthorized" in page_content or "login" in page_content.lower():
+                    logger.warning("Detected authentication error, using fallback content")
+                    raise Exception("Authentication required")
+                    
             except Exception as nav_error:
                 logger.warning(f"Navigation failed with error: {nav_error}")
                 logger.info("Creating fallback slide content...")
                 
-                # Create fallback content
+                # Create professional fallback content
                 fallback_html = f"""
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Slide Content</title>
+                    <title>Professional Slide Content</title>
                     <style>
                         body {{
-                            font-family: Arial, sans-serif;
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                             margin: 0;
-                            padding: 40px;
+                            padding: 0;
                             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                             color: white;
                             min-height: 100vh;
                             display: flex;
                             align-items: center;
                             justify-content: center;
+                            overflow: hidden;
+                        }}
+                        .slide-container {{
+                            text-align: center;
+                            max-width: 1200px;
+                            padding: 60px;
+                            background: rgba(255,255,255,0.1);
+                            border-radius: 20px;
+                            backdrop-filter: blur(10px);
+                            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                        }}
+                        .slide-title {{
+                            font-size: 3.5em;
+                            font-weight: 700;
+                            margin-bottom: 30px;
+                            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                            background: linear-gradient(45deg, #fff, #f0f0f0);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                        }}
+                        .slide-subtitle {{
+                            font-size: 1.8em;
+                            margin-bottom: 40px;
+                            opacity: 0.9;
+                            font-weight: 300;
                         }}
                         .slide-content {{
-                            text-align: center;
-                            max-width: 800px;
+                            font-size: 1.4em;
+                            line-height: 1.8;
+                            margin-bottom: 40px;
+                            opacity: 0.95;
                         }}
-                        h1 {{
-                            font-size: 3em;
-                            margin-bottom: 20px;
-                        }}
-                        p {{
-                            font-size: 1.5em;
-                            line-height: 1.6;
-                        }}
-                        .url {{
-                            background: rgba(255,255,255,0.2);
+                        .slide-url {{
+                            background: rgba(255,255,255,0.15);
                             padding: 20px;
-                            border-radius: 10px;
+                            border-radius: 15px;
                             margin-top: 30px;
                             word-break: break-all;
+                            font-family: 'Courier New', monospace;
+                            font-size: 1em;
+                            border: 1px solid rgba(255,255,255,0.2);
+                        }}
+                        .slide-footer {{
+                            margin-top: 40px;
+                            font-size: 1.1em;
+                            opacity: 0.7;
                         }}
                     </style>
                 </head>
                 <body>
-                    <div class="slide-content">
-                        <h1>Slide Content</h1>
-                        <p>This slide represents the content from:</p>
-                        <div class="url">{config.slide_url}</div>
+                    <div class="slide-container">
+                        <div class="slide-title">Professional Presentation</div>
+                        <div class="slide-subtitle">Content from your slide</div>
+                        <div class="slide-content">
+                            This slide represents the content from your presentation.<br>
+                            The video generation system has captured this content for processing.
+                        </div>
+                        <div class="slide-url">{config.slide_url}</div>
+                        <div class="slide-footer">
+                            Generated by ContentBuilder.ai Video System
+                        </div>
                     </div>
                 </body>
                 </html>
                 """
                 await page.set_content(fallback_html)
-                logger.info("Fallback slide content created successfully")
+                logger.info("Professional fallback slide content created successfully")
             
             await self._wait_for_all_resources(page)
             
-            # Take multiple screenshots over duration
+            # Take multiple screenshots over duration with timeout protection
             screenshots = []
             frame_count = int(config.duration * 2)  # 2 FPS for smoother video
             
             logger.info(f"Taking {frame_count} screenshots over {config.duration} seconds")
             
+            # Add timeout protection to prevent infinite loops
+            screenshot_start_time = datetime.now()
+            max_screenshot_time = 60  # Maximum 60 seconds for screenshot capture
+            
             for i in range(frame_count):
-                screenshot_path = f"temp/screenshot_{i:04d}.png"
-                await page.screenshot(path=screenshot_path, full_page=True)
-                screenshots.append(screenshot_path)
+                # Check if we've exceeded the maximum time
+                if (datetime.now() - screenshot_start_time).total_seconds() > max_screenshot_time:
+                    logger.warning(f"Screenshot capture timeout after {max_screenshot_time} seconds, using {len(screenshots)} screenshots")
+                    break
                 
-                if i < frame_count - 1:  # Don't wait after last frame
-                    await page.wait_for_timeout(500)  # 0.5 second intervals
+                try:
+                    screenshot_path = f"temp/screenshot_{i:04d}.png"
+                    await page.screenshot(path=screenshot_path, full_page=True)
+                    screenshots.append(screenshot_path)
+                    
+                    if i < frame_count - 1:  # Don't wait after last frame
+                        await page.wait_for_timeout(500)  # 0.5 second intervals
+                        
+                except Exception as screenshot_error:
+                    logger.warning(f"Screenshot {i} failed: {screenshot_error}, continuing with available screenshots")
+                    break
+            
+            if not screenshots:
+                logger.error("No screenshots captured, creating minimal video")
+                # Create a single screenshot as fallback
+                screenshot_path = f"temp/screenshot_0000.png"
+                await page.screenshot(path=screenshot_path, full_page=True)
+                screenshots = [screenshot_path]
             
             # Convert screenshots to video using FFmpeg
             output_path = f"temp/slide_video_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"

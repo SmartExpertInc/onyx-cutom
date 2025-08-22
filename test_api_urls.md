@@ -64,3 +64,4 @@ const avatarResponse = await fetch(`${CUSTOM_BACKEND_URL}/video/avatars`);
 ```
 
 This should now correctly access: `/api/custom-projects-backend/video/avatars`
+
