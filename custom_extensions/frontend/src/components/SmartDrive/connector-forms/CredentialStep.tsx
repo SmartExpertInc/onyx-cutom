@@ -105,61 +105,79 @@ const CredentialStep: FC<CredentialStepProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="border-b border-gray-200 pb-4">
-        <h2 className="text-xl font-semibold text-gray-900">
+      <div className="border-b border-gray-200 pb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Select a credential for {connectorName}
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-gray-900 text-lg">
           Choose an existing credential or create a new one to connect to {connectorName}.
         </p>
       </div>
 
       {/* Credential Selection */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-medium text-gray-900">Available Credentials</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Available Credentials</h3>
           <button
             onClick={handleCreateNew}
-            className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-6 py-2.5 text-sm font-medium text-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hover:from-blue-100 hover:to-indigo-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           >
             Create New
           </button>
         </div>
 
         {credentials.length === 0 ? (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-            <p className="text-gray-500 mb-4">No credentials found for {connectorName}</p>
+          <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <p className="text-gray-900 text-lg mb-4">No credentials found for {connectorName}</p>
             <button
               onClick={handleCreateNew}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-md hover:shadow-lg"
             >
               Create your first credential
             </button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {credentials.map((credential) => (
               <div
                 key={credential.id}
-                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                   selectedCredential?.id === credential.id
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg"
+                    : "border-gray-200 hover:border-blue-300 hover:shadow-md bg-white"
                 }`}
                 onClick={() => handleCredentialSelect(credential)}
               >
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{credential.name}</h4>
-                    <p className="text-sm text-gray-500">
-                      Created for {credential.source}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                      selectedCredential?.id === credential.id
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600"
+                        : "bg-gradient-to-r from-gray-100 to-gray-200"
+                    }`}>
+                      <svg className={`w-6 h-6 ${
+                        selectedCredential?.id === credential.id ? "text-white" : "text-gray-600"
+                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900">{credential.name}</h4>
+                      <p className="text-gray-900">
+                        Created for {credential.source}
+                      </p>
+                    </div>
                   </div>
                   {selectedCredential?.id === credential.id && (
-                    <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
@@ -173,16 +191,19 @@ const CredentialStep: FC<CredentialStepProps> = ({
 
       {/* Create Credential Form Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Create {connectorName} Credential
-                </h3>
+        <div className="fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-100">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Create {connectorName} Credential
+                  </h3>
+                  <p className="text-gray-600 mt-1">Enter your credentials to connect to {connectorName}</p>
+                </div>
                 <button
                   onClick={() => setShowCreateForm(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -202,17 +223,17 @@ const CredentialStep: FC<CredentialStepProps> = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-between pt-6 border-t border-gray-200">
+      <div className="flex justify-between pt-8 border-t border-gray-200">
         <button
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
         >
           Cancel
         </button>
         <button
           onClick={handleContinue}
           disabled={!selectedCredential}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
         >
           Continue
         </button>
@@ -348,10 +369,10 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   const fields = getCredentialFields();
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {fields.map((field) => (
-        <div key={field.name}>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div key={field.name} className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-900">
             {field.label}
             {field.required && <span className="text-red-500 ml-1">*</span>}
           </label>
@@ -362,23 +383,26 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
               required={field.required}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              placeholder={`Enter ${field.label.toLowerCase()}`}
             />
           ) : field.type === 'file' ? (
-            <input
-              type="file"
-              name={field.name}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  // For now, we'll store the file name
-                  // In a real implementation, you'd want to handle file upload
-                  handleInputChange(field.name, file.name);
-                }
-              }}
-              required={field.required}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div className="relative">
+              <input
+                type="file"
+                name={field.name}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // For now, we'll store the file name
+                    // In a real implementation, you'd want to handle file upload
+                    handleInputChange(field.name, file.name);
+                  }
+                }}
+                required={field.required}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
           ) : field.type === 'email' ? (
             <input
               type="email"
@@ -386,7 +410,8 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
               required={field.required}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              placeholder="Enter email address"
             />
           ) : (
             <input
@@ -395,32 +420,45 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
               required={field.required}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              placeholder={`Enter ${field.label.toLowerCase()}`}
             />
           )}
         </div>
       ))}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-3">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-red-800 text-sm font-medium">{error}</p>
+          </div>
         </div>
       )}
 
-      <div className="flex justify-end space-x-3 pt-4">
+      <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
         >
-          {loading ? 'Creating...' : 'Create Credential'}
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              Creating...
+            </>
+          ) : (
+            'Create Credential'
+          )}
         </button>
       </div>
     </form>

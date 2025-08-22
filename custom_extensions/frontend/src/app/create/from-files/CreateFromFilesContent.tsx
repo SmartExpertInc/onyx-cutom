@@ -7,27 +7,31 @@ import {
   Search,
   FileText,
   Sparkles,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
-// OptionCard component matching the main create page style
-interface OptionCardProps {
+// StepCard component for the new step-based interface
+interface StepCardProps {
   Icon: React.ElementType;
   title: string;
   description: string;
   href?: string;
   disabled?: boolean;
-  pillLabel?: string;
+  stepNumber: number;
+  isActive?: boolean;
 }
 
-const OptionCard: React.FC<OptionCardProps> = ({
+const StepCard: React.FC<StepCardProps> = ({
   Icon,
   title,
   description,
   href,
   disabled = false,
-  pillLabel,
+  stepNumber,
+  isActive = false,
 }) => {
   const router = useRouter();
 
@@ -38,36 +42,94 @@ const OptionCard: React.FC<OptionCardProps> = ({
     router.push(href);
   };
 
-  // Card content shared by both link and non-link versions
-  const cardContent = (
+  return (
     <div
-      className={`flex flex-col items-center justify-start rounded-xl overflow-hidden border transition-colors shadow-sm w-full h-full text-center ${
+      className={`relative flex items-start gap-6 p-8 rounded-2xl border-2 transition-all duration-300 ${
         disabled
-          ? "bg-white text-gray-400 cursor-not-allowed border-gray-300 shadow-none"
-          : "bg-white hover:bg-gray-50 text-gray-900 cursor-pointer border-gray-200"
+          ? "bg-gray-50 border-gray-200 cursor-not-allowed"
+          : isActive
+          ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-300 shadow-lg hover:shadow-xl cursor-pointer"
+          : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg cursor-pointer"
       }`}
+      onClick={handleClick}
     >
-      {/* "Folder" header */}
-      <div className="w-full h-28 bg-gradient-to-tr from-indigo-300/60 to-pink-200/60 flex items-center justify-center relative">
-        <Icon size={40} className="text-white drop-shadow-md" />
-        {pillLabel && (
-          <span className="absolute bottom-2 right-2 text-[10px] font-bold bg-white text-indigo-600 rounded-md px-1.5 py-0.5 shadow">
-            {pillLabel}
-          </span>
+      {/* Step Number */}
+      <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
+        disabled
+          ? "bg-gray-200 text-gray-400"
+          : isActive
+          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+          : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600"
+      }`}>
+        {stepNumber}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`p-3 rounded-xl ${
+            disabled
+              ? "bg-gray-100"
+              : isActive
+              ? "bg-gradient-to-br from-blue-100 to-indigo-100"
+              : "bg-gradient-to-br from-gray-100 to-gray-200"
+          }`}>
+            <Icon size={24} className={
+              disabled
+                ? "text-gray-400"
+                : isActive
+                ? "text-blue-600"
+                : "text-gray-600"
+            } />
+          </div>
+          <div className="flex-1">
+            <h3 className={`text-xl font-semibold ${
+              disabled
+                ? "text-gray-400"
+                : isActive
+                ? "text-gray-900"
+                : "text-gray-900"
+            }`}>
+              {title}
+            </h3>
+            <p className={`text-sm mt-1 ${
+              disabled
+                ? "text-gray-400"
+                : "text-gray-600"
+            }`}>
+              {description}
+            </p>
+          </div>
+        </div>
+
+        {/* Status Indicator */}
+        {disabled && (
+          <div className="flex items-center gap-2 mt-4 p-3 bg-gray-100 rounded-lg">
+            <Clock className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-500 font-medium">Coming Soon</span>
+          </div>
+        )}
+
+        {isActive && (
+          <div className="flex items-center gap-2 mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+            <CheckCircle className="w-4 h-4 text-green-600" />
+            <span className="text-sm text-green-700 font-medium">Ready to use</span>
+          </div>
         )}
       </div>
-      {/* Text area */}
-      <div className="flex flex-col items-center gap-1 px-4 py-5">
-        <h3 className="font-semibold text-base sm:text-lg leading-tight text-gray-900">{title}</h3>
-        <p className="text-xs sm:text-sm text-gray-600 max-w-xs leading-normal">
-          {description}
-        </p>
-      </div>
+
+      {/* Arrow for active state */}
+      {isActive && !disabled && (
+        <div className="flex-shrink-0">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      )}
     </div>
   );
-
-  if (disabled || !href) return cardContent;
-  return <Link href={href} onClick={handleClick}>{cardContent}</Link>;
 };
 
 export default function CreateFromFilesContent() {
@@ -84,39 +146,64 @@ export default function CreateFromFilesContent() {
       {/* Top-left back button */}
       <Link
         href="/create"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-black hover:text-black-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-900 hover:text-gray-700 rounded-full px-4 py-2 border border-gray-300 bg-white shadow-sm hover:shadow-md transition-all duration-200"
       >
-        <ArrowLeft size={14} className="-ml-0.5" />
+        <ArrowLeft size={16} className="-ml-0.5" />
         {t('interface.generate.back', 'Back')}
       </Link>
 
       {/* Main content */}
-      <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
+      <div className="w-full max-w-4xl flex flex-col gap-12 items-center">
         {/* Headings */}
         <div className="text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             {t('interface.fromFiles.createFromFiles', 'Create from Files')}
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 mt-2">
-            {t('interface.fromFiles.chooseMethod', 'How would you like to create content from your files?')}
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl">
+            {t('interface.fromFiles.chooseMethod', 'Choose your preferred method to create content from your files')}
           </p>
         </div>
 
-        {/* Option cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-          <OptionCard
+        {/* Step-based interface */}
+        <div className="w-full space-y-6">
+          <StepCard
             Icon={Search}
             title={t('interface.fromFiles.createFromKnowledgeBase', 'Create from Knowledge Base')}
-            description={t('interface.fromFiles.knowledgeBaseDescription', 'Generate content by searching your entire Knowledge Base for relevant information')}
+            description={t('interface.fromFiles.knowledgeBaseDescription', 'Generate content by searching your entire Knowledge Base for relevant information. Perfect for comprehensive content creation.')}
             href="/create/generate?fromKnowledgeBase=true"
+            stepNumber={1}
+            isActive={true}
           />
-          <OptionCard
+          
+          <StepCard
             Icon={FileText}
             title={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
-            description={t('interface.fromFiles.specificFilesDescription', 'Select specific files and folders to use as source material')}
+            description={t('interface.fromFiles.specificFilesDescription', 'Select specific files and folders to use as source material. Ideal for targeted content creation.')}
             disabled={true}
-            pillLabel={t('interface.fromFiles.soon', 'Soon')}
+            stepNumber={2}
           />
+        </div>
+
+        {/* Additional Info */}
+        <div className="w-full bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-blue-600" />
+            Why choose these methods?
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Knowledge Base Search</h4>
+              <p className="text-gray-600 text-sm">
+                Leverage your entire document collection to find the most relevant information for your content creation needs.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Specific File Selection</h4>
+              <p className="text-gray-600 text-sm">
+                Choose exactly which files to include, giving you precise control over your source material.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </main>

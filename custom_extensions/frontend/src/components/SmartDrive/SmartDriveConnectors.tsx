@@ -536,23 +536,121 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   return (
     <div className={`space-y-8 ${className}`}>
-      <div className="mb-6 flex justify-between items-start">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Available Connectors</h2>
-          <p className="text-gray-600">Connect your data sources to import content into your Smart Drive</p>
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Smart Drive Connectors</h2>
+            <p className="text-gray-900 text-lg">Connect your data sources to import content into your Smart Drive</p>
+          </div>
+          <button
+            onClick={loadUserConnectors}
+            disabled={loading}
+            className="px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
         </div>
-        <button
-          onClick={loadUserConnectors}
-          disabled={loading}
-          className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50 transition-colors"
-        >
-          {loading ? 'Refreshing...' : 'Refresh'}
-        </button>
+
+        {/* Featured Connectors Section */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Connectors</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {['google_drive', 'slack', 'notion', 'github'].map((connectorId) => {
+              const connector = Object.values(connectorCategories).flat().find(c => c.id === connectorId);
+              if (!connector) return null;
+              
+              const userConnectorsForSource = getConnectorsBySource(connector.id);
+              const hasConnectors = userConnectorsForSource.length > 0;
+
+              return (
+                <div
+                  key={connector.id}
+                  className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer"
+                  onClick={() => handleConnectClick(connector.id, connector.name)}
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+                      <Image
+                        src={connector.logoPath}
+                        alt={`${connector.name} logo`}
+                        width={32}
+                        height={32}
+                        className="object-contain w-8 h-8"
+                        priority={false}
+                        unoptimized={true}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                        {connector.name}
+                      </h3>
+                      <p className="text-sm text-gray-900">{connector.category}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleConnectClick(connector.id, connector.name);
+                      }}
+                      className="flex-1 text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
+                    >
+                      Connect
+                    </button>
+
+                    {hasConnectors && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (userConnectorsForSource.length === 1) {
+                            setSelectedConnectorId(userConnectorsForSource[0].id);
+                            setShowManagementPage(true);
+                          }
+                        }}
+                        className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                      >
+                        Manage
+                      </button>
+                    )}
+                  </div>
+
+                  {hasConnectors && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center justify-between text-sm text-gray-900">
+                        <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
+                        {userConnectorsForSource.some(c => c.status === 'active') && (
+                          <span className="text-green-600 font-medium">● Active</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Browse All Connectors Section */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Browse All Connectors</h3>
+            <button
+              onClick={handleBrowseClick}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              <Upload className="w-4 h-4" />
+              Browse Files
+            </button>
+          </div>
+        </div>
       </div>
 
+      {/* All Connectors Grid */}
       {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
         <div key={categoryName} className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-800 border-b border-gray-200 pb-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3">
             {categoryName}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -564,13 +662,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               return (
                 <div
                   key={connector.id}
-                  className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow ${
+                  className={`group relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all duration-200 ${
                     connector.id === 'browse_uploaded' ? 'cursor-pointer' : ''
                   }`}
                   onClick={connector.id === 'browse_uploaded' ? handleBrowseClick : undefined}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                    <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                       <Image
                         src={connector.logoPath}
                         alt={`${connector.name} logo`}
@@ -585,24 +683,22 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       <h3 className="text-sm font-semibold text-gray-900 truncate">
                         {connector.name}
                       </h3>
-                      <p className="text-xs text-gray-500">{connector.category}</p>
+                      <p className="text-xs text-gray-900">{connector.category}</p>
                     </div>
                   </div>
-
-
 
                   <div className="flex gap-2">
                     {connector.id === 'browse_uploaded' ? (
                       <button
                         onClick={handleBrowseClick}
-                        className="flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200"
+                        className="flex-1 text-xs font-medium px-3 py-2 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-sm hover:shadow-md"
                       >
                         Browse
                       </button>
                     ) : (
                       <button
                         onClick={() => handleConnectClick(connector.id, connector.name)}
-                        className="flex-1 text-xs font-medium px-3 py-2 rounded-md transition-colors bg-green-100 text-green-700 hover:bg-green-200"
+                        className="flex-1 text-xs font-medium px-3 py-2 rounded-lg transition-all duration-200 bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-sm hover:shadow-md"
                       >
                         Connect
                       </button>
@@ -614,36 +710,27 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           <div className="relative group">
                             <button 
                               onClick={(e) => e.stopPropagation()}
-                              className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
+                              className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                             >
                               Manage
                               <ChevronDown className="w-3 h-3" />
                             </button>
-                            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 hidden group-hover:block">
+                            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 hidden group-hover:block">
                               {userConnectorsForSource.map((userConnector) => (
                                 <button
                                   key={userConnector.id}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    console.log('[POPUP_DEBUG] Click event triggered for connector:', userConnector.id);
-                                    console.log('[POPUP_DEBUG] Current state - showManagementPage:', showManagementPage, 'isManagementOpening:', isManagementOpening);
-                                    console.log('[POPUP_DEBUG] Event target:', e.target);
-                                    console.log('[POPUP_DEBUG] Event current target:', e.currentTarget);
-                                    
                                     if (!showManagementPage && !isManagementOpening) {
-                                      console.log('[POPUP_DEBUG] Opening management page for connector:', userConnector.id);
                                       setIsManagementOpening(true);
                                       setSelectedConnectorId(userConnector.id);
                                       setShowManagementPage(true);
                                       setTimeout(() => {
-                                        console.log('[POPUP_DEBUG] Resetting isManagementOpening flag');
                                         setIsManagementOpening(false);
                                       }, 500);
-                                    } else {
-                                      console.log('[POPUP_DEBUG] Click ignored - already opening or open');
                                     }
                                   }}
-                                  className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                  className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                                 >
                                   {userConnector.name}
                                 </button>
@@ -654,25 +741,16 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log('[POPUP_DEBUG] Single manage button clicked for connector:', userConnectorsForSource[0].id);
-                              console.log('[POPUP_DEBUG] Current state - showManagementPage:', showManagementPage, 'isManagementOpening:', isManagementOpening);
-                              console.log('[POPUP_DEBUG] Event target:', e.target);
-                              console.log('[POPUP_DEBUG] Event current target:', e.currentTarget);
-                              
                               if (!showManagementPage && !isManagementOpening) {
-                                console.log('[POPUP_DEBUG] Opening management page for single connector:', userConnectorsForSource[0].id);
                                 setIsManagementOpening(true);
                                 setSelectedConnectorId(userConnectorsForSource[0].id);
                                 setShowManagementPage(true);
                                 setTimeout(() => {
-                                  console.log('[POPUP_DEBUG] Resetting isManagementOpening flag (single)');
                                   setIsManagementOpening(false);
                                 }, 500);
-                              } else {
-                                console.log('[POPUP_DEBUG] Single click ignored - already opening or open');
                               }
                             }}
-                            className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md transition-colors"
+                            className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                           >
                             Manage
                           </button>
@@ -683,34 +761,17 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
                   {hasConnectors && (
                     <div className="mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs text-gray-900">
                         <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
                         {userConnectorsForSource.some(c => c.status === 'active') && (
                           <span className="text-green-600">● Active</span>
                         )}
-                                </div>
-        </div>
-      )}
-
-      {/* Connector Management Page */}
-      {showManagementPage && selectedConnectorId && (
-        <ConnectorManagementPage
-          ccPairId={selectedConnectorId}
-          onClose={() => {
-            console.log('[POPUP_DEBUG] Management page closing');
-            setShowManagementPage(false);
-            setSelectedConnectorId(null);
-            setIsManagementOpening(false);
-          }}
-          onConnectorDeleted={() => {
-            console.log('[POPUP_DEBUG] Connector deleted, refreshing list...');
-            loadUserConnectors();
-          }}
-        />
-      )}
-    </div>
-  );
-})}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}
@@ -737,7 +798,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {/* Connector Creation Modal */}
       {showConnectorModal && selectedConnector && (
         <div className="fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-100">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -748,7 +809,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     setShowConnectorModal(false);
                     setSelectedConnector(null);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -767,6 +828,21 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </div>
           </div>
         </div>
+      )}
+
+      {/* Connector Management Page */}
+      {showManagementPage && selectedConnectorId && (
+        <ConnectorManagementPage
+          ccPairId={selectedConnectorId}
+          onClose={() => {
+            setShowManagementPage(false);
+            setSelectedConnectorId(null);
+            setIsManagementOpening(false);
+          }}
+          onConnectorDeleted={() => {
+            loadUserConnectors();
+          }}
+        />
       )}
     </div>
   );

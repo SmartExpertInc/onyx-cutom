@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { CCPairFullInfo, ConnectorCredentialPairStatus, statusIsNotCurrentlyActive } from "./types";
 import { buildCCPairInfoUrl, triggerIndexing, getTooltipMessage } from "./lib";
-import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X } from "lucide-react";
+import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Settings } from "lucide-react";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -228,35 +228,58 @@ export default function ConnectorManagementPage({
 
   return (
     <div className="fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
+      <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-100">
+        <div className="p-8">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-start mb-8">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{ccPair.name}</h2>
-              <p className="text-sm text-gray-500">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{ccPair.name}</h2>
+              <p className="text-gray-900 text-lg">
                 {ccPair.connector.source} • {ccPair.credential.name}
               </p>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
               <X className="w-6 h-6" />
             </button>
           </div>
 
           {/* Popup */}
           {popup && (
-            <div className={`mb-4 p-3 rounded-md ${
-              popup.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            <div className={`mb-6 p-4 rounded-lg border ${
+              popup.type === 'success' 
+                ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-200' 
+                : 'bg-gradient-to-r from-red-50 to-pink-50 text-red-800 border-red-200'
             }`}>
-              {popup.message}
+              <div className="flex items-center gap-2">
+                {popup.type === 'success' ? (
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                <span className="font-medium">{popup.message}</span>
+              </div>
             </div>
           )}
 
           {/* Status and Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Status</div>
-              <div className={`text-lg font-semibold ${
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-semibold text-gray-900">Status</div>
+                <div className={`w-3 h-3 rounded-full ${
+                  isActive ? 'bg-green-500' : 
+                  isPaused ? 'bg-yellow-500' : 
+                  isInvalid ? 'bg-red-500' : 'bg-gray-500'
+                }`}></div>
+              </div>
+              <div className={`text-2xl font-bold ${
                 isActive ? 'text-green-600' : 
                 isPaused ? 'text-yellow-600' : 
                 isInvalid ? 'text-red-600' : 'text-gray-600'
@@ -264,13 +287,13 @@ export default function ConnectorManagementPage({
                 {ccPair.status}
               </div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Documents Indexed</div>
-              <div className="text-lg font-semibold">{ccPair.num_docs_indexed.toLocaleString()}</div>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+              <div className="text-sm font-semibold text-gray-900 mb-2">Documents Indexed</div>
+              <div className="text-2xl font-bold text-blue-600">{ccPair.num_docs_indexed.toLocaleString()}</div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500">Last Indexed</div>
-              <div className="text-lg font-semibold">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+              <div className="text-sm font-semibold text-gray-900 mb-2">Last Indexed</div>
+              <div className="text-2xl font-bold text-purple-600">
                 {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : 'Never'}
               </div>
             </div>
@@ -278,28 +301,33 @@ export default function ConnectorManagementPage({
 
           {/* Error State */}
           {isInvalid && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center">
-                <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                <span className="text-red-800">Connector is in an invalid state</span>
+            <div className="mb-8 p-6 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-red-800">Connector is in an invalid state</h3>
+                  <p className="text-red-700 text-sm mt-1">Please check your configuration and try again.</p>
+                </div>
               </div>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex flex-wrap gap-4 mb-8">
             {/* Index Button */}
             <button
               onClick={() => handleIndexing(false)}
               disabled={!!tooltipMessage}
               title={tooltipMessage}
-              className={`px-4 py-2 rounded-md flex items-center gap-2 ${
+              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
                 tooltipMessage 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg'
               }`}
             >
-              <RefreshCwIcon className="w-4 h-4" />
+              <RefreshCwIcon className="w-5 h-5" />
               Index
             </button>
 
@@ -308,13 +336,13 @@ export default function ConnectorManagementPage({
               onClick={() => handleIndexing(true)}
               disabled={!!tooltipMessage}
               title={tooltipMessage}
-              className={`px-4 py-2 rounded-md flex items-center gap-2 ${
+              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
                 tooltipMessage 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                  : 'bg-orange-600 text-white hover:bg-orange-700'
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:from-orange-700 hover:to-red-700 shadow-md hover:shadow-lg'
               }`}
             >
-              <RefreshCwIcon className="w-4 h-4" />
+              <RefreshCwIcon className="w-5 h-5" />
               Full Re-index
             </button>
 
@@ -322,13 +350,13 @@ export default function ConnectorManagementPage({
             <button
               onClick={handleStatusChange}
               disabled={isDeleting || isIndexing}
-              className={`px-4 py-2 rounded-md flex items-center gap-2 ${
+              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
                 isActive 
-                  ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
-                  : 'bg-green-600 text-white hover:bg-green-700'
+                  ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700 shadow-md hover:shadow-lg' 
+                  : 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg'
               }`}
             >
-              {isActive ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
+              {isActive ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
               {isActive ? 'Pause' : 'Resume'}
             </button>
 
@@ -336,34 +364,43 @@ export default function ConnectorManagementPage({
             <button
               onClick={handleDelete}
               disabled={isDeleting || isIndexing}
-              className="px-4 py-2 rounded-md flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 disabled:bg-gray-300 disabled:text-gray-500"
+              className="px-6 py-3 rounded-lg flex items-center gap-3 font-medium bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg disabled:bg-gray-200 disabled:text-gray-500 transition-all duration-200"
             >
-              <Trash2Icon className="w-4 h-4" />
+              <Trash2Icon className="w-5 h-5" />
               Delete
             </button>
           </div>
 
           {/* Configuration Display */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-3">Configuration</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium">Connector Name:</span> {ccPair.connector.name}
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl border border-gray-200">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-gray-600" />
+              Configuration
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="font-semibold text-gray-900">Connector Name:</span>
+                <span className="text-gray-900 ml-2">{ccPair.connector.name}</span>
               </div>
-              <div>
-                <span className="font-medium">Source:</span> {ccPair.connector.source}
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="font-semibold text-gray-900">Source:</span>
+                <span className="text-gray-900 ml-2">{ccPair.connector.source}</span>
               </div>
-              <div>
-                <span className="font-medium">Credential:</span> {ccPair.credential.name}
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="font-semibold text-gray-900">Credential:</span>
+                <span className="text-gray-900 ml-2">{ccPair.credential.name}</span>
               </div>
-              <div>
-                <span className="font-medium">Access Type:</span> {ccPair.access_type}
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="font-semibold text-gray-900">Access Type:</span>
+                <span className="text-gray-900 ml-2">{ccPair.access_type}</span>
               </div>
-              <div>
-                <span className="font-medium">Refresh Frequency:</span> {ccPair.connector.refresh_freq}s
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="font-semibold text-gray-900">Refresh Frequency:</span>
+                <span className="text-gray-900 ml-2">{ccPair.connector.refresh_freq}s</span>
               </div>
-              <div>
-                <span className="font-medium">Prune Frequency:</span> {ccPair.connector.prune_freq}s
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="font-semibold text-gray-900">Prune Frequency:</span>
+                <span className="text-gray-900 ml-2">{ccPair.connector.prune_freq}s</span>
               </div>
             </div>
           </div>
