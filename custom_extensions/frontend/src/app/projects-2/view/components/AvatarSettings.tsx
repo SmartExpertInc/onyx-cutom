@@ -3,6 +3,7 @@ import AvatarPopup from './AvatarPopup';
 
 export default function AvatarSettings() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState(false);
+  const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
   return (
     <div className="h-full bg-white rounded-lg border border-gray-200">
       {/* Header with grey background */}
@@ -29,9 +30,48 @@ export default function AvatarSettings() {
       
       {/* Apply to all scenes button */}
       <div className="px-4 py-3 border-b border-gray-200">
-        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-full transition-colors">
+        <button className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-full transition-colors border border-gray-300 hover:border-gray-400">
           Apply to all scenes
         </button>
+      </div>
+      
+      {/* Appearance section */}
+      <div className="px-4 py-3 border-b border-gray-200">
+        <div className="mb-3">
+          <span className="text-sm font-medium text-gray-700">Appearance</span>
+        </div>
+        <div className="bg-gray-100 rounded-full p-1 flex">
+          <button 
+            onClick={() => setAppearanceMode('shoulder')}
+            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors ${
+              appearanceMode === 'shoulder' 
+                ? 'bg-white text-gray-700 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-700'
+            }`}
+          >
+            Shoulder
+          </button>
+          <button 
+            onClick={() => setAppearanceMode('full-body')}
+            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors ${
+              appearanceMode === 'full-body' 
+                ? 'bg-white text-gray-700 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-700'
+            }`}
+          >
+            Full body
+          </button>
+          <button 
+            onClick={() => setAppearanceMode('bubble')}
+            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors ${
+              appearanceMode === 'bubble' 
+                ? 'bg-white text-gray-700 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-700'
+            }`}
+          >
+            Bubble
+          </button>
+        </div>
       </div>
       
       {/* Content area */}
