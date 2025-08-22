@@ -85,12 +85,9 @@ class ProfessionalPresentationService:
             
             logger.info(f"Created presentation job: {job_id}")
             
-            # Start background processing (truly non-blocking with delay)
-            async def delayed_start():
-                await asyncio.sleep(0.1)  # Small delay to ensure response is sent first
-                await self._process_presentation(job_id, request)
-            
-            asyncio.create_task(delayed_start())
+            # Start background processing (completely detached)
+            loop = asyncio.get_event_loop()
+            loop.create_task(self._process_presentation_detached(job_id, request))
             
             return job_id
             
@@ -110,6 +107,39 @@ class ProfessionalPresentationService:
         """
         return self.jobs.get(job_id)
     
+    async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
+        """
+        Completely detached presentation processing that won't block any endpoints.
+        Runs in a separate thread to avoid blocking the main event loop.
+        """
+        import concurrent.futures
+        
+        def run_blocking_processing():
+            """Run the processing in a separate thread."""
+            try:
+                # Create a new event loop for this thread
+                import asyncio
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+                # Run the processing
+                loop.run_until_complete(self._process_presentation(job_id, request))
+                
+            except Exception as e:
+                logger.error(f"Thread processing failed for {job_id}: {e}")
+                if job_id in self.jobs:
+                    self.jobs[job_id].status = "failed"
+                    self.jobs[job_id].error = str(e)
+            finally:
+                try:
+                    loop.close()
+                except:
+                    pass
+        
+        # Run in thread pool to avoid blocking main event loop
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        executor.submit(run_blocking_processing)
+    
     async def _process_presentation(self, job_id: str, request: PresentationRequest):
         """
         Process presentation generation in background.
@@ -124,9 +154,6 @@ class ProfessionalPresentationService:
             logger.info(f"Starting presentation processing for job: {job_id}")
             job.status = "processing"
             job.progress = 5.0
-            
-            # Small delay to ensure response is fully sent
-            await asyncio.sleep(0.2)
             
             # Step 1: Capture slide video
             logger.info(f"Step 1: Generating clean slide video for job {job_id}")
