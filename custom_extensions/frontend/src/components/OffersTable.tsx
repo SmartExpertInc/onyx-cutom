@@ -422,19 +422,23 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {offer.link ? (
-                          <a
-                            href={offer.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center text-blue-600 hover:text-blue-800"
-                          >
-                            <ExternalLink className="h-4 w-4 mr-1" />
-                            {t('interface.view', 'View')}
-                          </a>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
+                        {(() => {
+                          // Debug logging
+                          console.log(`Offer ${offer.id} link:`, offer.link, 'Type:', typeof offer.link);
+                          return offer.link ? (
+                            <a
+                              href={offer.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center text-blue-600 hover:text-blue-800"
+                            >
+                              <ExternalLink className="h-4 w-4 mr-1" />
+                              {t('interface.view', 'View')}
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">

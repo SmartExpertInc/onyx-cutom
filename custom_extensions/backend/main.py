@@ -21580,34 +21580,47 @@ async def create_offer(
             offer_id = row['id']
             # Get the base URL from the request
             base_url = str(request.base_url).rstrip('/')
-            # Remove /api/custom from the base URL if present
-            if base_url.endswith('/api/custom'):
+            
+            # Log the base URL for debugging
+            logger.info(f"Original base URL: {base_url}")
+            
+            # Remove /api/custom-projects-backend from the base URL if present
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
                 base_url = base_url[:-11]
+            
             auto_link = f"{base_url}/offer/{offer_id}"
             
+            # Log the generated link for debugging
+            logger.info(f"Generated auto link for offer {offer_id}: {auto_link}")
+            
             # Update the offer with the auto-generated link
-            await connection.execute(
+            update_result = await connection.execute(
                 "UPDATE offers SET link = $1 WHERE id = $2",
                 auto_link, offer_id
             )
+            
+            # Log the update result
+            logger.info(f"Update result for offer {offer_id}: {update_result}")
             
             # Update the row dict with the new link
             row_dict = dict(row)
             row_dict['link'] = auto_link
         
         return OfferResponse(
-            id=row['id'],
-            onyx_user_id=row['onyx_user_id'],
-            company_id=row['company_id'],
-            offer_name=row['offer_name'],
-            created_on=row['created_on'],
-            manager=row['manager'],
-            status=row['status'],
-            total_hours=row['total_hours'],
-            link=row['link'],
-            created_at=row['created_at'],
-            updated_at=row['updated_at'],
-            company_name=row['company_name']
+            id=row_dict['id'],
+            onyx_user_id=row_dict['onyx_user_id'],
+            company_id=row_dict['company_id'],
+            offer_name=row_dict['offer_name'],
+            created_on=row_dict['created_on'],
+            manager=row_dict['manager'],
+            status=row_dict['status'],
+            total_hours=row_dict['total_hours'],
+            link=row_dict['link'],
+            created_at=row_dict['created_at'],
+            updated_at=row_dict['updated_at'],
+            company_name=row_dict['company_name']
         )
         
     except HTTPException:
@@ -21854,12 +21867,23 @@ async def migrate_offer_links(
             
             updated_count = 0
             base_url = str(request.base_url).rstrip('/')
-            if base_url.endswith('/api/custom'):
+            
+            # Log the base URL for debugging
+            logger.info(f"Migration: Original base URL: {base_url}")
+            
+            # Remove /api/custom-projects-backend from the base URL if present
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
                 base_url = base_url[:-11]
+            
+            logger.info(f"Migration: Found {len(offers)} offers to update")
             
             for offer in offers:
                 offer_id = offer['id']
                 auto_link = f"{base_url}/offer/{offer_id}"
+                
+                logger.info(f"Migration: Updating offer {offer_id} with link: {auto_link}")
                 
                 await connection.execute(
                     "UPDATE offers SET link = $1 WHERE id = $2",
@@ -21867,6 +21891,7 @@ async def migrate_offer_links(
                 )
                 updated_count += 1
             
+            logger.info(f"Migration: Successfully updated {updated_count} offers")
             return {"message": f"Updated {updated_count} offers with auto-generated links"}
             
     except Exception as e:
