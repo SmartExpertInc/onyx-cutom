@@ -422,13 +422,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <div className="relative mb-6">
         <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden">
               <Image 
                 src="/deloitte.png" 
                 alt="Deloitte Logo"
-                width={20} 
-                height={20} 
-                className="object-contain"
+                width={32} 
+                height={32} 
+                className="object-contain w-8 h-8"
+                priority={false}
                 unoptimized={true}
               />
             </div>
