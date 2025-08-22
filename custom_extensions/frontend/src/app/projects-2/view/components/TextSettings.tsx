@@ -109,10 +109,12 @@ export default function TextSettings() {
                         }}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
                       >
-                        {fontFamily === option.value && (
+                        {fontFamily === option.value ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
+                        ) : (
+                          <div className="w-4 h-4 mr-2"></div>
                         )}
                         <span>{option.label}</span>
                       </button>
@@ -180,10 +182,12 @@ export default function TextSettings() {
                         }}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
                       >
-                        {fontSize === option.value && (
+                        {fontSize === option.value ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
+                        ) : (
+                          <div className="w-4 h-4 mr-2"></div>
                         )}
                         <span>{option.label}</span>
                       </button>
@@ -199,7 +203,7 @@ export default function TextSettings() {
               <div className="bg-gray-100 rounded-full p-1 flex space-x-1">
                 <button
                   onClick={() => setTextAlign('left')}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'left' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
                   }`}
                   title="Align left"
@@ -207,10 +211,14 @@ export default function TextSettings() {
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M3 7h18c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm0 4h14c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm18 2H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm-4 4H3c-.6 0-1 .4-1 1s.4 1 1 1h14c.6 0 1-.4 1-1s-.4-1-1-1z"/>
                   </svg>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Align left
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
                 </button>
                 <button
                   onClick={() => setTextAlign('center')}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'center' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
                   }`}
                   title="Align center"
@@ -218,10 +226,14 @@ export default function TextSettings() {
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M17 19H7c-.6 0-1 .4-1 1s.4 1 1 1h10c.6 0 1-.4 1-1s-.4-1-1-1zM3 5h18c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm18 10H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm0-4H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm0-4H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1z"/>
                   </svg>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Align center
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
                 </button>
                 <button
                   onClick={() => setTextAlign('right')}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'right' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
                   }`}
                   title="Align right"
@@ -229,6 +241,10 @@ export default function TextSettings() {
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M3 7h18c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm18 2H7c-.6 0-1 .4-1 1s.4 1 1 1h14c.6 0 1-.4 1-1s-.4-1-1-1zm0 4H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm0 4H7c-.6 0-1 .4-1 1s.4 1 1 1h14c.6 0 1-.4 1-1s-.4-1-1-1z"/>
                   </svg>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Align right
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
                 </button>
               </div>
             </div>
@@ -335,10 +351,12 @@ export default function TextSettings() {
                         }}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
                       >
-                        {animationType === option.value && (
+                        {animationType === option.value ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
+                        ) : (
+                          <div className="w-4 h-4 mr-2"></div>
                         )}
                         <span>{option.label}</span>
                       </button>
