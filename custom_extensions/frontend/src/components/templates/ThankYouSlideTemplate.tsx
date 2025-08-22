@@ -168,7 +168,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100vh',
+    height: '86vh',
     backgroundColor: slideBackgroundColor,
     display: 'flex',
     flexDirection: 'column',
@@ -267,7 +267,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
-        top: '80px',
+        top: '220px',
         left: '80px'
       }}>
         {isEditable && editingTitle ? (
@@ -305,7 +305,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Horizontal separator line */}
       <div style={{
         position: 'absolute',
-        top: '160px',
+        top: '286px',
         left: '80px',
         right: '80px',
         height: '1px',
@@ -315,7 +315,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Content area */}
       <div style={{
         position: 'absolute',
-        top: '220px',
+        top: '300px',
         left: '80px',
         right: '80px'
       }}>
@@ -469,14 +469,13 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Profile Image - Top right */}
       <div style={{
         width: '200px',
+        marginTop: '-37px',
         height: '200px',
-        borderRadius: '50%',
-        backgroundColor: 'white',
+        borderRadius: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        border: '4px solid white',
         position: 'absolute',
         top: '80px',
         right: '80px',
@@ -511,7 +510,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Company name */}
       <div style={{
         position: 'absolute',
-        bottom: '60px',
+        bottom: '38px',
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
