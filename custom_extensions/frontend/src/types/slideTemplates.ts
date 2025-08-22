@@ -366,6 +366,8 @@ export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
   content: string;
   imagePath?: string;
   imageAlt?: string;
+  logoPath?: string;
+  logoAlt?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

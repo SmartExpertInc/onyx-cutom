@@ -129,6 +129,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   content = 'Maintaining a healthy work-life balance allows me to be more present and engaged both at work and in my personal life, resulting in increased productivity and overall satisfaction.',
   imagePath = '',
   imageAlt = 'Work-life balance image',
+  logoPath = '',
+  logoAlt = 'Company logo',
   backgroundColor,
   titleColor,
   contentColor,
@@ -167,7 +169,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -175,7 +177,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     setCurrentContent(newContent);
     setEditingContent(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
     }
   };
 
@@ -191,7 +193,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, backgroundColor, titleColor, contentColor, accentColor }, imagePath: newImagePath });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, imagePath: newImagePath });
+    }
+  };
+
+  const handleLogoUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, logoPath: newLogoPath });
     }
   };
 
@@ -214,32 +222,54 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           gap: '10px',
           color: 'white'
         }}>
-          <div style={{
-            width: '30px',
-            height: '30px',
-            border: '2px solid white',
-            borderRadius: '50%',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          {logoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={logoPath}
+              onImageUploaded={handleLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
+          ) : (
+            // Show default logo design
             <div style={{
-              width: '12px',
-              height: '2px',
-              backgroundColor: 'white',
-              position: 'absolute'
-            }} />
-            <div style={{
-              width: '2px',
-              height: '12px',
-              backgroundColor: 'white',
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)'
-            }} />
-          </div>
+              width: '30px',
+              height: '30px',
+              border: '2px solid white',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && handleLogoUploaded('')}
+            >
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: 'white',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: 'white',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+          )}
           <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
         </div>
 
