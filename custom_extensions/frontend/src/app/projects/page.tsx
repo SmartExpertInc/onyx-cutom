@@ -419,7 +419,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
       <div className="relative mb-6">
-        <div className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
+        <div className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
               <svg 
