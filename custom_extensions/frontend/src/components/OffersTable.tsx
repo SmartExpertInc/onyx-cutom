@@ -68,7 +68,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   // Fetch offers
-  const fetchOffers = useCallback(async () => {
+  const fetchOffers = useCallback(async (search?: string) => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -78,8 +78,8 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
       if (statusFilter) {
         params.append('status', statusFilter);
       }
-      if (searchTerm) {
-        params.append('search', searchTerm);
+      if (search) {
+        params.append('search', search);
       }
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/offers?${params}`, {
@@ -107,11 +107,21 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     } finally {
       setLoading(false);
     }
-  }, [companyId, statusFilter, searchTerm, CUSTOM_BACKEND_URL]);
+  }, [companyId, statusFilter, CUSTOM_BACKEND_URL]);
 
+  // Debounced search effect
   useEffect(() => {
-    fetchOffers();
-  }, [fetchOffers]);
+    const timeoutId = setTimeout(() => {
+      fetchOffers(searchTerm);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, fetchOffers]);
+
+  // Initial load and filter changes
+  useEffect(() => {
+    fetchOffers(searchTerm);
+  }, [companyId, statusFilter]);
 
   // Sort offers
   const sortedOffers = useMemo(() => {
@@ -213,7 +223,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
       }
 
       // Refresh offers
-      fetchOffers();
+      fetchOffers(searchTerm);
     } catch (error) {
       console.error('Error deleting offer:', error);
       alert(t('interface.deleteOfferError', 'Failed to delete offer'));
@@ -230,7 +240,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   const handleOfferSaved = () => {
     setShowEditModal(false);
     setEditingOffer(null);
-    fetchOffers();
+    fetchOffers(searchTerm);
   };
 
   if (loading) {
@@ -248,7 +258,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
           <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />
           <p className="text-red-600">{error}</p>
           <button
-            onClick={fetchOffers}
+            onClick={() => fetchOffers(searchTerm)}
             className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             {t('interface.retry', 'Retry')}
@@ -288,7 +298,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
             placeholder={t('interface.searchOffers', 'Search offers...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
           />
         </div>
         <select

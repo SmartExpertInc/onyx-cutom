@@ -67,6 +67,45 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
     }
   }, [selectedClient]);
 
+  // Helper function to calculate lesson data for a project (copied from ProjectsTable)
+  const getLessonData = async (project: any) => {
+    if (project.design_microproduct_type !== "Training Plan") {
+      return { lessonCount: 0, totalHours: 0, completionTime: 0 };
+    }
+
+    try {
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+
+      const response = await fetch(
+        `${CUSTOM_BACKEND_URL}/projects/${project.id}/lesson-data`,
+        {
+          method: "GET",
+          headers,
+          credentials: "same-origin",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          lessonCount: data.lessonCount || 0,
+          totalHours: data.totalHours || 0,
+          completionTime: data.completionTime || 0,
+        };
+      } else {
+        console.error("Failed to fetch lesson data:", response.status);
+        return { lessonCount: 0, totalHours: 0, completionTime: 0 };
+      }
+    } catch (error) {
+      console.error("Error fetching lesson data:", error);
+      return { lessonCount: 0, totalHours: 0, completionTime: 0 };
+    }
+  };
+
   // Auto-calculate total hours when company is selected
   useEffect(() => {
     const calculateTotalHours = async () => {
@@ -83,26 +122,15 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
 
         if (response.ok) {
           const projects = await response.json();
-          // Calculate total hours from all projects based on microproduct content
-          const totalHours = projects.reduce((sum: number, project: any) => {
-            let projectHours = 0;
-            
-            // Calculate hours from microproduct_content
-            if (project.microproduct_content && project.microproduct_content.sections) {
-              for (const section of project.microproduct_content.sections) {
-                if (section.lessons) {
-                  for (const lesson of section.lessons) {
-                    // Add lesson hours if available
-                    if (lesson.hours) {
-                      projectHours += lesson.hours;
-                    }
-                  }
-                }
-              }
+          // Calculate total hours using the same mechanism as ProjectsTable
+          let totalHours = 0;
+          
+          for (const project of projects) {
+            if (project.design_microproduct_type === "Training Plan") {
+              const lessonData = await getLessonData(project);
+              totalHours += lessonData.totalHours || 0;
             }
-            
-            return sum + projectHours;
-          }, 0);
+          }
           
           setFormData(prev => ({ ...prev, total_hours: totalHours }));
         }
@@ -172,13 +200,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
           {isLoading && !dataLoaded ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-2 text-gray-600">{t('interface.loadingClients', 'Loading clients...')}</span>
+              <span className="ml-2 text-black">{t('interface.loadingClients', 'Loading clients...')}</span>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Company dropdown */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-black mb-1">
                   {t('interface.company', 'Company')} *
                 </label>
                 {selectedClient ? (
@@ -186,13 +214,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                     type="text"
                     value={selectedClient.name}
                     disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-black"
                   />
                 ) : (
                   <select
                     value={formData.company_id}
                     onChange={handleCompanyChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                     required
                   >
                     <option value="">{t('interface.selectClient', 'Select a client...')}</option>
@@ -207,14 +235,14 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Offer Name field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-black mb-1">
                   {t('interface.offerName', 'Offer Name')} *
                 </label>
                 <input
                   type="text"
                   value={formData.offer_name}
                   onChange={(e) => setFormData({...formData, offer_name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   placeholder={t('interface.enterOfferName', 'Enter offer name...')}
                   required
                 />
@@ -222,14 +250,14 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Manager field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-black mb-1">
                   {t('interface.manager', 'Manager')} *
                 </label>
                 <input
                   type="text"
                   value={formData.manager}
                   onChange={(e) => setFormData({...formData, manager: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   placeholder={t('interface.enterManager', 'Enter manager name...')}
                   required
                 />
@@ -237,13 +265,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Status dropdown */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-black mb-1">
                   {t('interface.status', 'Status')} *
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   required
                 >
                   <option value="Draft">{t('interface.draft', 'Draft')}</option>
@@ -260,7 +288,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Total Hours field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-black mb-1">
                   {t('interface.totalHours', 'Total Hours')}
                   {formData.company_id && (
                     <span className="text-xs text-blue-600 ml-1">
@@ -273,11 +301,11 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                   min="0"
                   value={formData.total_hours}
                   onChange={(e) => setFormData({...formData, total_hours: parseInt(e.target.value) || 0})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   placeholder="0"
                 />
                 {formData.company_id && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-black mt-1">
                     {t('interface.totalHoursHelp', 'Total hours are automatically calculated based on projects in the selected client folder')}
                   </p>
                 )}
@@ -285,14 +313,14 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Link field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-black mb-1">
                   {t('interface.link', 'Link')}
                 </label>
                 <input
                   type="url"
                   value={formData.link}
                   onChange={(e) => setFormData({...formData, link: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   placeholder="https://..."
                 />
               </div>
