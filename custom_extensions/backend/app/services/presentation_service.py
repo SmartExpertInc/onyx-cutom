@@ -237,23 +237,12 @@ class ProfessionalPresentationService:
             # Step 5: Cleanup temporary files
             await self._cleanup_temp_files([slide_video_path, avatar_video_path])
             
-            # Step 6: Auto-save video to project (like PDF generation does)
-            logger.info(f"Step 6: Auto-saving video to project for job {job_id}")
-            job.progress = 95.0
-            
-            try:
-                await self._auto_save_video_to_project(request.slide_url, job_id)
-                logger.info(f"Video auto-saved to project successfully for job {job_id}")
-            except Exception as save_error:
-                logger.warning(f"Failed to auto-save video to project for job {job_id}: {save_error}")
-                # Don't fail the whole job if auto-save fails
-            
             # Update job status
             job.status = "completed"
             job.progress = 100.0
             job.completed_at = datetime.now()
-            job.video_url = f"/api/custom/presentations/{job_id}/video"
-            job.thumbnail_url = f"/api/custom/presentations/{job_id}/thumbnail"
+            job.video_url = f"/presentations/{job_id}/video"
+            job.thumbnail_url = f"/presentations/{job_id}/thumbnail"
             
             logger.info(f"Presentation {job_id} completed successfully")
             
@@ -580,87 +569,6 @@ class ProfessionalPresentationService:
             
         except Exception as e:
             logger.error(f"Job cleanup failed: {e}")
-    
-    async def _auto_save_video_to_project(self, slide_url: str, job_id: str):
-        """
-        Auto-save the generated video to the project, similar to PDF generation.
-        
-        Args:
-            slide_url: URL of the slide (e.g., /projects/view/123)
-            job_id: Job ID for the video
-        """
-        try:
-            import re
-            import asyncpg
-            import os
-            import json
-            
-            # Extract project ID from URL
-            project_id_match = re.search(r'/projects/view/(\d+)', slide_url)
-            if not project_id_match:
-                logger.warning(f"Could not extract project ID from URL: {slide_url}")
-                return
-            
-            project_id = int(project_id_match.group(1))
-            logger.info(f"Auto-saving video for project ID: {project_id}")
-            
-            # Get database connection (similar to how main.py does it)
-            DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:ookBossyauptyetPaxTy@localhost:5433/microproducts_db")
-            
-            # Connect to database
-            pool = await asyncpg.create_pool(DATABASE_URL)
-            
-            try:
-                async with pool.acquire() as conn:
-                    # Get current project data
-                    project = await conn.fetchrow(
-                        "SELECT * FROM projects WHERE id = $1", project_id
-                    )
-                    
-                    if not project:
-                        logger.warning(f"Project {project_id} not found for auto-save")
-                        return
-                    
-                    # Get current project content
-                    current_content = project['microproduct_content']
-                    if isinstance(current_content, str):
-                        try:
-                            current_content = json.loads(current_content)
-                        except:
-                            current_content = {}
-                    elif not current_content:
-                        current_content = {}
-                    
-                    # Add video URL to the project content (similar to how PDF URLs are handled)
-                    video_url = f"/api/custom/presentations/{job_id}/video"
-                    thumbnail_url = f"/api/custom/presentations/{job_id}/thumbnail"
-                    
-                    # Update the content with video information
-                    if 'videoData' not in current_content:
-                        current_content['videoData'] = {}
-                    
-                    current_content['videoData'].update({
-                        'videoUrl': video_url,
-                        'thumbnailUrl': thumbnail_url,
-                        'jobId': job_id,
-                        'generatedAt': datetime.now().isoformat(),
-                        'status': 'completed'
-                    })
-                    
-                    # Update the project in database
-                    await conn.execute(
-                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
-                        json.dumps(current_content), project_id
-                    )
-                    
-                    logger.info(f"Video auto-saved to project {project_id} successfully")
-                    
-            finally:
-                await pool.close()
-                
-        except Exception as e:
-            logger.error(f"Error in auto-save video to project: {str(e)}")
-            raise
 
 # Global instance
 presentation_service = ProfessionalPresentationService()

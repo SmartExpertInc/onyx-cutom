@@ -374,7 +374,10 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
        console.log('💾 [DOWNLOAD] Starting download from URL:', videoUrl);
        
        // Construct the full download URL
-       const fullUrl = videoUrl.startsWith('http') ? videoUrl : `${CUSTOM_BACKEND_URL}${videoUrl}`;
+       // Use direct construction like ProfessionalVideoPresentationButton
+       const fullUrl = videoUrl.startsWith('http') 
+         ? videoUrl 
+         : `${CUSTOM_BACKEND_URL}${videoUrl}`;
        console.log('💾 [DOWNLOAD] Full download URL:', fullUrl);
        
        // Fetch the video file
