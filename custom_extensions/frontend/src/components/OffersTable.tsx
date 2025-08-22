@@ -463,7 +463,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                             onBlur={() => setEditingStatus(null)}
                             autoFocus
                             disabled={updatingStatus === offer.id}
-                            className="text-xs font-medium bg-white border border-gray-300 rounded-full px-2.5 py-0.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                            className={`text-xs font-medium border border-gray-300 rounded-full px-2.5 py-0.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 ${statusInfo.bgColor} text-gray-900`}
                           >
                             <option value="Draft">{t('interface.draft', 'Draft')}</option>
                             <option value="Internal Review">{t('interface.internalReview', 'Internal Review')}</option>
