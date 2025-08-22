@@ -107,14 +107,14 @@ export default function TextSettings() {
                           setFontFamily(option.value);
                           setShowFontFamilyDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center justify-between"
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
                       >
-                        <span>{option.label}</span>
                         {fontFamily === option.value && (
-                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
+                        <span>{option.label}</span>
                       </button>
                     ))}
                   </div>
@@ -128,21 +128,29 @@ export default function TextSettings() {
               <div className="flex space-x-2">
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
                     isBold ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   }`}
                   title="Bold"
                 >
                   <span className="font-bold text-sm">B</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Bold
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
                     isItalic ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   }`}
                   title="Italic"
                 >
                   <span className="italic text-sm">I</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    Italic
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
                 </button>
               </div>
             </div>
@@ -170,14 +178,14 @@ export default function TextSettings() {
                           setFontSize(option.value);
                           setShowFontSizeDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center justify-between"
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
                       >
-                        <span>{option.label}</span>
                         {fontSize === option.value && (
-                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
+                        <span>{option.label}</span>
                       </button>
                     ))}
                   </div>
@@ -309,14 +317,14 @@ export default function TextSettings() {
                           setAnimationType(option.value as 'none' | 'fade' | 'slide' | 'grow');
                           setShowDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center justify-between"
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
                       >
-                        <span>{option.label}</span>
                         {animationType === option.value && (
-                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
+                        <span>{option.label}</span>
                       </button>
                     ))}
                   </div>

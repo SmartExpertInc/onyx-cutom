@@ -110,7 +110,7 @@ export default function SceneTimeline({
 
               {/* Transition button - show between scenes (not after the last one) */}
               {index < scenes.length - 1 && (
-                <div className="relative group flex items-center">
+                <div className="relative group flex items-center h-16">
                   <button className="w-16 h-8 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <svg 
                       className="w-4 h-4 text-gray-600" 
