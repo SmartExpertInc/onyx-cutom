@@ -6672,7 +6672,7 @@ class OfferBase(BaseModel):
     manager: str
     status: str
     total_hours: int = 0
-    link: Optional[str] = None
+    # link is auto-generated, not provided in create requests
 
 class OfferCreate(OfferBase):
     pass
@@ -6683,7 +6683,7 @@ class OfferUpdate(BaseModel):
     manager: Optional[str] = None
     status: Optional[str] = None
     total_hours: Optional[int] = None
-    link: Optional[str] = None
+    # link is auto-generated and not editable
 
 class OfferResponse(OfferBase):
     id: int
@@ -21568,13 +21568,32 @@ async def create_offer(
             if not company_exists:
                 raise HTTPException(status_code=404, detail="Company not found")
             
-            # Insert the new offer
+            # First insert the offer without link to get the ID
             row = await connection.fetchrow("""
                 INSERT INTO offers (onyx_user_id, company_id, offer_name, manager, status, total_hours, link)
                 VALUES ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING *, (SELECT name FROM project_folders WHERE id = $2) as company_name
             """, onyx_user_id, offer_data.company_id, offer_data.offer_name, 
-                 offer_data.manager, offer_data.status, offer_data.total_hours, offer_data.link)
+                 offer_data.manager, offer_data.status, offer_data.total_hours, None)
+            
+            # Generate auto link based on the offer ID
+            offer_id = row['id']
+            # Get the base URL from the request
+            base_url = str(request.base_url).rstrip('/')
+            # Remove /api/custom from the base URL if present
+            if base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            auto_link = f"{base_url}/offer/{offer_id}"
+            
+            # Update the offer with the auto-generated link
+            await connection.execute(
+                "UPDATE offers SET link = $1 WHERE id = $2",
+                auto_link, offer_id
+            )
+            
+            # Update the row dict with the new link
+            row_dict = dict(row)
+            row_dict['link'] = auto_link
         
         return OfferResponse(
             id=row['id'],
@@ -21637,10 +21656,7 @@ async def update_offer(
             update_fields.append(f"total_hours = ${param_count}")
             params.append(offer_data.total_hours)
         
-        if offer_data.link is not None:
-            param_count += 1
-            update_fields.append(f"link = ${param_count}")
-            params.append(offer_data.link)
+        # Note: link is auto-generated and not editable
         
         if not update_fields:
             raise HTTPException(status_code=400, detail="No fields to update")
@@ -21663,18 +21679,18 @@ async def update_offer(
                 raise HTTPException(status_code=404, detail="Offer not found")
         
         return OfferResponse(
-            id=row['id'],
-            onyx_user_id=row['onyx_user_id'],
-            company_id=row['company_id'],
-            offer_name=row['offer_name'],
-            created_on=row['created_on'],
-            manager=row['manager'],
-            status=row['status'],
-            total_hours=row['total_hours'],
-            link=row['link'],
-            created_at=row['created_at'],
-            updated_at=row['updated_at'],
-            company_name=row['company_name']
+            id=row_dict['id'],
+            onyx_user_id=row_dict['onyx_user_id'],
+            company_id=row_dict['company_id'],
+            offer_name=row_dict['offer_name'],
+            created_on=row_dict['created_on'],
+            manager=row_dict['manager'],
+            status=row_dict['status'],
+            total_hours=row_dict['total_hours'],
+            link=row_dict['link'],
+            created_at=row_dict['created_at'],
+            updated_at=row_dict['updated_at'],
+            company_name=row_dict['company_name']
         )
         
     except HTTPException:
@@ -21708,3 +21724,151 @@ async def delete_offer(
     except Exception as e:
         logger.error(f"Error deleting offer: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to delete offer")
+
+@app.get("/api/custom/offers/{offer_id}/details")
+async def get_offer_details(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Get detailed offer information for offer detail page"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offer basic info
+            offer_row = await connection.fetchrow("""
+                SELECT o.*, pf.name as company_name
+                FROM offers o
+                JOIN project_folders pf ON o.company_id = pf.id
+                WHERE o.id = $1 AND o.onyx_user_id = $2
+            """, offer_id, onyx_user_id)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+            
+            offer = dict(offer_row)
+            
+            # Get projects in the company folder to build course modules
+            projects_rows = await connection.fetch("""
+                SELECT p.id, p.project_name, p.microproduct_content
+                FROM projects p
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2
+                AND p.microproduct_content IS NOT NULL
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """, offer['company_id'], onyx_user_id)
+            
+            course_modules = []
+            total_lessons = 0
+            total_learning_duration = 0
+            
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    project_lessons = 0
+                    project_completion_time = 0
+                    project_hours = 0
+                    
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            for lesson in section['lessons']:
+                                project_lessons += 1
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                    project_completion_time += completion_minutes
+                                except (ValueError, AttributeError):
+                                    project_completion_time += 5
+                                
+                                # Get lesson hours
+                                lesson_hours = lesson.get('hours', 0)
+                                project_hours += lesson_hours
+                    
+                    if project_lessons > 0:
+                        learning_duration_hours = round(project_completion_time / 60.0, 1)
+                        course_modules.append({
+                            'title': project_dict['project_name'],
+                            'lessons': project_lessons,
+                            'learningDuration': f"{learning_duration_hours}h",
+                            'productionTime': f"{project_hours}h"
+                        })
+                        
+                        total_lessons += project_lessons
+                        total_learning_duration += learning_duration_hours
+            
+            # Generate quality levels data
+            quality_levels = [
+                {
+                    'level': 'Level 1 - Basic',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionRatio': f"1:200",
+                    'productionTime': f"{int(total_learning_duration * 200)}h"
+                },
+                {
+                    'level': 'Level 2 - Interactive',
+                    'learningDuration': f"{total_learning_duration}h", 
+                    'productionRatio': f"1:300",
+                    'productionTime': f"{int(total_learning_duration * 300)}h"
+                },
+                {
+                    'level': 'Level 3 - Advanced',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionRatio': f"1:400",
+                    'productionTime': f"{int(total_learning_duration * 400)}h"
+                },
+                {
+                    'level': 'Level 4 - Immersive',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionRatio': f"1:600",
+                    'productionTime': f"{int(total_learning_duration * 600)}h"
+                }
+            ]
+            
+            return {
+                'offer': offer,
+                'courseModules': course_modules,
+                'qualityLevels': quality_levels
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching offer details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offer details")
+
+@app.post("/api/custom/offers/migrate-links")
+async def migrate_offer_links(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Update existing offers with auto-generated links"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offers without links or with empty links
+            offers = await connection.fetch("""
+                SELECT id FROM offers 
+                WHERE onyx_user_id = $1 AND (link IS NULL OR link = '')
+            """, onyx_user_id)
+            
+            updated_count = 0
+            base_url = str(request.base_url).rstrip('/')
+            if base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            for offer in offers:
+                offer_id = offer['id']
+                auto_link = f"{base_url}/offer/{offer_id}"
+                
+                await connection.execute(
+                    "UPDATE offers SET link = $1 WHERE id = $2",
+                    auto_link, offer_id
+                )
+                updated_count += 1
+            
+            return {"message": f"Updated {updated_count} offers with auto-generated links"}
+            
+    except Exception as e:
+        logger.error(f"Error migrating offer links: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to migrate offer links")
