@@ -49,10 +49,8 @@ export default function SceneTimeline({
   };
 
   return (
-    <div className="bg-white rounded-md overflow-auto p-4" style={{ height: 'calc(20% + 10px)' }}>
-      <div className="flex flex-col gap-4">
-        {/* Top row - Visual elements aligned horizontally */}
-        <div className="flex items-center gap-4">
+    <div className="bg-white rounded-md overflow-auto p-4" style={{ height: 'calc(25% + 20px)' }}>
+      <div className="flex items-center gap-6">
           {/* Play Button with Time */}
           <div className="relative flex items-center justify-center h-16">
             <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
@@ -64,9 +62,9 @@ export default function SceneTimeline({
           {/* Dynamic Scene Rectangles */}
           {scenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
-              <div className="relative group">
+              <div className="relative group flex flex-col items-center">
                 <div 
-                  className="bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center relative"
+                  className="bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center relative mb-3"
                   style={getSceneRectangleStyles()}
                 >
                   <div className="w-8 h-8 bg-blue-500 rounded"></div>
@@ -91,6 +89,22 @@ export default function SceneTimeline({
                       </svg>
                     </button>
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{scene.name}</span>
+                  <svg 
+                    className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
+                    />
+                  </svg>
                 </div>
               </div>
 
@@ -120,58 +134,28 @@ export default function SceneTimeline({
           ))}
 
           {/* Add Scene Rectangle */}
-          <div 
-            className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-            style={getSceneRectangleStyles()}
-            onClick={onAddScene}
-          >
-            <svg 
-              className="w-8 h-8 text-gray-600" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
+          <div className="flex flex-col items-center">
+            <div 
+              className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors mb-3"
+              style={getSceneRectangleStyles()}
+              onClick={onAddScene}
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-              />
-            </svg>
+              <svg 
+                className="w-8 h-8 text-gray-600" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                />
+              </svg>
+            </div>
           </div>
         </div>
-
-        {/* Bottom row - Scene labels */}
-        <div className="flex items-center gap-4">
-          {/* Empty space for play button alignment */}
-          <div className="w-10 h-0"></div>
-          
-          {/* Scene labels */}
-          {scenes.map((scene, index) => (
-            <React.Fragment key={scene.id}>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{scene.name}</span>
-                <svg 
-                  className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
-                  />
-                </svg>
-              </div>
-              
-              {/* Empty space for transition button alignment */}
-              {index < scenes.length - 1 && <div className="w-8 h-0"></div>}
-            </React.Fragment>
-          ))}
-        </div>
       </div>
-    </div>
-  );
+    );
 }

@@ -40,7 +40,7 @@ export default function VideoPreview({ aspectRatio }: VideoPreviewProps) {
   };
 
   return (
-    <div className="bg-gray-200 rounded-md overflow-auto flex items-center justify-center" style={{ height: '80%' }}>
+    <div className="bg-gray-200 rounded-md overflow-auto flex items-center justify-center" style={{ height: '75%' }}>
       {/* Video Container - White rectangle representing the video aspect ratio */}
       <div 
         className="bg-white rounded-md shadow-lg flex items-center justify-center"
