@@ -21692,18 +21692,18 @@ async def update_offer(
                 raise HTTPException(status_code=404, detail="Offer not found")
         
         return OfferResponse(
-            id=row_dict['id'],
-            onyx_user_id=row_dict['onyx_user_id'],
-            company_id=row_dict['company_id'],
-            offer_name=row_dict['offer_name'],
-            created_on=row_dict['created_on'],
-            manager=row_dict['manager'],
-            status=row_dict['status'],
-            total_hours=row_dict['total_hours'],
-            link=row_dict['link'],
-            created_at=row_dict['created_at'],
-            updated_at=row_dict['updated_at'],
-            company_name=row_dict['company_name']
+            id=row['id'],
+            onyx_user_id=row['onyx_user_id'],
+            company_id=row['company_id'],
+            offer_name=row['offer_name'],
+            created_on=row['created_on'],
+            manager=row['manager'],
+            status=row['status'],
+            total_hours=row['total_hours'],
+            link=row['link'],
+            created_at=row['created_at'],
+            updated_at=row['updated_at'],
+            company_name=row['company_name']
         )
         
     except HTTPException:

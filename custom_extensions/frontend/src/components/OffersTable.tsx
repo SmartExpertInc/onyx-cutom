@@ -31,6 +31,7 @@ import {
   MessageSquare,
   ThumbsUp,
   ThumbsDown,
+  ChevronDown,
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 
@@ -476,13 +477,15 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                           </select>
                         ) : (
                           <span 
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${statusInfo.bgColor} ${statusInfo.color}`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${statusInfo.bgColor} text-gray-900`}
                             onClick={() => setEditingStatus(offer.id)}
                           >
                             <StatusIcon className="h-3 w-3 mr-1" />
                             {offer.status}
-                            {updatingStatus === offer.id && (
+                            {updatingStatus === offer.id ? (
                               <div className="ml-1 w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <ChevronDown className="h-3 w-3 ml-1" />
                             )}
                           </span>
                         )}
