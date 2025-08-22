@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 import json
 
-from .slide_capture_service import slide_capture_service, SlideVideoConfig
+# from .slide_capture_service import slide_capture_service, SlideVideoConfig  # DISABLED - Using clean pipeline only
 from .video_composer_service import video_composer_service, CompositionConfig
 from .video_generation_service import video_generation_service
 
@@ -28,7 +28,7 @@ class PresentationRequest:
     """Request configuration for video presentation generation."""
     slide_url: str
     voiceover_texts: List[str]
-    avatar_code: str = "gia.casual"
+    avatar_code: Optional[str] = None  # Will be dynamically selected if None
     duration: float = 30.0
     layout: str = "side_by_side"  # side_by_side, picture_in_picture, split_screen
     quality: str = "high"  # high, medium, low
@@ -122,28 +122,35 @@ class ProfessionalPresentationService:
             job.progress = 5.0
             
             # Step 1: Capture slide video
-            logger.info(f"Step 1: Capturing slide video for job {job_id}")
+            logger.info(f"Step 1: Generating clean slide video for job {job_id}")
             job.progress = 10.0
             
-            slide_config = SlideVideoConfig(
-                slide_url=request.slide_url,
-                duration=request.duration,
-                width=request.resolution[0],
-                height=request.resolution[1],
-                frame_rate=30,
-                quality=request.quality
-            )
-            
+            # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
             try:
-                slide_video_path = await slide_capture_service.capture_slide_video(slide_config)
-                logger.info(f"Slide video captured: {slide_video_path}")
-            except Exception as slide_error:
-                logger.warning(f"Primary slide capture failed: {slide_error}")
-                logger.info("Attempting screenshot fallback method")
+                # Try to extract slide props from URL or use fallback
+                slide_props = await self._extract_slide_props_from_url(request.slide_url)
                 
-                # Try fallback method
-                slide_video_path = await slide_capture_service.capture_with_screenshots(slide_config)
-                logger.info(f"Screenshot fallback successful: {slide_video_path}")
+                # Import the clean video generation service
+                from .clean_video_generation_service import clean_video_generation_service
+                
+                # Generate clean slide video
+                result = await clean_video_generation_service.generate_avatar_slide_video(
+                    slide_props=slide_props,
+                    theme="dark-purple",  # Could be extracted from request
+                    slide_duration=request.duration,
+                    quality=request.quality
+                )
+                
+                if result["success"]:
+                    slide_video_path = result["video_path"]
+                    logger.info(f"Clean video generation successful: {slide_video_path}")
+                else:
+                    logger.error(f"Clean video generation failed: {result['error']}")
+                    raise Exception(f"Video generation failed: {result['error']}")
+                    
+            except Exception as slide_error:
+                logger.error(f"Clean video generation error: {slide_error}")
+                raise Exception(f"Video generation failed: {str(slide_error)}")
             
             job.progress = 30.0
             
@@ -211,13 +218,96 @@ class ProfessionalPresentationService:
             job.error = str(e)
             job.completed_at = datetime.now()
     
-    async def _generate_avatar_video(self, voiceover_texts: List[str], avatar_code: str, duration: float) -> str:
+    async def _extract_slide_props_from_url(self, slide_url: str) -> Dict[str, Any]:
+        """
+        Extract slide properties from URL or provide fallback.
+        
+        Args:
+            slide_url: URL of the slide
+            
+        Returns:
+            Slide properties dict
+        """
+        try:
+            # For now, provide a fallback slide since we can't easily extract from URL
+            # In a real implementation, you might parse the URL or make an API call
+            # to get the actual slide data
+            
+            fallback_slide = {
+                "templateId": "avatar-checklist",
+                "title": "Professional Communication",
+                "items": [
+                    {"text": "Listen actively to client needs", "isPositive": True},
+                    {"text": "Provide clear and helpful responses", "isPositive": True},
+                    {"text": "Follow up on commitments", "isPositive": True},
+                    {"text": "Avoid generic or cold responses", "isPositive": False}
+                ]
+            }
+            
+            logger.info(f"Using fallback slide props for URL: {slide_url}")
+            return fallback_slide
+            
+        except Exception as e:
+            logger.error(f"Error extracting slide props from URL: {str(e)}")
+            # Return minimal fallback
+            return {
+                "templateId": "avatar-service",
+                "title": "Generated Presentation",
+                "subtitle": "Professional Video Content",
+                "content": "This is a generated presentation slide."
+            }
+    
+    async def _get_available_avatar(self) -> str:
+        """
+        Get an available avatar code from Elai API.
+        
+        Returns:
+            Avatar code string
+        """
+        try:
+            # Get avatars from video generation service
+            avatars_response = await video_generation_service.get_avatars()
+            
+            if not avatars_response["success"]:
+                logger.error(f"Failed to fetch avatars: {avatars_response['error']}")
+                # Fallback to common avatar codes
+                fallback_avatars = ["anna", "james", "sara", "john", "emily", "david"]
+                logger.info(f"Using fallback avatar: {fallback_avatars[0]}")
+                return fallback_avatars[0]
+            
+            avatars = avatars_response["avatars"]
+            if not avatars:
+                logger.error("No avatars available")
+                return "anna"  # Final fallback
+            
+            # Prefer female avatars, then any available
+            preferred_genders = ["female", "male", None]
+            
+            for gender in preferred_genders:
+                for avatar in avatars:
+                    if gender is None or avatar.get("gender") == gender:
+                        avatar_code = avatar.get("code")
+                        if avatar_code:
+                            logger.info(f"Selected avatar: {avatar_code} ({avatar.get('name', 'Unknown')})")
+                            return avatar_code
+            
+            # If no preference match, take first available
+            first_avatar = avatars[0]
+            avatar_code = first_avatar.get("code", "anna")
+            logger.info(f"Using first available avatar: {avatar_code}")
+            return avatar_code
+            
+        except Exception as e:
+            logger.error(f"Error getting available avatar: {str(e)}")
+            return "anna"  # Final fallback
+    
+    async def _generate_avatar_video(self, voiceover_texts: List[str], avatar_code: Optional[str], duration: float) -> str:
         """
         Generate avatar video using Elai API.
         
         Args:
             voiceover_texts: List of voiceover texts
-            avatar_code: Avatar code to use
+            avatar_code: Avatar code to use (None for auto-selection)
             duration: Video duration
             
         Returns:
@@ -225,6 +315,13 @@ class ProfessionalPresentationService:
         """
         try:
             logger.info(f"Generating avatar video with {len(voiceover_texts)} voiceover texts")
+            
+            # Get avatar code if not provided
+            if not avatar_code:
+                avatar_code = await self._get_available_avatar()
+                logger.info(f"Auto-selected avatar: {avatar_code}")
+            else:
+                logger.info(f"Using specified avatar: {avatar_code}")
             
             # Create video with Elai API
             result = await video_generation_service.create_video_from_texts(

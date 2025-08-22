@@ -1076,4 +1076,16 @@ class ProfessionalSlideCapture:
             raise
 
 # Global instance
-slide_capture_service = ProfessionalSlideCapture()
+# Screenshot services disabled - using clean HTML → PNG → Video pipeline only
+# slide_capture_service = ProfessionalSlideCapture()
+
+class DisabledSlideCapture:
+    """Disabled slide capture service to prevent screenshot errors."""
+    
+    async def capture_slide_video(self, *args, **kwargs):
+        raise Exception("Screenshot capture disabled - using clean video pipeline only")
+    
+    async def capture_with_screenshots(self, *args, **kwargs):
+        raise Exception("Screenshot capture disabled - using clean video pipeline only")
+
+slide_capture_service = DisabledSlideCapture()

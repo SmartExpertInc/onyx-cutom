@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Slide Template</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reset and base styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Video slide container - EXACT VIDEO DIMENSIONS */
+        .slide-page {
+            width: 1920px;
+            height: 1080px;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            display: block;
+        }
+        
+        .slide-content {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
+        
+        /* Theme color definitions - EXACT FRONTEND MATCH */
+        .theme-dark-purple {
+            --bg-color: #110c35;
+            --title-color: #ffffff;
+            --subtitle-color: #d9e1ff;
+            --content-color: #d9e1ff;
+            --accent-color: #f35657;
+            --title-font: 'Kanit', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 45px;
+            --content-size: 18px;
+        }
+        
+        .theme-light-modern {
+            --bg-color: #ffffff;
+            --title-color: #1a1a1a;
+            --subtitle-color: #6b7280;
+            --content-color: #374151;
+            --accent-color: #3b82f6;
+            --title-font: 'Inter', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 36px;
+            --content-size: 16px;
+        }
+        
+        .theme-corporate-blue {
+            --bg-color: #1e3a8a;
+            --title-color: #ffffff;
+            --subtitle-color: #bfdbfe;
+            --content-color: #e0e7ff;
+            --accent-color: #60a5fa;
+            --title-font: 'Roboto', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 40px;
+            --content-size: 16px;
+        }
+        
+        /* Common slide styles */
+        .slide {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--content-color);
+            font-family: var(--content-font);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            position: relative;
+        }
+        
+        /* Avatar Checklist Slide Template */
+        .avatar-checklist {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .avatar-checklist .content-container {
+            display: flex;
+            flex-direction: row;
+            alignItems: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1800px;
+            gap: 80px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .avatar-checklist .left-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            alignItems: flex-end;
+            z-index: 2;
+            position: relative;
+            height: 100%;
+        }
+        
+        .avatar-checklist .right-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            alignItems: flex-start;
+            gap: 36px;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .avatar-checklist .slide-title {
+            font-size: 3.2rem;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 48px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            font-weight: bold;
+        }
+        
+        .avatar-checklist .checklist-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+        }
+        
+        .avatar-checklist .checklist-item {
+            display: flex;
+            alignItems: center;
+            gap: 24px;
+            font-size: 1.8rem;
+            font-family: var(--content-font);
+            color: var(--content-color);
+            line-height: 1.4;
+            padding: 12px 0;
+        }
+        
+        .avatar-checklist .icon {
+            font-size: 2.1rem;
+            font-weight: bold;
+            color: var(--title-color);
+            min-width: 36px;
+        }
+        
+        .avatar-checklist .positive-icon {
+            color: var(--title-color);
+        }
+        
+        .avatar-checklist .negative-icon {
+            color: #ff4444;
+        }
+        
+        .avatar-checklist .question-icon {
+            font-size: 3rem;
+        }
+        
+        /* Pink shape in top-left corner */
+        .avatar-checklist .pink-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 750px;
+            height: 600px;
+            background-color: var(--title-color);
+            border-radius: 0 0 375px 0;
+            z-index: 1;
+        }
+        
+        /* Dark shape overlapping */
+        .avatar-checklist .dark-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 525px;
+            height: 375px;
+            background-color: #1a1a2e;
+            border-radius: 0 0 300px 0;
+            z-index: 1;
+        }
+        
+        /* Avatar CRM Slide Template */
+        .avatar-crm {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            position: relative;
+            font-family: var(--content-font);
+            overflow: hidden;
+        }
+        
+        .avatar-crm .left-panel {
+            width: 40%;
+            height: 100%;
+            background-color: var(--bg-color);
+            padding: 90px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .avatar-crm .right-panel {
+            width: 60%;
+            height: 100%;
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .avatar-crm .banner {
+            background-color: var(--title-color);
+            color: var(--bg-color);
+            padding: 18px 30px;
+            border-radius: 37px;
+            font-size: 21px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 45px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+        
+        .avatar-crm .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+        }
+        
+        .avatar-crm .checklist-item {
+            display: flex;
+            alignItems: center;
+            margin-bottom: 24px;
+            font-size: 24px;
+            color: var(--content-color);
+            line-height: 1.4;
+        }
+        
+        .avatar-crm .checkmark {
+            color: var(--title-color);
+            margin-right: 18px;
+            font-size: 27px;
+            flex-shrink: 0;
+        }
+        
+        /* Avatar Service Slide Template */
+        .avatar-service {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .avatar-service .content-container {
+            display: flex;
+            flex-direction: row;
+            alignItems: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1800px;
+            gap: 90px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .avatar-service .left-content {
+            flex: 1;
+            text-align: left;
+            z-index: 2;
+            position: relative;
+            padding-left: 90px;
+        }
+        
+        .avatar-service .right-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            alignItems: flex-end;
+            z-index: 2;
+            position: relative;
+            height: 100%;
+        }
+        
+        .avatar-service .slide-title {
+            font-size: 3.75rem;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 24px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            font-weight: bold;
+        }
+        
+        .avatar-service .slide-subtitle {
+            font-size: 2.25rem;
+            font-family: var(--content-font);
+            color: var(--content-color);
+            margin-bottom: 24px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            font-weight: bold;
+        }
+        
+        .avatar-service .content-text {
+            font-size: 1.8rem;
+            font-family: var(--content-font);
+            color: var(--content-color);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* Dark shape in top-left corner */
+        .avatar-service .dark-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 600px;
+            height: 750px;
+            background-color: #1a1a2e;
+            border-radius: 0 0 450px 0;
+            z-index: 1;
+        }
+        
+        /* Avatar With Buttons Slide Template */
+        .avatar-buttons {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+            padding: 60px;
+        }
+        
+        .avatar-buttons .content-container {
+            display: flex;
+            flex-direction: row;
+            alignItems: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1800px;
+            gap: 60px;
+        }
+        
+        .avatar-buttons .left-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            alignItems: flex-end;
+            position: relative;
+            height: 100%;
+        }
+        
+        .avatar-buttons .right-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            alignItems: center;
+            gap: 48px;
+        }
+        
+        .avatar-buttons .slide-title {
+            font-size: 4.2rem;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 60px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .avatar-buttons .buttons-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            width: 100%;
+            max-width: 750px;
+        }
+        
+        .avatar-buttons .button {
+            padding: 30px 0px;
+            width: 263px;
+            border-radius: 18px;
+            border: none;
+            font-size: 1.95rem;
+            font-family: var(--content-font);
+            color: #000000;
+            background-color: var(--title-color);
+            cursor: pointer;
+            word-wrap: break-word;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            min-height: 90px;
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+        }
+        
+        /* Avatar Steps Slide Template */
+        .avatar-steps {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+            padding: 60px;
+        }
+        
+        .avatar-steps .content-container {
+            display: flex;
+            flex-direction: row;
+            alignItems: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1800px;
+            gap: 60px;
+        }
+        
+        .avatar-steps .left-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            alignItems: flex-start;
+            gap: 48px;
+        }
+        
+        .avatar-steps .right-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            alignItems: flex-end;
+            position: relative;
+            height: 100%;
+        }
+        
+        .avatar-steps .slide-title {
+            font-size: 4.2rem;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 60px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            font-weight: bold;
+        }
+        
+        .avatar-steps .steps-container {
+            display: flex;
+            flex-direction: column;
+            alignItems: center;
+            gap: 24px;
+            width: 100%;
+            max-width: 750px;
+        }
+        
+        .avatar-steps .step-box {
+            padding: 30px 48px;
+            border-radius: 18px;
+            border: none;
+            font-size: 1.95rem;
+            font-family: var(--content-font);
+            color: #000000;
+            background-color: var(--title-color);
+            word-wrap: break-word;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            min-height: 90px;
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .avatar-steps .arrow {
+            font-size: 3rem;
+            color: #ffffff;
+            text-align: center;
+            margin: 12px 0;
+            font-weight: bold;
+            display: flex;
+            alignItems: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        /* Avatar placeholder */
+        .avatar-placeholder {
+            width: 935px;
+            height: 843px;
+            margin: 0 auto;
+            position: absolute;
+            top: -370px;
+            z-index: 3;
+            background-color: #e9ecef;
+            border: 3px dashed #adb5bd;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            alignItems: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .avatar-placeholder .placeholder-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+        }
+        
+        .avatar-placeholder .placeholder-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        
+        .avatar-placeholder .placeholder-subtext {
+            font-size: 21px;
+            font-style: italic;
+            margin-bottom: 18px;
+        }
+        
+        .avatar-placeholder .placeholder-dimensions {
+            font-size: 18px;
+            color: #868e96;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-page">
+        <div class="slide-content theme-{{ theme or 'dark-purple' }}">
+            {% if templateId == 'avatar-checklist' %}
+                <div class="avatar-checklist">
+                    <!-- Pink shape in top-left corner -->
+                    <div class="pink-shape"></div>
+                    <!-- Dark shape overlapping -->
+                    <div class="dark-shape"></div>
+                    
+                    <div class="content-container">
+                        <!-- Left content - Avatar -->
+                        <div class="left-content">
+                            <div class="avatar-placeholder">
+                                <div class="placeholder-icon">👤</div>
+                                <div class="placeholder-text">Avatar Placeholder</div>
+                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
+                                <div class="placeholder-dimensions">935px × 843px</div>
+                            </div>
+                        </div>
+
+                        <!-- Right content - Title and Checklist -->
+                        <div class="right-content">
+                            <!-- Title with question mark -->
+                            <div style="display: flex; alignItems: center; gap: 18px;">
+                                <span class="icon question-icon">?</span>
+                                <h1 class="slide-title">{{ title or 'Как звучать профессионально' }}</h1>
+                            </div>
+
+                            <!-- Checklist -->
+                            <div class="checklist-container">
+                                {% for item in items %}
+                                    <div class="checklist-item">
+                                        <span class="icon {% if item.isPositive %}positive-icon{% else %}negative-icon{% endif %}">
+                                            {% if item.isPositive %}✓{% else %}✗{% endif %}
+                                        </span>
+                                        <span>{{ item.text }}</span>
+                                    </div>
+                                {% endfor %}
+                                {% if not items or items|length == 0 %}
+                                    <div class="checklist-item">
+                                        <span class="icon positive-icon">✓</span>
+                                        <span>«Позвольте я помогу»</span>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <span class="icon positive-icon">✓</span>
+                                        <span>«С удовольствием уточню»</span>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <span class="icon positive-icon">✓</span>
+                                        <span>«Спасибо, что обратили внимание»</span>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <span class="icon negative-icon">✗</span>
+                                        <span>Исключаем холодные фразы и неуверенность</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-crm' %}
+                <div class="avatar-crm">
+                    <!-- Left Panel - Dark Promotional Section -->
+                    <div class="left-panel">
+                        <!-- Pink Banner -->
+                        <div class="banner">
+                            {{ title or 'Личное отношение - залог следующих ВИЗИТОВ' }}
+                        </div>
+                        
+                        <!-- Checklist -->
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                <span>{{ subtitle or 'Помните детали' }}</span>
+                            </div>
+                            
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                <span>{{ content or 'Интересуйтесь' }}</span>
+                            </div>
+                            
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                <span>Сохраняйте тёплый контакт</span>
+                            </div>
+                            
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                <span>Клиент это почувствует</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel - Avatar Only -->
+                    <div class="right-panel">
+                        <!-- Avatar Display - full width of right panel, full height -->
+                        <div class="avatar-placeholder" style="width: 100%; height: 100%; top: 0; position: relative;">
+                            <div class="placeholder-icon">👤</div>
+                            <div class="placeholder-text">Avatar Placeholder</div>
+                            <div class="placeholder-subtext">Avatar will fill entire right panel</div>
+                            <div class="placeholder-dimensions">1152px × 1080px</div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-service' %}
+                <div class="avatar-service">
+                    <!-- Dark shape in top-left corner -->
+                    <div class="dark-shape"></div>
+                    
+                    <div class="content-container">
+                        <!-- Left content -->
+                        <div class="left-content">
+                            <!-- Title -->
+                            <h1 class="slide-title">{{ title or 'Клиентский сервис -' }}</h1>
+
+                            <!-- Subtitle -->
+                            {% if subtitle %}
+                                <h2 class="slide-subtitle">{{ subtitle }}</h2>
+                            {% endif %}
+
+                            <!-- Content -->
+                            {% if content %}
+                                <p class="content-text">{{ content }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Right content - Avatar -->
+                        <div class="right-content">
+                            <div class="avatar-placeholder">
+                                <div class="placeholder-icon">👤</div>
+                                <div class="placeholder-text">Avatar Placeholder</div>
+                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
+                                <div class="placeholder-dimensions">935px × 843px</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-buttons' %}
+                <div class="avatar-buttons">
+                    <div class="content-container">
+                        <!-- Left content - Avatar -->
+                        <div class="left-content">
+                            <div class="avatar-placeholder">
+                                <div class="placeholder-icon">👤</div>
+                                <div class="placeholder-text">Avatar Placeholder</div>
+                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
+                                <div class="placeholder-dimensions">935px × 843px</div>
+                            </div>
+                        </div>
+
+                        <!-- Right content - Title and Buttons -->
+                        <div class="right-content">
+                            <!-- Title -->
+                            <h1 class="slide-title">{{ title or 'Продуманный сервис ощущается сразу' }}</h1>
+
+                            <!-- Buttons Grid -->
+                            <div class="buttons-container">
+                                {% for button in buttons %}
+                                    <div class="button">{{ button.text }}</div>
+                                {% endfor %}
+                                {% if not buttons or buttons|length == 0 %}
+                                    <div class="button">Внимание</div>
+                                    <div class="button">Скорость</div>
+                                    <div class="button">Тепло</div>
+                                    <div class="button">Забота</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-steps' %}
+                <div class="avatar-steps">
+                    <div class="content-container">
+                        <!-- Left content - Title and Steps -->
+                        <div class="left-content">
+                            <!-- Title -->
+                            <h1 class="slide-title">{{ title or 'Каждый шаг - это часть сервиса' }}</h1>
+
+                            <!-- Steps -->
+                            <div class="steps-container">
+                                {% for step in steps %}
+                                    <div class="step-box">{{ step }}</div>
+                                    {% if not loop.last %}
+                                        <div class="arrow">↓</div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if not steps or steps|length == 0 %}
+                                    <div class="step-box">Приветствие</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Консультация</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Комфорт во время</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Финальные рекомендации</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Прощание и отзыв</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Right content - Avatar -->
+                        <div class="right-content">
+                            <div class="avatar-placeholder">
+                                <div class="placeholder-icon">👤</div>
+                                <div class="placeholder-text">Avatar Placeholder</div>
+                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
+                                <div class="placeholder-dimensions">1115px × 1071px</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <div class="slide">
+                    <h1 style="font-size: 3rem; color: var(--title-color); text-align: center;">Unknown Avatar Template</h1>
+                    <p style="font-size: 1.5rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

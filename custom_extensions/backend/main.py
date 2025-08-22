@@ -16918,7 +16918,7 @@ async def create_video(request: Request):
         body = await request.json()
         project_name = body.get("projectName", "Generated Video")
         voiceover_texts = body.get("voiceoverTexts", [])
-        avatar_code = body.get("avatarCode", "gia.casual")
+        avatar_code = body.get("avatarCode")  # None will trigger auto-selection
         
         # Validate request data
         if not voiceover_texts:
@@ -16972,6 +16972,166 @@ async def render_video(video_id: str):
         return {"success": False, "error": f"Failed to start video render: {str(e)}"}
 
 # ============================================================================
+# Clean Video Generation API Endpoints (HTML → PNG → Video Pipeline)
+# ============================================================================
+
+@app.post("/api/custom/clean-video/avatar-slide")
+async def generate_clean_avatar_slide_video(request: Request):
+    """Generate video for a single avatar slide using clean HTML → PNG → Video pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slide_props = body.get("slideProps", {})
+        theme = body.get("theme", "dark-purple")
+        slide_duration = body.get("slideDuration", 5.0)
+        quality = body.get("quality", "high")
+        
+        # Validate slide props
+        validation = await clean_video_generation_service.validate_slide_props(slide_props)
+        if not validation["valid"]:
+            return {
+                "success": False,
+                "error": f"Invalid slide props: {validation['error']}"
+            }
+        
+        # Generate video
+        result = await clean_video_generation_service.generate_avatar_slide_video(
+            slide_props=slide_props,
+            theme=theme,
+            slide_duration=slide_duration,
+            quality=quality
+        )
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_url": result["video_url"],
+                "video_path": result["video_path"],
+                "file_size": result["file_size"],
+                "duration": result["duration"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error generating clean avatar slide video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
+
+@app.post("/api/custom/clean-video/presentation")
+async def generate_clean_presentation_video(request: Request):
+    """Generate video for multiple avatar slides using clean HTML → PNG → Video pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slides_props = body.get("slidesProps", [])
+        theme = body.get("theme", "dark-purple")
+        slide_duration = body.get("slideDuration", 5.0)
+        quality = body.get("quality", "high")
+        
+        # Validate request
+        if not slides_props:
+            return {
+                "success": False,
+                "error": "No slides provided"
+            }
+        
+        # Validate each slide
+        for i, slide_props in enumerate(slides_props):
+            validation = await clean_video_generation_service.validate_slide_props(slide_props)
+            if not validation["valid"]:
+                return {
+                    "success": False,
+                    "error": f"Invalid slide {i+1} props: {validation['error']}"
+                }
+        
+        # Generate video
+        result = await clean_video_generation_service.generate_presentation_video(
+            slides_props=slides_props,
+            theme=theme,
+            slide_duration=slide_duration,
+            quality=quality
+        )
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_url": result["video_url"],
+                "video_path": result["video_path"],
+                "file_size": result["file_size"],
+                "duration": result["duration"],
+                "slides_count": result["slides_count"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error generating clean presentation video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
+
+@app.get("/api/custom/clean-video/test")
+async def test_clean_video_pipeline():
+    """Test the clean video generation pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Run pipeline test
+        result = await clean_video_generation_service.test_pipeline()
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error testing clean video pipeline: {str(e)}")
+        return {"success": False, "error": f"Pipeline test failed: {str(e)}"}
+
+@app.get("/api/custom/clean-video/templates")
+async def get_supported_avatar_templates():
+    """Get list of supported avatar template IDs."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        templates = await clean_video_generation_service.get_supported_templates()
+        
+        return {
+            "success": True,
+            "templates": templates
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting supported templates: {str(e)}")
+        return {"success": False, "error": f"Failed to get templates: {str(e)}"}
+
+@app.get("/api/custom/video-system/status")
+async def get_video_system_status():
+    """Get video generation system status."""
+    try:
+        return {
+            "success": True,
+            "system": "Clean Video Generation Pipeline",
+            "screenshot_services": "DISABLED",
+            "clean_pipeline": "ACTIVE",
+            "avatar_selection": "DYNAMIC",
+            "supported_formats": ["avatar-checklist", "avatar-crm", "avatar-service", "avatar-buttons", "avatar-steps"],
+            "output_resolution": "1920x1080",
+            "pipeline": "HTML → PNG → Video"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting video system status: {str(e)}")
+        return {"success": False, "error": f"Failed to get status: {str(e)}"}
+
+# ============================================================================
 # Professional Presentation API Endpoints
 # ============================================================================
 
@@ -16991,7 +17151,7 @@ async def create_presentation(request: Request):
         # Extract parameters
         slide_url = body.get("slideUrl")
         voiceover_texts = body.get("voiceoverTexts", [])
-        avatar_code = body.get("avatarCode", "gia.casual")
+        avatar_code = body.get("avatarCode")  # None will trigger auto-selection
         duration = body.get("duration", 30.0)
         layout = body.get("layout", "side_by_side")
         quality = body.get("quality", "high")

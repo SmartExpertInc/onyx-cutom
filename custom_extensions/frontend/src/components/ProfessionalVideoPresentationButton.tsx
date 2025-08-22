@@ -172,7 +172,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         body: JSON.stringify({
           slideUrl: slideUrl,
           voiceoverTexts: voiceoverTexts,
-          avatarCode: 'gia.casual', // Default avatar
+          // avatarCode removed - will auto-select available avatar
           duration: 30.0,
           layout: 'side_by_side', // side_by_side, picture_in_picture, split_screen
           quality: 'high',
