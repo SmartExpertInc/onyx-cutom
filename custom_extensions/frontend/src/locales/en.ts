@@ -815,6 +815,8 @@ export const en = {
       deleteOfferConfirmation: "Are you sure you want to delete this offer? This action cannot be undone.",
       deleteOfferError: "Failed to delete offer",
       actions: "Actions",
+      selectCompany: "Select company...",
+      calculatedFromProjects: "Calculated from {count} projects",
     },
 
     // Pipelines

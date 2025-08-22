@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
 import OffersTable from '../../components/OffersTable';
+import CreateOfferModal from '../../components/CreateOfferModal';
 import { 
   Search, 
   ChevronsUpDown, 
@@ -634,6 +635,8 @@ const ProjectsPageInner: React.FC = () => {
   const isOffers = currentTab === 'offers';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
+  const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
+  const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
   const [folders, setFolders] = useState<any[]>([]);
   const [folderProjects, setFolderProjects] = useState<Record<number, any[]>>({});
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -830,9 +833,21 @@ const ProjectsPageInner: React.FC = () => {
 
     window.addEventListener('moveProjectToFolder', handleMoveProject);
     window.addEventListener('moveFolderToFolder', handleMoveFolder);
+    
+    // Handle create offer modal events
+    const handleOpenCreateOfferModal = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { folder } = customEvent.detail;
+      setSelectedClientForOffer(folder);
+      setShowCreateOfferModal(true);
+    };
+    
+    window.addEventListener('openCreateOfferModal', handleOpenCreateOfferModal);
+    
     return () => {
       window.removeEventListener('moveProjectToFolder', handleMoveProject);
       window.removeEventListener('moveFolderToFolder', handleMoveFolder);
+      window.removeEventListener('openCreateOfferModal', handleOpenCreateOfferModal);
     };
   }, []);
 
@@ -883,6 +898,20 @@ const ProjectsPageInner: React.FC = () => {
         </div>
       </div>
       <FolderModal open={showFolderModal} onClose={() => setShowFolderModal(false)} onFolderCreated={handleFolderCreated} existingFolders={folders} />
+      <CreateOfferModal 
+        open={showCreateOfferModal} 
+        onClose={() => setShowCreateOfferModal(false)} 
+        onOfferCreated={() => {
+          setShowCreateOfferModal(false);
+          setSelectedClientForOffer(null);
+          // Refresh the offers if we're on the offers tab
+          if (isOffers) {
+            window.location.reload();
+          }
+        }}
+        selectedClient={selectedClientForOffer}
+        folders={folders}
+      />
     </div>
   );
 };
