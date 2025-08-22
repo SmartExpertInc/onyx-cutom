@@ -85,8 +85,9 @@ class ProfessionalPresentationService:
             
             logger.info(f"Created presentation job: {job_id}")
             
-            # Start background processing
-            asyncio.create_task(self._process_presentation(job_id, request))
+            # Start background processing (non-blocking)
+            task = asyncio.create_task(self._process_presentation(job_id, request))
+            # Don't await the task - let it run in background
             
             return job_id
             

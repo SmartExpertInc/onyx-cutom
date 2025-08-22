@@ -297,6 +297,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
+        signal: AbortSignal.timeout(90000), // 90 second timeout for initial request
         body: JSON.stringify({
           slideUrl: slideUrl,
           voiceoverTexts: voiceoverTexts,
