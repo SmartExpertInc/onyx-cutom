@@ -3,7 +3,6 @@
 
 import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
 import { 
@@ -422,16 +421,29 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <div className="relative mb-6">
         <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden">
-              <Image 
-                src="/deloitte.png" 
-                alt="Deloitte Logo"
-                width={32} 
-                height={32} 
-                className="object-contain w-8 h-8"
-                priority={false}
-                unoptimized={true}
-              />
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <svg 
+                version="1.2" 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 1545 1333" 
+                width="20" 
+                height="20"
+                className="text-blue-600"
+              >
+                <title>Deloitte-svg</title>
+                <style>
+                  {`.s0 { fill: #86bc24 } 
+                  .s1 { fill: #0f0b0b }`}
+                </style>
+                <g id="layer1">
+                  <g id="g3359">
+                    <g id="g3371">
+                      <path id="path3356" className="s0" d="m1354.4 1332.5c-105.1 0-190-84.8-190-189.6 0-104.9 84.9-189.6 190-189.6 105 0 189.9 84.7 189.9 189.6 0 104.8-84.9 189.6-189.9 189.6z"/>
+                      <path id="path3360" fillRule="evenodd" className="s1" d="m1089.4 628.2q0 328.2-176.7 505.8-176.8 177.6-497.1 177.6h-414.9v-1311.1h443.9q308.8 0 476.8 161.4c112 107.6 168 263 168 466.3zm-359.7 12.5q0-180.1-69.7-267.2c-46.6-58-117.1-87-211.9-87h-100.9v734.5h77.2c105.3 0 182.5-31.2 231.6-93.8 49.1-62.4 73.7-157.9 73.7-286.5z"/>
+                    </g>
+                  </g>
+                </g>
+              </svg>
             </div>
             <div className="text-white">
               <div className="font-bold text-sm leading-tight">Deloitte</div>
