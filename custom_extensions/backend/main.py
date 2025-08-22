@@ -21590,7 +21590,7 @@ async def create_offer(
             elif base_url.endswith('/api/custom'):
                 base_url = base_url[:-11]
             
-            auto_link = f"{base_url}/offer/{offer_id}"
+            auto_link = f"{base_url}/custom-projects-ui/offer/{offer_id}"
             
             # Log the generated link for debugging
             logger.info(f"Generated auto link for offer {offer_id}: {auto_link}")
@@ -21881,7 +21881,7 @@ async def migrate_offer_links(
             
             for offer in offers:
                 offer_id = offer['id']
-                auto_link = f"{base_url}/offer/{offer_id}"
+                auto_link = f"{base_url}/custom-projects-ui/offer/{offer_id}"
                 
                 logger.info(f"Migration: Updating offer {offer_id} with link: {auto_link}")
                 

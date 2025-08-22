@@ -425,9 +425,13 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                         {(() => {
                           // Debug logging
                           console.log(`Offer ${offer.id} link:`, offer.link, 'Type:', typeof offer.link);
-                          return offer.link ? (
+                          
+                          // Always show View link - use stored link or generate one
+                          const viewLink = offer.link || `/custom-projects-ui/offer/${offer.id}`;
+                          
+                          return (
                             <a
-                              href={offer.link}
+                              href={viewLink}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center text-blue-600 hover:text-blue-800"
@@ -435,8 +439,6 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                               <ExternalLink className="h-4 w-4 mr-1" />
                               {t('interface.view', 'View')}
                             </a>
-                          ) : (
-                            <span className="text-gray-400">-</span>
                           );
                         })()}
                       </td>
