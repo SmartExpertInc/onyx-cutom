@@ -20,7 +20,6 @@ interface StepCardProps {
   description: string;
   href?: string;
   disabled?: boolean;
-  stepNumber: number;
   isActive?: boolean;
 }
 
@@ -30,7 +29,6 @@ const StepCard: React.FC<StepCardProps> = ({
   description,
   href,
   disabled = false,
-  stepNumber,
   isActive = false,
 }) => {
   const router = useRouter();
@@ -48,22 +46,11 @@ const StepCard: React.FC<StepCardProps> = ({
         disabled
           ? "bg-gray-50 border-gray-200 cursor-not-allowed"
           : isActive
-          ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-300 shadow-lg hover:shadow-xl cursor-pointer"
-          : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg cursor-pointer"
+          ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-300 shadow-lg hover:shadow-xl cursor-pointer group"
+          : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg cursor-pointer group"
       }`}
       onClick={handleClick}
     >
-      {/* Step Number */}
-      <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-        disabled
-          ? "bg-gray-200 text-gray-400"
-          : isActive
-          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-          : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600"
-      }`}>
-        {stepNumber}
-      </div>
-
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3 mb-3">
@@ -121,12 +108,17 @@ const StepCard: React.FC<StepCardProps> = ({
       {/* Arrow for active state */}
       {isActive && !disabled && (
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
         </div>
+      )}
+
+      {/* Click indicator for active state */}
+      {isActive && !disabled && (
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
       )}
     </div>
   );
@@ -171,7 +163,6 @@ export default function CreateFromFilesContent() {
             title={t('interface.fromFiles.createFromKnowledgeBase', 'Create from Knowledge Base')}
             description={t('interface.fromFiles.knowledgeBaseDescription', 'Generate content by searching your entire Knowledge Base for relevant information. Perfect for comprehensive content creation.')}
             href="/create/generate?fromKnowledgeBase=true"
-            stepNumber={1}
             isActive={true}
           />
           
@@ -180,7 +171,6 @@ export default function CreateFromFilesContent() {
             title={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
             description={t('interface.fromFiles.specificFilesDescription', 'Select specific files and folders to use as source material. Ideal for targeted content creation.')}
             disabled={true}
-            stepNumber={2}
           />
         </div>
 

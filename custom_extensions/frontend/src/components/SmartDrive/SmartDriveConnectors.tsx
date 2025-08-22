@@ -56,6 +56,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [showManagementPage, setShowManagementPage] = useState(false);
   const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null);
   const [isManagementOpening, setIsManagementOpening] = useState(false);
+  const [showAllConnectors, setShowAllConnectors] = useState(false);
   const isLoadingRef = useRef(false);
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
@@ -552,6 +553,28 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           </button>
         </div>
 
+        {/* Prominent Browse Section */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={handleBrowseClick}>
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
+                <Upload className="w-8 h-8 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Browse Your Files</h3>
+                <p className="text-gray-700 text-lg">Upload and browse files directly from your device</p>
+              </div>
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Featured Connectors Section */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Connectors</h3>
@@ -585,7 +608,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       <h3 className="text-lg font-semibold text-gray-900 truncate">
                         {connector.name}
                       </h3>
-                      <p className="text-sm text-gray-900">{connector.category}</p>
                     </div>
                   </div>
 
@@ -604,7 +626,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          console.log('Manage button clicked for connector:', connector.id);
+                          console.log('User connectors for source:', userConnectorsForSource);
                           if (userConnectorsForSource.length === 1) {
+                            console.log('Opening management page for connector ID:', userConnectorsForSource[0].id);
                             setSelectedConnectorId(userConnectorsForSource[0].id);
                             setShowManagementPage(true);
                           }
@@ -632,149 +657,156 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           </div>
         </div>
 
-        {/* Browse All Connectors Section */}
+        {/* All Connectors Section - Expandable */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Browse All Connectors</h3>
+            <h3 className="text-lg font-semibold text-gray-900">All Connectors</h3>
             <button
-              onClick={handleBrowseClick}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={() => setShowAllConnectors(!showAllConnectors)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <Upload className="w-4 h-4" />
-              Browse Files
+              {showAllConnectors ? 'Hide' : 'Show'} All
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showAllConnectors ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* All Connectors Grid */}
-      {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
-        <div key={categoryName} className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3">
-            {categoryName}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {connectors.map((connector) => {
-              const userConnectorsForSource = getConnectorsBySource(connector.id);
-              const hasConnectors = userConnectorsForSource.length > 0;
-              const hasMultipleConnectors = userConnectorsForSource.length > 1;
+      {/* All Connectors Grid - Expandable */}
+      {showAllConnectors && (
+        <>
+          {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
+            <div key={categoryName} className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3">
+                {categoryName}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {connectors.map((connector) => {
+                  const userConnectorsForSource = getConnectorsBySource(connector.id);
+                  const hasConnectors = userConnectorsForSource.length > 0;
+                  const hasMultipleConnectors = userConnectorsForSource.length > 1;
 
-              return (
-                <div
-                  key={connector.id}
-                  className={`group relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all duration-200 ${
-                    connector.id === 'browse_uploaded' ? 'cursor-pointer' : ''
-                  }`}
-                  onClick={connector.id === 'browse_uploaded' ? handleBrowseClick : undefined}
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                      <Image
-                        src={connector.logoPath}
-                        alt={`${connector.name} logo`}
-                        width={32}
-                        height={32}
-                        className="object-contain w-8 h-8"
-                        priority={false}
-                        unoptimized={true}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-gray-900 truncate">
-                        {connector.name}
-                      </h3>
-                      <p className="text-xs text-gray-900">{connector.category}</p>
-                    </div>
-                  </div>
+                  return (
+                    <div
+                      key={connector.id}
+                      className={`group relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all duration-200 ${
+                        connector.id === 'browse_uploaded' ? 'cursor-pointer' : ''
+                      }`}
+                      onClick={connector.id === 'browse_uploaded' ? handleBrowseClick : undefined}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                          <Image
+                            src={connector.logoPath}
+                            alt={`${connector.name} logo`}
+                            width={32}
+                            height={32}
+                            className="object-contain w-8 h-8"
+                            priority={false}
+                            unoptimized={true}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-gray-900 truncate">
+                            {connector.name}
+                          </h3>
+                        </div>
+                      </div>
 
-                  <div className="flex gap-2">
-                    {connector.id === 'browse_uploaded' ? (
-                      <button
-                        onClick={handleBrowseClick}
-                        className="flex-1 text-xs font-medium px-3 py-2 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-sm hover:shadow-md"
-                      >
-                        Browse
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleConnectClick(connector.id, connector.name)}
-                        className="flex-1 text-xs font-medium px-3 py-2 rounded-lg transition-all duration-200 bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-sm hover:shadow-md"
-                      >
-                        Connect
-                      </button>
-                    )}
-
-                    {hasConnectors && (
-                      <div className="relative">
-                        {hasMultipleConnectors ? (
-                          <div className="relative group">
-                            <button 
-                              onClick={(e) => e.stopPropagation()}
-                              className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
-                            >
-                              Manage
-                              <ChevronDown className="w-3 h-3" />
-                            </button>
-                            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 hidden group-hover:block">
-                              {userConnectorsForSource.map((userConnector) => (
-                                <button
-                                  key={userConnector.id}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (!showManagementPage && !isManagementOpening) {
-                                      setIsManagementOpening(true);
-                                      setSelectedConnectorId(userConnector.id);
-                                      setShowManagementPage(true);
-                                      setTimeout(() => {
-                                        setIsManagementOpening(false);
-                                      }, 500);
-                                    }
-                                  }}
-                                  className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                                >
-                                  {userConnector.name}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                      <div className="flex gap-2">
+                        {connector.id === 'browse_uploaded' ? (
+                          <button
+                            onClick={handleBrowseClick}
+                            className="flex-1 text-xs font-medium px-3 py-2 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-sm hover:shadow-md"
+                          >
+                            Browse
+                          </button>
                         ) : (
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!showManagementPage && !isManagementOpening) {
-                                setIsManagementOpening(true);
-                                setSelectedConnectorId(userConnectorsForSource[0].id);
-                                setShowManagementPage(true);
-                                setTimeout(() => {
-                                  setIsManagementOpening(false);
-                                }, 500);
-                              }
-                            }}
-                            className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                            onClick={() => handleConnectClick(connector.id, connector.name)}
+                            className="flex-1 text-xs font-medium px-3 py-2 rounded-lg transition-all duration-200 bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-sm hover:shadow-md"
                           >
-                            Manage
+                            Connect
                           </button>
                         )}
-                      </div>
-                    )}
-                  </div>
 
-                  {hasConnectors && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center justify-between text-xs text-gray-900">
-                        <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
-                        {userConnectorsForSource.some(c => c.status === 'active') && (
-                          <span className="text-green-600">● Active</span>
+                        {hasConnectors && (
+                          <div className="relative">
+                            {hasMultipleConnectors ? (
+                              <div className="relative group">
+                                <button 
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                                >
+                                  Manage
+                                  <ChevronDown className="w-3 h-3" />
+                                </button>
+                                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 hidden group-hover:block">
+                                  {userConnectorsForSource.map((userConnector) => (
+                                    <button
+                                      key={userConnector.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        console.log('Dropdown manage button clicked for connector:', userConnector.id);
+                                        if (!showManagementPage && !isManagementOpening) {
+                                          console.log('Opening management page from dropdown for connector ID:', userConnector.id);
+                                          setIsManagementOpening(true);
+                                          setSelectedConnectorId(userConnector.id);
+                                          setShowManagementPage(true);
+                                          setTimeout(() => {
+                                            setIsManagementOpening(false);
+                                          }, 500);
+                                        }
+                                      }}
+                                      className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                    >
+                                      {userConnector.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
+                                  if (!showManagementPage && !isManagementOpening) {
+                                    console.log('Opening management page from single button for connector ID:', userConnectorsForSource[0].id);
+                                    setIsManagementOpening(true);
+                                    setSelectedConnectorId(userConnectorsForSource[0].id);
+                                    setShowManagementPage(true);
+                                    setTimeout(() => {
+                                      setIsManagementOpening(false);
+                                    }, 500);
+                                  }
+                                }}
+                                className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                              >
+                                Manage
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
+
+                      {hasConnectors && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs text-gray-900">
+                            <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
+                            {userConnectorsForSource.some(c => c.status === 'active') && (
+                              <span className="text-green-600">● Active</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
 
       {/* Debug info - remove this in production */}
       {process.env.NODE_ENV === 'development' && (
