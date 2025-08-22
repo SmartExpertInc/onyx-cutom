@@ -62,8 +62,10 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   const [sortBy, setSortBy] = useState<"offer_name" | "created_on" | "manager" | "status" | "total_hours">("created_on");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
+  const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -226,10 +228,12 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     setShowEditModal(true);
   };
 
-  // Handle offer updated
+  // Handle offer created/updated
   const handleOfferSaved = () => {
+    setShowCreateModal(false);
     setShowEditModal(false);
     setEditingOffer(null);
+    setSelectedClientForOffer(null);
     fetchOffers();
   };
 
@@ -269,12 +273,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
           </p>
         </div>
         <button
-          onClick={() => {
-            // Dispatch event to open create offer modal at page level
-            window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
-              detail: { folder: null }
-            }));
-          }}
+          onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           <Plus size={16} />
@@ -459,6 +458,8 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
         </div>
       </div>
 
+
+
       {/* Edit Offer Modal */}
       {showEditModal && editingOffer && (
         <EditOfferModal
@@ -470,6 +471,8 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     </div>
   );
 };
+
+
 
 // Edit Offer Modal Component
 interface EditOfferModalProps {
@@ -522,8 +525,8 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {t('interface.editOffer', 'Edit Offer')}
@@ -539,7 +542,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 type="text"
                 value={offer.company_name}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-black"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
               />
             </div>
             

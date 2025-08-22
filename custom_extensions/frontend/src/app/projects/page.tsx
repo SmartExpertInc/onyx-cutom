@@ -635,12 +635,12 @@ const ProjectsPageInner: React.FC = () => {
   const isOffers = currentTab === 'offers';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
-  const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
-  const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
   const [folders, setFolders] = useState<any[]>([]);
   const [folderProjects, setFolderProjects] = useState<Record<number, any[]>>({});
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
+  const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
 
   // Clear lesson context when user visits the projects page
   useEffect(() => {
@@ -831,19 +831,16 @@ const ProjectsPageInner: React.FC = () => {
       }
     };
 
-    window.addEventListener('moveProjectToFolder', handleMoveProject);
-    window.addEventListener('moveFolderToFolder', handleMoveFolder);
-    
-    // Handle create offer modal events
     const handleOpenCreateOfferModal = (event: Event) => {
       const customEvent = event as CustomEvent;
       const { folder } = customEvent.detail;
       setSelectedClientForOffer(folder);
       setShowCreateOfferModal(true);
     };
-    
+
+    window.addEventListener('moveProjectToFolder', handleMoveProject);
+    window.addEventListener('moveFolderToFolder', handleMoveFolder);
     window.addEventListener('openCreateOfferModal', handleOpenCreateOfferModal);
-    
     return () => {
       window.removeEventListener('moveProjectToFolder', handleMoveProject);
       window.removeEventListener('moveFolderToFolder', handleMoveFolder);
@@ -854,6 +851,16 @@ const ProjectsPageInner: React.FC = () => {
   const handleFolderCreated = (newFolder: any) => {
     setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);
     setShowFolderModal(false);
+  };
+
+  const handleOfferCreated = () => {
+    setShowCreateOfferModal(false);
+    setSelectedClientForOffer(null);
+    // Optionally refresh the offers if on offers tab
+    if (isOffers) {
+      // The OffersTable component will refresh itself
+      window.location.reload();
+    }
   };
 
   // Show loading state while checking authentication
@@ -898,20 +905,13 @@ const ProjectsPageInner: React.FC = () => {
         </div>
       </div>
       <FolderModal open={showFolderModal} onClose={() => setShowFolderModal(false)} onFolderCreated={handleFolderCreated} existingFolders={folders} />
-      <CreateOfferModal 
-        open={showCreateOfferModal} 
-        onClose={() => setShowCreateOfferModal(false)} 
-        onOfferCreated={() => {
-          setShowCreateOfferModal(false);
-          setSelectedClientForOffer(null);
-          // Refresh the offers if we're on the offers tab
-          if (isOffers) {
-            window.location.reload();
-          }
-        }}
-        selectedClient={selectedClientForOffer}
-        folders={folders}
-      />
+      {showCreateOfferModal && (
+        <CreateOfferModal
+          onClose={() => setShowCreateOfferModal(false)}
+          onOfferCreated={handleOfferCreated}
+          selectedClient={selectedClientForOffer}
+        />
+      )}
     </div>
   );
 };
