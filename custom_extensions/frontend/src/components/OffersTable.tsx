@@ -709,22 +709,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                     )}
                   </div>
 
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <Eye className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium text-black">
-                          {t('interface.sharePreview', 'What recipients will see:')}
-                        </p>
-                        <ul className="text-xs text-black/70 mt-1 space-y-1">
-                          <li>• {t('interface.shareItem1', 'Offer overview and details')}</li>
-                          <li>• {t('interface.shareItem2', 'Course structure and modules')}</li>
-                          <li>• {t('interface.shareItem3', 'Quality levels and pricing')}</li>
-                          <li>• {t('interface.shareItem4', 'Professional presentation')}</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
               ) : null}
             </div>
