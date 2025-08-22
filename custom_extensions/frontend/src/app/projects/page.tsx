@@ -426,8 +426,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
                 version="1.2" 
                 xmlns="http://www.w3.org/2000/svg" 
                 viewBox="0 0 1545 1333" 
-                width="20" 
-                height="20"
+                width="24" 
+                height="24"
                 className="text-blue-600"
               >
                 <title>Deloitte-svg</title>
