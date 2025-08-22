@@ -5,9 +5,9 @@ export default function AvatarSettings() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
   return (
-    <div className="h-full bg-white rounded-lg border border-gray-200">
+    <div className="bg-white rounded-lg border border-gray-200">
       {/* Header with grey background */}
-      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
           {/* Avatar placeholder circle */}
           <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">

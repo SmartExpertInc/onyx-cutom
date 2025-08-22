@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { Trash2, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Image as ImageIcon, Check, X } from 'lucide-react';
 import Media from './Media';
 
 export default function ImageSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate' | 'filters'>('format');
   const [showDropdown, setShowDropdown] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCropMode, setIsCropMode] = useState(false);
 
   return (
-    <div className="h-full bg-white rounded-lg border border-gray-200">
+    <div className="bg-white rounded-lg border border-gray-200">
       {/* Header with grey background */}
-      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
           {/* Image preview square */}
           <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center border border-gray-300">
@@ -24,14 +25,18 @@ export default function ImageSettings() {
           {/* Replace image button */}
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-white text-gray-600 hover:text-gray-800 px-3 py-2 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors"
+            className="bg-white text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors"
           >
             Replace image
           </button>
           
           {/* Trashcan button */}
-          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 px-3 py-2 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+          <button className="bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors group relative" title="Remove media">
             <Trash2 className="w-4 h-4" />
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              Remove media
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+            </div>
           </button>
         </div>
       </div>
@@ -87,11 +92,33 @@ export default function ImageSettings() {
             {/* Crop */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Crop</span>
-              <button className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 flex items-center justify-center transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21.25 17.653H9.347a3 3 0 0 1-3-3V2.75M2.75 6.347h3.597m11.306 11.306v3.597M8.917 6.347h5.736a3 3 0 0 1 3 3v5.736"/>
-                </svg>
-              </button>
+              {!isCropMode ? (
+                <button 
+                  onClick={() => setIsCropMode(true)}
+                  className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 flex items-center justify-center transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21.25 17.653H9.347a3 3 0 0 1-3-3V2.75M2.75 6.347h3.597m11.306 11.306v3.597M8.917 6.347h5.736a3 3 0 0 1 3 3v5.736"/>
+                  </svg>
+                </button>
+              ) : (
+                <div className="flex space-x-1">
+                  <button 
+                    onClick={() => setIsCropMode(false)}
+                    className="w-8 h-8 rounded-md border border-green-300 bg-green-50 hover:bg-green-100 flex items-center justify-center transition-colors"
+                    title="Confirm crop"
+                  >
+                    <Check className="w-4 h-4 text-green-600" />
+                  </button>
+                  <button 
+                    onClick={() => setIsCropMode(false)}
+                    className="w-8 h-8 rounded-md border border-red-300 bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors"
+                    title="Cancel crop"
+                  >
+                    <X className="w-4 h-4 text-red-600" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Order */}
