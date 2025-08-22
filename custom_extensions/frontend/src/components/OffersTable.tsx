@@ -522,8 +522,8 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {t('interface.editOffer', 'Edit Offer')}
@@ -539,7 +539,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 type="text"
                 value={offer.company_name}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-black"
               />
             </div>
             

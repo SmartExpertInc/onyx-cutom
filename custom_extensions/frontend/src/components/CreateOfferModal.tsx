@@ -12,6 +12,7 @@ interface CreateOfferModalProps {
 }
 
 const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ 
+  open,
   onClose, 
   onOfferCreated, 
   selectedClient,
@@ -31,6 +32,9 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
   const [clientProjects, setClientProjects] = useState<any[]>([]);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+  // Don't render if not open
+  if (!open) return null;
 
   // Update form data when selectedClient changes
   useEffect(() => {
@@ -110,8 +114,8 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {t('interface.createOffer', 'Create Offer')}
@@ -124,12 +128,12 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
                 {t('interface.company', 'Company')} *
               </label>
               {selectedClient ? (
-                <input
-                  type="text"
-                  value={selectedClient.name}
-                  disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
-                />
+                              <input
+                type="text"
+                value={selectedClient.name}
+                disabled
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-black"
+              />
               ) : (
                 <select
                   value={formData.company_id}
