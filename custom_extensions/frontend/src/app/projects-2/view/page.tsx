@@ -21,6 +21,7 @@ import SceneTimeline from './components/SceneTimeline';
 import TextSettings from './components/TextSettings';
 import ImageSettings from './components/ImageSettings';
 import AvatarSettings from './components/AvatarSettings';
+import ShapeSettings from './components/ShapeSettings';
 import OptionPopup from './components/OptionPopup';
 
 interface Scene {
@@ -228,6 +229,8 @@ export default function Projects2ViewPage() {
           return <ImageSettings />;
         case 'avatar':
           return <AvatarSettings />;
+        case 'shape':
+          return <ShapeSettings />;
         default:
           return <Script onAiButtonClick={handleAiButtonClick} />;
       }

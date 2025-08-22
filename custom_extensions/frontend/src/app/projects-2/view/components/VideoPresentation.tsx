@@ -118,6 +118,19 @@ export default function VideoPresentation({ aspectRatio, onElementSelect, select
           </svg>
         </div>
 
+        {/* Shape Element */}
+        <div 
+          className={`absolute bottom-8 right-8 w-16 h-16 bg-orange-300 border-2 rounded cursor-pointer transition-all flex items-center justify-center z-20 hover:bg-orange-400 ${
+            selectedElement === 'shape' ? 'border-orange-500 shadow-lg bg-orange-400' : 'border-orange-300 hover:border-orange-400'
+          }`}
+          onClick={(e) => handleElementClick('shape', e)}
+          onContextMenu={(e) => handleElementRightClick('shape', e)}
+        >
+          <svg className="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+          </svg>
+        </div>
+
         {/* Center placeholder text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
           <div className="text-gray-400 text-sm font-medium">

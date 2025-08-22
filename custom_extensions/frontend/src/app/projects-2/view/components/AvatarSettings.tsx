@@ -1,9 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AvatarPopup from './AvatarPopup';
 
 export default function AvatarSettings() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
+  const [showViewDropdown, setShowViewDropdown] = useState(false);
+  const viewDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (viewDropdownRef.current && !viewDropdownRef.current.contains(event.target as Node)) {
+        setShowViewDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   return (
     <div className="bg-white rounded-lg border border-gray-200">
       {/* Header with grey background */}
@@ -80,13 +96,32 @@ export default function AvatarSettings() {
           {/* View */}
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">View</span>
-            <div className="relative">
-              <button className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div className="relative" ref={viewDropdownRef}>
+              <button 
+                onClick={() => setShowViewDropdown(!showViewDropdown)}
+                className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+              >
                 <span className="text-gray-500">Select view...</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
+              
+              {showViewDropdown && (
+                <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                  {['Front View', 'Side View', 'Back View'].map((view) => (
+                    <button
+                      key={view}
+                      onClick={() => {
+                        setShowViewDropdown(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                    >
+                      <span>{view}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

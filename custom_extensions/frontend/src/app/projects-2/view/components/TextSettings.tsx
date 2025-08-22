@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function TextSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
@@ -15,6 +15,31 @@ export default function TextSettings() {
   const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('left');
   const [fontColor, setFontColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
+
+  // Refs for dropdowns
+  const fontFamilyDropdownRef = useRef<HTMLDivElement>(null);
+  const fontSizeDropdownRef = useRef<HTMLDivElement>(null);
+  const animationDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (fontFamilyDropdownRef.current && !fontFamilyDropdownRef.current.contains(event.target as Node)) {
+        setShowFontFamilyDropdown(false);
+      }
+      if (fontSizeDropdownRef.current && !fontSizeDropdownRef.current.contains(event.target as Node)) {
+        setShowFontSizeDropdown(false);
+      }
+      if (animationDropdownRef.current && !animationDropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const animationOptions = [
     { value: 'none', label: 'None' },
@@ -87,10 +112,10 @@ export default function TextSettings() {
             {/* Font Family */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Font family</span>
-              <div className="relative">
+              <div className="relative" ref={fontFamilyDropdownRef}>
                 <button
                   onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                   <span>{fontFamily}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,10 +185,10 @@ export default function TextSettings() {
             {/* Font Size */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Font size</span>
-              <div className="relative">
+              <div className="relative" ref={fontSizeDropdownRef}>
                 <button
                   onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                   <span>{fontSize}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,10 +354,10 @@ export default function TextSettings() {
             {/* Animate content */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Animation type</span>
-              <div className="relative">
+              <div className="relative" ref={animationDropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                   <span>{animationOptions.find(opt => opt.value === animationType)?.label}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
