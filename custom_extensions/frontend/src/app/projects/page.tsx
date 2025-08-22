@@ -431,14 +431,24 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
                 xmlns="http://www.w3.org/2000/svg"
                 className="text-blue-600"
               >
-                {/* Placeholder logo - replace this with your actual SVG */}
-                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
-                <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <title>Deloitte-svg</title>
+                <style>
+                  .s0 { fill: #86bc24 } 
+                  .s1 { fill: #0f0b0b } 
+                </style>
+                <g id="layer1">
+                  <g id="g3359">
+                    <g id="g3371">
+                      <path id="path3356" class="s0" d="m1354.4 1332.5c-105.1 0-190-84.8-190-189.6 0-104.9 84.9-189.6 190-189.6 105 0 189.9 84.7 189.9 189.6 0 104.8-84.9 189.6-189.9 189.6z"/>
+                      <path id="path3360" fill-rule="evenodd" class="s1" d="m1089.4 628.2q0 328.2-176.7 505.8-176.8 177.6-497.1 177.6h-414.9v-1311.1h443.9q308.8 0 476.8 161.4c112 107.6 168 263 168 466.3zm-359.7 12.5q0-180.1-69.7-267.2c-46.6-58-117.1-87-211.9-87h-100.9v734.5h77.2c105.3 0 182.5-31.2 231.6-93.8 49.1-62.4 73.7-157.9 73.7-286.5z"/>
+                    </g>
+                  </g>
+                </g>
               </svg>
             </div>
             <div className="text-white">
-              <div className="font-bold text-sm leading-tight">Content</div>
-              <div className="font-semibold text-xs leading-tight opacity-90">Builder</div>
+              <div className="font-bold text-sm leading-tight">Deloitte</div>
+              <div className="font-semibold text-xs leading-tight opacity-90">ContentBuilder</div>
             </div>
           </div>
         </div>
