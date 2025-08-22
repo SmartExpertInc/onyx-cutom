@@ -258,8 +258,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               onCancel={handleTitleCancel}
               className="work-life-balance-title-editor"
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '68px',
+                marginTop: '162px',
                 color: slideTitleColor,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont
@@ -298,7 +298,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               multiline={true}
               className="work-life-balance-content-editor"
               style={{
-                fontSize: '18px',
+                width: '607px',
+                marginTop: '43px',
+                marginLeft: '8px',
+                fontSize: '23px',
                 color: slideContentColor,
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont
