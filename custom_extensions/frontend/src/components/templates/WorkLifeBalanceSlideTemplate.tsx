@@ -243,14 +243,14 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
         </div>
 
-                 {/* Title - Centered vertically */}
-         <div style={{ 
-           position: 'absolute',
-           top: '40%',
-           left: '60px',
-           transform: 'translateY(-50%)',
-           marginBottom: '40px'
-         }}>
+        {/* Title - Centered vertically */}
+        <div style={{ 
+          position: 'absolute',
+          top: '40%',
+          left: '60px',
+          transform: 'translateY(-50%)',
+          marginBottom: '40px'
+        }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={currentTitle}
@@ -283,43 +283,43 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           )}
         </div>
 
-                                   {/* Content */}
-          <div style={{ 
-            position: 'absolute',
-            top: '55%',
-            left: '60px',
-            maxWidth: '500px'
-          }}>
-           {isEditable && editingContent ? (
-             <InlineEditor
-               initialValue={currentContent}
-               onSave={handleContentSave}
-               onCancel={handleContentCancel}
-               multiline={true}
-               className="work-life-balance-content-editor"
-               style={{
-                 fontSize: '18px',
-                 color: slideContentColor,
-                 lineHeight: '1.6',
-                 fontFamily: currentTheme.fonts.contentFont
-               }}
-             />
-           ) : (
-             <div
-               onClick={() => isEditable && setEditingContent(true)}
-               style={{
-                 fontSize: '18px',
-                 color: slideContentColor,
-                 lineHeight: '1.6',
-                 cursor: isEditable ? 'pointer' : 'default',
-                 fontFamily: currentTheme.fonts.contentFont,
-                 userSelect: 'none'
-               }}
-             >
-               {currentContent}
-             </div>
-           )}
-         </div>
+        {/* Content */}
+        <div style={{ 
+          position: 'absolute',
+          top: '55%',
+          left: '60px',
+          maxWidth: '500px'
+        }}>
+          {isEditable && editingContent ? (
+            <InlineEditor
+              initialValue={currentContent}
+              onSave={handleContentSave}
+              onCancel={handleContentCancel}
+              multiline={true}
+              className="work-life-balance-content-editor"
+              style={{
+                fontSize: '18px',
+                color: slideContentColor,
+                lineHeight: '1.6',
+                fontFamily: currentTheme.fonts.contentFont
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingContent(true)}
+              style={{
+                fontSize: '18px',
+                color: slideContentColor,
+                lineHeight: '1.6',
+                cursor: isEditable ? 'pointer' : 'default',
+                fontFamily: currentTheme.fonts.contentFont,
+                userSelect: 'none'
+              }}
+            >
+              {currentContent}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Right Image Area with Arch */}
@@ -331,18 +331,18 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-                 {/* Arch background */}
-         <div style={{
-           position: 'absolute',
-           right: '0',
-           top: '50%',
-           transform: 'translateY(-50%)',
-           width: '100%',
-           height: '80%',
-           backgroundColor: '#9CAF88', // Light olive green like in original
-           borderRadius: '50% 0 0 50%',
-           zIndex: 1
-         }} />
+        {/* Arch background */}
+        <div style={{
+          position: 'absolute',
+          right: '0',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: '100%',
+          height: '80%',
+          backgroundColor: '#9CAF88', // Light olive green like in original
+          borderRadius: '50% 0 0 50%',
+          zIndex: 1
+        }} />
 
         {/* Image */}
         <div style={{

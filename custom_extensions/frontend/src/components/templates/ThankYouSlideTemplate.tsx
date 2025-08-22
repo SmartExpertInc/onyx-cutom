@@ -521,7 +521,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         <div style={{
           width: '16px',
           height: '16px',
-          backgroundColor: '#6b7280',
+          backgroundColor: 'white',
           transform: 'rotate(45deg)'
         }} />
         <div>
@@ -533,7 +533,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               className="thank-you-company-name-editor"
               style={{
                 fontSize: '14px',
-                color: '#9ca3af',
+                color: 'white',
                 fontFamily: currentTheme.fonts.contentFont
               }}
             />
@@ -542,7 +542,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               onClick={() => isEditable && setEditingCompanyName(true)}
               style={{
                 fontSize: '14px',
-                color: '#9ca3af',
+                color: 'white',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
                 userSelect: 'none'

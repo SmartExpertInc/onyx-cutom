@@ -203,8 +203,8 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         height: '100%',
         backgroundColor: slideAccentColor,
         position: 'relative',
-        borderTopLeftRadius: '20px',
-        borderBottomLeftRadius: '20px',
+        borderTopRightRadius: '50px',
+        borderBottomRightRadius: '50px',
         boxSizing: 'border-box'
       }}>
         {/* Star icon in top left */}
@@ -224,7 +224,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         {/* Vertical line on left edge */}
         <div style={{
           position: 'absolute',
-          left: '2%',
+          left: '0',
           top: '0',
           width: '2px',
           height: '100%',
@@ -251,7 +251,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px'
+          gap: '10px'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
