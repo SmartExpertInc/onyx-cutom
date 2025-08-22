@@ -3141,6 +3141,20 @@ const FolderRowMenu: React.FC<{
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
                 </button>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    if (typeof window !== "undefined") (window as any).__modalOpen = false;
+                    // Dispatch event to open create offer modal
+                    window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
+                      detail: { folder }
+                    }));
+                  }}
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                >
+                  <FileText size={16} className="text-gray-500" />
+                  <span>{t("interface.createOffer", "Create Offer")}</span>
+                </button>
               </div>
               <div className="py-1 border-t border-gray-100">
                 <button

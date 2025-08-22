@@ -6572,6 +6572,38 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_created_at ON user_connectors(created_at);")
             logger.info("'user_connectors' table ensured.")
 
+            # --- Ensure offers table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS offers (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    company_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE,
+                    offer_name TEXT NOT NULL,
+                    created_on TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    manager TEXT NOT NULL,
+                    status TEXT NOT NULL CHECK (status IN (
+                        'Draft',
+                        'Internal Review', 
+                        'Approved',
+                        'Sent to Client',
+                        'Viewed by Client',
+                        'Negotiation',
+                        'Accepted',
+                        'Rejected',
+                        'Archived'
+                    )),
+                    total_hours INTEGER DEFAULT 0,
+                    link TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_onyx_user_id ON offers(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_company_id ON offers(company_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_status ON offers(status);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_created_on ON offers(created_on);")
+            logger.info("'offers' table ensured.")
+
             logger.info("Smart Drive database migrations completed successfully.")
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
@@ -6632,6 +6664,38 @@ class CreditTransactionResponse(BaseModel):
     message: str
     new_balance: int
     user_credits: UserCredits
+
+# Offers Models
+class OfferBase(BaseModel):
+    company_id: int
+    offer_name: str
+    manager: str
+    status: str
+    total_hours: int = 0
+    link: Optional[str] = None
+
+class OfferCreate(OfferBase):
+    pass
+
+class OfferUpdate(BaseModel):
+    company_id: Optional[int] = None
+    offer_name: Optional[str] = None
+    manager: Optional[str] = None
+    status: Optional[str] = None
+    total_hours: Optional[int] = None
+    link: Optional[str] = None
+
+class OfferResponse(OfferBase):
+    id: int
+    onyx_user_id: str
+    created_on: datetime
+    created_at: datetime
+    updated_at: datetime
+    company_name: str  # Joined from project_folders
+
+class OfferListResponse(BaseModel):
+    offers: List[OfferResponse]
+    total_count: int
 
 # NEW: Analytics/timeline models
 class ProductUsage(BaseModel):
@@ -21418,3 +21482,233 @@ async def create_credential(request: Request):
     except Exception as e:
         logger.error(f"Error creating credential: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error creating credential: {str(e)}")
+
+# --- Offers API Endpoints ---
+
+@app.get("/api/custom/offers", response_model=List[OfferResponse])
+async def get_offers(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    company_id: Optional[int] = Query(None, description="Filter by company ID"),
+    status: Optional[str] = Query(None, description="Filter by status"),
+    search: Optional[str] = Query(None, description="Search in offer name or manager")
+):
+    """Get all offers for the current user with optional filtering"""
+    try:
+        onyx_user_id = current_user.onyx_user_id
+        
+        # Build the query with optional filters
+        query = """
+            SELECT o.*, pf.name as company_name
+            FROM offers o
+            LEFT JOIN project_folders pf ON o.company_id = pf.id
+            WHERE o.onyx_user_id = $1
+        """
+        params = [onyx_user_id]
+        param_count = 1
+        
+        if company_id is not None:
+            param_count += 1
+            query += f" AND o.company_id = ${param_count}"
+            params.append(company_id)
+        
+        if status is not None:
+            param_count += 1
+            query += f" AND o.status = ${param_count}"
+            params.append(status)
+        
+        if search is not None:
+            param_count += 1
+            query += f" AND (o.offer_name ILIKE ${param_count} OR o.manager ILIKE ${param_count})"
+            params.append(f"%{search}%")
+        
+        query += " ORDER BY o.created_on DESC"
+        
+        async with DB_POOL.acquire() as connection:
+            rows = await connection.fetch(query, *params)
+            
+        offers = []
+        for row in rows:
+            offers.append(OfferResponse(
+                id=row['id'],
+                onyx_user_id=row['onyx_user_id'],
+                company_id=row['company_id'],
+                offer_name=row['offer_name'],
+                created_on=row['created_on'],
+                manager=row['manager'],
+                status=row['status'],
+                total_hours=row['total_hours'],
+                link=row['link'],
+                created_at=row['created_at'],
+                updated_at=row['updated_at'],
+                company_name=row['company_name']
+            ))
+        
+        return offers
+        
+    except Exception as e:
+        logger.error(f"Error fetching offers: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offers")
+
+@app.post("/api/custom/offers", response_model=OfferResponse)
+async def create_offer(
+    offer_data: OfferCreate,
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new offer"""
+    try:
+        onyx_user_id = current_user.onyx_user_id
+        
+        # Validate that the company exists and belongs to the user
+        async with DB_POOL.acquire() as connection:
+            company_exists = await connection.fetchval(
+                "SELECT id FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                offer_data.company_id, onyx_user_id
+            )
+            
+            if not company_exists:
+                raise HTTPException(status_code=404, detail="Company not found")
+            
+            # Insert the new offer
+            row = await connection.fetchrow("""
+                INSERT INTO offers (onyx_user_id, company_id, offer_name, manager, status, total_hours, link)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING *, (SELECT name FROM project_folders WHERE id = $2) as company_name
+            """, onyx_user_id, offer_data.company_id, offer_data.offer_name, 
+                 offer_data.manager, offer_data.status, offer_data.total_hours, offer_data.link)
+        
+        return OfferResponse(
+            id=row['id'],
+            onyx_user_id=row['onyx_user_id'],
+            company_id=row['company_id'],
+            offer_name=row['offer_name'],
+            created_on=row['created_on'],
+            manager=row['manager'],
+            status=row['status'],
+            total_hours=row['total_hours'],
+            link=row['link'],
+            created_at=row['created_at'],
+            updated_at=row['updated_at'],
+            company_name=row['company_name']
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create offer")
+
+@app.put("/api/custom/offers/{offer_id}", response_model=OfferResponse)
+async def update_offer(
+    offer_id: int,
+    offer_data: OfferUpdate,
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Update an existing offer"""
+    try:
+        onyx_user_id = current_user.onyx_user_id
+        
+        # Build dynamic update query
+        update_fields = []
+        params = [onyx_user_id, offer_id]
+        param_count = 2
+        
+        if offer_data.company_id is not None:
+            param_count += 1
+            update_fields.append(f"company_id = ${param_count}")
+            params.append(offer_data.company_id)
+        
+        if offer_data.offer_name is not None:
+            param_count += 1
+            update_fields.append(f"offer_name = ${param_count}")
+            params.append(offer_data.offer_name)
+        
+        if offer_data.manager is not None:
+            param_count += 1
+            update_fields.append(f"manager = ${param_count}")
+            params.append(offer_data.manager)
+        
+        if offer_data.status is not None:
+            param_count += 1
+            update_fields.append(f"status = ${param_count}")
+            params.append(offer_data.status)
+        
+        if offer_data.total_hours is not None:
+            param_count += 1
+            update_fields.append(f"total_hours = ${param_count}")
+            params.append(offer_data.total_hours)
+        
+        if offer_data.link is not None:
+            param_count += 1
+            update_fields.append(f"link = ${param_count}")
+            params.append(offer_data.link)
+        
+        if not update_fields:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Add updated_at timestamp
+        param_count += 1
+        update_fields.append(f"updated_at = CURRENT_TIMESTAMP")
+        
+        query = f"""
+            UPDATE offers 
+            SET {', '.join(update_fields)}
+            WHERE id = $2 AND onyx_user_id = $1
+            RETURNING *, (SELECT name FROM project_folders WHERE id = company_id) as company_name
+        """
+        
+        async with DB_POOL.acquire() as connection:
+            row = await connection.fetchrow(query, *params)
+            
+            if not row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+        
+        return OfferResponse(
+            id=row['id'],
+            onyx_user_id=row['onyx_user_id'],
+            company_id=row['company_id'],
+            offer_name=row['offer_name'],
+            created_on=row['created_on'],
+            manager=row['manager'],
+            status=row['status'],
+            total_hours=row['total_hours'],
+            link=row['link'],
+            created_at=row['created_at'],
+            updated_at=row['updated_at'],
+            company_name=row['company_name']
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update offer")
+
+@app.delete("/api/custom/offers/{offer_id}")
+async def delete_offer(
+    offer_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete an offer"""
+    try:
+        onyx_user_id = current_user.onyx_user_id
+        
+        async with DB_POOL.acquire() as connection:
+            result = await connection.execute(
+                "DELETE FROM offers WHERE id = $1 AND onyx_user_id = $2",
+                offer_id, onyx_user_id
+            )
+            
+            if result == "DELETE 0":
+                raise HTTPException(status_code=404, detail="Offer not found")
+        
+        return {"message": "Offer deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete offer")

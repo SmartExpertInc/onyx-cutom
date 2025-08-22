@@ -5,6 +5,7 @@ import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
+import OffersTable from '../../components/OffersTable';
 import { 
   Search, 
   ChevronsUpDown, 
@@ -23,7 +24,8 @@ import {
   MessageSquare,
   ChevronRight,
   LayoutTemplate,
-  HardDrive
+  HardDrive,
+  FileText
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -469,6 +471,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <HardDrive size={18} />
           <span>Smart Drive</span>
         </Link>
+        <Link 
+          href="/projects?tab=offers" 
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          onClick={() => onFolderSelect(null)}
+        >
+          <FileText size={18} />
+          <span>{t('interface.offers', 'Offers')}</span>
+        </Link>
       </nav>
 
       {/* Clients Section */}
@@ -565,7 +575,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive }: { isTrash: boolean; isSmartDrive: boolean }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
   
@@ -594,6 +604,7 @@ const Header = ({ isTrash, isSmartDrive }: { isTrash: boolean; isSmartDrive: boo
   const getHeaderTitle = () => {
     if (isTrash) return t('interface.trash', 'Trash');
     if (isSmartDrive) return 'Smart Drive';
+    if (isOffers) return t('interface.offers', 'Offers');
     return t('interface.products', 'Products');
   };
 
@@ -620,6 +631,7 @@ const ProjectsPageInner: React.FC = () => {
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
   const isSmartDrive = currentTab === 'smart-drive';
+  const isOffers = currentTab === 'offers';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
@@ -850,10 +862,12 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} />
         <main className="flex-1 overflow-y-auto p-8">
           {isSmartDrive ? (
             <SmartDriveConnectors />
+          ) : isOffers ? (
+            <OffersTable companyId={selectedFolderId} />
           ) : (
             <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
           )}
