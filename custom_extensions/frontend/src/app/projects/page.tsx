@@ -469,10 +469,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <HardDrive size={18} />
           <span>Smart Drive</span>
         </Link>
-        <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Users size={18} />
-          <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
-        </Link>
       </nav>
 
       {/* Clients Section */}
@@ -605,10 +601,6 @@ const Header = ({ isTrash, isSmartDrive }: { isTrash: boolean; isSmartDrive: boo
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
-          <Sparkles size={16} className="text-yellow-500" />
-          {t('interface.getUnlimitedAI', 'Get unlimited AI')}
-        </Link>
         <span className="text-sm font-semibold text-gray-800">
           {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
         </span>
