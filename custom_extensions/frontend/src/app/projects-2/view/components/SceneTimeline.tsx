@@ -143,6 +143,9 @@ export default function SceneTimeline({
 
         {/* Bottom row - Scene labels */}
         <div className="flex items-center gap-4">
+          {/* Empty space for play button alignment */}
+          <div className="w-10 h-0"></div>
+          
           {/* Scene labels */}
           {scenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
