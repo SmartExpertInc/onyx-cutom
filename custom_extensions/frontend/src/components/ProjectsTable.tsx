@@ -3369,7 +3369,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     numberOfLessons: true,
     estCreationTime: true,
     estCompletionTime: true,
-    type: true,
+    customOffer: true,
   });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
     title: 40,

@@ -1034,7 +1034,8 @@ export const es = {
       presentation: 'Tarifa de presentación',
       onePager: 'Tarifa de una página',
       quiz: 'Tarifa de cuestionario',
-      videoLesson: 'Tarifa de lección de video'
+      videoLesson: 'Tarifa de lección de video',
+    },
 
     // Theme picker translations
     themePicker: {
