@@ -39,8 +39,15 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
   // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (resizeButtonRef.current && !resizeButtonRef.current.contains(event.target as Node)) {
-        setIsResizePopupOpen(false);
+      // For resize popup, check if click is outside both button and popup
+      if (isResizePopupOpen) {
+        const isClickInButton = resizeButtonRef.current?.contains(event.target as Node);
+        const resizePopupElement = document.querySelector('[data-resize-popup]');
+        const isClickInPopup = resizePopupElement?.contains(event.target as Node);
+        
+        if (!isClickInButton && !isClickInPopup) {
+          setIsResizePopupOpen(false);
+        }
       }
       
       // For share popup, check if click is outside both button and popup
@@ -72,7 +79,11 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
     };
   }, [isResizePopupOpen, isSharePopupOpen, openDropdownId]);
 
-  const handleResizeClick = () => {
+  const handleResizeClick = (event: React.MouseEvent) => {
+    console.log('Resize button clicked, current state:', isResizePopupOpen);
+    console.log('Event target:', event.target);
+    event.preventDefault();
+    event.stopPropagation();
     setIsResizePopupOpen(!isResizePopupOpen);
   };
 
@@ -297,8 +308,8 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
 
             <div className="hidden lg:block w-0.5 h-[18px] bg-gray-300"></div>
 
-            {/* Resize tool - hidden on smaller screens */}
-            <div className="hidden lg:flex items-center relative">
+            {/* Resize tool - visible on all screens for testing */}
+            <div className="flex items-center relative">
               <button
                 ref={resizeButtonRef}
                 onClick={handleResizeClick}
@@ -312,7 +323,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
 
               {/* Resize popup */}
               {isResizePopupOpen && (
-                <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80">
+                <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80" data-resize-popup>
                   <div className="py-2">
                     {resizeOptions.map((option, index) => (
                       <button
