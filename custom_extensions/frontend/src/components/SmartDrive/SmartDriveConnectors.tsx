@@ -533,13 +533,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
       {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex justify-between items-start mb-6">
+      <div className="mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Smart Drive Connectors</h2>
             <p className="text-gray-900 text-lg">Connect your data sources to import content into your Smart Drive</p>
           </div>
-          
         </div>
 
         {/* Prominent Browse Section */}
@@ -601,15 +599,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   </div>
 
                   <div className="flex gap-2">
-                    <button
+                      <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleConnectClick(connector.id, connector.name);
                       }}
                       className="flex-1 text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
-                    >
-                      Connect
-                    </button>
+                      >
+                        Connect
+                      </button>
 
                     {hasConnectors && (
                       <div className="relative">
@@ -683,9 +681,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         {userConnectorsForSource.some(c => c.status === 'active') && (
                           <span className="text-green-600 font-medium">● Active</span>
                         )}
-                      </div>
-                    </div>
-                  )}
+                                </div>
+        </div>
+      )}
                 </div>
               );
             })}
@@ -783,7 +781,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                           setSelectedConnectorId(userConnector.id);
                                           setShowManagementPage(true);
                                           setTimeout(() => {
-                                            setIsManagementOpening(false);
+            setIsManagementOpening(false);
                                           }, 500);
                                         }
                                       }}
@@ -827,13 +825,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+      )}
+    </div>
+  );
+})}
+          </div>
+        </div>
+      ))}
         </>
       )}
 

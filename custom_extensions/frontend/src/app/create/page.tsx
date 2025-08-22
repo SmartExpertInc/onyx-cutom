@@ -74,7 +74,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
       <div className="w-full h-28 bg-gradient-to-tr from-indigo-300/60 to-pink-200/60 flex items-center justify-center relative">
         <Icon size={40} className="text-white drop-shadow-md" />
         {pillLabel && (
-          <span className="absolute bottom-2 right-2 text-[10px] font-bold bg-white text-indigo-600 rounded-md px-1.5 py-0.5 shadow">
+          <span className="absolute top-3 right-3 text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full px-3 py-1 shadow-lg">
             {pillLabel}
           </span>
         )}
