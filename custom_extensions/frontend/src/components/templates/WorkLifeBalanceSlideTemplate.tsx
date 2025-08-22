@@ -362,7 +362,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             description="Work-life balance image"
             isEditable={isEditable}
             style={{
-              height: '420px',
+              height: '474px',
               borderRadius: '10px',
               objectFit: 'contain'
             }}
