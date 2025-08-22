@@ -202,10 +202,10 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               <span className="ml-2 text-black">{t('interface.loadingClients', 'Loading clients...')}</span>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Company dropdown */}
               <div>
-                <label className="block text-sm font-medium text-black mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('interface.company', 'Company')} *
                 </label>
                 {selectedClient ? (
@@ -213,13 +213,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                     type="text"
                     value={selectedClient.name}
                     disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-black"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 ) : (
                   <select
                     value={formData.company_id}
                     onChange={handleCompanyChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                     required
                   >
                     <option value="">{t('interface.selectClient', 'Select a client...')}</option>
@@ -234,14 +234,14 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Offer Name field */}
               <div>
-                <label className="block text-sm font-medium text-black mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('interface.offerName', 'Offer Name')} *
                 </label>
                 <input
                   type="text"
                   value={formData.offer_name}
                   onChange={(e) => setFormData({...formData, offer_name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                   placeholder={t('interface.enterOfferName', 'Enter offer name...')}
                   required
                 />
@@ -249,14 +249,14 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Manager field */}
               <div>
-                <label className="block text-sm font-medium text-black mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('interface.manager', 'Manager')} *
                 </label>
                 <input
                   type="text"
                   value={formData.manager}
                   onChange={(e) => setFormData({...formData, manager: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                   placeholder={t('interface.enterManager', 'Enter manager name...')}
                   required
                 />
@@ -264,13 +264,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
               
               {/* Status dropdown */}
               <div>
-                <label className="block text-sm font-medium text-black mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('interface.status', 'Status')} *
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   required
                 >
                   <option value="Draft">{t('interface.draft', 'Draft')}</option>
@@ -285,53 +285,47 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                 </select>
               </div>
               
-              {/* Total Hours field */}
-              <div>
-                <label className="block text-sm font-medium text-black mb-1">
-                  {t('interface.totalHours', 'Total Hours')}
-                  {formData.company_id && (
-                    <span className="text-xs text-blue-600 ml-1">
-                      ({t('interface.autoCalculated', 'auto-calculated')})
-                    </span>
-                  )}
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.total_hours}
-                  onChange={(e) => setFormData({...formData, total_hours: parseInt(e.target.value) || 0})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  placeholder="0"
-                />
-                {formData.company_id && (
-                  <p className="text-xs text-black mt-1">
-                    {t('interface.totalHoursHelp', 'Total hours are automatically calculated based on projects in the selected client folder')}
-                  </p>
-                )}
-              </div>
-              
-              {/* Link will be auto-generated */}
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                <p className="text-sm text-blue-800">
-                  <strong>📎 {t('interface.autoGeneratedLink', 'Auto-generated Link')}</strong>
-                </p>
-                <p className="text-xs text-blue-600 mt-1">
-                  {t('interface.linkWillBeGenerated', 'A link to the offer details page will be automatically generated after creation.')}
-                </p>
+              {/* Auto-generated info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 text-sm font-medium">i</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-900 mb-1">
+                      {t('interface.autoGeneratedFields', 'Auto-generated Fields')}
+                    </h4>
+                    <ul className="text-sm text-blue-800 space-y-1">
+                      <li>• {t('interface.totalHoursAuto', 'Total hours will be calculated from client projects')}</li>
+                      <li>• {t('interface.linkAuto', 'Offer link will be generated automatically')}</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
               {error && (
-                <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-3">
-                  {error}
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                        <span className="text-red-600 text-sm font-medium">!</span>
+                      </div>
+                    </div>
+                    <div className="text-sm text-red-800">
+                      {error}
+                    </div>
+                  </div>
                 </div>
               )}
               
               {/* Action buttons */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-6">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   disabled={isSubmitting}
                 >
                   {t('interface.cancel', 'Cancel')}
@@ -339,7 +333,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {isSubmitting ? t('interface.creating', 'Creating...') : t('interface.create', 'Create')}
                 </button>

@@ -271,7 +271,8 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   return (
     <div className="space-y-6">
       {/* Header with Search, Filter, and Create Button */}
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
         {/* Search and Filter Row */}
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
           <div className="relative flex-1 min-w-0">
@@ -315,6 +316,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
           <Plus size={16} />
           {t('interface.createOffer', 'Create Offer')}
         </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -550,57 +552,57 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
             {t('interface.editOffer', 'Edit Offer')}
           </h2>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Company field (read-only) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('interface.company', 'Company')}
               </label>
               <input
                 type="text"
                 value={offer.company_name}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
               />
             </div>
             
             {/* Offer Name field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('interface.offerName', 'Offer Name')} *
               </label>
               <input
                 type="text"
                 value={formData.offer_name}
                 onChange={(e) => setFormData({...formData, offer_name: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 required
               />
             </div>
             
             {/* Manager field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('interface.manager', 'Manager')} *
               </label>
               <input
                 type="text"
                 value={formData.manager}
                 onChange={(e) => setFormData({...formData, manager: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 required
               />
             </div>
             
             {/* Status dropdown */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('interface.status', 'Status')} *
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({...formData, status: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                 required
               >
                 <option value="Draft">{t('interface.draft', 'Draft')}</option>
@@ -615,57 +617,64 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
               </select>
             </div>
             
-            {/* Total Hours field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('interface.totalHours', 'Total Hours')}
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={formData.total_hours}
-                onChange={(e) => setFormData({...formData, total_hours: parseInt(e.target.value) || 0})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            
-            {/* Link is auto-generated */}
-            <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-              <p className="text-sm text-gray-700">
-                <strong>📎 {t('interface.autoGeneratedLink', 'Auto-generated Link')}</strong>
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
-                {t('interface.linkIsAutoGenerated', 'The link to the offer details page is automatically managed.')}
-              </p>
-              {formData.link && (
-                <a
-                  href={formData.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-600 hover:text-blue-800 underline mt-2 block"
-                >
-                  {formData.link}
-                </a>
-              )}
+            {/* Auto-generated info */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 text-sm font-medium">i</span>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-blue-900 mb-1">
+                    {t('interface.autoGeneratedFields', 'Auto-generated Fields')}
+                  </h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• {t('interface.totalHoursAuto', 'Total hours are calculated from client projects')}</li>
+                    <li>• {t('interface.linkAuto', 'Offer link is automatically managed')}</li>
+                    {formData.link && (
+                      <li>• <a
+                        href={formData.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        {t('interface.viewOffer', 'View offer details')}
+                      </a></li>
+                    )}
+                  </ul>
+                </div>
+              </div>
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                      <span className="text-red-600 text-sm font-medium">!</span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-red-800">
+                    {error}
+                  </div>
+                </div>
+              </div>
             )}
             
             {/* Action buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-6">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               >
                 {t('interface.cancel', 'Cancel')}
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? t('interface.updating', 'Updating...') : t('interface.update', 'Update')}
               </button>
