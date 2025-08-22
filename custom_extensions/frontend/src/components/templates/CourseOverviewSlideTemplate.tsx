@@ -155,7 +155,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
+    height: '100vh',
     backgroundColor: slideBackgroundColor,
     display: 'flex',
     position: 'relative',

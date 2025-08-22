@@ -168,14 +168,13 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
+    height: '100vh',
     backgroundColor: slideBackgroundColor,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px',
     boxSizing: 'border-box'
   };
 
@@ -268,8 +267,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
-        top: '60px',
-        left: '60px'
+        top: '80px',
+        left: '80px'
       }}>
         {isEditable && editingTitle ? (
           <InlineEditor
@@ -306,9 +305,9 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Horizontal separator line */}
       <div style={{
         position: 'absolute',
-        top: '140px',
-        left: '60px',
-        right: '60px',
+        top: '160px',
+        left: '80px',
+        right: '80px',
         height: '1px',
         backgroundColor: '#6b7280'
       }} />
@@ -316,9 +315,9 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Content area */}
       <div style={{
         position: 'absolute',
-        top: '200px',
-        left: '60px',
-        right: '60px'
+        top: '220px',
+        left: '80px',
+        right: '80px'
       }}>
         {/* Left side - Contact and Address */}
         <div style={{
@@ -479,8 +478,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         overflow: 'hidden',
         border: '4px solid white',
         position: 'absolute',
-        top: '60px',
-        right: '60px',
+        top: '80px',
+        right: '80px',
         zIndex: 10
       }}>
         <ClickableImagePlaceholder
@@ -502,9 +501,9 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Bottom horizontal separator line */}
       <div style={{
         position: 'absolute',
-        bottom: '80px',
-        left: '60px',
-        right: '60px',
+        bottom: '100px',
+        left: '80px',
+        right: '80px',
         height: '1px',
         backgroundColor: '#6b7280'
       }} />
@@ -512,7 +511,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Company name */}
       <div style={{
         position: 'absolute',
-        bottom: '40px',
+        bottom: '60px',
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',

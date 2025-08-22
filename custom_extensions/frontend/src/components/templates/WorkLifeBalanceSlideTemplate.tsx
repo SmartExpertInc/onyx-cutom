@@ -155,7 +155,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
+    height: '100vh',
     backgroundColor: slideBackgroundColor,
     display: 'flex',
     position: 'relative',
@@ -243,14 +243,14 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
         </div>
 
-        {/* Title - Centered vertically */}
-        <div style={{ 
-          position: 'absolute',
-          top: '50%',
-          left: '60px',
-          transform: 'translateY(-50%)',
-          marginBottom: '40px'
-        }}>
+                 {/* Title - Centered vertically */}
+         <div style={{ 
+           position: 'absolute',
+           top: '40%',
+           left: '60px',
+           transform: 'translateY(-50%)',
+           marginBottom: '40px'
+         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={currentTitle}
@@ -283,13 +283,13 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           )}
         </div>
 
-                 {/* Content */}
-         <div style={{ 
-           position: 'absolute',
-           top: '60%',
-           left: '60px',
-           maxWidth: '500px'
-         }}>
+                                   {/* Content */}
+          <div style={{ 
+            position: 'absolute',
+            top: '55%',
+            left: '60px',
+            maxWidth: '500px'
+          }}>
            {isEditable && editingContent ? (
              <InlineEditor
                initialValue={currentContent}
