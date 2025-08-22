@@ -201,11 +201,6 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
       <div style={{
         width: '60%',
         height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '60px',
-        boxSizing: 'border-box',
         position: 'relative',
         zIndex: 2
       }}>
@@ -248,8 +243,14 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
         </div>
 
-        {/* Title */}
-        <div style={{ marginBottom: '40px' }}>
+        {/* Title - Centered vertically */}
+        <div style={{ 
+          position: 'absolute',
+          top: '50%',
+          left: '60px',
+          transform: 'translateY(-50%)',
+          marginBottom: '40px'
+        }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={currentTitle}
@@ -282,38 +283,43 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           )}
         </div>
 
-        {/* Content */}
-        <div style={{ maxWidth: '500px' }}>
-          {isEditable && editingContent ? (
-            <InlineEditor
-              initialValue={currentContent}
-              onSave={handleContentSave}
-              onCancel={handleContentCancel}
-              multiline={true}
-              className="work-life-balance-content-editor"
-              style={{
-                fontSize: '18px',
-                color: slideContentColor,
-                lineHeight: '1.6',
-                fontFamily: currentTheme.fonts.contentFont
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingContent(true)}
-              style={{
-                fontSize: '18px',
-                color: slideContentColor,
-                lineHeight: '1.6',
-                cursor: isEditable ? 'pointer' : 'default',
-                fontFamily: currentTheme.fonts.contentFont,
-                userSelect: 'none'
-              }}
-            >
-              {currentContent}
-            </div>
-          )}
-        </div>
+                 {/* Content */}
+         <div style={{ 
+           position: 'absolute',
+           top: '60%',
+           left: '60px',
+           maxWidth: '500px'
+         }}>
+           {isEditable && editingContent ? (
+             <InlineEditor
+               initialValue={currentContent}
+               onSave={handleContentSave}
+               onCancel={handleContentCancel}
+               multiline={true}
+               className="work-life-balance-content-editor"
+               style={{
+                 fontSize: '18px',
+                 color: slideContentColor,
+                 lineHeight: '1.6',
+                 fontFamily: currentTheme.fonts.contentFont
+               }}
+             />
+           ) : (
+             <div
+               onClick={() => isEditable && setEditingContent(true)}
+               style={{
+                 fontSize: '18px',
+                 color: slideContentColor,
+                 lineHeight: '1.6',
+                 cursor: isEditable ? 'pointer' : 'default',
+                 fontFamily: currentTheme.fonts.contentFont,
+                 userSelect: 'none'
+               }}
+             >
+               {currentContent}
+             </div>
+           )}
+         </div>
       </div>
 
       {/* Right Image Area with Arch */}

@@ -265,9 +265,11 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   return (
     <div className="thank-you-slide-template" style={slideStyles}>
-      {/* Main Title */}
+      {/* Main Title - Top left */}
       <div style={{
-        marginBottom: '40px'
+        position: 'absolute',
+        top: '60px',
+        left: '60px'
       }}>
         {isEditable && editingTitle ? (
           <InlineEditor
@@ -303,24 +305,26 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
       {/* Horizontal separator line */}
       <div style={{
-        width: '100%',
+        position: 'absolute',
+        top: '140px',
+        left: '60px',
+        right: '60px',
         height: '1px',
-        backgroundColor: '#6b7280',
-        marginBottom: '40px'
+        backgroundColor: '#6b7280'
       }} />
 
-             {/* Content area */}
-       <div style={{
-         display: 'flex',
-         justifyContent: 'space-between',
-         alignItems: 'flex-start',
-         flex: 1
-       }}>
-         {/* Left side - Contact and Address */}
-         <div style={{
-           display: 'flex',
-           gap: '80px'
-         }}>
+      {/* Content area */}
+      <div style={{
+        position: 'absolute',
+        top: '200px',
+        left: '60px',
+        right: '60px'
+      }}>
+        {/* Left side - Contact and Address */}
+        <div style={{
+          display: 'flex',
+          gap: '80px'
+        }}>
            {/* Contacts */}
            <div>
              <div style={{
@@ -462,49 +466,57 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
            </div>
          </div>
 
-         {/* Right side - Profile Image */}
-         <div style={{
-           width: '200px',
-           height: '200px',
-           borderRadius: '50%',
-           backgroundColor: 'white',
-           display: 'flex',
-           alignItems: 'center',
-           justifyContent: 'center',
-           overflow: 'hidden',
-           border: '4px solid white',
-           position: 'absolute',
-           top: '60px',
-           right: '60px'
-         }}>
-           <ClickableImagePlaceholder
-             imagePath={profileImagePath}
-             onImageUploaded={handleProfileImageUploaded}
-             size="LARGE"
-             position="CENTER"
-             description="Profile photo"
-             isEditable={isEditable}
-             style={{
-               width: '100%',
-               height: '100%',
-               borderRadius: '50%',
-               overflow: 'hidden'
-             }}
-           />
-         </div>
+                                                                                         </div>
+        </div>
+
+       {/* Profile Image - Moved outside content area */}
+       <div style={{
+         width: '200px',
+         height: '200px',
+         borderRadius: '50%',
+         backgroundColor: 'white',
+         display: 'flex',
+         alignItems: 'center',
+         justifyContent: 'center',
+         overflow: 'hidden',
+         border: '4px solid white',
+         position: 'absolute',
+         top: '60px',
+         right: '60px',
+         zIndex: 10
+       }}>
+         <ClickableImagePlaceholder
+           imagePath={profileImagePath}
+           onImageUploaded={handleProfileImageUploaded}
+           size="LARGE"
+           position="CENTER"
+           description="Profile photo"
+           isEditable={isEditable}
+           style={{
+             width: '100%',
+             height: '100%',
+             borderRadius: '50%',
+             overflow: 'hidden'
+           }}
+         />
        </div>
 
       {/* Bottom horizontal separator line */}
       <div style={{
-        width: '100%',
+        position: 'absolute',
+        bottom: '80px',
+        left: '60px',
+        right: '60px',
         height: '1px',
-        backgroundColor: '#6b7280',
-        marginTop: '40px',
-        marginBottom: '20px'
+        backgroundColor: '#6b7280'
       }} />
 
       {/* Company name */}
       <div style={{
+        position: 'absolute',
+        bottom: '40px',
+        left: '50%',
+        transform: 'translateX(-50%)',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'

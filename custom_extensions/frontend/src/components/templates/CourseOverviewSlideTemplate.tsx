@@ -197,63 +197,62 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   return (
     <div className="course-overview-slide-template" style={slideStyles}>
-             {/* Left Panel - Purple with rounded corners */}
-       <div style={{
-         width: '45%',
-         height: '100%',
-         backgroundColor: slideAccentColor,
-         position: 'relative',
-         borderTopLeftRadius: '20px',
-         borderBottomLeftRadius: '20px',
-         display: 'flex',
-         flexDirection: 'column',
-         justifyContent: 'center',
-         padding: '40px',
-         boxSizing: 'border-box'
-       }}>
-         {/* Star icon in top left */}
-         <div style={{
-           position: 'absolute',
-           top: '30px',
-           left: '30px',
-           width: '20px',
-           height: '20px',
-           color: 'white',
-           fontSize: '20px',
-           fontWeight: 'bold'
-         }}>
-           ✦
-         </div>
+      {/* Left Panel - Purple with rounded corners */}
+      <div style={{
+        width: '45%',
+        height: '100%',
+        backgroundColor: slideAccentColor,
+        position: 'relative',
+        borderTopLeftRadius: '20px',
+        borderBottomLeftRadius: '20px',
+        boxSizing: 'border-box'
+      }}>
+        {/* Star icon in top left */}
+        <div style={{
+          position: 'absolute',
+          top: '30px',
+          left: '30px',
+          width: '20px',
+          height: '20px',
+          color: 'white',
+          fontSize: '20px',
+          fontWeight: 'bold'
+        }}>
+          ✦
+        </div>
 
-         {/* Vertical line on left edge */}
-         <div style={{
-           position: 'absolute',
-           left: '2%',
-           top: '0',
-           width: '2px',
-           height: '100%',
-           backgroundColor: 'white'
-         }} />
+        {/* Vertical line on left edge */}
+        <div style={{
+          position: 'absolute',
+          left: '2%',
+          top: '0',
+          width: '2px',
+          height: '100%',
+          backgroundColor: 'white'
+        }} />
 
-         {/* Page number */}
-         <div style={{
-           position: 'absolute',
-           bottom: '30px',
-           left: '30px',
-           color: 'white',
-           fontSize: '14px',
-           fontWeight: '300'
-         }}>
-           01
-         </div>
+        {/* Page number */}
+        <div style={{
+          position: 'absolute',
+          bottom: '30px',
+          left: '30px',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '300'
+        }}>
+          01
+        </div>
 
-         {/* Title and Subtitle */}
-         <div style={{
-           display: 'flex',
-           flexDirection: 'column',
-           gap: '20px',
-           marginLeft: '20px'
-         }}>
+        {/* Title and Subtitle - Centered vertically */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50px',
+          transform: 'translateY(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={currentTitle}
