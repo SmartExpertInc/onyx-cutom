@@ -22,7 +22,8 @@ import {
   Bell,
   MessageSquare,
   ChevronRight,
-  LayoutTemplate
+  LayoutTemplate,
+  HardDrive
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -465,7 +466,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => onFolderSelect(null)}
         >
-          <Globe size={18} />
+          <HardDrive size={18} />
           <span>Smart Drive</span>
         </Link>
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">

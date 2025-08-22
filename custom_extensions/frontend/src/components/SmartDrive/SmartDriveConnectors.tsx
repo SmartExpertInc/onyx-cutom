@@ -534,12 +534,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
       {/* Header Section */}
       <div className="mb-8">
-                <div className="mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Smart Drive Connectors</h2>
-            <p className="text-gray-900 text-lg">Connect your data sources to import content into your Smart Drive</p>
-          </div>
-        </div>
 
         {/* Prominent Browse Section */}
         <div className="mb-8">
@@ -678,13 +672,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   {hasConnectors && (
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <div className="flex items-center justify-between text-sm text-gray-900">
-                        <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
                         {userConnectorsForSource.some(c => c.status === 'active') && (
                           <span className="text-green-600 font-medium">● Active</span>
                         )}
-                                </div>
-        </div>
-      )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -820,13 +813,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       {hasConnectors && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <div className="flex items-center justify-between text-xs text-gray-900">
-                            <span>{userConnectorsForSource.length} connector{userConnectorsForSource.length !== 1 ? 's' : ''}</span>
                             {userConnectorsForSource.some(c => c.status === 'active') && (
                               <span className="text-green-600">● Active</span>
                             )}
                           </div>
                         </div>
-      )}
+                      )}
     </div>
   );
 })}
