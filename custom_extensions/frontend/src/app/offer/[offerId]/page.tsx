@@ -45,6 +45,14 @@ export default function OfferDetailPage() {
     const fetchOfferDetails = async () => {
       try {
         setLoading(true);
+        
+        // Check if params and offerId exist
+        if (!params?.offerId) {
+          setError('Offer ID is required');
+          setLoading(false);
+          return;
+        }
+        
         const headers: HeadersInit = { "Content-Type": "application/json" };
         const devUserId = "dummy-onyx-user-id-for-testing";
         if (devUserId && process.env.NODE_ENV === "development") {
@@ -77,10 +85,10 @@ export default function OfferDetailPage() {
       }
     };
 
-    if (params.offerId) {
+    if (params?.offerId) {
       fetchOfferDetails();
     }
-  }, [params.offerId, router, CUSTOM_BACKEND_URL]);
+  }, [params?.offerId, router, CUSTOM_BACKEND_URL]);
 
   if (loading) {
     return (
