@@ -325,181 +325,179 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           display: 'flex',
           gap: '80px'
         }}>
-           {/* Contacts */}
-           <div>
-             <div style={{
-               fontSize: '14px',
-               color: '#9ca3af',
-               marginBottom: '10px',
-               fontWeight: '300'
-             }}>
-               Contacts
-             </div>
-             
-             <div style={{ marginBottom: '15px' }}>
-               {isEditable && editingEmail ? (
-                 <InlineEditor
-                   initialValue={currentEmail}
-                   onSave={handleEmailSave}
-                   onCancel={handleEmailCancel}
-                   className="thank-you-email-editor"
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     fontFamily: currentTheme.fonts.contentFont
-                   }}
-                 />
-               ) : (
-                 <div
-                   onClick={() => isEditable && setEditingEmail(true)}
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     cursor: isEditable ? 'pointer' : 'default',
-                     fontFamily: currentTheme.fonts.contentFont,
-                     userSelect: 'none'
-                   }}
-                 >
-                   {currentEmail}
-                 </div>
-               )}
-             </div>
+          {/* Contacts */}
+          <div>
+            <div style={{
+              fontSize: '14px',
+              color: '#9ca3af',
+              marginBottom: '10px',
+              fontWeight: '300'
+            }}>
+              Contacts
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              {isEditable && editingEmail ? (
+                <InlineEditor
+                  initialValue={currentEmail}
+                  onSave={handleEmailSave}
+                  onCancel={handleEmailCancel}
+                  className="thank-you-email-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingEmail(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentEmail}
+                </div>
+              )}
+            </div>
 
-             <div>
-               {isEditable && editingPhone ? (
-                 <InlineEditor
-                   initialValue={currentPhone}
-                   onSave={handlePhoneSave}
-                   onCancel={handlePhoneCancel}
-                   className="thank-you-phone-editor"
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     fontFamily: currentTheme.fonts.contentFont
-                   }}
-                 />
-               ) : (
-                 <div
-                   onClick={() => isEditable && setEditingPhone(true)}
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     cursor: isEditable ? 'pointer' : 'default',
-                     fontFamily: currentTheme.fonts.contentFont,
-                     userSelect: 'none'
-                   }}
-                 >
-                   {currentPhone}
-                 </div>
-               )}
-             </div>
-           </div>
+            <div>
+              {isEditable && editingPhone ? (
+                <InlineEditor
+                  initialValue={currentPhone}
+                  onSave={handlePhoneSave}
+                  onCancel={handlePhoneCancel}
+                  className="thank-you-phone-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingPhone(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentPhone}
+                </div>
+              )}
+            </div>
+          </div>
 
-           {/* Address */}
-           <div>
-             <div style={{
-               fontSize: '14px',
-               color: '#9ca3af',
-               marginBottom: '10px',
-               fontWeight: '300'
-             }}>
-               Our address
-             </div>
-             
-             <div style={{ marginBottom: '15px' }}>
-               {isEditable && editingAddress ? (
-                 <InlineEditor
-                   initialValue={currentAddress}
-                   onSave={handleAddressSave}
-                   onCancel={handleAddressCancel}
-                   className="thank-you-address-editor"
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     fontFamily: currentTheme.fonts.contentFont
-                   }}
-                 />
-               ) : (
-                 <div
-                   onClick={() => isEditable && setEditingAddress(true)}
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     cursor: isEditable ? 'pointer' : 'default',
-                     fontFamily: currentTheme.fonts.contentFont,
-                     userSelect: 'none'
-                   }}
-                 >
-                   {currentAddress}
-                 </div>
-               )}
-             </div>
+          {/* Address */}
+          <div>
+            <div style={{
+              fontSize: '14px',
+              color: '#9ca3af',
+              marginBottom: '10px',
+              fontWeight: '300'
+            }}>
+              Our address
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              {isEditable && editingAddress ? (
+                <InlineEditor
+                  initialValue={currentAddress}
+                  onSave={handleAddressSave}
+                  onCancel={handleAddressCancel}
+                  className="thank-you-address-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingAddress(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentAddress}
+                </div>
+              )}
+            </div>
 
-             <div>
-               {isEditable && editingPostalCode ? (
-                 <InlineEditor
-                   initialValue={currentPostalCode}
-                   onSave={handlePostalCodeSave}
-                   onCancel={handlePostalCodeCancel}
-                   className="thank-you-postal-code-editor"
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     fontFamily: currentTheme.fonts.contentFont
-                   }}
-                 />
-               ) : (
-                 <div
-                   onClick={() => isEditable && setEditingPostalCode(true)}
-                   style={{
-                     fontSize: '18px',
-                     color: slideTextColor,
-                     cursor: isEditable ? 'pointer' : 'default',
-                     fontFamily: currentTheme.fonts.contentFont,
-                     userSelect: 'none'
-                   }}
-                 >
-                   {currentPostalCode}
-                 </div>
-               )}
-             </div>
-           </div>
-         </div>
-
-                                                                                         </div>
+            <div>
+              {isEditable && editingPostalCode ? (
+                <InlineEditor
+                  initialValue={currentPostalCode}
+                  onSave={handlePostalCodeSave}
+                  onCancel={handlePostalCodeCancel}
+                  className="thank-you-postal-code-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingPostalCode(true)}
+                  style={{
+                    fontSize: '18px',
+                    color: slideTextColor,
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentPostalCode}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
+      </div>
 
-       {/* Profile Image - Moved outside content area */}
-       <div style={{
-         width: '200px',
-         height: '200px',
-         borderRadius: '50%',
-         backgroundColor: 'white',
-         display: 'flex',
-         alignItems: 'center',
-         justifyContent: 'center',
-         overflow: 'hidden',
-         border: '4px solid white',
-         position: 'absolute',
-         top: '60px',
-         right: '60px',
-         zIndex: 10
-       }}>
-         <ClickableImagePlaceholder
-           imagePath={profileImagePath}
-           onImageUploaded={handleProfileImageUploaded}
-           size="LARGE"
-           position="CENTER"
-           description="Profile photo"
-           isEditable={isEditable}
-           style={{
-             width: '100%',
-             height: '100%',
-             borderRadius: '50%',
-             overflow: 'hidden'
-           }}
-         />
-       </div>
+      {/* Profile Image - Top right */}
+      <div style={{
+        width: '200px',
+        height: '200px',
+        borderRadius: '50%',
+        backgroundColor: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        border: '4px solid white',
+        position: 'absolute',
+        top: '60px',
+        right: '60px',
+        zIndex: 10
+      }}>
+        <ClickableImagePlaceholder
+          imagePath={profileImagePath}
+          onImageUploaded={handleProfileImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Profile photo"
+          isEditable={isEditable}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            overflow: 'hidden'
+          }}
+        />
+      </div>
 
       {/* Bottom horizontal separator line */}
       <div style={{
