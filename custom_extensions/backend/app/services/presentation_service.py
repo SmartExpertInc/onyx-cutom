@@ -252,8 +252,8 @@ class ProfessionalPresentationService:
             job.status = "completed"
             job.progress = 100.0
             job.completed_at = datetime.now()
-            job.video_url = f"/api/presentations/{job_id}/video"
-            job.thumbnail_url = f"/api/presentations/{job_id}/thumbnail"
+            job.video_url = f"/api/custom/presentations/{job_id}/video"
+            job.thumbnail_url = f"/api/custom/presentations/{job_id}/thumbnail"
             
             logger.info(f"Presentation {job_id} completed successfully")
             
@@ -632,8 +632,8 @@ class ProfessionalPresentationService:
                         current_content = {}
                     
                     # Add video URL to the project content (similar to how PDF URLs are handled)
-                    video_url = f"/api/presentations/{job_id}/video"
-                    thumbnail_url = f"/api/presentations/{job_id}/thumbnail"
+                    video_url = f"/api/custom/presentations/{job_id}/video"
+                    thumbnail_url = f"/api/custom/presentations/{job_id}/thumbnail"
                     
                     # Update the content with video information
                     if 'videoData' not in current_content:
