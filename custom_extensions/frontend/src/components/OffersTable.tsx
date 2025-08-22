@@ -272,9 +272,6 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{t('interface.offers', 'Offers')}</h2>
-        </div>
         <button
           onClick={() => {
             // Dispatch event to open create offer modal in parent component
