@@ -1015,7 +1015,8 @@ export const uk = {
       presentation: 'Ставка презентації',
       onePager: 'Ставка односторінки',
       quiz: 'Ставка тесту',
-      videoLesson: 'Ставка відео-уроку'
+      videoLesson: 'Ставка відео-уроку',
+    },
 
     // Theme picker translations
     themePicker: {
