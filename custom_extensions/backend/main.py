@@ -15808,6 +15808,29 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
         rows = await conn.fetch(query, onyx_user_id)
     return [ProjectFolderListResponse(**dict(row)) for row in rows]
 
+@app.get("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
+async def get_folder(folder_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Get a specific folder by ID"""
+    query = """
+        SELECT 
+            pf.id, 
+            pf.name, 
+            pf.created_at, 
+            pf.parent_id,
+            COALESCE(pf.quality_tier, 'medium') as quality_tier,
+            COALESCE(pf.custom_rate, 200) as custom_rate,
+            pf.is_advanced as is_advanced,
+            pf.advanced_rates as advanced_rates,
+            pf.completion_times as completion_times
+        FROM project_folders pf
+        WHERE pf.id = $1 AND pf.onyx_user_id = $2
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, folder_id, onyx_user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    return ProjectFolderResponse(**dict(row))
+
 @app.post("/api/custom/projects/folders", response_model=ProjectFolderResponse)
 async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     async with pool.acquire() as conn:
