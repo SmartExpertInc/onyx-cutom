@@ -21488,14 +21488,13 @@ async def create_credential(request: Request):
 @app.get("/api/custom/offers", response_model=List[OfferResponse])
 async def get_offers(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
     company_id: Optional[int] = Query(None, description="Filter by company ID"),
     status: Optional[str] = Query(None, description="Filter by status"),
     search: Optional[str] = Query(None, description="Search in offer name or manager")
 ):
     """Get all offers for the current user with optional filtering"""
     try:
-        onyx_user_id = current_user.onyx_user_id
         
         # Build the query with optional filters
         query = """
@@ -21554,11 +21553,10 @@ async def get_offers(
 async def create_offer(
     offer_data: OfferCreate,
     request: Request,
-    current_user: User = Depends(get_current_user)
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
 ):
     """Create a new offer"""
     try:
-        onyx_user_id = current_user.onyx_user_id
         
         # Validate that the company exists and belongs to the user
         async with DB_POOL.acquire() as connection:
@@ -21604,11 +21602,10 @@ async def update_offer(
     offer_id: int,
     offer_data: OfferUpdate,
     request: Request,
-    current_user: User = Depends(get_current_user)
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
 ):
     """Update an existing offer"""
     try:
-        onyx_user_id = current_user.onyx_user_id
         
         # Build dynamic update query
         update_fields = []
@@ -21690,11 +21687,10 @@ async def update_offer(
 async def delete_offer(
     offer_id: int,
     request: Request,
-    current_user: User = Depends(get_current_user)
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
 ):
     """Delete an offer"""
     try:
-        onyx_user_id = current_user.onyx_user_id
         
         async with DB_POOL.acquire() as connection:
             result = await connection.execute(
