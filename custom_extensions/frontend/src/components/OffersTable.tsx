@@ -270,32 +270,10 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Title and Create Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{t('interface.offers', 'Offers')}</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {offers.length} {offers.length === 1 ? t('interface.offer', 'offer') : t('interface.offers', 'offers')}
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            // Dispatch event to open create offer modal in parent component
-            window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
-              detail: { folder: null }
-            }));
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <Plus size={16} />
-          {t('interface.createOffer', 'Create Offer')}
-        </button>
-      </div>
-
-      {/* Search, Filter, and Actions Row */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-          {/* Search */}
+      {/* Header with Search, Filter, and Create Button */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+        {/* Search and Filter Row */}
+        <div className="flex flex-col sm:flex-row gap-4 flex-1">
           <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
             <input
@@ -303,87 +281,97 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
               placeholder={t('interface.searchOffers', 'Search offers...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 text-gray-900"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
             />
           </div>
-          
-          {/* Status Filter */}
-          <div className="flex-shrink-0">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-            >
-              <option value="" className="text-gray-900">{t('interface.allStatuses', 'All Statuses')}</option>
-              <option value="Draft" className="text-gray-900">{t('interface.draft', 'Draft')}</option>
-              <option value="Internal Review" className="text-gray-900">{t('interface.internalReview', 'Internal Review')}</option>
-              <option value="Approved" className="text-gray-900">{t('interface.approved', 'Approved')}</option>
-              <option value="Sent to Client" className="text-gray-900">{t('interface.sentToClient', 'Sent to Client')}</option>
-              <option value="Viewed by Client" className="text-gray-900">{t('interface.viewedByClient', 'Viewed by Client')}</option>
-              <option value="Negotiation" className="text-gray-900">{t('interface.negotiation', 'Negotiation')}</option>
-              <option value="Accepted" className="text-gray-900">{t('interface.accepted', 'Accepted')}</option>
-              <option value="Rejected" className="text-gray-900">{t('interface.rejected', 'Rejected')}</option>
-              <option value="Archived" className="text-gray-900">{t('interface.archived', 'Archived')}</option>
-            </select>
-          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
+          >
+            <option value="" className="text-black">{t('interface.allStatuses', 'All Statuses')}</option>
+            <option value="Draft" className="text-black">{t('interface.draft', 'Draft')}</option>
+            <option value="Internal Review" className="text-black">{t('interface.internalReview', 'Internal Review')}</option>
+            <option value="Approved" className="text-black">{t('interface.approved', 'Approved')}</option>
+            <option value="Sent to Client" className="text-black">{t('interface.sentToClient', 'Sent to Client')}</option>
+            <option value="Viewed by Client" className="text-black">{t('interface.viewedByClient', 'Viewed by Client')}</option>
+            <option value="Negotiation" className="text-black">{t('interface.negotiation', 'Negotiation')}</option>
+            <option value="Accepted" className="text-black">{t('interface.accepted', 'Accepted')}</option>
+            <option value="Rejected" className="text-black">{t('interface.rejected', 'Rejected')}</option>
+            <option value="Archived" className="text-black">{t('interface.archived', 'Archived')}</option>
+          </select>
         </div>
+        
+        {/* Create Button */}
+        <button
+          onClick={() => {
+            // Dispatch event to open create offer modal in parent component
+            window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
+              detail: { folder: null }
+            }));
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+        >
+          <Plus size={16} />
+          {t('interface.createOffer', 'Create Offer')}
+        </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('offer_name')}
-                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-1 hover:text-gray-700"
                   >
                     {t('interface.offerName', 'Offer Name')}
                     <ArrowUpDown size={12} />
                   </button>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('created_on')}
-                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-1 hover:text-gray-700"
                   >
                     {t('interface.createdOn', 'Created On')}
                     <ArrowUpDown size={12} />
                   </button>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('manager')}
-                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-1 hover:text-gray-700"
                   >
                     {t('interface.manager', 'Manager')}
                     <ArrowUpDown size={12} />
                   </button>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('status')}
-                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-1 hover:text-gray-700"
                   >
                     {t('interface.status', 'Status')}
                     <ArrowUpDown size={12} />
                   </button>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('total_hours')}
-                    className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-1 hover:text-gray-700"
                   >
                     {t('interface.totalHours', 'Total Hours')}
                     <ArrowUpDown size={12} />
                   </button>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('interface.link', 'Link')}
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('interface.actions', 'Actions')}
                 </th>
               </tr>
@@ -403,7 +391,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                   const StatusIcon = statusInfo.icon;
                   
                   return (
-                    <tr key={offer.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={offer.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <Building className="h-5 w-5 text-gray-400 mr-3" />
