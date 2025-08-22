@@ -32,6 +32,8 @@ import {
   ThumbsUp,
   ThumbsDown,
   ChevronDown,
+  Share2,
+  Copy,
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 
@@ -67,6 +69,10 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
   const [editingStatus, setEditingStatus] = useState<number | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
+  const [shareModalOffer, setShareModalOffer] = useState<Offer | null>(null);
+  const [shareLink, setShareLink] = useState<string>("");
+  const [generatingShareLink, setGeneratingShareLink] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -284,6 +290,45 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     setShowEditModal(false);
     setEditingOffer(null);
     fetchOffers(searchTerm);
+  };
+
+  // Handle share offer
+  const handleShareOffer = async (offer: Offer) => {
+    setShareModalOffer(offer);
+    setGeneratingShareLink(true);
+    setShareLink("");
+    setCopySuccess(false);
+
+    try {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers/${offer.id}/generate-share-link`, {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate share link');
+      }
+
+      const data = await response.json();
+      setShareLink(data.share_url);
+    } catch (error) {
+      console.error('Error generating share link:', error);
+      alert(t('interface.shareError', 'Failed to generate share link'));
+    } finally {
+      setGeneratingShareLink(false);
+    }
+  };
+
+  // Handle copy link
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('Error copying link:', error);
+      alert(t('interface.copyError', 'Failed to copy link'));
+    }
   };
 
   if (loading) {
@@ -520,6 +565,13 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
                           <button
+                            onClick={() => handleShareOffer(offer)}
+                            className="text-green-600 hover:text-green-900"
+                            title={t('interface.shareOffer', 'Share Offer')}
+                          >
+                            <Share2 size={16} />
+                          </button>
+                          <button
                             onClick={() => handleEditOffer(offer)}
                             className="text-blue-600 hover:text-blue-900"
                             title={t('interface.editOffer', 'Edit Offer')}
@@ -553,6 +605,83 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
           onClose={() => setShowEditModal(false)}
           onOfferUpdated={handleOfferSaved}
         />
+      )}
+
+      {/* Share Offer Modal */}
+      {shareModalOffer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {t('interface.shareOffer', 'Share Offer')}
+              </h3>
+              <button
+                onClick={() => setShareModalOffer(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                {t('interface.shareOfferDescription', 'Share this offer with anyone, even those without an account:')}
+              </p>
+              <p className="font-medium text-gray-900">{shareModalOffer.offer_name}</p>
+            </div>
+
+            {generatingShareLink ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-gray-600">
+                  {t('interface.generatingLink', 'Generating link...')}
+                </span>
+              </div>
+            ) : shareLink ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('interface.shareableLink', 'Shareable Link')}
+                </label>
+                <div className="flex">
+                  <input
+                    type="text"
+                    value={shareLink}
+                    readOnly
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className={`px-4 py-2 border border-l-0 rounded-r-md transition-colors ${
+                      copySuccess
+                        ? 'bg-green-100 border-green-300 text-green-700'
+                        : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {copySuccess ? (
+                      <CheckCircle size={16} />
+                    ) : (
+                      <Copy size={16} />
+                    )}
+                  </button>
+                </div>
+                {copySuccess && (
+                  <p className="text-sm text-green-600 mt-1">
+                    {t('interface.linkCopied', 'Link copied to clipboard!')}
+                  </p>
+                )}
+              </div>
+            ) : null}
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShareModalOffer(null)}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              >
+                {t('interface.close', 'Close')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

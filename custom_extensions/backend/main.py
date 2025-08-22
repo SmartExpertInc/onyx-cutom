@@ -6594,10 +6594,13 @@ async def startup_event():
                     )),
                     total_hours INTEGER DEFAULT 0,
                     link TEXT,
+                    share_token TEXT UNIQUE,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
             """)
+            await connection.execute("ALTER TABLE offers ADD COLUMN IF NOT EXISTS share_token TEXT;")
+            await connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_offers_share_token ON offers(share_token) WHERE share_token IS NOT NULL;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_onyx_user_id ON offers(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_company_id ON offers(company_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_status ON offers(status);")
@@ -21898,3 +21901,171 @@ async def migrate_offer_links(
     except Exception as e:
         logger.error(f"Error migrating offer links: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to migrate offer links")
+
+@app.post("/api/custom/offers/{offer_id}/generate-share-link")
+async def generate_offer_share_link(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Generate a shareable link for an offer that doesn't require authentication"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Verify offer exists and belongs to user
+            offer_row = await connection.fetchrow("""
+                SELECT id, share_token FROM offers 
+                WHERE id = $1 AND onyx_user_id = $2
+            """, offer_id, onyx_user_id)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+            
+            # Generate or use existing share token
+            share_token = offer_row['share_token']
+            if not share_token:
+                share_token = str(uuid.uuid4())
+                await connection.execute(
+                    "UPDATE offers SET share_token = $1 WHERE id = $2",
+                    share_token, offer_id
+                )
+            
+            # Build shareable URL
+            base_url = str(request.base_url).rstrip('/')
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            share_url = f"{base_url}/custom-projects-ui/offer/shared/{share_token}"
+            
+            return {
+                "share_token": share_token,
+                "share_url": share_url
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating share link: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate share link")
+
+@app.get("/api/custom/offers/shared/{share_token}/details")
+async def get_shared_offer_details(share_token: str):
+    """Get offer details using share token - no authentication required"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offer basic info using share token
+            offer_row = await connection.fetchrow("""
+                SELECT o.*, pf.name as company_name
+                FROM offers o
+                JOIN project_folders pf ON o.company_id = pf.id
+                WHERE o.share_token = $1
+            """, share_token)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Shared offer not found")
+            
+            offer = dict(offer_row)
+            
+            # Get projects in the company folder to build course modules
+            projects_rows = await connection.fetch("""
+                SELECT p.id, p.project_name, p.microproduct_content
+                FROM projects p
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2
+                AND p.microproduct_content IS NOT NULL
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """, offer['company_id'], offer['onyx_user_id'])
+            
+            course_modules = []
+            total_lessons = 0
+            total_learning_duration = 0
+            total_production_time = 0
+            
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    project_lessons = 0
+                    project_modules = 0
+                    project_completion_time = 0
+                    project_hours = 0
+                    
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            project_modules += 1  # Count modules (sections)
+                            for lesson in section['lessons']:
+                                project_lessons += 1
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                    project_completion_time += completion_minutes
+                                except (ValueError, AttributeError):
+                                    project_completion_time += 5
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                project_hours += lesson_hours
+                    
+                    if project_lessons > 0:
+                        learning_duration_hours = round(project_completion_time / 60.0, 1)
+                        course_modules.append({
+                            'title': project_dict['project_name'],
+                            'modules': project_modules,
+                            'lessons': project_lessons,
+                            'learningDuration': f"{learning_duration_hours}h",
+                            'productionTime': f"{project_hours}h"
+                        })
+                        
+                        total_lessons += project_lessons
+                        total_learning_duration += learning_duration_hours
+                        total_production_time += project_hours
+            
+            # Generate quality levels data - using actual totals from all courses
+            quality_levels = [
+                {
+                    'level': 'Level 1 - Basic',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{total_production_time}h"
+                },
+                {
+                    'level': 'Level 2 - Interactive',
+                    'learningDuration': f"{total_learning_duration}h", 
+                    'productionTime': f"{int(total_production_time * 1.5)}h"  # 50% more for interactive
+                },
+                {
+                    'level': 'Level 3 - Advanced',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{int(total_production_time * 2)}h"  # 2x for advanced
+                },
+                {
+                    'level': 'Level 4 - Immersive',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{int(total_production_time * 3)}h"  # 3x for immersive
+                }
+            ]
+            
+            # Remove sensitive information for shared view
+            offer_public = {
+                'id': offer['id'],
+                'offer_name': offer['offer_name'],
+                'company_name': offer['company_name'],
+                'manager': offer['manager'],
+                'created_on': offer['created_on'],
+                'status': offer['status'],
+                'total_hours': offer['total_hours']
+            }
+            
+            return {
+                'offer': offer_public,
+                'courseModules': course_modules,
+                'qualityLevels': quality_levels
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching shared offer details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch shared offer details")
