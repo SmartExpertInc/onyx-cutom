@@ -337,12 +337,17 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation progress:', progressPercent + '%');
       });
 
-      // Step 5: Complete
+      // Step 5: Complete and Download
       console.log('🎬 [VIDEO_DOWNLOAD] Step 5: Professional video generation completed!');
       console.log('🎬 [VIDEO_DOWNLOAD] Final video includes: slide content + AI avatar + merged output');
       setProgress(100);
       setStatus('completed');
       console.log('🎬 [VIDEO_DOWNLOAD] Final video URL:', videoUrl);
+      
+      // Step 6: Automatically download the video to user's computer
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 6: Starting automatic download...');
+      await downloadVideoToPC(videoUrl);
+      
       onSuccess?.(videoUrl);
 
     } catch (error) {
@@ -363,12 +368,65 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
     }
   };
 
+  const downloadVideoToPC = async (videoUrl: string) => {
+    try {
+      console.log('💾 [DOWNLOAD] Starting download from URL:', videoUrl);
+      
+      // Construct the full download URL
+      const fullUrl = videoUrl.startsWith('http') ? videoUrl : `${CUSTOM_BACKEND_URL}${videoUrl}`;
+      console.log('💾 [DOWNLOAD] Full download URL:', fullUrl);
+      
+      // Fetch the video file
+      console.log('💾 [DOWNLOAD] Fetching video file...');
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        credentials: 'same-origin',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+      }
+      
+      // Get the video blob
+      console.log('💾 [DOWNLOAD] Converting to blob...');
+      const blob = await response.blob();
+      console.log('💾 [DOWNLOAD] Blob size:', blob.size, 'bytes');
+      
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const filename = `professional-video-${projectName || 'presentation'}-${timestamp}.mp4`;
+      link.download = filename;
+      
+      // Trigger download
+      console.log('💾 [DOWNLOAD] Triggering download:', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      console.log('💾 [DOWNLOAD] Download initiated successfully!');
+      console.log('💾 [DOWNLOAD] File saved as:', filename);
+      
+    } catch (error) {
+      console.error('💾 [DOWNLOAD] Download failed:', error);
+      // Don't throw - let the video generation success still show
+      console.log('💾 [DOWNLOAD] Video is still available at:', videoUrl);
+    }
+  };
+
   const getButtonText = () => {
     switch (status) {
       case 'generating':
         return `Creating Professional Video... ${progress}%`;
       case 'completed':
-        return 'Professional Video Ready';
+        return 'Video Generated & Downloaded!';
       case 'error':
         return 'Generation Failed - Try Again';
       default:
