@@ -216,7 +216,7 @@ class HTMLToImageService:
             return False
     
     async def convert_html_to_png_simple(self, html_content: str, output_path: str) -> bool:
-        """Simple fallback method - creates a placeholder image."""
+        """Simple fallback method - creates a placeholder image with actual slide content."""
         try:
             from PIL import Image, ImageDraw, ImageFont
             
@@ -230,15 +230,29 @@ class HTMLToImageService:
             except:
                 font = ImageFont.load_default()
             
-            # Draw placeholder text
-            text = "Video Slide Generated\n(HTML to Image Conversion)"
-            draw.text((100, 400), text, fill='white', font=font)
+            # Extract content from HTML if possible
+            import re
+            title_match = re.search(r'<h1[^>]*>(.*?)</h1>', html_content, re.DOTALL)
+            content_match = re.search(r'<p[^>]*>(.*?)</p>', html_content, re.DOTALL)
+            
+            title = title_match.group(1).strip() if title_match else "Slide Title"
+            content = content_match.group(1).strip() if content_match else "Slide Content"
+            
+            # Clean HTML tags from text
+            title = re.sub(r'<[^>]+>', '', title)
+            content = re.sub(r'<[^>]+>', '', content)
+            
+            # Draw actual slide content
+            draw.text((100, 200), f"Title: {title}", fill='white', font=font)
+            draw.text((100, 300), f"Content: {content[:100]}...", fill='white', font=font)
             
             # Save the image
             image.save(output_path, 'PNG')
             
             file_size = os.path.getsize(output_path)
-            logger.info(f"Simple fallback conversion: {file_size} bytes")
+            logger.info(f"Simple fallback conversion with actual content: {file_size} bytes")
+            logger.info(f"Extracted title: {title}")
+            logger.info(f"Extracted content: {content[:100]}...")
             return True
             
         except Exception as e:
