@@ -51,8 +51,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(initialColor));
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
-  const [isManualUpdate, setIsManualUpdate] = useState(false);
-  const lastManualValueRef = useRef<string | null>(null);
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -162,32 +160,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       setIsUserTyping(false);
-      setIsManualUpdate(true);
       const value = e.currentTarget.value;
       // Only update other formats if we have a complete valid HEX code
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-        lastManualValueRef.current = value;
-        setHsb(hexToHsb(value));
+        const newHsb = hexToHsb(value);
+        setHsb(newHsb); // Update HSB to reflect in square and slider
+        setHex(value);
         setRgba(hexToRgba(value));
         setHsla(hexToHsla(value));
         onColorChange(value);
-        addToRecentColors(value); // Add to recent colors when manually entering
-        // Clear the manual update flag after a longer delay
-        setTimeout(() => {
-          setIsManualUpdate(false);
-          lastManualValueRef.current = null;
-        }, 500);
-      } else {
-        setIsManualUpdate(false);
-        lastManualValueRef.current = null;
       }
     }
   };
 
   const handleHexBlur = () => {
     setIsUserTyping(false);
-    setIsManualUpdate(false);
-    lastManualValueRef.current = null;
   };
 
   const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,26 +191,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       setIsUserTyping(false);
-      setIsManualUpdate(true);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
         const newRgba = { ...rgba, [field]: value };
         setRgba(newRgba);
         const newHex = rgbaToHex(newRgba);
-        lastManualValueRef.current = newHex;
+        const newHsb = hexToHsb(newHex);
+        setHsb(newHsb); // Update HSB to reflect in square and slider
         setHex(newHex);
-        setHsb(hexToHsb(newHex));
         setHsla(hexToHsla(newHex));
         onColorChange(newHex);
-        addToRecentColors(newHex); // Add to recent colors when manually entering
-        // Clear the manual update flag after a longer delay
-        setTimeout(() => {
-          setIsManualUpdate(false);
-          lastManualValueRef.current = null;
-        }, 500);
-      } else {
-        setIsManualUpdate(false);
-        lastManualValueRef.current = null;
       }
     }
   };
@@ -242,26 +219,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       setIsUserTyping(false);
-      setIsManualUpdate(true);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
         const newHsla = { ...hsla, [field]: value };
         setHsla(newHsla);
         const newHex = hslaToHex(newHsla);
-        lastManualValueRef.current = newHex;
+        const newHsb = hexToHsb(newHex);
+        setHsb(newHsb); // Update HSB to reflect in square and slider
         setHex(newHex);
-        setHsb(hexToHsb(newHex));
         setRgba(hexToRgba(newHex));
         onColorChange(newHex);
-        addToRecentColors(newHex); // Add to recent colors when manually entering
-        // Clear the manual update flag after a longer delay
-        setTimeout(() => {
-          setIsManualUpdate(false);
-          lastManualValueRef.current = null;
-        }, 500);
-      } else {
-        setIsManualUpdate(false);
-        lastManualValueRef.current = null;
       }
     }
   };
@@ -557,8 +524,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('r')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -592,8 +557,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('g')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -627,8 +590,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('b')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -662,8 +623,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('a')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
@@ -707,8 +666,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('h')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 360 }}
                   onClick={handleInputClick}
@@ -742,8 +699,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('s')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -777,8 +732,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('l')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -812,8 +765,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('a')}
                   onBlur={() => {
                     setIsUserTyping(false);
-                    setIsManualUpdate(false);
-                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}

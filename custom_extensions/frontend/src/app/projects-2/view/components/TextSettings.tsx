@@ -493,12 +493,10 @@ export default function TextSettings() {
             </div>
 
             {/* Advanced Settings Content */}
-            <div 
-              className={`border-t border-gray-200 transition-all duration-300 ease-in-out ${
-                showAdvancedSettings ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-              }`}
-            >
-              <div className={`px-4 ${showAdvancedSettings ? 'pt-4 pb-4' : 'pt-0 pb-0'}`}>
+            <div className="border-t border-gray-200 h-24">
+              <div className={`px-4 transition-all duration-300 ease-in-out ${
+                showAdvancedSettings ? 'pt-4 pb-4' : 'pt-0 pb-0'
+              } overflow-hidden h-full`}>
                 <div className={`transition-all duration-300 ${showAdvancedSettings ? 'opacity-100' : 'opacity-0'}`}>
                   <AdvancedSettings
                     rotation={rotation}
