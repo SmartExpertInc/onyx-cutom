@@ -43,6 +43,11 @@ export default function TextSettings() {
   // Handle click outside to close dropdowns
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      // Don't close dropdowns if color pickers are open
+      if (showFontColorPicker || showBackgroundColorPicker) {
+        return;
+      }
+      
       if (fontFamilyDropdownRef.current && !fontFamilyDropdownRef.current.contains(event.target as Node)) {
         setShowFontFamilyDropdown(false);
       }
@@ -58,7 +63,7 @@ export default function TextSettings() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [showFontColorPicker, showBackgroundColorPicker]);
 
   // Handle font color button click
   const handleFontColorClick = (event: React.MouseEvent) => {
@@ -360,10 +365,13 @@ export default function TextSettings() {
               <span className="text-sm font-medium text-gray-700">Font color</span>
               <button
                 onClick={handleFontColorClick}
-                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                 style={{ backgroundColor: fontColor }}
-                title="Font color"
-              />
+                title={`Font color: ${fontColor}`}
+              >
+                {/* Add a subtle pattern for better color visibility */}
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
+              </button>
             </div>
 
             {/* Background Color */}
@@ -371,10 +379,13 @@ export default function TextSettings() {
               <span className="text-sm font-medium text-gray-700">Background color</span>
               <button
                 onClick={handleBackgroundColorClick}
-                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                 style={{ backgroundColor: backgroundColor }}
-                title="Background color"
-              />
+                title={`Background color: ${backgroundColor}`}
+              >
+                {/* Add a subtle pattern for better color visibility */}
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
+              </button>
             </div>
 
             {/* Order */}
