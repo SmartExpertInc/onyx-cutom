@@ -321,11 +321,29 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                             onClick={(e) => {
                               e.stopPropagation();
                               const isCurrentlyOpen = advancedTierOpen === tier.id;
-                              setAdvancedTierOpen(isCurrentlyOpen ? null : tier.id);
-                              setGlobalAdvancedOpen(!isCurrentlyOpen);
+                              const willOpen = !isCurrentlyOpen;
+                              setAdvancedTierOpen(willOpen ? tier.id : null);
+                              setGlobalAdvancedOpen(willOpen);
+                              
+                              // CRITICAL FIX: Actually enable/disable advanced mode
+                              if (willOpen && !advancedEnabled) {
+                                setAdvancedEnabled(true);
+                                console.log('🔍 [PROJECT_MODAL] Gear clicked - enabling advanced mode');
+                                // If not already advanced, initialize sliders to current effective rate
+                                if (perProductRates.presentation === 0) {
+                                  const fallbackRate = customRate || 200;
+                                  setPerProductRates({
+                                    presentation: fallbackRate,
+                                    onePager: fallbackRate,
+                                    quiz: fallbackRate,
+                                    videoLesson: fallbackRate
+                                  });
+                                  console.log('🔍 [PROJECT_MODAL] Initialized advanced rates to:', fallbackRate);
+                                }
+                              }
                             }}
                             className={`p-2 rounded-lg transition-colors ${
-                              globalAdvancedOpen 
+                              advancedEnabled || globalAdvancedOpen
                                 ? 'bg-blue-100 text-blue-600' 
                                 : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
                             }`}

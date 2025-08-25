@@ -147,40 +147,45 @@ export default function ModuleSettingsModal({
           console.warn('🔍 [MODULE_MODAL] Failed to fetch effective rates for module, using defaults');
           console.log('🔍 [MODULE_MODAL] Fallback to currentCustomRate:', currentCustomRate);
           setAdvancedEnabled(false);
+          // Use current rate instead of 200h default
+          const fallbackRate = currentCustomRate || 200;
           setPerProductRates({
-            presentation: currentCustomRate || 200,
-            onePager: currentCustomRate || 200,
-            quiz: currentCustomRate || 200,
-            videoLesson: currentCustomRate || 200
+            presentation: fallbackRate,
+            onePager: fallbackRate,
+            quiz: fallbackRate,
+            videoLesson: fallbackRate
           });
-          // Set default completion times for fallback
+          // Set default completion times
           setPerProductCompletionTimes({
             presentation: 8,
             onePager: 3,
             quiz: 6,
             videoLesson: 4
           });
-          setCustomRate(currentCustomRate || 200);
-          setDataLoaded(true); // Mark data as loaded even if fetch fails
+          setCustomRate(fallbackRate);
+          setDataLoaded(true); // Mark data as loaded even on fallback
         }
       } catch (error) {
-        console.error('🔍 [MODULE_MODAL] Error fetching effective rates for module:', error);
+        console.error('🔍 [MODULE_MODAL] Error fetching effective rates:', error);
+        // Fallback to defaults if fetch fails
         setAdvancedEnabled(false);
+        // Use current rate instead of 200h default
+        const fallbackRate = currentCustomRate || 200;
         setPerProductRates({
-          presentation: currentCustomRate || 200,
-          onePager: currentCustomRate || 200,
-          quiz: currentCustomRate || 200,
-          videoLesson: currentCustomRate || 200
+          presentation: fallbackRate,
+          onePager: fallbackRate,
+          quiz: fallbackRate,
+          videoLesson: fallbackRate
         });
-        // Set default completion times for fallback
+        // Set default completion times
         setPerProductCompletionTimes({
           presentation: 8,
           onePager: 3,
           quiz: 6,
           videoLesson: 4
         });
-        setCustomRate(currentCustomRate || 200);
-        setDataLoaded(true); // Mark data as loaded even on error
+        setCustomRate(fallbackRate);
+        setDataLoaded(true); // Mark data as loaded even on fallback
       } finally {
         setIsLoading(false);
       }
@@ -389,11 +394,29 @@ export default function ModuleSettingsModal({
                             onClick={(e) => {
                               e.stopPropagation();
                               const isCurrentlyOpen = advancedTierOpen === tier.id;
-                              setAdvancedTierOpen(isCurrentlyOpen ? null : tier.id);
-                              setGlobalAdvancedOpen(!isCurrentlyOpen);
+                              const willOpen = !isCurrentlyOpen;
+                              setAdvancedTierOpen(willOpen ? tier.id : null);
+                              setGlobalAdvancedOpen(willOpen);
+                              
+                              // CRITICAL FIX: Actually enable/disable advanced mode
+                              if (willOpen && !advancedEnabled) {
+                                setAdvancedEnabled(true);
+                                console.log('🔍 [MODULE_MODAL] Gear clicked - enabling advanced mode');
+                                // If not already advanced, initialize sliders to current effective rate
+                                if (perProductRates.presentation === 0) {
+                                  const fallbackRate = customRate || currentCustomRate || 200;
+                                  setPerProductRates({
+                                    presentation: fallbackRate,
+                                    onePager: fallbackRate,
+                                    quiz: fallbackRate,
+                                    videoLesson: fallbackRate
+                                  });
+                                  console.log('🔍 [MODULE_MODAL] Initialized advanced rates to:', fallbackRate);
+                                }
+                              }
                             }}
                             className={`p-2 rounded-lg transition-colors ${
-                              globalAdvancedOpen 
+                              advancedEnabled || globalAdvancedOpen
                                 ? 'bg-blue-100 text-blue-600' 
                                 : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
                             }`}
