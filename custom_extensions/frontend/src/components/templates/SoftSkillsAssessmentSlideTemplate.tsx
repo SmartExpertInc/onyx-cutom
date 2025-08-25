@@ -274,6 +274,13 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             key={index}
             style={{
               flex: '1',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px'
+            }}
+          >
+            {/* Main tip block */}
+            <div style={{
               padding: '30px',
               backgroundColor: tip.isHighlighted ? themeAccent : themeTitle,
               borderRadius: '10px',
@@ -281,44 +288,96 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
-            }}
-          >
-            <div style={{
-              fontSize: '25px',
-              fontWeight: '500',
-              color: themeBg,
-              lineHeight: '1.4',
-              textAlign: 'center'
             }}>
-              {isEditable && editingTips === index ? (
-                <InlineEditor
-                  initialValue={tip.text}
-                  onSave={(value) => handleTipSave(index, value)}
-                  onCancel={handleTipCancel}
-                  multiline={true}
-                  className="tip-editor"
-                  style={{
-                    fontSize: '25px',
-                    fontWeight: '500',
-                    color: themeBg,
-                    lineHeight: '1.4',
-                    textAlign: 'center',
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingTips(index)}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
-                  }}
-                >
-                  {tip.text}
-                </div>
-              )}
+              <div style={{
+                fontSize: '25px',
+                fontWeight: '500',
+                color: themeBg,
+                lineHeight: '1.4',
+                textAlign: 'center'
+              }}>
+                {isEditable && editingTips === index ? (
+                  <InlineEditor
+                    initialValue={tip.text}
+                    onSave={(value) => handleTipSave(index, value)}
+                    onCancel={handleTipCancel}
+                    multiline={true}
+                    className="tip-editor"
+                    style={{
+                      fontSize: '25px',
+                      fontWeight: '500',
+                      color: themeBg,
+                      lineHeight: '1.4',
+                      textAlign: 'center',
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingTips(index)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {tip.text}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Additional block that extends out */}
+            <div style={{
+              padding: '20px',
+              backgroundColor: themeAccent,
+              borderRadius: '10px',
+              minHeight: '80px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: '-10px', // Makes it overlap slightly
+              marginLeft: '20px', // Makes it extend out to the right
+              marginRight: '-20px' // Makes it extend out to the right
+            }}>
+              <div style={{
+                fontSize: '18px',
+                fontWeight: '400',
+                color: themeBg,
+                lineHeight: '1.3',
+                textAlign: 'center'
+              }}>
+                {isEditable && editingTips === index ? (
+                  <InlineEditor
+                    initialValue={`Additional tip ${index + 1}`}
+                    onSave={(value) => handleTipSave(index, value)}
+                    onCancel={handleTipCancel}
+                    multiline={true}
+                    className="additional-tip-editor"
+                    style={{
+                      fontSize: '18px',
+                      fontWeight: '400',
+                      color: themeBg,
+                      lineHeight: '1.3',
+                      textAlign: 'center',
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingTips(index)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    Additional tip {index + 1}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}

@@ -441,80 +441,37 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               key={index}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}
-            >
-              {/* Main benefit text */}
-              <div style={{
-                display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
                 fontSize: '16px',
                 color: themeContent
-              }}>
-                <span style={{ fontSize: '18px' }}>→</span>
-                {isEditable && editingBenefits === index ? (
-                  <InlineEditor
-                    initialValue={benefit}
-                    onSave={(value) => handleBenefitSave(index, value)}
-                    onCancel={handleBenefitCancel}
-                    className="benefit-editor"
-                    style={{
-                      fontSize: '16px',
-                      color: themeContent,
-                      flex: '1'
-                    }}
-                  />
-                ) : (
-                  <div
-                    onClick={() => isEditable && setEditingBenefits(index)}
-                    style={{
-                      cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none',
-                      flex: '1'
-                    }}
-                  >
-                    {benefit}
-                  </div>
-                )}
-              </div>
-              
-              {/* Second benefit text (overlapping) */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                fontSize: '16px',
-                color: themeContent,
-                marginTop: '-4px' // Overlap effect
-              }}>
-                <span style={{ fontSize: '18px' }}>→</span>
-                {isEditable && editingBenefits === index ? (
-                  <InlineEditor
-                    initialValue={`${benefit} continuation`}
-                    onSave={(value) => handleBenefitSave(index, value)}
-                    onCancel={handleBenefitCancel}
-                    className="benefit-editor"
-                    style={{
-                      fontSize: '16px',
-                      color: themeContent,
-                      flex: '1'
-                    }}
-                  />
-                ) : (
-                  <div
-                    onClick={() => isEditable && setEditingBenefits(index)}
-                    style={{
-                      cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none',
-                      flex: '1'
-                    }}
-                  >
-                    {benefit} continuation
-                  </div>
-                )}
-              </div>
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>→</span>
+              {isEditable && editingBenefits === index ? (
+                <InlineEditor
+                  initialValue={benefit}
+                  onSave={(value) => handleBenefitSave(index, value)}
+                  onCancel={handleBenefitCancel}
+                  className="benefit-editor"
+                  style={{
+                    fontSize: '16px',
+                    color: themeContent,
+                    flex: '1'
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingBenefits(index)}
+                  style={{
+                    cursor: isEditable ? 'pointer' : 'default',
+                    userSelect: 'none',
+                    flex: '1'
+                  }}
+                >
+                  {benefit}
+                </div>
+              )}
             </div>
           ))}
         </div>
