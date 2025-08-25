@@ -1,4 +1,220 @@
-backend: 
+frontend:
+🎨 Font styles applied to Chudo and Forta themes
+page-ce99881ee81e0da1.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Video Lesson Presentation",\n  "slug":…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "AI Tools for Teachers",\n  "sli… "hasVoiceover": true,\n  "theme": "dark-purple"\n}', componentName: 'VideoLessonPresentationDisplay', …}
+page-ce99881ee81e0da1.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-ce99881ee81e0da1.js:1 📄 Slide 1 (avatar-service-slide): {slideId: 'slide-1755874749050-nrvg5z753', templateId: 'avatar-service-slide', props: {…}}
+page-ce99881ee81e0da1.js:1 ✅ Component-based slides loaded with theme: {slideCount: 1, theme: 'dark-purple', themeColors: {…}, templates: Array(1)}
+page-ce99881ee81e0da1.js:1 🎬 Exposed slide data to window for video generation: {deck: {…}}
+page-ce99881ee81e0da1.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+page-ce99881ee81e0da1.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+page-ce99881ee81e0da1.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
+page-ce99881ee81e0da1.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+page-ce99881ee81e0da1.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
+page-ce99881ee81e0da1.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
+63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
+63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+window.console.error @ 684-061671409fcbce74.js:1
+a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
+684-061671409fcbce74.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont thin font
+    at a.onerror (layout-1e76a94cbd5c836b.js:1:738)
+window.console.error @ 684-061671409fcbce74.js:1
+r @ layout-1e76a94cbd5c836b.js:1
+await in r
+(anonymous) @ layout-1e76a94cbd5c836b.js:1
+(anonymous) @ layout-1e76a94cbd5c836b.js:1
+oq @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+iS @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+w @ 684-061671409fcbce74.js:1Understand this error
+layout-1e76a94cbd5c836b.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
+63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
+window.console.error @ 684-061671409fcbce74.js:1
+a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Environment check:
+page-ce99881ee81e0da1.js:1   - CUSTOM_BACKEND_URL: /api/custom-projects-backend
+page-ce99881ee81e0da1.js:1   - NEXT_PUBLIC_CUSTOM_BACKEND_URL: /api/custom-projects-backend
+page-ce99881ee81e0da1.js:1   - Window location: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from DOM...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Found voiceover elements: 0
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] No voiceover elements found, extracting from slide content...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 1: AI Tools for Teachers
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 2: Hello4
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 3: Welcome to the Course on AI Tools for Teachers
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Voiceover
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Skipping non-English title: Клиентский сервис - это основа успеха
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Presentation Themes
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts: (3) ['AI Tools for Teachers', 'Hello4', 'Welcome to the Course on AI Tools for Teachers']
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: (3) ['AI Tools for Teachers', 'Hello4', 'Welcome to the Course on AI Tools for Teachers']
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Slide URL for capture: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Step 3: Extracting slide data...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data: {slides: Array(1), theme: 'dark-purple'}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation creation response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'processing', progress: 0, message: 'Presentation generation started - check status with job ID', …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation job created with ID: c0f79e35-4c44-4295-aa69-3c8bd2434d91
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Step 4: Monitoring professional presentation progress...
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] This includes: slide capture → avatar generation → video merging
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Starting to monitor professional presentation progress for job: c0f79e35-4c44-4295-aa69-3c8bd2434d91
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'processing', progress: 10, error: null, …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
+63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+window.console.error @ 684-061671409fcbce74.js:1
+a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'processing', progress: 10, error: null, …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'processing', progress: 10, error: null, …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'processing', progress: 10, error: null, …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'processing', progress: 10, error: null, …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'processing', progress: 10, error: null, …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: 'c0f79e35-4c44-4295-aa69-3c8bd2434d91', status: 'failed', progress: 40, error: "Failed to create avatar video: Failed to create video: name 'json' is not defined", …}
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: failed Progress: 40%
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error checking professional presentation status: Error: Failed to create avatar video: Failed to create video: name 'json' is not defined
+    at m (page-ce99881ee81e0da1.js:1:214221)
+    at async x (page-ce99881ee81e0da1.js:1:216686)
+window.console.error @ 684-061671409fcbce74.js:1
+m @ page-ce99881ee81e0da1.js:1
+await in m
+x @ page-ce99881ee81e0da1.js:1
+await in x
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Video generation failed with error: Error: Failed to create avatar video: Failed to create video: name 'json' is not defined
+    at m (page-ce99881ee81e0da1.js:1:214221)
+    at async x (page-ce99881ee81e0da1.js:1:216686)
+window.console.error @ 684-061671409fcbce74.js:1
+x @ page-ce99881ee81e0da1.js:1
+await in x
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error type: object
+window.console.error @ 684-061671409fcbce74.js:1
+x @ page-ce99881ee81e0da1.js:1
+await in x
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error constructor: Error
+window.console.error @ 684-061671409fcbce74.js:1
+x @ page-ce99881ee81e0da1.js:1
+await in x
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error stack: Error: Failed to create avatar video: Failed to create video: name 'json' is not defined
+    at m (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-ce99881ee81e0da1.js:1:214221)
+    at async x (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-ce99881ee81e0da1.js:1:216686)
+window.console.error @ 684-061671409fcbce74.js:1
+x @ page-ce99881ee81e0da1.js:1
+await in x
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error message: Failed to create avatar video: Failed to create video: name 'json' is not defined
+window.console.error @ 684-061671409fcbce74.js:1
+x @ page-ce99881ee81e0da1.js:1
+await in x
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error name: Error
+window.console.error @ 684-061671409fcbce74.js:1
+x @ page-ce99881ee81e0da1.js:1
+await in x
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+page-ce99881ee81e0da1.js:1 🎬 [VIDEO_DOWNLOAD] Calling onError with message: Failed to create avatar video: Failed to create video: name 'json' is not defined
+684-061671409fcbce74.js:1 Video generation error: Failed to create avatar video: Failed to create video: name 'json' is not defined
+
+backend:
 custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
 custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
 custom_backend-1  | INFO:main:Video generation service imported successfully
@@ -117,219 +333,203 @@ custom_backend-1  |   "currentSlideId": "slide_1_intro",
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:42742 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47654 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:42750 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47664 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:42760 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:Created presentation job: 792b2796-977c-4102-b170-4831255f4162
-custom_backend-1  | INFO:main:Returning immediate response for job 792b2796-977c-4102-b170-4831255f4162
-custom_backend-1  | INFO:app.services.presentation_service:Starting presentation processing for job: 792b2796-977c-4102-b170-4831255f4162
-custom_backend-1  | INFO:app.services.presentation_service:Step 1: Generating clean slide video for job 792b2796-977c-4102-b170-4831255f4162
-custom_backend-1  | INFO:app.services.presentation_service:Using provided slide data with 1 slides
+custom_backend-1  | INFO:     172.18.0.12:47670 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.presentation_service:Created presentation job: c0f79e35-4c44-4295-aa69-3c8bd2434d91
+custom_backend-1  | INFO:main:Returning immediate response for job c0f79e35-4c44-4295-aa69-3c8bd2434d91
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Starting presentation processing for job: c0f79e35-4c44-4295-aa69-3c8bd2434d91
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Request details:
+custom_backend-1  | INFO:app.services.presentation_service:  - Slide URL: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
+custom_backend-1  | INFO:app.services.presentation_service:  - Theme: dark-purple
+custom_backend-1  | INFO:app.services.presentation_service:  - Duration: 30s
+custom_backend-1  | INFO:app.services.presentation_service:  - Quality: high
+custom_backend-1  | INFO:app.services.presentation_service:  - Layout: side_by_side
+custom_backend-1  | INFO:app.services.presentation_service:  - Resolution: (1920, 1080)
+custom_backend-1  | INFO:app.services.presentation_service:  - Avatar Code: None
+custom_backend-1  | INFO:app.services.presentation_service:  - Voiceover Texts Count: 3
+custom_backend-1  | INFO:app.services.presentation_service:  - Slides Data Provided: True
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Slides data analysis:
+custom_backend-1  | INFO:app.services.presentation_service:  Slide 1:
+custom_backend-1  | INFO:app.services.presentation_service:    - Template ID: avatar-service-slide
+custom_backend-1  | INFO:app.services.presentation_service:    - Slide ID: slide-1755874749050-nrvg5z753
+custom_backend-1  | INFO:app.services.presentation_service:    - Props Keys: ['title', 'content', 'subtitle', 'avatarAlt', 'avatarPath', 'titleColor', 'contentColor', 'subtitleColor', 'voiceoverText', 'backgroundColor']
+custom_backend-1  | INFO:app.services.presentation_service:    - Title: Welcome to the Course on AI Tools for Teachers
+custom_backend-1  | INFO:app.services.presentation_service:    - Subtitle:
+custom_backend-1  | INFO:app.services.presentation_service:    - Content: In this course, we will explore various AI tools that can enhance teaching and learning experiences ...
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Voiceover texts:
+custom_backend-1  | INFO:app.services.presentation_service:  Text 1: AI Tools for Teachers...
+custom_backend-1  | INFO:app.services.presentation_service:  Text 2: Hello4...
+custom_backend-1  | INFO:app.services.presentation_service:  Text 3: Welcome to the Course on AI Tools for Teachers...
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job c0f79e35-4c44-4295-aa69-3c8bd2434d91
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Using provided slide data with 1 slides
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Detailed slide data analysis:
+custom_backend-1  | INFO:app.services.presentation_service:  📄 Slide 1 Details:
+custom_backend-1  | INFO:app.services.presentation_service:    - Template ID: avatar-service-slide
+custom_backend-1  | INFO:app.services.presentation_service:    - Slide ID: slide-1755874749050-nrvg5z753
+custom_backend-1  | INFO:app.services.presentation_service:    - Props Type: <class 'dict'>
+custom_backend-1  | INFO:app.services.presentation_service:    - Props Keys: ['title', 'content', 'subtitle', 'avatarAlt', 'avatarPath', 'titleColor', 'contentColor', 'subtitleColor', 'voiceoverText', 'backgroundColor']
+custom_backend-1  | INFO:app.services.presentation_service:    - Title: 'Welcome to the Course on AI Tools for Teachers'custom_backend-1  | INFO:app.services.presentation_service:    - Subtitle: ''
+custom_backend-1  | INFO:app.services.presentation_service:    - Content: 'In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings....'
+custom_backend-1  | INFO:app.services.presentation_service:    - Voiceover Text: 'Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teac...'
+custom_backend-1  | INFO:app.services.presentation_service:    - avatarAlt: Avatar
+custom_backend-1  | INFO:app.services.presentation_service:    - avatarPath:
+custom_backend-1  | INFO:app.services.presentation_service:    - titleColor: #e91e63
+custom_backend-1  | INFO:app.services.presentation_service:    - contentColor: #e91e63
+custom_backend-1  | INFO:app.services.presentation_service:    - subtitleColor: #000000
+custom_backend-1  | INFO:app.services.presentation_service:    - backgroundColor: #ffffff
 custom_backend-1  | INFO:app.services.clean_video_generation_service:Clean Video Generation Service initialized
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Calling clean video generation service:
+custom_backend-1  | INFO:app.services.presentation_service:  - Slides count: 1
+custom_backend-1  | INFO:app.services.presentation_service:  - Theme: dark-purple
+custom_backend-1  | INFO:app.services.presentation_service:  - Duration: 30
+custom_backend-1  | INFO:app.services.presentation_service:  - Quality: high
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Using single slide generation
 custom_backend-1  | INFO:app.services.clean_video_generation_service:Generating video for avatar slide: avatar-service-slide
-custom_backend-1  | INFO:     172.18.0.12:42480 - "POST /api/custom/presentations HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42490 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56992 - "POST /api/custom/presentations HTTP/1.1" 200 OK
 custom_backend-1  | INFO:app.services.video_assembly_service:Found FFmpeg at: ffmpeg
 custom_backend-1  | INFO:app.services.video_assembly_service:Video Assembly Service initialized. FFmpeg: ffmpeg
-custom_backend-1  | INFO:app.services.video_assembly_service:Creating video from 1 slides
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Creating video from 1 slides
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Parameters:
+custom_backend-1  | INFO:app.services.video_assembly_service:  - Theme: dark-purple
+custom_backend-1  | INFO:app.services.video_assembly_service:  - Output path: output/clean_videos/avatar_slide_avatar-service-slide_20250825_131741.mp4
+custom_backend-1  | INFO:app.services.video_assembly_service:  - Slide duration: 30
+custom_backend-1  | INFO:app.services.video_assembly_service:  - Quality: high
+custom_backend-1  | INFO:     172.18.0.12:56998 - "GET /api/custom/presentations/c0f79e35-4c44-4295-aa69-3c8bd2434d91 HTTP/1.1" 200 OK
 custom_backend-1  | WARNING:app.services.html_to_image_service:No advanced HTML to image libraries found, using simple fallback
 custom_backend-1  | INFO:app.services.html_to_image_service:HTML to Image Service initialized using: simple
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Processing slide 1/1
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Slide 1 details:
+custom_backend-1  | INFO:app.services.video_assembly_service:  - Template ID: avatar-service-slide
+custom_backend-1  | INFO:app.services.video_assembly_service:  - Props keys: ['slideId', 'slideNumber', 'slideTitle', 'templateId', 'props', 'voiceoverText', 'metadata']
+custom_backend-1  | INFO:app.services.video_assembly_service:  - slideId: 'slide-1755874749050-nrvg5z753...'
+custom_backend-1  | INFO:app.services.video_assembly_service:  - slideNumber: 1
+custom_backend-1  | INFO:app.services.video_assembly_service:  - slideTitle: 'Клиентский сервис - это основа успеха...'
+custom_backend-1  | INFO:app.services.video_assembly_service:  - templateId: 'avatar-service-slide...'
+custom_backend-1  | INFO:app.services.video_assembly_service:  - props: {'title': 'Welcome to the Course on AI Tools for Teachers', 'content': 'In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.', 'subtitle': '', 'avatarAlt': 'Avatar', 'avatarPath': '', 'titleColor': '#e91e63', 'contentColor': '#e91e63', 'subtitleColor': '#000000', 'voiceoverText': 'Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.', 'backgroundColor': '#ffffff'}
+custom_backend-1  | INFO:app.services.video_assembly_service:  - voiceoverText: 'Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teac...'
+custom_backend-1  | INFO:app.services.video_assembly_service:  - metadata: {'createdAt': '2025-08-22T14:59:09.050Z', 'updatedAt': '2025-08-25T12:17:40.339Z'}
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Converting slide 1 to PNG: /tmp/tmp8f24at2y_slide_0.png
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Converting slide to PNG
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Parameters:
+custom_backend-1  | INFO:app.services.html_to_image_service:  - Template ID: avatar-service-slide
+custom_backend-1  | INFO:app.services.html_to_image_service:  - Theme: dark-purple
+custom_backend-1  | INFO:app.services.html_to_image_service:  - Output path: /tmp/tmp8f24at2y_slide_0.png
+custom_backend-1  | INFO:app.services.html_to_image_service:  - Props keys: ['slideId', 'slideNumber', 'slideTitle', 'templateId', 'props', 'voiceoverText', 'metadata']
+custom_backend-1  | INFO:app.services.html_to_image_service:  - slideId: 'slide-1755874749050-nrvg5z753...'
+custom_backend-1  | INFO:app.services.html_to_image_service:  - slideNumber: 1
+custom_backend-1  | INFO:app.services.html_to_image_service:  - slideTitle: 'Клиентский сервис - это основа успеха...'
+custom_backend-1  | INFO:app.services.html_to_image_service:  - templateId: 'avatar-service-slide...'
+custom_backend-1  | INFO:app.services.html_to_image_service:  - props: {'title': 'Welcome to the Course on AI Tools for Teachers', 'content': 'In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.', 'subtitle': '', 'avatarAlt': 'Avatar', 'avatarPath': '', 'titleColor': '#e91e63', 'contentColor': '#e91e63', 'subtitleColor': '#000000', 'voiceoverText': 'Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.', 'backgroundColor': '#ffffff'}
+custom_backend-1  | INFO:app.services.html_to_image_service:  - voiceoverText: 'Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teac...'
+custom_backend-1  | INFO:app.services.html_to_image_service:  - metadata: {'createdAt': '2025-08-22T14:59:09.050Z', 'updatedAt': '2025-08-25T12:17:40.339Z'}
 custom_backend-1  | INFO:app.services.html_template_service:HTML Template Service initialized with template directory: /app/app/services/../../templates
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Generating HTML content...
 custom_backend-1  | WARNING:app.services.html_template_service:Unknown template ID: avatar-service-slide
 custom_backend-1  | INFO:app.services.html_template_service:Validated props for avatar-service-slide: ['slideId', 'slideNumber', 'slideTitle', 'templateId', 'props', 'voiceoverText', 'metadata']
-custom_backend-1  | INFO:app.services.html_template_service:Generating HTML for template: avatar-service-slide, theme: dark-purple
-custom_backend-1  | INFO:app.services.html_template_service:Template props: ['slideId', 'slideNumber', 'slideTitle', 'templateId', 'props', 'voiceoverText', 'metadata']
-custom_backend-1  | INFO:app.services.html_template_service:Successfully generated HTML for avatar-service-slide
+custom_backend-1  | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] Generating HTML for template: avatar-service-slide, theme: dark-purple
+custom_backend-1  | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] Props received:
+custom_backend-1  | INFO:app.services.html_template_service:  - Props type: <class 'dict'>
+custom_backend-1  | INFO:app.services.html_template_service:  - Props keys: ['slideId', 'slideNumber', 'slideTitle', 'templateId', 'props', 'voiceoverText', 'metadata']
+custom_backend-1  | INFO:app.services.html_template_service:  - slideId: 'slide-1755874749050-nrvg5z753...'
+custom_backend-1  | INFO:app.services.html_template_service:  - slideNumber: 1
+custom_backend-1  | INFO:app.services.html_template_service:  - slideTitle: 'Клиентский сервис - это основа успеха...'
+custom_backend-1  | INFO:app.services.html_template_service:  - templateId: 'avatar-service-slide...'
+custom_backend-1  | INFO:app.services.html_template_service:  - props: {'title': 'Welcome to the Course on AI Tools for Teachers', 'content': 'In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.', 'subtitle': '', 'avatarAlt': 'Avatar', 'avatarPath': '', 'titleColor': '#e91e63', 'contentColor': '#e91e63', 'subtitleColor': '#000000', 'voiceoverText': 'Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.', 'backgroundColor': '#ffffff'}
+custom_backend-1  | INFO:app.services.html_template_service:  - voiceoverText: 'Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teac...'
+custom_backend-1  | INFO:app.services.html_template_service:  - metadata: {'createdAt': '2025-08-22T14:59:09.050Z', 'updatedAt': '2025-08-25T12:17:40.339Z'}
+custom_backend-1  | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] Context data prepared:
+custom_backend-1  | INFO:app.services.html_template_service:  - Template ID: avatar-service-slide
+custom_backend-1  | INFO:app.services.html_template_service:  - Theme: dark-purple
+custom_backend-1  | INFO:app.services.html_template_service:  - Context keys: ['templateId', 'theme', 'slideId', 'slideNumber', 'slideTitle', 'props', 'voiceoverText', 'metadata']
+custom_backend-1  | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] HTML content generated successfully
+custom_backend-1  | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] HTML content length: 17389 characters
+custom_backend-1  | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] HTML snippet: <!DOCTYPE html>
+custom_backend-1  | <html lang="en">
+custom_backend-1  | <head>
+custom_backend-1  |     <meta charset="UTF-8">
+custom_backend-1  |     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+custom_backend-1  |     <title>Avatar Slide Template</title>
+custom_backend-1  |
+custom_backend-1  |     <link rel="preconnect" href="https://fonts.googleapis.com">
+custom_backend-1  |     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+custom_backend-1  |     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;50...
 custom_backend-1  | INFO:app.services.html_template_service:Generated clean HTML for video: avatar-service-slide
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] HTML content generated
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] HTML content length: 17389 characters
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Converting HTML to PNG...
 custom_backend-1  | INFO:app.services.html_to_image_service:Converting HTML to PNG for template: avatar-service-slide using simple
 custom_backend-1  | INFO:app.services.html_to_image_service:Simple fallback conversion: 11742 bytes
-custom_backend-1  | INFO:app.services.video_assembly_service:Generated PNG for slide 0: avatar-service-slide
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] PNG conversion successful: /tmp/tmp8f24at2y_slide_0.png
+custom_backend-1  | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] PNG file size: 11742 bytes
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Generated PNG for slide 1: avatar-service-slide
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] PNG file size: 11742 bytes
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Successfully generated 1 PNG files
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] PNG files: ['/tmp/tmp8f24at2y_slide_0.png']
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Creating video from PNGs...
 custom_backend-1  | INFO:app.services.video_assembly_service:Creating video from 1 PNG images
-custom_backend-1  | INFO:app.services.video_assembly_service:Running FFmpeg command: ffmpeg -y -f concat -safe 0 -i /tmp/tmpeksc1i79.txt -vf fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p output/clean_videos/avatar_slide_avatar-service-slide_20250825_122350.mp4
-custom_backend-1  | INFO:     172.18.0.12:36264 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40744 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34106 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52810 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_assembly_service:Video created successfully: output/clean_videos/avatar_slide_avatar-service-slide_20250825_122350.mp4 (140406 bytes)
-custom_backend-1  | INFO:app.services.clean_video_generation_service:Avatar slide video generated: output/clean_videos/avatar_slide_avatar-service-slide_20250825_122350.mp4 (140406 bytes)
-custom_backend-1  | INFO:app.services.presentation_service:Clean video generation successful: output/clean_videos/avatar_slide_avatar-service-slide_20250825_122350.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 2: Generating avatar video for job 792b2796-977c-4102-b170-4831255f4162
+custom_backend-1  | INFO:app.services.video_assembly_service:Running FFmpeg command: ffmpeg -y -f concat -safe 0 -i /tmp/tmpy5luhuhh.txt -vf fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p output/clean_videos/avatar_slide_avatar-service-slide_20250825_131741.mp4
+custom_backend-1  | INFO:     172.18.0.12:39074 - "GET /api/custom/presentations/c0f79e35-4c44-4295-aa69-3c8bd2434d91 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47604 - "GET /api/custom/presentations/c0f79e35-4c44-4295-aa69-3c8bd2434d91 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46148 - "GET /api/custom/presentations/c0f79e35-4c44-4295-aa69-3c8bd2434d91 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39936 - "GET /api/custom/presentations/c0f79e35-4c44-4295-aa69-3c8bd2434d91 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46354 - "GET /api/custom/presentations/c0f79e35-4c44-4295-aa69-3c8bd2434d91 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_assembly_service:Video created successfully: output/clean_videos/avatar_slide_avatar-service-slide_20250825_131741.mp4 (140406 bytes)
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Video creation successful: output/clean_videos/avatar_slide_avatar-service-slide_20250825_131741.mp4
+custom_backend-1  | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Video file size: 140406 bytes
+custom_backend-1  | INFO:app.services.clean_video_generation_service:Avatar slide video generated: output/clean_videos/avatar_slide_avatar-service-slide_20250825_131741.mp4 (140406 bytes)
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Clean video generation result:
+custom_backend-1  | INFO:app.services.presentation_service:  - Success: True
+custom_backend-1  | INFO:app.services.presentation_service:  - Video Path: output/clean_videos/avatar_slide_avatar-service-slide_20250825_131741.mp4
+custom_backend-1  | INFO:app.services.presentation_service:  - File Size: 140406
+custom_backend-1  | INFO:app.services.presentation_service:  - Duration: 30
+custom_backend-1  | INFO:app.services.presentation_service:  - Error: None
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Clean video generation successful: output/clean_videos/avatar_slide_avatar-service-slide_20250825_131741.mp4
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job c0f79e35-4c44-4295-aa69-3c8bd2434d91
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:
+custom_backend-1  | INFO:app.services.presentation_service:  - Voiceover texts count: 3
+custom_backend-1  | INFO:app.services.presentation_service:  - Avatar code: None
+custom_backend-1  | INFO:app.services.presentation_service:  - Duration: 30
+custom_backend-1  | INFO:app.services.presentation_service:  - Voiceover text 1: AI Tools for Teachers...
+custom_backend-1  | INFO:app.services.presentation_service:  - Voiceover text 2: Hello4...
+custom_backend-1  | INFO:app.services.presentation_service:  - Voiceover text 3: Welcome to the Course on AI Tools for Teachers...
 custom_backend-1  | INFO:app.services.presentation_service:Generating avatar video with 3 voiceover texts
-custom_backend-1  | INFO:     172.18.0.12:48158 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
 custom_backend-1  | INFO:app.services.presentation_service:Selected avatar: gia (Gia)
 custom_backend-1  | INFO:app.services.presentation_service:Auto-selected avatar: gia
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Starting video creation from texts
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Parameters:
+custom_backend-1  | INFO:app.services.video_generation_service:  - Project name: Avatar Video
+custom_backend-1  | INFO:app.services.video_generation_service:  - Voiceover texts count: 3
+custom_backend-1  | INFO:app.services.video_generation_service:  - Avatar code: gia
+custom_backend-1  | INFO:app.services.video_generation_service:  - Voiceover text 1: AI Tools for Teachers...
+custom_backend-1  | INFO:app.services.video_generation_service:  - Voiceover text 2: Hello4...
+custom_backend-1  | INFO:app.services.video_generation_service:  - Voiceover text 3: Welcome to the Course on AI Tools for Teachers...
 custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 1: AI Tools for Teachers...
-custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 2: Hello3...
+custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 2: Hello4...
 custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 3: Welcome to the Course on AI Tools for Teachers...
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:app.services.video_generation_service:Creating video with 3 slides
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video created successfully: 68ac560adaa7df130435bf9e
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video created with ID: 68ac560adaa7df130435bf9e
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos/render/68ac560adaa7df130435bf9e "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video render started for 68ac560adaa7df130435bf9e
-custom_backend-1  | INFO:app.services.presentation_service:Waiting for avatar video completion: 68ac560adaa7df130435bf9e
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac560adaa7df130435bf9e "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac560adaa7df130435bf9e status: validating, progress: 80%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: validating, Progress: 80%
-custom_backend-1  | INFO:     172.18.0.12:48248 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50744 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56786 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac560adaa7df130435bf9e "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac560adaa7df130435bf9e status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:45688 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38842 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39778 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac560adaa7df130435bf9e "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac560adaa7df130435bf9e status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:55442 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48138 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac560adaa7df130435bf9e "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac560adaa7df130435bf9e status: error, progress: 50%
-custom_backend-1  | WARNING:app.services.video_generation_service:Video 68ac560adaa7df130435bf9e reported error status - this may be temporary
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: error, Progress: 50%
-custom_backend-1  | ERROR:app.services.presentation_service:Avatar video completion failed: Avatar video rendering failed: error
-custom_backend-1  | ERROR:app.services.presentation_service:Avatar video generation failed: Avatar video rendering failed: error
-custom_backend-1  | ERROR:app.services.presentation_service:Presentation 792b2796-977c-4102-b170-4831255f4162 failed: Avatar video rendering failed: error
-custom_backend-1  | INFO:     172.18.0.12:41886 - "GET /api/custom/presentations/792b2796-977c-4102-b170-4831255f4162 HTTP/1.1" 200 OK
-
-frontend:
-🎨 Font styles applied to Chudo and Forta themes
-page-c95be90d2aeda0e5.js:1 📥 [FETCH DATA] Received from backend: Object
-page-c95be90d2aeda0e5.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-c95be90d2aeda0e5.js:1 📄 Slide 1 (avatar-service-slide): Object
-page-c95be90d2aeda0e5.js:1 ✅ Component-based slides loaded with theme: Object
-page-c95be90d2aeda0e5.js:1 🎬 Exposed slide data to window for video generation: Object
-page-c95be90d2aeda0e5.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
-page-c95be90d2aeda0e5.js:1 🎭 [AVATAR_MANAGER] Response status: 200
-page-c95be90d2aeda0e5.js:1 🎭 [AVATAR_MANAGER] Avatar data received: Object
-page-c95be90d2aeda0e5.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
-page-c95be90d2aeda0e5.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
-page-c95be90d2aeda0e5.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
-9Failed to decode downloaded font: <URL>Understand this warning
-9OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-684-061671409fcbce74.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
-window.console.error @ 684-061671409fcbce74.js:1
-a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
-684-061671409fcbce74.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont regular font
-    at a.onerror (layout-1e76a94cbd5c836b.js:1:738)
-window.console.error @ 684-061671409fcbce74.js:1
-r @ layout-1e76a94cbd5c836b.js:1Understand this error
-layout-1e76a94cbd5c836b.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
-684-061671409fcbce74.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
-window.console.error @ 684-061671409fcbce74.js:1
-a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
-684-061671409fcbce74.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
-window.console.error @ 684-061671409fcbce74.js:1
-a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Environment check:
-page-c95be90d2aeda0e5.js:1   - CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-c95be90d2aeda0e5.js:1   - NEXT_PUBLIC_CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-c95be90d2aeda0e5.js:1   - Window location: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from DOM...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Found voiceover elements: 0
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] No voiceover elements found, extracting from slide content...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 1: AI Tools for Teachers
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 2: Hello3
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 3: Welcome to the Course on AI Tools for Teachers
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Voiceover
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Skipping non-English title: Клиентский сервис - это основа успеха
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Presentation Themes
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts: Array(3)
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: Array(3)
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Slide URL for capture: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Step 3: Extracting slide data...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data: Object
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation creation response: Object
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation job created with ID: 792b2796-977c-4102-b170-4831255f4162
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Step 4: Monitoring professional presentation progress...
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] This includes: slide capture → avatar generation → video merging
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Starting to monitor professional presentation progress for job: 792b2796-977c-4102-b170-4831255f4162
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: Object
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 10, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 10, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 10, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 10, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'processing', progress: 40, error: null, …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '792b2796-977c-4102-b170-4831255f4162', status: 'failed', progress: 40, error: 'Avatar video rendering failed: error', …}
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: failed Progress: 40%
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error checking professional presentation status: Error: Avatar video rendering failed: error
-    at m (page-c95be90d2aeda0e5.js:1:214221)
-    at async x (page-c95be90d2aeda0e5.js:1:216686)
-window.console.error @ 684-061671409fcbce74.js:1
-m @ page-c95be90d2aeda0e5.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Video generation failed with error: Error: Avatar video rendering failed: error
-    at m (page-c95be90d2aeda0e5.js:1:214221)
-    at async x (page-c95be90d2aeda0e5.js:1:216686)
-window.console.error @ 684-061671409fcbce74.js:1
-x @ page-c95be90d2aeda0e5.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error type: object
-window.console.error @ 684-061671409fcbce74.js:1
-x @ page-c95be90d2aeda0e5.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error constructor: Error
-window.console.error @ 684-061671409fcbce74.js:1
-x @ page-c95be90d2aeda0e5.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error stack: Error: Avatar video rendering failed: error
-    at m (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-c95be90d2aeda0e5.js:1:214221)
-    at async x (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-c95be90d2aeda0e5.js:1:216686)
-window.console.error @ 684-061671409fcbce74.js:1
-x @ page-c95be90d2aeda0e5.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error message: Avatar video rendering failed: error
-window.console.error @ 684-061671409fcbce74.js:1
-x @ page-c95be90d2aeda0e5.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error name: Error
-window.console.error @ 684-061671409fcbce74.js:1
-x @ page-c95be90d2aeda0e5.js:1Understand this error
-page-c95be90d2aeda0e5.js:1 🎬 [VIDEO_DOWNLOAD] Calling onError with message: Avatar video rendering failed: error
-684-061671409fcbce74.js:1 Video generation error: Avatar video rendering failed: error
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Searching for avatar with code: gia
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Available avatars count: 65
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Found avatar: Gia (code: gia)
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Preparing 3 slides for Elai API
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Creating slide 1 with text: AI Tools for Teachers...
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Creating slide 2 with text: Hello4...
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Creating slide 3 with text: Welcome to the Course on AI Tools for Teachers...
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Preparing video request
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Video request configuration:
+custom_backend-1  | INFO:app.services.video_generation_service:  - Name: Avatar Video
+custom_backend-1  | INFO:app.services.video_generation_service:  - Slides count: 3
+custom_backend-1  | INFO:app.services.video_generation_service:  - Format: 16_9
+custom_backend-1  | INFO:app.services.video_generation_service:  - Resolution: FullHD
+custom_backend-1  | INFO:app.services.video_generation_service:  - Avatar canvas URL: N/A...
+custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:
+custom_backend-1  | ERROR:app.services.video_generation_service:Error creating video: name 'json' is not defined
+custom_backend-1  | ERROR:app.services.presentation_service:Avatar video generation failed: Failed to create avatar video: Failed to create video: name 'json' is not defined
+custom_backend-1  | ERROR:app.services.presentation_service:Presentation c0f79e35-4c44-4295-aa69-3c8bd2434d91 failed: Failed to create avatar video: Failed to create video: name 'json' is not defined
+custom_backend-1  | INFO:     172.18.0.12:50026 - "GET /api/custom/presentations/c0f79e35-4c44-4295-aa69-3c8bd2434d91 HTTP/1.1" 200 OK

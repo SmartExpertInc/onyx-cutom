@@ -1,6 +1,7 @@
 # custom_extensions/backend/app/services/video_generation_service.py
 
 import asyncio
+import json
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
