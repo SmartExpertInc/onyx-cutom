@@ -511,8 +511,10 @@ class ProfessionalPresentationService:
             logger.info(f"Waiting for avatar video completion: {video_id}")
             
             max_wait_time = 15 * 60  # 15 minutes
-            check_interval = 30  # 30 seconds
+            check_interval = 60  # 60 seconds - longer interval to reduce API calls
             start_time = datetime.now()
+            consecutive_errors = 0  # Track consecutive error statuses
+            max_consecutive_errors = 5  # Maximum consecutive errors before giving up
             
             while (datetime.now() - start_time).total_seconds() < max_wait_time:
                 status_result = await video_generation_service.check_video_status(video_id)
@@ -537,8 +539,22 @@ class ProfessionalPresentationService:
                     else:
                         raise Exception("Video rendered but no download URL available")
                 
-                elif status in ["failed", "error"]:
+                elif status == "failed":
+                    # Only treat "failed" as permanent error, not "error" which can be temporary
                     raise Exception(f"Avatar video rendering failed: {status}")
+                elif status == "error":
+                    # Log error status but continue waiting - it might be temporary
+                    consecutive_errors += 1
+                    logger.warning(f"Avatar video reported error status (consecutive: {consecutive_errors}/{max_consecutive_errors}), continuing to wait...")
+                    
+                    # If we get too many consecutive errors, give up
+                    if consecutive_errors >= max_consecutive_errors:
+                        raise Exception(f"Avatar video rendering failed after {consecutive_errors} consecutive errors")
+                    
+                    # Don't raise exception, just continue waiting
+                else:
+                    # Reset consecutive error counter for non-error statuses
+                    consecutive_errors = 0
                 
                 await asyncio.sleep(check_interval)
             

@@ -178,6 +178,16 @@ class ElaiVideoGenerationService:
                     "error": f"Avatar with code '{avatar_code}' not found"
                 }
             
+            # Validate avatar has required properties
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Avatar details:")
+            logger.info(f"  - Name: {avatar.get('name', 'Unknown')}")
+            logger.info(f"  - Code: {avatar.get('code', 'Unknown')}")
+            logger.info(f"  - Canvas: {avatar.get('canvas', 'None')}")
+            logger.info(f"  - Gender: {avatar.get('gender', 'Unknown')}")
+            
+            if not avatar.get("canvas"):
+                logger.warning(f"🎬 [ELAI_VIDEO_GENERATION] Avatar canvas is empty, this might cause issues")
+            
             # Prepare slides for Elai API
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing {len(cleaned_texts)} slides for Elai API")
             
@@ -191,11 +201,11 @@ class ElaiVideoGenerationService:
                     "canvas": {
                         "objects": [{
                             "type": "avatar",
-                            "left": 540,  # Center the avatar better
-                            "top": 270,   # Center the avatar better
+                            "left": 540,  # Center the avatar
+                            "top": 270,   # Center the avatar
                             "fill": "#4868FF",
-                            "scaleX": 0.8,   # Much larger avatar (80% of canvas)
-                            "scaleY": 0.8,   # Much larger avatar (80% of canvas)
+                            "scaleX": 0.6,   # Moderate avatar size (60% of canvas)
+                            "scaleY": 0.6,   # Moderate avatar size (60% of canvas)
                             "width": 1080,
                             "height": 1080,
                             "src": avatar.get("canvas"),
@@ -205,7 +215,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "transparent",  # Transparent background for better overlay
+                        "background": "#ffffff",  # White background for better compatibility
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -240,8 +250,8 @@ class ElaiVideoGenerationService:
                 "data": {
                     "skipEmails": False,
                     "subtitlesEnabled": "false",
-                    "format": "1_1",  # Square format for better avatar focus
-                    "resolution": "HD"  # Lower resolution for more compact avatar
+                    "format": "16_9",  # Standard widescreen format
+                    "resolution": "FullHD"  # High resolution for quality
                 }
             }
             
@@ -481,6 +491,10 @@ class ElaiVideoGenerationService:
                 logger.info(f"Video {video_id} status: {status}, progress: {progress}%")
                 if status == "error":
                     logger.warning(f"Video {video_id} reported error status - this may be temporary")
+                    # Log additional error details if available
+                    error_details = video_data.get("error", {})
+                    if error_details:
+                        logger.warning(f"Video {video_id} error details: {error_details}")
                 
                 return {
                     "success": True,
