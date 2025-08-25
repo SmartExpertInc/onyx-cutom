@@ -166,6 +166,20 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const slideSubtitleColor = themeColors.subtitleColor;
   const slideTextColor = textColor || themeColors.contentColor;
   const slideAccentColor = accentColor || themeColors.accentColor;
+  
+  // Create a more suitable color for separator lines based on theme
+  const getSeparatorColor = () => {
+    if (theme === 'dark-purple') return '#f35657'; // Red accent
+    if (theme === 'light-modern') return '#3b82f6'; // Blue
+    if (theme === 'corporate-blue') return '#60a5fa'; // Light blue
+    if (theme === 'chudo-theme') return '#ed6c00'; // Orange
+    if (theme === 'chudo-2') return '#d01510'; // Red
+    if (theme === 'forta') return '#00664f'; // Green
+    if (theme === 'forta-2') return '#e1d3c4'; // Beige
+    return slideAccentColor; // Fallback
+  };
+  
+  const separatorColor = getSeparatorColor();
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -309,7 +323,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '1px',
-        backgroundColor: slideAccentColor
+        backgroundColor: separatorColor
       }} />
 
       {/* Content area */}
@@ -504,7 +518,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '1px',
-        backgroundColor: slideAccentColor
+        backgroundColor: separatorColor
       }} />
 
       {/* Company name */}
@@ -519,7 +533,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         <div style={{
           width: '16px',
           height: '16px',
-          backgroundColor: slideAccentColor,
+          backgroundColor: separatorColor,
           transform: 'rotate(45deg)'
         }} />
         <div>

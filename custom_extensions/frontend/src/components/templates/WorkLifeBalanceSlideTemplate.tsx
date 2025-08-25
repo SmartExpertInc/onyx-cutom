@@ -156,6 +156,20 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const slideTitleColor = titleColor || themeColors.titleColor;
   const slideContentColor = contentColor || themeColors.contentColor;
   const slideAccentColor = accentColor || themeColors.accentColor;
+  
+  // Create a more suitable color for the arch based on theme
+  const getArchColor = () => {
+    if (theme === 'dark-purple') return '#4c1d95'; // Purple
+    if (theme === 'light-modern') return '#e5e7eb'; // Light gray
+    if (theme === 'corporate-blue') return '#3b82f6'; // Blue
+    if (theme === 'chudo-theme') return '#ed6c00'; // Orange
+    if (theme === 'chudo-2') return '#d01510'; // Red
+    if (theme === 'forta') return '#e1d3c4'; // Beige
+    if (theme === 'forta-2') return '#e1d3c4'; // Beige
+    return '#9CAF88'; // Default olive green
+  };
+  
+  const archColor = getArchColor();
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -382,7 +396,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           transform: 'rotate(90deg)',
           width: '105%',
           height: '75%',
-          backgroundColor: '#9CAF88', // Light olive green like in original
+          backgroundColor: archColor,
           borderRadius: '50% 0 0 50%',
           zIndex: 1
         }} />

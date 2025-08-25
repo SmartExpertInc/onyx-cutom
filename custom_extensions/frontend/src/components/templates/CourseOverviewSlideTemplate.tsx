@@ -152,6 +152,20 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const slideTitleColor = titleColor || themeColors.titleColor;
   const slideSubtitleColor = subtitleColor || themeColors.subtitleColor;
   const slideAccentColor = accentColor || themeColors.accentColor;
+  
+  // Create a more suitable color for the left panel based on theme
+  const getLeftPanelColor = () => {
+    if (theme === 'dark-purple') return '#2d1b69'; // Darker purple
+    if (theme === 'light-modern') return '#f3f4f6'; // Light gray
+    if (theme === 'corporate-blue') return '#1e40af'; // Darker blue
+    if (theme === 'chudo-theme') return '#d01510'; // Red
+    if (theme === 'chudo-2') return '#d01510'; // Red
+    if (theme === 'forta') return '#00664f'; // Green
+    if (theme === 'forta-2') return '#00664f'; // Green
+    return slideAccentColor; // Fallback
+  };
+  
+  const leftPanelColor = getLeftPanelColor();
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -197,11 +211,11 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   return (
     <div className="course-overview-slide-template" style={slideStyles}>
-      {/* Left Panel - Purple with rounded corners */}
+      {/* Left Panel - Theme-based with rounded corners */}
       <div style={{
         width: '45%',
         height: '100%',
-        backgroundColor: slideAccentColor,
+        backgroundColor: leftPanelColor,
         position: 'relative',
         borderTopRightRadius: '50px',
         borderBottomRightRadius: '50px',
