@@ -390,6 +390,15 @@ export const en = {
     templates: "Templates",
     themes: "Themes",
 
+    // Smart Drive content
+    smartDriveBrowser: "Smart Drive Browser",
+    browseAndManageFiles: "Browse and manage your cloud files",
+    connectors: "Connectors",
+    popularConnectors: "Popular Connectors",
+    allConnectors: "All Connectors",
+    showAll: "Show All",
+    hideAll: "Hide All",
+
     // Main content
     all: "All",
     other: "Not Assigned",

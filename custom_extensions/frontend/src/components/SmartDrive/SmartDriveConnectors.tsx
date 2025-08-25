@@ -7,6 +7,7 @@ import { ChevronDown, Upload, Settings, X, ArrowLeft } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ConnectorConfig {
   id: string;
@@ -48,6 +49,7 @@ const getActualConnectorStatus = (connectorStatus: any): string => {
 const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '' }) => {
   console.log('[POPUP_DEBUG] SmartDriveConnectors component rendering');
   
+  const { t } = useLanguage();
   const [showFrame, setShowFrame] = useState(false);
   const [userConnectors, setUserConnectors] = useState<UserConnector[]>([]);
   const [loading, setLoading] = useState(true);
@@ -556,27 +558,154 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Smart Drive Browser</h2>
-              <p className="text-sm text-gray-600 mt-1">Browse and manage your cloud files</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('interface.smartDriveBrowser', 'Smart Drive Browser')}</h2>
+              <p className="text-sm text-gray-600 mt-1">{t('interface.browseAndManageFiles', 'Browse and manage your cloud files')}</p>
             </div>
           </div>
           <SmartDriveFrame />
         </div>
       </div>
 
-      {/* Connectors Section */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">Connectors</h3>
-          <button
-            onClick={() => setShowAllConnectors(!showAllConnectors)}
-            className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            {showAllConnectors ? 'Hide' : 'Show'} All
-            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showAllConnectors ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
-      </div>
+             {/* Popular Connectors Section */}
+       <div className="mb-8">
+         <div className="flex items-center justify-between mb-6">
+           <h3 className="text-lg font-semibold text-gray-900">{t('interface.popularConnectors', 'Popular Connectors')}</h3>
+         </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+           {['google_drive', 'slack', 'notion', 'github'].map((connectorId) => {
+             const connector = Object.values(connectorCategories).flat().find(c => c.id === connectorId);
+             if (!connector) return null;
+             
+             const userConnectorsForSource = getConnectorsBySource(connector.id);
+             const hasConnectors = userConnectorsForSource.length > 0;
+
+             return (
+               <div
+                 key={connector.id}
+                 className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer"
+                 onClick={() => handleConnectClick(connector.id, connector.name)}
+               >
+                 <div className="flex items-center gap-4 mb-4">
+                   <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+                     <Image
+                       src={connector.logoPath}
+                       alt={`${connector.name} logo`}
+                       width={32}
+                       height={32}
+                       className="object-contain w-8 h-8"
+                       priority={false}
+                       unoptimized={true}
+                     />
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <h3 className="text-lg font-semibold text-gray-900 truncate">
+                       {connector.name}
+                     </h3>
+                   </div>
+                 </div>
+
+                 <div className="flex gap-2">
+                   <button
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       handleConnectClick(connector.id, connector.name);
+                     }}
+                     className="flex-1 text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
+                   >
+                     Connect
+                   </button>
+
+                   {hasConnectors && (
+                     <div className="relative">
+                       {userConnectorsForSource.length > 1 ? (
+                         <div className="relative group">
+                           <button 
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               setOpenDropdownId(connector.id);
+                             }}
+                             className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1"
+                           >
+                             Manage
+                             <ChevronDown className="w-3 h-3" />
+                           </button>
+                           <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
+                             openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
+                           }`}>
+                             {userConnectorsForSource.map((userConnector) => (
+                               <button
+                                 key={userConnector.id}
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   console.log('Popular dropdown manage button clicked for connector:', userConnector.id);
+                                   setOpenDropdownId(null); // Close dropdown
+                                   if (!showManagementPage && !isManagementOpening) {
+                                     console.log('Opening management page from popular dropdown for connector ID:', userConnector.id);
+                                     setIsManagementOpening(true);
+                                     setSelectedConnectorId(userConnector.id);
+                                     setShowManagementPage(true);
+                                     setTimeout(() => {
+                                       setIsManagementOpening(false);
+                                     }, 500);
+                                   }
+                                 }}
+                                 className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                               >
+                                 {userConnector.name}
+                               </button>
+                             ))}
+                           </div>
+                         </div>
+                       ) : (
+                         <button
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
+                             if (!showManagementPage && !isManagementOpening) {
+                               console.log('Opening management page from single button for connector ID:', userConnectorsForSource[0].id);
+                               setIsManagementOpening(true);
+                               setSelectedConnectorId(userConnectorsForSource[0].id);
+                               setShowManagementPage(true);
+                               setTimeout(() => {
+                                 setIsManagementOpening(false);
+                               }, 500);
+                             }
+                           }}
+                           className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                         >
+                           Manage
+                         </button>
+                       )}
+                     </div>
+                   )}
+                 </div>
+
+                 {hasConnectors && userConnectorsForSource.some(c => c.status === 'active') && (
+                   <div className="mt-4 pt-4 border-t border-gray-100">
+                     <div className="flex items-center justify-between text-sm text-gray-900">
+                       <span className="text-green-600 font-medium">● Active</span>
+                     </div>
+                   </div>
+                 )}
+               </div>
+             );
+           })}
+         </div>
+       </div>
+
+       {/* All Connectors Section */}
+       <div className="mb-8">
+         <div className="flex items-center justify-between mb-6">
+           <h3 className="text-lg font-semibold text-gray-900">{t('interface.allConnectors', 'All Connectors')}</h3>
+           <button
+             onClick={() => setShowAllConnectors(!showAllConnectors)}
+             className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+           >
+             {showAllConnectors ? t('interface.hideAll', 'Hide All') : t('interface.showAll', 'Show All')}
+             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showAllConnectors ? 'rotate-180' : ''}`} />
+           </button>
+         </div>
+       </div>
 
       {/* All Connectors Grid - Expandable */}
       {showAllConnectors && (

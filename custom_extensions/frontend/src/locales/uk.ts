@@ -356,6 +356,15 @@ export const uk = {
     templates: "Шаблони",
     themes: "Теми",
 
+    // Smart Drive content
+    smartDriveBrowser: "Браузер Розумного диска",
+    browseAndManageFiles: "Переглядайте та керуйте хмарними файлами",
+    connectors: "З'єднувачі",
+    popularConnectors: "Популярні з'єднувачі",
+    allConnectors: "Всі з'єднувачі",
+    showAll: "Показати все",
+    hideAll: "Приховати все",
+
     // Main content
     all: "Всі",
     trainingPlans: "Плани навчання",

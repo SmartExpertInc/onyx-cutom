@@ -1032,7 +1032,12 @@ const FolderRow: React.FC<{
                         </span>
                     </td>
                 )}
-                                        {columnVisibility.offers && (
+                {columnVisibility.type && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        -
+                    </td>
+                )}
+                {columnVisibility.offers && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <button
                                     onClick={(e) => handleOffersClick(folder, e)}
@@ -1175,12 +1180,9 @@ const FolderRow: React.FC<{
                                 </div>
                             </td>
                         )}
-                        {columnVisibility.type && (
+                        {columnVisibility.offers && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <div className="flex items-center gap-2">
-                                    {getDesignMicroproductIcon(p.designMicroproductType || "")}
-                                    <span>{getLocalizedTypeName(p.designMicroproductType || "", t)}</span>
-                                </div>
+                                -
                             </td>
                         )}
                         {columnVisibility.created && (
@@ -4976,6 +4978,30 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'title')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.type && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.type}%` }}
+                                        >
+                                            {t('interface.type', 'Type')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'type')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.offers && (
+                                        <th 
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.offers}%` }}
+                                        >
+                                            {t('interface.offers', 'Offers')}
+                                            <div 
+                                                className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                                onMouseDown={(e) => handleResizeStart(e, 'offers')}
                                             />
                                         </th>
                                     )}

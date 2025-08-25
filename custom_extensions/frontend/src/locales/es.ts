@@ -366,6 +366,15 @@ export const es = {
     templates: "Plantillas",
     themes: "Temas",
 
+    // Smart Drive content
+    smartDriveBrowser: "Navegador de Disco Inteligente",
+    browseAndManageFiles: "Explora y gestiona tus archivos en la nube",
+    connectors: "Conectores",
+    popularConnectors: "Conectores populares",
+    allConnectors: "Todos los conectores",
+    showAll: "Mostrar todo",
+    hideAll: "Ocultar todo",
+
     // Main content
     all: "Todos",
     trainingPlans: "Planes de entrenamiento",

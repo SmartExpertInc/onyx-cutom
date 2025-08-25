@@ -370,6 +370,15 @@ export const ru = {
     templates: "Шаблоны",
     themes: "Темы",
 
+    // Smart Drive content
+    smartDriveBrowser: "Браузер Умного диска",
+    browseAndManageFiles: "Просматривайте и управляйте облачными файлами",
+    connectors: "Соединители",
+    popularConnectors: "Популярные соединители",
+    allConnectors: "Все соединители",
+    showAll: "Показать все",
+    hideAll: "Скрыть все",
+
     // Main content
     all: "Все",
     trainingPlans: "Планы обучения",
