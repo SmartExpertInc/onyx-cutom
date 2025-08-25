@@ -118,7 +118,7 @@ export default function TextSettings() {
       </div>
       
       {/* Content area */}
-      <div className="p-4">
+      <div className={`p-4 ${showAdvancedSettings ? 'pb-[25px]' : ''}`}>
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}
