@@ -17425,6 +17425,70 @@ async def generate_slide_image(request: Request):
         logger.error(f"📷 [STANDALONE_SLIDE_IMAGE] Error generating slide image: {str(e)}")
         return {"success": False, "error": f"Failed to generate slide image: {str(e)}"}
 
+@app.post("/api/custom/slide-html/preview")
+async def preview_slide_html(request: Request):
+    """Preview the static HTML for a slide (debugging feature)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML preview")
+        logger.info(f"🔍 [HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"🔍 [HTML_PREVIEW] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("🔍 [HTML_PREVIEW] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Get the first slide
+        slide_props = slides_data[0]
+        template_id = slide_props.get("templateId")
+        
+        logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
+        
+        if not template_id:
+            logger.error("🔍 [HTML_PREVIEW] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        
+        # Log some key props for debugging
+        for key, value in actual_props.items():
+            if isinstance(value, str):
+                logger.info(f"🔍 [HTML_PREVIEW] {key}: '{value[:100]}...'")
+            else:
+                logger.info(f"🔍 [HTML_PREVIEW] {key}: {value}")
+        
+        # Import the HTML template service
+        from app.services.html_template_service import html_template_service
+        
+        # Generate clean HTML
+        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
+        html_content = html_template_service.generate_clean_html_for_video(
+            template_id, actual_props, theme
+        )
+        
+        logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
+        logger.info(f"🔍 [HTML_PREVIEW] HTML content length: {len(html_content)} characters")
+        
+        # Return the HTML content
+        return {
+            "success": True,
+            "html": html_content,
+            "template_id": template_id,
+            "theme": theme,
+            "props": actual_props
+        }
+        
+    except Exception as e:
+        logger.error(f"🔍 [HTML_PREVIEW] Error generating HTML preview: {str(e)}")
+        return {"success": False, "error": f"Failed to generate HTML preview: {str(e)}"}
+
 @app.get("/api/custom/presentations")
 async def list_presentations(limit: int = 50):
     """List recent presentation jobs."""

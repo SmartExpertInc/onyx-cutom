@@ -1,5 +1,6 @@
 import React from 'react';
 import StandaloneSlideImageButton from './StandaloneSlideImageButton';
+import HtmlPreviewButton from './HtmlPreviewButton';
 
 const SlideImageTest: React.FC = () => {
   const handleSuccess = (message: string) => {
@@ -29,11 +30,28 @@ const SlideImageTest: React.FC = () => {
         </ul>
       </div>
       
-      <StandaloneSlideImageButton
-        projectName="Test Project"
-        onSuccess={handleSuccess}
-        onError={handleError}
-      />
+      <div className="mb-4 text-xs text-gray-700 bg-purple-50 p-3 rounded">
+        <h4 className="font-semibold mb-2">New Debugging Features:</h4>
+        <ul className="list-disc list-inside space-y-1">
+          <li>🔍 HTML Preview - View static HTML before image generation</li>
+          <li>📷 Slide Image - Generate PNG without video processing</li>
+          <li>🎬 Video Generation - Full video with AI avatar</li>
+        </ul>
+      </div>
+      
+      <div className="flex flex-col gap-2">
+        <HtmlPreviewButton
+          projectName="Test Project"
+          onSuccess={handleSuccess}
+          onError={handleError}
+        />
+        
+        <StandaloneSlideImageButton
+          projectName="Test Project"
+          onSuccess={handleSuccess}
+          onError={handleError}
+        />
+      </div>
       
       <div className="mt-4 text-xs text-gray-500">
         <p>• Generates PNG image from current slide</p>
