@@ -402,7 +402,7 @@ export default function TextSettings() {
 
             {/* Advanced Settings Toggle */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-xs text-gray-500">
                 {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
               </span>
               <button
@@ -421,8 +421,12 @@ export default function TextSettings() {
             </div>
 
             {/* Advanced Settings Content */}
-            {showAdvancedSettings && (
-              <div className="border-t border-gray-200 pt-4">
+            <div 
+              className={`border-t border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
+                showAdvancedSettings ? 'max-h-96 opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0'
+              }`}
+            >
+              <div className="px-4">
                 <AdvancedSettings
                   rotation={rotation}
                   onRotationChange={setRotation}
@@ -436,7 +440,7 @@ export default function TextSettings() {
                   onHeightChange={setHeight}
                 />
               </div>
-            )}
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

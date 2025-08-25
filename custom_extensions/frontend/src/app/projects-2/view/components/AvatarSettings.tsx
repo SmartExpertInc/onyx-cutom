@@ -230,44 +230,48 @@ export default function AvatarSettings() {
                 </div>
               </button>
             </div>
+          </div>
 
-            {/* Advanced Settings Toggle */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">
-                {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
-              </span>
-              <button
-                onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-                className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 transition-colors"
+          {/* Advanced Settings Toggle */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-500">
+              {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
+            </span>
+            <button
+              onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+              className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              <svg 
+                className={`w-4 h-4 transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
               >
-                <svg 
-                  className={`w-4 h-4 transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
 
-            {/* Advanced Settings Content */}
-            {showAdvancedSettings && (
-              <div className="border-t border-gray-200 pt-4">
-                <AdvancedSettings
-                  rotation={rotation}
-                  onRotationChange={setRotation}
-                  positionX={positionX}
-                  onPositionXChange={setPositionX}
-                  positionY={positionY}
-                  onPositionYChange={setPositionY}
-                  width={width}
-                  onWidthChange={setWidth}
-                  height={height}
-                  onHeightChange={setHeight}
-                />
-              </div>
-            )}
+          {/* Advanced Settings Content */}
+          <div 
+            className={`border-t border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
+              showAdvancedSettings ? 'max-h-96 opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0'
+            }`}
+          >
+            <div className="px-4">
+              <AdvancedSettings
+                rotation={rotation}
+                onRotationChange={setRotation}
+                positionX={positionX}
+                onPositionXChange={setPositionX}
+                positionY={positionY}
+                onPositionYChange={setPositionY}
+                width={width}
+                onWidthChange={setWidth}
+                height={height}
+                onHeightChange={setHeight}
+              />
+            </div>
           </div>
         </div>
       </div>

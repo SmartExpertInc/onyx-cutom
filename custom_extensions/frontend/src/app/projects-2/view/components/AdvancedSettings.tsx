@@ -35,23 +35,33 @@ export default function AdvancedSettings({
       {/* Rotation */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Rotation</span>
-        <input
-          type="number"
-          value={rotation}
-          onChange={(e) => handleNumberInput(e.target.value, onRotationChange)}
-          className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-          placeholder="0"
-        />
+        <div className="relative">
+          <input
+            type="number"
+            value={rotation}
+            onChange={(e) => handleNumberInput(e.target.value, onRotationChange)}
+            className="w-20 px-2 py-1 pr-6 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            placeholder="0"
+          />
+          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 pointer-events-none">°</span>
+        </div>
       </div>
 
       {/* Layout */}
       <div className="space-y-3">
-        <span className="text-sm font-medium text-gray-700">Layout</span>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-gray-700">Layout</span>
+          <div className="flex space-x-4 text-xs text-gray-500">
+            <span>X</span>
+            <span>Y</span>
+            <span>Width</span>
+            <span>Height</span>
+          </div>
+        </div>
         
         {/* X and Y position */}
         <div className="flex space-x-2">
           <div className="flex-1">
-            <label className="block text-xs text-gray-600 mb-1">X</label>
             <input
               type="number"
               value={positionX}
@@ -61,7 +71,6 @@ export default function AdvancedSettings({
             />
           </div>
           <div className="flex-1">
-            <label className="block text-xs text-gray-600 mb-1">Y</label>
             <input
               type="number"
               value={positionY}
@@ -75,7 +84,6 @@ export default function AdvancedSettings({
         {/* Width and Height */}
         <div className="flex space-x-2">
           <div className="flex-1">
-            <label className="block text-xs text-gray-600 mb-1">Width</label>
             <input
               type="number"
               value={width}
@@ -85,7 +93,6 @@ export default function AdvancedSettings({
             />
           </div>
           <div className="flex-1">
-            <label className="block text-xs text-gray-600 mb-1">Height</label>
             <input
               type="number"
               value={height}
