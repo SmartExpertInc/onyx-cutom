@@ -92,8 +92,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setHex(value);
+    // Only update HSB if we have a complete valid HEX code
     if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
       setHsb(hexToHsb(value));
+      onColorChange(value);
     }
   };
 
@@ -139,6 +141,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     <Dialog 
       open={isOpen} 
       onClose={onClose}
+      hideBackdrop={true}
       slotProps={{
         paper: {
           sx: position ? {
@@ -150,10 +153,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         }
       }}
     >
-      <DialogTitle>Select Color</DialogTitle>
       <DialogContent>
         {/* Hue Slider */}
-        <Typography gutterBottom>Hue</Typography>
         <Slider
           value={hsb.h}
           min={0}
@@ -174,7 +175,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         />
 
         {/* Saturation/Brightness Square */}
-        <Typography gutterBottom sx={{ mt: 2 }}>Saturation & Brightness</Typography>
         <Box
           ref={sbRef}
           onMouseDown={handleMouseDown}
