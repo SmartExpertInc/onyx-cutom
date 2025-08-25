@@ -73,6 +73,7 @@ export default function LessonSettingsModal({
   const [saving, setSaving] = useState(false);
   const [advancedEnabled, setAdvancedEnabled] = useState(false); // Initialize to false, will be set by fetch
   const [advancedTierOpen, setAdvancedTierOpen] = useState<string | null>(null); // Track which tier has advanced settings open
+  const [globalAdvancedOpen, setGlobalAdvancedOpen] = useState(false); // Track if any advanced settings are open
   const [perProductRates, setPerProductRates] = useState({
     presentation: 0, // Initialize to 0, will be set by fetch
     onePager: 0,
@@ -427,10 +428,12 @@ export default function LessonSettingsModal({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setAdvancedTierOpen(advancedTierOpen === tier.id ? null : tier.id);
+                              const isCurrentlyOpen = advancedTierOpen === tier.id;
+                              setAdvancedTierOpen(isCurrentlyOpen ? null : tier.id);
+                              setGlobalAdvancedOpen(!isCurrentlyOpen);
                             }}
                             className={`p-2 rounded-lg transition-colors ${
-                              advancedTierOpen === tier.id 
+                              globalAdvancedOpen 
                                 ? 'bg-blue-100 text-blue-600' 
                                 : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
                             }`}

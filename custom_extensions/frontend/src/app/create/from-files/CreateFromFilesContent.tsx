@@ -31,6 +31,7 @@ const StepCard: React.FC<StepCardProps> = ({
   disabled = false,
   isActive = false,
 }) => {
+  const { t } = useLanguage();
   const router = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -93,7 +94,7 @@ const StepCard: React.FC<StepCardProps> = ({
         {disabled && (
           <div className="flex items-center gap-2 mt-4 p-3 bg-gray-100 rounded-lg">
             <Clock className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-500 font-medium">Coming Soon</span>
+            <span className="text-sm text-gray-500 font-medium">{t('interface.comingSoon', 'Coming Soon')}</span>
           </div>
         )}
 
@@ -174,19 +175,19 @@ export default function CreateFromFilesContent() {
         <div className="w-full bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
           <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-blue-600" />
-            Why choose these methods?
+{t('interface.fromFiles.whyChooseMethods', 'Why choose these methods?')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Knowledge Base Search</h4>
+              <h4 className="font-semibold text-gray-900 mb-2">{t('interface.fromFiles.knowledgeBaseSearch', 'Knowledge Base Search')}</h4>
               <p className="text-gray-600 text-sm">
-                Leverage your entire document collection to find the most relevant information for your content creation needs.
+                {t('interface.fromFiles.knowledgeBaseSearchDesc', 'Leverage your entire document collection to find the most relevant information for your content creation needs.')}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Specific File Selection</h4>
+              <h4 className="font-semibold text-gray-900 mb-2">{t('interface.fromFiles.specificFileSelection', 'Specific File Selection')}</h4>
               <p className="text-gray-600 text-sm">
-                Choose exactly which files to include, giving you precise control over your source material.
+                {t('interface.fromFiles.specificFileSelectionDesc', 'Choose exactly which files to include, giving you precise control over your source material.')}
               </p>
             </div>
           </div>

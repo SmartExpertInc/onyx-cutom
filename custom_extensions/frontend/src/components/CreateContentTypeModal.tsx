@@ -244,20 +244,20 @@ export const CreateContentTypeModal = ({
         </div>
         
         {/* Combined Content Types View */}
-        <div className="mb-6">
-          <div className="border border-gray-200 rounded-xl p-4 mb-4 bg-white">
+        <div className="mb-4">
+          <div className="border border-gray-200 rounded-xl p-3 mb-3 bg-white">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-gray-100 rounded-lg">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014.846 21H9.154a3.374 3.374 0 00-2.329-1.253l-.548-.547z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">
+                <h3 className="text-base font-bold text-gray-900">
                   {t('modals.createContent.selectContentTypes', 'Select Content Types')}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {t('modals.createContent.selectContentTypesDescription', 'Choose which content types to create for this lesson. Recommended types are pre-selected.')}
+                <p className="text-xs text-gray-600">
+                  {t('modals.createContent.selectContentTypesDescription', 'Choose content types. Recommended types are pre-selected.')}
                 </p>
               </div>
             </div>
@@ -354,10 +354,10 @@ export const CreateContentTypeModal = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex justify-between items-center pt-6 border-t border-gray-200">
+        <div className="mt-4 flex justify-between items-center pt-4 border-t border-gray-200">
           <button
             onClick={handleClose}
-            className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-all duration-200 flex items-center space-x-2 hover:bg-gray-100 rounded-lg"
+            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-all duration-200 flex items-center space-x-2 hover:bg-gray-100 rounded-lg"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -367,7 +367,7 @@ export const CreateContentTypeModal = ({
           <button
             onClick={handlePrefSave}
             disabled={!Object.values(selectedPrefs).some(Boolean)}
-            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${
+            className={`px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${
               !Object.values(selectedPrefs).some(Boolean)
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
@@ -378,16 +378,6 @@ export const CreateContentTypeModal = ({
             </svg>
             <span>{t('actions.save')}</span>
           </button>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p>{t('modals.createContent.chooseContentType')}</p>
-          </div>
         </div>
       </div>
     </div>

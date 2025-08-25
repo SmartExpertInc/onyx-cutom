@@ -220,6 +220,32 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     }
   };
 
+  // Get localized status name
+  const getLocalizedStatus = (status: string) => {
+    switch (status) {
+      case 'Draft':
+        return t('interface.draft', 'Draft');
+      case 'Internal Review':
+        return t('interface.internalReview', 'Internal Review');
+      case 'Approved':
+        return t('interface.approved', 'Approved');
+      case 'Sent to Client':
+        return t('interface.sentToClient', 'Sent to Client');
+      case 'Viewed by Client':
+        return t('interface.viewedByClient', 'Viewed by Client');
+      case 'Negotiation':
+        return t('interface.negotiation', 'Negotiation');
+      case 'Accepted':
+        return t('interface.accepted', 'Accepted');
+      case 'Rejected':
+        return t('interface.rejected', 'Rejected');
+      case 'Archived':
+        return t('interface.archived', 'Archived');
+      default:
+        return status;
+    }
+  };
+
   // Get status icon and color
   const getStatusInfo = (status: string) => {
     switch (status) {
@@ -528,7 +554,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                             onClick={() => setEditingStatus(offer.id)}
                           >
                             <StatusIcon className="h-3 w-3 mr-1" />
-                            {offer.status}
+                            {getLocalizedStatus(offer.status)}
                             {updatingStatus === offer.id ? (
                               <div className="ml-1 w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
                             ) : (
