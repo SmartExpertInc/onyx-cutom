@@ -360,6 +360,7 @@ export const es = {
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Compartido contigo",
     folders: "Carpetas",
+    clients: "Clientes",
     createOrJoinFolder: "Crear o unirse a una carpeta",
     organizeProducts:
       "Organiza tus productos por tema y compártelos con tu equipo",

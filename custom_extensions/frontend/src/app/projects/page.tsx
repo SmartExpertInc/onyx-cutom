@@ -441,6 +441,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>{t('interface.products', 'Products')}</span>
         </Link>
         <Link 
+          href="/projects?tab=clients" 
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'clients' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          onClick={() => onFolderSelect(null)}
+        >
+          <Users size={18} />
+          <span>{t('interface.clients', 'Clients')}</span>
+        </Link>
+        <Link 
           href="/projects?tab=smart-drive" 
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => onFolderSelect(null)}
@@ -483,7 +491,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isClients }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean; isClients: boolean }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
   
@@ -514,6 +522,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace }: { isTrash: boo
     if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
     if (isWorkspace) return t('interface.workspace', 'Workspace');
+    if (isClients) return t('interface.clients', 'Clients');
     return t('interface.products', 'Products');
   };
 
@@ -542,6 +551,7 @@ const ProjectsPageInner: React.FC = () => {
   const isSmartDrive = currentTab === 'smart-drive';
   const isOffers = currentTab === 'offers';
   const isWorkspace = currentTab === 'workspace';
+  const isClients = currentTab === 'clients';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
@@ -793,7 +803,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} isClients={isClients} />
         <main className="flex-1 overflow-y-auto p-8">
           {isSmartDrive ? (
             <SmartDriveConnectors />
@@ -801,6 +811,8 @@ const ProjectsPageInner: React.FC = () => {
             <OffersTable companyId={selectedFolderId} />
           ) : isWorkspace ? (
             <WorkspaceMembers />
+          ) : isClients ? (
+            <ProjectsTable trashMode={false} folderId={null} />
           ) : (
             <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
           )}

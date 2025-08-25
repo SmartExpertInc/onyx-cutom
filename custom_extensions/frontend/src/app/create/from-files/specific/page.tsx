@@ -101,10 +101,10 @@ const mockConnectors: Connector[] = [
   },
   {
     id: 8,
-    name: 'OneDrive - Personal Storage',
-    source: 'onedrive',
+    name: 'HubSpot - CRM Data',
+    source: 'hubspot',
     status: 'active',
-    total_docs_indexed: 334,
+    total_docs_indexed: 567,
     access_type: 'private'
   }
 ];
