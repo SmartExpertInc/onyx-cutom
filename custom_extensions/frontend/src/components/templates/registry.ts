@@ -1263,7 +1263,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: '#333333',
       contentColor: '#666666',
       accentColor: '#ff6b35',
-      companyName: 'Company name'
+      companyName: 'Company Logo'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 50 },

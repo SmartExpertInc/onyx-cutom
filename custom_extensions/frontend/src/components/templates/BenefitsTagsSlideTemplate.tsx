@@ -135,7 +135,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
-  companyName = 'Your Logo',
+  companyName = 'Company Logo',
   backgroundColor,
   titleColor,
   contentColor,
@@ -148,6 +148,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTags, setEditingTags] = useState<number | null>(null);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [showLogo, setShowLogo] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTags, setCurrentTags] = useState(tags);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
@@ -215,6 +216,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     }
   };
 
+  const handleFooterClick = () => {
+    if (isEditable) {
+      setShowLogo(!showLogo);
+    }
+  };
+
   return (
     <div className="benefits-tags-slide-template" style={slideStyles}>
       {/* Top section with title and profile image */}
@@ -226,7 +233,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '55px',
+          fontSize: '48px',
+          fontWeight: 'bold',
           color: themeTitle,
           lineHeight: '1.1',
           marginTop: '40px'
@@ -238,7 +246,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
               style={{
-                fontSize: '55px',
+                fontSize: '48px',
+                fontWeight: 'bold',
                 color: themeTitle,
                 lineHeight: '1.1'
               }}
@@ -262,6 +271,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           height: '120px',
           borderRadius: '50%',
           overflow: 'hidden',
+          backgroundColor: themeAccent
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -425,36 +435,58 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         left: '80px',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px'
-      }}>
-        <div style={{
-          width: '45px',
-          height: '45px',
-          border: `2px solid ${themeContent}`,
-          borderRadius: '50%',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+        gap: '10px',
+        cursor: isEditable ? 'pointer' : 'default'
+      }}
+      onClick={handleFooterClick}
+      >
+        {showLogo ? (
           <div style={{
-            width: '12px',
-            height: '2px',
-            backgroundColor: themeContent,
-            position: 'absolute'
-          }} />
+            width: '30px',
+            height: '30px',
+            backgroundColor: themeAccent,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              backgroundColor: themeBg,
+              borderRadius: '50%'
+            }} />
+          </div>
+        ) : (
           <div style={{
-            width: '2px',
-            height: '12px',
-            backgroundColor: themeContent,
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)'
-          }} />
-        </div>
+            width: '30px',
+            height: '30px',
+            border: `2px solid ${themeContent}`,
+            borderRadius: '50%',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              width: '12px',
+              height: '2px',
+              backgroundColor: themeContent,
+              position: 'absolute'
+            }} />
+            <div style={{
+              width: '2px',
+              height: '12px',
+              backgroundColor: themeContent,
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)'
+            }} />
+          </div>
+        )}
         <div style={{
-          fontSize: '25px',
+          fontSize: '14px',
           fontWeight: '300',
           color: themeContent
         }}>
@@ -465,14 +497,17 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onCancel={handleCompanyNameCancel}
               className="company-name-editor"
               style={{
-                fontSize: '25px',
+                fontSize: '14px',
                 fontWeight: '300',
                 color: themeContent
               }}
             />
           ) : (
             <div
-              onClick={() => isEditable && setEditingCompanyName(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                isEditable && setEditingCompanyName(true);
+              }}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
