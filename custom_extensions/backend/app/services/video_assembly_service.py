@@ -100,7 +100,7 @@ class VideoAssemblyService:
                     '-f', 'concat',
                     '-safe', '0',
                     '-i', file_list_path,
-                    '-vf', 'fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2',
+                    '-vf', 'fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35',  # Use dark purple background for padding
                     '-c:v', 'libx264',
                     '-preset', self._get_preset(quality),
                     '-crf', str(self._get_crf(quality)),

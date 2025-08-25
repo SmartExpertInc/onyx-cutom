@@ -77,7 +77,9 @@ class HTMLToImageService:
                     '--disable-dev-shm-usage',
                     '--disable-gpu',
                     '--disable-web-security',
-                    '--disable-features=VizDisplayCompositor'
+                    '--disable-features=VizDisplayCompositor',
+                    '--force-device-scale-factor=1',  # Ensure 1:1 pixel mapping
+                    '--high-dpi-support=1'  # Better high DPI support
                 ]
             )
             

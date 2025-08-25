@@ -18,7 +18,7 @@
             width: 1920px;
             height: 1080px;
             overflow: hidden;
-            font-size: 24px; /* Base font size optimized for 1920x1080 video */
+            font-size: 16px; /* Reduced base font size for better scaling */
         }
         
         * {
@@ -41,7 +41,7 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
-            background: transparent;
+            background: var(--bg-color); /* Fill entire background */
             display: block;
         }
         
@@ -54,7 +54,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: transparent;
+            background: var(--bg-color); /* Ensure background is filled */
         }
         
         /* Theme color definitions - EXACT FRONTEND MATCH */
@@ -339,7 +339,7 @@
         }
         
         .avatar-service .slide-title {
-            font-size: 5rem; /* Increased from 3.75rem for better video visibility */
+            font-size: 3.5rem; /* Reduced from 5rem for better scaling */
             font-family: var(--title-font);
             color: var(--title-color);
             margin-bottom: 32px;
@@ -349,7 +349,7 @@
         }
         
         .avatar-service .slide-subtitle {
-            font-size: 3rem; /* Increased from 2.25rem for better video visibility */
+            font-size: 2.25rem; /* Reduced from 3rem for better scaling */
             font-family: var(--content-font);
             color: var(--content-color);
             margin-bottom: 32px;
@@ -359,7 +359,7 @@
         }
         
         .avatar-service .content-text {
-            font-size: 2.2rem; /* Increased from 1.8rem for better video visibility */
+            font-size: 1.8rem; /* Reduced from 2.2rem for better scaling */
             font-family: var(--content-font);
             color: var(--content-color);
             line-height: 1.5;
@@ -546,7 +546,7 @@
             width: 100%;
         }
         
-        /* Avatar placeholder */
+        /* Avatar placeholder - Simple blank space */
         .avatar-placeholder {
             width: 935px;
             height: 843px;
@@ -554,38 +554,19 @@
             position: absolute;
             top: -370px;
             z-index: 3;
-            background-color: #e9ecef;
-            border: 3px dashed #adb5bd;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            alignItems: center;
-            justify-content: center;
-            padding: 30px;
-            text-align: center;
-            color: #6c757d;
+            background-color: transparent; /* Transparent background */
+            border: none; /* No border */
+            border-radius: 0; /* No border radius */
+            display: block; /* Simple block display */
+            /* Remove all text and icon styles */
         }
         
-        .avatar-placeholder .placeholder-icon {
-            font-size: 72px;
-            margin-bottom: 24px;
-        }
-        
-        .avatar-placeholder .placeholder-text {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-        
-        .avatar-placeholder .placeholder-subtext {
-            font-size: 21px;
-            font-style: italic;
-            margin-bottom: 18px;
-        }
-        
+        /* Hide all placeholder content */
+        .avatar-placeholder .placeholder-icon,
+        .avatar-placeholder .placeholder-text,
+        .avatar-placeholder .placeholder-subtext,
         .avatar-placeholder .placeholder-dimensions {
-            font-size: 18px;
-            color: #868e96;
+            display: none;
         }
     </style>
 </head>
@@ -603,10 +584,7 @@
                         <!-- Left content - Avatar -->
                         <div class="left-content">
                             <div class="avatar-placeholder">
-                                <div class="placeholder-icon">👤</div>
-                                <div class="placeholder-text">Avatar Placeholder</div>
-                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
-                                <div class="placeholder-dimensions">935px × 843px</div>
+                                <!-- Simple blank space for avatar overlay -->
                             </div>
                         </div>
 
@@ -694,10 +672,7 @@
                     <div class="right-panel">
                         <!-- Avatar Display - full width of right panel, full height -->
                         <div class="avatar-placeholder" style="width: 100%; height: 100%; top: 0; position: relative;">
-                            <div class="placeholder-icon">👤</div>
-                            <div class="placeholder-text">Avatar Placeholder</div>
-                            <div class="placeholder-subtext">Avatar will fill entire right panel</div>
-                            <div class="placeholder-dimensions">1152px × 1080px</div>
+                            <!-- Simple blank space for avatar overlay -->
                         </div>
                     </div>
                 </div>
@@ -729,10 +704,7 @@
                         <!-- Right content - Avatar -->
                         <div class="right-content">
                             <div class="avatar-placeholder">
-                                <div class="placeholder-icon">👤</div>
-                                <div class="placeholder-text">Avatar Placeholder</div>
-                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
-                                <div class="placeholder-dimensions">935px × 843px</div>
+                                <!-- Simple blank space for avatar overlay -->
                             </div>
                         </div>
                     </div>
@@ -744,10 +716,7 @@
                         <!-- Left content - Avatar -->
                         <div class="left-content">
                             <div class="avatar-placeholder">
-                                <div class="placeholder-icon">👤</div>
-                                <div class="placeholder-text">Avatar Placeholder</div>
-                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
-                                <div class="placeholder-dimensions">935px × 843px</div>
+                                <!-- Simple blank space for avatar overlay -->
                             </div>
                         </div>
 
@@ -809,10 +778,7 @@
                         <!-- Right content - Avatar -->
                         <div class="right-content">
                             <div class="avatar-placeholder">
-                                <div class="placeholder-icon">👤</div>
-                                <div class="placeholder-text">Avatar Placeholder</div>
-                                <div class="placeholder-subtext">Avatar will be overlaid here</div>
-                                <div class="placeholder-dimensions">1115px × 1071px</div>
+                                <!-- Simple blank space for avatar overlay -->
                             </div>
                         </div>
                     </div>
@@ -822,20 +788,20 @@
                 <div class="slide">
                     <!-- Fallback for unknown template IDs - show actual content -->
                     {% if title %}
-                        <h1 class="slide-title" style="font-size: 5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;">{{ title }}</h1>
+                        <h1 class="slide-title" style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;">{{ title }}</h1>
                     {% endif %}
                     
                     {% if subtitle %}
-                        <h2 class="slide-subtitle" style="font-size: 3rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;">{{ subtitle }}</h2>
+                        <h2 class="slide-subtitle" style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;">{{ subtitle }}</h2>
                     {% endif %}
                     
                     {% if content %}
-                        <p class="content-text" style="font-size: 2.2rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;">{{ content }}</p>
+                        <p class="content-text" style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;">{{ content }}</p>
                     {% endif %}
                     
                     {% if not title and not subtitle and not content %}
-                        <h1 style="font-size: 5rem; color: var(--title-color); text-align: center;">Unknown Avatar Template</h1>
-                        <p style="font-size: 2.2rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
+                        <h1 style="font-size: 3.5rem; color: var(--title-color); text-align: center;">Unknown Avatar Template</h1>
+                        <p style="font-size: 1.8rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
                     {% endif %}
                 </div>
             {% endif %}
