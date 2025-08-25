@@ -162,15 +162,17 @@ class ElaiVideoGenerationService:
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
+                        "width": 400,
+                        "height": 400,
                         "objects": [{
                             "type": "avatar",
-                            "left": 510,
-                            "top": 255,
+                            "left": 0,
+                            "top": 0,
                             "fill": "#4868FF",
-                            "scaleX": 0.1,
-                            "scaleY": 0.1,
-                            "width": 1080,
-                            "height": 1080,
+                            "scaleX": 1.0,
+                            "scaleY": 1.0,
+                            "width": 400,
+                            "height": 400,
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
                             "animation": {
@@ -178,7 +180,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "#ffffff",
+                        "background": "transparent",
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -267,15 +269,17 @@ class ElaiVideoGenerationService:
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
+                        "width": 400,
+                        "height": 400,
                         "objects": [{
                             "type": "avatar",
-                            "left": 510,
-                            "top": 255,
+                            "left": 0,
+                            "top": 0,
                             "fill": "#4868FF",
-                            "scaleX": 0.1,
-                            "scaleY": 0.1,
-                            "width": 1080,
-                            "height": 1080,
+                            "scaleX": 1.0,
+                            "scaleY": 1.0,
+                            "width": 400,
+                            "height": 400,
                             "src": avatar_data.get("canvas_url"),
                             "avatarType": "transparent",
                             "animation": {
@@ -283,7 +287,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "#ffffff",
+                        "background": "transparent",
                         "version": "4.4.0"
                     },
                     "avatar": {

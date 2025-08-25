@@ -129,3 +129,4 @@ curl http://localhost:8002/api/custom/video-system/status
 - Works with any available Elai avatars
 - No longer fails due to hardcoded avatar codes
 
+
