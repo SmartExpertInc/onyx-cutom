@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Dialog, DialogTitle, DialogContent, Slider, Typography, Box, TextField } from "@mui/material";
 
 interface ColorPalettePopupProps {
   isOpen: boolean;
   onClose: () => void;
   onColorChange: (color: string) => void;
   initialColor?: string;
-  position?: { x: number; y: number };
 }
 
 interface HSB {
@@ -16,33 +16,21 @@ interface HSB {
   b: number; // 0-100
 }
 
-// ✅ Memoized SB handle (prevents re-creation on each render)
-const SBHandle: React.FC<{ s: number; b: number }> = React.memo(({ s, b }) => (
-  <div
-    className="absolute w-3 h-3 bg-white border-2 border-gray-800 rounded-full pointer-events-none will-change-transform"
-    style={{
-      left: `${s}%`,
-      top: `${100 - b}%`,
-      transform: "translate(-50%, -50%)",
-    }}
-  />
-));
-
 const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   isOpen,
   onClose,
   onColorChange,
   initialColor = "#ff0000",
-  position = { x: 0, y: 0 },
 }) => {
-  const [hsb, setHsb] = useState<HSB>({ h: 0, s: 100, b: 100 });
+  // Initialize once to avoid flickering
+  const [hsb, setHsb] = useState<HSB>(() => hexToHsb(initialColor));
   const [hex, setHex] = useState(initialColor);
-  const [isDragging, setIsDragging] = useState(false);
-  const popupRef = useRef<HTMLDivElement>(null);
-  const sbRef = useRef<HTMLDivElement>(null);
 
-  // --- HEX ↔ HSB conversion helpers ---
-  const hexToHsb = (hex: string): HSB => {
+  const sbRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+
+  // --- HEX ↔ HSB conversion ---
+  function hexToHsb(hex: string): HSB {
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -64,237 +52,162 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const brightness = Math.round(max * 100);
 
     return { h, s, b: brightness };
-  };
+  }
 
-  const hsbToHex = (hsb: HSB): string => {
-    const { h, s, b } = hsb;
-    const sDecimal = s / 100;
-    const bDecimal = b / 100;
+  function hsbToHex({ h, s, b }: HSB): string {
+    const sDec = s / 100;
+    const bDec = b / 100;
 
-    const c = bDecimal * sDecimal;
+    const c = bDec * sDec;
     const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-    const m = bDecimal - c;
+    const m = bDec - c;
 
-    let r = 0,
-      g = 0,
-      blue = 0;
+    let r = 0, g = 0, bl = 0;
+    if (h >= 0 && h < 60) { r = c; g = x; }
+    else if (h >= 60 && h < 120) { r = x; g = c; }
+    else if (h >= 120 && h < 180) { g = c; bl = x; }
+    else if (h >= 180 && h < 240) { g = x; bl = c; }
+    else if (h >= 240 && h < 300) { r = x; bl = c; }
+    else { r = c; bl = x; }
 
-    if (h >= 0 && h < 60) {
-      r = c;
-      g = x;
-    } else if (h >= 60 && h < 120) {
-      r = x;
-      g = c;
-    } else if (h >= 120 && h < 180) {
-      g = c;
-      blue = x;
-    } else if (h >= 180 && h < 240) {
-      g = x;
-      blue = c;
-    } else if (h >= 240 && h < 300) {
-      r = x;
-      blue = c;
-    } else {
-      r = c;
-      blue = x;
-    }
-
-    const rHex = Math.round((r + m) * 255)
-      .toString(16)
-      .padStart(2, "0");
-    const gHex = Math.round((g + m) * 255)
-      .toString(16)
-      .padStart(2, "0");
-    const bHex = Math.round((blue + m) * 255)
-      .toString(16)
-      .padStart(2, "0");
+    const rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+    const gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+    const bHex = Math.round((bl + m) * 255).toString(16).padStart(2, '0');
 
     return `#${rHex}${gHex}${bHex}`;
-  };
+  }
 
-  // --- Init ---
-  useEffect(() => {
-    if (initialColor) {
-      const hsbColor = hexToHsb(initialColor);
-      setHsb(hsbColor);
-      setHex(initialColor);
-    }
-  }, [initialColor]);
-
+  // Update HEX when HSB changes
   useEffect(() => {
     const newHex = hsbToHex(hsb);
-    setHex(newHex);
-    onColorChange(newHex);
-  }, [hsb, onColorChange]);
+    if (newHex !== hex) {
+      setHex(newHex);
+      onColorChange(newHex);
+    }
+  }, [hsb, onColorChange, hex]);
 
   // --- HEX input handler ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value.match(/^#[0-9A-Fa-f]{6}$/)) {
-      setHex(value);
-      const hsbColor = hexToHsb(value);
-      setHsb(hsbColor);
-    } else {
-      setHex(value);
+    setHex(value);
+    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+      setHsb(hexToHsb(value));
     }
   };
 
   // --- Hue slider ---
-  const handleHueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newHue = parseInt(e.target.value);
-    setHsb((prev) => ({ ...prev, h: newHue }));
+  const handleHueChange = (e: Event, value: number | number[]) => {
+    setHsb(prev => ({ ...prev, h: value as number }));
   };
 
-  // --- SB square ---
-  const handleSBClick = useCallback((e: React.MouseEvent) => {
+  // --- Saturation/Brightness square ---
+  const handleSBUpdate = useCallback((clientX: number, clientY: number) => {
     if (!sbRef.current) return;
     const rect = sbRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-    setHsb((prev) => ({
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    setHsb(prev => ({
       ...prev,
       s: Math.round(x * 100),
-      b: Math.round((1 - y) * 100),
+      b: Math.round((1 - y) * 100)
     }));
   }, []);
 
-  const handleSBMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    handleSBClick(e);
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDraggingRef.current = true;
+    handleSBUpdate(e.clientX, e.clientY);
   };
 
-  const handleSBMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (isDragging && sbRef.current) {
-        const rect = sbRef.current.getBoundingClientRect();
-        const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-        setHsb((prev) => ({
-          ...prev,
-          s: Math.round(x * 100),
-          b: Math.round((1 - y) * 100),
-        }));
-      }
-    },
-    [isDragging]
-  );
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (isDraggingRef.current) handleSBUpdate(e.clientX, e.clientY);
+  }, [handleSBUpdate]);
 
-  const handleSBMouseUp = () => setIsDragging(false);
+  const handleMouseUp = () => { isDraggingRef.current = false; };
 
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleSBMouseMove);
-      document.addEventListener("mouseup", handleSBMouseUp);
-      return () => {
-        document.removeEventListener("mousemove", handleSBMouseMove);
-        document.removeEventListener("mouseup", handleSBMouseUp);
-      };
-    }
-  }, [isDragging, handleSBMouseMove]);
-
-  // --- Close on outside click ---
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        popupRef.current &&
-        !popupRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  const hueGradient = `linear-gradient(to right, 
-    hsl(0, 100%, 50%), 
-    hsl(60, 100%, 50%), 
-    hsl(120, 100%, 50%), 
-    hsl(180, 100%, 50%), 
-    hsl(240, 100%, 50%), 
-    hsl(300, 100%, 50%), 
-    hsl(360, 100%, 50%)
-  )`;
-
-  const sbGradient = `linear-gradient(to top, #000, transparent), 
-    linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`;
+  }, [handleMouseMove]);
 
   return (
-    <div
-      ref={popupRef}
-      className="fixed z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-4 min-w-[280px]"
-      style={{ left: position.x, top: position.y }}
-    >
-      {/* Hue Slider */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Hue</label>
-        <div className="relative">
-          <input
-            type="range"
-            min="0"
-            max="360"
-            value={hsb.h}
-            onChange={handleHueChange}
-            className="w-full h-8 appearance-none bg-transparent cursor-pointer"
-            style={{
-              background: hueGradient,
-              borderRadius: "4px",
-            }}
-          />
-          {/* ✅ fixed: no conflicting transforms */}
-          <div
-            className="absolute top-1/2 w-4 h-4 bg-white border-2 border-gray-300 rounded-full pointer-events-none will-change-transform"
-            style={{
-              left: `${(hsb.h / 360) * 100}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          />
-        </div>
-      </div>
+    <Dialog open={isOpen} onClose={onClose}>
+      <DialogTitle>Select Color</DialogTitle>
+      <DialogContent>
+        {/* Hue Slider */}
+        <Typography gutterBottom>Hue</Typography>
+        <Slider
+          value={hsb.h}
+          min={0}
+          max={360}
+          onChange={handleHueChange}
+          sx={{
+            height: 8,
+            "& .MuiSlider-track": {
+              background: `linear-gradient(to right,
+                hsl(0,100%,50%), hsl(60,100%,50%), hsl(120,100%,50%),
+                hsl(180,100%,50%), hsl(240,100%,50%), hsl(300,100%,50%),
+                hsl(360,100%,50%))`
+            },
+            "& .MuiSlider-thumb": {
+              width: 16, height: 16, backgroundColor: "#fff", border: "2px solid #888"
+            }
+          }}
+        />
 
-      {/* Saturation/Brightness Square */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Saturation & Brightness
-        </label>
-        <div
+        {/* Saturation/Brightness Square */}
+        <Typography gutterBottom sx={{ mt: 2 }}>Saturation & Brightness</Typography>
+        <Box
           ref={sbRef}
-          className="relative w-full h-32 rounded-lg cursor-crosshair border border-gray-300"
-          style={{ background: sbGradient }}
-          onMouseDown={handleSBMouseDown}
+          onMouseDown={handleMouseDown}
+          sx={{
+            width: '100%',
+            height: 128,
+            border: '1px solid #ccc',
+            borderRadius: 1,
+            cursor: 'crosshair',
+            position: 'relative',
+            background: `linear-gradient(to top, #000, transparent),
+                         linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
+          }}
         >
-          <SBHandle s={hsb.s} b={hsb.b} />
-        </div>
-      </div>
+          <Box
+            sx={{
+              position: 'absolute',
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              border: '2px solid #000',
+              backgroundColor: '#fff',
+              left: `${hsb.s}%`,
+              top: `${100 - hsb.b}%`,
+              transform: 'translate(-50%, -50%)',
+              pointerEvents: 'none'
+            }}
+          />
+        </Box>
 
-      {/* HEX Input */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          HEX Color
-        </label>
-        <input
-          type="text"
+        {/* HEX Input */}
+        <TextField
+          label="HEX Color"
           value={hex}
           onChange={handleHexChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="#000000"
-          maxLength={7}
+          fullWidth
+          variant="outlined"
+          inputProps={{ maxLength: 7 }}
+          sx={{ mt: 2 }}
         />
-      </div>
 
-      {/* Color Preview */}
-      <div className="mt-4 flex items-center space-x-3">
-        <div
-          className="w-8 h-8 rounded border border-gray-300"
-          style={{ backgroundColor: hex }}
-        />
-        <span className="text-sm text-gray-600">{hex.toUpperCase()}</span>
-      </div>
-    </div>
+        {/* Color Preview */}
+        <Box sx={{
+          mt: 2, width: 40, height: 40, border: '1px solid #ccc',
+          borderRadius: 1, backgroundColor: hex
+        }} />
+      </DialogContent>
+    </Dialog>
   );
 };
 
