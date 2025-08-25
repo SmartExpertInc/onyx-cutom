@@ -160,6 +160,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const [currentDescription, setCurrentDescription] = useState(description);
   const [currentBenefits, setCurrentBenefits] = useState(benefits);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+  const [teamImagePath, setTeamImagePath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -249,275 +250,282 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     }
   };
 
+  const handleTeamImageUploaded = (newImagePath: string) => {
+    setTeamImagePath(newImagePath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, teamImagePath: newImagePath });
+    }
+  };
+
   return (
     <div className="benefits-list-slide-template" style={slideStyles}>
-      {/* Top section with green background */}
+      {/* Main content with two columns */}
       <div style={{
-        flex: '0 0 396px', // Фиксированная высота для верхней секции
-        backgroundColor: themeAccent,
-        position: 'relative',
-        padding: '40px 60px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-      }}>
-        {/* Header and title section */}
-        <div>
-          {/* Subtitle */}
-          <div style={{
-            fontSize: '14px',
-            color: themeBg,
-            marginBottom: '10px',
-            fontWeight: '300'
-          }}>
-            {isEditable && editingSubtitle ? (
-              <InlineEditor
-                initialValue={currentSubtitle}
-                onSave={handleSubtitleSave}
-                onCancel={handleSubtitleCancel}
-                className="benefits-subtitle-editor"
-                style={{
-                  fontSize: '14px',
-                  color: themeBg,
-                  fontWeight: '300'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingSubtitle(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentSubtitle}
-              </div>
-            )}
-          </div>
-
-          {/* Main title */}
-          <div style={{
-            fontSize: '48px',
-            fontWeight: 'bold',
-            color: themeBg,
-            marginBottom: '20px',
-            lineHeight: '1.1'
-          }}>
-            {isEditable && editingTitle ? (
-              <InlineEditor
-                initialValue={currentTitle}
-                onSave={handleTitleSave}
-                onCancel={handleTitleCancel}
-                className="benefits-title-editor"
-                style={{
-                  fontSize: '48px',
-                  fontWeight: 'bold',
-                  color: themeBg,
-                  lineHeight: '1.1'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingTitle(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentTitle}
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          <div style={{
-            fontSize: '18px',
-            color: themeBg,
-            lineHeight: '1.4',
-            maxWidth: '600px'
-          }}>
-            {isEditable && editingDescription ? (
-              <InlineEditor
-                initialValue={currentDescription}
-                onSave={handleDescriptionSave}
-                onCancel={handleDescriptionCancel}
-                multiline={true}
-                className="benefits-description-editor"
-                style={{
-                  fontSize: '18px',
-                  color: themeBg,
-                  lineHeight: '1.4'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingDescription(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentDescription}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Navigation circles */}
-        <div style={{
-          display: 'flex',
-          gap: '15px',
-          marginTop: '20px'
-        }}>
-          {Array.from({ length: totalSteps }, (_, i) => (
-            <div
-              key={i}
-              style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '50%',
-                border: `2px solid ${themeBg}`,
-                backgroundColor: i + 1 === currentStep ? themeBg : 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: i + 1 === currentStep ? themeAccent : themeBg,
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
-
-        {/* Profile image */}
-        <div style={{
-          position: 'absolute',
-          top: '40px',
-          right: '60px',
-          width: '120px',
-          height: '120px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          backgroundColor: themeBg
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Bottom section with white background */}
-      <div style={{
-        flex: '1',
+        width: '100%',
+        height: '100%',
         backgroundColor: themeBg,
-        padding: '40px 60px',
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
+        padding: '40px 60px'
       }}>
-        {/* Benefits list */}
+        {/* Left column */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '20px',
-          maxWidth: '800px',
-          marginBottom: '20px'
+          width: '50%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          paddingRight: '40px'
         }}>
-          {currentBenefits.map((benefit, index) => (
-            <div
-              key={index}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                fontSize: '16px',
-                color: themeContent
-              }}
-            >
-              <span style={{ fontSize: '18px' }}>→</span>
-              {isEditable && editingBenefits === index ? (
+          {/* Top content */}
+          <div>
+            {/* Subtitle */}
+            <div style={{
+              fontSize: '14px',
+              color: themeContent,
+              marginBottom: '10px',
+              fontWeight: '300'
+            }}>
+              {isEditable && editingSubtitle ? (
                 <InlineEditor
-                  initialValue={benefit}
-                  onSave={(value) => handleBenefitSave(index, value)}
-                  onCancel={handleBenefitCancel}
-                  className="benefit-editor"
+                  initialValue={currentSubtitle}
+                  onSave={handleSubtitleSave}
+                  onCancel={handleSubtitleCancel}
+                  className="benefits-subtitle-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '14px',
                     color: themeContent,
-                    flex: '1'
+                    fontWeight: '300'
                   }}
                 />
               ) : (
                 <div
-                  onClick={() => isEditable && setEditingBenefits(index)}
+                  onClick={() => isEditable && setEditingSubtitle(true)}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none',
-                    flex: '1'
+                    userSelect: 'none'
                   }}
                 >
-                  {benefit}
+                  {currentSubtitle}
                 </div>
               )}
             </div>
-          ))}
+
+            {/* Main title */}
+            <div style={{
+              fontSize: '48px',
+              fontWeight: 'bold',
+              color: themeTitle,
+              marginBottom: '20px',
+              lineHeight: '1.1'
+            }}>
+              {isEditable && editingTitle ? (
+                <InlineEditor
+                  initialValue={currentTitle}
+                  onSave={handleTitleSave}
+                  onCancel={handleTitleCancel}
+                  className="benefits-title-editor"
+                  style={{
+                    fontSize: '48px',
+                    fontWeight: 'bold',
+                    color: themeTitle,
+                    lineHeight: '1.1'
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingTitle(true)}
+                  style={{
+                    cursor: isEditable ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentTitle}
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
+            <div style={{
+              fontSize: '18px',
+              color: themeContent,
+              lineHeight: '1.4',
+              maxWidth: '400px'
+            }}>
+              {isEditable && editingDescription ? (
+                <InlineEditor
+                  initialValue={currentDescription}
+                  onSave={handleDescriptionSave}
+                  onCancel={handleDescriptionCancel}
+                  multiline={true}
+                  className="benefits-description-editor"
+                  style={{
+                    fontSize: '18px',
+                    color: themeContent,
+                    lineHeight: '1.4'
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingDescription(true)}
+                  style={{
+                    cursor: isEditable ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentDescription}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Profile image at bottom */}
+          <div style={{
+            width: '120px',
+            height: '120px',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            backgroundColor: themeAccent,
+            alignSelf: 'flex-start'
+          }}>
+            <ClickableImagePlaceholder
+              imagePath={profileImagePath}
+              onImageUploaded={handleProfileImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Profile photo"
+              isEditable={isEditable}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
         </div>
 
-        {/* Footer */}
+        {/* Right column */}
         <div style={{
+          width: '50%',
           display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginTop: 'auto'
+          flexDirection: 'column',
+          justifyContent: 'space-between'
         }}>
+          {/* Benefits list */}
           <div style={{
-            width: '16px',
-            height: '16px',
-            backgroundColor: themeAccent,
-            transform: 'rotate(45deg)'
-          }} />
-          <div style={{
-            fontSize: '14px',
-            color: themeContent,
-            fontWeight: '300'
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '15px',
+            marginBottom: '30px'
           }}>
-            {isEditable && editingCompanyName ? (
-              <InlineEditor
-                initialValue={currentCompanyName}
-                onSave={handleCompanyNameSave}
-                onCancel={handleCompanyNameCancel}
-                className="company-name-editor"
-                style={{
-                  fontSize: '14px',
-                  color: themeContent,
-                  fontWeight: '300'
-                }}
-              />
-            ) : (
+            {currentBenefits.slice(0, 4).map((benefit, index) => (
               <div
-                onClick={() => isEditable && setEditingCompanyName(true)}
+                key={index}
                 style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontSize: '16px',
+                  color: themeContent
                 }}
               >
-                {currentCompanyName}
+                <span style={{ fontSize: '18px' }}>→</span>
+                {isEditable && editingBenefits === index ? (
+                  <InlineEditor
+                    initialValue={benefit}
+                    onSave={(value) => handleBenefitSave(index, value)}
+                    onCancel={handleBenefitCancel}
+                    className="benefit-editor"
+                    style={{
+                      fontSize: '16px',
+                      color: themeContent,
+                      flex: '1'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingBenefits(index)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none',
+                      flex: '1'
+                    }}
+                  >
+                    {benefit}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
+
+          {/* Team image at bottom */}
+          <div style={{
+            width: '100%',
+            height: '200px',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            backgroundColor: themeAccent
+          }}>
+            <ClickableImagePlaceholder
+              imagePath={teamImagePath || ''}
+              onImageUploaded={handleTeamImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Team meeting"
+              isEditable={isEditable}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '10px',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }}>
+        <div style={{
+          width: '16px',
+          height: '16px',
+          backgroundColor: themeAccent,
+          transform: 'rotate(45deg)'
+        }} />
+        <div style={{
+          fontSize: '14px',
+          color: themeContent,
+          fontWeight: '300'
+        }}>
+          {isEditable && editingCompanyName ? (
+            <InlineEditor
+              initialValue={currentCompanyName}
+              onSave={handleCompanyNameSave}
+              onCancel={handleCompanyNameCancel}
+              className="company-name-editor"
+              style={{
+                fontSize: '14px',
+                color: themeContent,
+                fontWeight: '300'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingCompanyName(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentCompanyName}
+            </div>
+          )}
         </div>
       </div>
     </div>
