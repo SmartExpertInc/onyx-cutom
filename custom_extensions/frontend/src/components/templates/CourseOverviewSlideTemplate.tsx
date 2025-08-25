@@ -331,8 +331,9 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           description="Course overview image"
           isEditable={isEditable}
           style={{
-            maxWidth: '80%',
-            maxHeight: '80%',
+            position: 'absolute',
+            bottom: '-27px',
+            height: '530px',
             borderRadius: '10px'
           }}
         />
