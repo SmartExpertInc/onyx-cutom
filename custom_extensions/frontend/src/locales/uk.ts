@@ -359,6 +359,7 @@ export const uk = {
     // Smart Drive content
     smartDriveBrowser: "Браузер Розумного диска",
     browseAndManageFiles: "Переглядайте та керуйте хмарними файлами",
+    browseAndSelectFiles: "Переглядайте та вибирайте файли з хмарного сховища",
     connectors: "З'єднувачі",
     popularConnectors: "Популярні з'єднувачі",
     allConnectors: "Всі з'єднувачі",
@@ -367,6 +368,34 @@ export const uk = {
     connect: "Підключити",
     manage: "Керувати",
     active: "Активний",
+    hideBrowser: "Приховати браузер",
+    showBrowser: "Показати браузер",
+    selectConnectors: "Вибрати з'єднувачі",
+    chooseDataSources: "Виберіть джерела даних для включення у ваш контент",
+    searchConnectors: "Пошук з'єднувачів...",
+    noConnectorsFound: "З'єднувачі не знайдено за вашим запитом.",
+    noConnectorsAvailable: "З'єднувачі недоступні.",
+    tryAdjustingSearch: "Спробуйте змінити пошукові запити.",
+    connectFirstDataSource: "Підключіть ваше перше джерело даних для початку роботи.",
+    loadingConnectors: "Завантаження з'єднувачів...",
+    contentCreationNotImplemented: "Функція створення контенту буде реалізована в бекенді",
+    contentCreation: "Створення контенту",
+    transformFilesToContent: "Перетворіть ваші файли в контент з ШІ",
+    selectedConnectors: "Вибрані з'єднувачі",
+    selectedFiles: "Вибрані файли",
+    filesFromSmartDrive: "Файли з Розумного диска",
+    connector: "з'єднувач",
+    connectorPlural: "з'єднувачі",
+    file: "файл",
+    filePlural: "файли",
+    docs: "док",
+    createContentFromSelected: "Створити контент з {count} вибраного джерела",
+    connectorStatusLabels: {
+      active: "активний",
+      syncing: "синхронізація",
+      error: "помилка",
+      paused: "призупинений"
+    },
 
     // Offers page
     searchOffers: "Пошук пропозицій...",
@@ -935,6 +964,7 @@ export const uk = {
       knowledgeBaseSearchDesc: "Використовуйте всю колекцію документів для пошуку найбільш релевантної інформації для ваших потреб у створенні контенту.",
       specificFileSelection: "Вибір конкретних файлів",
       specificFileSelectionDesc: "Виберіть точно, які файли включити, даючи вам точний контроль над вихідним матеріалом.",
+      backToCreateFromFiles: "Назад до створення з файлів",
     },
     // Course Outline Page
     courseOutline: {

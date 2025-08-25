@@ -16,6 +16,74 @@ interface Connector {
   access_type: string;
 }
 
+// Mock connector data for demonstration
+const mockConnectors: Connector[] = [
+  {
+    id: 1,
+    name: 'Google Drive - Personal',
+    source: 'google_drive',
+    status: 'active',
+    total_docs_indexed: 1247,
+    access_type: 'private'
+  },
+  {
+    id: 2,
+    name: 'Dropbox - Work Files',
+    source: 'dropbox',
+    status: 'active',
+    total_docs_indexed: 892,
+    access_type: 'private'
+  },
+  {
+    id: 3,
+    name: 'Notion - Documentation',
+    source: 'notion',
+    status: 'syncing',
+    total_docs_indexed: 156,
+    access_type: 'private'
+  },
+  {
+    id: 4,
+    name: 'Slack - Team Communications',
+    source: 'slack',
+    status: 'active',
+    total_docs_indexed: 2341,
+    access_type: 'private'
+  },
+  {
+    id: 5,
+    name: 'GitHub - Code Repository',
+    source: 'github',
+    status: 'active',
+    total_docs_indexed: 445,
+    access_type: 'private'
+  },
+  {
+    id: 6,
+    name: 'Confluence - Knowledge Base',
+    source: 'confluence',
+    status: 'paused',
+    total_docs_indexed: 678,
+    access_type: 'private'
+  },
+  {
+    id: 7,
+    name: 'SharePoint - Company Documents',
+    source: 'sharepoint',
+    status: 'error',
+    total_docs_indexed: 0,
+    access_type: 'private'
+  },
+  {
+    id: 8,
+    name: 'OneDrive - Personal Storage',
+    source: 'onedrive',
+    status: 'active',
+    total_docs_indexed: 334,
+    access_type: 'private'
+  }
+];
+
 export default function CreateFromSpecificFilesPage() {
   const { t } = useLanguage();
   const router = useRouter();
@@ -23,7 +91,7 @@ export default function CreateFromSpecificFilesPage() {
   const [selectedConnectors, setSelectedConnectors] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showFileBrowser, setShowFileBrowser] = useState(false);
+  const [showFileBrowser, setShowFileBrowser] = useState(true); // Changed to true to open by default
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
   // Fetch user connectors on component mount
@@ -40,9 +108,14 @@ export default function CreateFromSpecificFilesPage() {
             connector.access_type === 'private'
           );
           setConnectors(privateConnectors);
+        } else {
+          // Fallback to mock data if API fails
+          setConnectors(mockConnectors);
         }
       } catch (error) {
         console.error('Failed to fetch connectors:', error);
+        // Fallback to mock data
+        setConnectors(mockConnectors);
       } finally {
         setLoading(false);
       }
@@ -131,14 +204,14 @@ export default function CreateFromSpecificFilesPage() {
                     <Upload className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Smart Drive Browser</h2>
-                    <p className="text-sm text-gray-600 mt-1">Browse and select files from your cloud storage</p>
+                    <h2 className="text-xl font-bold text-gray-900">{t('interface.smartDriveBrowser', 'Smart Drive Browser')}</h2>
+                    <p className="text-sm text-gray-600 mt-1">{t('interface.browseAndSelectFiles', 'Browse and select files from your cloud storage')}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowFileBrowser(!showFileBrowser)}
                   className="group p-2.5 bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-600 rounded-lg border border-gray-200 hover:border-blue-200 transition-all duration-200 hover:shadow-md"
-                  title={showFileBrowser ? "Hide Browser" : "Show Browser"}
+                  title={showFileBrowser ? t('interface.hideBrowser', 'Hide Browser') : t('interface.showBrowser', 'Show Browser')}
                 >
                   <FolderOpen className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
                 </button>
@@ -161,7 +234,7 @@ export default function CreateFromSpecificFilesPage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">{t('interface.selectConnectors', 'Select Connectors')}</h3>
-                  <p className="text-sm text-gray-600 mt-1">Choose data sources to include in your content</p>
+                  <p className="text-sm text-gray-600 mt-1">{t('interface.chooseDataSources', 'Choose data sources to include in your content')}</p>
                 </div>
               </div>
               <button
@@ -197,7 +270,7 @@ export default function CreateFromSpecificFilesPage() {
                     {searchTerm ? t('interface.noConnectorsFound', 'No connectors found matching your search.') : t('interface.noConnectorsAvailable', 'No connectors available.')}
                   </p>
                   <p className="text-gray-400 text-sm mt-2">
-                    {searchTerm ? 'Try adjusting your search terms.' : 'Connect your first data source to get started.'}
+                    {searchTerm ? t('interface.tryAdjustingSearch', 'Try adjusting your search terms.') : t('interface.connectFirstDataSource', 'Connect your first data source to get started.')}
                   </p>
                 </div>
               ) : (
@@ -237,7 +310,7 @@ export default function CreateFromSpecificFilesPage() {
                       {/* Status and Stats */}
                       <div className="flex items-center justify-between">
                         <span className={`px-3 py-1 text-xs rounded-full font-medium ${getStatusColor(connector.status)}`}>
-                          {connector.status}
+                          {t(`interface.connectorStatusLabels.${connector.status}`, connector.status)}
                         </span>
                         <span className="text-xs text-gray-500 font-medium">
                           {connector.total_docs_indexed} {t('interface.docs', 'docs')}
@@ -261,8 +334,8 @@ export default function CreateFromSpecificFilesPage() {
                   <Sparkles className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Content Creation</h3>
-                  <p className="text-sm text-purple-600">Transform your files into AI-powered content</p>
+                  <h3 className="text-xl font-bold text-gray-900">{t('interface.contentCreation', 'Content Creation')}</h3>
+                  <p className="text-sm text-purple-600">{t('interface.transformFilesToContent', 'Transform your files into AI-powered content')}</p>
                 </div>
               </div>
               
@@ -273,13 +346,15 @@ export default function CreateFromSpecificFilesPage() {
                       <Settings className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Selected Connectors</p>
-                      <p className="text-xs text-gray-500">{selectedConnectors.length} connector{selectedConnectors.length !== 1 ? 's' : ''} selected</p>
+                      <p className="text-sm font-medium text-gray-900">{t('interface.selectedConnectors', 'Selected Connectors')}</p>
+                      <p className="text-xs text-gray-500">
+                        {selectedConnectors.length} {t('interface.connector', 'connector')}{selectedConnectors.length !== 1 ? 's' : ''} {t('interface.selected', 'selected')}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-gray-900">
-                      {selectedConnectors.length} {selectedConnectors.length === 1 ? 'connector' : 'connectors'}
+                      {selectedConnectors.length} {selectedConnectors.length === 1 ? t('interface.connector', 'connector') : t('interface.connectors', 'connectors')}
                     </p>
                   </div>
                 </div>
@@ -290,13 +365,13 @@ export default function CreateFromSpecificFilesPage() {
                       <FileText className="w-4 h-4 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Selected Files</p>
-                      <p className="text-xs text-gray-500">Files from Smart Drive</p>
+                      <p className="text-sm font-medium text-gray-900">{t('interface.selectedFiles', 'Selected Files')}</p>
+                      <p className="text-xs text-gray-500">{t('interface.filesFromSmartDrive', 'Files from Smart Drive')}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-gray-900">
-                      {selectedFiles.length} {selectedFiles.length === 1 ? 'file' : 'files'}
+                      {selectedFiles.length} {selectedFiles.length === 1 ? t('interface.file', 'file') : t('interface.files', 'files')}
                     </p>
                   </div>
                 </div>

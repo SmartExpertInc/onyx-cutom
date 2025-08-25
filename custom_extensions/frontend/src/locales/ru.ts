@@ -373,6 +373,7 @@ export const ru = {
     // Smart Drive content
     smartDriveBrowser: "Браузер Умного диска",
     browseAndManageFiles: "Просматривайте и управляйте облачными файлами",
+    browseAndSelectFiles: "Просматривайте и выбирайте файлы из облачного хранилища",
     connectors: "Соединители",
     popularConnectors: "Популярные соединители",
     allConnectors: "Все соединители",
@@ -381,6 +382,34 @@ export const ru = {
     connect: "Подключить",
     manage: "Управлять",
     active: "Активный",
+    hideBrowser: "Скрыть браузер",
+    showBrowser: "Показать браузер",
+    selectConnectors: "Выбрать соединители",
+    chooseDataSources: "Выберите источники данных для включения в ваш контент",
+    searchConnectors: "Поиск соединителей...",
+    noConnectorsFound: "Соединители не найдены по вашему запросу.",
+    noConnectorsAvailable: "Соединители недоступны.",
+    tryAdjustingSearch: "Попробуйте изменить поисковые запросы.",
+    connectFirstDataSource: "Подключите ваш первый источник данных для начала работы.",
+    loadingConnectors: "Загрузка соединителей...",
+    contentCreationNotImplemented: "Функция создания контента будет реализована в бэкенде",
+    contentCreation: "Создание контента",
+    transformFilesToContent: "Преобразуйте ваши файлы в контент с ИИ",
+    selectedConnectors: "Выбранные соединители",
+    selectedFiles: "Выбранные файлы",
+    filesFromSmartDrive: "Файлы из Умного диска",
+    connector: "соединитель",
+    connectorPlural: "соединители",
+    file: "файл",
+    filePlural: "файлы",
+    docs: "док",
+    createContentFromSelected: "Создать контент из {count} выбранного источника",
+    connectorStatusLabels: {
+      active: "активный",
+      syncing: "синхронизация",
+      error: "ошибка",
+      paused: "приостановлен"
+    },
 
     // Offers page
     searchOffers: "Поиск предложений...",
@@ -944,6 +973,7 @@ export const ru = {
       knowledgeBaseSearchDesc: "Используйте всю коллекцию документов для поиска наиболее релевантной информации для ваших потребностей в создании контента.",
       specificFileSelection: "Выбор конкретных файлов",
       specificFileSelectionDesc: "Выберите точно, какие файлы включить, давая вам точный контроль над исходным материалом.",
+      backToCreateFromFiles: "Назад к созданию из файлов",
     },
     // Course Outline Page
     courseOutline: {

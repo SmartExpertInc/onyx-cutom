@@ -369,6 +369,7 @@ export const es = {
     // Smart Drive content
     smartDriveBrowser: "Navegador de Disco Inteligente",
     browseAndManageFiles: "Explora y gestiona tus archivos en la nube",
+    browseAndSelectFiles: "Explora y selecciona archivos de tu almacenamiento en la nube",
     connectors: "Conectores",
     popularConnectors: "Conectores populares",
     allConnectors: "Todos los conectores",
@@ -377,6 +378,34 @@ export const es = {
     connect: "Conectar",
     manage: "Gestionar",
     active: "Activo",
+    hideBrowser: "Ocultar navegador",
+    showBrowser: "Mostrar navegador",
+    selectConnectors: "Seleccionar conectores",
+    chooseDataSources: "Elige fuentes de datos para incluir en tu contenido",
+    searchConnectors: "Buscar conectores...",
+    noConnectorsFound: "No se encontraron conectores que coincidan con tu búsqueda.",
+    noConnectorsAvailable: "No hay conectores disponibles.",
+    tryAdjustingSearch: "Intenta ajustar tus términos de búsqueda.",
+    connectFirstDataSource: "Conecta tu primera fuente de datos para comenzar.",
+    loadingConnectors: "Cargando conectores...",
+    contentCreationNotImplemented: "La funcionalidad de creación de contenido se implementará en el backend",
+    contentCreation: "Creación de contenido",
+    transformFilesToContent: "Transforma tus archivos en contenido con IA",
+    selectedConnectors: "Conectores seleccionados",
+    selectedFiles: "Archivos seleccionados",
+    filesFromSmartDrive: "Archivos del Disco Inteligente",
+    connector: "conector",
+    connectorPlural: "conectores",
+    file: "archivo",
+    filePlural: "archivos",
+    docs: "docs",
+    createContentFromSelected: "Crear contenido desde {count} fuente seleccionada",
+    connectorStatusLabels: {
+      active: "activo",
+      syncing: "sincronizando",
+      error: "error",
+      paused: "pausado"
+    },
 
     // Offers page
     searchOffers: "Buscar ofertas...",
@@ -950,6 +979,7 @@ export const es = {
       knowledgeBaseSearchDesc: "Aprovecha toda tu colección de documentos para encontrar la información más relevante para tus necesidades de creación de contenido.",
       specificFileSelection: "Selección de Archivos Específicos",
       specificFileSelectionDesc: "Elige exactamente qué archivos incluir, dándote control preciso sobre tu material fuente.",
+      backToCreateFromFiles: "Volver a Crear desde Archivos",
     },
     // Course Outline Page
     courseOutline: {

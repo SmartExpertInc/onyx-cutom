@@ -263,14 +263,25 @@ const WorkspaceMembers: React.FC = () => {
 
       {/* Add Member Modal */}
       {showAddMember && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {t('interface.addMemberModal.title', 'Add Member')}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {t('interface.addMemberModal.description', 'Invite a new member to the workspace')}
-            </p>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowAddMember(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10" 
+              onClick={() => setShowAddMember(false)}
+            >
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {t('interface.addMemberModal.title', 'Add Member')}
+              </h3>
+              <p className="text-gray-600">
+                {t('interface.addMemberModal.description', 'Invite a new member to the workspace')}
+              </p>
+            </div>
             
             <div className="space-y-4">
               <div>
@@ -282,7 +293,7 @@ const WorkspaceMembers: React.FC = () => {
                   value={newMemberEmail}
                   onChange={(e) => setNewMemberEmail(e.target.value)}
                   placeholder={t('interface.addMemberModal.emailPlaceholder', 'Enter email address')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
               </div>
               
@@ -293,7 +304,7 @@ const WorkspaceMembers: React.FC = () => {
                 <select
                   value={newMemberRole}
                   onChange={(e) => setNewMemberRole(e.target.value as 'Admin' | 'Member' | 'Viewer')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
                   <option value="Admin">{t('interface.roles.admin', 'Admin')}</option>
                   <option value="Member">{t('interface.roles.member', 'Member')}</option>
@@ -305,14 +316,14 @@ const WorkspaceMembers: React.FC = () => {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowAddMember(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
               >
                 {t('interface.addMemberModal.cancel', 'Cancel')}
               </button>
               <button
                 onClick={handleAddMember}
                 disabled={!newMemberEmail.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t('interface.addMemberModal.sendInvitation', 'Send Invitation')}
               </button>
