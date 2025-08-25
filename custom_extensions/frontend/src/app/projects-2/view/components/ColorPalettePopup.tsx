@@ -306,27 +306,43 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       )}
       <DialogContent sx={{ zIndex: 10000, position: 'relative' }} onClick={(e) => e.stopPropagation()}>
         {/* Hue Slider */}
-        <Slider
-          value={hsb.h}
-          min={0}
-          max={360}
-          onChange={handleHueChange}
-          sx={{
-            height: 8,
-            zIndex: 10001,
-            position: 'relative',
-            "& .MuiSlider-track": {
-              background: `linear-gradient(to right,
-                hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%), hsl(90,100%,50%),
-                hsl(120,100%,50%), hsl(150,100%,50%), hsl(180,100%,50%), hsl(210,100%,50%),
-                hsl(240,100%,50%), hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%),
-                hsl(360,100%,50%))`
-            },
-            "& .MuiSlider-thumb": {
-              width: 16, height: 16, backgroundColor: "#fff", border: "2px solid #888"
-            }
-          }}
-        />
+        <Box sx={{ position: 'relative', zIndex: 10001 }}>
+          <Slider
+            value={hsb.h}
+            min={0}
+            max={360}
+            onChange={handleHueChange}
+            sx={{
+              height: 8,
+              position: 'relative',
+              "& .MuiSlider-rail": {
+                background: `linear-gradient(to right,
+                  hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%), hsl(90,100%,50%),
+                  hsl(120,100%,50%), hsl(150,100%,50%), hsl(180,100%,50%), hsl(210,100%,50%),
+                  hsl(240,100%,50%), hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%),
+                  hsl(360,100%,50%))`,
+                height: 8,
+                borderRadius: 4
+              },
+              "& .MuiSlider-track": {
+                background: `linear-gradient(to right,
+                  hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%), hsl(90,100%,50%),
+                  hsl(120,100%,50%), hsl(150,100%,50%), hsl(180,100%,50%), hsl(210,100%,50%),
+                  hsl(240,100%,50%), hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%),
+                  hsl(360,100%,50%))`,
+                height: 8,
+                borderRadius: 4
+              },
+              "& .MuiSlider-thumb": {
+                width: 16, 
+                height: 16, 
+                backgroundColor: "#fff", 
+                border: "2px solid #888",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+              }
+            }}
+          />
+        </Box>
 
         {/* Saturation/Brightness Square */}
         <Box
