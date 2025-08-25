@@ -145,12 +145,12 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor, titleColor, subtitleColor, accentColor } = currentTheme.colors;
+  const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '596px',
-    backgroundColor: backgroundColor,
+    backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -197,7 +197,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '45%',
         height: '100%',
-        backgroundColor: accentColor,
+        backgroundColor: themeAccent,
         position: 'relative',
         borderTopRightRadius: '50px',
         borderBottomRightRadius: '50px',
@@ -210,7 +210,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           left: '30px',
           width: '20px',
           height: '20px',
-          color: backgroundColor,
+          color: themeBg,
           fontSize: '20px',
           fontWeight: 'bold'
         }}>
@@ -224,7 +224,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           top: '0',
           width: '2px',
           height: '100%',
-          backgroundColor: backgroundColor
+          backgroundColor: themeBg
         }} />
 
         {/* Page number */}
@@ -232,7 +232,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           position: 'absolute',
           bottom: '30px',
           left: '30px',
-          color: backgroundColor,
+          color: themeBg,
           fontSize: '14px',
           fontWeight: '300'
         }}>
@@ -258,7 +258,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: backgroundColor,
+                color: themeBg,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont
               }}
@@ -269,7 +269,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: backgroundColor,
+                color: themeBg,
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -289,7 +289,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: backgroundColor,
+                color: themeBg,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont
               }}
@@ -300,7 +300,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: backgroundColor,
+                color: themeBg,
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -317,7 +317,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '55%',
         height: '100%',
-        backgroundColor: backgroundColor,
+        backgroundColor: themeBg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

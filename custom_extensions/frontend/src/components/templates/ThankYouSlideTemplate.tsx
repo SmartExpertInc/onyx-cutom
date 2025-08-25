@@ -158,12 +158,12 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor, titleColor, subtitleColor, contentColor, accentColor } = currentTheme.colors;
+  const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '596px',
-    backgroundColor: backgroundColor,
+    backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -272,7 +272,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             className="thank-you-title-editor"
                           style={{
                 fontSize: '74px',
-                color: titleColor,
+                color: themeTitle,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont
               }}
@@ -283,7 +283,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             style={{
               fontSize: '80px',
               fontWeight: 'bold',
-              color: titleColor,
+              color: themeTitle,
               lineHeight: '1.1',
               cursor: isEditable ? 'pointer' : 'default',
               fontFamily: currentTheme.fonts.titleFont,
@@ -302,7 +302,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '1px',
-        backgroundColor: accentColor
+        backgroundColor: themeAccent
       }} />
 
       {/* Content area */}
@@ -321,7 +321,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div>
             <div style={{
               fontSize: '14px',
-              color: subtitleColor,
+              color: themeSubtitle,
               marginBottom: '10px',
               fontWeight: '300'
             }}>
@@ -337,7 +337,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-email-editor"
                   style={{
                     fontSize: '18px',
-                    color: contentColor,
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont
                   }}
                 />
@@ -346,7 +346,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingEmail(true)}
                   style={{
                     fontSize: '18px',
-                    color: contentColor,
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none'
@@ -366,7 +366,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-phone-editor"
                   style={{
                     fontSize: '18px',
-                    color: contentColor,
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont
                   }}
                 />
@@ -375,7 +375,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingPhone(true)}
                   style={{
                     fontSize: '18px',
-                    color: contentColor,
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none'
@@ -391,7 +391,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div>
             <div style={{
               fontSize: '14px',
-              color: subtitleColor,
+              color: themeSubtitle,
               marginBottom: '10px',
               fontWeight: '300'
             }}>
@@ -407,7 +407,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-address-editor"
                   style={{
                     fontSize: '22px',
-                    color: contentColor,
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont
                   }}
                 />
@@ -416,7 +416,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingAddress(true)}
                   style={{
                     fontSize: '22px',
-                    color: contentColor,
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none'
@@ -436,7 +436,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-postal-code-editor"
                   style={{
                     fontSize: '22px',
-                    color: contentColor,
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont
                   }}
                 />
@@ -445,7 +445,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingPostalCode(true)}
                   style={{
                     fontSize: '22px',
-                    color: contentColor,
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none'
@@ -497,7 +497,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '1px',
-        backgroundColor: accentColor
+        backgroundColor: themeAccent
       }} />
 
       {/* Company name */}
@@ -512,7 +512,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         <div style={{
           width: '16px',
           height: '16px',
-          backgroundColor: accentColor,
+          backgroundColor: themeAccent,
           transform: 'rotate(45deg)'
         }} />
         <div>
@@ -524,7 +524,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               className="thank-you-company-name-editor"
               style={{
                 fontSize: '14px',
-                color: subtitleColor,
+                color: themeSubtitle,
                 fontFamily: currentTheme.fonts.contentFont
               }}
             />
@@ -533,7 +533,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               onClick={() => isEditable && setEditingCompanyName(true)}
               style={{
                 fontSize: '14px',
-                color: subtitleColor,
+                color: themeSubtitle,
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
                 userSelect: 'none'
