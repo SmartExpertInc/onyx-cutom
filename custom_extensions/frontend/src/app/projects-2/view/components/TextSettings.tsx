@@ -182,7 +182,7 @@ export default function TextSettings() {
       </div>
       
       {/* Content area */}
-      <div className={`p-4 ${showAdvancedSettings ? 'flex-1 overflow-y-auto' : ''}`}>
+      <div className={`p-4 overflow-y-auto ${showAdvancedSettings ? 'flex-1' : 'max-h-[calc(100vh-200px)]'}`}>
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}

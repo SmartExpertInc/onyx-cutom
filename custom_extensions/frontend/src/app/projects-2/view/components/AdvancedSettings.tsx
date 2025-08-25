@@ -50,8 +50,8 @@ export default function AdvancedSettings({
       {/* Layout */}
       <div className="flex items-start justify-between">
         <span className="text-sm font-medium text-gray-700">Layout</span>
-        <div className="flex space-x-3">
-          {/* X and Width column */}
+        <div className="flex space-x-6">
+          {/* X and Y column */}
           <div className="flex flex-col space-y-2">
             {/* X input with label as border */}
             <div className="relative">
@@ -65,21 +65,6 @@ export default function AdvancedSettings({
               />
             </div>
             
-            {/* Width input with label as border */}
-            <div className="relative">
-              <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Width</label>
-              <input
-                type="number"
-                value={width}
-                onChange={(e) => handleNumberInput(e.target.value, onWidthChange)}
-                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                placeholder="100"
-              />
-            </div>
-          </div>
-          
-          {/* Y and Height column */}
-          <div className="flex flex-col space-y-2">
             {/* Y input with label as border */}
             <div className="relative">
               <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Y</label>
@@ -89,6 +74,21 @@ export default function AdvancedSettings({
                 onChange={(e) => handleNumberInput(e.target.value, onPositionYChange)}
                 className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="0"
+              />
+            </div>
+          </div>
+          
+          {/* Width and Height column */}
+          <div className="flex flex-col space-y-2">
+            {/* Width input with label as border */}
+            <div className="relative">
+              <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Width</label>
+              <input
+                type="number"
+                value={width}
+                onChange={(e) => handleNumberInput(e.target.value, onWidthChange)}
+                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                placeholder="100"
               />
             </div>
             
