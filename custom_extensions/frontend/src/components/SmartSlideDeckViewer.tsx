@@ -573,6 +573,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     onTemplateChange={isEditable ? handleTemplateChange : undefined}
                     theme={currentTheme}
                   />
+
                 </div>
               </div>
             </div>

@@ -122,7 +122,7 @@ function InlineEditor({
 }
 
 export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
-  theme?: SlideTheme;
+  theme?: SlideTheme | string;
 }> = ({
   slideId,
   title = 'Course',
@@ -144,7 +144,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
 
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, accentColor: themeAccent } = currentTheme.colors;
 
   // Use theme colors if not provided
@@ -152,6 +152,8 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const slideTitleColor = titleColor || themeTitle;
   const slideSubtitleColor = subtitleColor || themeSubtitle;
   const slideAccentColor = accentColor || themeAccent;
+
+
   
   // Create a more suitable color for the left panel based on theme
   const getLeftPanelColor = () => {
@@ -177,6 +179,8 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
   };
+
+
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);

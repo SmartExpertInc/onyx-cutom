@@ -92,6 +92,21 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     theme: currentTheme
   };
 
+  // Debug theme information for specific templates
+  if (slide.templateId === 'course-overview-slide' || slide.templateId === 'work-life-balance-slide' || slide.templateId === 'thank-you-slide') {
+    console.log('🎨 ComponentBasedSlideRenderer Theme Debug:', {
+      slideId: slide.slideId,
+      templateId: slide.templateId,
+      themeType: typeof theme,
+      themeValue: theme,
+      currentThemeId: currentTheme.id,
+      currentThemeBg: currentTheme.colors.backgroundColor,
+      templatePropsTheme: templateProps.theme.id
+    });
+  }
+
+
+
   return (
     <div 
       className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME}`}

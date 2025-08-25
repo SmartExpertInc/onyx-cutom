@@ -123,7 +123,7 @@ function InlineEditor({
 }
 
 export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & {
-  theme?: SlideTheme;
+  theme?: SlideTheme | string;
 }> = ({
   slideId,
   title = 'Work-life balance',
@@ -148,8 +148,21 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+
+  // Debug theme information
+  console.log('🎨 WorkLifeBalance Theme Debug:', {
+    themeId: currentTheme.id,
+    themeBg,
+    themeTitle,
+    themeContent,
+    themeAccent,
+    customBg: backgroundColor,
+    customTitle: titleColor,
+    customContent: contentColor,
+    customAccent: accentColor
+  });
 
   // Use theme colors if not provided
   const slideBackgroundColor = backgroundColor || themeBg;

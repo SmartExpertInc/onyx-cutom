@@ -122,7 +122,7 @@ function InlineEditor({
 }
 
 export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
-  theme?: SlideTheme;
+  theme?: SlideTheme | string;
 }> = ({
   slideId,
   title = 'Thank you',
@@ -157,8 +157,22 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
 
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+
+  // Debug theme information
+  console.log('🎨 ThankYou Theme Debug:', {
+    themeId: currentTheme.id,
+    themeBg,
+    themeTitle,
+    themeSubtitle,
+    themeContent,
+    themeAccent,
+    customBg: backgroundColor,
+    customTitle: titleColor,
+    customText: textColor,
+    customAccent: accentColor
+  });
 
   // Use theme colors if not provided
   const slideBackgroundColor = backgroundColor || themeBg;
