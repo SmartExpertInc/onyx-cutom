@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AdvancedSettings from './AdvancedSettings';
+import ColorPalettePopup from './ColorPalettePopup';
 
 export default function TextSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
@@ -20,6 +21,12 @@ export default function TextSettings() {
   const [fontColor, setFontColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  
+  // Color picker states
+  const [showFontColorPicker, setShowFontColorPicker] = useState(false);
+  const [showBackgroundColorPicker, setShowBackgroundColorPicker] = useState(false);
+  const [fontColorPickerPosition, setFontColorPickerPosition] = useState({ x: 0, y: 0 });
+  const [backgroundColorPickerPosition, setBackgroundColorPickerPosition] = useState({ x: 0, y: 0 });
 
   // Advanced settings states
   const [rotation, setRotation] = useState(0);
@@ -53,6 +60,28 @@ export default function TextSettings() {
     };
   }, []);
 
+  // Handle font color button click
+  const handleFontColorClick = (event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setFontColorPickerPosition({
+      x: rect.left,
+      y: rect.bottom + 8
+    });
+    setShowFontColorPicker(true);
+    setShowBackgroundColorPicker(false);
+  };
+
+  // Handle background color button click
+  const handleBackgroundColorClick = (event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setBackgroundColorPickerPosition({
+      x: rect.left,
+      y: rect.bottom + 8
+    });
+    setShowBackgroundColorPicker(true);
+    setShowFontColorPicker(false);
+  };
+
   const animationOptions = [
     { value: 'none', label: 'None' },
     { value: 'fade', label: 'Fade' },
@@ -76,7 +105,7 @@ export default function TextSettings() {
     <>
       <div className={`bg-white rounded-lg border border-gray-200 ${showAdvancedSettings ? 'max-h-[calc(100vh-40px)] flex flex-col' : ''}`}>
       {/* Header with grey background */}
-      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
+      <div className={`bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16 ${showAdvancedSettings ? 'flex-shrink-0' : ''}`}>
         <div className="flex items-center space-x-2">
           {/* Text icon */}
           <div className="w-5 h-5 text-gray-600">
@@ -95,7 +124,7 @@ export default function TextSettings() {
       </div>
       
       {/* Tab buttons */}
-      <div className="flex border-b border-gray-200">
+      <div className={`flex border-b border-gray-200 ${showAdvancedSettings ? 'flex-shrink-0' : ''}`}>
         <button
           onClick={() => setActiveTab('format')}
           className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
@@ -330,7 +359,8 @@ export default function TextSettings() {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Font color</span>
               <button
-                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
+                onClick={handleFontColorClick}
+                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors cursor-pointer"
                 style={{ backgroundColor: fontColor }}
                 title="Font color"
               />
@@ -340,7 +370,8 @@ export default function TextSettings() {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Background color</span>
               <button
-                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
+                onClick={handleBackgroundColorClick}
+                className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors cursor-pointer"
                 style={{ backgroundColor: backgroundColor }}
                 title="Background color"
               />
@@ -489,6 +520,24 @@ export default function TextSettings() {
       </div>
     </div>
     <div className="h-[5px]"></div>
+
+    {/* Font Color Picker Popup */}
+    <ColorPalettePopup
+      isOpen={showFontColorPicker}
+      onClose={() => setShowFontColorPicker(false)}
+      onColorChange={setFontColor}
+      initialColor={fontColor}
+      position={fontColorPickerPosition}
+    />
+
+    {/* Background Color Picker Popup */}
+    <ColorPalettePopup
+      isOpen={showBackgroundColorPicker}
+      onClose={() => setShowBackgroundColorPicker(false)}
+      onColorChange={setBackgroundColor}
+      initialColor={backgroundColor}
+      position={backgroundColorPickerPosition}
+    />
     </>
   );
 }
