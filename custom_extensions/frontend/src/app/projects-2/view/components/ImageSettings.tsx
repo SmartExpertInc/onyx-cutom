@@ -1,14 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Trash2, Image as ImageIcon, Check, X } from 'lucide-react';
 import Media from './Media';
+import AdvancedSettings from './AdvancedSettings';
 
 export default function ImageSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate' | 'filters'>('format');
   const [showDropdown, setShowDropdown] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCropMode, setIsCropMode] = useState(false);
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
   const animationDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Advanced settings states
+  const [rotation, setRotation] = useState(0);
+  const [positionX, setPositionX] = useState(0);
+  const [positionY, setPositionY] = useState(0);
+  const [width, setWidth] = useState(100);
+  const [height, setHeight] = useState(100);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -191,6 +200,44 @@ export default function ImageSettings() {
                 </button>
               </div>
             </div>
+
+            {/* Advanced Settings Toggle */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">
+                {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
+              </span>
+              <button
+                onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <svg 
+                  className={`w-4 h-4 transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Advanced Settings Content */}
+            {showAdvancedSettings && (
+              <div className="border-t border-gray-200 pt-4">
+                <AdvancedSettings
+                  rotation={rotation}
+                  onRotationChange={setRotation}
+                  positionX={positionX}
+                  onPositionXChange={setPositionX}
+                  positionY={positionY}
+                  onPositionYChange={setPositionY}
+                  width={width}
+                  onWidthChange={setWidth}
+                  height={height}
+                  onHeightChange={setHeight}
+                />
+              </div>
+            )}
           </div>
         )}
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AdvancedSettings from './AdvancedSettings';
 
 export default function ShapeSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
@@ -9,6 +10,14 @@ export default function ShapeSettings() {
   const [strokeColor, setStrokeColor] = useState('#000000');
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [showStrokeWidthDropdown, setShowStrokeWidthDropdown] = useState(false);
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+
+  // Advanced settings states
+  const [rotation, setRotation] = useState(0);
+  const [positionX, setPositionX] = useState(0);
+  const [positionY, setPositionY] = useState(0);
+  const [width, setWidth] = useState(100);
+  const [height, setHeight] = useState(100);
 
   const strokeWidthOptions = [
     { value: '0px', label: '0px' },
@@ -224,6 +233,44 @@ export default function ShapeSettings() {
                 </button>
               </div>
             </div>
+
+            {/* Advanced Settings Toggle */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">
+                {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
+              </span>
+              <button
+                onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <svg 
+                  className={`w-4 h-4 transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Advanced Settings Content */}
+            {showAdvancedSettings && (
+              <div className="border-t border-gray-200 pt-4">
+                <AdvancedSettings
+                  rotation={rotation}
+                  onRotationChange={setRotation}
+                  positionX={positionX}
+                  onPositionXChange={setPositionX}
+                  positionY={positionY}
+                  onPositionYChange={setPositionY}
+                  width={width}
+                  onWidthChange={setWidth}
+                  height={height}
+                  onHeightChange={setHeight}
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
