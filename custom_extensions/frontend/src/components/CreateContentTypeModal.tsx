@@ -245,23 +245,6 @@ export const CreateContentTypeModal = ({
         
         {/* Combined Content Types View */}
         <div className="mb-4">
-          <div className="border border-gray-200 rounded-xl p-3 mb-3 bg-white">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014.846 21H9.154a3.374 3.374 0 00-2.329-1.253l-.548-.547z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-gray-900">
-                  {t('modals.createContent.selectContentTypes', 'Select Content Types')}
-                </h3>
-                <p className="text-xs text-gray-600">
-                  {t('modals.createContent.selectContentTypesDescription', 'Choose content types. Recommended types are pre-selected.')}
-                </p>
-              </div>
-            </div>
-          </div>
 
           {/* All Content Types with Checkboxes */}
           <div className="space-y-3">

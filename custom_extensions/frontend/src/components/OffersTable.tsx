@@ -797,7 +797,6 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
     offer_name: offer.offer_name,
     manager: offer.manager,
     status: offer.status,
-    total_hours: offer.total_hours,
     link: offer.link || '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -821,7 +820,6 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
           offer_name: formData.offer_name,
           manager: formData.manager,
           status: formData.status,
-          total_hours: formData.total_hours,
           // Don't include link as it's auto-generated
         }),
       });
@@ -885,22 +883,6 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 type="text"
                 value={formData.manager}
                 onChange={(e) => setFormData({...formData, manager: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                required
-              />
-            </div>
-            
-            {/* Total Hours field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('interface.totalHours', 'Total Hours')} *
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={formData.total_hours}
-                onChange={(e) => setFormData({...formData, total_hours: parseFloat(e.target.value) || 0})}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 required
               />
