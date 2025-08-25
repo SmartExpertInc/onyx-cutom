@@ -150,12 +150,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     e.stopPropagation();
     const value = e.target.value;
     setHex(value);
-    // Only update other formats if we have a complete valid HEX code
-    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-      setHsb(hexToHsb(value));
-      setRgba(hexToRgba(value));
-      setHsla(hexToHsla(value));
-      onColorChange(value);
+  };
+
+  const handleHexKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = e.currentTarget.value;
+      // Only update other formats if we have a complete valid HEX code
+      if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        setHsb(hexToHsb(value));
+        setRgba(hexToRgba(value));
+        setHsla(hexToHsla(value));
+        onColorChange(value);
+      }
     }
   };
 
@@ -165,11 +172,22 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (!isNaN(value)) {
       const newRgba = { ...rgba, [field]: value };
       setRgba(newRgba);
-      const newHex = rgbaToHex(newRgba);
-      setHex(newHex);
-      setHsb(hexToHsb(newHex));
-      setHsla(hexToHsla(newHex));
-      onColorChange(newHex);
+    }
+  };
+
+  const handleRgbaKeyDown = (field: keyof RGBA) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = parseFloat(e.currentTarget.value);
+      if (!isNaN(value)) {
+        const newRgba = { ...rgba, [field]: value };
+        setRgba(newRgba);
+        const newHex = rgbaToHex(newRgba);
+        setHex(newHex);
+        setHsb(hexToHsb(newHex));
+        setHsla(hexToHsla(newHex));
+        onColorChange(newHex);
+      }
     }
   };
 
@@ -179,11 +197,22 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (!isNaN(value)) {
       const newHsla = { ...hsla, [field]: value };
       setHsla(newHsla);
-      const newHex = hslaToHex(newHsla);
-      setHex(newHex);
-      setHsb(hexToHsb(newHex));
-      setRgba(hexToRgba(newHex));
-      onColorChange(newHex);
+    }
+  };
+
+  const handleHslaKeyDown = (field: keyof HSLA) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = parseFloat(e.currentTarget.value);
+      if (!isNaN(value)) {
+        const newHsla = { ...hsla, [field]: value };
+        setHsla(newHsla);
+        const newHex = hslaToHex(newHsla);
+        setHex(newHex);
+        setHsb(hexToHsb(newHex));
+        setRgba(hexToRgba(newHex));
+        onColorChange(newHex);
+      }
     }
   };
 
@@ -317,19 +346,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               position: 'relative',
               "& .MuiSlider-rail": {
                 background: `linear-gradient(to right,
-                  hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%), hsl(90,100%,50%),
-                  hsl(120,100%,50%), hsl(150,100%,50%), hsl(180,100%,50%), hsl(210,100%,50%),
-                  hsl(240,100%,50%), hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%),
-                  hsl(360,100%,50%))`,
+                  hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%),
+                  hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%),
+                  hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%),
+                  hsl(360,100%,60%))`,
                 height: 8,
                 borderRadius: 4
               },
               "& .MuiSlider-track": {
-                background: `linear-gradient(to right,
-                  hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%), hsl(90,100%,50%),
-                  hsl(120,100%,50%), hsl(150,100%,50%), hsl(180,100%,50%), hsl(210,100%,50%),
-                  hsl(240,100%,50%), hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%),
-                  hsl(360,100%,50%))`,
+                background: 'transparent',
                 height: 8,
                 borderRadius: 4
               },
@@ -415,221 +440,245 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         {/* Conditional Input Fields */}
         <Box sx={{ mt: 2, minHeight: 56, zIndex: 10002, position: 'relative' }}>
           {colorFormat === 'HEX' && (
-            <TextField
-              label="HEX Color"
-              value={hex}
-              onChange={handleHexChange}
-              fullWidth
-              variant="outlined"
-              inputProps={{ maxLength: 7 }}
-              onClick={handleInputClick}
-              sx={{
-                zIndex: 10003,
-                position: 'relative',
-                '& .MuiInputBase-root': {
-                  zIndex: 10004,
+            <Box>
+              <TextField
+                label="HEX Color"
+                value={hex}
+                onChange={handleHexChange}
+                onKeyDown={handleHexKeyDown}
+                fullWidth
+                variant="outlined"
+                inputProps={{ maxLength: 7 }}
+                onClick={handleInputClick}
+                sx={{
+                  zIndex: 10003,
                   position: 'relative',
-                },
-                '& .MuiInputBase-input': {
-                  zIndex: 10005,
-                  position: 'relative',
-                  pointerEvents: 'auto',
-                }
-              }}
-            />
+                  '& .MuiInputBase-root': {
+                    zIndex: 10004,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10005,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+              />
+              <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
+                Press Enter to apply
+              </Typography>
+            </Box>
           )}
 
           {colorFormat === 'RGBA' && (
-            <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
-              <TextField
-                label="R"
-                type="number"
-                value={Math.round(rgba.r)}
-                onChange={handleRgbaChange('r')}
-                inputProps={{ min: 0, max: 255 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
+            <Box>
+              <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
+                <TextField
+                  label="R"
+                  type="number"
+                  value={Math.round(rgba.r)}
+                  onChange={handleRgbaChange('r')}
+                  onKeyDown={handleRgbaKeyDown('r')}
+                  inputProps={{ min: 0, max: 255 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="G"
+                  type="number"
+                  value={Math.round(rgba.g)}
+                  onChange={handleRgbaChange('g')}
+                  onKeyDown={handleRgbaKeyDown('g')}
+                  inputProps={{ min: 0, max: 255 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
-              <TextField
-                label="G"
-                type="number"
-                value={Math.round(rgba.g)}
-                onChange={handleRgbaChange('g')}
-                inputProps={{ min: 0, max: 255 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="B"
+                  type="number"
+                  value={Math.round(rgba.b)}
+                  onChange={handleRgbaChange('b')}
+                  onKeyDown={handleRgbaKeyDown('b')}
+                  inputProps={{ min: 0, max: 255 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="A"
+                  type="number"
+                  value={rgba.a}
+                  onChange={handleRgbaChange('a')}
+                  onKeyDown={handleRgbaKeyDown('a')}
+                  inputProps={{ min: 0, max: 1, step: 0.1 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
-              <TextField
-                label="B"
-                type="number"
-                value={Math.round(rgba.b)}
-                onChange={handleRgbaChange('b')}
-                inputProps={{ min: 0, max: 255 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
-                    position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
-                    position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
-              <TextField
-                label="A"
-                type="number"
-                value={rgba.a}
-                onChange={handleRgbaChange('a')}
-                inputProps={{ min: 0, max: 1, step: 0.1 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
-                    position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
-                    position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+              </Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
+                Press Enter in any field to apply
+              </Typography>
             </Box>
           )}
 
           {colorFormat === 'HSLA' && (
-            <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
-              <TextField
-                label="H"
-                type="number"
-                value={Math.round(hsla.h)}
-                onChange={handleHslaChange('h')}
-                inputProps={{ min: 0, max: 360 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
+            <Box>
+              <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
+                <TextField
+                  label="H"
+                  type="number"
+                  value={Math.round(hsla.h)}
+                  onChange={handleHslaChange('h')}
+                  onKeyDown={handleHslaKeyDown('h')}
+                  inputProps={{ min: 0, max: 360 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="S"
+                  type="number"
+                  value={Math.round(hsla.s)}
+                  onChange={handleHslaChange('s')}
+                  onKeyDown={handleHslaKeyDown('s')}
+                  inputProps={{ min: 0, max: 100 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
-              <TextField
-                label="S"
-                type="number"
-                value={Math.round(hsla.s)}
-                onChange={handleHslaChange('s')}
-                inputProps={{ min: 0, max: 100 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="L"
+                  type="number"
+                  value={Math.round(hsla.l)}
+                  onChange={handleHslaChange('l')}
+                  onKeyDown={handleHslaKeyDown('l')}
+                  inputProps={{ min: 0, max: 100 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="A"
+                  type="number"
+                  value={hsla.a}
+                  onChange={handleHslaChange('a')}
+                  onKeyDown={handleHslaKeyDown('a')}
+                  inputProps={{ min: 0, max: 1, step: 0.1 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
                     position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
-              <TextField
-                label="L"
-                type="number"
-                value={Math.round(hsla.l)}
-                onChange={handleHslaChange('l')}
-                inputProps={{ min: 0, max: 100 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
-                    position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
-                    position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
-              <TextField
-                label="A"
-                type="number"
-                value={hsla.a}
-                onChange={handleHslaChange('a')}
-                inputProps={{ min: 0, max: 1, step: 0.1 }}
-                onClick={handleInputClick}
-                sx={{ 
-                  flex: 1,
-                  zIndex: 10004,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10005,
-                    position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10006,
-                    position: 'relative',
-                    pointerEvents: 'auto',
-                  }
-                }}
-                variant="outlined"
-              />
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    }
+                  }}
+                  variant="outlined"
+                />
+              </Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
+                Press Enter in any field to apply
+              </Typography>
             </Box>
           )}
         </Box>
