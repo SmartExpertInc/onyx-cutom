@@ -73,7 +73,7 @@ export default function TextSettings() {
   ];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 m-[5px]">
+    <div className="bg-white rounded-lg border border-gray-200">
       {/* Header with grey background */}
       <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-2">
@@ -118,7 +118,7 @@ export default function TextSettings() {
       </div>
       
       {/* Content area */}
-      <div className="p-4">
+      <div className="p-4 mb-[5px]">
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}
