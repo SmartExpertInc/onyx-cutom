@@ -253,7 +253,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     <div className="benefits-list-slide-template" style={slideStyles}>
       {/* Top section with green background */}
       <div style={{
-        flex: '1',
+        flex: '0 0 396px', // Фиксированная высота для верхней секции
         backgroundColor: themeAccent,
         position: 'relative',
         padding: '40px 60px',
@@ -421,7 +421,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
       {/* Bottom section with white background */}
       <div style={{
-        flex: '0 0 200px',
+        flex: '1',
         backgroundColor: themeBg,
         padding: '40px 60px',
         display: 'flex',
@@ -433,7 +433,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '20px',
-          maxWidth: '800px'
+          maxWidth: '800px',
+          marginBottom: '20px'
         }}>
           {currentBenefits.map((benefit, index) => (
             <div
@@ -480,7 +481,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          marginTop: '20px'
+          marginTop: 'auto'
         }}>
           <div style={{
             width: '16px',
