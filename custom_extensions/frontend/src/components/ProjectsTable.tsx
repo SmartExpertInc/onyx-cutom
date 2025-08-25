@@ -665,7 +665,7 @@ const buildFolderTree = (folders: Folder[]): Folder[] => {
 const getTierColor = (tier?: string): string => {
   switch (tier) {
     case "basic":
-      return "#22c55e"; // green-500
+      return "#3b82f6"; // blue-500
     case "interactive":
       return "#f97316"; // orange-500
     case "advanced":
@@ -674,7 +674,7 @@ const getTierColor = (tier?: string): string => {
       return "#3b82f6"; // blue-500
     // Legacy tier support
     case "starter":
-      return "#22c55e"; // green-500 (mapped to basic)
+      return "#3b82f6"; // blue-500 (mapped to basic)
     case "medium":
       return "#f97316"; // orange-500 (mapped to interactive)
     case "professional":
