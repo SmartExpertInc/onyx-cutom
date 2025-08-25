@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Check, Search, FileText, Upload, Globe, Settings, Plus, FolderOpen, Users, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import SmartDriveFrame from '../../../../components/SmartDrive/SmartDriveFrame';
@@ -15,6 +16,30 @@ interface Connector {
   total_docs_indexed: number;
   access_type: string;
 }
+
+// Connector icon mapping based on source
+const connectorIcons: Record<string, string> = {
+  google_drive: '/GoogleDrive.png',
+  dropbox: '/Dropbox.png',
+  notion: '/Notion.png',
+  slack: '/Slack.png',
+  github: '/Github.png',
+  confluence: '/Confluence.svg',
+  sharepoint: '/Sharepoint.png',
+  onedrive: '/OneDrive.png',
+  s3: '/S3.png',
+  gmail: '/Gmail.png',
+  teams: '/Teams.png',
+  zendesk: '/Zendesk.svg',
+  salesforce: '/Salesforce.png',
+  hubspot: '/HubSpot.png',
+  jira: '/Jira.svg',
+  gitlab: '/Gitlab.png',
+  discord: '/discord.png',
+  airtable: '/Airtable.svg',
+  // Fallback for unknown connectors
+  default: '/file.svg'
+};
 
 // Mock connector data for demonstration
 const mockConnectors: Connector[] = [
@@ -163,6 +188,10 @@ export default function CreateFromSpecificFilesPage() {
     }
   };
 
+  const getConnectorIcon = (source: string) => {
+    return connectorIcons[source] || connectorIcons.default;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F7F7F7] flex items-center justify-center">
@@ -296,8 +325,16 @@ export default function CreateFromSpecificFilesPage() {
                     </div>
 
                     {/* Connector Icon */}
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mb-4">
-                      <FileText className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+                      <Image
+                        src={getConnectorIcon(connector.source)}
+                        alt={`${connector.name} logo`}
+                        width={32}
+                        height={32}
+                        className="object-contain w-8 h-8"
+                        priority={false}
+                        unoptimized={true}
+                      />
                     </div>
 
                     {/* Connector Info */}
@@ -354,7 +391,7 @@ export default function CreateFromSpecificFilesPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-gray-900">
-                      {selectedConnectors.length} {selectedConnectors.length === 1 ? t('interface.connector', 'connector') : t('interface.connectors', 'connectors')}
+                      {selectedConnectors.length} {selectedConnectors.length === 1 ? t('interface.connector', 'connector') : t('interface.connectorPlural', 'connectors')}
                     </p>
                   </div>
                 </div>
@@ -371,7 +408,7 @@ export default function CreateFromSpecificFilesPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-gray-900">
-                      {selectedFiles.length} {selectedFiles.length === 1 ? t('interface.file', 'file') : t('interface.files', 'files')}
+                      {selectedFiles.length} {selectedFiles.length === 1 ? t('interface.file', 'file') : t('interface.filePlural', 'files')}
                     </p>
                   </div>
                 </div>
