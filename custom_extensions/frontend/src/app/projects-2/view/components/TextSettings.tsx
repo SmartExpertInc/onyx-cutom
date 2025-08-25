@@ -68,10 +68,24 @@ export default function TextSettings() {
   // Handle font color button click
   const handleFontColorClick = (event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    setFontColorPickerPosition({
-      x: rect.left,
-      y: rect.bottom + 8
-    });
+    const popupWidth = 280; // Width of the color picker popup
+    const popupHeight = 280; // Approximate height of the color picker popup
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate position to upper right of button
+    let x = rect.right + 8; // 8px gap to the right
+    let y = rect.top - popupHeight - 8; // 8px gap above
+    
+    // Ensure popup stays within viewport
+    if (x + popupWidth > viewportWidth) {
+      x = rect.left - popupWidth - 8; // Position to the left if not enough space on right
+    }
+    if (y < 0) {
+      y = rect.bottom + 8; // Position below if not enough space above
+    }
+    
+    setFontColorPickerPosition({ x, y });
     setShowFontColorPicker(true);
     setShowBackgroundColorPicker(false);
   };
@@ -79,10 +93,24 @@ export default function TextSettings() {
   // Handle background color button click
   const handleBackgroundColorClick = (event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    setBackgroundColorPickerPosition({
-      x: rect.left,
-      y: rect.bottom + 8
-    });
+    const popupWidth = 280; // Width of the color picker popup
+    const popupHeight = 280; // Approximate height of the color picker popup
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate position to upper right of button
+    let x = rect.right + 8; // 8px gap to the right
+    let y = rect.top - popupHeight - 8; // 8px gap above
+    
+    // Ensure popup stays within viewport
+    if (x + popupWidth > viewportWidth) {
+      x = rect.left - popupWidth - 8; // Position to the left if not enough space on right
+    }
+    if (y < 0) {
+      y = rect.bottom + 8; // Position below if not enough space above
+    }
+    
+    setBackgroundColorPickerPosition({ x, y });
     setShowBackgroundColorPicker(true);
     setShowFontColorPicker(false);
   };

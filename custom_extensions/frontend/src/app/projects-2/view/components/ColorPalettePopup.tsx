@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 interface ColorPalettePopupProps {
   isOpen: boolean;
@@ -16,12 +16,24 @@ interface HSB {
   b: number; // 0-100
 }
 
+// ✅ Memoized SB handle (prevents re-creation on each render)
+const SBHandle: React.FC<{ s: number; b: number }> = React.memo(({ s, b }) => (
+  <div
+    className="absolute w-3 h-3 bg-white border-2 border-gray-800 rounded-full pointer-events-none will-change-transform"
+    style={{
+      left: `${s}%`,
+      top: `${100 - b}%`,
+      transform: "translate(-50%, -50%)",
+    }}
+  />
+));
+
 const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   isOpen,
   onClose,
   onColorChange,
-  initialColor = '#ff0000',
-  position = { x: 0, y: 0 }
+  initialColor = "#ff0000",
+  position = { x: 0, y: 0 },
 }) => {
   const [hsb, setHsb] = useState<HSB>({ h: 0, s: 100, b: 100 });
   const [hex, setHex] = useState(initialColor);
@@ -29,7 +41,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const popupRef = useRef<HTMLDivElement>(null);
   const sbRef = useRef<HTMLDivElement>(null);
 
-  // Convert HEX to HSB
+  // --- HEX ↔ HSB conversion helpers ---
   const hexToHsb = (hex: string): HSB => {
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
@@ -40,14 +52,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const diff = max - min;
 
     let h = 0;
-    if (diff === 0) {
-      h = 0;
-    } else if (max === r) {
-      h = ((g - b) / diff) % 6;
-    } else if (max === g) {
-      h = (b - r) / diff + 2;
-    } else {
-      h = (r - g) / diff + 4;
+    if (diff !== 0) {
+      if (max === r) h = ((g - b) / diff) % 6;
+      else if (max === g) h = (b - r) / diff + 2;
+      else h = (r - g) / diff + 4;
     }
     h = Math.round(h * 60);
     if (h < 0) h += 360;
@@ -58,7 +66,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     return { h, s, b: brightness };
   };
 
-  // Convert HSB to HEX
   const hsbToHex = (hsb: HSB): string => {
     const { h, s, b } = hsb;
     const sDecimal = s / 100;
@@ -68,30 +75,44 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const x = c * (1 - Math.abs((h / 60) % 2 - 1));
     const m = bDecimal - c;
 
-    let r = 0, g = 0, blue = 0;
+    let r = 0,
+      g = 0,
+      blue = 0;
 
     if (h >= 0 && h < 60) {
-      r = c; g = x; blue = 0;
+      r = c;
+      g = x;
     } else if (h >= 60 && h < 120) {
-      r = x; g = c; blue = 0;
+      r = x;
+      g = c;
     } else if (h >= 120 && h < 180) {
-      r = 0; g = c; blue = x;
+      g = c;
+      blue = x;
     } else if (h >= 180 && h < 240) {
-      r = 0; g = x; blue = c;
+      g = x;
+      blue = c;
     } else if (h >= 240 && h < 300) {
-      r = x; g = 0; blue = c;
+      r = x;
+      blue = c;
     } else {
-      r = c; g = 0; blue = x;
+      r = c;
+      blue = x;
     }
 
-    const rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0');
-    const gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0');
-    const bHex = Math.round((blue + m) * 255).toString(16).padStart(2, '0');
+    const rHex = Math.round((r + m) * 255)
+      .toString(16)
+      .padStart(2, "0");
+    const gHex = Math.round((g + m) * 255)
+      .toString(16)
+      .padStart(2, "0");
+    const bHex = Math.round((blue + m) * 255)
+      .toString(16)
+      .padStart(2, "0");
 
     return `#${rHex}${gHex}${bHex}`;
   };
 
-  // Initialize color
+  // --- Init ---
   useEffect(() => {
     if (initialColor) {
       const hsbColor = hexToHsb(initialColor);
@@ -100,14 +121,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     }
   }, [initialColor]);
 
-  // Update color when HSB changes
   useEffect(() => {
     const newHex = hsbToHex(hsb);
     setHex(newHex);
     onColorChange(newHex);
   }, [hsb, onColorChange]);
 
-  // Handle HEX input change
+  // --- HEX input handler ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value.match(/^#[0-9A-Fa-f]{6}$/)) {
@@ -119,24 +139,22 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     }
   };
 
-  // Handle Hue slider change
+  // --- Hue slider ---
   const handleHueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHue = parseInt(e.target.value);
-    setHsb(prev => ({ ...prev, h: newHue }));
+    setHsb((prev) => ({ ...prev, h: newHue }));
   };
 
-  // Handle Saturation/Brightness square click/drag
+  // --- SB square ---
   const handleSBClick = useCallback((e: React.MouseEvent) => {
     if (!sbRef.current) return;
-    
     const rect = sbRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-    
-    setHsb(prev => ({
+    setHsb((prev) => ({
       ...prev,
       s: Math.round(x * 100),
-      b: Math.round((1 - y) * 100)
+      b: Math.round((1 - y) * 100),
     }));
   }, []);
 
@@ -145,46 +163,48 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     handleSBClick(e);
   };
 
-  const handleSBMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging && sbRef.current) {
-      const rect = sbRef.current.getBoundingClientRect();
-      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-      
-      setHsb(prev => ({
-        ...prev,
-        s: Math.round(x * 100),
-        b: Math.round((1 - y) * 100)
-      }));
-    }
-  }, [isDragging]);
+  const handleSBMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging && sbRef.current) {
+        const rect = sbRef.current.getBoundingClientRect();
+        const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+        setHsb((prev) => ({
+          ...prev,
+          s: Math.round(x * 100),
+          b: Math.round((1 - y) * 100),
+        }));
+      }
+    },
+    [isDragging]
+  );
 
-  const handleSBMouseUp = () => {
-    setIsDragging(false);
-  };
+  const handleSBMouseUp = () => setIsDragging(false);
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleSBMouseMove);
-      document.addEventListener('mouseup', handleSBMouseUp);
+      document.addEventListener("mousemove", handleSBMouseMove);
+      document.addEventListener("mouseup", handleSBMouseUp);
       return () => {
-        document.removeEventListener('mousemove', handleSBMouseMove);
-        document.removeEventListener('mouseup', handleSBMouseUp);
+        document.removeEventListener("mousemove", handleSBMouseMove);
+        document.removeEventListener("mouseup", handleSBMouseUp);
       };
     }
   }, [isDragging, handleSBMouseMove]);
 
-  // Close popup when clicking outside
+  // --- Close on outside click ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
-
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen, onClose]);
 
@@ -207,16 +227,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     <div
       ref={popupRef}
       className="fixed z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-4 min-w-[280px]"
-      style={{
-        left: position.x,
-        top: position.y,
-      }}
+      style={{ left: position.x, top: position.y }}
     >
       {/* Hue Slider */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Hue
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Hue</label>
         <div className="relative">
           <input
             type="range"
@@ -227,14 +242,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             className="w-full h-8 appearance-none bg-transparent cursor-pointer"
             style={{
               background: hueGradient,
-              borderRadius: '4px',
+              borderRadius: "4px",
             }}
           />
+          {/* ✅ fixed: no conflicting transforms */}
           <div
-            className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white border-2 border-gray-300 rounded-full pointer-events-none"
+            className="absolute top-1/2 w-4 h-4 bg-white border-2 border-gray-300 rounded-full pointer-events-none will-change-transform"
             style={{
               left: `${(hsb.h / 360) * 100}%`,
-              transform: 'translate(-50%, -50%)',
+              transform: "translate(-50%, -50%)",
             }}
           />
         </div>
@@ -248,18 +264,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         <div
           ref={sbRef}
           className="relative w-full h-32 rounded-lg cursor-crosshair border border-gray-300"
-          style={{
-            background: sbGradient,
-          }}
+          style={{ background: sbGradient }}
           onMouseDown={handleSBMouseDown}
         >
-          <div
-            className="absolute w-3 h-3 bg-white border-2 border-gray-800 rounded-full pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
-            style={{
-              left: `${hsb.s}%`,
-              top: `${100 - hsb.b}%`,
-            }}
-          />
+          <SBHandle s={hsb.s} b={hsb.b} />
         </div>
       </div>
 
@@ -284,9 +292,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           className="w-8 h-8 rounded border border-gray-300"
           style={{ backgroundColor: hex }}
         />
-        <span className="text-sm text-gray-600">
-          {hex.toUpperCase()}
-        </span>
+        <span className="text-sm text-gray-600">{hex.toUpperCase()}</span>
       </div>
     </div>
   );
