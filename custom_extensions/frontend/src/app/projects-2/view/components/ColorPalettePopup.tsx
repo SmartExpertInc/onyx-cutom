@@ -302,6 +302,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setRgba(hexToRgba(newHex));
     setHsla(hexToHsla(newHex));
     onColorChange(newHex);
+    // Don't add to recent colors for hue slider - only for saturation/brightness square
   };
 
   // --- Saturation/Brightness square ---
@@ -321,7 +322,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setRgba(hexToRgba(newHex));
     setHsla(hexToHsla(newHex));
     onColorChange(newHex);
-  }, [hsb]);
+    addToRecentColors(newHex); // Add to recent colors when using saturation/brightness square
+  }, [hsb, addToRecentColors]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;

@@ -494,23 +494,25 @@ export default function TextSettings() {
 
             {/* Advanced Settings Content */}
             <div 
-              className={`border-t border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
-                showAdvancedSettings ? 'max-h-96 opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0'
+              className={`border-t border-gray-200 transition-all duration-300 ease-in-out ${
+                showAdvancedSettings ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
               }`}
             >
-              <div className="px-4">
-                <AdvancedSettings
-                  rotation={rotation}
-                  onRotationChange={setRotation}
-                  positionX={positionX}
-                  onPositionXChange={setPositionX}
-                  positionY={positionY}
-                  onPositionYChange={setPositionY}
-                  width={width}
-                  onWidthChange={setWidth}
-                  height={height}
-                  onHeightChange={setHeight}
-                />
+              <div className={`px-4 ${showAdvancedSettings ? 'pt-4 pb-4' : 'pt-0 pb-0'}`}>
+                <div className={`transition-all duration-300 ${showAdvancedSettings ? 'opacity-100' : 'opacity-0'}`}>
+                  <AdvancedSettings
+                    rotation={rotation}
+                    onRotationChange={setRotation}
+                    positionX={positionX}
+                    onPositionXChange={setPositionX}
+                    positionY={positionY}
+                    onPositionYChange={setPositionY}
+                    width={width}
+                    onWidthChange={setWidth}
+                    height={height}
+                    onHeightChange={setHeight}
+                  />
+                </div>
               </div>
             </div>
           </div>
