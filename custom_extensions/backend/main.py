@@ -6686,7 +6686,7 @@ class OfferUpdate(BaseModel):
     manager: Optional[str] = None
     status: Optional[str] = None
     total_hours: Optional[int] = None
-    created_on: Optional[str] = None
+    created_on: Optional[datetime] = None
     # link is auto-generated and not editable
 
 class OfferResponse(OfferBase):
