@@ -48,40 +48,45 @@ export default function AdvancedSettings({
       </div>
 
       {/* Layout */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Layout</span>
+        <div className="flex space-x-3">
+          {/* X input with label as border */}
+          <div className="relative">
+            <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">X</label>
+            <input
+              type="number"
+              value={positionX}
+              onChange={(e) => handleNumberInput(e.target.value, onPositionXChange)}
+              className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              placeholder="0"
+            />
+          </div>
+          
+          {/* Y input with label as border */}
+          <div className="relative">
+            <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Y</label>
+            <input
+              type="number"
+              value={positionY}
+              onChange={(e) => handleNumberInput(e.target.value, onPositionYChange)}
+              className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              placeholder="0"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Width and Height */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">Layout</span>
+          <span className="text-sm font-medium text-gray-700">Size</span>
           <div className="flex space-x-4 text-xs text-gray-500">
-            <span>X</span>
-            <span>Y</span>
             <span>Width</span>
             <span>Height</span>
           </div>
         </div>
         
-        {/* X and Y position */}
-        <div className="flex space-x-2">
-          <div className="flex-1">
-            <input
-              type="number"
-              value={positionX}
-              onChange={(e) => handleNumberInput(e.target.value, onPositionXChange)}
-              className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-              placeholder="0"
-            />
-          </div>
-          <div className="flex-1">
-            <input
-              type="number"
-              value={positionY}
-              onChange={(e) => handleNumberInput(e.target.value, onPositionYChange)}
-              className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-              placeholder="0"
-            />
-          </div>
-        </div>
-
-        {/* Width and Height */}
         <div className="flex space-x-2">
           <div className="flex-1">
             <input
