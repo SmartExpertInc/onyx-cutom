@@ -154,32 +154,90 @@ class ProfessionalPresentationService:
         job = self.jobs[job_id]
         
         try:
-            logger.info(f"Starting presentation processing for job: {job_id}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Starting presentation processing for job: {job_id}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Request details:")
+            logger.info(f"  - Slide URL: {request.slide_url}")
+            logger.info(f"  - Theme: {request.theme}")
+            logger.info(f"  - Duration: {request.duration}s")
+            logger.info(f"  - Quality: {request.quality}")
+            logger.info(f"  - Layout: {request.layout}")
+            logger.info(f"  - Resolution: {request.resolution}")
+            logger.info(f"  - Avatar Code: {request.avatar_code}")
+            logger.info(f"  - Voiceover Texts Count: {len(request.voiceover_texts)}")
+            logger.info(f"  - Slides Data Provided: {bool(request.slides_data)}")
+            
+            if request.slides_data:
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Slides data analysis:")
+                for i, slide in enumerate(request.slides_data):
+                    logger.info(f"  Slide {i+1}:")
+                    logger.info(f"    - Template ID: {slide.get('templateId', 'N/A')}")
+                    logger.info(f"    - Slide ID: {slide.get('slideId', 'N/A')}")
+                    logger.info(f"    - Props Keys: {list(slide.get('props', {}).keys())}")
+                    logger.info(f"    - Title: {slide.get('props', {}).get('title', 'N/A')}")
+                    logger.info(f"    - Subtitle: {slide.get('props', {}).get('subtitle', 'N/A')}")
+                    logger.info(f"    - Content: {slide.get('props', {}).get('content', 'N/A')[:100]}...")
+            
+            if request.voiceover_texts:
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Voiceover texts:")
+                for i, text in enumerate(request.voiceover_texts):
+                    logger.info(f"  Text {i+1}: {text[:100]}...")
+            
             job.status = "processing"
             job.progress = 5.0
             
-            # Step 1: Capture slide video
-            logger.info(f"Step 1: Generating clean slide video for job {job_id}")
+            # Step 1: Generate clean slide video
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job {job_id}")
             job.progress = 10.0
             
             # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
             try:
                 # Use actual slide data if provided, otherwise extract from URL as fallback
                 if request.slides_data and len(request.slides_data) > 0:
-                    logger.info(f"Using provided slide data with {len(request.slides_data)} slides")
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Using provided slide data with {len(request.slides_data)} slides")
                     slides_data = request.slides_data
+                    
+                    # Detailed logging of slide data structure
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Detailed slide data analysis:")
+                    for i, slide in enumerate(slides_data):
+                        logger.info(f"  📄 Slide {i+1} Details:")
+                        logger.info(f"    - Template ID: {slide.get('templateId', 'N/A')}")
+                        logger.info(f"    - Slide ID: {slide.get('slideId', 'N/A')}")
+                        logger.info(f"    - Props Type: {type(slide.get('props', {}))}")
+                        logger.info(f"    - Props Keys: {list(slide.get('props', {}).keys())}")
+                        
+                        props = slide.get('props', {})
+                        logger.info(f"    - Title: '{props.get('title', 'N/A')}'")
+                        logger.info(f"    - Subtitle: '{props.get('subtitle', 'N/A')}'")
+                        logger.info(f"    - Content: '{props.get('content', 'N/A')[:200]}...'")
+                        logger.info(f"    - Voiceover Text: '{props.get('voiceoverText', 'N/A')[:200]}...'")
+                        
+                        # Log any additional properties
+                        for key, value in props.items():
+                            if key not in ['title', 'subtitle', 'content', 'voiceoverText']:
+                                if isinstance(value, str) and len(value) > 100:
+                                    logger.info(f"    - {key}: '{value[:100]}...'")
+                                else:
+                                    logger.info(f"    - {key}: {value}")
                 else:
-                    logger.warning("No slide data provided, trying to extract from URL as fallback")
+                    logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
                     # Try to extract slide props from URL or use fallback
                     slide_props = await self._extract_slide_props_from_url(request.slide_url)
                     slides_data = [slide_props]  # Convert single slide to list
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
                 
                 # Import the clean video generation service
                 from .clean_video_generation_service import clean_video_generation_service
                 
                 # Generate clean slide video with actual slide data
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Calling clean video generation service:")
+                logger.info(f"  - Slides count: {len(slides_data)}")
+                logger.info(f"  - Theme: {request.theme or 'dark-purple'}")
+                logger.info(f"  - Duration: {request.duration}")
+                logger.info(f"  - Quality: {request.quality}")
+                
                 if len(slides_data) == 1:
                     # Single slide generation
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Using single slide generation")
                     result = await clean_video_generation_service.generate_avatar_slide_video(
                         slide_props=slides_data[0],
                         theme=request.theme or "dark-purple",
@@ -188,6 +246,7 @@ class ProfessionalPresentationService:
                     )
                 else:
                     # Multiple slides generation
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Using multiple slides generation")
                     result = await clean_video_generation_service.generate_presentation_video(
                         slides_props=slides_data,
                         theme=request.theme or "dark-purple", 
@@ -195,9 +254,16 @@ class ProfessionalPresentationService:
                         quality=request.quality
                     )
                 
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Clean video generation result:")
+                logger.info(f"  - Success: {result.get('success', False)}")
+                logger.info(f"  - Video Path: {result.get('video_path', 'N/A')}")
+                logger.info(f"  - File Size: {result.get('file_size', 'N/A')}")
+                logger.info(f"  - Duration: {result.get('duration', 'N/A')}")
+                logger.info(f"  - Error: {result.get('error', 'None')}")
+                
                 if result["success"]:
                     slide_video_path = result["video_path"]
-                    logger.info(f"Clean video generation successful: {slide_video_path}")
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Clean video generation successful: {slide_video_path}")
                 else:
                     logger.error(f"Clean video generation failed: {result['error']}")
                     raise Exception(f"Video generation failed: {result['error']}")
@@ -209,7 +275,15 @@ class ProfessionalPresentationService:
             job.progress = 30.0
             
             # Step 2: Generate avatar video via Elai API
-            logger.info(f"Step 2: Generating avatar video for job {job_id}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job {job_id}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
+            logger.info(f"  - Voiceover texts count: {len(request.voiceover_texts)}")
+            logger.info(f"  - Avatar code: {request.avatar_code}")
+            logger.info(f"  - Duration: {request.duration}")
+            
+            for i, text in enumerate(request.voiceover_texts):
+                logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
+            
             job.progress = 40.0
             
             avatar_video_path = await self._generate_avatar_video(
@@ -219,14 +293,25 @@ class ProfessionalPresentationService:
             )
             job.progress = 60.0
             
-            logger.info(f"Avatar video generated: {avatar_video_path}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar video generated: {avatar_video_path}")
             
             # Step 3: Compose final video
-            logger.info(f"Step 3: Composing final video for job {job_id}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job {job_id}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
+            logger.info(f"  - Slide video path: {slide_video_path}")
+            logger.info(f"  - Avatar video path: {avatar_video_path}")
+            logger.info(f"  - Layout: {request.layout}")
+            logger.info(f"  - Resolution: {request.resolution}")
+            logger.info(f"  - Quality: {request.quality}")
+            
             job.progress = 70.0
             
             output_filename = f"presentation_{job_id}.mp4"
             output_path = self.output_dir / output_filename
+            
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Output configuration:")
+            logger.info(f"  - Output filename: {output_filename}")
+            logger.info(f"  - Output path: {output_path}")
             
             composition_config = CompositionConfig(
                 output_path=str(output_path),

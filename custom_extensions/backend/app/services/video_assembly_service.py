@@ -187,17 +187,35 @@ class VideoAssemblyService:
         temp_files = []
         
         try:
-            logger.info(f"Creating video from {len(slides_props)} slides")
+            logger.info(f"🎬 [VIDEO_ASSEMBLY] Creating video from {len(slides_props)} slides")
+            logger.info(f"🎬 [VIDEO_ASSEMBLY] Parameters:")
+            logger.info(f"  - Theme: {theme}")
+            logger.info(f"  - Output path: {output_path}")
+            logger.info(f"  - Slide duration: {slide_duration}")
+            logger.info(f"  - Quality: {quality}")
             
             # Import services (Chromium-free)
             from .html_to_image_service import html_to_image_service
             
             # Generate PNG for each slide
             for i, slide_props in enumerate(slides_props):
+                logger.info(f"🎬 [VIDEO_ASSEMBLY] Processing slide {i+1}/{len(slides_props)}")
+                
                 template_id = slide_props.get("templateId")
                 if not template_id:
-                    logger.error(f"Slide {i} missing templateId")
+                    logger.error(f"🎬 [VIDEO_ASSEMBLY] Slide {i} missing templateId")
                     continue
+                
+                logger.info(f"🎬 [VIDEO_ASSEMBLY] Slide {i+1} details:")
+                logger.info(f"  - Template ID: {template_id}")
+                logger.info(f"  - Props keys: {list(slide_props.keys())}")
+                
+                # Log slide props content
+                for key, value in slide_props.items():
+                    if isinstance(value, str):
+                        logger.info(f"  - {key}: '{value[:200]}...'")
+                    else:
+                        logger.info(f"  - {key}: {value}")
                 
                 # Create temporary PNG file
                 temp_png = tempfile.NamedTemporaryFile(
@@ -206,6 +224,8 @@ class VideoAssemblyService:
                 )
                 temp_png.close()
                 temp_files.append(temp_png.name)
+                
+                logger.info(f"🎬 [VIDEO_ASSEMBLY] Converting slide {i+1} to PNG: {temp_png.name}")
                 
                 # Convert slide to PNG (Chromium-free)
                 success = await html_to_image_service.convert_slide_to_png(
@@ -217,21 +237,38 @@ class VideoAssemblyService:
                 
                 if success:
                     png_paths.append(temp_png.name)
-                    logger.info(f"Generated PNG for slide {i}: {template_id}")
+                    logger.info(f"🎬 [VIDEO_ASSEMBLY] Generated PNG for slide {i+1}: {template_id}")
+                    
+                    # Log PNG file details
+                    if os.path.exists(temp_png.name):
+                        file_size = os.path.getsize(temp_png.name)
+                        logger.info(f"🎬 [VIDEO_ASSEMBLY] PNG file size: {file_size} bytes")
                 else:
-                    logger.error(f"Failed to generate PNG for slide {i}: {template_id}")
+                    logger.error(f"🎬 [VIDEO_ASSEMBLY] Failed to generate PNG for slide {i+1}: {template_id}")
             
             if not png_paths:
-                logger.error("No PNGs generated successfully")
+                logger.error("🎬 [VIDEO_ASSEMBLY] No PNGs generated successfully")
                 return False
             
+            logger.info(f"🎬 [VIDEO_ASSEMBLY] Successfully generated {len(png_paths)} PNG files")
+            logger.info(f"🎬 [VIDEO_ASSEMBLY] PNG files: {png_paths}")
+            
             # Create video from PNGs
+            logger.info(f"🎬 [VIDEO_ASSEMBLY] Creating video from PNGs...")
             success = await self.create_video_from_pngs(
                 png_paths=png_paths,
                 output_path=output_path,
                 slide_duration=slide_duration,
                 quality=quality
             )
+            
+            if success:
+                logger.info(f"🎬 [VIDEO_ASSEMBLY] Video creation successful: {output_path}")
+                if os.path.exists(output_path):
+                    file_size = os.path.getsize(output_path)
+                    logger.info(f"🎬 [VIDEO_ASSEMBLY] Video file size: {file_size} bytes")
+            else:
+                logger.error(f"🎬 [VIDEO_ASSEMBLY] Video creation failed")
             
             return success
             

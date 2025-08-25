@@ -297,19 +297,48 @@ class HTMLToImageService:
             True if successful, False otherwise
         """
         try:
+            logger.info(f"🎬 [HTML_TO_IMAGE] Converting slide to PNG")
+            logger.info(f"🎬 [HTML_TO_IMAGE] Parameters:")
+            logger.info(f"  - Template ID: {template_id}")
+            logger.info(f"  - Theme: {theme}")
+            logger.info(f"  - Output path: {output_path}")
+            logger.info(f"  - Props keys: {list(props.keys())}")
+            
+            # Log detailed props content
+            for key, value in props.items():
+                if isinstance(value, str):
+                    logger.info(f"  - {key}: '{value[:200]}...'")
+                else:
+                    logger.info(f"  - {key}: {value}")
+            
             # Import the HTML template service
             from .html_template_service import html_template_service
             
             # Generate clean HTML
+            logger.info(f"🎬 [HTML_TO_IMAGE] Generating HTML content...")
             html_content = html_template_service.generate_clean_html_for_video(
                 template_id, props, theme
             )
             
+            logger.info(f"🎬 [HTML_TO_IMAGE] HTML content generated")
+            logger.info(f"🎬 [HTML_TO_IMAGE] HTML content length: {len(html_content)} characters")
+            
             # Convert to PNG
-            return await self.convert_html_to_png(html_content, output_path, template_id)
+            logger.info(f"🎬 [HTML_TO_IMAGE] Converting HTML to PNG...")
+            success = await self.convert_html_to_png(html_content, output_path, template_id)
+            
+            if success:
+                logger.info(f"🎬 [HTML_TO_IMAGE] PNG conversion successful: {output_path}")
+                if os.path.exists(output_path):
+                    file_size = os.path.getsize(output_path)
+                    logger.info(f"🎬 [HTML_TO_IMAGE] PNG file size: {file_size} bytes")
+            else:
+                logger.error(f"🎬 [HTML_TO_IMAGE] PNG conversion failed")
+            
+            return success
             
         except Exception as e:
-            logger.error(f"Failed to convert slide to PNG: {str(e)}")
+            logger.error(f"🎬 [HTML_TO_IMAGE] Failed to convert slide to PNG: {str(e)}")
             return False
     
     def get_status(self) -> Dict[str, Any]:

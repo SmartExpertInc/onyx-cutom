@@ -51,7 +51,17 @@ class HTMLTemplateService:
             Generated HTML string
         """
         try:
-            logger.info(f"Generating HTML for template: {template_id}, theme: {theme}")
+            logger.info(f"🎬 [HTML_TEMPLATE] Generating HTML for template: {template_id}, theme: {theme}")
+            logger.info(f"🎬 [HTML_TEMPLATE] Props received:")
+            logger.info(f"  - Props type: {type(props)}")
+            logger.info(f"  - Props keys: {list(props.keys())}")
+            
+            # Log detailed props content
+            for key, value in props.items():
+                if isinstance(value, str):
+                    logger.info(f"  - {key}: '{value[:200]}...'")
+                else:
+                    logger.info(f"  - {key}: {value}")
             
             # Load the avatar slide template
             template = self.jinja_env.get_template("avatar_slide_template.html")
@@ -63,13 +73,21 @@ class HTMLTemplateService:
                 **props  # Spread all props into context
             }
             
-            # Log the props being used
-            logger.info(f"Template props: {list(props.keys())}")
+            logger.info(f"🎬 [HTML_TEMPLATE] Context data prepared:")
+            logger.info(f"  - Template ID: {template_id}")
+            logger.info(f"  - Theme: {theme}")
+            logger.info(f"  - Context keys: {list(context_data.keys())}")
             
             # Render the template
             html_content = template.render(**context_data)
             
-            logger.info(f"Successfully generated HTML for {template_id}")
+            logger.info(f"🎬 [HTML_TEMPLATE] HTML content generated successfully")
+            logger.info(f"🎬 [HTML_TEMPLATE] HTML content length: {len(html_content)} characters")
+            
+            # Log a snippet of the generated HTML for debugging
+            html_snippet = html_content[:500] + "..." if len(html_content) > 500 else html_content
+            logger.info(f"🎬 [HTML_TEMPLATE] HTML snippet: {html_snippet}")
+            
             return html_content
             
         except Exception as e:

@@ -78,8 +78,24 @@ class ElaiVideoGenerationService:
     
     async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
         """
-        Create a video from voiceover texts and avatar code.
+        Create video from voiceover texts using Elai API.
+        
+        Args:
+            project_name: Name of the project
+            voiceover_texts: List of voiceover texts
+            avatar_code: Avatar code to use
+            
+        Returns:
+            Dict containing result with success status and video ID
         """
+        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Starting video creation from texts")
+        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Parameters:")
+        logger.info(f"  - Project name: {project_name}")
+        logger.info(f"  - Voiceover texts count: {len(voiceover_texts)}")
+        logger.info(f"  - Avatar code: {avatar_code}")
+        
+        for i, text in enumerate(voiceover_texts):
+            logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
         if not self.client:
             return {
                 "success": False,
@@ -143,21 +159,31 @@ class ElaiVideoGenerationService:
                 }
             
             # Find the specified avatar
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Searching for avatar with code: {avatar_code}")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Available avatars count: {len(avatars_response['avatars'])}")
+            
             avatar = None
             for av in avatars_response["avatars"]:
                 if av.get("code") == avatar_code:
                     avatar = av
+                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
                     break
             
             if not avatar:
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Avatar with code '{avatar_code}' not found")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Available avatar codes: {[av.get('code') for av in avatars_response['avatars'][:10]]}...")
                 return {
                     "success": False,
                     "error": f"Avatar with code '{avatar_code}' not found"
                 }
             
             # Prepare slides for Elai API
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing {len(cleaned_texts)} slides for Elai API")
+            
             elai_slides = []
             for i, voiceover_text in enumerate(cleaned_texts):
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Creating slide {i+1} with text: {voiceover_text[:100]}...")
+                
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
@@ -197,6 +223,14 @@ class ElaiVideoGenerationService:
                 elai_slides.append(elai_slide)
             
             # Prepare video request
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request configuration:")
+            logger.info(f"  - Name: {project_name}")
+            logger.info(f"  - Slides count: {len(elai_slides)}")
+            logger.info(f"  - Format: 16_9")
+            logger.info(f"  - Resolution: FullHD")
+            logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
+            
             video_request = {
                 "name": project_name,
                 "slides": elai_slides,
@@ -210,7 +244,12 @@ class ElaiVideoGenerationService:
                 }
             }
             
-            logger.info(f"Creating video with {len(elai_slides)} slides")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
+            logger.info(f"  {json.dumps(video_request, indent=2)}")
+            
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Making API call to Elai")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API endpoint: {self.api_base}/videos")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Headers: {self.headers}")
             
             # Create video
             response = await self.client.post(
@@ -219,17 +258,28 @@ class ElaiVideoGenerationService:
                 json=video_request
             )
             
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response status: {response.status_code}")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response headers: {dict(response.headers)}")
+            
             if response.is_success:
                 result = response.json()
                 video_id = result.get("_id")
-                logger.info(f"Video created successfully: {video_id}")
+                
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response successful")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video data received:")
+                logger.info(f"  - Video ID: {video_id}")
+                logger.info(f"  - Full response: {json.dumps(result, indent=2)}")
+                
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video created successfully: {video_id}")
                 return {
                     "success": True,
                     "videoId": video_id,
                     "message": "Video created successfully"
                 }
             else:
-                logger.error(f"Failed to create video: {response.status_code} - {response.text}")
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] API request failed")
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Status code: {response.status_code}")
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Response text: {response.text}")
                 return {
                     "success": False,
                     "error": f"Video creation failed: {response.status_code} - {response.text}"
