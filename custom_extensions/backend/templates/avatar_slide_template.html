@@ -116,7 +116,7 @@
             background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
-            alignItems: center;
+            align-items: center;
             justify-content: center;
             padding: 60px;
             position: relative;
@@ -126,7 +126,7 @@
         .avatar-checklist .content-container {
             display: flex;
             flex-direction: row;
-            alignItems: center;
+            align-items: center;
             justify-content: space-between;
             width: 100%;
             max-width: 1800px;
@@ -139,7 +139,7 @@
             flex: 1;
             display: flex;
             justify-content: center;
-            alignItems: flex-end;
+            align-items: flex-end;
             z-index: 2;
             position: relative;
             height: 100%;
@@ -149,7 +149,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            alignItems: flex-start;
+            align-items: flex-start;
             gap: 36px;
             z-index: 2;
             position: relative;
@@ -174,7 +174,7 @@
         
         .avatar-checklist .checklist-item {
             display: flex;
-            alignItems: center;
+            align-items: center;
             gap: 24px;
             font-size: 1.8rem;
             font-family: var(--content-font);
@@ -252,7 +252,7 @@
             width: 60%;
             height: 100%;
             display: flex;
-            alignItems: center;
+            align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
@@ -280,7 +280,7 @@
         
         .avatar-crm .checklist-item {
             display: flex;
-            alignItems: center;
+            align-items: center;
             margin-bottom: 24px;
             font-size: 24px;
             color: var(--content-color);
@@ -311,9 +311,10 @@
         .avatar-service .content-container {
             display: flex;
             flex-direction: row;
-            alignItems: center;
+            align-items: center;    
             justify-content: space-between;
             width: 100%;
+            height: 100%;
             max-width: 1800px;
             gap: 90px;
             position: relative;
@@ -332,7 +333,7 @@
             flex: 1;
             display: flex;
             justify-content: center;
-            alignItems: flex-end;
+            align-items: flex-end;
             z-index: 2;
             position: relative;
             height: 100%;
@@ -386,7 +387,7 @@
             background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
-            alignItems: center;
+            align-items: center;
             justify-content: center;
             padding: 60px;
         }
@@ -394,7 +395,7 @@
         .avatar-buttons .content-container {
             display: flex;
             flex-direction: row;
-            alignItems: center;
+            align-items: center;
             justify-content: space-between;
             width: 100%;
             max-width: 1800px;
@@ -405,7 +406,7 @@
             flex: 1;
             display: flex;
             justify-content: center;
-            alignItems: flex-end;
+            align-items: flex-end;
             position: relative;
             height: 100%;
         }
@@ -414,7 +415,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            alignItems: center;
+            align-items: center;
             gap: 48px;
         }
         
@@ -452,7 +453,7 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
             min-height: 90px;
             display: flex;
-            alignItems: center;
+            align-items: center;
             justify-content: center;
         }
         
@@ -463,7 +464,7 @@
             background-color: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
-            alignItems: center;
+            align-items: center;
             justify-content: center;
             padding: 60px;
         }
@@ -471,7 +472,7 @@
         .avatar-steps .content-container {
             display: flex;
             flex-direction: row;
-            alignItems: center;
+            align-items: center;
             justify-content: space-between;
             width: 100%;
             max-width: 1800px;
@@ -482,7 +483,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            alignItems: flex-start;
+            align-items: flex-start;
             gap: 48px;
         }
         
@@ -490,7 +491,7 @@
             flex: 1;
             display: flex;
             justify-content: center;
-            alignItems: flex-end;
+            align-items: flex-end;
             position: relative;
             height: 100%;
         }
@@ -508,7 +509,7 @@
         .avatar-steps .steps-container {
             display: flex;
             flex-direction: column;
-            alignItems: center;
+            align-items: center;
             gap: 24px;
             width: 100%;
             max-width: 750px;
@@ -528,7 +529,7 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
             min-height: 90px;
             display: flex;
-            alignItems: center;
+            align-items: center;
             justify-content: center;
             width: 100%;
             max-width: 600px;
@@ -541,7 +542,7 @@
             margin: 12px 0;
             font-weight: bold;
             display: flex;
-            alignItems: center;
+            align-items: center;
             justify-content: center;
             width: 100%;
         }
@@ -592,7 +593,7 @@
                         <div class="right-content">
                             <!-- Title with question mark -->
                             {% if title %}
-                                <div style="display: flex; alignItems: center; gap: 18px;">
+                                <div style="display: flex; align-items: center; gap: 18px;">
                                     <span class="icon question-icon">?</span>
                                     <h1 class="slide-title">{{title}}</h1>
                                 </div>
