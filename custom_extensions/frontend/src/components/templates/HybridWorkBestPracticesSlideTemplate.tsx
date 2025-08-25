@@ -247,7 +247,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         height: '100%',
         backgroundColor: themeBg,
         display: 'flex',
-        padding: '40px 60px'
+        padding: '40px 60px',
+        paddingRight: '0px'
       }}>
         {/* Left column */}
         <div style={{
@@ -333,7 +334,9 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             height: '120px',
             borderRadius: '50%',
             overflow: 'hidden',
-            alignSelf: 'flex-start'
+            alignSelf: 'flex-start',
+            position: 'absolute',
+            bottom: '15px',
           }}>
             <ClickableImagePlaceholder
               imagePath={profileImagePath}
@@ -363,7 +366,6 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '30px',
             marginBottom: '30px'
           }}>
             {currentPractices.map((practice, index) => (
