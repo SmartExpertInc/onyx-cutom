@@ -219,8 +219,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       input.onchange = (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (file) {
-          // Здесь должна быть логика загрузки файла
-          // Пока что просто создаем URL для предварительного просмотра
+          // Создаем URL для предварительного просмотра
           const url = URL.createObjectURL(file);
           handleCompanyLogoUploaded(url);
         }
@@ -322,7 +321,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '16px',
+                fontSize: '32px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -337,7 +336,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '32px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',
@@ -365,7 +364,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '16px',
+                fontSize: '32px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -380,7 +379,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '32px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',
@@ -480,20 +479,20 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           color: themeContent
         }}>
           {currentCompanyLogoPath ? (
-            <div style={{
-              width: '60px',
-              height: '30px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <ClickableImagePlaceholder
-                imagePath={currentCompanyLogoPath}
-                onImageUploaded={handleCompanyLogoUploaded}
-                size="SMALL"
-                position="CENTER"
-                description="Company logo"
-                isEditable={isEditable}
+            <div 
+              style={{
+                width: '60px',
+                height: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: isEditable ? 'pointer' : 'default'
+              }}
+              onClick={isEditable ? handleCompanyLogoClick : undefined}
+            >
+              <img
+                src={currentCompanyLogoPath}
+                alt="Company logo"
                 style={{
                   maxWidth: '100%',
                   maxHeight: '100%',

@@ -283,11 +283,11 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             <div style={{
               padding: '30px',
               backgroundColor: tip.isHighlighted ? themeAccent : themeTitle,
-              borderRadius: '10px',
               minHeight: '200px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              zIndex: '2'
             }}>
               <div style={{
                 fontSize: '25px',
@@ -332,14 +332,17 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             <div style={{
               padding: '20px',
               backgroundColor: themeAccent,
-              borderRadius: '10px',
               minHeight: '80px',
+              height: '203px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              position: 'relative',
+              top: '-203px',
+              zIndex: '1',
               marginTop: '-10px', // Makes it overlap slightly
-              marginLeft: '20px', // Makes it extend out to the right
-              marginRight: '-20px' // Makes it extend out to the right
+              marginLeft: '16px', // Makes it extend out to the right
+              marginRight: '-11px' // Makes it extend out to the right
             }}>
               <div style={{
                 fontSize: '18px',
