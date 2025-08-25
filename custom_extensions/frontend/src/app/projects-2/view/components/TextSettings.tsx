@@ -473,14 +473,14 @@ export default function TextSettings() {
             </div>
 
             {/* Advanced Settings Toggle */}
-            <div className={`flex items-center justify-between ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
-              <span className="text-xs text-gray-500">
-                {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
-              </span>
+            <div className={`flex flex-col items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
               <button
                 onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-                className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 transition-colors"
+                className="flex flex-col items-center space-y-1 text-gray-600 hover:text-gray-800 transition-colors"
               >
+                <span className="text-xs text-gray-500">
+                  {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
+                </span>
                 <svg 
                   className={`w-4 h-4 transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
                   fill="none" 
@@ -493,7 +493,7 @@ export default function TextSettings() {
             </div>
 
             {/* Advanced Settings Content */}
-            <div className="border-t border-gray-200 h-24">
+            <div className="h-24">
               <div className={`px-4 transition-all duration-300 ease-in-out ${
                 showAdvancedSettings ? 'pt-4 pb-4' : 'pt-0 pb-0'
               } overflow-hidden h-full`}>
