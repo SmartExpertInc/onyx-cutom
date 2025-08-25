@@ -426,7 +426,7 @@ export default function TextSettings() {
                 showAdvancedSettings ? 'max-h-96 opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0'
               }`}
             >
-              <div className="px-4">
+              <div className="px-4 pb-[5px]">
                 <AdvancedSettings
                   rotation={rotation}
                   onRotationChange={setRotation}
