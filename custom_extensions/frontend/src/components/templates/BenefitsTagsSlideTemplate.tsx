@@ -448,32 +448,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         gap: '10px'
       }}>
         <div style={{
-          width: '30px',
-          height: '30px',
-          border: `2px solid ${themeContent}`,
-          borderRadius: '50%',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{
-            width: '12px',
-            height: '2px',
-            backgroundColor: themeContent,
-            position: 'absolute'
-          }} />
-          <div style={{
-            width: '2px',
-            height: '12px',
-            backgroundColor: themeContent,
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)'
-          }} />
-        </div>
-        <div style={{
           fontSize: '14px',
           fontWeight: '300',
           color: themeContent
@@ -501,8 +475,13 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               />
             </div>
           ) : (
-            <div
-              onClick={handleCompanyLogoClick}
+            <ClickableImagePlaceholder
+              imagePath=""
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
               style={{
                 fontSize: '14px',
                 fontWeight: '300',
@@ -510,9 +489,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}
-            >
-              Company logo
-            </div>
+            />
           )}
         </div>
       </div>

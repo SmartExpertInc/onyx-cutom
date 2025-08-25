@@ -290,7 +290,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               zIndex: '2'
             }}>
               <div style={{
-                fontSize: '25px',
+                fontSize: '27px',
                 fontWeight: '500',
                 color: themeBg,
                 lineHeight: '1.4',
@@ -304,7 +304,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     multiline={true}
                     className="tip-editor"
                     style={{
-                      fontSize: '25px',
+                      fontSize: '27px',
                       fontWeight: '500',
                       color: themeBg,
                       lineHeight: '1.4',
