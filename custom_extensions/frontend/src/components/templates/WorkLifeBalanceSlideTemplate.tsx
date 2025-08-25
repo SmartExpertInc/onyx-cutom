@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { WorkLifeBalanceSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -144,6 +145,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const [editingContent, setEditingContent] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   // Get theme colors
   const currentTheme = getSlideTheme(theme);
@@ -232,64 +234,49 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               description="Company logo"
               isEditable={isEditable}
               style={{
-                width: '30px',
                 height: '30px',
-                borderRadius: '50%',
-                objectFit: 'cover'
-              }}
-            />
-          ) : (
-            // Show default logo design
-            <div style={{
-              width: '30px',
-              height: '30px',
-              border: '2px solid white',
-              borderRadius: '50%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: isEditable ? 'pointer' : 'default'
-            }}
-            onClick={() => isEditable && handleLogoUploaded('')}
-            >
-              <div style={{
-                width: '12px',
-                height: '2px',
-                backgroundColor: 'white',
-                position: 'absolute'
-              }} />
-              <div style={{
-                width: '2px',
-                height: '12px',
-                backgroundColor: 'white',
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)'
-              }} />
-            </div>
-          )}
-          
-          {/* Logo text or image */}
-          {logoPath ? (
-            // Show uploaded logo image instead of text
-            <ClickableImagePlaceholder
-              imagePath={logoPath}
-              onImageUploaded={handleLogoUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo text"
-              isEditable={isEditable}
-              style={{
-                height: '20px',
-                maxWidth: '100px',
+                maxWidth: '120px',
                 objectFit: 'contain'
               }}
             />
           ) : (
-            // Show default text
-            <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '30px',
+                height: '30px',
+                border: '2px solid white',
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '2px',
+                  backgroundColor: 'white',
+                  position: 'absolute'
+                }} />
+                <div style={{
+                  width: '2px',
+                  height: '12px',
+                  backgroundColor: 'white',
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }} />
+              </div>
+              <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
+            </div>
           )}
         </div>
 
@@ -425,6 +412,19 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           />
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath) => {
+            handleLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
