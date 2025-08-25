@@ -163,6 +163,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'end',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -237,7 +238,9 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           fontWeight: 'bold',
           color: themeTitle,
           lineHeight: '1.1',
-          marginTop: '40px'
+          marginTop: '40px',
+          position: 'absolute',
+          marginLeft: '-332%'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -271,7 +274,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           height: '120px',
           borderRadius: '50%',
           overflow: 'hidden',
-          backgroundColor: themeAccent
+          position: 'absolute',
+          left: '60px',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -295,7 +299,9 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
-        maxWidth: '600px'
+        maxWidth: '600px',
+        position: 'relative',
+        left: '-43%'
       }}>
         {/* First row */}
         <div style={{
@@ -387,7 +393,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         <div style={{
           display: 'flex',
           gap: '20px',
-          marginLeft: '20px'
         }}>
           {currentTags.slice(5).map((tag, index) => (
             <div
