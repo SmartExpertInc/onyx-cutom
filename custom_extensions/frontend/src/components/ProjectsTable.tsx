@@ -5388,8 +5388,8 @@ const OffersPopup: React.FC<{
           <button
             onClick={() => {
               // Trigger the same event as the client row create offer button
-              window.dispatchEvent(new CustomEvent('openOfferModal', { 
-                detail: { client: client } 
+              window.dispatchEvent(new CustomEvent('openCreateOfferModal', { 
+                detail: { folder: client } 
               }));
               onClose();
             }}
@@ -5400,7 +5400,7 @@ const OffersPopup: React.FC<{
         </div>
 
         {/* Content */}
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-64 overflow-y-auto">
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
