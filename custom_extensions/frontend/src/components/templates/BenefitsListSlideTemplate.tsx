@@ -265,7 +265,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         <div>
           {/* Subtitle */}
           <div style={{
-            fontSize: '14px',
+            fontSize: '25px',
             color: themeBg,
             marginBottom: '10px',
             fontWeight: '300'
@@ -277,7 +277,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleSubtitleCancel}
                 className="benefits-subtitle-editor"
                 style={{
-                  fontSize: '14px',
+                  fontSize: '25px',
                   color: themeBg,
                   fontWeight: '300'
                 }}
@@ -298,7 +298,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           {/* Main title */}
           <div style={{
             fontSize: '48px',
-            fontWeight: 'bold',
+            fontWeight: '',
             color: themeBg,
             marginBottom: '20px',
             lineHeight: '1.1'
@@ -311,7 +311,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 className="benefits-title-editor"
                 style={{
                   fontSize: '48px',
-                  fontWeight: 'bold',
+                  fontWeight: '',
                   color: themeBg,
                   lineHeight: '1.1'
                 }}
@@ -331,10 +331,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Description */}
           <div style={{
-            fontSize: '18px',
+            fontSize: '22px',
             color: themeBg,
             lineHeight: '1.4',
-            maxWidth: '600px'
+            maxWidth: '545px'
           }}>
             {isEditable && editingDescription ? (
               <InlineEditor
@@ -373,8 +373,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             <div
               key={i}
               style={{
-                width: '30px',
-                height: '30px',
+                width: '45px',
+                height: '45px',
                 borderRadius: '50%',
                 border: `2px solid ${themeBg}`,
                 backgroundColor: i + 1 === currentStep ? themeBg : 'transparent',
@@ -382,8 +382,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: i + 1 === currentStep ? themeAccent : themeBg,
-                fontSize: '14px',
-                fontWeight: 'bold'
+                fontSize: '25px',
+                fontWeight: ''
               }}
             >
               {i + 1}
@@ -490,7 +490,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             transform: 'rotate(45deg)'
           }} />
           <div style={{
-            fontSize: '14px',
+            fontSize: '25px',
             color: themeContent,
             fontWeight: '300'
           }}>
@@ -501,7 +501,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
                 style={{
-                  fontSize: '14px',
+                  fontSize: '25px',
                   color: themeContent,
                   fontWeight: '300'
                 }}

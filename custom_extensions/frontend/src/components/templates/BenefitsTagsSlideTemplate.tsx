@@ -226,8 +226,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '48px',
-          fontWeight: 'bold',
+          fontSize: '55px',
           color: themeTitle,
           lineHeight: '1.1',
           marginTop: '40px'
@@ -239,8 +238,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '55px',
                 color: themeTitle,
                 lineHeight: '1.1'
               }}
@@ -431,8 +429,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         gap: '10px'
       }}>
         <div style={{
-          width: '30px',
-          height: '30px',
+          width: '45px',
+          height: '45px',
           border: `2px solid ${themeContent}`,
           borderRadius: '50%',
           position: 'relative',
