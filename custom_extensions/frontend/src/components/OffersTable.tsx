@@ -246,9 +246,11 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     }
   };
 
-  // Format date
+  // Format date with locale awareness
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    // Get the current language from context
+    const locale = t('interface.locale', 'en-US'); // Add locale to translations
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -862,6 +864,22 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
               />
             </div>
             
+            {/* Total Hours field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('interface.totalHours', 'Total Hours')} *
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={formData.total_hours}
+                onChange={(e) => setFormData({...formData, total_hours: parseFloat(e.target.value) || 0})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                required
+              />
+            </div>
+            
             {/* Status dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -883,7 +901,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
                 <option value="Archived">{t('interface.archived', 'Archived')}</option>
               </select>
-                          </div>
+            </div>
 
               {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">

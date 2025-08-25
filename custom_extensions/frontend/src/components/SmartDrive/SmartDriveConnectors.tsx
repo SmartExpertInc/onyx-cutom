@@ -556,12 +556,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {/* Smart Drive Browser Section */}
       <div className="mb-8">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">{t('interface.smartDriveBrowser', 'Smart Drive Browser')}</h2>
-              <p className="text-sm text-gray-600 mt-1">{t('interface.browseAndManageFiles', 'Browse and manage your cloud files')}</p>
-            </div>
-          </div>
           <SmartDriveFrame />
         </div>
       </div>
@@ -612,7 +606,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                      }}
                      className="flex-1 text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
                    >
-                     Connect
+                     {t('interface.connect', 'Connect')}
                    </button>
 
                    {hasConnectors && (
@@ -626,7 +620,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                              }}
                              className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1"
                            >
-                             Manage
+                             {t('interface.manage', 'Manage')}
                              <ChevronDown className="w-3 h-3" />
                            </button>
                            <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
@@ -673,7 +667,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                            }}
                            className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                          >
-                           Manage
+                           {t('interface.manage', 'Manage')}
                          </button>
                        )}
                      </div>
@@ -683,7 +677,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  {hasConnectors && userConnectorsForSource.some(c => c.status === 'active') && (
                    <div className="mt-4 pt-4 border-t border-gray-100">
                      <div className="flex items-center justify-between text-sm text-gray-900">
-                       <span className="text-green-600 font-medium">● Active</span>
+                       <span className="text-green-600 font-medium">● {t('interface.active', 'Active')}</span>
                      </div>
                    </div>
                  )}
@@ -750,7 +744,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           onClick={() => handleConnectClick(connector.id, connector.name)}
                           className="flex-1 text-xs font-medium px-3 py-2 rounded-lg transition-all duration-200 bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-sm hover:shadow-md"
                         >
-                          Connect
+                          {t('interface.connect', 'Connect')}
                         </button>
 
                         {hasConnectors && (
@@ -764,7 +758,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                   }}
                                   className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                                 >
-                                  Manage
+                                  {t('interface.manage', 'Manage')}
                                   <ChevronDown className="w-3 h-3" />
                                 </button>
                                 <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
@@ -811,7 +805,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                 }}
                                 className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                               >
-                                Manage
+                                {t('interface.manage', 'Manage')}
                               </button>
                             )}
                           </div>
@@ -821,7 +815,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       {hasConnectors && userConnectorsForSource.some(c => c.status === 'active') && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <div className="flex items-center justify-between text-xs text-gray-900">
-                            <span className="text-green-600">● Active</span>
+                            <span className="text-green-600">● {t('interface.active', 'Active')}</span>
                           </div>
                         </div>
                       )}
