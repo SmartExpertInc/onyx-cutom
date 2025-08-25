@@ -151,50 +151,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  // Debug theme information
-  console.log('🎨 WorkLifeBalance Theme Debug:', {
-    themeId: currentTheme.id,
-    themeBg,
-    themeTitle,
-    themeContent,
-    themeAccent,
-    customBg: backgroundColor,
-    customTitle: titleColor,
-    customContent: contentColor,
-    customAccent: accentColor
-  });
-
-  // Use theme colors if not provided
-  const slideBackgroundColor = backgroundColor || themeBg;
-  const slideTitleColor = titleColor || themeTitle;
-  const slideContentColor = contentColor || themeContent;
-  const slideAccentColor = accentColor || themeAccent;
-  
-  // Create a more suitable color for the arch based on theme
-  const getArchColor = () => {
-    const themeId = currentTheme.id;
-    // Use theme accent color as base, but adjust for better contrast
-    const baseColor = slideAccentColor;
-    
-    // For specific themes, use more appropriate colors
-    if (themeId === 'dark-purple') return '#4c1d95'; // Purple
-    if (themeId === 'light-modern') return '#e5e7eb'; // Light gray
-    if (themeId === 'corporate-blue') return '#3b82f6'; // Blue
-    if (themeId === 'chudo-theme') return '#ed6c00'; // Orange
-    if (themeId === 'chudo-2') return '#d01510'; // Red
-    if (themeId === 'forta') return '#e1d3c4'; // Beige
-    if (themeId === 'forta-2') return '#e1d3c4'; // Beige
-    
-    // For other themes, use a slightly darker version of accent color
-    return baseColor;
-  };
-  
-  const archColor = getArchColor();
-
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '596px',
-    backgroundColor: slideBackgroundColor,
+    backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -256,7 +216,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          color: slideTitleColor
+          color: themeTitle
         }}>
           {logoPath ? (
             // Show uploaded logo image
@@ -286,7 +246,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: `2px solid ${slideContentColor}`,
+                border: `2px solid ${themeContent}`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -296,20 +256,20 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 <div style={{
                   width: '12px',
                   height: '2px',
-                  backgroundColor: slideContentColor,
+                  backgroundColor: themeContent,
                   position: 'absolute'
                 }} />
                 <div style={{
                   width: '2px',
                   height: '12px',
-                  backgroundColor: slideContentColor,
+                  backgroundColor: themeContent,
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: slideContentColor }}>Your Logo</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Your Logo</span>
             </div>
           )}
         </div>
@@ -331,7 +291,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 fontSize: '68px',
                 marginTop: '162px',
-                color: slideTitleColor,
+                color: themeTitle,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont
               }}
@@ -342,7 +302,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 marginTop: '162px',
                 fontSize: '68px',
-                color: slideTitleColor,
+                color: themeTitle,
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -373,7 +333,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 marginTop: '43px',
                 marginLeft: '8px',
                 fontSize: '23px',
-                color: slideContentColor,
+                color: themeContent,
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont
               }}
@@ -386,7 +346,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 marginLeft: '8px',
                 width: '611px',
                 fontSize: '23px',
-                color: slideContentColor,
+                color: themeContent,
                 lineHeight: '1.6',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
@@ -416,7 +376,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           transform: 'rotate(90deg)',
           width: '105%',
           height: '75%',
-          backgroundColor: archColor,
+          backgroundColor: themeAccent,
           borderRadius: '50% 0 0 50%',
           zIndex: 1
         }} />

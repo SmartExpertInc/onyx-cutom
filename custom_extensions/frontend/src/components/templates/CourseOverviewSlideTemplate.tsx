@@ -145,41 +145,12 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, accentColor: themeAccent } = currentTheme.colors;
-
-  // Use theme colors if not provided
-  const slideBackgroundColor = backgroundColor || themeBg;
-  const slideTitleColor = titleColor || themeTitle;
-  const slideSubtitleColor = subtitleColor || themeSubtitle;
-  const slideAccentColor = accentColor || themeAccent;
-
-
-  
-  // Create a more suitable color for the left panel based on theme
-  const getLeftPanelColor = () => {
-    const themeId = currentTheme.id;
-    // Use theme accent color as base, but adjust for better contrast
-    const baseColor = slideAccentColor;
-    
-    // For specific themes, use more appropriate colors
-    if (themeId === 'dark-purple') return '#2d1b69'; // Darker purple
-    if (themeId === 'light-modern') return '#f3f4f6'; // Light gray
-    if (themeId === 'corporate-blue') return '#1e40af'; // Darker blue
-    if (themeId === 'chudo-theme') return '#d01510'; // Red
-    if (themeId === 'chudo-2') return '#d01510'; // Red
-    if (themeId === 'forta') return '#00664f'; // Green
-    if (themeId === 'forta-2') return '#00664f'; // Green
-    
-    // For other themes, use a slightly darker version of accent color
-    return baseColor;
-  };
-  
-  const leftPanelColor = getLeftPanelColor();
+  const { backgroundColor, titleColor, subtitleColor, accentColor } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '596px',
-    backgroundColor: slideBackgroundColor,
+    backgroundColor: backgroundColor,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -226,7 +197,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '45%',
         height: '100%',
-        backgroundColor: leftPanelColor,
+        backgroundColor: accentColor,
         position: 'relative',
         borderTopRightRadius: '50px',
         borderBottomRightRadius: '50px',
@@ -239,7 +210,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           left: '30px',
           width: '20px',
           height: '20px',
-          color: slideBackgroundColor,
+          color: backgroundColor,
           fontSize: '20px',
           fontWeight: 'bold'
         }}>
@@ -253,7 +224,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           top: '0',
           width: '2px',
           height: '100%',
-          backgroundColor: slideBackgroundColor
+          backgroundColor: backgroundColor
         }} />
 
         {/* Page number */}
@@ -261,7 +232,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           position: 'absolute',
           bottom: '30px',
           left: '30px',
-          color: slideBackgroundColor,
+          color: backgroundColor,
           fontSize: '14px',
           fontWeight: '300'
         }}>
@@ -287,7 +258,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: slideBackgroundColor,
+                color: backgroundColor,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont
               }}
@@ -298,7 +269,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: slideBackgroundColor,
+                color: backgroundColor,
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -318,7 +289,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: slideBackgroundColor,
+                color: backgroundColor,
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont
               }}
@@ -329,7 +300,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: slideBackgroundColor,
+                color: backgroundColor,
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -346,7 +317,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '55%',
         height: '100%',
-        backgroundColor: slideBackgroundColor,
+        backgroundColor: backgroundColor,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
