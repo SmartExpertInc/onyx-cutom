@@ -222,7 +222,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          color: 'white'
+          color: slideTitleColor
         }}>
           {logoPath ? (
             // Show uploaded logo image
@@ -252,7 +252,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: '2px solid white',
+                border: `2px solid ${slideTitleColor}`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -262,20 +262,20 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 <div style={{
                   width: '12px',
                   height: '2px',
-                  backgroundColor: 'white',
+                  backgroundColor: slideTitleColor,
                   position: 'absolute'
                 }} />
                 <div style={{
                   width: '2px',
                   height: '12px',
-                  backgroundColor: 'white',
+                  backgroundColor: slideTitleColor,
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300' }}>Your Logo</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: slideTitleColor }}>Your Logo</span>
             </div>
           )}
         </div>
