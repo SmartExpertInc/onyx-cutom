@@ -6686,6 +6686,7 @@ class OfferUpdate(BaseModel):
     manager: Optional[str] = None
     status: Optional[str] = None
     total_hours: Optional[int] = None
+    created_on: Optional[str] = None
     # link is auto-generated and not editable
 
 class OfferResponse(OfferBase):
@@ -21671,6 +21672,11 @@ async def update_offer(
             param_count += 1
             update_fields.append(f"total_hours = ${param_count}")
             params.append(offer_data.total_hours)
+        
+        if offer_data.created_on is not None:
+            param_count += 1
+            update_fields.append(f"created_on = ${param_count}")
+            params.append(offer_data.created_on)
         
         # Note: link is auto-generated and not editable
         
