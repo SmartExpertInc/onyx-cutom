@@ -262,7 +262,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           height: '120px',
           borderRadius: '50%',
           overflow: 'hidden',
-          backgroundColor: themeAccent
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -455,7 +454,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           }} />
         </div>
         <div style={{
-          fontSize: '14px',
+          fontSize: '25px',
           fontWeight: '300',
           color: themeContent
         }}>
@@ -466,7 +465,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onCancel={handleCompanyNameCancel}
               className="company-name-editor"
               style={{
-                fontSize: '14px',
+                fontSize: '25px',
                 fontWeight: '300',
                 color: themeContent
               }}

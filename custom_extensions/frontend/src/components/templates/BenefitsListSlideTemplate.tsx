@@ -265,7 +265,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         <div>
           {/* Subtitle */}
           <div style={{
-            fontSize: '25px',
+            fontSize: '14px',
             color: themeBg,
             marginBottom: '10px',
             fontWeight: '300'
@@ -398,7 +398,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           height: '120px',
           borderRadius: '50%',
           overflow: 'hidden',
-          backgroundColor: themeBg
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
