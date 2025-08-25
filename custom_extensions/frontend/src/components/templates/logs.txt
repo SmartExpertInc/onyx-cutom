@@ -1,259 +1,3 @@
-frontend logs:
-🎨 Font styles applied to Chudo and Forta themes
-page-42ca68ae5465a261.js:1 📥 [FETCH DATA] Received from backend: Object
-page-42ca68ae5465a261.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-42ca68ae5465a261.js:1 📄 Slide 1 (avatar-service-slide): Object
-page-42ca68ae5465a261.js:1 ✅ Component-based slides loaded with theme: Object
-page-42ca68ae5465a261.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
-page-42ca68ae5465a261.js:1 🎭 [AVATAR_MANAGER] Response status: 200
-page-42ca68ae5465a261.js:1 🎭 [AVATAR_MANAGER] Avatar data received: Object
-page-42ca68ae5465a261.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
-page-42ca68ae5465a261.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
-page-42ca68ae5465a261.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
-layout-1e76a94cbd5c836b.js:1 ✅ Mont bold font preloaded successfully
-layout-1e76a94cbd5c836b.js:1 ✅ Mont thin font preloaded successfully
-layout-1e76a94cbd5c836b.js:1 ✅ Mont regular font preloaded successfully
-layout-1e76a94cbd5c836b.js:1 🎉 All Mont fonts preloaded successfully
-layout-1e76a94cbd5c836b.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Environment check:
-page-42ca68ae5465a261.js:1   - CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-42ca68ae5465a261.js:1   - NEXT_PUBLIC_CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-42ca68ae5465a261.js:1   - Window location: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from DOM...
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Found voiceover elements: 0
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] No voiceover elements found, extracting from slide content...
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 1: AI Tools for Teachers
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 2: Welcome to the Course on AI Tools for Teachers
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Voiceover
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Skipping non-English title: Клиентский сервис - это основа успеха
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Presentation Themes
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts: Array(2)
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: Array(2)
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Slide URL for capture: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Step 3: Creating professional presentation (slide capture + avatar + merging)...
-192The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation creation response: Object
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation job created with ID: 3b466193-586e-420f-930d-63d6f8b7adf1
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Step 4: Monitoring professional presentation progress...
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] This includes: slide capture → avatar generation → video merging
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Starting to monitor professional presentation progress for job: 3b466193-586e-420f-930d-63d6f8b7adf1
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: Object
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 10, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 10, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 10, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 10, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 10, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 40, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 70, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 70, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 70, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 70, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 70, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 70%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'processing', progress: 90, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 90%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 90%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '3b466193-586e-420f-930d-63d6f8b7adf1', status: 'completed', progress: 100, error: null, …}
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: completed Progress: 100%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 100%
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation generation completed!
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Step 5: Professional video generation completed!
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Final video includes: slide content + AI avatar + merged output
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Final video URL: /api/presentations/3b466193-586e-420f-930d-63d6f8b7adf1/video
-page-42ca68ae5465a261.js:1 🎬 [VIDEO_DOWNLOAD] Step 6: Starting automatic download...
-page-42ca68ae5465a261.js:1 💾 [DOWNLOAD] Starting download from URL: /api/presentations/3b466193-586e-420f-930d-63d6f8b7adf1/video
-page-42ca68ae5465a261.js:1 💾 [DOWNLOAD] Full download URL: /api/custom-projects-backend/api/presentations/3b466193-586e-420f-930d-63d6f8b7adf1/video
-page-42ca68ae5465a261.js:1 💾 [DOWNLOAD] Fetching video file...
-requests.js:1  GET https://dev4.contentbuilder.ai/api/custom-projects-backend/api/presentations/3b466193-586e-420f-930d-63d6f8b7adf1/video 404 (Not Found)
-(anonymous) @ requests.js:1
-(anonymous) @ traffic.js:1
-fetch @ traffic.js:1
-x @ page-42ca68ae5465a261.js:1
-m @ page-42ca68ae5465a261.js:1Understand this error
-684-061671409fcbce74.js:1 💾 [DOWNLOAD] Download failed: Error: Download failed: 404 Not Found
-    at x (page-42ca68ae5465a261.js:1:216985)
-    at async m (page-42ca68ae5465a261.js:1:215913)
-(anonymous) @ 684-061671409fcbce74.js:1
-x @ page-42ca68ae5465a261.js:1
-await in x
-m @ page-42ca68ae5465a261.js:1Understand this error
-page-42ca68ae5465a261.js:1 💾 [DOWNLOAD] Video is still available at: /api/presentations/3b466193-586e-420f-930d-63d6f8b7adf1/video
-page-42ca68ae5465a261.js:1 Video generated successfully: /api/presentations/3b466193-586e-420f-930d-63d6f8b7adf1/video
-
-
 backend logs:
 custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
 custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
@@ -373,94 +117,23 @@ custom_backend-1  |   "currentSlideId": "slide_1_intro",
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:42014 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44496 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:42028 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44506 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:42036 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Raw details_data type: <class 'dict'>, value: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755874749050-nrvg5z753",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T14:59:09.050Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T14:59:19.036Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively."
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Already dict, after round_hours: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755874749050-nrvg5z753",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T14:59:09.050Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T14:59:19.036Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively."
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:37254 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37258 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:37274 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:Created presentation job: ff5d462c-2008-4ff3-9f08-cd04a565cf38
-custom_backend-1  | INFO:main:Returning immediate response for job ff5d462c-2008-4ff3-9f08-cd04a565cf38
-custom_backend-1  | INFO:app.services.presentation_service:Starting presentation processing for job: ff5d462c-2008-4ff3-9f08-cd04a565cf38
-custom_backend-1  | INFO:app.services.presentation_service:Step 1: Generating clean slide video for job ff5d462c-2008-4ff3-9f08-cd04a565cf38
+custom_backend-1  | INFO:     172.18.0.12:44516 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.presentation_service:Created presentation job: 703874df-708e-44ff-a395-731388bb0824
+custom_backend-1  | INFO:main:Returning immediate response for job 703874df-708e-44ff-a395-731388bb0824
+custom_backend-1  | INFO:app.services.presentation_service:Starting presentation processing for job: 703874df-708e-44ff-a395-731388bb0824
+custom_backend-1  | INFO:app.services.presentation_service:Step 1: Generating clean slide video for job 703874df-708e-44ff-a395-731388bb0824
 custom_backend-1  | INFO:app.services.presentation_service:Extracted project ID: 63
-custom_backend-1  | INFO:app.services.presentation_service:Database integration needed for project 63, using fallback
+custom_backend-1  | ERROR:app.services.presentation_service:DATABASE_URL not found in environment
 custom_backend-1  | INFO:app.services.clean_video_generation_service:Clean Video Generation Service initialized
+custom_backend-1  | INFO:app.services.presentation_service:Generating single slide video
 custom_backend-1  | INFO:app.services.clean_video_generation_service:Generating video for avatar slide: avatar-checklist
-custom_backend-1  | INFO:     172.18.0.12:37290 - "POST /api/custom/presentations HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37294 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37188 - "POST /api/custom/presentations HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37196 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:app.services.video_assembly_service:Found FFmpeg at: ffmpeg
 custom_backend-1  | INFO:app.services.video_assembly_service:Video Assembly Service initialized. FFmpeg: ffmpeg
 custom_backend-1  | INFO:app.services.video_assembly_service:Creating video from 1 slides
@@ -476,410 +149,183 @@ custom_backend-1  | INFO:app.services.html_to_image_service:Converting HTML to P
 custom_backend-1  | INFO:app.services.html_to_image_service:Simple fallback conversion: 11742 bytes
 custom_backend-1  | INFO:app.services.video_assembly_service:Generated PNG for slide 0: avatar-checklist
 custom_backend-1  | INFO:app.services.video_assembly_service:Creating video from 1 PNG images
-custom_backend-1  | INFO:app.services.video_assembly_service:Running FFmpeg command: ffmpeg -y -f concat -safe 0 -i /tmp/tmp184z4c43.txt -vf fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p output/clean_videos/avatar_slide_avatar-checklist_20250822_171028.mp4
-custom_backend-1  | INFO:     172.18.0.12:38242 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49140 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50242 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42522 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38196 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53920 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_assembly_service:Video created successfully: output/clean_videos/avatar_slide_avatar-checklist_20250822_171028.mp4 (140406 bytes)
-custom_backend-1  | INFO:app.services.clean_video_generation_service:Avatar slide video generated: output/clean_videos/avatar_slide_avatar-checklist_20250822_171028.mp4 (140406 bytes)
-custom_backend-1  | INFO:app.services.presentation_service:Clean video generation successful: output/clean_videos/avatar_slide_avatar-checklist_20250822_171028.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 2: Generating avatar video for job ff5d462c-2008-4ff3-9f08-cd04a565cf38
-custom_backend-1  | INFO:app.services.presentation_service:Generating avatar video with 2 voiceover texts
+custom_backend-1  | INFO:app.services.video_assembly_service:Running FFmpeg command: ffmpeg -y -f concat -safe 0 -i /tmp/tmp0nj61fpi.txt -vf fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p output/clean_videos/avatar_slide_avatar-checklist_20250825_110433.mp4
+custom_backend-1  | INFO:     172.18.0.12:52996 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35548 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49782 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44618 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39540 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48312 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_assembly_service:Video created successfully: output/clean_videos/avatar_slide_avatar-checklist_20250825_110433.mp4 (140406 bytes)
+custom_backend-1  | INFO:app.services.clean_video_generation_service:Avatar slide video generated: output/clean_videos/avatar_slide_avatar-checklist_20250825_110433.mp4 (140406 bytes)
+custom_backend-1  | INFO:app.services.presentation_service:Clean video generation successful: output/clean_videos/avatar_slide_avatar-checklist_20250825_110433.mp4
+custom_backend-1  | INFO:app.services.presentation_service:Step 2: Generating avatar video for job 703874df-708e-44ff-a395-731388bb0824
+custom_backend-1  | INFO:app.services.presentation_service:Generating avatar video with 3 voiceover texts
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
 custom_backend-1  | INFO:app.services.presentation_service:Selected avatar: gia (Gia)
 custom_backend-1  | INFO:app.services.presentation_service:Auto-selected avatar: gia
 custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 1: AI Tools for Teachers...
-custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 2: Welcome to the Course on AI Tools for Teachers...
+custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 2: Hello2...
+custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 3: Welcome to the Course on AI Tools for Teachers...
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:app.services.video_generation_service:Creating video with 2 slides
+custom_backend-1  | INFO:app.services.video_generation_service:Creating video with 3 slides
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video created successfully: 68a8a4c379ddf1ac59b8c36d
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video created with ID: 68a8a4c379ddf1ac59b8c36d
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos/render/68a8a4c379ddf1ac59b8c36d "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video render started for 68a8a4c379ddf1ac59b8c36d
-custom_backend-1  | INFO:app.services.presentation_service:Waiting for avatar video completion: 68a8a4c379ddf1ac59b8c36d
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8a4c379ddf1ac59b8c36d "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8a4c379ddf1ac59b8c36d status: validating, progress: 80%
+custom_backend-1  | INFO:app.services.video_generation_service:Video created successfully: 68ac438172031d0a9e9e59c6
+custom_backend-1  | INFO:app.services.presentation_service:Avatar video created with ID: 68ac438172031d0a9e9e59c6
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos/render/68ac438172031d0a9e9e59c6 "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Video render started for 68ac438172031d0a9e9e59c6
+custom_backend-1  | INFO:app.services.presentation_service:Waiting for avatar video completion: 68ac438172031d0a9e9e59c6
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac438172031d0a9e9e59c6 "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac438172031d0a9e9e59c6 status: validating, progress: 80%
 custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: validating, Progress: 80%
-custom_backend-1  | INFO:     172.18.0.12:51108 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59156 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44624 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8a4c379ddf1ac59b8c36d "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8a4c379ddf1ac59b8c36d status: rendering, progress: 50%
+custom_backend-1  | INFO:     172.18.0.12:34556 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47048 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39862 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac438172031d0a9e9e59c6 "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac438172031d0a9e9e59c6 status: rendering, progress: 50%
 custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:53880 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60876 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:45974 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8a4c379ddf1ac59b8c36d "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8a4c379ddf1ac59b8c36d status: rendering, progress: 50%
+custom_backend-1  | INFO:     172.18.0.12:53216 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36178 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33646 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac438172031d0a9e9e59c6 "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac438172031d0a9e9e59c6 status: rendering, progress: 50%
 custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:60762 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35016 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58478 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8a4c379ddf1ac59b8c36d "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8a4c379ddf1ac59b8c36d status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:60314 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51130 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35148 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8a4c379ddf1ac59b8c36d "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8a4c379ddf1ac59b8c36d status: ready, progress: 100%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: ready, Progress: 100%
-custom_backend-1  | INFO:app.services.presentation_service:Downloading avatar video: https://apis.elai.io/public/video/68a8a4c379ddf1ac59b8c36d.mp4?s=22b691a1d78a37ae68dd6a68dfe53049c7541cff95bfe45bfd41a1c8e0f63a61
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68a8a4c379ddf1ac59b8c36d.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68a8a4c379ddf1ac59b8c36d.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video generated: output/presentations/avatar_68a8a4c379ddf1ac59b8c36d.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 3: Composing final video for job ff5d462c-2008-4ff3-9f08-cd04a565cf38
-custom_backend-1  | INFO:app.services.video_composer_service:Starting video composition: side_by_side
-custom_backend-1  | INFO:app.services.video_composer_service:Slide duration: 60.0s, Avatar duration: 6.740998s
-custom_backend-1  | INFO:app.services.video_composer_service:Creating side-by-side composition
-custom_backend-1  | INFO:app.services.video_composer_service:Executing FFmpeg command: ffmpeg -i output/clean_videos/avatar_slide_avatar-checklist_20250822_171028.mp4 -i output/presentations/avatar_68a8a4c379ddf1ac59b8c36d.mp4 -filter_complex [0:v]scale=960:1080[slide];[1:v]scale=960:1080[avatar];[slide][avatar]hstack=inputs=2 -c:v libx264 -c:a aac -crf 18 -preset slow -pix_fmt yuv420p -r 30 -movflags +faststart -y output/presentations/presentation_ff5d462c-2008-4ff3-9f08-cd04a565cf38.mp4
-custom_backend-1  | INFO:     172.18.0.12:51904 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53708 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58556 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56492 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:32858 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:Side-by-side composition completed successfully
-custom_backend-1  | INFO:app.services.presentation_service:Final video composed: output/presentations/presentation_ff5d462c-2008-4ff3-9f08-cd04a565cf38.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 4: Creating thumbnail for job ff5d462c-2008-4ff3-9f08-cd04a565cf38
-custom_backend-1  | INFO:app.services.video_composer_service:Creating thumbnail from video
-custom_backend-1  | INFO:app.services.video_composer_service:Executing FFmpeg command: ffmpeg -i output/presentations/presentation_ff5d462c-2008-4ff3-9f08-cd04a565cf38.mp4 -ss 5.0 -vframes 1 -q:v 2 -y output/presentations/thumbnail_ff5d462c-2008-4ff3-9f08-cd04a565cf38.jpg
-custom_backend-1  | INFO:app.services.video_composer_service:Thumbnail creation completed successfully
-custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/clean_videos/avatar_slide_avatar-checklist_20250822_171028.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/presentations/avatar_68a8a4c379ddf1ac59b8c36d.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Presentation ff5d462c-2008-4ff3-9f08-cd04a565cf38 completed successfully
-custom_backend-1  | INFO:     172.18.0.12:39080 - "GET /api/custom/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39082 - "GET /api/custom/api/presentations/ff5d462c-2008-4ff3-9f08-cd04a565cf38/video HTTP/1.1" 404 Not Found
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:41314 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41332 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41324 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:41352 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41340 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Raw details_data type: <class 'dict'>, value: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755874749050-nrvg5z753",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T14:59:09.050Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T14:59:19.036Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively."
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Already dict, after round_hours: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755874749050-nrvg5z753",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T14:59:09.050Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T14:59:19.036Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively."
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:41360 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41372 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | ERROR:app.services.video_generation_service:Error fetching avatars: unable to perform operation on <TCPTransport closed=True reading=False 0x6301d3559860>; the handler is closed
-custom_backend-1  | INFO:     172.18.0.12:41382 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Raw details_data type: <class 'dict'>, value: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755874749050-nrvg5z753",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T14:59:09.050Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T14:59:19.036Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively."
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Already dict, after round_hours: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively.",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755874749050-nrvg5z753",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T14:59:09.050Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T14:59:19.036Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": "Welcome to the course on AI tools for teachers! In this session, we will dive into the exciting world of artificial intelligence and how it can transform the educational landscape for high school teachers. By the end of this course, you will be equipped with practical knowledge and tools to enhance your teaching methods and engage your students effectively."
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:48820 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48822 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:48834 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:Created presentation job: 3b466193-586e-420f-930d-63d6f8b7adf1
-custom_backend-1  | INFO:main:Returning immediate response for job 3b466193-586e-420f-930d-63d6f8b7adf1
-custom_backend-1  | INFO:app.services.presentation_service:Starting presentation processing for job: 3b466193-586e-420f-930d-63d6f8b7adf1
-custom_backend-1  | INFO:app.services.presentation_service:Step 1: Generating clean slide video for job 3b466193-586e-420f-930d-63d6f8b7adf1
-custom_backend-1  | INFO:app.services.presentation_service:Extracted project ID: 63
-custom_backend-1  | INFO:app.services.presentation_service:Database integration needed for project 63, using fallback
-custom_backend-1  | INFO:app.services.clean_video_generation_service:Generating video for avatar slide: avatar-checklist
-custom_backend-1  | INFO:app.services.video_assembly_service:Creating video from 1 slides
-custom_backend-1  | INFO:app.services.html_template_service:Validated props for avatar-checklist: ['title', 'items']
-custom_backend-1  | INFO:app.services.html_template_service:Generating HTML for template: avatar-checklist, theme: dark-purple
-custom_backend-1  | INFO:app.services.html_template_service:Template props: ['title', 'items']
-custom_backend-1  | INFO:app.services.html_template_service:Successfully generated HTML for avatar-checklist
-custom_backend-1  | INFO:app.services.html_template_service:Generated clean HTML for video: avatar-checklist
-custom_backend-1  | INFO:app.services.html_to_image_service:Converting HTML to PNG for template: avatar-checklist using simple
-custom_backend-1  | INFO:     172.18.0.12:58588 - "POST /api/custom/presentations HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.html_to_image_service:Simple fallback conversion: 11742 bytes
-custom_backend-1  | INFO:app.services.video_assembly_service:Generated PNG for slide 0: avatar-checklist
-custom_backend-1  | INFO:app.services.video_assembly_service:Creating video from 1 PNG images
-custom_backend-1  | INFO:app.services.video_assembly_service:Running FFmpeg command: ffmpeg -y -f concat -safe 0 -i /tmp/tmpczb0vy29.txt -vf fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p output/clean_videos/avatar_slide_avatar-checklist_20250822_191115.mp4
-custom_backend-1  | INFO:     172.18.0.12:58596 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33166 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43368 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43268 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36492 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55846 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_assembly_service:Video created successfully: output/clean_videos/avatar_slide_avatar-checklist_20250822_191115.mp4 (140406 bytes)
-custom_backend-1  | INFO:app.services.clean_video_generation_service:Avatar slide video generated: output/clean_videos/avatar_slide_avatar-checklist_20250822_191115.mp4 (140406 bytes)
-custom_backend-1  | INFO:app.services.presentation_service:Clean video generation successful: output/clean_videos/avatar_slide_avatar-checklist_20250822_191115.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 2: Generating avatar video for job 3b466193-586e-420f-930d-63d6f8b7adf1
-custom_backend-1  | INFO:app.services.presentation_service:Generating avatar video with 2 voiceover texts
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:app.services.presentation_service:Selected avatar: gia (Gia)
-custom_backend-1  | INFO:app.services.presentation_service:Auto-selected avatar: gia
-custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 1: AI Tools for Teachers...
-custom_backend-1  | INFO:app.services.video_generation_service:Cleaned voiceover text 2: Welcome to the Course on AI Tools for Teachers...
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:app.services.video_generation_service:Creating video with 2 slides
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video created successfully: 68a8c10be612bd171be7bd45
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video created with ID: 68a8c10be612bd171be7bd45
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos/render/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video render started for 68a8c10be612bd171be7bd45
-custom_backend-1  | INFO:app.services.presentation_service:Waiting for avatar video completion: 68a8c10be612bd171be7bd45
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: validating, progress: 80%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: validating, Progress: 80%
-custom_backend-1  | INFO:     172.18.0.12:38418 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39410 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43900 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:42562 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33108 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:51674 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41190 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36096 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:57086 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35166 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33154 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:54390 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49742 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37148 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:33200 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52580 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44766 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:42640 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44268 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44742 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:54368 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57830 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33890 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:48192 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48700 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54134 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:35656 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41414 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46062 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:34016 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34222 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60116 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:60314 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52214 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43744 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:38626 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48552 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40314 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:48446 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58180 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34722 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:50634 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54254 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42000 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:55548 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36602 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42430 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:43332 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40810 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44308 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68a8c10be612bd171be7bd45 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68a8c10be612bd171be7bd45 status: ready, progress: 100%
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: ready, Progress: 100%
-custom_backend-1  | INFO:app.services.presentation_service:Downloading avatar video: https://apis.elai.io/public/video/68a8c10be612bd171be7bd45.mp4?s=375ad460082dba2f302e0e50fe7d8be1413f6ece4c647639ad2a74a8e8309ff3
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68a8c10be612bd171be7bd45.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68a8c10be612bd171be7bd45.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video generated: output/presentations/avatar_68a8c10be612bd171be7bd45.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 3: Composing final video for job 3b466193-586e-420f-930d-63d6f8b7adf1
-custom_backend-1  | INFO:app.services.video_composer_service:Starting video composition: side_by_side
-custom_backend-1  | INFO:app.services.video_composer_service:Slide duration: 60.0s, Avatar duration: 6.740998s
-custom_backend-1  | INFO:app.services.video_composer_service:Creating side-by-side composition
-custom_backend-1  | INFO:app.services.video_composer_service:Executing FFmpeg command: ffmpeg -i output/clean_videos/avatar_slide_avatar-checklist_20250822_191115.mp4 -i output/presentations/avatar_68a8c10be612bd171be7bd45.mp4 -filter_complex [0:v]scale=960:1080[slide];[1:v]scale=960:1080[avatar];[slide][avatar]hstack=inputs=2 -c:v libx264 -c:a aac -crf 18 -preset slow -pix_fmt yuv420p -r 30 -movflags +faststart -y output/presentations/presentation_3b466193-586e-420f-930d-63d6f8b7adf1.mp4
-custom_backend-1  | INFO:     172.18.0.12:57800 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44030 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49026 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48946 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50096 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:Side-by-side composition completed successfully
-custom_backend-1  | INFO:app.services.presentation_service:Final video composed: output/presentations/presentation_3b466193-586e-420f-930d-63d6f8b7adf1.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 4: Creating thumbnail for job 3b466193-586e-420f-930d-63d6f8b7adf1
-custom_backend-1  | INFO:app.services.video_composer_service:Creating thumbnail from video
-custom_backend-1  | INFO:app.services.video_composer_service:Executing FFmpeg command: ffmpeg -i output/presentations/presentation_3b466193-586e-420f-930d-63d6f8b7adf1.mp4 -ss 5.0 -vframes 1 -q:v 2 -y output/presentations/thumbnail_3b466193-586e-420f-930d-63d6f8b7adf1.jpg
-custom_backend-1  | INFO:     172.18.0.12:43244 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:Thumbnail creation completed successfully
-custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/clean_videos/avatar_slide_avatar-checklist_20250822_191115.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/presentations/avatar_68a8c10be612bd171be7bd45.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Presentation 3b466193-586e-420f-930d-63d6f8b7adf1 completed successfully
-custom_backend-1  | INFO:     172.18.0.12:39360 - "GET /api/custom/presentations/3b466193-586e-420f-930d-63d6f8b7adf1 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39362 - "GET /api/custom/api/presentations/3b466193-586e-420f-930d-63d6f8b7adf1/video HTTP/1.1" 404 Not Found
+custom_backend-1  | INFO:     172.18.0.12:50336 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54018 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33432 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68ac438172031d0a9e9e59c6 "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Video 68ac438172031d0a9e9e59c6 status: error, progress: 50%
+custom_backend-1  | WARNING:app.services.video_generation_service:Video 68ac438172031d0a9e9e59c6 reported error status - this may be temporary
+custom_backend-1  | INFO:app.services.presentation_service:Avatar video status: error, Progress: 50%
+custom_backend-1  | ERROR:app.services.presentation_service:Avatar video completion failed: Avatar video rendering failed: error
+custom_backend-1  | ERROR:app.services.presentation_service:Avatar video generation failed: Avatar video rendering failed: error
+custom_backend-1  | ERROR:app.services.presentation_service:Presentation 703874df-708e-44ff-a395-731388bb0824 failed: Avatar video rendering failed: error
+custom_backend-1  | INFO:     172.18.0.12:60480 - "GET /api/custom/presentations/703874df-708e-44ff-a395-731388bb0824 HTTP/1.1" 200 OK
+
+frontend logs:
+🎨 Font styles applied to Chudo and Forta themes
+page-ff6af2cb342aaf7c.js:1 📥 [FETCH DATA] Received from backend: Object
+page-ff6af2cb342aaf7c.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-ff6af2cb342aaf7c.js:1 📄 Slide 1 (avatar-service-slide): Object
+page-ff6af2cb342aaf7c.js:1 ✅ Component-based slides loaded with theme: Object
+page-ff6af2cb342aaf7c.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+page-ff6af2cb342aaf7c.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+page-ff6af2cb342aaf7c.js:1 🎭 [AVATAR_MANAGER] Avatar data received: Object
+page-ff6af2cb342aaf7c.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+page-ff6af2cb342aaf7c.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
+page-ff6af2cb342aaf7c.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
+12Failed to decode downloaded font: <URL>Understand this warning
+12OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+window.console.error @ 684-061671409fcbce74.js:1Understand this error
+684-061671409fcbce74.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont regular font
+    at a.onerror (layout-1e76a94cbd5c836b.js:1:738)
+window.console.error @ 684-061671409fcbce74.js:1Understand this error
+layout-1e76a94cbd5c836b.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+window.console.error @ 684-061671409fcbce74.js:1Understand this error
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
+window.console.error @ 684-061671409fcbce74.js:1Understand this error
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Environment check:
+page-ff6af2cb342aaf7c.js:1   - CUSTOM_BACKEND_URL: /api/custom-projects-backend
+page-ff6af2cb342aaf7c.js:1   - NEXT_PUBLIC_CUSTOM_BACKEND_URL: /api/custom-projects-backend
+page-ff6af2cb342aaf7c.js:1   - Window location: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from DOM...
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Found voiceover elements: 0
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] No voiceover elements found, extracting from slide content...
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 1: AI Tools for Teachers
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 2: Hello2
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Slide title 3: Welcome to the Course on AI Tools for Teachers
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Voiceover
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Skipping non-English title: Клиентский сервис - это основа успеха
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Skipping problematic title: Presentation Themes
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts: Array(3)
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: Array(3)
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Slide URL for capture: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Step 3: Creating professional presentation (slide capture + avatar + merging)...
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation creation response: Object
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation job created with ID: 703874df-708e-44ff-a395-731388bb0824
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Step 4: Monitoring professional presentation progress...
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] This includes: slide capture → avatar generation → video merging
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Starting to monitor professional presentation progress for job: 703874df-708e-44ff-a395-731388bb0824
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: Object
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 10, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 10, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 10, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 10, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 10, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 10, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 10%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'processing', progress: 40, error: null, …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: processing Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status check response: {success: true, jobId: '703874df-708e-44ff-a395-731388bb0824', status: 'failed', progress: 40, error: 'Avatar video rendering failed: error', …}
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation status: failed Progress: 40%
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation progress: 40%
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error checking professional presentation status: 
+window.console.error @ 684-061671409fcbce74.js:1
+p @ page-ff6af2cb342aaf7c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Video generation failed with error: 
+window.console.error @ 684-061671409fcbce74.js:1
+m @ page-ff6af2cb342aaf7c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error type: object
+window.console.error @ 684-061671409fcbce74.js:1
+m @ page-ff6af2cb342aaf7c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error constructor: Error
+window.console.error @ 684-061671409fcbce74.js:1
+m @ page-ff6af2cb342aaf7c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error stack: Error: Avatar video rendering failed: error
+    at p (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-ff6af2cb342aaf7c.js:1:213177)
+    at async m (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-ff6af2cb342aaf7c.js:1:215442)
+window.console.error @ 684-061671409fcbce74.js:1
+m @ page-ff6af2cb342aaf7c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error message: Avatar video rendering failed: error
+window.console.error @ 684-061671409fcbce74.js:1
+m @ page-ff6af2cb342aaf7c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error name: Error
+window.console.error @ 684-061671409fcbce74.js:1
+m @ page-ff6af2cb342aaf7c.js:1Understand this error
+page-ff6af2cb342aaf7c.js:1 🎬 [VIDEO_DOWNLOAD] Calling onError with message: Avatar video rendering failed: error
+684-061671409fcbce74.js:1 Video generation error: Avatar video rendering failed: error

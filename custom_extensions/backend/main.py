@@ -17157,6 +17157,9 @@ async def create_presentation(request: Request):
         # Extract parameters
         slide_url = body.get("slideUrl")
         voiceover_texts = body.get("voiceoverTexts", [])
+        # NEW: Accept actual slide data
+        slides_data = body.get("slidesData")  # Optional - actual slide content with text, props, etc.
+        theme = body.get("theme", "dark-purple")  # Theme for slide generation
         avatar_code = body.get("avatarCode")  # None will trigger auto-selection
         duration = body.get("duration", 30.0)
         layout = body.get("layout", "side_by_side")
@@ -17164,9 +17167,10 @@ async def create_presentation(request: Request):
         resolution = body.get("resolution", [1920, 1080])
         project_name = body.get("projectName", "Generated Presentation")
         
-        # Validate required parameters
-        if not slide_url:
-            return {"success": False, "error": "slideUrl is required"}
+        # Validate required parameters  
+        # slideUrl is required only if no slidesData provided
+        if not slide_url and not slides_data:
+            return {"success": False, "error": "Either slideUrl or slidesData is required"}
         
         if not voiceover_texts or len(voiceover_texts) == 0:
             return {"success": False, "error": "voiceoverTexts is required"}
@@ -17178,8 +17182,10 @@ async def create_presentation(request: Request):
         
         # Create presentation request
         presentation_request = PresentationRequest(
-            slide_url=slide_url,
+            slide_url=slide_url or "",  # Provide empty string if None
             voiceover_texts=voiceover_texts,
+            slides_data=slides_data,  # NEW: Pass actual slide data
+            theme=theme,  # NEW: Pass theme
             avatar_code=avatar_code,
             duration=duration,
             layout=layout,

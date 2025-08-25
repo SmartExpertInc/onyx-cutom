@@ -156,12 +156,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
+        // Expose slide data to window object for video generation
+        (window as any).currentSlideData = {
+          deck: deckWithTheme
+        };
+        
         console.log('✅ Component-based slides loaded with theme:', {
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
           themeColors: currentThemeData.colors,
           templates: deck.slides.map((s: any) => s.templateId)
           });
+        
+        console.log('🎬 Exposed slide data to window for video generation:', (window as any).currentSlideData);
         
       } catch (err) {
         console.error('❌ Error processing slide deck:', err);
@@ -464,7 +471,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
           </div>
         </div>
-        <h1>Hello2</h1>
+        <h1>Hello3</h1>
       </div>
 
       {/* Main Content Area - Static white container */}

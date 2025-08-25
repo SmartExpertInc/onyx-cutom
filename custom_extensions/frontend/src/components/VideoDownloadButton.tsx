@@ -19,6 +19,53 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   const [status, setStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
 
+  // Function to extract actual slide data from current project
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+    console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
+    
+    try {
+      // Try to get slide data from the global window object (if SmartSlideDeckViewer exposed it)
+      const slideViewerData = (window as any).currentSlideData;
+      if (slideViewerData?.deck?.slides) {
+        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        return {
+          slides: slideViewerData.deck.slides,
+          theme: slideViewerData.deck.theme || 'dark-purple'
+        };
+      }
+
+      // Fallback: Try to extract from the URL by getting project ID and fetching data
+      const currentUrl = window.location.href;
+      const projectIdMatch = currentUrl.match(/\/projects\/view\/(\d+)/);
+      
+      if (projectIdMatch) {
+        const projectId = projectIdMatch[1];
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted project ID from URL:', projectId);
+        
+        // Fetch project data from API
+        const response = await fetch(`/api/custom/projects/${projectId}`);
+        if (response.ok) {
+          const projectData = await response.json();
+          console.log('🎬 [VIDEO_DOWNLOAD] Fetched project data:', projectData);
+          
+          if (projectData.details?.slides) {
+            return {
+              slides: projectData.details.slides,
+              theme: projectData.details.theme || 'dark-purple'
+            };
+          }
+        }
+      }
+
+      console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data, will use URL fallback');
+      return { slides: [], theme: 'dark-purple' };
+      
+    } catch (error) {
+      console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
+      return { slides: [], theme: 'dark-purple' };
+    }
+  };
+
   // Function to extract voiceover text from slides
   const extractVoiceoverTexts = async (): Promise<string[]> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from DOM...');
@@ -286,8 +333,13 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       const slideUrl = window.location.href;
       console.log('🎬 [VIDEO_DOWNLOAD] Slide URL for capture:', slideUrl);
 
-      // Step 3: Create professional presentation with slide capture and video merging
-      console.log('🎬 [VIDEO_DOWNLOAD] Step 3: Creating professional presentation (slide capture + avatar + merging)...');
+      // Step 3: Extract slide data for accurate rendering
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 3: Extracting slide data...');
+      const slideDataResult = await extractSlideData();
+      console.log('🎬 [VIDEO_DOWNLOAD] Extracted slide data:', slideDataResult);
+      
+      // Step 3b: Create professional presentation with actual slide data
+      console.log('🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...');
       setProgress(30);
       
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
@@ -301,6 +353,9 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         body: JSON.stringify({
           slideUrl: slideUrl,
           voiceoverTexts: voiceoverTexts,
+          // NEW: Include actual slide data for accurate text and styling rendering
+          slidesData: slideDataResult.slides,
+          theme: slideDataResult.theme,
           // Remove hardcoded avatarCode to enable dynamic avatar selection
           duration: 30.0,
           layout: 'side_by_side', // side_by_side, picture_in_picture, split_screen

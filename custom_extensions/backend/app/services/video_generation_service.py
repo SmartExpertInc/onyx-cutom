@@ -162,17 +162,15 @@ class ElaiVideoGenerationService:
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
-                        "width": 400,
-                        "height": 400,
                         "objects": [{
                             "type": "avatar",
-                            "left": 0,
-                            "top": 0,
+                            "left": 270,     # Centered horizontally for smaller canvas
+                            "top": 150,      # Centered vertically for smaller canvas  
                             "fill": "#4868FF",
-                            "scaleX": 1.0,
-                            "scaleY": 1.0,
-                            "width": 400,
-                            "height": 400,
+                            "scaleX": 0.4,   # Larger scale for better visibility
+                            "scaleY": 0.4,   # Larger scale for better visibility
+                            "width": 600,    # Smaller canvas width
+                            "height": 400,   # Smaller canvas height for overlay
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
                             "animation": {
@@ -180,7 +178,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "transparent",
+                        "background": "transparent",  # Transparent background instead of white
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -207,8 +205,10 @@ class ElaiVideoGenerationService:
                 "data": {
                     "skipEmails": False,
                     "subtitlesEnabled": "false",
-                    "format": "16_9",
-                    "resolution": "FullHD"
+                    "format": "custom",      # Custom format for better overlay control
+                    "resolution": "HD",      # HD instead of FullHD for smaller file size
+                    "width": 600,           # Specific width for overlay
+                    "height": 400           # Specific height for overlay
                 }
             }
             
@@ -269,17 +269,15 @@ class ElaiVideoGenerationService:
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
-                        "width": 400,
-                        "height": 400,
                         "objects": [{
                             "type": "avatar",
-                            "left": 0,
-                            "top": 0,
+                            "left": 270,     # Centered horizontally for smaller canvas
+                            "top": 150,      # Centered vertically for smaller canvas
                             "fill": "#4868FF",
-                            "scaleX": 1.0,
-                            "scaleY": 1.0,
-                            "width": 400,
-                            "height": 400,
+                            "scaleX": 0.4,   # Larger scale for better visibility
+                            "scaleY": 0.4,   # Larger scale for better visibility
+                            "width": 600,    # Smaller canvas width
+                            "height": 400,   # Smaller canvas height for overlay
                             "src": avatar_data.get("canvas_url"),
                             "avatarType": "transparent",
                             "animation": {
@@ -287,7 +285,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "transparent",
+                        "background": "transparent",  # Transparent background instead of white
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -314,8 +312,10 @@ class ElaiVideoGenerationService:
                 "data": {
                     "skipEmails": False,
                     "subtitlesEnabled": "false",
-                    "format": "16_9",
-                    "resolution": "FullHD"
+                    "format": "custom",      # Custom format for better overlay control
+                    "resolution": "HD",      # HD instead of FullHD for smaller file size
+                    "width": 600,           # Specific width for overlay
+                    "height": 400           # Specific height for overlay
                 }
             }
             

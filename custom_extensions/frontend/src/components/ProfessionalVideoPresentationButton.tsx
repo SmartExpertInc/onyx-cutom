@@ -21,6 +21,53 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
+  // Function to extract actual slide data from current project
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+    console.log('🎬 [PROFESSIONAL_VIDEO] Extracting slide data from current project...');
+    
+    try {
+      // Try to get slide data from the global window object (if SmartSlideDeckViewer exposed it)
+      const slideViewerData = (window as any).currentSlideData;
+      if (slideViewerData?.deck?.slides) {
+        console.log('🎬 [PROFESSIONAL_VIDEO] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        return {
+          slides: slideViewerData.deck.slides,
+          theme: slideViewerData.deck.theme || 'dark-purple'
+        };
+      }
+
+      // Fallback: Try to extract from the URL by getting project ID and fetching data
+      const currentUrl = window.location.href;
+      const projectIdMatch = currentUrl.match(/\/projects\/view\/(\d+)/);
+      
+      if (projectIdMatch) {
+        const projectId = projectIdMatch[1];
+        console.log('🎬 [PROFESSIONAL_VIDEO] Extracted project ID from URL:', projectId);
+        
+        // Fetch project data from API
+        const response = await fetch(`/api/custom/projects/${projectId}`);
+        if (response.ok) {
+          const projectData = await response.json();
+          console.log('🎬 [PROFESSIONAL_VIDEO] Fetched project data:', projectData);
+          
+          if (projectData.details?.slides) {
+            return {
+              slides: projectData.details.slides,
+              theme: projectData.details.theme || 'dark-purple'
+            };
+          }
+        }
+      }
+
+      console.log('🎬 [PROFESSIONAL_VIDEO] Could not extract slide data, will use URL fallback');
+      return { slides: [], theme: 'dark-purple' };
+      
+    } catch (error) {
+      console.error('🎬 [PROFESSIONAL_VIDEO] Error extracting slide data:', error);
+      return { slides: [], theme: 'dark-purple' };
+    }
+  };
+
   // Function to extract voiceover texts from slides
   const extractVoiceoverTexts = async (): Promise<string[]> => {
     console.log('🎬 [PROFESSIONAL_VIDEO] Extracting voiceover texts from DOM...');
@@ -158,8 +205,13 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       const slideUrl = getCurrentSlideUrl();
       console.log('🎬 [PROFESSIONAL_VIDEO] Slide URL:', slideUrl);
 
-      // Step 3: Create professional presentation
-      console.log('🎬 [PROFESSIONAL_VIDEO] Step 3: Creating professional presentation...');
+      // Step 3: Extract slide data for accurate rendering
+      console.log('🎬 [PROFESSIONAL_VIDEO] Step 3: Extracting slide data...');
+      const slideDataResult = await extractSlideData();
+      console.log('🎬 [PROFESSIONAL_VIDEO] Extracted slide data:', slideDataResult);
+      
+      // Step 3b: Create professional presentation with actual slide data
+      console.log('🎬 [PROFESSIONAL_VIDEO] Step 3b: Creating professional presentation...');
       setProgress(30);
       
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
@@ -172,6 +224,9 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         body: JSON.stringify({
           slideUrl: slideUrl,
           voiceoverTexts: voiceoverTexts,
+          // NEW: Include actual slide data for accurate text and styling rendering
+          slidesData: slideDataResult.slides,
+          theme: slideDataResult.theme,
           // avatarCode removed - will auto-select available avatar
           duration: 30.0,
           layout: 'side_by_side', // side_by_side, picture_in_picture, split_screen
