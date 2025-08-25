@@ -297,8 +297,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Main title */}
           <div style={{
-            fontSize: '48px',
-            fontWeight: '',
+            fontSize: '55px',
             color: themeBg,
             marginBottom: '20px',
             lineHeight: '1.1'
@@ -310,8 +309,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleTitleCancel}
                 className="benefits-title-editor"
                 style={{
-                  fontSize: '48px',
-                  fontWeight: '',
+                  fontSize: '55px',
                   color: themeBg,
                   lineHeight: '1.1'
                 }}
@@ -334,7 +332,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             fontSize: '22px',
             color: themeBg,
             lineHeight: '1.4',
-            maxWidth: '545px'
+            maxWidth: '530px'
           }}>
             {isEditable && editingDescription ? (
               <InlineEditor
@@ -423,7 +421,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       <div style={{
         flex: '1',
         backgroundColor: themeBg,
-        padding: '40px 60px',
+        padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -490,7 +488,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             transform: 'rotate(45deg)'
           }} />
           <div style={{
-            fontSize: '25px',
+            fontSize: '12px',
             color: themeContent,
             fontWeight: '300'
           }}>
@@ -501,7 +499,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
                 style={{
-                  fontSize: '25px',
+                  fontSize: '12px',
                   color: themeContent,
                   fontWeight: '300'
                 }}
