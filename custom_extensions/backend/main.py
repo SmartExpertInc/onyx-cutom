@@ -21825,27 +21825,80 @@ async def get_offer_details(
                         total_learning_duration += learning_duration_hours
                         total_production_time += project_hours
             
-            # Generate quality levels data - using actual totals from all courses
+            # Calculate quality-level-specific totals by examining each lesson's quality tier
+            quality_tier_totals = {
+                'basic': {'learning_duration': 0, 'production_time': 0},
+                'interactive': {'learning_duration': 0, 'production_time': 0},
+                'advanced': {'learning_duration': 0, 'production_time': 0},
+                'immersive': {'learning_duration': 0, 'production_time': 0}
+            }
+            
+            # Re-process projects to calculate quality-specific totals
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            for lesson in section['lessons']:
+                                # Determine effective quality tier for this lesson
+                                effective_quality_tier = (
+                                    lesson.get('quality_tier') or 
+                                    section.get('quality_tier') or 
+                                    content.get('quality_tier') or
+                                    'interactive'  # Default fallback
+                                ).lower()
+                                
+                                # Map alternative names to standard tiers
+                                tier_mapping = {
+                                    'basic': 'basic',
+                                    'interactive': 'interactive',
+                                    'advanced': 'advanced',
+                                    'immersive': 'immersive',
+                                    'medium': 'interactive',  # Map medium to interactive
+                                    'premium': 'advanced',    # Map premium to advanced
+                                }
+                                
+                                standard_tier = tier_mapping.get(effective_quality_tier, 'interactive')
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                except (ValueError, AttributeError):
+                                    completion_minutes = 5
+                                
+                                learning_duration_hours = completion_minutes / 60.0
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                
+                                # Add to the appropriate quality tier totals
+                                quality_tier_totals[standard_tier]['learning_duration'] += learning_duration_hours
+                                quality_tier_totals[standard_tier]['production_time'] += lesson_hours
+            
+            # Generate quality levels data using quality-specific totals
             quality_levels = [
                 {
                     'level': 'Level 1 - Basic',
-                    'learningDuration': f"{total_learning_duration}h",
-                    'productionTime': f"{total_production_time}h"
+                    'learningDuration': f"{round(quality_tier_totals['basic']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['basic']['production_time'], 1)}h"
                 },
                 {
                     'level': 'Level 2 - Interactive',
-                    'learningDuration': f"{total_learning_duration}h", 
-                    'productionTime': f"{int(total_production_time * 1.5)}h"  # 50% more for interactive
+                    'learningDuration': f"{round(quality_tier_totals['interactive']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['interactive']['production_time'], 1)}h"
                 },
                 {
                     'level': 'Level 3 - Advanced',
-                    'learningDuration': f"{total_learning_duration}h",
-                    'productionTime': f"{int(total_production_time * 2)}h"  # 2x for advanced
+                    'learningDuration': f"{round(quality_tier_totals['advanced']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['advanced']['production_time'], 1)}h"
                 },
                 {
                     'level': 'Level 4 - Immersive',
-                    'learningDuration': f"{total_learning_duration}h",
-                    'productionTime': f"{int(total_production_time * 3)}h"  # 3x for immersive
+                    'learningDuration': f"{round(quality_tier_totals['immersive']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['immersive']['production_time'], 1)}h"
                 }
             ]
             
