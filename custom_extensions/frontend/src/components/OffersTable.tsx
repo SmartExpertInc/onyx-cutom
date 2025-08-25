@@ -797,6 +797,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
     offer_name: offer.offer_name,
     manager: offer.manager,
     status: offer.status,
+    created_on: offer.created_on,
     link: offer.link || '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -820,6 +821,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
           offer_name: formData.offer_name,
           manager: formData.manager,
           status: formData.status,
+          created_on: formData.created_on,
           // Don't include link as it's auto-generated
         }),
       });
@@ -883,6 +885,20 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 type="text"
                 value={formData.manager}
                 onChange={(e) => setFormData({...formData, manager: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                required
+              />
+            </div>
+            
+            {/* Date field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('interface.date', 'Date')} *
+              </label>
+              <input
+                type="date"
+                value={formData.created_on.split('T')[0]}
+                onChange={(e) => setFormData({...formData, created_on: e.target.value + 'T00:00:00'})}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 required
               />
