@@ -8,6 +8,7 @@ interface ColorPalettePopupProps {
   onClose: () => void;
   onColorChange: (color: string) => void;
   initialColor?: string;
+  position?: { x: number; y: number };
 }
 
 interface HSB {
@@ -21,6 +22,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   onClose,
   onColorChange,
   initialColor = "#ff0000",
+  position,
 }) => {
   // Initialize once to avoid flickering
   const [hsb, setHsb] = useState<HSB>(() => hexToHsb(initialColor));
@@ -134,7 +136,20 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }, [handleMouseMove]);
 
   return (
-    <Dialog open={isOpen} onClose={onClose}>
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: position ? {
+            position: 'absolute',
+            left: position.x,
+            top: position.y,
+            margin: 0,
+          } : {}
+        }
+      }}
+    >
       <DialogTitle>Select Color</DialogTitle>
       <DialogContent>
         {/* Hue Slider */}
