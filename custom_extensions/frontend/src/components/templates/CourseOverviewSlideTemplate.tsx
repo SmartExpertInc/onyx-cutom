@@ -122,7 +122,7 @@ function InlineEditor({
 }
 
 export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
-  theme?: string;
+  theme?: SlideTheme;
 }> = ({
   slideId,
   title = 'Course',
@@ -135,7 +135,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   accentColor,
   isEditable = false,
   onUpdate,
-  theme = DEFAULT_SLIDE_THEME,
+  theme,
   voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
@@ -143,25 +143,26 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
 
-  // Get theme colors
-  const currentTheme = getSlideTheme(theme);
-  const themeColors = currentTheme.colors;
+  // Use theme colors instead of props
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, accentColor: themeAccent } = currentTheme.colors;
 
-  // Use theme colors if not provided - adapt to site themes
-  const slideBackgroundColor = backgroundColor || themeColors.backgroundColor;
-  const slideTitleColor = titleColor || themeColors.titleColor;
-  const slideSubtitleColor = subtitleColor || themeColors.subtitleColor;
-  const slideAccentColor = accentColor || themeColors.accentColor;
+  // Use theme colors if not provided
+  const slideBackgroundColor = backgroundColor || themeBg;
+  const slideTitleColor = titleColor || themeTitle;
+  const slideSubtitleColor = subtitleColor || themeSubtitle;
+  const slideAccentColor = accentColor || themeAccent;
   
   // Create a more suitable color for the left panel based on theme
   const getLeftPanelColor = () => {
-    if (theme === 'dark-purple') return '#2d1b69'; // Darker purple
-    if (theme === 'light-modern') return '#f3f4f6'; // Light gray
-    if (theme === 'corporate-blue') return '#1e40af'; // Darker blue
-    if (theme === 'chudo-theme') return '#d01510'; // Red
-    if (theme === 'chudo-2') return '#d01510'; // Red
-    if (theme === 'forta') return '#00664f'; // Green
-    if (theme === 'forta-2') return '#00664f'; // Green
+    const themeId = currentTheme.id;
+    if (themeId === 'dark-purple') return '#2d1b69'; // Darker purple
+    if (themeId === 'light-modern') return '#f3f4f6'; // Light gray
+    if (themeId === 'corporate-blue') return '#1e40af'; // Darker blue
+    if (themeId === 'chudo-theme') return '#d01510'; // Red
+    if (themeId === 'chudo-2') return '#d01510'; // Red
+    if (themeId === 'forta') return '#00664f'; // Green
+    if (themeId === 'forta-2') return '#00664f'; // Green
     return slideAccentColor; // Fallback
   };
   

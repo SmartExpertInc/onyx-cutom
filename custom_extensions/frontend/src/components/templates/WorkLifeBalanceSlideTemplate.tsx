@@ -123,7 +123,7 @@ function InlineEditor({
 }
 
 export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & {
-  theme?: string;
+  theme?: SlideTheme;
 }> = ({
   slideId,
   title = 'Work-life balance',
@@ -138,7 +138,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   accentColor,
   isEditable = false,
   onUpdate,
-  theme = DEFAULT_SLIDE_THEME,
+  theme,
   voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
@@ -147,25 +147,26 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const [currentContent, setCurrentContent] = useState(content);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
-  // Get theme colors
-  const currentTheme = getSlideTheme(theme);
-  const themeColors = currentTheme.colors;
+  // Use theme colors instead of props
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  // Use theme colors if not provided - adapt to site themes
-  const slideBackgroundColor = backgroundColor || themeColors.backgroundColor;
-  const slideTitleColor = titleColor || themeColors.titleColor;
-  const slideContentColor = contentColor || themeColors.contentColor;
-  const slideAccentColor = accentColor || themeColors.accentColor;
+  // Use theme colors if not provided
+  const slideBackgroundColor = backgroundColor || themeBg;
+  const slideTitleColor = titleColor || themeTitle;
+  const slideContentColor = contentColor || themeContent;
+  const slideAccentColor = accentColor || themeAccent;
   
   // Create a more suitable color for the arch based on theme
   const getArchColor = () => {
-    if (theme === 'dark-purple') return '#4c1d95'; // Purple
-    if (theme === 'light-modern') return '#e5e7eb'; // Light gray
-    if (theme === 'corporate-blue') return '#3b82f6'; // Blue
-    if (theme === 'chudo-theme') return '#ed6c00'; // Orange
-    if (theme === 'chudo-2') return '#d01510'; // Red
-    if (theme === 'forta') return '#e1d3c4'; // Beige
-    if (theme === 'forta-2') return '#e1d3c4'; // Beige
+    const themeId = currentTheme.id;
+    if (themeId === 'dark-purple') return '#4c1d95'; // Purple
+    if (themeId === 'light-modern') return '#e5e7eb'; // Light gray
+    if (themeId === 'corporate-blue') return '#3b82f6'; // Blue
+    if (themeId === 'chudo-theme') return '#ed6c00'; // Orange
+    if (themeId === 'chudo-2') return '#d01510'; // Red
+    if (themeId === 'forta') return '#e1d3c4'; // Beige
+    if (themeId === 'forta-2') return '#e1d3c4'; // Beige
     return '#9CAF88'; // Default olive green
   };
   

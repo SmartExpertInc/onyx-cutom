@@ -122,7 +122,7 @@ function InlineEditor({
 }
 
 export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
-  theme?: string;
+  theme?: SlideTheme;
 }> = ({
   slideId,
   title = 'Thank you',
@@ -139,7 +139,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   accentColor,
   isEditable = false,
   onUpdate,
-  theme = DEFAULT_SLIDE_THEME,
+  theme,
   voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
@@ -156,26 +156,27 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const [currentPostalCode, setCurrentPostalCode] = useState(postalCode);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
 
-  // Get theme colors
-  const currentTheme = getSlideTheme(theme);
-  const themeColors = currentTheme.colors;
+  // Use theme colors instead of props
+  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  // Use theme colors if not provided - adapt to site themes
-  const slideBackgroundColor = backgroundColor || themeColors.backgroundColor;
-  const slideTitleColor = titleColor || themeColors.titleColor;
-  const slideSubtitleColor = themeColors.subtitleColor;
-  const slideTextColor = textColor || themeColors.contentColor;
-  const slideAccentColor = accentColor || themeColors.accentColor;
+  // Use theme colors if not provided
+  const slideBackgroundColor = backgroundColor || themeBg;
+  const slideTitleColor = titleColor || themeTitle;
+  const slideSubtitleColor = themeSubtitle;
+  const slideTextColor = textColor || themeContent;
+  const slideAccentColor = accentColor || themeAccent;
   
   // Create a more suitable color for separator lines based on theme
   const getSeparatorColor = () => {
-    if (theme === 'dark-purple') return '#f35657'; // Red accent
-    if (theme === 'light-modern') return '#3b82f6'; // Blue
-    if (theme === 'corporate-blue') return '#60a5fa'; // Light blue
-    if (theme === 'chudo-theme') return '#ed6c00'; // Orange
-    if (theme === 'chudo-2') return '#d01510'; // Red
-    if (theme === 'forta') return '#00664f'; // Green
-    if (theme === 'forta-2') return '#e1d3c4'; // Beige
+    const themeId = currentTheme.id;
+    if (themeId === 'dark-purple') return '#f35657'; // Red accent
+    if (themeId === 'light-modern') return '#3b82f6'; // Blue
+    if (themeId === 'corporate-blue') return '#60a5fa'; // Light blue
+    if (themeId === 'chudo-theme') return '#ed6c00'; // Orange
+    if (themeId === 'chudo-2') return '#d01510'; // Red
+    if (themeId === 'forta') return '#00664f'; // Green
+    if (themeId === 'forta-2') return '#e1d3c4'; // Beige
     return slideAccentColor; // Fallback
   };
   
