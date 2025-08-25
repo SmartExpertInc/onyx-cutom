@@ -241,245 +241,255 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
   return (
     <div className="hybrid-work-best-practices-slide-template" style={slideStyles}>
-      {/* Top section */}
+      {/* Main content with two columns */}
       <div style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: themeBg,
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '40px'
+        padding: '40px 60px'
       }}>
-        {/* Left content */}
+        {/* Left column */}
         <div style={{
-          flex: '1',
-          maxWidth: '50%'
+          width: '50%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          paddingRight: '40px'
         }}>
-          {/* Header */}
-          <div style={{
-            fontSize: '14px',
-            color: themeContent,
-            marginBottom: '20px',
-            fontWeight: '300'
-          }}>
-            {isEditable && editingTitle ? (
-              <InlineEditor
-                initialValue={currentTitle}
-                onSave={handleTitleSave}
-                onCancel={handleTitleCancel}
-                className="hybrid-title-editor"
-                style={{
-                  fontSize: '14px',
-                  color: themeContent,
-                  fontWeight: '300'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingTitle(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentTitle}
-              </div>
-            )}
-          </div>
-
-          {/* Main statement */}
-          <div style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            color: themeTitle,
-            lineHeight: '1.3',
-            marginBottom: '40px'
-          }}>
-            {isEditable && editingMainStatement ? (
-              <InlineEditor
-                initialValue={currentMainStatement}
-                onSave={handleMainStatementSave}
-                onCancel={handleMainStatementCancel}
-                multiline={true}
-                className="hybrid-main-statement-editor"
-                style={{
-                  fontSize: '32px',
-                  fontWeight: 'bold',
-                  color: themeTitle,
-                  lineHeight: '1.3'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingMainStatement(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentMainStatement}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Profile image - bottom left */}
-        <div style={{
-          width: '120px',
-          height: '120px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          backgroundColor: themeAccent,
-          position: 'absolute',
-          bottom: '40px',
-          left: '60px'
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Practices section */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '30px',
-        marginBottom: '40px',
-        marginLeft: '200px'
-      }}>
-        {currentPractices.map((practice, index) => (
-          <div
-            key={index}
-            style={{
-              display: 'flex',
-              gap: '15px',
-              alignItems: 'flex-start'
-            }}
-          >
-            {/* Number */}
+          {/* Top content */}
+          <div>
+            {/* Header */}
             <div style={{
-              width: '30px',
-              height: '30px',
-              backgroundColor: themeTitle,
-              color: themeBg,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '16px',
+              fontSize: '14px',
+              color: themeContent,
+              marginBottom: '20px',
+              fontWeight: '300'
+            }}>
+              {isEditable && editingTitle ? (
+                <InlineEditor
+                  initialValue={currentTitle}
+                  onSave={handleTitleSave}
+                  onCancel={handleTitleCancel}
+                  className="hybrid-title-editor"
+                  style={{
+                    fontSize: '14px',
+                    color: themeContent,
+                    fontWeight: '300'
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingTitle(true)}
+                  style={{
+                    cursor: isEditable ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentTitle}
+                </div>
+              )}
+            </div>
+
+            {/* Main statement */}
+            <div style={{
+              fontSize: '32px',
               fontWeight: 'bold',
-              flexShrink: 0
+              color: themeTitle,
+              lineHeight: '1.3',
+              marginBottom: '40px'
             }}>
-              {practice.number}
-            </div>
-
-            {/* Content */}
-            <div style={{
-              flex: '1'
-            }}>
-              {/* Title */}
-              <div style={{
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: themeTitle,
-                marginBottom: '8px',
-                lineHeight: '1.2'
-              }}>
-                {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
-                  <InlineEditor
-                    initialValue={practice.title}
-                    onSave={(value) => handlePracticeSave(index, 'title', value)}
-                    onCancel={handlePracticeCancel}
-                    className="practice-title-editor"
-                    style={{
-                      fontSize: '18px',
-                      fontWeight: 'bold',
-                      color: themeTitle,
-                      lineHeight: '1.2'
-                    }}
-                  />
-                ) : (
-                  <div
-                    onClick={() => isEditable && setEditingPractices({ index, field: 'title' })}
-                    style={{
-                      cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
-                    }}
-                  >
-                    {practice.title}
-                  </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <div style={{
-                fontSize: '14px',
-                color: themeContent,
-                lineHeight: '1.4'
-              }}>
-                {isEditable && editingPractices?.index === index && editingPractices?.field === 'description' ? (
-                  <InlineEditor
-                    initialValue={practice.description}
-                    onSave={(value) => handlePracticeSave(index, 'description', value)}
-                    onCancel={handlePracticeCancel}
-                    multiline={true}
-                    className="practice-description-editor"
-                    style={{
-                      fontSize: '14px',
-                      color: themeContent,
-                      lineHeight: '1.4'
-                    }}
-                  />
-                ) : (
-                  <div
-                    onClick={() => isEditable && setEditingPractices({ index, field: 'description' })}
-                    style={{
-                      cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
-                    }}
-                  >
-                    {practice.description}
-                  </div>
-                )}
-              </div>
+              {isEditable && editingMainStatement ? (
+                <InlineEditor
+                  initialValue={currentMainStatement}
+                  onSave={handleMainStatementSave}
+                  onCancel={handleMainStatementCancel}
+                  multiline={true}
+                  className="hybrid-main-statement-editor"
+                  style={{
+                    fontSize: '32px',
+                    fontWeight: 'bold',
+                    color: themeTitle,
+                    lineHeight: '1.3'
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingMainStatement(true)}
+                  style={{
+                    cursor: isEditable ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  {currentMainStatement}
+                </div>
+              )}
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Team image - bottom right */}
-      <div style={{
-        position: 'absolute',
-        bottom: '40px',
-        right: '60px',
-        width: '300px',
-        height: '200px',
-        borderRadius: '10px',
-        overflow: 'hidden'
-      }}>
-        <ClickableImagePlaceholder
-          imagePath={teamImagePath}
-          onImageUploaded={handleTeamImageUploaded}
-          size="LARGE"
-          position="CENTER"
-          description="Team meeting"
-          isEditable={isEditable}
-          style={{
+          {/* Profile image at bottom */}
+          <div style={{
+            width: '120px',
+            height: '120px',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            backgroundColor: themeAccent,
+            alignSelf: 'flex-start'
+          }}>
+            <ClickableImagePlaceholder
+              imagePath={profileImagePath}
+              onImageUploaded={handleProfileImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Profile photo"
+              isEditable={isEditable}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div style={{
+          width: '50%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between'
+        }}>
+          {/* Practices section */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '30px',
+            marginBottom: '30px'
+          }}>
+            {currentPractices.map((practice, index) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  gap: '15px',
+                  alignItems: 'flex-start'
+                }}
+              >
+                {/* Number */}
+                <div style={{
+                  width: '30px',
+                  height: '30px',
+                  backgroundColor: themeTitle,
+                  color: themeBg,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  flexShrink: 0
+                }}>
+                  {practice.number}
+                </div>
+
+                {/* Content */}
+                <div style={{
+                  flex: '1'
+                }}>
+                  {/* Title */}
+                  <div style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: themeTitle,
+                    marginBottom: '8px',
+                    lineHeight: '1.2'
+                  }}>
+                    {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
+                      <InlineEditor
+                        initialValue={practice.title}
+                        onSave={(value) => handlePracticeSave(index, 'title', value)}
+                        onCancel={handlePracticeCancel}
+                        className="practice-title-editor"
+                        style={{
+                          fontSize: '18px',
+                          fontWeight: 'bold',
+                          color: themeTitle,
+                          lineHeight: '1.2'
+                        }}
+                      />
+                    ) : (
+                      <div
+                        onClick={() => isEditable && setEditingPractices({ index, field: 'title' })}
+                        style={{
+                          cursor: isEditable ? 'pointer' : 'default',
+                          userSelect: 'none'
+                        }}
+                      >
+                        {practice.title}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <div style={{
+                    fontSize: '14px',
+                    color: themeContent,
+                    lineHeight: '1.4'
+                  }}>
+                    {isEditable && editingPractices?.index === index && editingPractices?.field === 'description' ? (
+                      <InlineEditor
+                        initialValue={practice.description}
+                        onSave={(value) => handlePracticeSave(index, 'description', value)}
+                        onCancel={handlePracticeCancel}
+                        multiline={true}
+                        className="practice-description-editor"
+                        style={{
+                          fontSize: '14px',
+                          color: themeContent,
+                          lineHeight: '1.4'
+                        }}
+                      />
+                    ) : (
+                      <div
+                        onClick={() => isEditable && setEditingPractices({ index, field: 'description' })}
+                        style={{
+                          cursor: isEditable ? 'pointer' : 'default',
+                          userSelect: 'none'
+                        }}
+                      >
+                        {practice.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Team image at bottom */}
+          <div style={{
             width: '100%',
-            height: '100%',
+            height: '200px',
             borderRadius: '10px',
-            objectFit: 'cover'
-          }}
-        />
+            overflow: 'hidden',
+            backgroundColor: themeAccent
+          }}>
+            <ClickableImagePlaceholder
+              imagePath={teamImagePath}
+              onImageUploaded={handleTeamImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Team meeting"
+              isEditable={isEditable}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '10px',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

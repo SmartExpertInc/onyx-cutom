@@ -207,8 +207,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '36px',
-          fontWeight: 'bold',
+          fontSize: '55px',
           color: themeTitle,
           lineHeight: '1.2',
           maxWidth: '60%'
@@ -246,7 +245,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           height: '120px',
           borderRadius: '50%',
           overflow: 'hidden',
-          backgroundColor: themeAccent
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -286,7 +284,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             }}
           >
             <div style={{
-              fontSize: '18px',
+              fontSize: '25px',
               fontWeight: '500',
               color: themeBg,
               lineHeight: '1.4',
@@ -300,7 +298,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                   multiline={true}
                   className="tip-editor"
                   style={{
-                    fontSize: '18px',
+                    fontSize: '25px',
                     fontWeight: '500',
                     color: themeBg,
                     lineHeight: '1.4',
