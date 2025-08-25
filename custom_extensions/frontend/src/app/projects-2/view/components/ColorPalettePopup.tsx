@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Dialog, DialogTitle, DialogContent, Slider, Typography, Box, TextField } from "@mui/material";
+import { Dialog, DialogContent, Slider, Typography, Box, TextField } from "@mui/material";
 
 interface ColorPalettePopupProps {
   isOpen: boolean;
@@ -137,18 +137,18 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }
 
   // Update all color formats when HSB changes
-  useEffect(() => {
-    if (!isUserTyping && !isManualUpdate) {
-      const newHex = hsbToHex(hsb);
-      if (newHex !== hex && newHex !== lastManualValueRef.current) {
-        setHex(newHex);
-        setRgba(hexToRgba(newHex));
-        setHsla(hexToHsla(newHex));
-        onColorChange(newHex);
-        addToRecentColors(newHex);
-      }
-    }
-  }, [hsb, onColorChange, hex, isUserTyping, isManualUpdate]);
+  // useEffect(() => {
+  //   if (!isUserTyping && !isManualUpdate) {
+  //     const newHex = hsbToHex(hsb);
+  //     if (newHex !== hex && newHex !== lastManualValueRef.current) {
+  //       setHex(newHex);
+  //       setRgba(hexToRgba(newHex));
+  //       setHsla(hexToHsla(newHex));
+  //       onColorChange(newHex);
+  //       addToRecentColors(newHex);
+  //     }
+  //   }
+  // }, [hsb, onColorChange, hex, isUserTyping, isManualUpdate]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,6 +171,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setRgba(hexToRgba(value));
         setHsla(hexToHsla(value));
         onColorChange(value);
+        addToRecentColors(value); // Add to recent colors when manually entering
         // Clear the manual update flag after a longer delay
         setTimeout(() => {
           setIsManualUpdate(false);
@@ -214,6 +215,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setHsb(hexToHsb(newHex));
         setHsla(hexToHsla(newHex));
         onColorChange(newHex);
+        addToRecentColors(newHex); // Add to recent colors when manually entering
         // Clear the manual update flag after a longer delay
         setTimeout(() => {
           setIsManualUpdate(false);
@@ -251,6 +253,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setHsb(hexToHsb(newHex));
         setRgba(hexToRgba(newHex));
         onColorChange(newHex);
+        addToRecentColors(newHex); // Add to recent colors when manually entering
         // Clear the manual update flag after a longer delay
         setTimeout(() => {
           setIsManualUpdate(false);
@@ -287,11 +290,18 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setRgba(hexToRgba(color));
     setHsla(hexToHsla(color));
     onColorChange(color);
+    addToRecentColors(color); // Add to recent colors when explicitly selecting
   };
 
   // --- Hue slider ---
   const handleHueChange = (e: Event, value: number | number[]) => {
-    setHsb(prev => ({ ...prev, h: value as number }));
+    const newHsb = { ...hsb, h: value as number };
+    setHsb(newHsb);
+    const newHex = hsbToHex(newHsb);
+    setHex(newHex);
+    setRgba(hexToRgba(newHex));
+    setHsla(hexToHsla(newHex));
+    onColorChange(newHex);
   };
 
   // --- Saturation/Brightness square ---
@@ -300,12 +310,18 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const rect = sbRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    setHsb(prev => ({
-      ...prev,
+    const newHsb = {
+      ...hsb,
       s: Math.round(x * 100),
       b: Math.round((1 - y) * 100)
-    }));
-  }, []);
+    };
+    setHsb(newHsb);
+    const newHex = hsbToHex(newHsb);
+    setHex(newHex);
+    setRgba(hexToRgba(newHex));
+    setHsla(hexToHsla(newHex));
+    onColorChange(newHex);
+  }, [hsb]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;

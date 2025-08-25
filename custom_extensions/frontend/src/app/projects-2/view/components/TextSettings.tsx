@@ -137,9 +137,9 @@ export default function TextSettings() {
 
   return (
     <>
-      <div className={`bg-white rounded-lg border border-gray-200 ${showAdvancedSettings ? 'max-h-[calc(100vh-40px)] flex flex-col' : ''}`}>
+      <div className={`bg-white rounded-lg border border-gray-200 h-full flex flex-col`}>
       {/* Header with grey background */}
-      <div className={`bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16 ${showAdvancedSettings ? 'flex-shrink-0' : ''}`}>
+      <div className={`bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16 flex-shrink-0`}>
         <div className="flex items-center space-x-2">
           {/* Text icon */}
           <div className="w-5 h-5 text-gray-600">
@@ -158,7 +158,7 @@ export default function TextSettings() {
       </div>
       
       {/* Tab buttons */}
-      <div className={`flex border-b border-gray-200 ${showAdvancedSettings ? 'flex-shrink-0' : ''}`}>
+      <div className={`flex border-b border-gray-200 flex-shrink-0`}>
         <button
           onClick={() => setActiveTab('format')}
           className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
@@ -182,7 +182,7 @@ export default function TextSettings() {
       </div>
       
       {/* Content area */}
-      <div className={`p-4 overflow-y-auto ${showAdvancedSettings ? 'flex-1' : 'max-h-[calc(100vh-200px)]'}`}>
+      <div className={`p-4 overflow-y-auto flex-1`}>
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}
