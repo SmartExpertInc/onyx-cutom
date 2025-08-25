@@ -258,7 +258,7 @@ export default function AvatarSettings() {
               showAdvancedSettings ? 'max-h-96 opacity-100 pt-2' : 'max-h-0 opacity-0 pt-0'
             }`}
           >
-            <div className="px-4 pb-4">
+            <div className="px-4 pb-2">
               <AdvancedSettings
                 rotation={rotation}
                 onRotationChange={setRotation}
