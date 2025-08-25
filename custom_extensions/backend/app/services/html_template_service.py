@@ -126,7 +126,7 @@ class HTMLTemplateService:
                     "content": props.get("content", "Интересуйтесь")
                 }
                 
-            elif template_id == "avatar-service":
+            elif template_id == "avatar-service" or template_id == "avatar-service-slide":
                 validated_props = {
                     "title": props.get("title", "Клиентский сервис -"),
                     "subtitle": props.get("subtitle"),

@@ -54,7 +54,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  
   // Theme picker state
   const [showThemePicker, setShowThemePicker] = useState(false);
 
@@ -178,7 +178,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       }
     };
 
-    processDeck();
+      processDeck();
   }, [deck, theme, currentThemeData.colors]);
 
   // Improved synchronized scrolling with voiceover panel
@@ -253,12 +253,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     );
 
     const updatedDeck = {
-      ...componentDeck,
+        ...componentDeck,
       slides: updatedSlides
-    };
+      };
 
-    setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
+      setComponentDeck(updatedDeck);
+      onSave?.(updatedDeck);
   };
 
   const handleTemplateChange = (slideId: string, newTemplateId: string) => {
@@ -269,7 +269,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     );
 
     const updatedDeck = {
-      ...componentDeck,
+        ...componentDeck,
       slides: updatedSlides
     };
 
@@ -281,7 +281,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     if (!componentDeck) return;
 
     const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
-      slide.slideId === slideId 
+          slide.slideId === slideId 
         ? { 
             ...slide, 
             voiceoverText: newVoiceoverText,
@@ -290,7 +290,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               voiceoverText: newVoiceoverText
             }
           }
-        : slide
+            : slide
     );
 
     const updatedDeck = {
@@ -298,8 +298,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       slides: updatedSlides
     };
 
-    setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
+      setComponentDeck(updatedDeck);
+      onSave?.(updatedDeck);
   };
 
   // Add new slide with template selection - FIXED VERSION
@@ -385,8 +385,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div style={{
-        display: 'flex',
+      <div style={{ 
+        display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '400px',
@@ -590,7 +590,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
       {/* Right-side Vertical Panel - Always visible */}
       {!showThemePicker && (hasAnyVoiceover || !isVoiceoverPanelOpen) && (
-        <div
+        <div 
           ref={dropdownRef}
           style={{
             position: 'fixed',
@@ -667,14 +667,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             onMouseEnter={(e) => {
               if (!isChangingTheme) {
                 e.currentTarget.style.backgroundColor = '#374151';
-                e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.transform = 'scale(1.05)';
                 e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
               }
             }}
             onMouseLeave={(e) => {
               if (!isChangingTheme) {
                 e.currentTarget.style.backgroundColor = '#6b7280';
-                e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.transform = 'scale(1)';
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
               }
             }}
@@ -827,8 +827,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+        </div>
+      )}
 
           {/* Voiceover Button - Only show for video lessons */}
           {hasAnyVoiceover && (
@@ -839,31 +839,31 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 backgroundColor: '#3b82f6',
                 border: 'none',
                 borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer',
+                        cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}
               onClick={() => setIsVoiceoverPanelOpen(!isVoiceoverPanelOpen)}
-              onMouseEnter={(e) => {
+                      onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2563eb';
                 e.currentTarget.style.transform = 'scale(1.05)';
                 e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
+                      }}
+                      onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#3b82f6';
                 e.currentTarget.style.transform = 'scale(1)';
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-              }}
+                      }}
               title={isVoiceoverPanelOpen ? "Close Voiceover Panel" : "Open Voiceover Panel"}
-            >
+                    >
               <Volume2 className="w-4 h-4 text-white" />
-            </button>
-          )}
-        </div>
-      )}
+                    </button>
+                  )}
+                </div>
+              )}
 
       {/* Voiceover Panel */}
       {hasAnyVoiceover && (
