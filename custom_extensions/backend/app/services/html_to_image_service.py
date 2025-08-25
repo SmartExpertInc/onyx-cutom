@@ -69,6 +69,7 @@ class HTMLToImageService:
             from html2image import Html2Image
             
             # Configure html2image with proper Chrome flags for Docker environment
+            # CRITICAL FIX: Add viewport and disable default margins/padding
             hti = Html2Image(
                 size=(self.video_width, self.video_height),
                 output_path=os.path.dirname(output_path),
@@ -79,15 +80,82 @@ class HTMLToImageService:
                     '--disable-web-security',
                     '--disable-features=VizDisplayCompositor',
                     '--force-device-scale-factor=1',  # Ensure 1:1 pixel mapping
-                    '--high-dpi-support=1'  # Better high DPI support
+                    '--high-dpi-support=1',  # Better high DPI support
+                    '--disable-default-apps',
+                    '--disable-extensions',
+                    '--disable-plugins',
+                    '--disable-images',  # Disable images to focus on layout
+                    '--disable-javascript',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-field-trial-config',
+                    '--disable-ipc-flooding-protection',
+                    '--enable-logging',
+                    '--log-level=0',
+                    '--silent-launch',
+                    '--no-first-run',
+                    '--no-default-browser-check',
+                    '--disable-default-apps',
+                    '--disable-sync',
+                    '--disable-translate',
+                    '--hide-scrollbars',
+                    '--mute-audio',
+                    '--no-zygote',
+                    '--single-process',
+                    '--disable-background-networking',
+                    '--disable-background-timer-throttling',
+                    '--disable-client-side-phishing-detection',
+                    '--disable-component-extensions-with-background-pages',
+                    '--disable-extensions',
+                    '--disable-features=TranslateUI',
+                    '--disable-ipc-flooding-protection',
+                    '--disable-renderer-backgrounding',
+                    '--disable-sync',
+                    '--force-color-profile=srgb',
+                    '--metrics-recording-only',
+                    '--no-first-run',
+                    '--safebrowsing-disable-auto-update',
+                    '--enable-automation',
+                    '--password-store=basic',
+                    '--use-mock-keychain',
+                    '--disable-blink-features=AutomationControlled'
                 ]
             )
             
             filename = os.path.basename(output_path)
             
+            # CRITICAL FIX: Wrap HTML content with proper viewport and ensure full coverage
+            # The issue is that html2image might not respect the exact dimensions
+            wrapped_html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width={self.video_width}, height={self.video_height}, initial-scale=1.0">
+                <style>
+                    html, body {{
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        width: {self.video_width}px !important;
+                        height: {self.video_height}px !important;
+                        overflow: hidden !important;
+                        background: transparent !important;
+                    }}
+                    * {{
+                        box-sizing: border-box !important;
+                    }}
+                </style>
+            </head>
+            <body>
+                {html_content}
+            </body>
+            </html>
+            """
+            
             # Convert HTML to image
             hti.screenshot(
-                html_str=html_content,
+                html_str=wrapped_html,
                 save_as=filename,
                 size=(self.video_width, self.video_height)
             )
@@ -322,6 +390,15 @@ class HTMLToImageService:
             
             logger.info(f"🎬 [HTML_TO_IMAGE] HTML content generated")
             logger.info(f"🎬 [HTML_TO_IMAGE] HTML content length: {len(html_content)} characters")
+            
+            # DEBUG: Save HTML content to file for inspection
+            debug_html_path = output_path.replace('.png', '_debug.html')
+            try:
+                with open(debug_html_path, 'w', encoding='utf-8') as f:
+                    f.write(html_content)
+                logger.info(f"🎬 [HTML_TO_IMAGE] Debug HTML saved to: {debug_html_path}")
+            except Exception as e:
+                logger.warning(f"🎬 [HTML_TO_IMAGE] Failed to save debug HTML: {str(e)}")
             
             # Convert to PNG
             logger.info(f"🎬 [HTML_TO_IMAGE] Converting HTML to PNG...")
