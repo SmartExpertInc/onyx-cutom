@@ -1039,5 +1039,21 @@ export const en = {
       configureVisibleColumns: "Configure visible columns",
       moveToTrashTooltip: "Move this product to Trash",
     },
+
+    // From Files Page
+    fromFiles: {
+      loadingDocuments: "Loading documents...",
+      createFromFiles: "Create from Files",
+      chooseMethod: "Choose your preferred method to create content from your files",
+      createFromKnowledgeBase: "Create from Knowledge Base",
+      knowledgeBaseDescription: "Generate content by searching your entire Knowledge Base for relevant information. Perfect for comprehensive content creation.",
+      createFromSpecificFiles: "Create from Specific Files",
+      specificFilesDescription: "Select specific files and folders to use as source material. Ideal for targeted content creation.",
+      whyChooseMethods: "Why choose these methods?",
+      knowledgeBaseSearch: "Knowledge Base Search",
+      knowledgeBaseSearchDesc: "Leverage your entire document collection to find the most relevant information for your content creation needs.",
+      specificFileSelection: "Specific File Selection",
+      specificFileSelectionDesc: "Choose exactly which files to include, giving you precise control over your source material.",
+    },
   },
 };

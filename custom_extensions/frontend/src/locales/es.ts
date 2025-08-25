@@ -940,6 +940,16 @@ export const es = {
       select: "Seleccionar",
       selected: "Seleccionado",
       file: "archivo",
+      chooseMethod: "Elige tu método preferido para crear contenido desde tus archivos",
+      createFromKnowledgeBase: "Crear desde la Base de Conocimientos",
+      knowledgeBaseDescription: "Genera contenido buscando en toda tu Base de Conocimientos información relevante. Perfecto para la creación integral de contenido.",
+      createFromSpecificFiles: "Crear desde Archivos Específicos",
+      specificFilesDescription: "Selecciona archivos y carpetas específicos para usar como material fuente. Ideal para la creación dirigida de contenido.",
+      whyChooseMethods: "¿Por qué elegir estos métodos?",
+      knowledgeBaseSearch: "Búsqueda en Base de Conocimientos",
+      knowledgeBaseSearchDesc: "Aprovecha toda tu colección de documentos para encontrar la información más relevante para tus necesidades de creación de contenido.",
+      specificFileSelection: "Selección de Archivos Específicos",
+      specificFileSelectionDesc: "Elige exactamente qué archivos incluir, dándote control preciso sobre tu material fuente.",
     },
     // Course Outline Page
     courseOutline: {
