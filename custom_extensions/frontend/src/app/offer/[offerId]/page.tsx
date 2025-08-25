@@ -136,6 +136,11 @@ export default function OfferDetailPage() {
     return `${hours}h ${minutes}m`;
   };
 
+  const cleanQualityLevelName = (levelName: string) => {
+    // Remove "Level N - " prefix from quality level names
+    return levelName.replace(/^Level \d+ - /, '');
+  };
+
   const totalLessons = courseModules.reduce((sum, module) => sum + module.lessons, 0);
   const totalLearningDuration = courseModules.reduce((sum, module) => {
     const hours = parseFloat(module.learningDuration.replace('h', ''));
@@ -162,13 +167,9 @@ export default function OfferDetailPage() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                Custom Offer for {offer.company_name}
+                Project Estimate for {offer.company_name}
               </h1>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Building className="h-4 w-4 text-gray-400" />
-                  <span><strong className="text-gray-700">Client:</strong> {offer.company_name}</span>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-gray-400" />
                   <span><strong className="text-gray-700">Manager:</strong> {offer.manager}</span>
@@ -200,8 +201,8 @@ export default function OfferDetailPage() {
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Course Name</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Modules</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Lessons</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Learning Duration (h)</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Production Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Estimated Completion Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Estimated Creation Time</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -244,14 +245,14 @@ export default function OfferDetailPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Quality Level</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Learning Duration (h)</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Production Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-r border-gray-200">Estimated Completion Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Estimated Creation Time</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {qualityLevels.map((level, index) => (
                   <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-medium">{level.level}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-medium">{cleanQualityLevelName(level.level)}</td>
                     <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200">
                       {(() => {
                         // Parse and format learning duration
@@ -288,10 +289,6 @@ export default function OfferDetailPage() {
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-medium">•</span>
                 <span>Estimated Production Time: <strong className="text-gray-900">{formatHoursToHoursMinutes(offer.total_hours)}</strong></span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-600 font-medium">•</span>
-                <span>Production scaling depends on chosen quality tier (200-800h per 1h learning)</span>
               </li>
             </ul>
           </div>
