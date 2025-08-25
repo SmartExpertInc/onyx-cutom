@@ -52,6 +52,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [isManualUpdate, setIsManualUpdate] = useState(false);
+  const lastManualValueRef = useRef<string | null>(null);
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -139,7 +140,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   useEffect(() => {
     if (!isUserTyping && !isManualUpdate) {
       const newHex = hsbToHex(hsb);
-      if (newHex !== hex) {
+      if (newHex !== hex && newHex !== lastManualValueRef.current) {
         setHex(newHex);
         setRgba(hexToRgba(newHex));
         setHsla(hexToHsla(newHex));
@@ -165,14 +166,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       const value = e.currentTarget.value;
       // Only update other formats if we have a complete valid HEX code
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        lastManualValueRef.current = value;
         setHsb(hexToHsb(value));
         setRgba(hexToRgba(value));
         setHsla(hexToHsla(value));
         onColorChange(value);
-        // Clear the manual update flag after a short delay
-        setTimeout(() => setIsManualUpdate(false), 100);
+        // Clear the manual update flag after a longer delay
+        setTimeout(() => {
+          setIsManualUpdate(false);
+          lastManualValueRef.current = null;
+        }, 500);
       } else {
         setIsManualUpdate(false);
+        lastManualValueRef.current = null;
       }
     }
   };
@@ -180,6 +186,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const handleHexBlur = () => {
     setIsUserTyping(false);
     setIsManualUpdate(false);
+    lastManualValueRef.current = null;
   };
 
   const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,14 +209,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         const newRgba = { ...rgba, [field]: value };
         setRgba(newRgba);
         const newHex = rgbaToHex(newRgba);
+        lastManualValueRef.current = newHex;
         setHex(newHex);
         setHsb(hexToHsb(newHex));
         setHsla(hexToHsla(newHex));
         onColorChange(newHex);
-        // Clear the manual update flag after a short delay
-        setTimeout(() => setIsManualUpdate(false), 100);
+        // Clear the manual update flag after a longer delay
+        setTimeout(() => {
+          setIsManualUpdate(false);
+          lastManualValueRef.current = null;
+        }, 500);
       } else {
         setIsManualUpdate(false);
+        lastManualValueRef.current = null;
       }
     }
   };
@@ -234,14 +246,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         const newHsla = { ...hsla, [field]: value };
         setHsla(newHsla);
         const newHex = hslaToHex(newHsla);
+        lastManualValueRef.current = newHex;
         setHex(newHex);
         setHsb(hexToHsb(newHex));
         setRgba(hexToRgba(newHex));
         onColorChange(newHex);
-        // Clear the manual update flag after a short delay
-        setTimeout(() => setIsManualUpdate(false), 100);
+        // Clear the manual update flag after a longer delay
+        setTimeout(() => {
+          setIsManualUpdate(false);
+          lastManualValueRef.current = null;
+        }, 500);
       } else {
         setIsManualUpdate(false);
+        lastManualValueRef.current = null;
       }
     }
   };
@@ -523,6 +540,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -557,6 +575,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -591,6 +610,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -625,6 +645,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
@@ -669,6 +690,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 360 }}
                   onClick={handleInputClick}
@@ -703,6 +725,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -737,6 +760,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -771,6 +795,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onBlur={() => {
                     setIsUserTyping(false);
                     setIsManualUpdate(false);
+                    lastManualValueRef.current = null;
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}

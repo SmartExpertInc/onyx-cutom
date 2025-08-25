@@ -50,9 +50,9 @@ export default function AdvancedSettings({
       {/* Layout */}
       <div className="flex items-start justify-between">
         <span className="text-sm font-medium text-gray-700">Layout</span>
-        <div className="flex space-x-6">
-          {/* X and Y column */}
-          <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-4">
+          {/* X and Y row */}
+          <div className="flex space-x-3">
             {/* X input with label as border */}
             <div className="relative">
               <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">X</label>
@@ -78,8 +78,8 @@ export default function AdvancedSettings({
             </div>
           </div>
           
-          {/* Width and Height column */}
-          <div className="flex flex-col space-y-2">
+          {/* Width and Height row */}
+          <div className="flex space-x-3">
             {/* Width input with label as border */}
             <div className="relative">
               <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Width</label>
