@@ -135,6 +135,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  companyName = 'Company name',
   backgroundColor,
   titleColor,
   contentColor,
@@ -147,9 +148,11 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingTopics, setEditingTopics] = useState<number | null>(null);
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentTopics, setCurrentTopics] = useState(topics);
+  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -169,7 +172,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -177,7 +180,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -187,7 +190,15 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentTopics(newTopics);
     setEditingTopics(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, topics: newTopics });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, topics: newTopics });
+    }
+  };
+
+  const handleCompanyNameSave = (newCompanyName: string) => {
+    setCurrentCompanyName(newCompanyName);
+    setEditingCompanyName(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -206,9 +217,14 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setEditingTopics(null);
   };
 
+  const handleCompanyNameCancel = () => {
+    setCurrentCompanyName(companyName);
+    setEditingCompanyName(false);
+  };
+
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
@@ -360,13 +376,35 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             backgroundColor: themeAccent,
             transform: 'rotate(45deg)'
           }} />
-          <span style={{
+          <div style={{
             fontSize: '14px',
             color: themeContent,
             fontWeight: '300'
           }}>
-            Company name
-          </span>
+            {isEditable && editingCompanyName ? (
+              <InlineEditor
+                initialValue={currentCompanyName}
+                onSave={handleCompanyNameSave}
+                onCancel={handleCompanyNameCancel}
+                className="company-name-editor"
+                style={{
+                  fontSize: '14px',
+                  color: themeContent,
+                  fontWeight: '300'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingCompanyName(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentCompanyName}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

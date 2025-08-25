@@ -288,7 +288,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             <div style={{
               fontSize: '18px',
               fontWeight: '500',
-              color: tip.isHighlighted ? themeBg : themeBg,
+              color: themeBg,
               lineHeight: '1.4',
               textAlign: 'center'
             }}>
@@ -302,7 +302,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                   style={{
                     fontSize: '18px',
                     fontWeight: '500',
-                    color: tip.isHighlighted ? themeBg : themeBg,
+                    color: themeBg,
                     lineHeight: '1.4',
                     textAlign: 'center',
                     background: 'transparent',

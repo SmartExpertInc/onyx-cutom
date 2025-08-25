@@ -136,6 +136,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  companyName = 'Your Logo',
   backgroundColor,
   titleColor,
   contentColor,
@@ -147,8 +148,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTags, setEditingTags] = useState<number | null>(null);
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTags, setCurrentTags] = useState(tags);
+  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -170,7 +173,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -180,7 +183,15 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     setCurrentTags(newTags);
     setEditingTags(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, tags: newTags });
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, tags: newTags });
+    }
+  };
+
+  const handleCompanyNameSave = (newCompanyName: string) => {
+    setCurrentCompanyName(newCompanyName);
+    setEditingCompanyName(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -194,9 +205,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     setEditingTags(null);
   };
 
+  const handleCompanyNameCancel = () => {
+    setCurrentCompanyName(companyName);
+    setEditingCompanyName(false);
+  };
+
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
@@ -441,13 +457,35 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             transform: 'translate(-50%, -50%)'
           }} />
         </div>
-        <span style={{
+        <div style={{
           fontSize: '14px',
           fontWeight: '300',
           color: themeContent
         }}>
-          Your Logo
-        </span>
+          {isEditable && editingCompanyName ? (
+            <InlineEditor
+              initialValue={currentCompanyName}
+              onSave={handleCompanyNameSave}
+              onCancel={handleCompanyNameCancel}
+              className="company-name-editor"
+              style={{
+                fontSize: '14px',
+                fontWeight: '300',
+                color: themeContent
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingCompanyName(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentCompanyName}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

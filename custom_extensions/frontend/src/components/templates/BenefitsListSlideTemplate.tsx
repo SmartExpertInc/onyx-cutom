@@ -140,6 +140,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   profileImageAlt = 'Profile image',
   currentStep = 3,
   totalSteps = 4,
+  companyName = 'Company name',
   backgroundColor,
   titleColor,
   contentColor,
@@ -153,10 +154,12 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
   const [editingBenefits, setEditingBenefits] = useState<number | null>(null);
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentDescription, setCurrentDescription] = useState(description);
   const [currentBenefits, setCurrentBenefits] = useState(benefits);
+  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -177,7 +180,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -185,7 +188,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -193,7 +196,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentDescription(newDescription);
     setEditingDescription(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
     }
   };
 
@@ -203,7 +206,15 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentBenefits(newBenefits);
     setEditingBenefits(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
+    }
+  };
+
+  const handleCompanyNameSave = (newCompanyName: string) => {
+    setCurrentCompanyName(newCompanyName);
+    setEditingCompanyName(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -227,9 +238,14 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setEditingBenefits(null);
   };
 
+  const handleCompanyNameCancel = () => {
+    setCurrentCompanyName(companyName);
+    setEditingCompanyName(false);
+  };
+
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
@@ -472,13 +488,35 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             backgroundColor: themeAccent,
             transform: 'rotate(45deg)'
           }} />
-          <span style={{
+          <div style={{
             fontSize: '14px',
             color: themeContent,
             fontWeight: '300'
           }}>
-            Company name
-          </span>
+            {isEditable && editingCompanyName ? (
+              <InlineEditor
+                initialValue={currentCompanyName}
+                onSave={handleCompanyNameSave}
+                onCancel={handleCompanyNameCancel}
+                className="company-name-editor"
+                style={{
+                  fontSize: '14px',
+                  color: themeContent,
+                  fontWeight: '300'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingCompanyName(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentCompanyName}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

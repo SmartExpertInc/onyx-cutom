@@ -104,11 +104,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Content Slide',
     description: 'Standard content slide with title and body text',
     category: 'content',
-    icon: '📄',
+    icon: '📝',
     component: ContentSlideTemplate,
     defaultProps: {
       title: 'Add title',
-      content: 'Add content',
+      content: 'Add content here',
       backgroundColor: '#261c4e',
       titleColor: '#ffffff',
       contentColor: '#d9e1ff',
@@ -126,9 +126,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       content: {
         type: 'richtext',
         label: 'Content',
-        description: 'Main slide content',
-        required: true,
-        maxLength: 2000
+        description: 'Main content text',
+        required: true
       },
       backgroundColor: {
         type: 'color',
@@ -179,7 +178,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       imageSize: 'large',
       backgroundColor: '#261c4e',
       titleColor: '#ffffff',
-      contentColor: '#d9e1ff'
+      contentColor: '#d9e1ff',
+      companyName: 'Company name'
     },
     propSchema: {
       title: {
@@ -237,7 +237,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         type: 'color',
         label: 'Background Color',
         default: '#261c4e'
-      }
+      },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -257,7 +258,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       bulletColor: '#333333',
       backgroundColor: '#ffffff',
       imagePrompt: 'A relevant illustration for the bullet points',
-      imageAlt: 'Add image description'
+      imageAlt: 'Add image description',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -298,7 +300,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       bulletColor: { type: 'color', label: 'Bullet Color', default: '#333333' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
-      imageAlt: { type: 'text', label: 'Image Alt', required: false }
+      imageAlt: { type: 'text', label: 'Image Alt', required: false },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -319,7 +322,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       bulletColor: '#333333',
       backgroundColor: '#ffffff',
       imagePrompt: 'A relevant illustration for the bullet points',
-      imageAlt: 'Add image description'
+      imageAlt: 'Add image description',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -359,7 +363,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       bulletColor: { type: 'color', label: 'Bullet Color', default: '#333333' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
-      imageAlt: { type: 'text', label: 'Image Alt', required: false }
+      imageAlt: { type: 'text', label: 'Image Alt', required: false },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -385,7 +390,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       columnRatio: '50-50',
       backgroundColor: '#261c4e',
       titleColor: '#ffffff',
-      contentColor: '#d9e1ff'
+      contentColor: '#d9e1ff',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -402,7 +408,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       columnRatio: { type: 'select', label: 'Column Ratio', options: [ { value: '50-50', label: '50-50' }, { value: '60-40', label: '60-40' }, { value: '40-60', label: '40-60' }, { value: '70-30', label: '70-30' }, { value: '30-70', label: '30-70' } ], default: '50-50' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#261c4e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
-      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' }
+      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -437,7 +444,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       layout: 'horizontal',
       stepColor: '#007bff',
       backgroundColor: '#ffffff',
-      titleColor: '#1a1a1a'
+      titleColor: '#1a1a1a',
+      companyName: 'Company name'
     },
     propSchema: {
       title: {
@@ -480,7 +488,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         type: 'color',
         label: 'Title Color',
         default: '#1a1a1a'
-      }
+      },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -511,7 +520,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       solutionIconColor: '#16a34a',
       backgroundColor: '#ffffff',
       titleColor: '#1a1a1a',
-      contentColor: '#374151'
+      contentColor: '#374151',
+      companyName: 'Company name'
     },
     propSchema: {
       title: {
@@ -595,7 +605,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         type: 'color',
         label: 'Колір Тексту',
         default: '#374151'
-      }
+      },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -617,7 +628,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       subtitleColor: '#6b7280',
       textAlign: 'center',
       titleSize: 'xlarge',
-      subtitleSize: 'medium'
+      subtitleSize: 'medium',
+      companyName: 'Company name'
     },
     propSchema: {
       title: {
@@ -708,7 +720,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
           { value: 'large', label: 'Великий' }
         ],
         default: 'medium'
-      }
+      },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -728,7 +741,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       imageSize: 'large',
       backgroundColor: '#261c4e',
       titleColor: '#ffffff',
-      contentColor: '#d9e1ff'
+      contentColor: '#d9e1ff',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -739,7 +753,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       imageSize: { type: 'select', label: 'Image Size', options: [ { value: 'small', label: 'Small' }, { value: 'medium', label: 'Medium' }, { value: 'large', label: 'Large' } ], default: 'large' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#261c4e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
-      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' }
+      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -757,7 +772,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { heading: 'Add box 2', text: 'Add box description' },
         { heading: 'Add box 3', text: 'Add box description' },
         { heading: 'Add box 4', text: 'Add box description' }
-      ]
+      ],
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -768,7 +784,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         required: true,
         // arrayItemType: { type: 'object', label: 'Box', description: 'Box with heading and text', required: true }
         // Якщо потрібна підтримка object, додати окрему схему для box
-      }
+      },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -786,7 +803,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { heading: 'Add step 2', description: 'Add step description' },
         { heading: 'Add step 3', description: 'Add step description' },
         { heading: 'Add step 4', description: 'Add step description' }
-      ]
+      ],
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -796,7 +814,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         description: 'Array of 4 timeline steps',
         required: true,
         // arrayItemType: { type: 'object', label: 'Step', description: 'Step with heading and description', required: true }
-      }
+      },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -814,10 +833,12 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { value: 'Add value', label: 'Add label', description: 'Add description' },
         { value: 'Add value', label: 'Add label', description: 'Add description' },
       ],
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title' },
       items: { type: 'array', label: 'Big Numbers' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
   'pyramid': {
@@ -835,11 +856,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { heading: 'Add heading 2', description: 'Add description' },
         { heading: 'Add heading 3', description: 'Add description' },
       ],
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title' },
       subtitle: { type: 'text', label: 'Subtitle' },
       items: { type: 'array', label: 'Pyramid Items' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -859,7 +882,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#ffffff',
       titleColor: '#e91e63',
       subtitleColor: '#000000',
-      contentColor: '#e91e63'
+      contentColor: '#e91e63',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -870,7 +894,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
       subtitleColor: { type: 'color', label: 'Subtitle Color', default: '#000000' },
-      contentColor: { type: 'color', label: 'Content Color', default: '#e91e63' }
+      contentColor: { type: 'color', label: 'Content Color', default: '#e91e63' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -893,7 +918,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       avatarAlt: 'Avatar',
       backgroundColor: '#1a1a2e',
       titleColor: '#e91e63',
-      buttonColor: '#e91e63'
+      buttonColor: '#e91e63',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -902,7 +928,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a2e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
-      buttonColor: { type: 'color', label: 'Button Color', default: '#e91e63' }
+      buttonColor: { type: 'color', label: 'Button Color', default: '#e91e63' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -925,7 +952,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       avatarAlt: 'Avatar',
       backgroundColor: '#ffffff',
       titleColor: '#e91e63',
-      itemColor: '#000000'
+      itemColor: '#000000',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -934,7 +962,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
-      itemColor: { type: 'color', label: 'Item Color', default: '#000000' }
+      itemColor: { type: 'color', label: 'Item Color', default: '#000000' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -958,7 +987,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       avatarAlt: 'Avatar',
       backgroundColor: '#1a1a2e',
       titleColor: '#ffffff',
-      stepColor: '#e91e63'
+      stepColor: '#e91e63',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -967,7 +997,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       avatarAlt: { type: 'text', label: 'Avatar Alt Text' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a2e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
-      stepColor: { type: 'color', label: 'Step Color', default: '#e91e63' }
+      stepColor: { type: 'color', label: 'Step Color', default: '#e91e63' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -987,7 +1018,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#1a1a2e',
       titleColor: '#e91e63',
       subtitleColor: '#ffffff',
-      contentColor: '#ffffff'
+      contentColor: '#ffffff',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -998,7 +1030,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a2e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#e91e63' },
       subtitleColor: { type: 'color', label: 'Subtitle Color', default: '#ffffff' },
-      contentColor: { type: 'color', label: 'Content Color', default: '#ffffff' }
+      contentColor: { type: 'color', label: 'Content Color', default: '#ffffff' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -1017,7 +1050,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#110c35',
       titleColor: '#ffffff',
       subtitleColor: '#d9e1ff',
-      accentColor: '#f35657'
+      accentColor: '#f35657',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
@@ -1027,7 +1061,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#110c35' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       subtitleColor: { type: 'color', label: 'Subtitle Color', default: '#d9e1ff' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -1046,7 +1081,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#110c35',
       titleColor: '#ffffff',
       contentColor: '#d9e1ff',
-      accentColor: '#f35657'
+      accentColor: '#f35657',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -1056,7 +1092,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#110c35' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     },
   },
 
@@ -1123,7 +1160,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#261c4e',
       titleColor: '#ffffff',
       contentColor: '#d9e1ff',
-      accentColor: '#4CAF50'
+      accentColor: '#4CAF50',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
@@ -1137,7 +1175,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#261c4e' },
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -1181,7 +1220,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#ffffff',
       titleColor: '#333333',
       contentColor: '#666666',
-      accentColor: '#4CAF50'
+      accentColor: '#4CAF50',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -1195,7 +1235,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -1221,7 +1262,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#f5f5f5',
       titleColor: '#333333',
       contentColor: '#666666',
-      accentColor: '#ff6b35'
+      accentColor: '#ff6b35',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
@@ -1231,7 +1273,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#f5f5f5' },
       titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -1256,7 +1299,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#ffffff',
       titleColor: '#333333',
       contentColor: '#666666',
-      accentColor: '#9c27b0'
+      accentColor: '#9c27b0',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -1267,7 +1311,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#9c27b0' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#9c27b0' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   },
 
@@ -1289,7 +1334,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: '#ffffff',
       titleColor: '#333333',
       contentColor: '#666666',
-      accentColor: '#ff6b35'
+      accentColor: '#ff6b35',
+      companyName: 'Company name'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -1299,7 +1345,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
       titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
+      companyName: { type: 'text', label: 'Company Name', required: true }
     }
   }
 };

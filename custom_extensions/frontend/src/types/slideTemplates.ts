@@ -401,6 +401,7 @@ export interface BenefitsListSlideProps extends BaseTemplateProps {
   profileImageAlt?: string;
   currentStep?: number;
   totalSteps?: number;
+  companyName?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
@@ -436,6 +437,7 @@ export interface BenefitsTagsSlideProps extends BaseTemplateProps {
   }>;
   profileImagePath?: string;
   profileImageAlt?: string;
+  companyName?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
@@ -449,6 +451,7 @@ export interface LearningTopicsSlideProps extends BaseTemplateProps {
   topics: string[];
   profileImagePath?: string;
   profileImageAlt?: string;
+  companyName?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
