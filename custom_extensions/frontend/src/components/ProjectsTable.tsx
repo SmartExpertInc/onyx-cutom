@@ -1401,7 +1401,6 @@ const ClientRow: React.FC<{
                                     }`}
                                 />
                             </button>
-                            <Users size={16} className="mr-2 text-blue-600" />
                             <DynamicText 
                                 text={isOtherSection ? t('interface.other', 'Other') : folder.name}
                                 columnWidthPercent={columnWidths.title}
@@ -1451,7 +1450,7 @@ const ClientRow: React.FC<{
                             e.stopPropagation();
                             handleOffersClick(folder, e);
                           }}
-                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                          className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-800 font-medium text-sm transition-colors"
                         >
                           {clientOffersCount[folder.id] || 0}
                         </button>
@@ -3406,8 +3405,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   >({});
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
     title: true,
-    type: true,
-    offers: true,
+    type: false,
+    offers: false,
     created: false,
     creator: false,
     numberOfLessons: true,
@@ -5340,7 +5339,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 offers={clientOffers}
                 loading={loadingOffers}
                 onSelectOffer={(offer) => {
-                    window.open(offer.link, '_blank');
+                    if (offer.link) {
+                        window.open(offer.link, '_blank');
+                    } else {
+                        // Navigate to offer page if no direct link
+                        window.open(`/custom-projects-ui/offer/${offer.id}`, '_blank');
+                    }
                     setShowOffersPopup(false);
                 }}
             />
@@ -5379,6 +5383,22 @@ const OffersPopup: React.FC<{
           </button>
         </div>
 
+        {/* Create Offer Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => {
+              // Trigger the same event as the client row create offer button
+              window.dispatchEvent(new CustomEvent('openOfferModal', { 
+                detail: { client: client } 
+              }));
+              onClose();
+            }}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            {t("interface.createOffer", "Create Offer")}
+          </button>
+        </div>
+
         {/* Content */}
         <div className="space-y-3">
           {loading ? (
@@ -5399,7 +5419,7 @@ const OffersPopup: React.FC<{
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{offer.title || `Offer #${offer.id}`}</h3>
+                    <h3 className="font-semibold text-gray-900">{offer.offer_name || offer.title || `Offer #${offer.id}`}</h3>
                     <p className="text-sm text-gray-600 mt-1">
                       {offer.status || "Draft"} • {offer.total_hours || 0}h
                     </p>
