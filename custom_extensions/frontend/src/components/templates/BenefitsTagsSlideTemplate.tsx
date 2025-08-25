@@ -148,11 +148,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTags, setEditingTags] = useState<number | null>(null);
-  const [editingCompanyName, setEditingCompanyName] = useState(false);
-  const [showLogo, setShowLogo] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTags, setCurrentTags] = useState(tags);
-  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
 
   // Use theme colors instead of props
@@ -190,14 +187,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     }
   };
 
-  const handleCompanyNameSave = (newCompanyName: string) => {
-    setCurrentCompanyName(newCompanyName);
-    setEditingCompanyName(false);
-    if (onUpdate) {
-      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
-    }
-  };
-
   const handleTitleCancel = () => {
     setCurrentTitle(title);
     setEditingTitle(false);
@@ -208,20 +197,9 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     setEditingTags(null);
   };
 
-  const handleCompanyNameCancel = () => {
-    setCurrentCompanyName(companyName);
-    setEditingCompanyName(false);
-  };
-
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
-  const handleFooterClick = () => {
-    if (isEditable) {
-      setShowLogo(!showLogo);
     }
   };
 
@@ -451,54 +429,33 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         alignItems: 'center',
         gap: '10px',
         cursor: isEditable ? 'pointer' : 'default'
-      }}
-      onClick={handleFooterClick}
-      >
-        {showLogo ? (
+      }}>
+        <div style={{
+          width: '30px',
+          height: '30px',
+          border: `2px solid ${themeContent}`,
+          borderRadius: '50%',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
           <div style={{
-            width: '30px',
-            height: '30px',
-            backgroundColor: themeAccent,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{
-              width: '20px',
-              height: '20px',
-              backgroundColor: themeBg,
-              borderRadius: '50%'
-            }} />
-          </div>
-        ) : (
+            width: '12px',
+            height: '2px',
+            backgroundColor: themeContent,
+            position: 'absolute'
+          }} />
           <div style={{
-            width: '30px',
-            height: '30px',
-            border: `2px solid ${themeContent}`,
-            borderRadius: '50%',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{
-              width: '12px',
-              height: '2px',
-              backgroundColor: themeContent,
-              position: 'absolute'
-            }} />
-            <div style={{
-              width: '2px',
-              height: '12px',
-              backgroundColor: themeContent,
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)'
-            }} />
-          </div>
-        )}
+            width: '2px',
+            height: '12px',
+            backgroundColor: themeContent,
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)'
+          }} />
+        </div>
         <div style={{
           fontSize: '14px',
           fontWeight: '300',
@@ -551,7 +508,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 cursor: 'default',
                 userSelect: 'none'
               }}>
-                {currentCompanyName}
+                Company logo
               </div>
             )
           )}
