@@ -9,6 +9,8 @@ interface ColorPalettePopupProps {
   onColorChange: (color: string) => void;
   initialColor?: string;
   position?: { x: number; y: number };
+  recentColors?: string[];
+  onRecentColorChange?: (colors: string[]) => void;
 }
 
 interface HSB {
@@ -39,6 +41,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   onColorChange,
   initialColor = "#ff0000",
   position,
+  recentColors = [],
+  onRecentColorChange,
 }) => {
   // Initialize once to avoid flickering
   const [hsb, setHsb] = useState<HSB>(() => hexToHsb(initialColor));
@@ -137,11 +141,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       setRgba(hexToRgba(newHex));
       setHsla(hexToHsla(newHex));
       onColorChange(newHex);
+      addToRecentColors(newHex);
     }
   }, [hsb, onColorChange, hex]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     const value = e.target.value;
     setHex(value);
     // Only update other formats if we have a complete valid HEX code
@@ -154,6 +160,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   };
 
   const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     const value = parseFloat(e.target.value);
     if (!isNaN(value)) {
       const newRgba = { ...rgba, [field]: value };
@@ -167,6 +174,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   };
 
   const handleHslaChange = (field: keyof HSLA) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     const value = parseFloat(e.target.value);
     if (!isNaN(value)) {
       const newHsla = { ...hsla, [field]: value };
@@ -177,6 +185,32 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       setRgba(hexToRgba(newHex));
       onColorChange(newHex);
     }
+  };
+
+  // Handle input field clicks to ensure they're accessible
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  // Add color to recent colors
+  const addToRecentColors = (color: string) => {
+    if (!onRecentColorChange) return;
+    
+    const updatedRecentColors = [
+      color,
+      ...recentColors.filter(c => c !== color) // Remove if already exists
+    ].slice(0, 5); // Keep only 5 colors
+    
+    onRecentColorChange(updatedRecentColors);
+  };
+
+  // Handle recent color click
+  const handleRecentColorClick = (color: string) => {
+    setHex(color);
+    setHsb(hexToHsb(color));
+    setRgba(hexToRgba(color));
+    setHsla(hexToHsla(color));
+    onColorChange(color);
   };
 
   // --- Hue slider ---
@@ -222,18 +256,55 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       open={isOpen} 
       onClose={onClose}
       hideBackdrop={true}
+      disablePortal={false}
       slotProps={{
         paper: {
-          sx: position ? {
-            position: 'absolute',
-            left: position.x,
-            top: position.y,
-            margin: 0,
-          } : {}
+          sx: {
+            ...(position ? {
+              position: 'absolute',
+              left: position.x,
+              top: position.y,
+              margin: 0,
+            } : {}),
+            zIndex: 9999,
+            '& .MuiDialogContent-root': {
+              zIndex: 10000,
+              position: 'relative',
+            },
+            '& .MuiTextField-root': {
+              zIndex: 10001,
+              position: 'relative',
+            },
+            '& .MuiInputBase-root': {
+              zIndex: 10002,
+              position: 'relative',
+            },
+            '& .MuiInputBase-input': {
+              zIndex: 10003,
+              position: 'relative',
+              pointerEvents: 'auto',
+            }
+          }
         }
       }}
     >
-      <DialogContent>
+      {/* Custom backdrop that doesn't interfere with input fields */}
+      {isOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9998,
+            backgroundColor: 'transparent',
+            pointerEvents: 'none'
+          }}
+          onClick={onClose}
+        />
+      )}
+      <DialogContent sx={{ zIndex: 10000, position: 'relative' }} onClick={(e) => e.stopPropagation()}>
         {/* Hue Slider */}
         <Slider
           value={hsb.h}
@@ -242,10 +313,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           onChange={handleHueChange}
           sx={{
             height: 8,
+            zIndex: 10001,
+            position: 'relative',
             "& .MuiSlider-track": {
               background: `linear-gradient(to right,
-                hsl(0,100%,50%), hsl(60,100%,50%), hsl(120,100%,50%),
-                hsl(180,100%,50%), hsl(240,100%,50%), hsl(300,100%,50%),
+                hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%), hsl(90,100%,50%),
+                hsl(120,100%,50%), hsl(150,100%,50%), hsl(180,100%,50%), hsl(210,100%,50%),
+                hsl(240,100%,50%), hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%),
                 hsl(360,100%,50%))`
             },
             "& .MuiSlider-thumb": {
@@ -265,6 +339,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             borderRadius: 1,
             cursor: 'crosshair',
             position: 'relative',
+            zIndex: 10001,
             background: `linear-gradient(to top, #000, transparent),
                          linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
           }}
@@ -288,11 +363,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         {/* Color Format Toggle Buttons */}
         <Box sx={{ 
           mt: 2, 
-          p: 1, 
+          p: 0.5, 
           bgcolor: 'grey.200', 
-          borderRadius: 1,
+          borderRadius: '20px',
           display: 'flex',
-          gap: 0.5
+          gap: 0.5,
+          zIndex: 10001,
+          position: 'relative'
         }}>
           {(['HEX', 'RGBA', 'HSLA'] as ColorFormat[]).map((format) => (
             <button
@@ -302,13 +379,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 flex: 1,
                 padding: '6px 12px',
                 border: 'none',
-                borderRadius: '4px',
+                borderRadius: '16px',
                 fontSize: '12px',
                 fontWeight: colorFormat === format ? 'bold' : 'normal',
                 backgroundColor: colorFormat === format ? '#fff' : 'transparent',
                 color: colorFormat === format ? '#000' : '#666',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                boxShadow: colorFormat === format ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                zIndex: 10002,
+                position: 'relative'
               }}
             >
               {format}
@@ -317,105 +397,286 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </Box>
 
         {/* Conditional Input Fields */}
-        {colorFormat === 'HEX' && (
-          <TextField
-            label="HEX Color"
-            value={hex}
-            onChange={handleHexChange}
-            fullWidth
-            variant="outlined"
-            inputProps={{ maxLength: 7 }}
-            sx={{ mt: 2 }}
-          />
-        )}
+        <Box sx={{ mt: 2, minHeight: 56, zIndex: 10002, position: 'relative' }}>
+          {colorFormat === 'HEX' && (
+            <TextField
+              label="HEX Color"
+              value={hex}
+              onChange={handleHexChange}
+              fullWidth
+              variant="outlined"
+              inputProps={{ maxLength: 7 }}
+              onClick={handleInputClick}
+              sx={{
+                zIndex: 10003,
+                position: 'relative',
+                '& .MuiInputBase-root': {
+                  zIndex: 10004,
+                  position: 'relative',
+                },
+                '& .MuiInputBase-input': {
+                  zIndex: 10005,
+                  position: 'relative',
+                  pointerEvents: 'auto',
+                }
+              }}
+            />
+          )}
 
-        {colorFormat === 'RGBA' && (
-          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-            <TextField
-              label="R"
-              type="number"
-              value={Math.round(rgba.r)}
-              onChange={handleRgbaChange('r')}
-              inputProps={{ min: 0, max: 255 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-            <TextField
-              label="G"
-              type="number"
-              value={Math.round(rgba.g)}
-              onChange={handleRgbaChange('g')}
-              inputProps={{ min: 0, max: 255 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-            <TextField
-              label="B"
-              type="number"
-              value={Math.round(rgba.b)}
-              onChange={handleRgbaChange('b')}
-              inputProps={{ min: 0, max: 255 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-            <TextField
-              label="A"
-              type="number"
-              value={rgba.a}
-              onChange={handleRgbaChange('a')}
-              inputProps={{ min: 0, max: 1, step: 0.1 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-          </Box>
-        )}
+          {colorFormat === 'RGBA' && (
+            <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
+              <TextField
+                label="R"
+                type="number"
+                value={Math.round(rgba.r)}
+                onChange={handleRgbaChange('r')}
+                inputProps={{ min: 0, max: 255 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+              <TextField
+                label="G"
+                type="number"
+                value={Math.round(rgba.g)}
+                onChange={handleRgbaChange('g')}
+                inputProps={{ min: 0, max: 255 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+              <TextField
+                label="B"
+                type="number"
+                value={Math.round(rgba.b)}
+                onChange={handleRgbaChange('b')}
+                inputProps={{ min: 0, max: 255 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+              <TextField
+                label="A"
+                type="number"
+                value={rgba.a}
+                onChange={handleRgbaChange('a')}
+                inputProps={{ min: 0, max: 1, step: 0.1 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+            </Box>
+          )}
 
-        {colorFormat === 'HSLA' && (
-          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-            <TextField
-              label="H"
-              type="number"
-              value={Math.round(hsla.h)}
-              onChange={handleHslaChange('h')}
-              inputProps={{ min: 0, max: 360 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-            <TextField
-              label="S"
-              type="number"
-              value={Math.round(hsla.s)}
-              onChange={handleHslaChange('s')}
-              inputProps={{ min: 0, max: 100 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-            <TextField
-              label="L"
-              type="number"
-              value={Math.round(hsla.l)}
-              onChange={handleHslaChange('l')}
-              inputProps={{ min: 0, max: 100 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-            <TextField
-              label="A"
-              type="number"
-              value={hsla.a}
-              onChange={handleHslaChange('a')}
-              inputProps={{ min: 0, max: 1, step: 0.1 }}
-              sx={{ flex: 1 }}
-              variant="outlined"
-            />
-          </Box>
-        )}
+          {colorFormat === 'HSLA' && (
+            <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
+              <TextField
+                label="H"
+                type="number"
+                value={Math.round(hsla.h)}
+                onChange={handleHslaChange('h')}
+                inputProps={{ min: 0, max: 360 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+              <TextField
+                label="S"
+                type="number"
+                value={Math.round(hsla.s)}
+                onChange={handleHslaChange('s')}
+                inputProps={{ min: 0, max: 100 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+              <TextField
+                label="L"
+                type="number"
+                value={Math.round(hsla.l)}
+                onChange={handleHslaChange('l')}
+                inputProps={{ min: 0, max: 100 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+              <TextField
+                label="A"
+                type="number"
+                value={hsla.a}
+                onChange={handleHslaChange('a')}
+                inputProps={{ min: 0, max: 1, step: 0.1 }}
+                onClick={handleInputClick}
+                sx={{ 
+                  flex: 1,
+                  zIndex: 10004,
+                  position: 'relative',
+                  '& .MuiInputBase-root': {
+                    zIndex: 10005,
+                    position: 'relative',
+                  },
+                  '& .MuiInputBase-input': {
+                    zIndex: 10006,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  }
+                }}
+                variant="outlined"
+              />
+            </Box>
+          )}
+        </Box>
 
         {/* Color Preview */}
         <Box sx={{
           mt: 2, width: 40, height: 40, border: '1px solid #ccc',
-          borderRadius: 1, backgroundColor: hex
+          borderRadius: 1, backgroundColor: hex,
+          zIndex: 10001,
+          position: 'relative'
         }} />
+
+        {/* Recent Colors */}
+        {onRecentColorChange && (
+          <Box sx={{ mt: 2, zIndex: 10001, position: 'relative' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
+              Recent Colors
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {Array.from({ length: 5 }, (_, index) => {
+                const color = recentColors[index];
+                return (
+                  <Box
+                    key={index}
+                    onClick={() => color && handleRecentColorClick(color)}
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      border: '1px solid #ccc',
+                      borderRadius: 0.5,
+                      backgroundColor: color || '#f0f0f0',
+                      cursor: color ? 'pointer' : 'default',
+                      opacity: color ? 1 : 0.3,
+                      '&:hover': {
+                        border: color ? '2px solid #666' : '1px solid #ccc',
+                        transform: color ? 'scale(1.1)' : 'none',
+                      },
+                      transition: 'all 0.2s',
+                      position: 'relative',
+                      zIndex: 10002
+                    }}
+                    title={color || 'No recent color'}
+                  >
+                    {!color && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: 2,
+                          height: 2,
+                          backgroundColor: '#ccc',
+                          borderRadius: '50%'
+                        }}
+                      />
+                    )}
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
+        )}
       </DialogContent>
     </Dialog>
   );

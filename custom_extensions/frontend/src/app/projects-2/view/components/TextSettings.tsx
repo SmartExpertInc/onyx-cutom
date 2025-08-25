@@ -27,6 +27,7 @@ export default function TextSettings() {
   const [showBackgroundColorPicker, setShowBackgroundColorPicker] = useState(false);
   const [fontColorPickerPosition, setFontColorPickerPosition] = useState({ x: 0, y: 0 });
   const [backgroundColorPickerPosition, setBackgroundColorPickerPosition] = useState({ x: 0, y: 0 });
+  const [recentColors, setRecentColors] = useState<string[]>([]);
 
   // Advanced settings states
   const [rotation, setRotation] = useState(0);
@@ -567,6 +568,8 @@ export default function TextSettings() {
       onColorChange={setFontColor}
       initialColor={fontColor}
       position={fontColorPickerPosition}
+      recentColors={recentColors}
+      onRecentColorChange={setRecentColors}
     />
 
     {/* Background Color Picker Popup */}
@@ -576,6 +579,8 @@ export default function TextSettings() {
       onColorChange={setBackgroundColor}
       initialColor={backgroundColor}
       position={backgroundColorPickerPosition}
+      recentColors={recentColors}
+      onRecentColorChange={setRecentColors}
     />
     </>
   );
