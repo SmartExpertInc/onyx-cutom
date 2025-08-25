@@ -465,6 +465,55 @@ export const en = {
     // Create Offer Modal
     loadingClients: "Loading clients...",
     selectClient: "Select a client...",
+
+    // Workspace Members
+    workspace: "Workspace",
+    workspaceMembers: "Workspace Members",
+    workspaceMembersDescription: "Manage team members and their access to the workspace",
+    addMember: "Add Member",
+    inviteMember: "Invite Member",
+    memberName: "Name",
+    memberEmail: "Email",
+    memberRole: "Role",
+    memberStatus: "Status",
+    memberInvitationDate: "Invitation Date",
+    memberActions: "Actions",
+    roles: {
+      admin: "Admin",
+      member: "Member",
+      viewer: "Viewer"
+    },
+    statuses: {
+      active: "Active",
+      suspended: "Suspended",
+      blocked: "Blocked",
+      pending: "Pending"
+    },
+    workspaceActions: {
+      delete: "Delete",
+      suspend: "Suspend",
+      activate: "Activate",
+      unblock: "Unblock",
+      resendInvitation: "Resend Invitation"
+    },
+    filters: {
+      allStatuses: "All Statuses",
+      active: "Active",
+      suspended: "Suspended",
+      blocked: "Blocked"
+    },
+    addMemberModal: {
+      title: "Add Member",
+      description: "Invite a new member to the workspace",
+      emailLabel: "Email",
+      emailPlaceholder: "Enter email address",
+      roleLabel: "Role",
+      rolePlaceholder: "Select role",
+      sendInvitation: "Send Invitation",
+      cancel: "Cancel"
+    },
+    noMembers: "No workspace members found",
+    searchPlaceholder: "Search members...",
     enterOfferName: "Enter offer name...",
     enterManager: "Enter manager name...",
     creating: "Creating...",

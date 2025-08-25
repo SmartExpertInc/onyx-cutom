@@ -439,6 +439,55 @@ export const es = {
     // Create Offer Modal
     loadingClients: "Cargando clientes...",
     selectClient: "Selecciona un cliente...",
+
+    // Workspace Members
+    workspace: "Espacio de trabajo",
+    workspaceMembers: "Miembros del espacio de trabajo",
+    workspaceMembersDescription: "Gestiona los miembros del equipo y su acceso al espacio de trabajo",
+    addMember: "Agregar miembro",
+    inviteMember: "Invitar miembro",
+    memberName: "Nombre",
+    memberEmail: "Email",
+    memberRole: "Rol",
+    memberStatus: "Estado",
+    memberInvitationDate: "Fecha de invitación",
+    memberActions: "Acciones",
+    roles: {
+      admin: "Administrador",
+      member: "Miembro",
+      viewer: "Observador"
+    },
+    statuses: {
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado",
+      pending: "Pendiente"
+    },
+    workspaceActions: {
+      delete: "Eliminar",
+      suspend: "Suspender",
+      activate: "Activar",
+      unblock: "Desbloquear",
+      resendInvitation: "Reenviar invitación"
+    },
+    filters: {
+      allStatuses: "Todos los estados",
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado"
+    },
+    addMemberModal: {
+      title: "Agregar miembro",
+      description: "Invitar a un nuevo miembro al espacio de trabajo",
+      emailLabel: "Email",
+      emailPlaceholder: "Ingrese dirección de email",
+      roleLabel: "Rol",
+      rolePlaceholder: "Seleccionar rol",
+      sendInvitation: "Enviar invitación",
+      cancel: "Cancelar"
+    },
+    noMembers: "No se encontraron miembros del espacio de trabajo",
+    searchPlaceholder: "Buscar miembros...",
     enterOfferName: "Ingresa el nombre de la oferta...",
     enterManager: "Ingresa el nombre del gerente...",
     creating: "Creando...",

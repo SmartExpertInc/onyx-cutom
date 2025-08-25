@@ -429,6 +429,55 @@ export const uk = {
     // Create Offer Modal
     loadingClients: "Завантаження клієнтів...",
     selectClient: "Виберіть клієнта...",
+
+    // Workspace Members
+    workspace: "Робочий простір",
+    workspaceMembers: "Учасники робочого простору",
+    workspaceMembersDescription: "Керуйте учасниками команди та їх доступом до робочого простору",
+    addMember: "Додати учасника",
+    inviteMember: "Запросити учасника",
+    memberName: "Ім'я",
+    memberEmail: "Email",
+    memberRole: "Роль",
+    memberStatus: "Статус",
+    memberInvitationDate: "Дата запрошення",
+    memberActions: "Дії",
+    roles: {
+      admin: "Адміністратор",
+      member: "Учасник",
+      viewer: "Спостерігач"
+    },
+    statuses: {
+      active: "Активний",
+      suspended: "Призупинений",
+      blocked: "Заблокований",
+      pending: "Очікує"
+    },
+    workspaceActions: {
+      delete: "Видалити",
+      suspend: "Призупинити",
+      activate: "Активувати",
+      unblock: "Розблокувати",
+      resendInvitation: "Надіслати запрошення повторно"
+    },
+    filters: {
+      allStatuses: "Всі статуси",
+      active: "Активний",
+      suspended: "Призупинений",
+      blocked: "Заблокований"
+    },
+    addMemberModal: {
+      title: "Додати учасника",
+      description: "Запросити нового учасника до робочого простору",
+      emailLabel: "Email",
+      emailPlaceholder: "Введіть email адресу",
+      roleLabel: "Роль",
+      rolePlaceholder: "Виберіть роль",
+      sendInvitation: "Надіслати запрошення",
+      cancel: "Скасувати"
+    },
+    noMembers: "Учасники робочого простору не знайдені",
+    searchPlaceholder: "Пошук учасників...",
     enterOfferName: "Введіть назву пропозиції...",
     enterManager: "Введіть ім'я менеджера...",
     creating: "Створення...",

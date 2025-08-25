@@ -34,6 +34,7 @@ import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
+import WorkspaceMembers from '../../components/WorkspaceMembers';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -455,6 +456,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <FileText size={18} />
           <span>{t('interface.offers', 'Offers')}</span>
         </Link>
+        <Link
+          href="/projects?tab=workspace"
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          onClick={() => onFolderSelect(null)}
+        >
+          <Users size={18} />
+          <span>{t('interface.workspace', 'Workspace')}</span>
+        </Link>
       </nav>
       <nav className="flex flex-col gap-1 mt-auto">
          <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
@@ -474,7 +483,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
   
@@ -504,6 +513,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers }: { isTrash: boolean; isSmart
     if (isTrash) return t('interface.trash', 'Trash');
     if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
+    if (isWorkspace) return t('interface.workspace', 'Workspace');
     return t('interface.products', 'Products');
   };
 
@@ -531,6 +541,7 @@ const ProjectsPageInner: React.FC = () => {
   const isTrash = currentTab === 'trash';
   const isSmartDrive = currentTab === 'smart-drive';
   const isOffers = currentTab === 'offers';
+  const isWorkspace = currentTab === 'workspace';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
@@ -782,12 +793,14 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} />
         <main className="flex-1 overflow-y-auto p-8">
           {isSmartDrive ? (
             <SmartDriveConnectors />
           ) : isOffers ? (
             <OffersTable companyId={selectedFolderId} />
+          ) : isWorkspace ? (
+            <WorkspaceMembers />
           ) : (
             <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
           )}

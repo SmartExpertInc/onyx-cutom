@@ -443,6 +443,55 @@ export const ru = {
     // Create Offer Modal
     loadingClients: "Загрузка клиентов...",
     selectClient: "Выберите клиента...",
+
+    // Workspace Members
+    workspace: "Рабочее пространство",
+    workspaceMembers: "Участники рабочего пространства",
+    workspaceMembersDescription: "Управляйте участниками команды и их доступом к рабочему пространству",
+    addMember: "Добавить участника",
+    inviteMember: "Пригласить участника",
+    memberName: "Имя",
+    memberEmail: "Email",
+    memberRole: "Роль",
+    memberStatus: "Статус",
+    memberInvitationDate: "Дата приглашения",
+    memberActions: "Действия",
+    roles: {
+      admin: "Администратор",
+      member: "Участник",
+      viewer: "Наблюдатель"
+    },
+    statuses: {
+      active: "Активный",
+      suspended: "Приостановлен",
+      blocked: "Заблокирован",
+      pending: "Ожидает"
+    },
+    workspaceActions: {
+      delete: "Удалить",
+      suspend: "Приостановить",
+      activate: "Активировать",
+      unblock: "Разблокировать",
+      resendInvitation: "Отправить приглашение повторно"
+    },
+    filters: {
+      allStatuses: "Все статусы",
+      active: "Активный",
+      suspended: "Приостановлен",
+      blocked: "Заблокирован"
+    },
+    addMemberModal: {
+      title: "Добавить участника",
+      description: "Пригласить нового участника в рабочее пространство",
+      emailLabel: "Email",
+      emailPlaceholder: "Введите email адрес",
+      roleLabel: "Роль",
+      rolePlaceholder: "Выберите роль",
+      sendInvitation: "Отправить приглашение",
+      cancel: "Отмена"
+    },
+    noMembers: "Участники рабочего пространства не найдены",
+    searchPlaceholder: "Поиск участников...",
     enterOfferName: "Введите название предложения...",
     enterManager: "Введите имя менеджера...",
     creating: "Создание...",
