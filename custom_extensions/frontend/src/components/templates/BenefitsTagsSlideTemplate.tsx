@@ -210,6 +210,25 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     }
   };
 
+  const handleCompanyLogoClick = () => {
+    if (isEditable) {
+      // Создаем скрытый input для выбора файла
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          // Здесь должна быть логика загрузки файла
+          // Пока что просто создаем URL для предварительного просмотра
+          const url = URL.createObjectURL(file);
+          handleCompanyLogoUploaded(url);
+        }
+      };
+      input.click();
+    }
+  };
+
   return (
     <div className="benefits-tags-slide-template" style={slideStyles}>
       {/* Top section with title and profile image */}
@@ -484,33 +503,18 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               />
             </div>
           ) : (
-            isEditable ? (
-              <ClickableImagePlaceholder
-                imagePath=""
-                onImageUploaded={handleCompanyLogoUploaded}
-                size="SMALL"
-                position="CENTER"
-                description="Upload company logo"
-                isEditable={isEditable}
-                style={{
-                  fontSize: '14px',
-                  fontWeight: '300',
-                  color: themeContent,
-                  cursor: 'pointer',
-                  userSelect: 'none'
-                }}
-              />
-            ) : (
-              <div style={{
+            <div
+              onClick={handleCompanyLogoClick}
+              style={{
                 fontSize: '14px',
                 fontWeight: '300',
                 color: themeContent,
-                cursor: 'default',
+                cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}>
-                Company logo
-              </div>
-            )
+              }}
+            >
+              Company logo
+            </div>
           )}
         </div>
       </div>
