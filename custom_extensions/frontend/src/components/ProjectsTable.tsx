@@ -1287,6 +1287,8 @@ const ClientRow: React.FC<{
     allFolders: Folder[];
     isOtherSection?: boolean;
     handleClientPdfDownload: (folderId: number, clientName: string, projects: Project[]) => void;
+    handleOffersClick: (client: Folder, event: React.MouseEvent) => void;
+    clientOffersCount: Record<number, number>;
 }> = ({ 
     folder, 
     level, 
@@ -1316,7 +1318,9 @@ const ClientRow: React.FC<{
     handleDeleteFolder,
     allFolders,
     isOtherSection = false,
-    handleClientPdfDownload
+    handleClientPdfDownload,
+    handleOffersClick,
+    clientOffersCount
 }) => {
     const { t } = useLanguage();
 
@@ -1415,6 +1419,13 @@ const ClientRow: React.FC<{
                         {isOtherSection ? '-' : formatDate(folder.created_at)}
                     </td>
                 )}
+                {columnVisibility.type && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center justify-center">
+                            <Users size={16} className="text-blue-600" />
+                        </div>
+                    </td>
+                )}
                 {columnVisibility.creator && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className="inline-flex items-center">
@@ -1431,6 +1442,19 @@ const ClientRow: React.FC<{
                             const totalLessons = getTotalLessonsInFolder(folder);
                             return totalLessons > 0 ? totalLessons : '-';
                         })()}
+                    </td>
+                )}
+                {columnVisibility.offers && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOffersClick(folder, e);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                        >
+                          {clientOffersCount[folder.id] || 0}
+                        </button>
                     </td>
                 )}
                 {columnVisibility.estCreationTime && (
@@ -1540,6 +1564,16 @@ const ClientRow: React.FC<{
                         {columnVisibility.created && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
                         )}
+                        {columnVisibility.type && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div className="flex items-center justify-center">
+                                    {p.designMicroproductType ?
+                                        getDesignMicroproductIcon(p.designMicroproductType) :
+                                        <FileText size={16} className="text-black" />
+                                    }
+                                </div>
+                            </td>
+                        )}
                         {columnVisibility.creator && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <span className="inline-flex items-center">
@@ -1557,6 +1591,9 @@ const ClientRow: React.FC<{
                                     return lessonData ? lessonData.lessonCount : '-';
                                 })()}
                             </td>
+                        )}
+                        {columnVisibility.offers && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                         )}
                         {columnVisibility.estCreationTime && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -1630,6 +1667,8 @@ const ClientRow: React.FC<{
                     handleDeleteFolder={handleDeleteFolder}
                     allFolders={allFolders}
                     handleClientPdfDownload={handleClientPdfDownload}
+                    handleOffersClick={handleOffersClick}
+                    clientOffersCount={clientOffersCount}
                 />
             ))}
         </>
@@ -3403,6 +3442,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const [selectedClientForOffers, setSelectedClientForOffers] = useState<Folder | null>(null);
   const [clientOffers, setClientOffers] = useState<any[]>([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
+  const [clientOffersCount, setClientOffersCount] = useState<Record<number, number>>({});
 
   // Column resizing functionality
   const handleColumnResize = (columnKey: string, newWidth: number) => {
@@ -3449,7 +3489,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         headers["X-Dev-Onyx-User-ID"] = devUserId;
       }
 
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers?client_id=${clientId}`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers?company_id=${clientId}`, {
         headers,
         cache: "no-store",
         credentials: "same-origin",
@@ -3457,7 +3497,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
       if (response.ok) {
         const data = await response.json();
-        setClientOffers(data.offers || []);
+        setClientOffers(Array.isArray(data) ? data : (data.offers || []));
       } else {
         console.error("Failed to fetch offers:", response.status);
         setClientOffers([]);
@@ -3467,6 +3507,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       setClientOffers([]);
     } finally {
       setLoadingOffers(false);
+    }
+  }, []);
+
+  const fetchClientOffersCount = useCallback(async () => {
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers/counts`, {
+        headers,
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setClientOffersCount(data || {});
+      }
+    } catch (e) {
+      console.error("Failed to fetch offers count", e);
     }
   }, []);
 
@@ -3967,6 +4029,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   useEffect(() => {
     refreshProjects();
   }, [refreshProjects]);
+
+  useEffect(() => {
+    fetchClientOffersCount();
+  }, [fetchClientOffersCount]);
 
   useEffect(() => {
     const handleRefresh = () => {
@@ -4797,6 +4863,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                       {[
                         { key: "title", label: t("interface.title", "Title") },
+                        { key: "type", label: t("interface.type", "Type") },
+                        { key: "offers", label: t("interface.offers", "Offers") },
                         {
                           key: "created",
                           label: t("interface.created", "Created"),
@@ -4945,6 +5013,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                             />
                                         </th>
                                     )}
+                                    {columnVisibility.type && (
+                                        <th
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.type}%` }}
+                                        >
+                                            {t('interface.type', 'Type')}
+                                            <div
+                                              className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                              onMouseDown={(e) => handleResizeStart(e, 'type')}
+                                            />
+                                        </th>
+                                    )}
                                     {columnVisibility.created && (
                                         <th 
                                             className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
@@ -4978,6 +5058,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                             <div 
                                                 className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                                                 onMouseDown={(e) => handleResizeStart(e, 'numberOfLessons')}
+                                            />
+                                        </th>
+                                    )}
+                                    {columnVisibility.offers && (
+                                        <th
+                                            className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                                            style={{ width: `${columnWidths.offers}%` }}
+                                        >
+                                            {t('interface.offers', 'Offers')}
+                                            <div
+                                              className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                                              onMouseDown={(e) => handleResizeStart(e, 'offers')}
                                             />
                                         </th>
                                     )}
@@ -5041,6 +5133,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                         handleDeleteFolder={handleDeleteFolder}
                                         allFolders={folders}
                                     handleClientPdfDownload={handleClientPdfDownload}
+                                    handleOffersClick={handleOffersClick}
+                                    clientOffersCount={clientOffersCount}
                                     />
                                 ))}
                                 
@@ -5087,6 +5181,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                         allFolders={folders}
                                         isOtherSection={true}
                                         handleClientPdfDownload={handleClientPdfDownload}
+                                        handleOffersClick={handleOffersClick}
+                                        clientOffersCount={clientOffersCount}
                                     />
                                 )}
                                 
@@ -5244,8 +5340,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 offers={clientOffers}
                 loading={loadingOffers}
                 onSelectOffer={(offer) => {
-                    // TODO: Navigate to offer or show offer details
-                    console.log('Selected offer:', offer);
+                    window.open(offer.link, '_blank');
                     setShowOffersPopup(false);
                 }}
             />

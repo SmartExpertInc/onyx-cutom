@@ -21553,6 +21553,29 @@ async def get_offers(
         logger.error(f"Error fetching offers: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch offers")
 
+@app.get("/api/custom/offers/counts")
+async def get_offer_counts(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Return a mapping of company_id to number of offers for the current user."""
+    try:
+        async with DB_POOL.acquire() as connection:
+            rows = await connection.fetch(
+                """
+                SELECT company_id, COUNT(*) AS cnt
+                FROM offers
+                WHERE onyx_user_id = $1
+                GROUP BY company_id
+                """,
+                onyx_user_id,
+            )
+        result = {row["company_id"]: int(row["cnt"]) for row in rows}
+        return result
+    except Exception as e:
+        logger.error(f"Error fetching offer counts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offer counts")
+
 @app.post("/api/custom/offers", response_model=OfferResponse)
 async def create_offer(
     offer_data: OfferCreate,
