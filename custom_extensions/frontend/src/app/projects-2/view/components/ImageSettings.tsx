@@ -203,7 +203,7 @@ export default function ImageSettings() {
             </div>
 
             {/* Advanced Settings Toggle */}
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center justify-between ${!showAdvancedSettings ? '-mb-4' : ''}`}>
               <span className="text-xs text-gray-500">
                 {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
               </span>
