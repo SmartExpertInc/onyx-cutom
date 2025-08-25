@@ -73,7 +73,7 @@ export default function TextSettings() {
   ];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 mb-8">
+    <div className="bg-white rounded-lg border border-gray-200">
       {/* Header with grey background */}
       <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-2">
@@ -423,10 +423,10 @@ export default function TextSettings() {
             {/* Advanced Settings Content */}
             <div 
               className={`border-t border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
-                showAdvancedSettings ? 'max-h-96 opacity-100 pt-2' : 'max-h-0 opacity-0 pt-0'
+                showAdvancedSettings ? 'max-h-96 opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0'
               }`}
             >
-              <div className="px-4 pb-2">
+              <div className="px-4">
                 <AdvancedSettings
                   rotation={rotation}
                   onRotationChange={setRotation}
