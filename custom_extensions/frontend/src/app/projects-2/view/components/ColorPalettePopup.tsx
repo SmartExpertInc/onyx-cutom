@@ -51,6 +51,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(initialColor));
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
+  const [isManualUpdate, setIsManualUpdate] = useState(false);
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -136,7 +137,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // Update all color formats when HSB changes
   useEffect(() => {
-    if (!isUserTyping) {
+    if (!isUserTyping && !isManualUpdate) {
       const newHex = hsbToHex(hsb);
       if (newHex !== hex) {
         setHex(newHex);
@@ -146,7 +147,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         addToRecentColors(newHex);
       }
     }
-  }, [hsb, onColorChange, hex, isUserTyping]);
+  }, [hsb, onColorChange, hex, isUserTyping, isManualUpdate]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,6 +161,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       setIsUserTyping(false);
+      setIsManualUpdate(true);
       const value = e.currentTarget.value;
       // Only update other formats if we have a complete valid HEX code
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
@@ -167,12 +169,17 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setRgba(hexToRgba(value));
         setHsla(hexToHsla(value));
         onColorChange(value);
+        // Clear the manual update flag after a short delay
+        setTimeout(() => setIsManualUpdate(false), 100);
+      } else {
+        setIsManualUpdate(false);
       }
     }
   };
 
   const handleHexBlur = () => {
     setIsUserTyping(false);
+    setIsManualUpdate(false);
   };
 
   const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,6 +196,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       setIsUserTyping(false);
+      setIsManualUpdate(true);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
         const newRgba = { ...rgba, [field]: value };
@@ -198,6 +206,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setHsb(hexToHsb(newHex));
         setHsla(hexToHsla(newHex));
         onColorChange(newHex);
+        // Clear the manual update flag after a short delay
+        setTimeout(() => setIsManualUpdate(false), 100);
+      } else {
+        setIsManualUpdate(false);
       }
     }
   };
@@ -216,6 +228,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       setIsUserTyping(false);
+      setIsManualUpdate(true);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
         const newHsla = { ...hsla, [field]: value };
@@ -225,6 +238,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setHsb(hexToHsb(newHex));
         setRgba(hexToRgba(newHex));
         onColorChange(newHex);
+        // Clear the manual update flag after a short delay
+        setTimeout(() => setIsManualUpdate(false), 100);
+      } else {
+        setIsManualUpdate(false);
       }
     }
   };
@@ -308,6 +325,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               top: position.y,
               margin: 0,
             } : {}),
+            borderRadius: 3,
             zIndex: 9999,
             '& .MuiDialogContent-root': {
               zIndex: 10000,
@@ -364,13 +382,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%),
                   hsl(360,100%,60%))`,
                 height: 8,
-                borderRadius: 4,
+                borderRadius: 6,
                 opacity: 1
               },
               "& .MuiSlider-track": {
                 background: 'transparent',
                 height: 8,
-                borderRadius: 4,
+                borderRadius: 6,
                 opacity: 1
               },
               "& .MuiSlider-thumb": {
@@ -378,6 +396,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 height: 16, 
                 backgroundColor: "#fff", 
                 border: "2px solid #888",
+                borderRadius: '50%',
                 boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
               }
             }}
@@ -392,7 +411,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             width: '100%',
             height: 128,
             border: '1px solid #ccc',
-            borderRadius: 1,
+            borderRadius: 2,
             cursor: 'crosshair',
             position: 'relative',
             zIndex: 10001,
@@ -421,7 +440,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           mt: 2, 
           p: 0.5, 
           bgcolor: 'grey.200', 
-          borderRadius: '20px',
+          borderRadius: '24px',
           display: 'flex',
           gap: 0.5,
           zIndex: 10001,
@@ -435,7 +454,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 flex: 1,
                 padding: '6px 12px',
                 border: 'none',
-                borderRadius: '16px',
+                borderRadius: '20px',
                 fontSize: '12px',
                 fontWeight: colorFormat === format ? 'bold' : 'normal',
                 backgroundColor: colorFormat === format ? '#fff' : 'transparent',
@@ -477,6 +496,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                     zIndex: 10005,
                     position: 'relative',
                     pointerEvents: 'auto',
+                  },
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#000',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#000',
                   }
                 }}
               />
@@ -495,7 +520,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.r)}
                   onChange={handleRgbaChange('r')}
                   onKeyDown={handleRgbaKeyDown('r')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -510,6 +538,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -520,7 +554,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.g)}
                   onChange={handleRgbaChange('g')}
                   onKeyDown={handleRgbaKeyDown('g')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -535,6 +572,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -545,7 +588,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.b)}
                   onChange={handleRgbaChange('b')}
                   onKeyDown={handleRgbaKeyDown('b')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -560,6 +606,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -570,7 +622,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={rgba.a}
                   onChange={handleRgbaChange('a')}
                   onKeyDown={handleRgbaKeyDown('a')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -585,6 +640,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -605,7 +666,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.h)}
                   onChange={handleHslaChange('h')}
                   onKeyDown={handleHslaKeyDown('h')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 360 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -620,6 +684,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -630,7 +700,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.s)}
                   onChange={handleHslaChange('s')}
                   onKeyDown={handleHslaKeyDown('s')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -645,6 +718,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -655,7 +734,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.l)}
                   onChange={handleHslaChange('l')}
                   onKeyDown={handleHslaKeyDown('l')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -670,6 +752,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -680,7 +768,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={hsla.a}
                   onChange={handleHslaChange('a')}
                   onKeyDown={handleHslaKeyDown('a')}
-                  onBlur={() => setIsUserTyping(false)}
+                  onBlur={() => {
+                    setIsUserTyping(false);
+                    setIsManualUpdate(false);
+                  }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -695,6 +786,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       zIndex: 10006,
                       position: 'relative',
                       pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
                     }
                   }}
                   variant="outlined"
@@ -710,7 +807,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         {/* Color Preview */}
         <Box sx={{
           mt: 2, width: 40, height: 40, border: '1px solid #ccc',
-          borderRadius: 1, backgroundColor: hex,
+          borderRadius: 2, backgroundColor: hex,
           zIndex: 10001,
           position: 'relative'
         }} />
@@ -732,7 +829,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       width: 24,
                       height: 24,
                       border: '1px solid #ccc',
-                      borderRadius: 0.5,
+                      borderRadius: 1,
                       backgroundColor: color || '#f0f0f0',
                       cursor: color ? 'pointer' : 'default',
                       opacity: color ? 1 : 0.3,
