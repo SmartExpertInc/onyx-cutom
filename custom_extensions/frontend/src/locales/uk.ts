@@ -406,6 +406,33 @@ export const uk = {
     deleteOfferConfirmation: "Ви впевнені, що хочете видалити цю пропозицію? Цю дію неможливо скасувати.",
     locale: "uk-UA",
 
+    // Connector Management
+    connectorStatus: "Статус",
+    documentsIndexed: "Проіндексовані документи",
+    lastIndexed: "Останнє індексування",
+    never: "Ніколи",
+    connectorInvalidState: "Конектор у несправному стані",
+    checkConfigurationAndRetry: "Будь ласка, перевірте конфігурацію та спробуйте знову.",
+    index: "Індексувати",
+    fullReindex: "Повне переіндексування",
+    pause: "Призупинити",
+    resume: "Відновити",
+    connectorMustBePaused: "Конектор повинен бути призупинений перед видаленням",
+    configuration: "Конфігурація",
+    connectorName: "Ім'я конектора",
+    source: "Джерело",
+    credential: "Облікові дані",
+    accessType: "Тип доступу",
+    refreshFrequency: "Частота оновлення",
+    pruneFrequency: "Частота очищення",
+
+    // Create Offer Modal
+    loadingClients: "Завантаження клієнтів...",
+    selectClient: "Виберіть клієнта...",
+    enterOfferName: "Введіть назву пропозиції...",
+    enterManager: "Введіть ім'я менеджера...",
+    creating: "Створення...",
+
     // Main content
     all: "Всі",
     trainingPlans: "Плани навчання",

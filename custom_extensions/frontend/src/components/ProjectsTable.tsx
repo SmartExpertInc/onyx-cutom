@@ -1032,22 +1032,7 @@ const FolderRow: React.FC<{
                         </span>
                     </td>
                 )}
-                {columnVisibility.type && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        -
-                    </td>
-                )}
-                {columnVisibility.offers && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <button
-                                    onClick={(e) => handleOffersClick(folder, e)}
-                                    className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
-                                >
-                                    {folder.offer_count || 0} {t("interface.offers", "Offers")}
-                                </button>
-                            </td>
-                        )}
-                        {columnVisibility.created && (
+                {columnVisibility.created && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(folder.created_at)}</td>
                         )}
                 {columnVisibility.creator && (
@@ -1178,11 +1163,6 @@ const FolderRow: React.FC<{
                                     {getDesignMicroproductIcon(p.designMicroproductType || "")}
                                     <span>{getLocalizedTypeName(p.designMicroproductType || "", t)}</span>
                                 </div>
-                            </td>
-                        )}
-                        {columnVisibility.offers && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                -
                             </td>
                         )}
                         {columnVisibility.created && (

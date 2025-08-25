@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { CCPairFullInfo, ConnectorCredentialPairStatus, statusIsNotCurrentlyActive } from "./types";
 import { buildCCPairInfoUrl, triggerIndexing, getTooltipMessage } from "./lib";
 import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Settings } from "lucide-react";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -19,6 +20,7 @@ export default function ConnectorManagementPage({
   onClose, 
   onConnectorDeleted 
 }: ConnectorManagementPageProps) {
+  const { t } = useLanguage();
   const [ccPair, setCcPair] = useState<CCPairFullInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -272,7 +274,7 @@ export default function ConnectorManagementPage({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-semibold text-gray-900">Status</div>
+                <div className="text-sm font-semibold text-gray-900">{t('interface.connectorStatus', 'Status')}</div>
                 <div className={`w-3 h-3 rounded-full ${
                   isActive ? 'bg-green-500' : 
                   isPaused ? 'bg-yellow-500' : 
@@ -288,13 +290,13 @@ export default function ConnectorManagementPage({
               </div>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-              <div className="text-sm font-semibold text-gray-900 mb-2">Documents Indexed</div>
+              <div className="text-sm font-semibold text-gray-900 mb-2">{t('interface.documentsIndexed', 'Documents Indexed')}</div>
               <div className="text-2xl font-bold text-blue-600">{ccPair.num_docs_indexed.toLocaleString()}</div>
             </div>
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
-              <div className="text-sm font-semibold text-gray-900 mb-2">Last Indexed</div>
+              <div className="text-sm font-semibold text-gray-900 mb-2">{t('interface.lastIndexed', 'Last Indexed')}</div>
               <div className="text-2xl font-bold text-purple-600">
-                {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : 'Never'}
+                {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
               </div>
             </div>
           </div>
@@ -307,8 +309,8 @@ export default function ConnectorManagementPage({
                   <AlertCircle className="w-5 h-5 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-red-800">Connector is in an invalid state</h3>
-                  <p className="text-red-700 text-sm mt-1">Please check your configuration and try again.</p>
+                  <h3 className="text-lg font-semibold text-red-800">{t('interface.connectorInvalidState', 'Connector is in an invalid state')}</h3>
+                  <p className="text-red-700 text-sm mt-1">{t('interface.checkConfigurationAndRetry', 'Please check your configuration and try again.')}</p>
                 </div>
               </div>
             </div>
@@ -328,7 +330,7 @@ export default function ConnectorManagementPage({
               }`}
             >
               <RefreshCwIcon className="w-5 h-5" />
-              Index
+              {t('interface.index', 'Index')}
             </button>
 
             {/* Full Re-index Button */}
@@ -343,7 +345,7 @@ export default function ConnectorManagementPage({
               }`}
             >
               <RefreshCwIcon className="w-5 h-5" />
-              Full Re-index
+              {t('interface.fullReindex', 'Full Re-index')}
             </button>
 
             {/* Pause/Resume Button */}
@@ -357,14 +359,14 @@ export default function ConnectorManagementPage({
               }`}
             >
               {isActive ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
-              {isActive ? 'Pause' : 'Resume'}
+              {isActive ? t('interface.pause', 'Pause') : t('interface.resume', 'Resume')}
             </button>
 
             {/* Delete Button */}
             <button
               onClick={handleDelete}
               disabled={isDeleting || isIndexing || !isPaused}
-              title={!isPaused ? "Connector must be paused before deletion" : ""}
+              title={!isPaused ? t('interface.connectorMustBePaused', 'Connector must be paused before deletion') : ""}
               className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
                 isDeleting || isIndexing || !isPaused
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
@@ -372,7 +374,7 @@ export default function ConnectorManagementPage({
               }`}
             >
               <Trash2Icon className="w-5 h-5" />
-              Delete
+              {t('interface.delete', 'Delete')}
             </button>
           </div>
 
@@ -380,31 +382,31 @@ export default function ConnectorManagementPage({
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl border border-gray-200">
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <Settings className="w-5 h-5 text-gray-600" />
-              Configuration
+              {t('interface.configuration', 'Configuration')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <span className="font-semibold text-gray-900">Connector Name:</span>
+                <span className="font-semibold text-gray-900">{t('interface.connectorName', 'Connector Name')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.name}</span>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <span className="font-semibold text-gray-900">Source:</span>
+                <span className="font-semibold text-gray-900">{t('interface.source', 'Source')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.source}</span>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <span className="font-semibold text-gray-900">Credential:</span>
+                <span className="font-semibold text-gray-900">{t('interface.credential', 'Credential')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.credential.name}</span>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <span className="font-semibold text-gray-900">Access Type:</span>
+                <span className="font-semibold text-gray-900">{t('interface.accessType', 'Access Type')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.access_type}</span>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <span className="font-semibold text-gray-900">Refresh Frequency:</span>
+                <span className="font-semibold text-gray-900">{t('interface.refreshFrequency', 'Refresh Frequency')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.refresh_freq}s</span>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <span className="font-semibold text-gray-900">Prune Frequency:</span>
+                <span className="font-semibold text-gray-900">{t('interface.pruneFrequency', 'Prune Frequency')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.prune_freq}s</span>
               </div>
             </div>

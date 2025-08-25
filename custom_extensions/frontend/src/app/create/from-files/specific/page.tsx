@@ -74,7 +74,7 @@ export default function CreateFromSpecificFilesPage() {
     // TODO: Implement backend functionality
     console.log('Creating content from selected connectors:', selectedConnectors);
     // For now, just show an alert
-    alert('Content creation functionality will be implemented in the backend');
+    alert(t('interface.contentCreationNotImplemented', 'Content creation functionality will be implemented in the backend'));
   };
 
   if (loading) {
@@ -82,7 +82,7 @@ export default function CreateFromSpecificFilesPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading connectors...</p>
+          <p className="text-gray-600">{t('interface.loadingConnectors', 'Loading connectors...')}</p>
         </div>
       </div>
     );
@@ -100,11 +100,11 @@ export default function CreateFromSpecificFilesPage() {
                 className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeft size={16} />
-                Back to Create from Files
+{t('interface.fromFiles.backToCreateFromFiles', 'Back to Create from Files')}
               </Link>
             </div>
             <h1 className="text-xl font-semibold text-gray-900">
-              Create from Specific Files
+              {t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
             </h1>
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
@@ -119,13 +119,13 @@ export default function CreateFromSpecificFilesPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <FileText size={20} />
-                  Select Connectors
+{t('interface.selectConnectors', 'Select Connectors')}
                 </h2>
                 <button
                   onClick={handleSelectAll}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  {selectedConnectors.length === connectors.length ? 'Deselect All' : 'Select All'}
+{selectedConnectors.length === connectors.length ? t('interface.deselectAll', 'Deselect All') : t('interface.selectAll', 'Select All')}
                 </button>
               </div>
 
@@ -135,7 +135,7 @@ export default function CreateFromSpecificFilesPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                   <input
                     type="text"
-                    placeholder="Search connectors..."
+placeholder={t('interface.searchConnectors', 'Search connectors...')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -147,7 +147,7 @@ export default function CreateFromSpecificFilesPage() {
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {filteredConnectors.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    {searchTerm ? 'No connectors found matching your search.' : 'No connectors available.'}
+{searchTerm ? t('interface.noConnectorsFound', 'No connectors found matching your search.') : t('interface.noConnectorsAvailable', 'No connectors available.')}
                   </div>
                 ) : (
                   filteredConnectors.map((connector) => (
@@ -183,7 +183,7 @@ export default function CreateFromSpecificFilesPage() {
                           {connector.status}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {connector.total_docs_indexed} docs
+                          {connector.total_docs_indexed} {t('interface.docs', 'docs')}
                         </span>
                       </div>
                     </div>
@@ -203,7 +203,9 @@ export default function CreateFromSpecificFilesPage() {
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
-                Create Content from {selectedConnectors.length} Selected Connector{selectedConnectors.length !== 1 ? 's' : ''}
+{t('interface.createContentFromSelected', 'Create Content from {count} Selected Connector{s}')
+                  .replace('{count}', selectedConnectors.length.toString())
+                  .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')}
               </button>
             </div>
           </div>
@@ -213,10 +215,10 @@ export default function CreateFromSpecificFilesPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Upload size={20} className="text-blue-600" />
-                <h2 className="text-lg font-semibold text-gray-900">File Browser</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('interface.fileBrowser', 'File Browser')}</h2>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                Browse and select files from your Smart Drive to include in your content creation.
+{t('interface.browseAndSelectFiles', 'Browse and select files from your Smart Drive to include in your content creation.')}
               </p>
               <SmartDriveFrame />
             </div>

@@ -416,6 +416,33 @@ export const es = {
     deleteOfferConfirmation: "¿Estás seguro de que quieres eliminar esta oferta? Esta acción no se puede deshacer.",
     locale: "es-ES",
 
+    // Connector Management
+    connectorStatus: "Estado",
+    documentsIndexed: "Documentos indexados",
+    lastIndexed: "Último indexado",
+    never: "Nunca",
+    connectorInvalidState: "El conector está en un estado inválido",
+    checkConfigurationAndRetry: "Por favor, verifica tu configuración e inténtalo de nuevo.",
+    index: "Indexar",
+    fullReindex: "Re-indexado completo",
+    pause: "Pausar",
+    resume: "Reanudar",
+    connectorMustBePaused: "El conector debe estar pausado antes de eliminarlo",
+    configuration: "Configuración",
+    connectorName: "Nombre del conector",
+    source: "Fuente",
+    credential: "Credencial",
+    accessType: "Tipo de acceso",
+    refreshFrequency: "Frecuencia de actualización",
+    pruneFrequency: "Frecuencia de limpieza",
+
+    // Create Offer Modal
+    loadingClients: "Cargando clientes...",
+    selectClient: "Selecciona un cliente...",
+    enterOfferName: "Ingresa el nombre de la oferta...",
+    enterManager: "Ingresa el nombre del gerente...",
+    creating: "Creando...",
+
     // Main content
     all: "Todos",
     trainingPlans: "Planes de entrenamiento",

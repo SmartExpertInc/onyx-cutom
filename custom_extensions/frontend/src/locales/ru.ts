@@ -420,6 +420,33 @@ export const ru = {
     deleteOfferConfirmation: "Вы уверены, что хотите удалить это предложение? Это действие нельзя отменить.",
     locale: "ru-RU",
 
+    // Connector Management
+    connectorStatus: "Статус",
+    documentsIndexed: "Проиндексированные документы",
+    lastIndexed: "Последнее индексирование",
+    never: "Никогда",
+    connectorInvalidState: "Коннектор в неисправном состоянии",
+    checkConfigurationAndRetry: "Пожалуйста, проверьте конфигурацию и попробуйте снова.",
+    index: "Индексировать",
+    fullReindex: "Полное переиндексирование",
+    pause: "Приостановить",
+    resume: "Возобновить",
+    connectorMustBePaused: "Коннектор должен быть приостановлен перед удалением",
+    configuration: "Конфигурация",
+    connectorName: "Имя коннектора",
+    source: "Источник",
+    credential: "Учетные данные",
+    accessType: "Тип доступа",
+    refreshFrequency: "Частота обновления",
+    pruneFrequency: "Частота очистки",
+
+    // Create Offer Modal
+    loadingClients: "Загрузка клиентов...",
+    selectClient: "Выберите клиента...",
+    enterOfferName: "Введите название предложения...",
+    enterManager: "Введите имя менеджера...",
+    creating: "Создание...",
+
     // Main content
     all: "Все",
     trainingPlans: "Планы обучения",

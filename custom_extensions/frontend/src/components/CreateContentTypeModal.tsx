@@ -285,6 +285,12 @@ export const CreateContentTypeModal = ({
                       ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
                       : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                   }`}
+                  onClick={() => {
+                    if (!isDisabled && isSelected) {
+                      // Start content creation for this type
+                      handleContentCreate(type.name);
+                    }
+                  }}
                 >
                   {/* Checkbox */}
                   <div className="mr-4">
@@ -292,7 +298,10 @@ export const CreateContentTypeModal = ({
                       type="checkbox"
                       className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       checked={isSelected}
-                      onChange={() => handlePrefToggle(type.key)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        handlePrefToggle(type.key);
+                      }}
                       disabled={isDisabled}
                     />
                   </div>
@@ -355,46 +364,20 @@ export const CreateContentTypeModal = ({
             </svg>
             <span>{t('actions.cancel')}</span>
           </button>
-          <div className="flex gap-3">
-            <button
-              onClick={handlePrefSave}
-              disabled={!Object.values(selectedPrefs).some(Boolean)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${
-                !Object.values(selectedPrefs).some(Boolean)
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{t('actions.save')}</span>
-            </button>
-            <button
-              onClick={() => {
-                const selectedTypes = Object.keys(selectedPrefs).filter(key => selectedPrefs[key]);
-                if (selectedTypes.length > 0) {
-                  // Create content for the first selected type
-                  const firstSelectedType = selectedTypes[0];
-                  const contentType = updatedContentTypes.find(type => type.key === firstSelectedType)?.name;
-                  if (contentType) {
-                    handleContentCreate(contentType);
-                  }
-                }
-              }}
-              disabled={!Object.values(selectedPrefs).some(Boolean)}
-              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${
-                !Object.values(selectedPrefs).some(Boolean)
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-green-600 text-white hover:bg-green-700 active:scale-95 shadow-lg hover:shadow-xl'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>{t('modals.createContent.createContent', 'Create Content')}</span>
-            </button>
-          </div>
+          <button
+            onClick={handlePrefSave}
+            disabled={!Object.values(selectedPrefs).some(Boolean)}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${
+              !Object.values(selectedPrefs).some(Boolean)
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span>{t('actions.save')}</span>
+          </button>
         </div>
 
         {/* Footer */}

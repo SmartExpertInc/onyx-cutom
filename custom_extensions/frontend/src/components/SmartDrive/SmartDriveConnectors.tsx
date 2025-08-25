@@ -854,7 +854,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Connect {selectedConnector.name}
+                  {t('interface.connect', 'Connect')} {selectedConnector.name}
                 </h2>
                 <button
                   onClick={() => {

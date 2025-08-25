@@ -442,6 +442,35 @@ export const en = {
     deleteOfferConfirmation: "Are you sure you want to delete this offer? This action cannot be undone.",
     locale: "en-US",
 
+    // Connector Management
+    connectorStatus: "Status",
+    documentsIndexed: "Documents Indexed",
+    lastIndexed: "Last Indexed",
+    never: "Never",
+    connectorInvalidState: "Connector is in an invalid state",
+    checkConfigurationAndRetry: "Please check your configuration and try again.",
+    index: "Index",
+    fullReindex: "Full Re-index",
+    pause: "Pause",
+    resume: "Resume",
+    connectorMustBePaused: "Connector must be paused before deletion",
+    configuration: "Configuration",
+    connectorName: "Connector Name",
+    source: "Source",
+    credential: "Credential",
+    accessType: "Access Type",
+    refreshFrequency: "Refresh Frequency",
+    pruneFrequency: "Prune Frequency",
+
+    // Create Offer Modal
+    loadingClients: "Loading clients...",
+    selectClient: "Select a client...",
+    enterOfferName: "Enter offer name...",
+    enterManager: "Enter manager name...",
+    creating: "Creating...",
+
+
+
     // Main content
     all: "All",
     other: "Not Assigned",
