@@ -17335,6 +17335,96 @@ async def download_presentation_slide_image(job_id: str):
         logger.error(f"Error downloading presentation slide image: {str(e)}")
         return {"success": False, "error": f"Failed to download slide image: {str(e)}"}
 
+@app.post("/api/custom/slide-image/generate")
+async def generate_slide_image(request: Request):
+    """Generate slide image from current slide data (standalone, no video generation)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Generating slide image")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Import the HTML to image service
+        from app.services.html_to_image_service import html_to_image_service
+        
+        # Generate a unique ID for this image generation
+        import uuid
+        image_id = str(uuid.uuid4())
+        
+        # Create output directory
+        from pathlib import Path
+        output_dir = Path("output/slide_images")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate image for the first slide (or all slides if needed)
+        slide_props = slides_data[0]  # Use first slide
+        template_id = slide_props.get("templateId")
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Template ID: {template_id}")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Slide props keys: {list(slide_props.keys())}")
+        
+        if not template_id:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Actual props keys: {list(actual_props.keys())}")
+        
+        # Log some key props for debugging
+        for key, value in actual_props.items():
+            if isinstance(value, str):
+                logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] {key}: '{value[:100]}...'")
+            else:
+                logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] {key}: {value}")
+        
+        # Generate output filename
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename = f"slide_image_{template_id}_{timestamp}_{image_id[:8]}.png"
+        output_path = str(output_dir / output_filename)
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Output path: {output_path}")
+        
+        # Convert slide to PNG
+        success = await html_to_image_service.convert_slide_to_png(
+            template_id=template_id,
+            props=actual_props,
+            theme=theme,
+            output_path=output_path
+        )
+        
+        if success:
+            # Verify file was created
+            if not os.path.exists(output_path):
+                logger.error(f"📷 [STANDALONE_SLIDE_IMAGE] File not found after generation: {output_path}")
+                return {"success": False, "error": "Generated file not found"}
+            
+            file_size = os.path.getsize(output_path)
+            logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Successfully generated slide image: {output_path} ({file_size} bytes)")
+            
+            # Return the image directly
+            return FileResponse(
+                path=output_path,
+                media_type="image/png",
+                filename=output_filename
+            )
+        else:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] Failed to generate slide image")
+            return {"success": False, "error": "Failed to generate slide image"}
+        
+    except Exception as e:
+        logger.error(f"📷 [STANDALONE_SLIDE_IMAGE] Error generating slide image: {str(e)}")
+        return {"success": False, "error": f"Failed to generate slide image: {str(e)}"}
+
 @app.get("/api/custom/presentations")
 async def list_presentations(limit: int = 50):
     """List recent presentation jobs."""

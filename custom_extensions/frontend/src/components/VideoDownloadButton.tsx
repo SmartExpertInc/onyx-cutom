@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Video, Loader, CheckCircle, AlertTriangle, Image } from 'lucide-react';
 import SlideImageDownloadButton from './SlideImageDownloadButton';
+import StandaloneSlideImageButton from './StandaloneSlideImageButton';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -556,6 +557,14 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Standalone Slide Image Button - Always available */}
+      <StandaloneSlideImageButton
+        projectName={projectName}
+        onError={onError}
+        onSuccess={onSuccess}
+        className="text-xs py-1"
+      />
+      
       <button
         onClick={handleDownloadVideo}
         disabled={status === 'generating'}
