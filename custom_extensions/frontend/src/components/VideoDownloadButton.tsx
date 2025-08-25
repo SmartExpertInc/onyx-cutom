@@ -1,7 +1,8 @@
 // custom_extensions/frontend/src/components/VideoDownloadButton.tsx
 
 import React, { useState } from 'react';
-import { Video, Loader, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Video, Loader, CheckCircle, AlertTriangle, Image } from 'lucide-react';
+import SlideImageDownloadButton from './SlideImageDownloadButton';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -18,6 +19,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
 }) => {
   const [status, setStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
+  const [jobId, setJobId] = useState<string | null>(null);
 
   // Function to extract actual slide data from current project
   const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
@@ -408,6 +410,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       }
 
       const presentationJobId = createData.jobId;
+      setJobId(presentationJobId); // Store job ID for slide image download
       console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation job created with ID:', presentationJobId);
 
       // Step 4: Monitor professional presentation progress (includes slide capture, avatar generation, and video merging)
@@ -552,18 +555,28 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   };
 
   return (
-    <button
-      onClick={handleDownloadVideo}
-      disabled={status === 'generating'}
-      className={getButtonClassName()}
-      title={
-        status === 'generating' 
-          ? 'Professional video generation in progress...' 
-          : 'Create professional video with slide capture and AI avatar'
-      }
-    >
-      {getButtonIcon()}
-      {getButtonText()}
-    </button>
+    <div className="flex flex-col gap-2">
+      <button
+        onClick={handleDownloadVideo}
+        disabled={status === 'generating'}
+        className={getButtonClassName()}
+        title={
+          status === 'generating' 
+            ? 'Professional video generation in progress...' 
+            : 'Create professional video with slide capture and AI avatar'
+        }
+      >
+        {getButtonIcon()}
+        {getButtonText()}
+      </button>
+      
+      {/* Slide Image Download Button - Only show when job is completed */}
+      {status === 'completed' && jobId && (
+        <SlideImageDownloadButton
+          jobId={jobId}
+          className="text-xs py-1"
+        />
+      )}
+    </div>
   );
 };

@@ -17248,6 +17248,7 @@ async def get_presentation_status(job_id: str):
             "error": job.error,
             "videoUrl": job.video_url,
             "thumbnailUrl": job.thumbnail_url,
+            "slideImageUrl": f"/api/custom/presentations/{job.job_id}/slide-image" if job.slide_image_path else None,
             "createdAt": job.created_at.isoformat() if job.created_at else None,
             "completedAt": job.completed_at.isoformat() if job.completed_at else None
         }
@@ -17307,6 +17308,32 @@ async def get_presentation_thumbnail(job_id: str):
     except Exception as e:
         logger.error(f"Error getting presentation thumbnail: {str(e)}")
         return {"success": False, "error": f"Failed to get thumbnail: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}/slide-image")
+async def download_presentation_slide_image(job_id: str):
+    """Download the generated slide image for debugging."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        slide_image_path = await presentation_service.get_presentation_slide_image(job_id)
+        
+        if not slide_image_path:
+            return {"success": False, "error": "Slide image not found or not completed"}
+        
+        # Return file response
+        return FileResponse(
+            path=slide_image_path,
+            media_type="image/png",
+            filename=f"slide_image_{job_id}.png"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error downloading presentation slide image: {str(e)}")
+        return {"success": False, "error": f"Failed to download slide image: {str(e)}"}
 
 @app.get("/api/custom/presentations")
 async def list_presentations(limit: int = 50):

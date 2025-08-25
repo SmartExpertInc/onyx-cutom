@@ -169,7 +169,7 @@ class VideoAssemblyService:
                                           theme: str,
                                           output_path: str,
                                           slide_duration: float = 5.0,
-                                          quality: str = "high") -> bool:
+                                          quality: str = "high") -> Dict[str, Any]:
         """
         Create video from slide props using HTML → PNG → Video pipeline.
         
@@ -246,12 +246,25 @@ class VideoAssemblyService:
                     if os.path.exists(temp_png.name):
                         file_size = os.path.getsize(temp_png.name)
                         logger.info(f"🎬 [VIDEO_ASSEMBLY] PNG file size: {file_size} bytes")
+                        
+                        # Save slide image for debugging (copy to output directory)
+                        try:
+                            from pathlib import Path
+                            output_dir = Path("output/presentations")
+                            output_dir.mkdir(parents=True, exist_ok=True)
+                            
+                            debug_slide_path = output_dir / f"slide_image_debug_{i+1}.png"
+                            import shutil
+                            shutil.copy2(temp_png.name, debug_slide_path)
+                            logger.info(f"🎬 [VIDEO_ASSEMBLY] Saved debug slide image: {debug_slide_path}")
+                        except Exception as e:
+                            logger.warning(f"🎬 [VIDEO_ASSEMBLY] Failed to save debug slide image: {e}")
                 else:
                     logger.error(f"🎬 [VIDEO_ASSEMBLY] Failed to generate PNG for slide {i+1}: {template_id}")
             
             if not png_paths:
                 logger.error("🎬 [VIDEO_ASSEMBLY] No PNGs generated successfully")
-                return False
+                return {"success": False, "error": "No PNGs generated successfully"}
             
             logger.info(f"🎬 [VIDEO_ASSEMBLY] Successfully generated {len(png_paths)} PNG files")
             logger.info(f"🎬 [VIDEO_ASSEMBLY] PNG files: {png_paths}")
@@ -270,14 +283,21 @@ class VideoAssemblyService:
                 if os.path.exists(output_path):
                     file_size = os.path.getsize(output_path)
                     logger.info(f"🎬 [VIDEO_ASSEMBLY] Video file size: {file_size} bytes")
+                
+                # Return success with slide image paths
+                return {
+                    "success": True,
+                    "video_path": output_path,
+                    "slide_image_paths": png_paths,  # List of temporary PNG paths
+                    "file_size": file_size if os.path.exists(output_path) else 0
+                }
             else:
                 logger.error(f"🎬 [VIDEO_ASSEMBLY] Video creation failed")
-            
-            return success
+                return {"success": False, "error": "Video creation failed"}
             
         except Exception as e:
             logger.error(f"Failed to create slide video: {str(e)}")
-            return False
+            return {"success": False, "error": str(e)}
         finally:
             # Clean up temporary PNG files
             for temp_file in temp_files:

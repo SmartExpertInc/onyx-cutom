@@ -61,7 +61,7 @@ class CleanVideoGenerationService:
             output_path = str(self.output_dir / output_filename)
             
             # Generate video using the assembly service
-            success = await video_assembly_service.create_slide_video_from_props(
+            result = await video_assembly_service.create_slide_video_from_props(
                 slides_props=[slide_props],
                 theme=theme,
                 output_path=output_path,
@@ -69,8 +69,8 @@ class CleanVideoGenerationService:
                 quality=quality
             )
             
-            if success:
-                file_size = os.path.getsize(output_path)
+            if result["success"]:
+                file_size = result.get("file_size", 0)
                 logger.info(f"Avatar slide video generated: {output_path} ({file_size} bytes)")
                 
                 return {
@@ -78,12 +78,13 @@ class CleanVideoGenerationService:
                     "video_path": output_path,
                     "video_url": f"/api/custom/download/{output_filename}",
                     "file_size": file_size,
-                    "duration": slide_duration
+                    "duration": slide_duration,
+                    "slide_image_paths": result.get("slide_image_paths", [])  # Include slide image paths
                 }
             else:
                 return {
                     "success": False,
-                    "error": "Failed to generate video from slide"
+                    "error": result.get("error", "Failed to generate video from slide")
                 }
                 
         except Exception as e:

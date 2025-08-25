@@ -47,6 +47,7 @@ class PresentationJob:
     error: Optional[str] = None
     video_url: Optional[str] = None
     thumbnail_url: Optional[str] = None
+    slide_image_path: Optional[str] = None  # Path to generated slide image for debugging
     created_at: datetime = None
     completed_at: Optional[datetime] = None
     
@@ -259,11 +260,18 @@ class ProfessionalPresentationService:
                 logger.info(f"  - Video Path: {result.get('video_path', 'N/A')}")
                 logger.info(f"  - File Size: {result.get('file_size', 'N/A')}")
                 logger.info(f"  - Duration: {result.get('duration', 'N/A')}")
+                logger.info(f"  - Slide Image Paths: {result.get('slide_image_paths', [])}")
                 logger.info(f"  - Error: {result.get('error', 'None')}")
                 
                 if result["success"]:
                     slide_video_path = result["video_path"]
+                    slide_image_paths = result.get("slide_image_paths", [])
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Clean video generation successful: {slide_video_path}")
+                    
+                    # Store the first slide image path for debugging
+                    if slide_image_paths and len(slide_image_paths) > 0:
+                        job.slide_image_path = slide_image_paths[0]  # Store the first slide image path
+                        logger.info(f"🎬 [PRESENTATION_PROCESSING] Stored slide image path for debugging: {job.slide_image_path}")
                 else:
                     logger.error(f"Clean video generation failed: {result['error']}")
                     raise Exception(f"Video generation failed: {result['error']}")
@@ -647,6 +655,41 @@ class ProfessionalPresentationService:
         
         thumbnail_path = self.output_dir / f"thumbnail_{job_id}.jpg"
         return str(thumbnail_path) if thumbnail_path.exists() else None
+    
+    async def get_presentation_slide_image(self, job_id: str) -> Optional[str]:
+        """
+        Get the slide image file path for a presentation (for debugging).
+        
+        Args:
+            job_id: Job ID
+            
+        Returns:
+            Path to slide image file or None if not found
+        """
+        job = self.jobs.get(job_id)
+        if not job:
+            logger.warning(f"Job not found for slide image download: {job_id}")
+            return None
+        
+        logger.info(f"Getting slide image for job {job_id}")
+        logger.info(f"Job slide_image_path: {getattr(job, 'slide_image_path', 'Not set')}")
+        
+        # Look for slide image in the job's slide_image_path if available
+        if hasattr(job, 'slide_image_path') and job.slide_image_path:
+            if os.path.exists(job.slide_image_path):
+                logger.info(f"Found slide image at job path: {job.slide_image_path}")
+                return job.slide_image_path
+            else:
+                logger.warning(f"Job slide_image_path does not exist: {job.slide_image_path}")
+        
+        # Fallback: look for slide image in output directory
+        slide_image_path = self.output_dir / f"slide_image_{job_id}.png"
+        if slide_image_path.exists():
+            logger.info(f"Found slide image at fallback path: {slide_image_path}")
+            return str(slide_image_path)
+        
+        logger.warning(f"No slide image found for job {job_id}")
+        return None
     
     async def list_jobs(self, limit: int = 50) -> List[PresentationJob]:
         """
