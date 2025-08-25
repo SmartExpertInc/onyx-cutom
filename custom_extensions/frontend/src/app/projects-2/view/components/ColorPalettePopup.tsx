@@ -50,6 +50,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [rgba, setRgba] = useState<RGBA>(() => hexToRgba(initialColor));
   const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(initialColor));
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
+  const [isUserTyping, setIsUserTyping] = useState(false);
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -135,26 +136,30 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // Update all color formats when HSB changes
   useEffect(() => {
-    const newHex = hsbToHex(hsb);
-    if (newHex !== hex) {
-      setHex(newHex);
-      setRgba(hexToRgba(newHex));
-      setHsla(hexToHsla(newHex));
-      onColorChange(newHex);
-      addToRecentColors(newHex);
+    if (!isUserTyping) {
+      const newHex = hsbToHex(hsb);
+      if (newHex !== hex) {
+        setHex(newHex);
+        setRgba(hexToRgba(newHex));
+        setHsla(hexToHsla(newHex));
+        onColorChange(newHex);
+        addToRecentColors(newHex);
+      }
     }
-  }, [hsb, onColorChange, hex]);
+  }, [hsb, onColorChange, hex, isUserTyping]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
     const value = e.target.value;
+    setIsUserTyping(true);
     setHex(value);
   };
 
   const handleHexKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      setIsUserTyping(false);
       const value = e.currentTarget.value;
       // Only update other formats if we have a complete valid HEX code
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
@@ -166,10 +171,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     }
   };
 
+  const handleHexBlur = () => {
+    setIsUserTyping(false);
+  };
+
   const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
     const value = parseFloat(e.target.value);
     if (!isNaN(value)) {
+      setIsUserTyping(true);
       const newRgba = { ...rgba, [field]: value };
       setRgba(newRgba);
     }
@@ -178,6 +188,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const handleRgbaKeyDown = (field: keyof RGBA) => (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      setIsUserTyping(false);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
         const newRgba = { ...rgba, [field]: value };
@@ -195,6 +206,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     e.stopPropagation();
     const value = parseFloat(e.target.value);
     if (!isNaN(value)) {
+      setIsUserTyping(true);
       const newHsla = { ...hsla, [field]: value };
       setHsla(newHsla);
     }
@@ -203,6 +215,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const handleHslaKeyDown = (field: keyof HSLA) => (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      setIsUserTyping(false);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
         const newHsla = { ...hsla, [field]: value };
@@ -351,12 +364,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%),
                   hsl(360,100%,60%))`,
                 height: 8,
-                borderRadius: 4
+                borderRadius: 4,
+                opacity: 1
               },
               "& .MuiSlider-track": {
                 background: 'transparent',
                 height: 8,
-                borderRadius: 4
+                borderRadius: 4,
+                opacity: 1
               },
               "& .MuiSlider-thumb": {
                 width: 16, 
@@ -446,6 +461,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 value={hex}
                 onChange={handleHexChange}
                 onKeyDown={handleHexKeyDown}
+                onBlur={handleHexBlur}
                 fullWidth
                 variant="outlined"
                 inputProps={{ maxLength: 7 }}
@@ -479,6 +495,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.r)}
                   onChange={handleRgbaChange('r')}
                   onKeyDown={handleRgbaKeyDown('r')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -503,6 +520,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.g)}
                   onChange={handleRgbaChange('g')}
                   onKeyDown={handleRgbaKeyDown('g')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -527,6 +545,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.b)}
                   onChange={handleRgbaChange('b')}
                   onKeyDown={handleRgbaKeyDown('b')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -551,6 +570,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={rgba.a}
                   onChange={handleRgbaChange('a')}
                   onKeyDown={handleRgbaKeyDown('a')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -585,6 +605,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.h)}
                   onChange={handleHslaChange('h')}
                   onKeyDown={handleHslaKeyDown('h')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 360 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -609,6 +630,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.s)}
                   onChange={handleHslaChange('s')}
                   onKeyDown={handleHslaKeyDown('s')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -633,6 +655,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.l)}
                   onChange={handleHslaChange('l')}
                   onKeyDown={handleHslaKeyDown('l')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
                   sx={{ 
@@ -657,6 +680,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={hsla.a}
                   onChange={handleHslaChange('a')}
                   onKeyDown={handleHslaKeyDown('a')}
+                  onBlur={() => setIsUserTyping(false)}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
                   sx={{ 
