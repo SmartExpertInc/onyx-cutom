@@ -14,7 +14,6 @@ interface InlineEditorProps {
   className?: string;
   style?: React.CSSProperties;
 }
-
 function InlineEditor({ 
   initialValue, 
   onSave, 

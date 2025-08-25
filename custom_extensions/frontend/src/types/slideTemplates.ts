@@ -497,7 +497,12 @@ export type TemplateId =
   | 'avatar-crm'
   | 'course-overview-slide'
   | 'work-life-balance-slide'
-  | 'thank-you-slide';
+  | 'thank-you-slide'
+  | 'benefits-list-slide'
+  | 'hybrid-work-best-practices-slide'
+  | 'benefits-tags-slide'
+  | 'learning-topics-slide'
+  | 'soft-skills-assessment-slide';
 
 export interface TemplatePreview {
   templateId: string;
