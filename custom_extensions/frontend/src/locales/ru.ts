@@ -349,6 +349,8 @@ export const ru = {
   interface: {
     // Header
     products: "Продукты",
+    smartDrive: "Умный диск",
+    offers: "Предложения",
     trash: "Корзина",
     getUnlimitedAI: "Получить неограниченный ИИ",
     credits: "кредитов",

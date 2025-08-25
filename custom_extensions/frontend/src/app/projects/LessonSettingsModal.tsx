@@ -72,6 +72,7 @@ export default function LessonSettingsModal({
   const [customRate, setCustomRate] = useState(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
   const [advancedEnabled, setAdvancedEnabled] = useState(false); // Initialize to false, will be set by fetch
+  const [advancedTierOpen, setAdvancedTierOpen] = useState<string | null>(null); // Track which tier has advanced settings open
   const [perProductRates, setPerProductRates] = useState({
     presentation: 0, // Initialize to 0, will be set by fetch
     onePager: 0,
@@ -390,27 +391,8 @@ export default function LessonSettingsModal({
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
                   <div className="col-span-6">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">
                       {t('modals.folderSettings.hoursRange', 'Hours Range')}
-                      <label className="flex items-center gap-2 ml-3 text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={advancedEnabled}
-                          onChange={()=>{
-                            const next = !advancedEnabled; setAdvancedEnabled(next);
-                            if (next) {
-                              setPerProductRates(prev => ({
-                                presentation: prev.presentation ?? (currentAdvancedRates?.presentation ?? (currentCustomRate || 200)),
-                                onePager: prev.onePager ?? (currentAdvancedRates?.onePager ?? (currentCustomRate || 200)),
-                                quiz: prev.quiz ?? (currentAdvancedRates?.quiz ?? (currentCustomRate || 200)),
-                                videoLesson: prev.videoLesson ?? (currentAdvancedRates?.videoLesson ?? (currentCustomRate || 200))
-                              }));
-                            }
-                          }}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                        />
-                        <span className="font-medium text-gray-700">{t('modals.lessonSettings.advanced', 'Advanced')}</span>
-                      </label>
                     </h4>
                   </div>
                 </div>
@@ -441,6 +423,21 @@ export default function LessonSettingsModal({
                               )}
                             </div>
                           </div>
+                          {/* Gear icon for advanced settings */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAdvancedTierOpen(advancedTierOpen === tier.id ? null : tier.id);
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              advancedTierOpen === tier.id 
+                                ? 'bg-blue-100 text-blue-600' 
+                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
+                            }`}
+                            title="Advanced Settings"
+                          >
+                            <Settings size={16} />
+                          </button>
                         </div>
                       </div>
 
@@ -466,33 +463,33 @@ export default function LessonSettingsModal({
                       <div className="col-span-6">
                         {qualityTier === tier.id ? (
                           <div className="space-y-3">
-                            {!advancedEnabled && (
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">
-                                  {customRate}{t('modals.folderSettings.hours', 'h')}
-                                </span>
-                              </div>
-                              <div className="relative">
-                                <input
-                                  type="range"
-                                  min={tier.hoursRange.min}
-                                  max={tier.hoursRange.max}
-                                  value={customRate}
-                                  onChange={(e) => setCustomRate(parseInt(e.target.value))}
-                                  className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                                  style={{
-                                    background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
-                                  }}
-                                />
-                                <div className="flex justify-between text-xs text-gray-500 mt-2">
-                                  <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
-                                  <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                            {advancedTierOpen !== tier.id && (
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {customRate}{t('modals.folderSettings.hours', 'h')}
+                                  </span>
+                                </div>
+                                <div className="relative">
+                                  <input
+                                    type="range"
+                                    min={tier.hoursRange.min}
+                                    max={tier.hoursRange.max}
+                                    value={customRate}
+                                    onChange={(e) => setCustomRate(parseInt(e.target.value))}
+                                    className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                    style={{
+                                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                    }}
+                                  />
+                                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                    <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
                             )}
-                            {advancedEnabled && (
+                            {advancedTierOpen === tier.id && (
                               <div className="space-y-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 {/* Two Column Layout: Creation Rates | Completion Times */}
                                 <div className="grid grid-cols-3 gap-6">

@@ -74,6 +74,24 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
   }
 };
 
+// Helper function to get localized type name
+const getLocalizedTypeName = (type: string, t: any): string => {
+  switch (type) {
+    case "Training Plan":
+      return t("interface.trainingPlans", "Training Plan");
+    case "Quiz":
+      return t("interface.quizzes", "Quiz");
+    case "Slide Deck":
+      return t("interface.slideDeck", "Slide Deck");
+    case "Video Lesson Presentation":
+      return t("interface.videoLessons", "Video Lesson");
+    case "Text Presentation":
+      return t("interface.textPresentations", "Text Presentation");
+    default:
+      return type || "Unknown";
+  }
+};
+
 // Helper function to calculate dynamic text width based on column width
 const calculateTextWidth = (
   columnWidthPercent: number,
@@ -813,6 +831,7 @@ interface Folder {
   name: string;
   created_at: string;
   project_count: number;
+  offer_count?: number;
   order: number;
   total_lessons: number;
   total_hours: number;
@@ -830,6 +849,8 @@ interface ProjectsTableProps {
 
 interface ColumnVisibility {
   title: boolean;
+  type: boolean;
+  offers: boolean;
   created: boolean;
   creator: boolean;
   numberOfLessons: boolean;
@@ -839,6 +860,8 @@ interface ColumnVisibility {
 
 interface ColumnWidths {
     title: number;
+    type: number;
+    offers: number;
     created: number;
     creator: number;
     numberOfLessons: number;
@@ -885,6 +908,7 @@ const FolderRow: React.FC<{
   handleRestoreProject: (projectId: number) => void;
   handleDeletePermanently: (projectId: number) => void;
   handleDeleteFolder: (folderId: number) => void;
+  handleOffersClick: (client: Folder, event: React.MouseEvent) => void;
   allFolders: Folder[];
 }> = ({
   folder,
@@ -913,6 +937,7 @@ const FolderRow: React.FC<{
   handleRestoreProject,
   handleDeletePermanently,
   handleDeleteFolder,
+  handleOffersClick,
   allFolders,
 }) => {
   const { t } = useLanguage();
@@ -1007,9 +1032,19 @@ const FolderRow: React.FC<{
                         </span>
                     </td>
                 )}
-                {columnVisibility.created && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(folder.created_at)}</td>
-                )}
+                                        {columnVisibility.offers && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button
+                                    onClick={(e) => handleOffersClick(folder, e)}
+                                    className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                                >
+                                    {folder.offer_count || 0} {t("interface.offers", "Offers")}
+                                </button>
+                            </td>
+                        )}
+                        {columnVisibility.created && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(folder.created_at)}</td>
+                        )}
                 {columnVisibility.creator && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className="inline-flex items-center">
@@ -1132,6 +1167,22 @@ const FolderRow: React.FC<{
                                 </span>
                             </td>
                         )}
+                        {columnVisibility.type && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div className="flex items-center gap-2">
+                                    {getDesignMicroproductIcon(p.designMicroproductType || "")}
+                                    <span>{getLocalizedTypeName(p.designMicroproductType || "", t)}</span>
+                                </div>
+                            </td>
+                        )}
+                        {columnVisibility.type && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div className="flex items-center gap-2">
+                                    {getDesignMicroproductIcon(p.designMicroproductType || "")}
+                                    <span>{getLocalizedTypeName(p.designMicroproductType || "", t)}</span>
+                                </div>
+                            </td>
+                        )}
                         {columnVisibility.created && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(p.createdAt)}</td>
                         )}
@@ -1223,6 +1274,7 @@ const FolderRow: React.FC<{
                     handleRestoreProject={handleRestoreProject}
                     handleDeletePermanently={handleDeletePermanently}
                     handleDeleteFolder={handleDeleteFolder}
+                    handleOffersClick={handleOffersClick}
                     allFolders={allFolders}
                 />
             ))}
@@ -3341,6 +3393,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   >({});
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
     title: true,
+    type: true,
+    offers: true,
     created: false,
     creator: false,
     numberOfLessons: true,
@@ -3349,6 +3403,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
     title: 40,
+    type: 15,
+    offers: 12,
     created: 15,
     creator: 15,
     numberOfLessons: 13,
@@ -3367,6 +3423,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
   // Client name modal state
   const [showClientNameModal, setShowClientNameModal] = useState(false);
+  
+  // Offers popup state
+  const [showOffersPopup, setShowOffersPopup] = useState(false);
+  const [selectedClientForOffers, setSelectedClientForOffers] = useState<Folder | null>(null);
+  const [clientOffers, setClientOffers] = useState<any[]>([]);
+  const [loadingOffers, setLoadingOffers] = useState(false);
 
   // Column resizing functionality
   const handleColumnResize = (columnKey: string, newWidth: number) => {
@@ -3401,6 +3463,46 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
+
+  // Function to fetch offers for a client
+  const fetchClientOffers = useCallback(async (clientId: number) => {
+    setLoadingOffers(true);
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers?client_id=${clientId}`, {
+        headers,
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setClientOffers(data.offers || []);
+      } else {
+        console.error("Failed to fetch offers:", response.status);
+        setClientOffers([]);
+      }
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+      setClientOffers([]);
+    } finally {
+      setLoadingOffers(false);
+    }
+  }, []);
+
+  // Function to handle offers click
+  const handleOffersClick = useCallback((client: Folder, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setSelectedClientForOffers(client);
+    setShowOffersPopup(true);
+    fetchClientOffers(client.id);
+  }, [fetchClientOffers]);
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
@@ -3740,14 +3842,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     [router]
   );
 
-  // Toggle folder expansion
+  // Toggle folder expansion - ensure only one client can be expanded at a time
   const toggleFolder = useCallback(
     (folderId: number) => {
       setExpandedFolders((prev) => {
         const newSet = new Set(prev);
         if (newSet.has(folderId)) {
+          // If the folder is already expanded, collapse it
           newSet.delete(folderId);
         } else {
+          // If expanding a new folder, clear all other expanded folders first
+          newSet.clear();
           newSet.add(folderId);
           // Fetch projects for this folder if not already loaded
           if (!folderProjects[folderId]) {
@@ -4723,6 +4828,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           label: t("interface.type", "Type"),
                         },
                         {
+                          key: "offers",
+                          label: t("interface.offers", "Offers"),
+                        },
+                        {
                           key: "created",
                           label: t("interface.created", "Created"),
                         },
@@ -5160,8 +5269,103 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 folderProjects={folderProjects}
                 unassignedProjects={getProjectsForFolder(null).filter(p => !p.folderId)}
             />
+            
+            {/* Offers Popup */}
+            <OffersPopup
+                isOpen={showOffersPopup}
+                onClose={() => setShowOffersPopup(false)}
+                client={selectedClientForOffers}
+                offers={clientOffers}
+                loading={loadingOffers}
+                onSelectOffer={(offer) => {
+                    // TODO: Navigate to offer or show offer details
+                    console.log('Selected offer:', offer);
+                    setShowOffersPopup(false);
+                }}
+            />
         </div>
     );
 }
+
+// Offers Popup Component
+const OffersPopup: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  client: Folder | null;
+  offers: any[];
+  loading: boolean;
+  onSelectOffer: (offer: any) => void;
+}> = ({ isOpen, onClose, client, offers, loading, onSelectOffer }) => {
+  const { t } = useLanguage();
+
+  if (!isOpen || !client) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-gray-100">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">
+            {t("interface.offers", "Offers")} - {client.name}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 hover:bg-gray-100 rounded-full"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="space-y-3">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">{t("interface.loading", "Loading offers...")}</p>
+            </div>
+          ) : offers.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">{t("interface.noOffers", "No offers found for this client.")}</p>
+            </div>
+          ) : (
+            offers.map((offer) => (
+              <button
+                key={offer.id}
+                onClick={() => onSelectOffer(offer)}
+                className="w-full p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-left"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{offer.title || `Offer #${offer.id}`}</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {offer.status || "Draft"} • {offer.total_hours || 0}h
+                    </p>
+                  </div>
+                  <div className="text-blue-600">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            {t("actions.close", "Close")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default ProjectsTable;

@@ -445,7 +445,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           onClick={() => onFolderSelect(null)}
         >
           <HardDrive size={18} />
-          <span>Smart Drive</span>
+          <span>{t('interface.smartDrive', 'Smart Drive')}</span>
         </Link>
         <Link 
           href="/projects?tab=offers" 
@@ -502,7 +502,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers }: { isTrash: boolean; isSmart
 
   const getHeaderTitle = () => {
     if (isTrash) return t('interface.trash', 'Trash');
-    if (isSmartDrive) return 'Smart Drive';
+    if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
     return t('interface.products', 'Products');
   };

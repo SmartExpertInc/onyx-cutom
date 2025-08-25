@@ -348,6 +348,8 @@ export const es = {
   interface: {
     // Header
     products: "Productos",
+    smartDrive: "Disco Inteligente",
+    offers: "Ofertas",
     trash: "Papelera",
     getUnlimitedAI: "Obtener IA ilimitada",
     credits: "créditos",

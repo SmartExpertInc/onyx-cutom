@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, BookOpen, Zap, Award, Crown, BookText, Video, HelpCircle, FileText, Clock, Calculator } from 'lucide-react';
+import { Check, BookOpen, Zap, Award, Crown, BookText, Video, HelpCircle, FileText, Clock, Calculator, Settings } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface FolderSettingsModalProps {
@@ -36,6 +36,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
   const [customRate, setCustomRate] = useState<number>(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
   const [advancedEnabled, setAdvancedEnabled] = useState(false); // Initialize to false, will be set by fetch
+  const [advancedTierOpen, setAdvancedTierOpen] = useState<string | null>(null); // Track which tier has advanced settings open
   const [perProductRates, setPerProductRates] = useState({
     presentation: 0, // Initialize to 0, will be set by fetch
     onePager: 0,
@@ -287,29 +288,8 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                     <h4 className="font-semibold text-gray-700 text-sm text-left">Content Examples</h4>
                   </div>
                   <div className="col-span-6">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">
                       {t('modals.folderSettings.hoursRange', 'Hours Range')}
-                      <label className="flex items-center gap-2 ml-3 text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={advancedEnabled}
-                          onChange={() => {
-                            const next = !advancedEnabled;
-                            setAdvancedEnabled(next);
-                            if (next) {
-                              // initialize per-product from single rate
-                              setPerProductRates({
-                                presentation: customRate,
-                                onePager: customRate,
-                                quiz: customRate,
-                                videoLesson: customRate
-                              });
-                            }
-                          }}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                        />
-                        <span className="font-medium text-gray-700">{t('modals.advanced', 'Advanced')}</span>
-                      </label>
                     </h4>
                   </div>
                 </div>
@@ -340,6 +320,21 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                               )}
                             </div>
                           </div>
+                          {/* Gear icon for advanced settings */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAdvancedTierOpen(advancedTierOpen === tier.id ? null : tier.id);
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              advancedTierOpen === tier.id 
+                                ? 'bg-blue-100 text-blue-600' 
+                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
+                            }`}
+                            title="Advanced Settings"
+                          >
+                            <Settings size={16} />
+                          </button>
                         </div>
                       </div>
 
@@ -365,7 +360,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                       <div className="col-span-6">
                         {selectedTier === tier.id ? (
                           <div className="space-y-3">
-                            {!advancedEnabled && (
+                            {advancedTierOpen !== tier.id && (
                               <div>
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-sm font-medium text-gray-700">
@@ -391,7 +386,7 @@ const FolderSettingsModal: React.FC<FolderSettingsModalProps> = ({
                                 </div>
                               </div>
                             )}
-                            {advancedEnabled && (
+                            {advancedTierOpen === tier.id && (
                               <div className="space-y-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 {/* Two Column Layout: Creation Rates | Completion Times */}
                                 <div className="grid grid-cols-3 gap-6">

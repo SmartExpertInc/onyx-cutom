@@ -165,7 +165,8 @@ export default function CreateFromFilesContent() {
             Icon={FileText}
             title={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
             description={t('interface.fromFiles.specificFilesDescription', 'Select specific files and folders to use as source material. Ideal for targeted content creation.')}
-            disabled={true}
+            href="/create/from-files/specific"
+            isActive={false}
           />
         </div>
 

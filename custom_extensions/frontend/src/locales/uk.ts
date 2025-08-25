@@ -335,6 +335,8 @@ export const uk = {
   interface: {
     // Header
     products: "Продукти",
+    smartDrive: "Розумний диск",
+    offers: "Пропозиції",
     trash: "Кошик",
     getUnlimitedAI: "Отримати необмежений ШІ",
     credits: "кредитів",

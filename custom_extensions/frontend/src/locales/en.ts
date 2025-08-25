@@ -369,6 +369,8 @@ export const en = {
   interface: {
     // Header
     products: "Products",
+    smartDrive: "Smart Drive",
+    offers: "Offers",
     trash: "Trash",
     getUnlimitedAI: "Get unlimited AI",
     credits: "credits",
