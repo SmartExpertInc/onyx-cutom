@@ -136,6 +136,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   profileImagePath = '',
   profileImageAlt = 'Profile image',
   companyName = 'Company Logo',
+  companyLogoPath = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -152,6 +153,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTags, setCurrentTags] = useState(tags);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -220,6 +222,13 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const handleFooterClick = () => {
     if (isEditable) {
       setShowLogo(!showLogo);
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
@@ -495,31 +504,56 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           fontWeight: '300',
           color: themeContent
         }}>
-          {isEditable && editingCompanyName ? (
-            <InlineEditor
-              initialValue={currentCompanyName}
-              onSave={handleCompanyNameSave}
-              onCancel={handleCompanyNameCancel}
-              className="company-name-editor"
-              style={{
+          {currentCompanyLogoPath ? (
+            <div style={{
+              width: '60px',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <ClickableImagePlaceholder
+                imagePath={currentCompanyLogoPath}
+                onImageUploaded={handleCompanyLogoUploaded}
+                size="SMALL"
+                position="CENTER"
+                description="Company logo"
+                isEditable={isEditable}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
+          ) : (
+            isEditable ? (
+              <ClickableImagePlaceholder
+                imagePath=""
+                onImageUploaded={handleCompanyLogoUploaded}
+                size="SMALL"
+                position="CENTER"
+                description="Upload company logo"
+                isEditable={isEditable}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '300',
+                  color: themeContent,
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}
+              />
+            ) : (
+              <div style={{
                 fontSize: '14px',
                 fontWeight: '300',
-                color: themeContent
-              }}
-            />
-          ) : (
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                isEditable && setEditingCompanyName(true);
-              }}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
+                color: themeContent,
+                cursor: 'default',
                 userSelect: 'none'
-              }}
-            >
-              {currentCompanyName}
-            </div>
+              }}>
+                {currentCompanyName}
+              </div>
+            )
           )}
         </div>
       </div>

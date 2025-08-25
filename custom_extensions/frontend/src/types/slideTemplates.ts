@@ -438,6 +438,7 @@ export interface BenefitsTagsSlideProps extends BaseTemplateProps {
   profileImagePath?: string;
   profileImageAlt?: string;
   companyName?: string;
+  companyLogoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
