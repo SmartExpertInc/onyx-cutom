@@ -25,19 +25,7 @@ class HTMLToImageService:
     def _init_conversion_method(self):
         """Initialize the best available conversion method."""
         
-        # Method 1: Try wkhtmltopdf/wkhtmltoimage (most reliable, no browser needed)
-        try:
-            import subprocess
-            result = subprocess.run(['wkhtmltoimage', '--version'], 
-                                  capture_output=True, timeout=5)
-            if result.returncode == 0:
-                self.method = "wkhtmltoimage"
-                logger.info("Using wkhtmltoimage for HTML to PNG conversion")
-                return
-        except:
-            pass
-        
-        # Method 2: Try html2image (Python library, uses browser but more stable)
+        # Method 1: Try html2image (Python library, uses browser but more stable)
         try:
             from html2image import Html2Image
             self.method = "html2image"
@@ -46,16 +34,21 @@ class HTMLToImageService:
         except ImportError:
             pass
         
-        # Method 3: Try imgkit (wkhtmltoimage Python wrapper)
+        # Method 2: Try imgkit (wkhtmltoimage Python wrapper - may not work without wkhtmltoimage)
         try:
             import imgkit
-            self.method = "imgkit"
-            logger.info("Using imgkit library for HTML to PNG conversion")
-            return
-        except ImportError:
+            # Test if imgkit can actually work
+            import subprocess
+            result = subprocess.run(['wkhtmltoimage', '--version'], 
+                                  capture_output=True, timeout=5)
+            if result.returncode == 0:
+                self.method = "imgkit"
+                logger.info("Using imgkit library for HTML to PNG conversion")
+                return
+        except:
             pass
         
-        # Method 4: Fallback to weasyprint (CSS/HTML to image, no browser)
+        # Method 3: Fallback to weasyprint (CSS/HTML to image, no browser)
         try:
             from weasyprint import HTML, CSS
             self.method = "weasyprint"
@@ -68,49 +61,7 @@ class HTMLToImageService:
         self.method = "simple"
         logger.warning("No advanced HTML to image libraries found, using simple fallback")
     
-    async def convert_html_to_png_wkhtmltoimage(self, html_content: str, output_path: str) -> bool:
-        """Convert HTML to PNG using wkhtmltoimage command."""
-        try:
-            import subprocess
-            
-            # Create temporary HTML file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as f:
-                f.write(html_content)
-                temp_html_path = f.name
-            
-            try:
-                # Run wkhtmltoimage
-                cmd = [
-                    'wkhtmltoimage',
-                    '--width', str(self.video_width),
-                    '--height', str(self.video_height),
-                    '--format', 'png',
-                    '--quality', '100',
-                    '--disable-javascript',
-                    '--no-background',
-                    temp_html_path,
-                    output_path
-                ]
-                
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-                
-                if result.returncode == 0 and os.path.exists(output_path):
-                    file_size = os.path.getsize(output_path)
-                    logger.info(f"wkhtmltoimage conversion successful: {file_size} bytes")
-                    return True
-                else:
-                    logger.error(f"wkhtmltoimage failed: {result.stderr}")
-                    return False
-                    
-            finally:
-                try:
-                    os.unlink(temp_html_path)
-                except:
-                    pass
-                    
-        except Exception as e:
-            logger.error(f"wkhtmltoimage conversion error: {str(e)}")
-            return False
+
     
     async def convert_html_to_png_html2image(self, html_content: str, output_path: str) -> bool:
         """Convert HTML to PNG using html2image library."""
@@ -278,9 +229,7 @@ class HTMLToImageService:
             logger.info(f"Converting HTML to PNG for template: {template_id} using {self.method}")
             
             # Use the appropriate conversion method
-            if self.method == "wkhtmltoimage":
-                return await self.convert_html_to_png_wkhtmltoimage(html_content, output_path)
-            elif self.method == "html2image":
+            if self.method == "html2image":
                 return await self.convert_html_to_png_html2image(html_content, output_path)
             elif self.method == "imgkit":
                 return await self.convert_html_to_png_imgkit(html_content, output_path)

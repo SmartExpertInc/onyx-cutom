@@ -10,6 +10,7 @@ Jinja2
 html2image
 imgkit
 weasyprint
+pdf2image
 asyncpg # For PostgreSQL
 python-dotenv # To load .env variables
 python-multipart

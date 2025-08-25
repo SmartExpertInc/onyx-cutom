@@ -56,9 +56,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libass-dev \
     libfreetype6-dev \
     libfontconfig1-dev \
-    # HTML to image conversion dependencies
-    wkhtmltopdf \
-    wkhtmltoimage \
+         # Note: wkhtmltopdf/wkhtmltoimage removed from Debian - using alternative methods
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
