@@ -391,6 +391,86 @@ export interface ThankYouSlideProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
+// New slide templates based on images
+export interface BenefitsListSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  description: string;
+  benefits: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  currentStep?: number;
+  totalSteps?: number;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  mainStatement: string;
+  practices: Array<{
+    number: number;
+    title: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  teamImagePath?: string;
+  teamImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface BenefitsTagsSlideProps extends BaseTemplateProps {
+  title: string;
+  tags: Array<{
+    text: string;
+    isHighlighted?: boolean;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface LearningTopicsSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  topics: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
+  title: string;
+  tips: Array<{
+    text: string;
+    isHighlighted?: boolean;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'

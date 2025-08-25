@@ -25,6 +25,11 @@ import { AvatarStepsSlideTemplate } from './AvatarStepsSlideTemplate';
 import { CourseOverviewSlideTemplate } from './CourseOverviewSlideTemplate';
 import { WorkLifeBalanceSlideTemplate } from './WorkLifeBalanceSlideTemplate';
 import { ThankYouSlideTemplate } from './ThankYouSlideTemplate';
+import { BenefitsListSlideTemplate } from './BenefitsListSlideTemplate';
+import { HybridWorkBestPracticesSlideTemplate } from './HybridWorkBestPracticesSlideTemplate';
+import { BenefitsTagsSlideTemplate } from './BenefitsTagsSlideTemplate';
+import { LearningTopicsSlideTemplate } from './LearningTopicsSlideTemplate';
+import { SoftSkillsAssessmentSlideTemplate } from './SoftSkillsAssessmentSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1089,6 +1094,212 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       textColor: { type: 'color', label: 'Text Color', default: '#d9e1ff' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' }
+    }
+  },
+
+  'benefits-list-slide': {
+    id: 'benefits-list-slide',
+    name: 'Benefits List Slide',
+    description: 'Slide with benefits list, navigation circles, and profile image',
+    category: 'content',
+    icon: '📋',
+    component: BenefitsListSlideTemplate,
+    defaultProps: {
+      title: 'Benefits',
+      subtitle: 'Employment',
+      description: 'Here is a list of benefits that you can offer to your employees to maintain small business compliance:',
+      benefits: [
+        "Workers' compensation",
+        "Unemployment insurance",
+        "Disability insurance",
+        "Health insurance",
+        "COBRA benefits",
+        "Leave of absence"
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      currentStep: 3,
+      totalSteps: 4,
+      backgroundColor: '#261c4e',
+      titleColor: '#ffffff',
+      contentColor: '#d9e1ff',
+      accentColor: '#4CAF50'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 50 },
+      description: { type: 'text', label: 'Description', required: true },
+      benefits: { type: 'array', label: 'Benefits List', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      currentStep: { type: 'number', label: 'Current Step', min: 1, max: 10 },
+      totalSteps: { type: 'number', label: 'Total Steps', min: 1, max: 10 },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#261c4e' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' }
+    }
+  },
+
+  'hybrid-work-best-practices-slide': {
+    id: 'hybrid-work-best-practices-slide',
+    name: 'Hybrid Work Best Practices',
+    description: 'Slide with numbered best practices and team image',
+    category: 'content',
+    icon: '🏢',
+    component: HybridWorkBestPracticesSlideTemplate,
+    defaultProps: {
+      title: 'HYBRID WORK BEST PRACTICES',
+      subtitle: '',
+      mainStatement: 'To adopt a hybrid work model, you need the right people, processes, and technology.',
+      practices: [
+        {
+          number: 1,
+          title: 'Communicate with your employees',
+          description: 'When you roll out hybrid work, your decisions will affect everyone in your workforce.'
+        },
+        {
+          number: 2,
+          title: 'Work with HR and IT',
+          description: 'Working cross-functionally is important when adopting hybrid work to ensure your workplace technology is seamless.'
+        },
+        {
+          number: 3,
+          title: 'Create the right work environment',
+          description: 'Hybrid work means the office must be a place where employees want to work, so creating a dynamic workplace is important.'
+        },
+        {
+          number: 4,
+          title: 'Delight and connect remote',
+          description: 'Finding ways to connect and delight everyone is an important part of keeping employee happiness and engagement high.'
+        }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      teamImagePath: '',
+      teamImageAlt: 'Team meeting',
+      backgroundColor: '#ffffff',
+      titleColor: '#333333',
+      contentColor: '#666666',
+      accentColor: '#4CAF50'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      subtitle: { type: 'text', label: 'Subtitle', maxLength: 100 },
+      mainStatement: { type: 'text', label: 'Main Statement', required: true },
+      practices: { type: 'array', label: 'Best Practices', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      teamImagePath: { type: 'image', label: 'Team Image' },
+      teamImageAlt: { type: 'text', label: 'Team Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' }
+    }
+  },
+
+  'benefits-tags-slide': {
+    id: 'benefits-tags-slide',
+    name: 'Benefits Tags Slide',
+    description: 'Slide with benefit tags and profile image',
+    category: 'content',
+    icon: '🏷️',
+    component: BenefitsTagsSlideTemplate,
+    defaultProps: {
+      title: 'Benefits',
+      tags: [
+        { text: 'Better decisions', isHighlighted: false },
+        { text: 'Insight', isHighlighted: false },
+        { text: 'Growth', isHighlighted: false },
+        { text: 'Progress', isHighlighted: false },
+        { text: 'Creativity', isHighlighted: false },
+        { text: 'Innovative solutions', isHighlighted: true }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      backgroundColor: '#f5f5f5',
+      titleColor: '#333333',
+      contentColor: '#666666',
+      accentColor: '#ff6b35'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
+      tags: { type: 'array', label: 'Tags', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#f5f5f5' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+    }
+  },
+
+  'learning-topics-slide': {
+    id: 'learning-topics-slide',
+    name: 'Learning Topics Slide',
+    description: 'Slide with learning topics and profile image',
+    category: 'content',
+    icon: '📚',
+    component: LearningTopicsSlideTemplate,
+    defaultProps: {
+      title: 'You will learn about:',
+      subtitle: 'Employment',
+      topics: [
+        'Payroll',
+        'Taxes',
+        'Benefits',
+        'Hiring'
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      backgroundColor: '#ffffff',
+      titleColor: '#333333',
+      contentColor: '#666666',
+      accentColor: '#9c27b0'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 50 },
+      topics: { type: 'array', label: 'Topics', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#9c27b0' }
+    }
+  },
+
+  'soft-skills-assessment-slide': {
+    id: 'soft-skills-assessment-slide',
+    name: 'Soft Skills Assessment Slide',
+    description: 'Slide with assessment tips and profile image',
+    category: 'content',
+    icon: '🎯',
+    component: SoftSkillsAssessmentSlideTemplate,
+    defaultProps: {
+      title: 'How do you assess soft skills in candidates?',
+      tips: [
+        { text: "Know what you're looking for in potential hires beforehand.", isHighlighted: false },
+        { text: "Ask behavioral questions to learn how they've used soft skills in previous jobs", isHighlighted: false }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      backgroundColor: '#ffffff',
+      titleColor: '#333333',
+      contentColor: '#666666',
+      accentColor: '#ff6b35'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      tips: { type: 'array', label: 'Tips', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
     }
   }
 };
