@@ -70,45 +70,109 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
 
   // Function to extract voiceover texts from slides
   const extractVoiceoverTexts = async (): Promise<string[]> => {
-    console.log('🎬 [PROFESSIONAL_VIDEO] Extracting voiceover texts from DOM...');
+    console.log('🎬 [PROFESSIONAL_VIDEO] Extracting voiceover texts from slide data...');
     
-    const voiceoverElements = document.querySelectorAll('[data-voiceover], .voiceover-text, [class*="voiceover"]');
-    console.log('🎬 [PROFESSIONAL_VIDEO] Found voiceover elements:', voiceoverElements.length);
+    const voiceoverTexts: string[] = [];
     
-    if (voiceoverElements.length > 0) {
-      const texts: string[] = [];
-      voiceoverElements.forEach((element, index) => {
-        const text = element.textContent?.trim();
-        if (text && text.length > 10) {
-          texts.push(text);
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Voiceover ${index + 1}:`, text.substring(0, 100) + '...');
-        }
-      });
-      return texts;
-    }
-    
-    // Fallback: extract from slide titles and content
-    console.log('🎬 [PROFESSIONAL_VIDEO] No voiceover elements found, extracting from slide content...');
-    const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [class*="title"]');
-    const texts: string[] = [];
-    
-    slideTitles.forEach((titleElement, index) => {
-      const title = titleElement.textContent?.trim();
-      if (title && title.length > 10) {
-        // Filter out problematic titles
-        if (!title.toLowerCase().includes('voiceover') && 
-            !title.toLowerCase().includes('presentation themes') &&
-            !/[\u0400-\u04FF]/.test(title)) { // Filter out Cyrillic characters
-          texts.push(title);
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Slide title ${index + 1}:`, title);
-        } else {
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Skipping problematic title:`, title);
-        }
+    // Method 1: Extract from actual slide data (most accurate)
+    try {
+      const slideData = await extractSlideData();
+      console.log('🎬 [PROFESSIONAL_VIDEO] Extracted slide data for voiceover:', slideData);
+      
+      if (slideData && slideData.slides && slideData.slides.length > 0) {
+        slideData.slides.forEach((slide: any, index: number) => {
+          const props = slide.props || {};
+          
+          // Priority 1: Use dedicated voiceover text if available
+          if (props.voiceoverText && props.voiceoverText.trim().length > 10) {
+            const cleanText = props.voiceoverText.trim();
+            voiceoverTexts.push(cleanText);
+            console.log(`🎬 [PROFESSIONAL_VIDEO] Slide ${index + 1} voiceover text:`, cleanText.substring(0, 100) + '...');
+            return;
+          }
+          
+          // Priority 2: Use title if available
+          if (props.title && props.title.trim().length > 5) {
+            const cleanTitle = props.title.trim();
+            voiceoverTexts.push(cleanTitle);
+            console.log(`🎬 [PROFESSIONAL_VIDEO] Slide ${index + 1} title:`, cleanTitle);
+            return;
+          }
+          
+          // Priority 3: Use content if available
+          if (props.content && props.content.trim().length > 20) {
+            const cleanContent = props.content.trim();
+            voiceoverTexts.push(cleanContent);
+            console.log(`🎬 [PROFESSIONAL_VIDEO] Slide ${index + 1} content:`, cleanContent.substring(0, 100) + '...');
+            return;
+          }
+          
+          // Priority 4: Use subtitle if available
+          if (props.subtitle && props.subtitle.trim().length > 5) {
+            const cleanSubtitle = props.subtitle.trim();
+            voiceoverTexts.push(cleanSubtitle);
+            console.log(`🎬 [PROFESSIONAL_VIDEO] Slide ${index + 1} subtitle:`, cleanSubtitle);
+            return;
+          }
+        });
       }
-    });
-    
-    console.log('🎬 [PROFESSIONAL_VIDEO] Final extracted voiceover texts:', texts);
-    return texts;
+    } catch (error) {
+      console.warn('🎬 [PROFESSIONAL_VIDEO] Failed to extract from slide data:', error);
+    }
+
+    // Method 2: Fallback to DOM extraction if no slide data available
+    if (voiceoverTexts.length === 0) {
+      console.log('🎬 [PROFESSIONAL_VIDEO] No slide data available, falling back to DOM extraction...');
+      
+      const voiceoverElements = document.querySelectorAll('[data-voiceover], .voiceover-text, [class*="voiceover"]');
+      console.log('🎬 [PROFESSIONAL_VIDEO] Found voiceover elements:', voiceoverElements.length);
+      
+      if (voiceoverElements.length > 0) {
+        voiceoverElements.forEach((element, index) => {
+          const text = element.textContent?.trim();
+          if (text && text.length > 10) {
+            voiceoverTexts.push(text);
+            console.log(`🎬 [PROFESSIONAL_VIDEO] Voiceover ${index + 1}:`, text.substring(0, 100) + '...');
+          }
+        });
+      }
+      
+      // Fallback: extract from slide titles and content
+      if (voiceoverTexts.length === 0) {
+        console.log('🎬 [PROFESSIONAL_VIDEO] No voiceover elements found, extracting from slide content...');
+        const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [class*="title"]');
+        
+        slideTitles.forEach((titleElement, index) => {
+          const title = titleElement.textContent?.trim();
+          if (title && title.length > 10) {
+            // Filter out problematic titles
+            if (!title.toLowerCase().includes('voiceover') && 
+                !title.toLowerCase().includes('presentation themes') &&
+                !/[\u0400-\u04FF]/.test(title)) { // Filter out Cyrillic characters
+              voiceoverTexts.push(title);
+              console.log(`🎬 [PROFESSIONAL_VIDEO] Slide title ${index + 1}:`, title);
+            } else {
+              console.log(`🎬 [PROFESSIONAL_VIDEO] Skipping problematic title:`, title);
+            }
+          }
+        });
+      }
+    }
+
+    // Method 3: Fallback - create a simple default voiceover if nothing found
+    if (voiceoverTexts.length === 0) {
+      console.log('🎬 [PROFESSIONAL_VIDEO] No content found, creating default voiceover...');
+      voiceoverTexts.push("Welcome to this presentation. Today we will explore important topics and share valuable insights with you.");
+    }
+
+    // Final validation and cleaning
+    const finalTexts = voiceoverTexts
+      .filter(text => text && text.length > 5 && text.length < 1000)
+      .map(text => text.replace(/\s+/g, ' ').trim())
+      .slice(0, 5); // Limit to 5 slides maximum
+
+    console.log('🎬 [PROFESSIONAL_VIDEO] Final extracted voiceover texts:', finalTexts);
+    return finalTexts;
   };
 
   // Function to get current slide URL

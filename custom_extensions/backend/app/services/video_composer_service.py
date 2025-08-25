@@ -152,20 +152,20 @@ class ProfessionalVideoComposer:
         try:
             logger.info("Creating picture-in-picture composition")
             
-            # Calculate overlay dimensions (25% of main video)
-            overlay_width = config.resolution[0] // 4
-            overlay_height = config.resolution[1] // 4
+            # Calculate overlay dimensions (40% of main video for better visibility)
+            overlay_width = int(config.resolution[0] * 0.4)
+            overlay_height = int(config.resolution[1] * 0.4)
             
-            # Position overlay in bottom-right corner
-            overlay_x = config.resolution[0] - overlay_width - 20  # 20px margin
-            overlay_y = config.resolution[1] - overlay_height - 20  # 20px margin
+            # Position overlay in bottom-right corner with better margins
+            overlay_x = config.resolution[0] - overlay_width - 40  # 40px margin
+            overlay_y = config.resolution[1] - overlay_height - 40  # 40px margin
             
-            # Build FFmpeg command for PiP composition
+            # Build FFmpeg command for PiP composition with better scaling
             cmd = [
                 'ffmpeg',
                 '-i', slide_video,
                 '-i', avatar_video,
-                '-filter_complex', f'[0:v][1:v]overlay={overlay_x}:{overlay_y}:shortest=1',
+                '-filter_complex', f'[1:v]scale={overlay_width}:{overlay_height}[avatar_scaled];[0:v][avatar_scaled]overlay={overlay_x}:{overlay_y}:shortest=1',
                 '-c:v', config.video_codec,
                 '-c:a', config.audio_codec,
                 '-crf', str(self.quality_presets[config.quality]['crf']),

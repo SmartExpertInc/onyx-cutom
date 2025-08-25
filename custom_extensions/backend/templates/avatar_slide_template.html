@@ -695,7 +695,7 @@
                     </div>
                 </div>
                 
-            {% elif templateId == 'avatar-service' %}
+            {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
                 <div class="avatar-service">
                     <!-- Dark shape in top-left corner -->
                     <div class="dark-shape"></div>
@@ -807,8 +807,23 @@
                 
             {% else %}
                 <div class="slide">
-                    <h1 style="font-size: 3rem; color: var(--title-color); text-align: center;">Unknown Avatar Template</h1>
-                    <p style="font-size: 1.5rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
+                    <!-- Fallback for unknown template IDs - show actual content -->
+                    {% if title %}
+                        <h1 class="slide-title" style="font-size: 3rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;">{{ title }}</h1>
+                    {% endif %}
+                    
+                    {% if subtitle %}
+                        <h2 class="slide-subtitle" style="font-size: 2rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;">{{ subtitle }}</h2>
+                    {% endif %}
+                    
+                    {% if content %}
+                        <p class="content-text" style="font-size: 1.5rem; color: var(--content-color); text-align: center; line-height: 1.6; max-width: 80%; margin: 0 auto;">{{ content }}</p>
+                    {% endif %}
+                    
+                    {% if not title and not subtitle and not content %}
+                        <h1 style="font-size: 3rem; color: var(--title-color); text-align: center;">Unknown Avatar Template</h1>
+                        <p style="font-size: 1.5rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
