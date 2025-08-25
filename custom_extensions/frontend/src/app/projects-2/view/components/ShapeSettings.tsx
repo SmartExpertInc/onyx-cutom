@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AdvancedSettings from './AdvancedSettings';
+import ColorPalettePopup from './ColorPalettePopup';
 
 export default function ShapeSettings() {
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
@@ -11,6 +12,13 @@ export default function ShapeSettings() {
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [showStrokeWidthDropdown, setShowStrokeWidthDropdown] = useState(false);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+
+  // Color picker states
+  const [showFillColorPicker, setShowFillColorPicker] = useState(false);
+  const [showStrokeColorPicker, setShowStrokeColorPicker] = useState(false);
+  const [fillColorPickerPosition, setFillColorPickerPosition] = useState({ x: 0, y: 0 });
+  const [strokeColorPickerPosition, setStrokeColorPickerPosition] = useState({ x: 0, y: 0 });
+  const [recentColors, setRecentColors] = useState<string[]>([]);
 
   // Advanced settings states
   const [rotation, setRotation] = useState(0);
@@ -27,6 +35,74 @@ export default function ShapeSettings() {
     { value: '8px', label: '8px' }
   ];
 
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      // Don't close dropdowns if color pickers are open
+      if (showFillColorPicker || showStrokeColorPicker) {
+        return;
+      }
+      
+      if (showStrokeWidthDropdown) {
+        setShowStrokeWidthDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFillColorPicker, showStrokeColorPicker]);
+
+  // Handle fill color button click
+  const handleFillColorClick = (event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const popupWidth = 280; // Width of the color picker popup
+    const popupHeight = 280; // Approximate height of the color picker popup
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate position to upper right of button
+    let x = rect.right + 8; // 8px gap to the right
+    let y = rect.top - popupHeight - 8; // 8px gap above
+    
+    // Ensure popup stays within viewport
+    if (x + popupWidth > viewportWidth) {
+      x = rect.left - popupWidth - 8; // Position to the left if not enough space on right
+    }
+    if (y < 0) {
+      y = rect.bottom + 8; // Position below if not enough space above
+    }
+    
+    setFillColorPickerPosition({ x, y });
+    setShowFillColorPicker(true);
+    setShowStrokeColorPicker(false);
+  };
+
+  // Handle stroke color button click
+  const handleStrokeColorClick = (event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const popupWidth = 280; // Width of the color picker popup
+    const popupHeight = 280; // Approximate height of the color picker popup
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate position to upper right of button
+    let x = rect.right + 8; // 8px gap to the right
+    let y = rect.top - popupHeight - 8; // 8px gap above
+    
+    // Ensure popup stays within viewport
+    if (x + popupWidth > viewportWidth) {
+      x = rect.left - popupWidth - 8; // Position to the left if not enough space on right
+    }
+    if (y < 0) {
+      y = rect.bottom + 8; // Position below if not enough space above
+    }
+    
+    setStrokeColorPickerPosition({ x, y });
+    setShowStrokeColorPicker(true);
+    setShowFillColorPicker(false);
+  };
 
 
   return (
@@ -93,10 +169,14 @@ export default function ShapeSettings() {
               <div className="flex items-center justify-between pl-4">
                 <span className="text-sm text-gray-600">Color</span>
                 <button
-                  className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
+                  className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                   style={{ backgroundColor: fillColor }}
-                  title="Fill color"
-                />
+                  title={`Fill color: ${fillColor}`}
+                  onClick={handleFillColorClick}
+                >
+                  {/* Add a subtle pattern for better color visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
+                </button>
               </div>
             </div>
 
@@ -114,10 +194,14 @@ export default function ShapeSettings() {
               <div className="flex items-center justify-between pl-4">
                 <span className="text-sm text-gray-600">Stroke color</span>
                 <button
-                  className="w-8 h-8 rounded-md border border-gray-300 hover:border-gray-400 transition-colors"
+                  className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                   style={{ backgroundColor: strokeColor }}
-                  title="Stroke color"
-                />
+                  title={`Stroke color: ${strokeColor}`}
+                  onClick={handleStrokeColorClick}
+                >
+                  {/* Add a subtle pattern for better color visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
+                </button>
               </div>
 
               {/* Stroke Width with Range Slider */}
@@ -322,6 +406,28 @@ export default function ShapeSettings() {
       </div>
     </div>
     <div className="h-[5px]"></div>
+
+    {/* Fill Color Picker Popup */}
+    <ColorPalettePopup
+      isOpen={showFillColorPicker}
+      onClose={() => setShowFillColorPicker(false)}
+      onColorChange={setFillColor}
+      initialColor={fillColor}
+      position={fillColorPickerPosition}
+      recentColors={recentColors}
+      onRecentColorChange={setRecentColors}
+    />
+
+    {/* Stroke Color Picker Popup */}
+    <ColorPalettePopup
+      isOpen={showStrokeColorPicker}
+      onClose={() => setShowStrokeColorPicker(false)}
+      onColorChange={setStrokeColor}
+      initialColor={strokeColor}
+      position={strokeColorPickerPosition}
+      recentColors={recentColors}
+      onRecentColorChange={setRecentColors}
+    />
     </>
   );
 }
