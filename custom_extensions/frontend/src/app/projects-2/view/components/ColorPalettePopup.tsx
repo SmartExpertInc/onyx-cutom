@@ -17,6 +17,22 @@ interface HSB {
   b: number; // 0-100
 }
 
+interface RGBA {
+  r: number; // 0-255
+  g: number; // 0-255
+  b: number; // 0-255
+  a: number; // 0-1
+}
+
+interface HSLA {
+  h: number; // 0-360
+  s: number; // 0-100
+  l: number; // 0-100
+  a: number; // 0-1
+}
+
+type ColorFormat = 'HEX' | 'RGBA' | 'HSLA';
+
 const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   isOpen,
   onClose,
@@ -27,6 +43,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   // Initialize once to avoid flickering
   const [hsb, setHsb] = useState<HSB>(() => hexToHsb(initialColor));
   const [hex, setHex] = useState(initialColor);
+  const [rgba, setRgba] = useState<RGBA>(() => hexToRgba(initialColor));
+  const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(initialColor));
+  const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -79,23 +98,84 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     return `#${rHex}${gHex}${bHex}`;
   }
 
-  // Update HEX when HSB changes
+  // HEX to RGBA conversion
+  function hexToRgba(hex: string): RGBA {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return { r, g, b, a: 1 };
+  }
+
+  // RGBA to HEX conversion
+  function rgbaToHex({ r, g, b, a }: RGBA): string {
+    const rHex = Math.round(r).toString(16).padStart(2, '0');
+    const gHex = Math.round(g).toString(16).padStart(2, '0');
+    const bHex = Math.round(b).toString(16).padStart(2, '0');
+    return `#${rHex}${gHex}${bHex}`;
+  }
+
+  // HEX to HSLA conversion
+  function hexToHsla(hex: string): HSLA {
+    const { h, s, b } = hexToHsb(hex);
+    // Convert brightness to lightness
+    const l = b * 0.5; // Simplified conversion
+    return { h, s, l, a: 1 };
+  }
+
+  // HSLA to HEX conversion
+  function hslaToHex({ h, s, l, a }: HSLA): string {
+    // Convert lightness back to brightness for HSB
+    const b = l * 2; // Simplified conversion
+    return hsbToHex({ h, s, b });
+  }
+
+  // Update all color formats when HSB changes
   useEffect(() => {
     const newHex = hsbToHex(hsb);
     if (newHex !== hex) {
       setHex(newHex);
+      setRgba(hexToRgba(newHex));
+      setHsla(hexToHsla(newHex));
       onColorChange(newHex);
     }
   }, [hsb, onColorChange, hex]);
 
-  // --- HEX input handler ---
+  // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setHex(value);
-    // Only update HSB if we have a complete valid HEX code
+    // Only update other formats if we have a complete valid HEX code
     if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
       setHsb(hexToHsb(value));
+      setRgba(hexToRgba(value));
+      setHsla(hexToHsla(value));
       onColorChange(value);
+    }
+  };
+
+  const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      const newRgba = { ...rgba, [field]: value };
+      setRgba(newRgba);
+      const newHex = rgbaToHex(newRgba);
+      setHex(newHex);
+      setHsb(hexToHsb(newHex));
+      setHsla(hexToHsla(newHex));
+      onColorChange(newHex);
+    }
+  };
+
+  const handleHslaChange = (field: keyof HSLA) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      const newHsla = { ...hsla, [field]: value };
+      setHsla(newHsla);
+      const newHex = hslaToHex(newHsla);
+      setHex(newHex);
+      setHsb(hexToHsb(newHex));
+      setRgba(hexToRgba(newHex));
+      onColorChange(newHex);
     }
   };
 
@@ -205,16 +285,131 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           />
         </Box>
 
-        {/* HEX Input */}
-        <TextField
-          label="HEX Color"
-          value={hex}
-          onChange={handleHexChange}
-          fullWidth
-          variant="outlined"
-          inputProps={{ maxLength: 7 }}
-          sx={{ mt: 2 }}
-        />
+        {/* Color Format Toggle Buttons */}
+        <Box sx={{ 
+          mt: 2, 
+          p: 1, 
+          bgcolor: 'grey.200', 
+          borderRadius: 1,
+          display: 'flex',
+          gap: 0.5
+        }}>
+          {(['HEX', 'RGBA', 'HSLA'] as ColorFormat[]).map((format) => (
+            <button
+              key={format}
+              onClick={() => setColorFormat(format)}
+              style={{
+                flex: 1,
+                padding: '6px 12px',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: colorFormat === format ? 'bold' : 'normal',
+                backgroundColor: colorFormat === format ? '#fff' : 'transparent',
+                color: colorFormat === format ? '#000' : '#666',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {format}
+            </button>
+          ))}
+        </Box>
+
+        {/* Conditional Input Fields */}
+        {colorFormat === 'HEX' && (
+          <TextField
+            label="HEX Color"
+            value={hex}
+            onChange={handleHexChange}
+            fullWidth
+            variant="outlined"
+            inputProps={{ maxLength: 7 }}
+            sx={{ mt: 2 }}
+          />
+        )}
+
+        {colorFormat === 'RGBA' && (
+          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+            <TextField
+              label="R"
+              type="number"
+              value={Math.round(rgba.r)}
+              onChange={handleRgbaChange('r')}
+              inputProps={{ min: 0, max: 255 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+            <TextField
+              label="G"
+              type="number"
+              value={Math.round(rgba.g)}
+              onChange={handleRgbaChange('g')}
+              inputProps={{ min: 0, max: 255 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+            <TextField
+              label="B"
+              type="number"
+              value={Math.round(rgba.b)}
+              onChange={handleRgbaChange('b')}
+              inputProps={{ min: 0, max: 255 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+            <TextField
+              label="A"
+              type="number"
+              value={rgba.a}
+              onChange={handleRgbaChange('a')}
+              inputProps={{ min: 0, max: 1, step: 0.1 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+          </Box>
+        )}
+
+        {colorFormat === 'HSLA' && (
+          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+            <TextField
+              label="H"
+              type="number"
+              value={Math.round(hsla.h)}
+              onChange={handleHslaChange('h')}
+              inputProps={{ min: 0, max: 360 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+            <TextField
+              label="S"
+              type="number"
+              value={Math.round(hsla.s)}
+              onChange={handleHslaChange('s')}
+              inputProps={{ min: 0, max: 100 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+            <TextField
+              label="L"
+              type="number"
+              value={Math.round(hsla.l)}
+              onChange={handleHslaChange('l')}
+              inputProps={{ min: 0, max: 100 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+            <TextField
+              label="A"
+              type="number"
+              value={hsla.a}
+              onChange={handleHslaChange('a')}
+              inputProps={{ min: 0, max: 1, step: 0.1 }}
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+          </Box>
+        )}
 
         {/* Color Preview */}
         <Box sx={{
