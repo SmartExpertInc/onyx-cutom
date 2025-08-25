@@ -173,6 +173,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   // Create a more suitable color for the arch based on theme
   const getArchColor = () => {
     const themeId = currentTheme.id;
+    // Use theme accent color as base, but adjust for better contrast
+    const baseColor = slideAccentColor;
+    
+    // For specific themes, use more appropriate colors
     if (themeId === 'dark-purple') return '#4c1d95'; // Purple
     if (themeId === 'light-modern') return '#e5e7eb'; // Light gray
     if (themeId === 'corporate-blue') return '#3b82f6'; // Blue
@@ -180,7 +184,9 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     if (themeId === 'chudo-2') return '#d01510'; // Red
     if (themeId === 'forta') return '#e1d3c4'; // Beige
     if (themeId === 'forta-2') return '#e1d3c4'; // Beige
-    return '#9CAF88'; // Default olive green
+    
+    // For other themes, use a slightly darker version of accent color
+    return baseColor;
   };
   
   const archColor = getArchColor();
@@ -280,7 +286,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: `2px solid ${slideTitleColor}`,
+                border: `2px solid ${slideContentColor}`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -290,20 +296,20 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 <div style={{
                   width: '12px',
                   height: '2px',
-                  backgroundColor: slideTitleColor,
+                  backgroundColor: slideContentColor,
                   position: 'absolute'
                 }} />
                 <div style={{
                   width: '2px',
                   height: '12px',
-                  backgroundColor: slideTitleColor,
+                  backgroundColor: slideContentColor,
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: slideTitleColor }}>Your Logo</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: slideContentColor }}>Your Logo</span>
             </div>
           )}
         </div>

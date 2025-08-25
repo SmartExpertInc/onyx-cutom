@@ -184,6 +184,10 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   // Create a more suitable color for separator lines based on theme
   const getSeparatorColor = () => {
     const themeId = currentTheme.id;
+    // Use theme accent color as base, but adjust for better contrast
+    const baseColor = slideAccentColor;
+    
+    // For specific themes, use more appropriate colors
     if (themeId === 'dark-purple') return '#f35657'; // Red accent
     if (themeId === 'light-modern') return '#3b82f6'; // Blue
     if (themeId === 'corporate-blue') return '#60a5fa'; // Light blue
@@ -191,7 +195,9 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     if (themeId === 'chudo-2') return '#d01510'; // Red
     if (themeId === 'forta') return '#00664f'; // Green
     if (themeId === 'forta-2') return '#e1d3c4'; // Beige
-    return slideAccentColor; // Fallback
+    
+    // For other themes, use the accent color from theme
+    return baseColor;
   };
   
   const separatorColor = getSeparatorColor();
@@ -569,7 +575,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               onClick={() => isEditable && setEditingCompanyName(true)}
               style={{
                 fontSize: '14px',
-                color: slideTextColor,
+                color: slideSubtitleColor,
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
                 userSelect: 'none'
