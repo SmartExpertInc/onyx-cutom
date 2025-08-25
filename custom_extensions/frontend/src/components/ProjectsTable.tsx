@@ -665,7 +665,7 @@ const buildFolderTree = (folders: Folder[]): Folder[] => {
 const getTierColor = (tier?: string): string => {
   switch (tier) {
     case "basic":
-      return "#3b82f6"; // blue-500
+      return "#22c55e"; // green-500
     case "interactive":
       return "#f97316"; // orange-500
     case "advanced":
@@ -674,7 +674,7 @@ const getTierColor = (tier?: string): string => {
       return "#3b82f6"; // blue-500
     // Legacy tier support
     case "starter":
-      return "#3b82f6"; // blue-500 (mapped to basic)
+      return "#22c55e"; // green-500 (mapped to basic)
     case "medium":
       return "#f97316"; // orange-500 (mapped to interactive)
     case "professional":
@@ -1371,11 +1371,11 @@ const ClientRow: React.FC<{
                                     }`}
                                 />
                             </button>
-                            <Users size={16} className="mr-2 text-green-600" />
+                            <Users size={16} className="mr-2 text-blue-600" />
                             <DynamicText 
                                 text={isOtherSection ? t('interface.other', 'Other') : folder.name}
                                 columnWidthPercent={columnWidths.title}
-                                className="font-semibold text-green-700"
+                                className="font-semibold text-blue-700"
                                 title={isOtherSection ? t('interface.other', 'Other') : folder.name}
                             />
                             <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
