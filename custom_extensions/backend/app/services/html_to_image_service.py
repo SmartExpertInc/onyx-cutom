@@ -68,9 +68,17 @@ class HTMLToImageService:
         try:
             from html2image import Html2Image
             
+            # Configure html2image with proper Chrome flags for Docker environment
             hti = Html2Image(
                 size=(self.video_width, self.video_height),
-                output_path=os.path.dirname(output_path)
+                output_path=os.path.dirname(output_path),
+                custom_flags=[
+                    '--no-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor'
+                ]
             )
             
             filename = os.path.basename(output_path)
@@ -85,6 +93,12 @@ class HTMLToImageService:
             if os.path.exists(output_path):
                 file_size = os.path.getsize(output_path)
                 logger.info(f"html2image conversion successful: {file_size} bytes")
+                
+                # Verify the file is not empty
+                if file_size == 0:
+                    logger.error("html2image created empty file - falling back to simple method")
+                    return False
+                    
                 return True
             else:
                 logger.error("html2image failed to create output file")
@@ -193,7 +207,12 @@ class HTMLToImageService:
             title = re.sub(r'<[^>]+>', '', title)
             content = re.sub(r'<[^>]+>', '', content)
             
-            # Draw actual slide content
+            # If we couldn't extract from HTML, try to get from the context
+            if title == "Slide Title" and hasattr(self, '_last_props'):
+                title = self._last_props.get('title', 'Slide Title')
+                content = self._last_props.get('content', 'Slide Content')
+            
+            # Draw actual slide content with better positioning
             draw.text((100, 200), f"Title: {title}", fill='white', font=font)
             draw.text((100, 300), f"Content: {content[:100]}...", fill='white', font=font)
             
@@ -228,19 +247,32 @@ class HTMLToImageService:
         try:
             logger.info(f"Converting HTML to PNG for template: {template_id} using {self.method}")
             
-            # Use the appropriate conversion method
+            # Use the appropriate conversion method with fallback
             if self.method == "html2image":
-                return await self.convert_html_to_png_html2image(html_content, output_path)
+                success = await self.convert_html_to_png_html2image(html_content, output_path)
+                if not success:
+                    logger.warning("html2image failed, falling back to simple method")
+                    return await self.convert_html_to_png_simple(html_content, output_path)
+                return success
             elif self.method == "imgkit":
-                return await self.convert_html_to_png_imgkit(html_content, output_path)
+                success = await self.convert_html_to_png_imgkit(html_content, output_path)
+                if not success:
+                    logger.warning("imgkit failed, falling back to simple method")
+                    return await self.convert_html_to_png_simple(html_content, output_path)
+                return success
             elif self.method == "weasyprint":
-                return await self.convert_html_to_png_weasyprint(html_content, output_path)
+                success = await self.convert_html_to_png_weasyprint(html_content, output_path)
+                if not success:
+                    logger.warning("weasyprint failed, falling back to simple method")
+                    return await self.convert_html_to_png_simple(html_content, output_path)
+                return success
             else:
                 return await self.convert_html_to_png_simple(html_content, output_path)
                 
         except Exception as e:
             logger.error(f"Failed to convert HTML to PNG: {str(e)}")
-            return False
+            logger.warning("Falling back to simple method due to exception")
+            return await self.convert_html_to_png_simple(html_content, output_path)
     
     async def convert_slide_to_png(self, 
                                  template_id: str,
@@ -266,6 +298,9 @@ class HTMLToImageService:
             logger.info(f"  - Theme: {theme}")
             logger.info(f"  - Output path: {output_path}")
             logger.info(f"  - Props keys: {list(props.keys())}")
+            
+            # Store props for fallback access
+            self._last_props = props
             
             # Log detailed props content
             for key, value in props.items():
