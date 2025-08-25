@@ -14,6 +14,7 @@ interface InlineEditorProps {
   className?: string;
   style?: React.CSSProperties;
 }
+
 function InlineEditor({ 
   initialValue, 
   onSave, 
@@ -207,24 +208,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     setCurrentCompanyLogoPath(newLogoPath);
     if (onUpdate) {
       onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
-    }
-  };
-
-  const handleCompanyLogoClick = () => {
-    if (isEditable) {
-      // Создаем скрытый input для выбора файла
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (file) {
-          // Создаем URL для предварительного просмотра
-          const url = URL.createObjectURL(file);
-          handleCompanyLogoUploaded(url);
-        }
-      };
-      input.click();
     }
   };
 
@@ -462,7 +445,19 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 justifyContent: 'center',
                 cursor: isEditable ? 'pointer' : 'default'
               }}
-              onClick={isEditable ? handleCompanyLogoClick : undefined}
+              onClick={isEditable ? () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (file) {
+                    const url = URL.createObjectURL(file);
+                    handleCompanyLogoUploaded(url);
+                  }
+                };
+                input.click();
+              } : undefined}
             >
               <img
                 src={currentCompanyLogoPath}
