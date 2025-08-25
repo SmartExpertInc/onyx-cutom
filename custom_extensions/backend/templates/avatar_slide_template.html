@@ -613,10 +613,12 @@
                         <!-- Right content - Title and Checklist -->
                         <div class="right-content">
                             <!-- Title with question mark -->
-                            <div style="display: flex; alignItems: center; gap: 18px;">
-                                <span class="icon question-icon">?</span>
-                                <h1 class="slide-title">{{title}}</h1>
-                            </div>
+                            {% if title %}
+                                <div style="display: flex; alignItems: center; gap: 18px;">
+                                    <span class="icon question-icon">?</span>
+                                    <h1 class="slide-title">{{title}}</h1>
+                                </div>
+                            {% endif %}
 
                             <!-- Checklist -->
                             <div class="checklist-container">
@@ -631,19 +633,19 @@
                                 {% if not items or items|length == 0 %}
                                     <div class="checklist-item">
                                         <span class="icon positive-icon">✓</span>
-                                        <span>«Позвольте я помогу»</span>
+                                        <span>"Let me help you"</span>
                                     </div>
                                     <div class="checklist-item">
                                         <span class="icon positive-icon">✓</span>
-                                        <span>«С удовольствием уточню»</span>
+                                        <span>"I'll be happy to clarify"</span>
                                     </div>
                                     <div class="checklist-item">
                                         <span class="icon positive-icon">✓</span>
-                                        <span>«Спасибо, что обратили внимание»</span>
+                                        <span>"Thank you for your attention"</span>
                                     </div>
                                     <div class="checklist-item">
                                         <span class="icon negative-icon">✗</span>
-                                        <span>Исключаем холодные фразы и неуверенность</span>
+                                        <span>Avoid cold phrases and uncertainty</span>
                                     </div>
                                 {% endif %}
                             </div>
@@ -657,29 +659,33 @@
                     <div class="left-panel">
                         <!-- Pink Banner -->
                         <div class="banner">
-                            {{ title or 'Личное отношение - залог следующих ВИЗИТОВ' }}
+                            {{ title }}
                         </div>
                         
                         <!-- Checklist -->
                         <div class="checklist">
+                            {% if subtitle %}
+                                <div class="checklist-item">
+                                    <span class="checkmark">✓</span>
+                                    <span>{{ subtitle }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            {% if content %}
+                                <div class="checklist-item">
+                                    <span class="checkmark">✓</span>
+                                    <span>{{ content }}</span>
+                                </div>
+                            {% endif %}
+                            
                             <div class="checklist-item">
                                 <span class="checkmark">✓</span>
-                                <span>{{ subtitle or 'Помните детали' }}</span>
+                                <span>Maintain warm contact</span>
                             </div>
                             
                             <div class="checklist-item">
                                 <span class="checkmark">✓</span>
-                                <span>{{ content or 'Интересуйтесь' }}</span>
-                            </div>
-                            
-                            <div class="checklist-item">
-                                <span class="checkmark">✓</span>
-                                <span>Сохраняйте тёплый контакт</span>
-                            </div>
-                            
-                            <div class="checklist-item">
-                                <span class="checkmark">✓</span>
-                                <span>Клиент это почувствует</span>
+                                <span>The client will feel it</span>
                             </div>
                         </div>
                     </div>
@@ -705,7 +711,9 @@
                         <!-- Left content -->
                         <div class="left-content">
                             <!-- Title -->
-                            <h1 class="slide-title">{{ title or 'Клиентский сервис -' }}</h1>
+                            {% if title %}
+                                <h1 class="slide-title">{{ title }}</h1>
+                            {% endif %}
 
                             <!-- Subtitle -->
                             {% if subtitle %}
@@ -746,7 +754,9 @@
                         <!-- Right content - Title and Buttons -->
                         <div class="right-content">
                             <!-- Title -->
-                            <h1 class="slide-title">{{ title or 'Продуманный сервис ощущается сразу' }}</h1>
+                            {% if title %}
+                                <h1 class="slide-title">{{ title }}</h1>
+                            {% endif %}
 
                             <!-- Buttons Grid -->
                             <div class="buttons-container">
@@ -754,10 +764,10 @@
                                     <div class="button">{{ button.text }}</div>
                                 {% endfor %}
                                 {% if not buttons or buttons|length == 0 %}
-                                    <div class="button">Внимание</div>
-                                    <div class="button">Скорость</div>
-                                    <div class="button">Тепло</div>
-                                    <div class="button">Забота</div>
+                                    <div class="button">Attention</div>
+                                    <div class="button">Speed</div>
+                                    <div class="button">Warmth</div>
+                                    <div class="button">Care</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -770,7 +780,9 @@
                         <!-- Left content - Title and Steps -->
                         <div class="left-content">
                             <!-- Title -->
-                            <h1 class="slide-title">{{ title or 'Каждый шаг - это часть сервиса' }}</h1>
+                            {% if title %}
+                                <h1 class="slide-title">{{ title }}</h1>
+                            {% endif %}
 
                             <!-- Steps -->
                             <div class="steps-container">
@@ -781,15 +793,15 @@
                                     {% endif %}
                                 {% endfor %}
                                 {% if not steps or steps|length == 0 %}
-                                    <div class="step-box">Приветствие</div>
+                                    <div class="step-box">Greeting</div>
                                     <div class="arrow">↓</div>
-                                    <div class="step-box">Консультация</div>
+                                    <div class="step-box">Consultation</div>
                                     <div class="arrow">↓</div>
-                                    <div class="step-box">Комфорт во время</div>
+                                    <div class="step-box">Comfort</div>
                                     <div class="arrow">↓</div>
-                                    <div class="step-box">Финальные рекомендации</div>
+                                    <div class="step-box">Final Recommendations</div>
                                     <div class="arrow">↓</div>
-                                    <div class="step-box">Прощание и отзыв</div>
+                                    <div class="step-box">Farewell</div>
                                 {% endif %}
                             </div>
                         </div>

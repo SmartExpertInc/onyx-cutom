@@ -110,50 +110,34 @@ class HTMLTemplateService:
         try:
             if template_id == "avatar-checklist":
                 validated_props = {
-                    "title": props.get("title", "Как звучать профессионально"),
-                    "items": props.get("items", [
-                        {"text": "«Позвольте я помогу»", "isPositive": True},
-                        {"text": "«С удовольствием уточню»", "isPositive": True},
-                        {"text": "«Спасибо, что обратили внимание»", "isPositive": True},
-                        {"text": "Исключаем холодные фразы и неуверенность", "isPositive": False}
-                    ])
+                    "title": props.get("title", ""),
+                    "items": props.get("items", [])
                 }
                 
             elif template_id == "avatar-crm":
                 validated_props = {
-                    "title": props.get("title", "Личное отношение - залог следующих ВИЗИТОВ"),
-                    "subtitle": props.get("subtitle", "Помните детали"),
-                    "content": props.get("content", "Интересуйтесь")
+                    "title": props.get("title", ""),
+                    "subtitle": props.get("subtitle", ""),
+                    "content": props.get("content", "")
                 }
                 
             elif template_id == "avatar-service" or template_id == "avatar-service-slide":
                 validated_props = {
-                    "title": props.get("title", "Клиентский сервис -"),
-                    "subtitle": props.get("subtitle"),
-                    "content": props.get("content")
+                    "title": props.get("title", ""),
+                    "subtitle": props.get("subtitle", ""),
+                    "content": props.get("content", "")
                 }
                 
             elif template_id == "avatar-buttons":
                 validated_props = {
-                    "title": props.get("title", "Продуманный сервис ощущается сразу"),
-                    "buttons": props.get("buttons", [
-                        {"text": "Внимание", "color": "#e91e63"},
-                        {"text": "Скорость", "color": "#e91e63"},
-                        {"text": "Тепло", "color": "#e91e63"},
-                        {"text": "Забота", "color": "#e91e63"}
-                    ])
+                    "title": props.get("title", ""),
+                    "buttons": props.get("buttons", [])
                 }
                 
             elif template_id == "avatar-steps":
                 validated_props = {
-                    "title": props.get("title", "Каждый шаг - это часть сервиса"),
-                    "steps": props.get("steps", [
-                        "Приветствие",
-                        "Консультация",
-                        "Комфорт во время",
-                        "Финальные рекомендации",
-                        "Прощание и отзыв"
-                    ])
+                    "title": props.get("title", ""),
+                    "steps": props.get("steps", [])
                 }
                 
             else:

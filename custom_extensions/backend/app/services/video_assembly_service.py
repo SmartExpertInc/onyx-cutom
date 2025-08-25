@@ -227,10 +227,13 @@ class VideoAssemblyService:
                 
                 logger.info(f"🎬 [VIDEO_ASSEMBLY] Converting slide {i+1} to PNG: {temp_png.name}")
                 
+                # Extract the actual props from slide_props
+                actual_props = slide_props.get("props", slide_props)
+                
                 # Convert slide to PNG (Chromium-free)
                 success = await html_to_image_service.convert_slide_to_png(
                     template_id=template_id,
-                    props=slide_props,
+                    props=actual_props,
                     theme=theme,
                     output_path=temp_png.name
                 )
