@@ -234,14 +234,14 @@ export default function AvatarSettings() {
           </div>
 
           {/* Advanced Settings Toggle */}
-          <div className={`flex items-center justify-between ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
-            <span className="text-xs text-gray-500">
-              {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
-            </span>
+          <div className={`flex flex-col items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
             <button
               onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-              className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex flex-col items-center space-y-1 text-gray-600 hover:text-gray-800 transition-colors"
             >
+              <span className="text-xs text-gray-500">
+                {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
+              </span>
               <svg 
                 className={`w-4 h-4 transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
                 fill="none" 
@@ -254,24 +254,26 @@ export default function AvatarSettings() {
           </div>
 
           {/* Advanced Settings Content */}
-          <div 
-            className={`border-t border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
-              showAdvancedSettings ? 'max-h-96 opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0'
-            }`}
-          >
-            <div className="px-4">
-              <AdvancedSettings
-                rotation={rotation}
-                onRotationChange={setRotation}
-                positionX={positionX}
-                onPositionXChange={setPositionX}
-                positionY={positionY}
-                onPositionYChange={setPositionY}
-                width={width}
-                onWidthChange={setWidth}
-                height={height}
-                onHeightChange={setHeight}
-              />
+          <div className={`transition-all duration-300 ease-in-out ${
+            showAdvancedSettings ? 'h-48' : 'h-0'
+          } overflow-hidden`}>
+            <div className={`px-4 transition-all duration-300 ease-in-out ${
+              showAdvancedSettings ? 'pt-4 pb-4' : 'pt-0 pb-0'
+            }`}>
+              <div className={`transition-all duration-300 ${showAdvancedSettings ? 'opacity-100' : 'opacity-0'}`}>
+                <AdvancedSettings
+                  rotation={rotation}
+                  onRotationChange={setRotation}
+                  positionX={positionX}
+                  onPositionXChange={setPositionX}
+                  positionY={positionY}
+                  onPositionYChange={setPositionY}
+                  width={width}
+                  onWidthChange={setWidth}
+                  height={height}
+                  onHeightChange={setHeight}
+                />
+              </div>
             </div>
           </div>
         </div>
