@@ -119,7 +119,7 @@ export default function TextSettings() {
       </div>
       
       {/* Content area */}
-      <div className="p-4">
+      <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}
