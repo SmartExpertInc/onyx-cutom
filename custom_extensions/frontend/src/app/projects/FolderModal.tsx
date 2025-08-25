@@ -90,7 +90,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         </button>
         
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
             <Users size={24} className="text-white" />
           </div>
           <div>
@@ -103,7 +103,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           {/* Create New Client Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Plus size={16} className="text-green-600" />
+              <Plus size={16} className="text-blue-600" />
               <h3 className="font-semibold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h3>
             </div>
             
@@ -112,7 +112,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                 <input
                   type="text"
                   placeholder={t('interface.enterClientNamePlaceholder', 'Enter client name...')}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   value={folderName}
                   onChange={e => setFolderName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
@@ -122,7 +122,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
               {existingFolders.length > 0 && (
                 <div className="relative">
                   <select
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 bg-white"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                     value={selectedParentId || ''}
                     onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
                   >
@@ -137,7 +137,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
               )}
               
               <button
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={handleCreate}
                 disabled={creating || !folderName.trim()}
               >
