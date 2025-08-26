@@ -352,7 +352,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onClick={() => isEditable && setEditingDescription(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  fontSize: '20px'
                 }}
               >
                 {currentDescription}
