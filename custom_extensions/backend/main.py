@@ -1396,13 +1396,18 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
+def normalize_slide_props(slides: List[Dict], component_name: str = None) -> List[Dict]:
     """
     Normalize slide props to match frontend template schemas.
     
     This function fixes common prop mismatches between AI-generated JSON
     and the expected frontend template schemas. Invalid slides are automatically
     removed to prevent rendering errors.
+    
+    Args:
+        slides: List of slide dictionaries to normalize
+        component_name: Component type (e.g., COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION)
+                       Used to determine if voiceoverText should be preserved
     """
     if not slides:
         return slides
@@ -1665,6 +1670,13 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
                     normalized_props['bullets'] = ['No content available']
         
             normalized_slide['props'] = normalized_props
+            
+            # Remove voiceoverText for non-video presentations
+            if (component_name == COMPONENT_NAME_SLIDE_DECK and 
+                'voiceoverText' in normalized_slide):
+                logger.info(f"Removing voiceoverText from slide {slide_index + 1} for regular slide deck")
+                normalized_slide.pop('voiceoverText', None)
+            
             normalized_slides.append(normalized_slide)
             
         except Exception as e:
@@ -10420,11 +10432,18 @@ Return ONLY the JSON object.
             
             # Normalize slide props to fix schema mismatches
             slides_dict = [slide.model_dump() if hasattr(slide, 'model_dump') else dict(slide) for slide in parsed_content_model_instance.slides]
-            normalized_slides = normalize_slide_props(slides_dict)
+            normalized_slides = normalize_slide_props(slides_dict, selected_design_template.component_name)
             
             # Update the content with normalized slides
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
             content_dict['slides'] = normalized_slides
+            
+            # Remove hasVoiceover flag for regular slide decks
+            if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
+                'hasVoiceover' in content_dict):
+                logger.info("Removing hasVoiceover flag for regular slide deck")
+                content_dict.pop('hasVoiceover', None)
+            
             content_to_store_for_db = content_dict
             
             logger.info(f"Applied slide prop normalization for {len(normalized_slides)} slides")
@@ -10493,13 +10512,13 @@ Return ONLY the JSON object.
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_dict and db_content_dict['slides']:
-                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'])
+                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails.")
                 elif component_name_from_db == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_dict and db_content_dict['slides']:
-                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'])
+                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
                 else:
@@ -10587,12 +10606,12 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_json and db_content_json['slides']:
-                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'])
+                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'], component_name)
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_json and db_content_json['slides']:
-                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'])
+                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'], component_name)
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 else:
                     logger.warning(f"Unknown component_name '{component_name}' for project {project_id}. Trying fallbacks.", exc_info=not IS_PRODUCTION)
@@ -15864,7 +15883,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content and db_content['slides']:
-                        db_content['slides'] = normalize_slide_props(db_content['slides'])
+                        db_content['slides'] = normalize_slide_props(db_content['slides'], current_component_name)
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
                     final_content_for_model = TrainingPlanDetails(**db_content)
