@@ -157,7 +157,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '640px',
+    height: '596px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
