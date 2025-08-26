@@ -579,13 +579,28 @@
             display: none;
         }
         
-       
+        /* CRITICAL FIX: Ensure background fills completely for avatar-service template */
+        .avatar-service,
+        .avatar-service .content-container,
+        .avatar-service .left-content,
+        .avatar-service .right-content {
+            background-color: var(--bg-color) !important;
+        }
         
         /* Ensure no gaps in background coverage for avatar-service */
         .avatar-service > * {
             background-color: var(--bg-color);
         }
         
+        /* Force background on main content elements to prevent white lines - but preserve decorative shapes */
+        .avatar-service .content-container,
+        .avatar-service .left-content,
+        .avatar-service .right-content,
+        .avatar-service .slide-title,
+        .avatar-service .slide-subtitle,
+        .avatar-service .content-text {
+            background-color: inherit;
+        }
         
         /* TARGETED FIX: Ensure background fills completely without affecting text styles */
         .slide-page::before {
@@ -758,11 +773,11 @@
             {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
                 <div class="avatar-service" style="background-color: var(--bg-color); height: 100%; min-height: 1080px;">
                     <!-- Dark shape in top-left corner -->
-                    <div class="dark-shape"></div>
+                    <div class="dark-shape" bis_skin_checked="1"></div>
                     
-                    <div class="content-container" style=" height: 100%;">
+                    <div class="content-container" bis_skin_checked="1">
                         <!-- Left content -->
-                        <div class="left-content">
+                        <div class="left-content" style="background-color: var(--bg-color);" bis_skin_checked="1">
                             <!-- Title -->
                             {% if title %}
                                 <h1 class="slide-title">{{ title }}</h1>
@@ -780,7 +795,7 @@
                         </div>
 
                         <!-- Right content - Avatar -->
-                        <div class="right-content" style="background-color: var(--bg-color);">
+                        <div class="right-content" style="background-color: var(--bg-color);" bis_skin_checked="1">
                             <div class="avatar-placeholder">
                                 <!-- Simple blank space for avatar overlay -->
                             </div>
