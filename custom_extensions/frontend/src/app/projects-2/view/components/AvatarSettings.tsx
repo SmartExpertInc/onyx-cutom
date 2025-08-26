@@ -7,6 +7,7 @@ export default function AvatarSettings() {
   const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
   const [showViewDropdown, setShowViewDropdown] = useState(false);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const viewDropdownRef = useRef<HTMLDivElement>(null);
 
   // Advanced settings states
@@ -101,7 +102,7 @@ export default function AvatarSettings() {
       </div>
       
       {/* Content area */}
-      <div className="p-4 overflow-y-auto" style={{ height: 'calc(100% - 112px)' }}>
+      <div ref={contentRef} className="p-4 overflow-y-auto" style={{ height: 'calc(100% - 112px)' }}>
         <div className="space-y-4">
           {/* View */}
           <div className="flex items-center justify-between">
@@ -236,7 +237,16 @@ export default function AvatarSettings() {
           {/* Advanced Settings Toggle */}
           <div className={`flex items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
             <button
-              onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+              onClick={() => {
+                const scrollTop = contentRef.current?.scrollTop || 0;
+                setShowAdvancedSettings(!showAdvancedSettings);
+                // Preserve scroll position after state update
+                setTimeout(() => {
+                  if (contentRef.current) {
+                    contentRef.current.scrollTop = scrollTop;
+                  }
+                }, 0);
+              }}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               <span className="text-xs text-gray-500">

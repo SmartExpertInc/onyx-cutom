@@ -21,6 +21,7 @@ export default function TextSettings() {
   const [fontColor, setFontColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   
   // Color picker states
   const [showFontColorPicker, setShowFontColorPicker] = useState(false);
@@ -182,7 +183,7 @@ export default function TextSettings() {
       </div>
       
       {/* Content area */}
-      <div className={`p-4 overflow-y-auto`} style={{ height: 'calc(100% - 112px)' }}>
+      <div ref={contentRef} className={`p-4 overflow-y-auto`} style={{ height: 'calc(100% - 112px)' }}>
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}
@@ -475,7 +476,16 @@ export default function TextSettings() {
             {/* Advanced Settings Toggle */}
             <div className={`flex items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
               <button
-                onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                onClick={() => {
+                  const scrollTop = contentRef.current?.scrollTop || 0;
+                  setShowAdvancedSettings(!showAdvancedSettings);
+                  // Preserve scroll position after state update
+                  setTimeout(() => {
+                    if (contentRef.current) {
+                      contentRef.current.scrollTop = scrollTop;
+                    }
+                  }, 0);
+                }}
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 <span className="text-xs text-gray-500">
@@ -495,7 +505,7 @@ export default function TextSettings() {
             {/* Advanced Settings Content */}
             <div className={`transition-all duration-300 ease-in-out ${
               showAdvancedSettings ? 'max-h-48' : 'max-h-0'
-            } overflow-hidden`}>
+            } overflow-hidden`} style={{ minHeight: 0 }}>
               <div className={`transition-all duration-300 ease-in-out ${
                 showAdvancedSettings ? 'pt-4 pb-2' : 'pt-0 pb-0'
               }`}>
