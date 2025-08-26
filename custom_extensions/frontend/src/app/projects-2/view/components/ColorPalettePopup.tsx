@@ -35,27 +35,6 @@ interface HSLA {
 
 type ColorFormat = 'HEX' | 'RGBA' | 'HSLA';
 
-// Common styles
-const commonTextFieldStyles = {
-  zIndex: 10004,
-  position: 'relative' as const,
-  '& .MuiInputBase-root': {
-    zIndex: 10005,
-    position: 'relative' as const,
-  },
-  '& .MuiInputBase-input': {
-    zIndex: 10006,
-    position: 'relative' as const,
-    pointerEvents: 'auto' as const,
-  },
-  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#000',
-  },
-  '& .MuiInputLabel-root.Mui-focused': {
-    color: '#000',
-  }
-};
-
 const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   isOpen,
   onClose,
@@ -66,26 +45,20 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   onRecentColorChange,
 }) => {
   // Initialize once to avoid flickering
-  const validInitialColor = selectedColor && /^#[0-9A-Fa-f]{6}$/.test(selectedColor) ? selectedColor : "#ff0000";
-  const [hsb, setHsb] = useState<HSB>(() => hexToHsb(validInitialColor));
-  const [hex, setHex] = useState(validInitialColor);
-  const [rgba, setRgba] = useState<RGBA>(() => hexToRgba(validInitialColor));
-  const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(validInitialColor));
+  const [hsb, setHsb] = useState<HSB>(() => hexToHsb(selectedColor));
+  const [hex, setHex] = useState(selectedColor);
+  const [rgba, setRgba] = useState<RGBA>(() => hexToRgba(selectedColor));
+  const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(selectedColor));
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
-  const [opacity, setOpacity] = useState(1);
+  const [opacity, setOpacity] = useState(1); // 0-1 range for opacity
   const [isDragging, setIsDragging] = useState(false);
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
 
-  // --- Color conversion utilities ---
+  // --- HEX ↔ HSB conversion ---
   function hexToHsb(hex: string): HSB {
-    // Handle invalid hex values
-    if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-      return { h: 0, s: 0, b: 0 };
-    }
-    
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -110,11 +83,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }
 
   function hsbToHex({ h, s, b }: HSB): string {
-    // Handle invalid HSB values
-    if (isNaN(h) || isNaN(s) || isNaN(b)) {
-      return "#000000";
-    }
-    
     const sDec = s / 100;
     const bDec = b / 100;
 
@@ -137,80 +105,56 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     return `#${rHex}${gHex}${bHex}`;
   }
 
+  // HEX to RGBA conversion
   function hexToRgba(hex: string): RGBA {
-    // Handle invalid hex values
-    if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-      return { r: 0, g: 0, b: 0, a: 1 };
-    }
-    
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return { r, g, b, a: 1 };
   }
 
+  // RGBA to HEX conversion
   function rgbaToHex({ r, g, b, a }: RGBA): string {
-    // Handle invalid RGBA values
-    if (isNaN(r) || isNaN(g) || isNaN(b)) {
-      return "#000000";
-    }
-    
-    const rHex = Math.round(Math.max(0, Math.min(255, r))).toString(16).padStart(2, '0');
-    const gHex = Math.round(Math.max(0, Math.min(255, g))).toString(16).padStart(2, '0');
-    const bHex = Math.round(Math.max(0, Math.min(255, b))).toString(16).padStart(2, '0');
+    const rHex = Math.round(r).toString(16).padStart(2, '0');
+    const gHex = Math.round(g).toString(16).padStart(2, '0');
+    const bHex = Math.round(b).toString(16).padStart(2, '0');
     return `#${rHex}${gHex}${bHex}`;
   }
 
+  // HEX to HSLA conversion
   function hexToHsla(hex: string): HSLA {
     const { h, s, b } = hexToHsb(hex);
-    const l = b * 0.5;
+    // Convert brightness to lightness
+    const l = b * 0.5; // Simplified conversion
     return { h, s, l, a: 1 };
   }
 
+  // HSLA to HEX conversion
   function hslaToHex({ h, s, l, a }: HSLA): string {
-    // Handle invalid HSLA values
-    if (isNaN(h) || isNaN(s) || isNaN(l)) {
-      return "#000000";
-    }
-    
-    const b = l * 2;
+    // Convert lightness back to brightness for HSB
+    const b = l * 2; // Simplified conversion
     return hsbToHex({ h, s, b });
   }
 
-  // Centralized color update function
-  const updateAllColorFormats = useCallback((newHex: string, newOpacity: number = opacity, shouldNotifyParent: boolean = true) => {
-    setHex(newHex);
-    setHsb(hexToHsb(newHex));
-    setRgba({ ...hexToRgba(newHex), a: newOpacity });
-    setHsla({ ...hexToHsla(newHex), a: newOpacity });
-    setOpacity(newOpacity);
-    
-    if (shouldNotifyParent) {
-      const rgbaColor = hexToRgba(newHex);
-      const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${newOpacity})`;
-      onColorChange(colorWithOpacity);
-    }
-  }, [opacity, onColorChange]);
-
-  // Note: Removed the useEffect that was causing circular dependency
-  // Color updates are now handled directly in the event handlers
-
-  // Update component when selectedColor prop changes
+  // Update all color formats when HSB changes (from slider/square)
   useEffect(() => {
-    // Ensure selectedColor is a valid hex color
-    const validColor = selectedColor && /^#[0-9A-Fa-f]{6}$/.test(selectedColor) ? selectedColor : "#ff0000";
-    if (validColor !== hex) {
-      updateAllColorFormats(validColor, opacity, false); // Don't notify parent when prop changes
+    if (!isUserTyping && !isDragging) {
+      const newHex = hsbToHex(hsb);
+      if (newHex !== hex) {
+        setHex(newHex);
+        setRgba(hexToRgba(newHex));
+        setHsla(hexToHsla(newHex));
+        onColorChange(newHex);
+      }
     }
-  }, [selectedColor, updateAllColorFormats, opacity, hex]);
-
-
+  }, [hsb, onColorChange, hex, isUserTyping, isDragging]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
+    const value = e.target.value;
     setIsUserTyping(true);
-    setHex(e.target.value);
+    setHex(value);
   };
 
   const handleHexKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -218,118 +162,188 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       e.preventDefault();
       setIsUserTyping(false);
       const value = e.currentTarget.value;
+      // Only update other formats if we have a complete valid HEX code
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-        updateAllColorFormats(value);
+        const newHsb = hexToHsb(value);
+        setHsb(newHsb); // Update HSB to reflect in square and slider
+        setHex(value);
+        const newRgba = { ...hexToRgba(value), a: opacity };
+        const newHsla = { ...hexToHsla(value), a: opacity };
+        setRgba(newRgba);
+        setHsla(newHsla);
+        // Pass the color with current opacity to the parent component
+        const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+        onColorChange(colorWithOpacity);
       }
     }
   };
 
   const handleHexBlur = () => {
     setIsUserTyping(false);
+    // Update other formats if we have a complete valid HEX code
     if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-      updateAllColorFormats(hex);
+      const newHsb = hexToHsb(hex);
+      setHsb(newHsb); // Update HSB to reflect in square and slider
+      const newRgba = { ...hexToRgba(hex), a: opacity };
+      const newHsla = { ...hexToHsla(hex), a: opacity };
+      setRgba(newRgba);
+      setHsla(newHsla);
+      // Pass the color with current opacity to the parent component
+      const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+      onColorChange(colorWithOpacity);
     }
   };
 
-  // Generic input field handler
-  const createInputHandler = (
-    format: 'RGBA' | 'HSLA',
-    field: keyof RGBA | keyof HSLA,
-    converter: (value: any) => string
-  ) => {
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      e.stopPropagation();
-      const value = parseFloat(e.target.value);
-      if (!isNaN(value)) {
-        setIsUserTyping(true);
-        if (format === 'RGBA') {
-          setRgba(prev => ({ ...prev, [field]: value }));
-        } else {
-          setHsla(prev => ({ ...prev, [field]: value }));
-        }
-      }
-    };
+  const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      setIsUserTyping(true);
+      const newRgba = { ...rgba, [field]: value };
+      setRgba(newRgba);
+    }
+  };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        setIsUserTyping(false);
-        const value = parseFloat(e.currentTarget.value);
-        if (!isNaN(value)) {
-          const newColor = converter({ ...(format === 'RGBA' ? rgba : hsla), [field]: value });
-          updateAllColorFormats(newColor);
-        }
-      }
-    };
-
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleRgbaKeyDown = (field: keyof RGBA) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
       setIsUserTyping(false);
-      const value = parseFloat(e.target.value);
+      const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
-        const newColor = converter({ ...(format === 'RGBA' ? rgba : hsla), [field]: value });
-        updateAllColorFormats(newColor);
+        const newRgba = { ...rgba, [field]: value };
+        setRgba(newRgba);
+        const newHex = rgbaToHex(newRgba);
+        const newHsb = hexToHsb(newHex);
+        setHsb(newHsb); // Update HSB to reflect in square and slider
+        setHex(newHex);
+        setHsla(hexToHsla(newHex));
+        setOpacity(newRgba.a); // Update opacity slider
+        onColorChange(newHex);
       }
-    };
+    }
+  };
 
-    return { handleChange, handleKeyDown, handleBlur };
+  const handleHslaChange = (field: keyof HSLA) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      setIsUserTyping(true);
+      const newHsla = { ...hsla, [field]: value };
+      setHsla(newHsla);
+    }
+  };
+
+  const handleHslaKeyDown = (field: keyof HSLA) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      setIsUserTyping(false);
+      const value = parseFloat(e.currentTarget.value);
+      if (!isNaN(value)) {
+        const newHsla = { ...hsla, [field]: value };
+        setHsla(newHsla);
+        const newHex = hslaToHex(newHsla);
+        const newHsb = hexToHsb(newHex);
+        setHsb(newHsb); // Update HSB to reflect in square and slider
+        setHex(newHex);
+        setRgba(hexToRgba(newHex));
+        setOpacity(newHsla.a); // Update opacity slider
+        onColorChange(newHex);
+      }
+    }
+  };
+
+  // Handle input field clicks to ensure they're accessible
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   // Add color to recent colors
-  const addToRecentColors = useCallback((color: string) => {
-    if (!onRecentColorChange || !color || color.length < 3) return;
+  const addToRecentColors = (color: string) => {
+    if (!onRecentColorChange) return;
+    
+    // Validate that we have a valid color
+    if (!color || color.length < 3) return;
     
     const updatedRecentColors = [
       color,
-      ...recentColors.filter(c => c !== color)
-    ].slice(0, 5);
+      ...recentColors.filter(c => c !== color) // Remove if already exists
+    ].slice(0, 5); // Keep only 5 colors
     
     onRecentColorChange(updatedRecentColors);
-  }, [onRecentColorChange, recentColors]);
+    
+    // Pass the most recent color (first in the array) to parent as selected color
+    const selectedColor = updatedRecentColors[0];
+    if (selectedColor) {
+      // Convert to RGBA format with current opacity for the parent
+      const rgbaColor = hexToRgba(selectedColor);
+      const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${opacity})`;
+      onColorChange(colorWithOpacity);
+    }
+  };
 
   // Handle recent color click
   const handleRecentColorClick = (color: string) => {
-    updateAllColorFormats(color);
-    addToRecentColors(color);
+    setHex(color);
+    setHsb(hexToHsb(color));
+    const newRgba = { ...hexToRgba(color), a: opacity };
+    const newHsla = { ...hexToHsla(color), a: opacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Pass the color with current opacity to the parent component
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
+    addToRecentColors(color); // Add to recent colors when explicitly selecting
   };
 
   // --- Hue slider ---
   const handleHueChange = (e: Event, value: number | number[]) => {
-    if (!isDragging) setIsDragging(true);
+    // Set dragging state on first change
+    if (!isDragging) {
+      setIsDragging(true);
+    }
     
     const newHsb = { ...hsb, h: value as number };
     setHsb(newHsb);
-    // Update hex directly without calling updateAllColorFormats to avoid circular dependency
     const newHex = hsbToHex(newHsb);
     setHex(newHex);
-    setRgba({ ...hexToRgba(newHex), a: opacity });
-    setHsla({ ...hexToHsla(newHex), a: opacity });
+    const newRgba = { ...hexToRgba(newHex), a: opacity };
+    const newHsla = { ...hexToHsla(newHex), a: opacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Pass the color with current opacity to the parent component
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
   };
 
-  const handleHueChangeCommitted = () => {
+  const handleHueChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
+    // This is called when the user finishes dragging the hue slider
     setIsDragging(false);
-    // Notify parent when dragging stops
-    const rgbaColor = hexToRgba(hex);
-    const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${opacity})`;
-    onColorChange(colorWithOpacity);
     addToRecentColors(hex);
   };
 
   // --- Opacity slider ---
   const handleOpacityChange = (e: Event, value: number | number[]) => {
-    if (!isDragging) setIsDragging(true);
+    // Set dragging state on first change
+    if (!isDragging) {
+      setIsDragging(true);
+    }
     
     const newOpacity = value as number;
     setOpacity(newOpacity);
-    setRgba(prev => ({ ...prev, a: newOpacity }));
-    setHsla(prev => ({ ...prev, a: newOpacity }));
+    // Update RGBA and HSLA with new opacity
+    const newRgba = { ...rgba, a: newOpacity };
+    const newHsla = { ...hsla, a: newOpacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Pass the color with opacity to the parent component
+    // Use RGBA format since it supports opacity
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
   };
 
-  const handleOpacityChangeCommitted = () => {
+  const handleOpacityChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
+    // This is called when the user finishes dragging the opacity slider
     setIsDragging(false);
-    // Notify parent when dragging stops
-    const rgbaColor = hexToRgba(hex);
-    const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${opacity})`;
-    onColorChange(colorWithOpacity);
     addToRecentColors(hex);
   };
 
@@ -339,19 +353,22 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const rect = sbRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    
     const newHsb = {
       ...hsb,
       s: Math.round(x * 100),
       b: Math.round((1 - y) * 100)
     };
     setHsb(newHsb);
-    // Update hex directly without calling updateAllColorFormats to avoid circular dependency
     const newHex = hsbToHex(newHsb);
     setHex(newHex);
-    setRgba({ ...hexToRgba(newHex), a: opacity });
-    setHsla({ ...hexToHsla(newHex), a: opacity });
-  }, [hsb, opacity]);
+    const newRgba = { ...hexToRgba(newHex), a: opacity };
+    const newHsla = { ...hexToHsla(newHex), a: opacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Pass the color with current opacity to the parent component
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
+  }, [hsb, opacity, onColorChange]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
@@ -360,18 +377,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDraggingRef.current) {
-      handleSBUpdate(e.clientX, e.clientY);
-    }
+    if (isDraggingRef.current) handleSBUpdate(e.clientX, e.clientY);
   }, [handleSBUpdate]);
 
   const handleMouseUp = () => { 
     isDraggingRef.current = false; 
     setIsDragging(false);
-    // Notify parent when dragging stops
-    const rgbaColor = hexToRgba(hex);
-    const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${opacity})`;
-    onColorChange(colorWithOpacity);
+    // Add the current color to recent colors when dragging the saturation/brightness square ends
     addToRecentColors(hex);
   };
 
@@ -383,39 +395,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [handleMouseMove]);
-
-  // Reusable input field component
-  const ColorInputField = ({ 
-    label, 
-    value, 
-    onChange, 
-    onKeyDown, 
-    onBlur, 
-    inputProps, 
-    flex = 1 
-  }: {
-    label: string;
-    value: number | string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-    onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
-    inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
-    flex?: number;
-  }) => (
-    <TextField
-      label={label}
-      value={value}
-      onChange={onChange}
-      onKeyDown={onKeyDown}
-      onBlur={onBlur}
-      onClick={(e) => e.stopPropagation()}
-      slotProps={{
-        input: inputProps as any
-      }}
-      sx={{ ...commonTextFieldStyles, flex }}
-      variant="outlined"
-    />
-  );
 
   return (
     <Dialog 
@@ -455,6 +434,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         }
       }}
     >
+      {/* Custom backdrop that doesn't interfere with input fields */}
       {isOpen && (
         <div 
           style={{
@@ -637,21 +617,25 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 onBlur={handleHexBlur}
                 fullWidth
                 variant="outlined"
-                slotProps={{
-                  input: {
-                    maxLength: 7
-                  } as any
-                }}
-                onClick={(e) => e.stopPropagation()}
+                inputProps={{ maxLength: 7 }}
+                onClick={handleInputClick}
                 sx={{
-                  ...commonTextFieldStyles,
+                  zIndex: 10003,
+                  position: 'relative',
                   '& .MuiInputBase-root': {
-                    ...commonTextFieldStyles['& .MuiInputBase-root'],
                     zIndex: 10004,
+                    position: 'relative',
                   },
                   '& .MuiInputBase-input': {
-                    ...commonTextFieldStyles['& .MuiInputBase-input'],
                     zIndex: 10005,
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                  },
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#000',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#000',
                   }
                 }}
               />
@@ -664,24 +648,190 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           {colorFormat === 'RGBA' && (
             <Box>
               <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
-                {(['r', 'g', 'b', 'a'] as const).map((field) => {
-                  const handlers = createInputHandler('RGBA', field, rgbaToHex);
-                  return (
-                    <ColorInputField
-                      key={field}
-                      label={field.toUpperCase()}
-                      value={field === 'a' ? rgba[field] : Math.round(rgba[field])}
-                      onChange={handlers.handleChange}
-                      onKeyDown={handlers.handleKeyDown}
-                      onBlur={handlers.handleBlur}
-                      inputProps={{ 
-                        min: 0, 
-                        max: field === 'a' ? 1 : 255,
-                        step: field === 'a' ? 0.1 : 1
-                      }}
-                    />
-                  );
-                })}
+                <TextField
+                  label="R"
+                  type="number"
+                  value={Math.round(rgba.r)}
+                  onChange={handleRgbaChange('r')}
+                  onKeyDown={handleRgbaKeyDown('r')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, r: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 255 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="G"
+                  type="number"
+                  value={Math.round(rgba.g)}
+                  onChange={handleRgbaChange('g')}
+                  onKeyDown={handleRgbaKeyDown('g')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, g: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 255 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="B"
+                  type="number"
+                  value={Math.round(rgba.b)}
+                  onChange={handleRgbaChange('b')}
+                  onKeyDown={handleRgbaKeyDown('b')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, b: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 255 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="A"
+                  type="number"
+                  value={rgba.a}
+                  onChange={handleRgbaChange('a')}
+                  onKeyDown={handleRgbaKeyDown('a')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, a: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 1, step: 0.1 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
               </Box>
               <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
                 Press Enter in any field to apply
@@ -692,24 +842,190 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           {colorFormat === 'HSLA' && (
             <Box>
               <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
-                {(['h', 's', 'l', 'a'] as const).map((field) => {
-                  const handlers = createInputHandler('HSLA', field, hslaToHex);
-                  return (
-                    <ColorInputField
-                      key={field}
-                      label={field.toUpperCase()}
-                      value={field === 'a' ? hsla[field] : Math.round(hsla[field])}
-                      onChange={handlers.handleChange}
-                      onKeyDown={handlers.handleKeyDown}
-                      onBlur={handlers.handleBlur}
-                      inputProps={{ 
-                        min: 0, 
-                        max: field === 'h' ? 360 : 100,
-                        step: field === 'a' ? 0.1 : 1
-                      }}
-                    />
-                  );
-                })}
+                <TextField
+                  label="H"
+                  type="number"
+                  value={Math.round(hsla.h)}
+                  onChange={handleHslaChange('h')}
+                  onKeyDown={handleHslaKeyDown('h')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, h: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 360 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="S"
+                  type="number"
+                  value={Math.round(hsla.s)}
+                  onChange={handleHslaChange('s')}
+                  onKeyDown={handleHslaKeyDown('s')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, s: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 100 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="L"
+                  type="number"
+                  value={Math.round(hsla.l)}
+                  onChange={handleHslaChange('l')}
+                  onKeyDown={handleHslaKeyDown('l')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, l: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 100 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
+                <TextField
+                  label="A"
+                  type="number"
+                  value={hsla.a}
+                  onChange={handleHslaChange('a')}
+                  onKeyDown={handleHslaKeyDown('a')}
+                  onBlur={(e) => {
+                    setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, a: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
+                  }}
+                  inputProps={{ min: 0, max: 1, step: 0.1 }}
+                  onClick={handleInputClick}
+                  sx={{ 
+                    flex: 1,
+                    zIndex: 10004,
+                    position: 'relative',
+                    '& .MuiInputBase-root': {
+                      zIndex: 10005,
+                      position: 'relative',
+                    },
+                    '& .MuiInputBase-input': {
+                      zIndex: 10006,
+                      position: 'relative',
+                      pointerEvents: 'auto',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#000',
+                    }
+                  }}
+                  variant="outlined"
+                />
               </Box>
               <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
                 Press Enter in any field to apply
