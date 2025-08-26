@@ -16,6 +16,7 @@ from datetime import datetime
 import base64
 import mimetypes
 import math
+from typing import AsyncGenerator
 
 # Import pie chart generators
 try:
@@ -2389,7 +2390,7 @@ async def generate_slide_deck_pdf_with_progress(
     theme: str,
     output_filename: str,
     use_cache: bool = True
-):
+) -> AsyncGenerator[dict, None]:
     """
     Generate a PDF slide deck with progress updates yielded as async generator.
     
@@ -2402,10 +2403,14 @@ async def generate_slide_deck_pdf_with_progress(
     Yields:
         dict: Progress update messages
     """
+    # Always yield a start message to ensure this is detected as an async generator
+    yield {'type': 'progress', 'message': 'Initializing PDF generation...', 'current': 0, 'total': len(slides_data)}
+    
     pdf_path_in_cache = PDF_CACHE_DIR / output_filename
     
     if use_cache and pdf_path_in_cache.exists():
         yield {'type': 'progress', 'message': 'Using cached PDF...', 'current': len(slides_data), 'total': len(slides_data)}
+        yield {'type': 'complete', 'message': 'Using cached PDF', 'path': str(pdf_path_in_cache), 'total_time': 0}
         return
     
     if not PDF_MERGER_AVAILABLE:
@@ -2417,8 +2422,6 @@ async def generate_slide_deck_pdf_with_progress(
     start_time = time.time()
     
     try:
-        yield {'type': 'progress', 'message': f'Initializing PDF generation for {len(slides_data)} slides...', 'current': 0, 'total': len(slides_data)}
-        
         # Step 1: Calculate heights for all slides
         yield {'type': 'progress', 'message': 'Calculating slide dimensions...', 'current': 0, 'total': len(slides_data)}
         browser = await pyppeteer.launch(**get_browser_launch_options())
