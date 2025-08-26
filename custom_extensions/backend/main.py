@@ -1475,6 +1475,62 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     title = normalized_props.get('title', 'concepts')
                     normalized_props['imagePrompt'] = f"Professional diagram illustrating {title}, modern flat design"
                     normalized_props['imageAlt'] = f"Diagram for {title}"
+                    
+            # Fix template selection for big-numbers with placeholder content
+            elif (template_id == 'big-numbers' and 
+                  'steps' in normalized_props and 
+                  isinstance(normalized_props['steps'], list)):
+                steps = normalized_props['steps']
+                # Check if all steps are just placeholder content (Item 1, Item 2, etc.)
+                has_placeholder_content = all(
+                    step.get('value', '').strip() in ['0', ''] and 
+                    step.get('label', '').startswith('Item ') and
+                    step.get('description', '') == 'No description available'
+                    for step in steps
+                )
+                
+                if has_placeholder_content:
+                    # Convert to bullet-points template since the content is conceptual, not numerical
+                    logger.info(f"Converting slide {slide_index + 1} from big-numbers to bullet-points (no numerical data)")
+                    normalized_slide['templateId'] = 'bullet-points'
+                    template_id = 'bullet-points'
+                    
+                    # Generate appropriate bullet points based on the title
+                    title = normalized_props.get('title', '').lower()
+                    if 'assessment' in title:
+                        normalized_props['bullets'] = [
+                            "Automated Grading: AI can evaluate multiple-choice and short-answer questions instantly, providing immediate feedback to students.",
+                            "Essay Analysis: Advanced AI tools can assess essay structure, grammar, and content quality, offering detailed feedback.",
+                            "Adaptive Testing: AI-powered assessments adjust question difficulty based on student performance, providing personalized evaluation.",
+                            "Plagiarism Detection: AI tools can identify potential plagiarism by comparing student work against vast databases of academic content.",
+                            "Performance Analytics: AI systems provide detailed analytics on student performance patterns and learning gaps."
+                        ]
+                    elif 'future' in title or 'trends' in title:
+                        normalized_props['bullets'] = [
+                            "Personalized Learning Experiences: AI will create more sophisticated personalized learning paths tailored to individual student needs.",
+                            "Virtual Reality Integration: AI combined with VR will create immersive educational experiences for complex subjects.",
+                            "Natural Language Processing: Advanced chatbots will provide more human-like interactions for student support and tutoring.",
+                            "Predictive Analytics: AI will better predict student success and identify at-risk students earlier in their academic journey.",
+                            "Automated Content Creation: AI will generate educational materials and assessments customized to curriculum standards."
+                        ]
+                    else:
+                        # Generic bullets based on title
+                        normalized_props['bullets'] = [
+                            f"Key aspect of {normalized_props.get('title', 'this topic')} that enhances educational outcomes.",
+                            f"Important consideration for implementing {normalized_props.get('title', 'this approach')} in educational settings.",
+                            f"Benefit of using {normalized_props.get('title', 'this methodology')} for student engagement and learning.",
+                            f"Challenge that educators should be aware of when adopting {normalized_props.get('title', 'this solution')}.",
+                            f"Future implication of {normalized_props.get('title', 'this technology')} for educational institutions."
+                        ]
+                    
+                    # Remove big-numbers props and add bullet-points props
+                    normalized_props.pop('steps', None)
+                    
+                    # Add image prompt for bullet-points
+                    if not normalized_props.get('imagePrompt'):
+                        slide_title = normalized_props.get('title', 'concepts')
+                        normalized_props['imagePrompt'] = f"Professional diagram illustrating {slide_title}, modern educational design"
+                        normalized_props['imageAlt'] = f"Diagram for {slide_title}"
                 
             # Fix big-numbers template props
             if template_id == 'big-numbers':
@@ -1575,21 +1631,24 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 if not normalized_props.get('leftTitle'):
                     normalized_props['leftTitle'] = 'Key Points'
                 
-                # Generate missing image prompts for two-column templates
-                if not normalized_props.get('leftImagePrompt') and not normalized_props.get('rightImagePrompt'):
-                    title = normalized_props.get('title', 'comparison')
-                    left_title = normalized_props.get('leftTitle', 'concept')
-                    right_title = normalized_props.get('rightTitle', 'concept')
-                    
-                    # Generate appropriate image prompts based on titles and content
+                # Generate missing image prompts for two-column templates (check each side independently)
+                title = normalized_props.get('title', 'comparison')
+                left_title = normalized_props.get('leftTitle', 'concept')
+                right_title = normalized_props.get('rightTitle', 'concept')
+                
+                # Generate left image prompt if missing
+                if not normalized_props.get('leftImagePrompt') and normalized_props.get('leftContent'):
                     if 'vs' in title.lower() or 'versus' in title.lower() or 'comparison' in title.lower():
                         normalized_props['leftImagePrompt'] = f"Professional icon representing {left_title}, modern flat design"
-                        normalized_props['rightImagePrompt'] = f"Professional icon representing {right_title}, modern flat design"
-                    elif normalized_props.get('leftContent'):
-                        # Generate based on content
+                    else:
                         normalized_props['leftImagePrompt'] = f"Visual representation of {left_title.lower()}, professional illustration"
-                        if normalized_props.get('rightContent'):
-                            normalized_props['rightImagePrompt'] = f"Visual representation of {right_title.lower()}, professional illustration"
+                
+                # Generate right image prompt if missing  
+                if not normalized_props.get('rightImagePrompt') and normalized_props.get('rightContent'):
+                    if 'vs' in title.lower() or 'versus' in title.lower() or 'comparison' in title.lower():
+                        normalized_props['rightImagePrompt'] = f"Professional icon representing {right_title}, modern flat design"
+                    else:
+                        normalized_props['rightImagePrompt'] = f"Visual representation of {right_title.lower()}, professional illustration"
                 
                 # Handle case where AI used leftContent/rightContent but missing titles
                 if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
