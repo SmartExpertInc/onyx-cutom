@@ -518,18 +518,7 @@ export interface ImpactStatementsSlideProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
-export interface ContentWithImageSlideProps extends BaseTemplateProps {
-  title: string;
-  subtitle: string;
-  content: string;
-  rightImagePath?: string;
-  rightImageAlt?: string;
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-  accentColor?: string;
-  voiceoverText?: string;
-}
+
 
 export type TemplateId = 
   | 'title-slide'
@@ -562,8 +551,7 @@ export type TemplateId =
   | 'soft-skills-assessment-slide'
   | 'two-column-slide'
   | 'phishing-definition-slide'
-  | 'impact-statements-slide'
-  | 'content-with-image-slide';
+  | 'impact-statements-slide';
 
 export interface TemplatePreview {
   templateId: string;

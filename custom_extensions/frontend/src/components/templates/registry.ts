@@ -33,7 +33,6 @@ import { SoftSkillsAssessmentSlideTemplate } from './SoftSkillsAssessmentSlideTe
 import { TwoColumnSlideTemplate } from './TwoColumnSlideTemplate';
 import { PhishingDefinitionSlideTemplate } from './PhishingDefinitionSlideTemplate';
 import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
-import { ContentWithImageSlideTemplate } from './ContentWithImageSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1438,28 +1437,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'content-with-image-slide': {
-    id: 'content-with-image-slide',
-    name: 'Content with Image Slide',
-    description: 'Slide with content on the left and image on the right',
-    category: 'content',
-    icon: '🖼️',
-    component: ContentWithImageSlideTemplate,
-    defaultProps: {
-      title: 'The Header',
-      subtitle: 'This is a sub-header',
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      rightImagePath: '',
-      rightImageAlt: 'Right side image'
-    },
-    propSchema: {
-      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
-      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 100 },
-      content: { type: 'text', label: 'Content', required: true },
-      rightImagePath: { type: 'image', label: 'Right Image' },
-      rightImageAlt: { type: 'text', label: 'Right Image Alt Text' }
-    }
-  }
+
 };
 
 // Utility functions for working with the registry
