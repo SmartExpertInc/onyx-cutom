@@ -309,7 +309,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                userSelect: 'none',
+                width: index === 0 ? '200px' : '160px'
               }}
               onClick={() => isEditable && setEditingTags(index)}
             >
@@ -352,7 +353,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                userSelect: 'none',
+                width: index === 0 ? '180px' : index === 1 ? '180px' : '140px'
               }}
               onClick={() => isEditable && setEditingTags(index + 2)}
             >
@@ -395,7 +397,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                userSelect: 'none',
+                width: '360px'
               }}
               onClick={() => isEditable && setEditingTags(index + 5)}
             >
