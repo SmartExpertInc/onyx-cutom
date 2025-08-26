@@ -501,32 +501,62 @@ class ProfessionalPresentationService:
             else:
                 logger.info(f"Using specified avatar: {avatar_code}")
             
-            # Create video with Elai API
-            result = await video_generation_service.create_video_from_texts(
-                project_name="Avatar Video",
-                voiceover_texts=voiceover_texts,
-                avatar_code=avatar_code
-            )
-            
-            if not result["success"]:
-                raise Exception(f"Failed to create avatar video: {result['error']}")
-            
-            video_id = result["videoId"]
-            logger.info(f"Avatar video created with ID: {video_id}")
-            
-            # Start rendering
-            render_result = await video_generation_service.render_video(video_id)
-            if not render_result["success"]:
-                raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
-            
-            # Wait for completion
-            avatar_video_path = await self._wait_for_avatar_completion(video_id)
-            
-            return avatar_video_path
+            # Try with the specified avatar first
+            try:
+                avatar_video_path = await self._try_generate_with_avatar(voiceover_texts, avatar_code)
+                return avatar_video_path
+            except Exception as first_error:
+                logger.warning(f"Failed to generate video with avatar '{avatar_code}': {first_error}")
+                
+                # If the specified avatar fails, try with a fallback avatar
+                logger.info("Trying with fallback avatar...")
+                try:
+                    # Use a known working avatar as fallback
+                    fallback_avatar = "mikhailo"  # This avatar should have a valid canvas
+                    avatar_video_path = await self._try_generate_with_avatar(voiceover_texts, fallback_avatar)
+                    logger.info(f"Successfully generated video with fallback avatar '{fallback_avatar}'")
+                    return avatar_video_path
+                except Exception as fallback_error:
+                    logger.error(f"Failed to generate video with fallback avatar: {fallback_error}")
+                    raise Exception(f"Avatar video generation failed with both primary and fallback avatars: {first_error}")
             
         except Exception as e:
             logger.error(f"Avatar video generation failed: {e}")
             raise
+    
+    async def _try_generate_with_avatar(self, voiceover_texts: List[str], avatar_code: str) -> str:
+        """
+        Try to generate avatar video with a specific avatar.
+        
+        Args:
+            voiceover_texts: List of voiceover texts
+            avatar_code: Avatar code to use
+            
+        Returns:
+            Path to generated avatar video
+        """
+        # Create video with Elai API
+        result = await video_generation_service.create_video_from_texts(
+            project_name="Avatar Video",
+            voiceover_texts=voiceover_texts,
+            avatar_code=avatar_code
+        )
+        
+        if not result["success"]:
+            raise Exception(f"Failed to create avatar video: {result['error']}")
+        
+        video_id = result["videoId"]
+        logger.info(f"Avatar video created with ID: {video_id}")
+        
+        # Start rendering
+        render_result = await video_generation_service.render_video(video_id)
+        if not render_result["success"]:
+            raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
+        
+        # Wait for completion
+        avatar_video_path = await self._wait_for_avatar_completion(video_id)
+        
+        return avatar_video_path
     
     async def _wait_for_avatar_completion(self, video_id: str) -> str:
         """

@@ -185,8 +185,28 @@ class ElaiVideoGenerationService:
             logger.info(f"  - Canvas: {avatar.get('canvas', 'None')}")
             logger.info(f"  - Gender: {avatar.get('gender', 'Unknown')}")
             
+            # Check if avatar has valid canvas URL
             if not avatar.get("canvas"):
-                logger.warning(f"🎬 [ELAI_VIDEO_GENERATION] Avatar canvas is empty, this might cause issues")
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Avatar '{avatar.get('name', 'Unknown')}' has empty canvas URL")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Looking for alternative avatar with valid canvas...")
+                
+                # Try to find an alternative avatar with valid canvas
+                alternative_avatar = None
+                for av in avatars_response["avatars"]:
+                    if av.get("canvas") and av.get("canvas").strip():
+                        alternative_avatar = av
+                        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found alternative avatar: {alternative_avatar.get('name', 'Unknown')} (code: {alternative_avatar.get('code', 'Unknown')})")
+                        break
+                
+                if alternative_avatar:
+                    avatar = alternative_avatar
+                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using alternative avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
+                else:
+                    logger.error(f"🎬 [ELAI_VIDEO_GENERATION] No avatars with valid canvas found")
+                    return {
+                        "success": False,
+                        "error": f"No avatars with valid canvas URL found"
+                    }
             
             # Prepare slides for Elai API
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing {len(cleaned_texts)} slides for Elai API")
@@ -201,12 +221,12 @@ class ElaiVideoGenerationService:
                     "canvas": {
                         "objects": [{
                             "type": "avatar",
-                            "left": 540,  # Center the avatar in 1080x1080 canvas
-                            "top": 270,   # Center the avatar in 1080x1080 canvas
+                            "left": 960,  # Center the avatar in 1920x1080 canvas
+                            "top": 540,   # Center the avatar in 1920x1080 canvas
                             "fill": "#4868FF",
-                            "scaleX": 0.8,   # Larger avatar size (80% of canvas) for better visibility
-                            "scaleY": 0.8,   # Larger avatar size (80% of canvas) for better visibility
-                            "width": 1080,
+                            "scaleX": 0.6,   # Moderate avatar size for compatibility
+                            "scaleY": 0.6,   # Moderate avatar size for compatibility
+                            "width": 1920,
                             "height": 1080,
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
@@ -215,7 +235,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "transparent",  # Transparent background for overlay
+                        "background": "#ffffff",  # White background for compatibility
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -250,7 +270,7 @@ class ElaiVideoGenerationService:
                 "data": {
                     "skipEmails": False,
                     "subtitlesEnabled": "false",
-                    "format": "1_1",  # Square format for better overlay composition
+                    "format": "16_9",  # Standard widescreen format for compatibility
                     "resolution": "FullHD"  # High resolution for quality
                 }
             }
@@ -557,9 +577,29 @@ class ElaiVideoGenerationService:
                         logger.error(f"Video {video_id} rendered but no download URL found")
                         return None
                         
-                elif status in ["failed", "error"]:
-                    logger.error(f"Video {video_id} rendering failed: {status}")
+                elif status == "failed":
+                    logger.error(f"Video {video_id} rendering failed permanently")
                     return None
+                elif status == "error":
+                    # Check if this is a permanent error or temporary issue
+                    error_details = status_data.get("data", {}).get("error", {})
+                    error_message = error_details.get("message", "").lower() if isinstance(error_details, dict) else ""
+                    
+                    # Check for permanent error indicators
+                    permanent_errors = [
+                        "avatar not found",
+                        "invalid avatar",
+                        "canvas error",
+                        "rendering failed",
+                        "permanent error"
+                    ]
+                    
+                    if any(err in error_message for err in permanent_errors):
+                        logger.error(f"Video {video_id} rendering failed with permanent error: {error_message}")
+                        return None
+                    else:
+                        logger.warning(f"Video {video_id} reported temporary error status, continuing to wait...")
+                        await asyncio.sleep(self.poll_interval)
                     
                 elif status in ["rendering", "queued", "draft", "validating"]:
                     # Still processing, continue waiting

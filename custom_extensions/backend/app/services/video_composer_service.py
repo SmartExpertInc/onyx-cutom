@@ -184,8 +184,8 @@ class ProfessionalVideoComposer:
             cmd = [
                 'ffmpeg',
                 '-i', slide_video,  # Background video (slide) - full 1920x1080
-                '-i', avatar_video,  # Overlay video (avatar) - will be scaled
-                '-filter_complex', f'[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[slide_bg];[1:v]scale={avatar_width}:{avatar_height}[avatar_scaled];[slide_bg][avatar_scaled]overlay={avatar_x}:{avatar_y}:shortest=1',
+                '-i', avatar_video,  # Overlay video (avatar) - 16:9 format
+                '-filter_complex', f'[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[slide_bg];[1:v]scale={avatar_width}:{avatar_height}:force_original_aspect_ratio=decrease,pad={avatar_width}:{avatar_height}:(ow-iw)/2:(oh-ih)/2:color=transparent[avatar_scaled];[slide_bg][avatar_scaled]overlay={avatar_x}:{avatar_y}:shortest=1',
                 '-c:v', config.video_codec,
                 '-c:a', config.audio_codec,
                 '-crf', str(self.quality_presets[config.quality]['crf']),
