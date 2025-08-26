@@ -366,7 +366,8 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px'
+          gap: '10px',
+          marginTop: '28px'
         }}>
           <div style={{
             width: '16px',
