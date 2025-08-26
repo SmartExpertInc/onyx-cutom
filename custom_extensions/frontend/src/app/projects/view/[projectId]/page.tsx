@@ -94,12 +94,16 @@ const PdfExportLoadingModal: React.FC<{
   isOpen: boolean;
   projectName: string;
   pdfDownloadReady: {url: string, filename: string} | null;
+  pdfProgress: {current: number, total: number, message: string} | null;
   onDownload: () => void;
   onClose: () => void;
-}> = ({ isOpen, projectName, pdfDownloadReady, onDownload, onClose }) => {
+}> = ({ isOpen, projectName, pdfDownloadReady, pdfProgress, onDownload, onClose }) => {
   const { t } = useLanguage();
   
   if (!isOpen) return null;
+
+  // Calculate progress percentage
+  const progressPercentage = pdfProgress ? Math.round((pdfProgress.current / pdfProgress.total) * 100) : 0;
 
   return createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
@@ -111,6 +115,22 @@ const PdfExportLoadingModal: React.FC<{
             <p className="text-gray-600 text-center mb-4">
               {t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')} <span className="font-semibold text-blue-600">"{projectName}"</span>
             </p>
+            
+            {/* Progress Bar */}
+            {pdfProgress && (
+              <div className="w-full mb-4">
+                <div className="flex justify-end text-sm text-gray-600 mb-2">
+                  <span>{progressPercentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div 
+                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+            
             <p className="text-sm text-gray-500 text-center">
               {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
             </p>
@@ -180,6 +200,7 @@ export default function ProjectInstanceViewPage() {
   });
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [pdfDownloadReady, setPdfDownloadReady] = useState<{url: string, filename: string} | null>(null);
+  const [pdfProgress, setPdfProgress] = useState<{current: number, total: number, message: string} | null>(null);
   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
@@ -912,6 +933,7 @@ export default function ProjectInstanceViewPage() {
       // Close the modal after initiating download
       setIsExportingPdf(false);
       setPdfDownloadReady(null);
+      setPdfProgress(null);
     }
   };
 
@@ -919,6 +941,7 @@ export default function ProjectInstanceViewPage() {
     console.log('User closed PDF modal');
     setIsExportingPdf(false);
     setPdfDownloadReady(null);
+    setPdfProgress(null);
   };
 
   const handlePdfDownload = async () => {
@@ -935,6 +958,7 @@ export default function ProjectInstanceViewPage() {
         
         // Show loading modal with progress
         setIsExportingPdf(true);
+        setPdfProgress({ current: 0, total: 1, message: 'Initializing PDF generation...' });
         
         try {
             // Use streaming endpoint for large presentations
@@ -972,7 +996,12 @@ export default function ProjectInstanceViewPage() {
                                 
                                 if (data.type === 'progress') {
                                     console.log(`PDF Progress: ${data.message} (${data.current}/${data.total})`);
-                                    // TODO: Update progress UI here if you want to show detailed progress
+                                    // Update progress UI with real-time progress
+                                    setPdfProgress({
+                                        current: data.current,
+                                        total: data.total,
+                                        message: data.message
+                                    });
                                 } else if (data.type === 'complete') {
                                     console.log('PDF generation completed:', data.message);
                                     console.log('Download URL received:', data.download_url);
@@ -1015,6 +1044,7 @@ export default function ProjectInstanceViewPage() {
             // Reset states on error
             setIsExportingPdf(false);
             setPdfDownloadReady(null);
+            setPdfProgress(null);
         }
         return;
     }
@@ -1576,6 +1606,7 @@ export default function ProjectInstanceViewPage() {
         isOpen={isExportingPdf} 
         projectName={projectInstanceData?.name || 'Presentation'} 
         pdfDownloadReady={pdfDownloadReady}
+        pdfProgress={pdfProgress}
         onDownload={handleDownloadPdf}
         onClose={handleClosePdfModal}
       />
