@@ -91,9 +91,9 @@ export default function SceneTimeline({
                   </div>
                 </div>
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 flex items-center gap-2 min-w-[120px] justify-center">
-                  <span className="text-sm font-medium">{scene.name}</span>
+                  <span className="text-sm font-medium text-gray-700">{scene.name}</span>
                   <svg 
-                    className="w-4 h-4 text-gray-600 hover:text-gray-800 cursor-pointer" 
+                    className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
