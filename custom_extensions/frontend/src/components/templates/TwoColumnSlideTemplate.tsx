@@ -236,38 +236,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         </div>
 
         {/* Title */}
-        <div style={{
-          fontSize: '36px',
-          color: themeTitle,
-          marginBottom: '40px',
-          lineHeight: '1.2',
-          textAlign: 'right'
-        }}>
-          {isEditable && editingTitle ? (
-            <InlineEditor
-              initialValue={currentTitle}
-              onSave={handleTitleSave}
-              onCancel={handleTitleCancel}
-              multiline={true}
-              className="two-column-title-editor"
-              style={{
-                fontSize: '36px',
-                color: themeTitle,
-                lineHeight: '1.2'
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingTitle(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentTitle}
-            </div>
-          )}
-        </div>
+
 
         {/* Content */}
         <div style={{
