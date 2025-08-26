@@ -14,7 +14,7 @@
         html, body {
             margin: 0;
             padding: 0;
-            background: transparent;
+            background: var(--bg-color, #110c35); /* Use theme background, not transparent */
             width: 1920px;
             height: 1080px;
             overflow: hidden;
@@ -44,6 +44,7 @@
             background: var(--bg-color); /* Fill entire background */
             display: block;
             box-sizing: border-box;
+            min-height: 1080px; /* Ensure minimum height */
         }
         
         .slide-content {
@@ -57,6 +58,7 @@
             align-items: center;
             background: var(--bg-color); /* Ensure background is filled */
             box-sizing: border-box;
+            min-height: 100%; /* Ensure it fills the parent */
         }
         
         /* Theme color definitions - EXACT FRONTEND MATCH */
@@ -309,6 +311,8 @@
             padding: 60px;
             position: relative;
             overflow: hidden;
+            min-height: 1080px; /* Ensure minimum height matches video dimensions */
+            box-sizing: border-box; /* Include padding in height calculation */
         }
         
         .avatar-service .content-container {
@@ -322,6 +326,8 @@
             gap: 90px;
             position: relative;
             z-index: 2;
+            min-height: 100%; /* Ensure it fills the parent container */
+            box-sizing: border-box; /* Include any padding/border in height calculation */
         }
         
         .avatar-service .left-content {
@@ -572,11 +578,69 @@
         .avatar-placeholder .placeholder-dimensions {
             display: none;
         }
+        
+        /* CRITICAL FIX: Ensure background fills completely for avatar-service template */
+        .avatar-service,
+        .avatar-service .content-container,
+        .avatar-service .left-content,
+        .avatar-service .right-content {
+            background-color: var(--bg-color) !important;
+        }
+        
+        /* Ensure no gaps in background coverage for avatar-service */
+        .avatar-service > * {
+            background-color: var(--bg-color);
+        }
+        
+        /* Force background on all child elements to prevent white lines */
+        .avatar-service * {
+            background-color: inherit;
+        }
+        
+        /* TARGETED FIX: Ensure background fills completely without affecting text styles */
+        .slide-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* CRITICAL: Force background on all slide containers to prevent white lines */
+        .slide-page,
+        .slide-content,
+        .avatar-checklist,
+        .avatar-crm,
+        .avatar-service,
+        .avatar-buttons,
+        .avatar-steps {
+            background-color: var(--bg-color) !important;
+        }
+        
+        /* Ensure no gaps in background coverage */
+        .slide-page > * {
+            background-color: var(--bg-color);
+        }
+        
+        /* Ensure all slide containers have proper background */
+        .avatar-checklist,
+        .avatar-crm,
+        .avatar-service,
+        .avatar-buttons,
+        .avatar-steps {
+            background-color: var(--bg-color);
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="slide-page">
-        <div class="slide-content theme-{{ theme or 'dark-purple' }}">
+        <div class="slide-content theme-{{ theme or 'dark-purple' }}" style="background-color: var(--bg-color);">
             {% if templateId == 'avatar-checklist' %}
                 <div class="avatar-checklist">
                     <!-- Pink shape in top-left corner -->
@@ -682,13 +746,13 @@
                 </div>
                 
             {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
-                <div class="avatar-service">
+                <div class="avatar-service" style="background-color: var(--bg-color); height: 100%; min-height: 1080px;">
                     <!-- Dark shape in top-left corner -->
                     <div class="dark-shape"></div>
                     
-                    <div class="content-container">
+                    <div class="content-container" style="background-color: var(--bg-color); height: 100%;">
                         <!-- Left content -->
-                        <div class="left-content">
+                        <div class="left-content" style="background-color: var(--bg-color);">
                             <!-- Title -->
                             {% if title %}
                                 <h1 class="slide-title">{{ title }}</h1>
@@ -706,7 +770,7 @@
                         </div>
 
                         <!-- Right content - Avatar -->
-                        <div class="right-content">
+                        <div class="right-content" style="background-color: var(--bg-color);">
                             <div class="avatar-placeholder">
                                 <!-- Simple blank space for avatar overlay -->
                             </div>
