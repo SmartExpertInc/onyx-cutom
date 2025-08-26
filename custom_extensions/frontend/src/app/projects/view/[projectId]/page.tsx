@@ -882,31 +882,87 @@ export default function ProjectInstanceViewPage() {
         const slideDeckData = editableData as ComponentBasedSlideDeck;
         const theme = slideDeckData?.theme || 'dark-purple';
         
-        // Show loading modal
+        // Show loading modal with progress
         setIsExportingPdf(true);
         
         try {
-            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`, {
+            // Use streaming endpoint for large presentations
+            const streamResponse = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}/stream?theme=${theme}`, {
                 method: 'GET',
                 credentials: 'same-origin'
             });
 
-            if (!response.ok) {
-                throw new Error(`PDF generation failed: ${response.status}`);
+            if (!streamResponse.ok) {
+                throw new Error(`PDF generation failed: ${streamResponse.status}`);
             }
 
-            // Get the blob from the response
-            const blob = await response.blob();
-            
-            // Create a download link
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            const reader = streamResponse.body?.getReader();
+            if (!reader) {
+                throw new Error('Failed to get stream reader');
+            }
+
+            const decoder = new TextDecoder();
+            let downloadUrl = '';
+            let filename = '';
+
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'progress') {
+                                    console.log(`PDF Progress: ${data.message} (${data.current}/${data.total})`);
+                                    // TODO: Update progress UI here if you want to show detailed progress
+                                } else if (data.type === 'complete') {
+                                    console.log('PDF generation completed:', data.message);
+                                    downloadUrl = data.download_url;
+                                    filename = data.filename;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.message);
+                                }
+                            } catch (parseError) {
+                                // Ignore JSON parse errors for incomplete chunks
+                            }
+                        }
+                    }
+                }
+            } finally {
+                reader.releaseLock();
+            }
+
+            // Now download the actual PDF
+            if (downloadUrl) {
+                const pdfResponse = await fetch(`${CUSTOM_BACKEND_URL}${downloadUrl}`, {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+
+                if (!pdfResponse.ok) {
+                    throw new Error(`PDF download failed: ${pdfResponse.status}`);
+                }
+
+                const blob = await pdfResponse.blob();
+                
+                // Create a download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } else {
+                throw new Error('No download URL received from server');
+            }
         } catch (error) {
             console.error('Error generating PDF:', error);
             alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));

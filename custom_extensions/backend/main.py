@@ -11155,6 +11155,110 @@ async def download_folder_as_pdf(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate folder PDF: {str(e)[:200]}")
     
 
+# Streaming slide deck PDF generation with progress updates
+@app.get("/api/custom/pdf/slide-deck/{project_id}/stream")
+async def stream_slide_deck_pdf_generation(
+    project_id: int,
+    theme: Optional[str] = Query("dark-purple"),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Stream slide deck PDF generation with progress updates"""
+    from fastapi.responses import StreamingResponse
+    import json
+    
+    async def generate_with_progress():
+        try:
+            # Get project data (same as the existing endpoint)
+            async with pool.acquire() as conn:
+                target_row_dict = await conn.fetchrow(
+                    """
+                    SELECT p.project_name, p.microproduct_name, p.microproduct_content,
+                           dt.component_name as design_component_name
+                    FROM projects p
+                    LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                    WHERE p.id = $1 AND p.onyx_user_id = $2;
+                    """,
+                    project_id, onyx_user_id
+                )
+            
+            if not target_row_dict:
+                yield f"data: {json.dumps({'error': 'Project not found'})}\n\n"
+                return
+
+            component_name = target_row_dict.get("design_component_name")
+            if component_name != COMPONENT_NAME_SLIDE_DECK:
+                yield f"data: {json.dumps({'error': 'This endpoint is only for slide deck projects'})}\n\n"
+                return
+
+            content_json = target_row_dict.get('microproduct_content')
+            if not content_json or not isinstance(content_json, dict):
+                yield f"data: {json.dumps({'error': 'Invalid slide deck content'})}\n\n"
+                return
+
+            # Prepare slide deck data
+            slide_deck_data = {
+                'slides': content_json.get('slides', []),
+                'theme': theme or 'dark-purple'
+            }
+
+            total_slides = len(slide_deck_data['slides'])
+            yield f"data: {json.dumps({'type': 'progress', 'message': f'Starting PDF generation for {total_slides} slides...', 'current': 0, 'total': total_slides})}\n\n"
+
+            # Create progress callback function
+            async def progress_callback(slide_index: int, template_id: str, message: str):
+                progress_data = {
+                    'type': 'progress',
+                    'message': message,
+                    'current': slide_index + 1,
+                    'total': total_slides,
+                    'slide_index': slide_index,
+                    'template_id': template_id
+                }
+                yield f"data: {json.dumps(progress_data)}\n\n"
+
+            mp_name_for_pdf_context = target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
+            unique_output_filename = f"slide_deck_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
+            
+            # Generate PDF with progress callbacks
+            from app.services.pdf_generator import generate_slide_deck_pdf_with_progress
+             
+            async for progress_message in generate_slide_deck_pdf_with_progress(
+                slides_data=slide_deck_data['slides'],
+                theme=theme,
+                output_filename=unique_output_filename,
+                use_cache=True
+            ):
+                yield f"data: {json.dumps(progress_message)}\n\n"
+                
+            # Final success message with download info
+            user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
+            final_message = {
+                'type': 'complete',
+                'message': 'PDF generation completed successfully!',
+                'download_url': f'/api/custom/pdf/slide-deck/{project_id}?theme={theme}',
+                'filename': user_friendly_pdf_filename
+            }
+            yield f"data: {json.dumps(final_message)}\n\n"
+            
+        except Exception as e:
+            logger.error(f"Error in streaming PDF generation: {e}", exc_info=True)
+            error_message = {
+                'type': 'error',
+                'message': f'PDF generation failed: {str(e)[:200]}'
+            }
+            yield f"data: {json.dumps(error_message)}\n\n"
+
+    return StreamingResponse(
+        generate_with_progress(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+        }
+    )
+
 # Move slide deck route BEFORE the general route to avoid path conflicts
 @app.get("/api/custom/pdf/slide-deck/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_slide_deck_pdf(

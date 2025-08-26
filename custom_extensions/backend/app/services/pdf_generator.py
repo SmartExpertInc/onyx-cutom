@@ -2384,6 +2384,151 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     return successful_paths
 
 @timeout_wrapper(120)  # 2 minute timeout to prevent 504 errors
+async def generate_slide_deck_pdf_with_progress(
+    slides_data: list,
+    theme: str,
+    output_filename: str,
+    use_cache: bool = True
+):
+    """
+    Generate a PDF slide deck with progress updates yielded as async generator.
+    
+    Args:
+        slides_data: List of slide data dictionaries
+        theme: The theme name
+        output_filename: The output filename
+        use_cache: Whether to use caching
+    
+    Yields:
+        dict: Progress update messages
+    """
+    pdf_path_in_cache = PDF_CACHE_DIR / output_filename
+    
+    if use_cache and pdf_path_in_cache.exists():
+        yield {'type': 'progress', 'message': 'Using cached PDF...', 'current': len(slides_data), 'total': len(slides_data)}
+        return
+    
+    if not PDF_MERGER_AVAILABLE:
+        yield {'type': 'error', 'message': 'PDF merging library not available'}
+        return
+    
+    browser = None
+    temp_pdf_paths = []
+    start_time = time.time()
+    
+    try:
+        yield {'type': 'progress', 'message': f'Initializing PDF generation for {len(slides_data)} slides...', 'current': 0, 'total': len(slides_data)}
+        
+        # Step 1: Calculate heights for all slides
+        yield {'type': 'progress', 'message': 'Calculating slide dimensions...', 'current': 0, 'total': len(slides_data)}
+        browser = await pyppeteer.launch(**get_browser_launch_options())
+        
+        slide_heights = []
+        for i, slide_data in enumerate(slides_data):
+            template_id = slide_data.get('templateId', 'unknown')
+            yield {'type': 'progress', 'message': f'Calculating dimensions for slide {i + 1}: {template_id}', 'current': i, 'total': len(slides_data)}
+            
+            try:
+                height = await calculate_slide_dimensions(slide_data, theme, browser)
+                slide_heights.append(height)
+            except Exception as e:
+                logger.error(f"Failed to calculate height for slide {i + 1}: {e}")
+                slide_heights.append(PDF_MIN_SLIDE_HEIGHT)
+        
+        await browser.close()
+        browser = None
+        
+        yield {'type': 'progress', 'message': 'Starting individual slide generation...', 'current': 0, 'total': len(slides_data)}
+        
+        # Step 2: Generate individual PDFs
+        slide_tasks = []
+        for i, (slide_data, slide_height) in enumerate(zip(slides_data, slide_heights)):
+            template_id = slide_data.get('templateId', 'unknown')
+            temp_pdf_path = f"/tmp/slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
+            slide_tasks.append((slide_data, slide_height, temp_pdf_path, i, template_id))
+        
+        # Process slides in batches
+        batch_size = MAX_CONCURRENT_SLIDES
+        successful_paths = []
+        
+        for batch_start in range(0, len(slide_tasks), batch_size):
+            batch_end = min(batch_start + batch_size, len(slide_tasks))
+            batch = slide_tasks[batch_start:batch_end]
+            
+            yield {'type': 'progress', 'message': f'Processing batch {batch_start//batch_size + 1}/{(len(slide_tasks) + batch_size - 1)//batch_size}...', 'current': batch_start, 'total': len(slides_data)}
+            
+            batch_browser = await pyppeteer.launch(**get_browser_launch_options())
+            
+            try:
+                # Process each slide in the batch with individual progress updates
+                batch_results = []
+                for slide_data, slide_height, temp_pdf_path, slide_index, template_id in batch:
+                    yield {'type': 'progress', 'message': f'Generating slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
+                    
+                    success = await generate_single_slide_pdf(
+                        slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id
+                    )
+                    
+                    if success:
+                        batch_results.append(temp_pdf_path)
+                        yield {'type': 'progress', 'message': f'✓ Generated slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
+                    else:
+                        yield {'type': 'error', 'message': f'Failed to generate slide {slide_index + 1}: {template_id}'}
+                
+                successful_paths.extend(batch_results)
+                temp_pdf_paths.extend(batch_results)
+                
+            except Exception as e:
+                logger.error(f"Failed to process batch: {e}")
+                yield {'type': 'error', 'message': f'Failed to process slide batch: {str(e)[:200]}'}
+                return
+            finally:
+                await batch_browser.close()
+                gc.collect()
+        
+        if len(successful_paths) != len(slides_data):
+            yield {'type': 'error', 'message': f'Only {len(successful_paths)}/{len(slides_data)} slides were generated successfully'}
+            return
+        
+        # Step 3: Merge PDFs
+        yield {'type': 'progress', 'message': f'Merging {len(temp_pdf_paths)} slide PDFs...', 'current': len(slides_data), 'total': len(slides_data)}
+        
+        merger = PdfMerger()
+        try:
+            for pdf_path in temp_pdf_paths:
+                if os.path.exists(pdf_path):
+                    merger.append(pdf_path)
+            
+            if os.path.exists(pdf_path_in_cache):
+                os.remove(pdf_path_in_cache)
+            
+            merger.write(str(pdf_path_in_cache))
+            merger.close()
+            
+            # Clean up temporary files
+            for temp_path in temp_pdf_paths:
+                try:
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+                except:
+                    pass
+            
+            total_time = time.time() - start_time
+            yield {'type': 'complete', 'message': f'PDF generation completed in {total_time:.2f}s', 'path': str(pdf_path_in_cache), 'total_time': total_time}
+            
+        except Exception as e:
+            logger.error(f"Failed to merge PDFs: {e}")
+            merger.close()
+            yield {'type': 'error', 'message': f'Failed to merge PDFs: {str(e)[:200]}'}
+            return
+        
+    except Exception as e:
+        logger.error(f"Error in PDF generation: {e}")
+        yield {'type': 'error', 'message': f'PDF generation failed: {str(e)[:200]}'}
+    finally:
+        if browser:
+            await browser.close()
+
 async def generate_slide_deck_pdf_with_dynamic_height(
     slides_data: list,
     theme: str,
