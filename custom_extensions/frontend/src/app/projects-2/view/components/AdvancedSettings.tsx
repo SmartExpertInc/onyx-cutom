@@ -40,7 +40,7 @@ export default function AdvancedSettings({
             type="number"
             value={rotation}
             onChange={(e) => handleNumberInput(e.target.value, onRotationChange)}
-            className="w-20 px-2 py-1 pr-6 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+            className="w-20 px-2 py-1 pr-6 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-gray-700"
             placeholder="0"
           />
           <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500 pointer-events-none">°</span>
@@ -60,7 +60,7 @@ export default function AdvancedSettings({
                 type="number"
                 value={positionX}
                 onChange={(e) => handleNumberInput(e.target.value, onPositionXChange)}
-                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-gray-700"
                 placeholder="0"
               />
             </div>
@@ -72,7 +72,7 @@ export default function AdvancedSettings({
                 type="number"
                 value={positionY}
                 onChange={(e) => handleNumberInput(e.target.value, onPositionYChange)}
-                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-gray-700"
                 placeholder="0"
               />
             </div>
@@ -87,7 +87,7 @@ export default function AdvancedSettings({
                 type="number"
                 value={width}
                 onChange={(e) => handleNumberInput(e.target.value, onWidthChange)}
-                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-gray-700"
                 placeholder="100"
               />
             </div>
@@ -99,7 +99,7 @@ export default function AdvancedSettings({
                 type="number"
                 value={height}
                 onChange={(e) => handleNumberInput(e.target.value, onHeightChange)}
-                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500"
+                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-gray-700"
                 placeholder="100"
               />
             </div>

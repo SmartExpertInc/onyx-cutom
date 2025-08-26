@@ -54,7 +54,7 @@ export default function Comments({}: CommentsProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-4 min-w-[300px] relative overflow-hidden h-full flex flex-col">
+    <div className="bg-white border border-gray-300 rounded-lg p-4 min-w-[300px] relative overflow-hidden h-full flex flex-col">
       {/* Top row with search, status dropdown, and icon button */}
       <div className="flex items-center gap-3 mb-4">
         {/* Search bar */}
@@ -167,7 +167,7 @@ export default function Comments({}: CommentsProps) {
 
       {/* Filter panel - slides down from top */}
       <div 
-        className={`absolute top-0 left-0 right-0 bg-white border-b border-gray-200 transition-transform duration-300 ease-in-out ${
+        className={`absolute top-0 left-0 right-0 bg-white border-b border-gray-200 transition-transform duration-300 ease-in-out rounded-b-lg ${
           filterPanelOpen ? 'translate-y-0' : '-translate-y-full'
         }`}
         style={{ zIndex: 60 }}
@@ -378,7 +378,7 @@ export default function Comments({}: CommentsProps) {
         </div>
 
         {/* Footer with buttons */}
-        <div className="border-t border-gray-200 p-4 flex gap-3 rounded-b-lg">
+        <div className="border-t border-gray-200 p-4 flex gap-3 rounded-b-lg bg-white">
           <button
             onClick={handleReset}
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-black rounded-full hover:bg-gray-200 transition-colors flex-1 justify-center"
