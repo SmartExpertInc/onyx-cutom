@@ -177,19 +177,19 @@ class ProfessionalVideoComposer:
             logger.info(f"  - Avatar position: x={avatar_x}, y={avatar_y}")
             logger.info(f"  - Template match: 935x843 design")
             
-            # FIXED: Create a proper filter complex that handles both videos correctly
+            # FIXED: Proper filter complex syntax based on FFmpeg documentation
+            # Separate scaling operations with proper labels, then overlay
             filter_complex = (
-                # Step 1: Scale and pad slide video to exact 1920x1080 background
+                # Step 1: Scale slide video to exact 1920x1080 and label it
                 f"[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,"
-                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[slide_bg];"
+                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[slide_scaled];"
                 
-                # Step 2: Extract avatar from Elai video and scale it properly
-                # The Elai video is 1920x1080 with avatar centered, we need to crop and scale it
-                f"[1:v]crop=935:843:492:118,"  # Crop avatar from center of Elai video
-                f"scale={avatar_width}:{avatar_height}:force_original_aspect_ratio=decrease[avatar_cropped];"
+                # Step 2: Scale avatar video to target size and label it
+                f"[1:v]scale={avatar_width}:{avatar_height}:force_original_aspect_ratio=decrease,"
+                f"pad={avatar_width}:{avatar_height}:(ow-iw)/2:(oh-ih)/2:color=transparent[avatar_scaled];"
                 
-                # Step 3: Overlay the cropped avatar onto the slide background
-                f"[slide_bg][avatar_cropped]overlay={avatar_x}:{avatar_y}:shortest=1"
+                # Step 3: Overlay scaled avatar onto scaled slide background
+                f"[slide_scaled][avatar_scaled]overlay={avatar_x}:{avatar_y}:shortest=1"
             )
             
             # Build FFmpeg command with fixed filter
@@ -242,19 +242,18 @@ class ProfessionalVideoComposer:
             logger.info(f"  - Avatar dimensions: {avatar_width}x{avatar_height}")
             logger.info(f"  - Avatar position: x={avatar_x}, y={avatar_y}")
             
-            # If Elai generates with transparent background, use this simpler approach
+            # RECOMMENDED: Use scale2ref for proper aspect ratio and scaling
+            # This approach uses scale2ref filter for proper scaling based on research findings
             filter_complex = (
-                # Scale slide to full background
-                f"[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,"
-                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[slide_bg];"
+                # Step 1: Use scale2ref to properly scale avatar relative to slide video
+                f"[1:v][0:v]scale2ref=w={avatar_width}:h={avatar_height}[avatar][slide];"
                 
-                # Scale the entire Elai video down to avatar size
-                # This assumes the avatar fills most of the Elai video frame
-                f"[1:v]scale={avatar_width}:{avatar_height}:force_original_aspect_ratio=decrease,"
-                f"pad={avatar_width}:{avatar_height}:(ow-iw)/2:(oh-ih)/2:color=transparent[avatar_scaled];"
+                # Step 2: Scale the slide to full 1920x1080 
+                f"[slide]scale=1920:1080:force_original_aspect_ratio=decrease,"
+                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[background];"
                 
-                # Overlay with alpha channel support
-                f"[slide_bg][avatar_scaled]overlay={avatar_x}:{avatar_y}:shortest=1"
+                # Step 3: Overlay the properly scaled avatar
+                f"[background][avatar]overlay={avatar_x}:{avatar_y}:shortest=1"
             )
             
             cmd = [
@@ -280,14 +279,76 @@ class ProfessionalVideoComposer:
             
         except Exception as e:
             logger.error(f"Alternative picture-in-picture composition failed: {e}")
-            logger.info("Trying debug composition method...")
+            logger.info("Trying transparent background composition method...")
             
-            # Try debug version as last resort
+            # Try transparent background version
             try:
-                return await self._debug_composition(slide_video, avatar_video, config)
-            except Exception as debug_e:
-                logger.error(f"Debug composition also failed: {debug_e}")
-                raise
+                return await self._compose_pip_transparent_bg(slide_video, avatar_video, config)
+            except Exception as trans_e:
+                logger.error(f"Transparent background composition failed: {trans_e}")
+                logger.info("Trying debug composition method...")
+                
+                # Try debug version as last resort
+                try:
+                    return await self._debug_composition(slide_video, avatar_video, config)
+                except Exception as debug_e:
+                    logger.error(f"Debug composition also failed: {debug_e}")
+                    raise
+    
+    async def _compose_pip_transparent_bg(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
+        """
+        Transparent background approach: Assumes Elai generates avatar with transparent background
+        """
+        try:
+            logger.info("Trying transparent background composition")
+            
+            # Template-specific dimensions
+            avatar_width = 935
+            avatar_height = 843
+            avatar_x = 925  # 1920 - 935 - 60
+            avatar_y = 118  # (1080 - 843) // 2
+            
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Transparent BG method - Avatar positioning:")
+            logger.info(f"  - Avatar dimensions: {avatar_width}x{avatar_height}")
+            logger.info(f"  - Avatar position: x={avatar_x}, y={avatar_y}")
+            
+            # Simple approach: scale each video separately, then overlay
+            filter_complex = (
+                # Scale slide to full 1920x1080 background
+                f"[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,"
+                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[bg];"
+                
+                # Scale avatar video to template size (assumes transparent background)
+                f"[1:v]scale={avatar_width}:{avatar_height}:force_original_aspect_ratio=decrease[av];"
+                
+                # Overlay avatar onto background
+                f"[bg][av]overlay={avatar_x}:{avatar_y}:shortest=1"
+            )
+            
+            cmd = [
+                'ffmpeg',
+                '-i', slide_video,
+                '-i', avatar_video,
+                '-filter_complex', filter_complex,
+                '-c:v', config.video_codec,
+                '-c:a', config.audio_codec,
+                '-crf', str(self.quality_presets[config.quality]['crf']),
+                '-preset', self.quality_presets[config.quality]['preset'],
+                '-pix_fmt', 'yuv420p',
+                '-r', str(config.framerate),
+                '-movflags', '+faststart',
+                '-y',
+                config.output_path
+            ]
+            
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Transparent BG FFmpeg command:")
+            logger.info(f"  {' '.join(cmd)}")
+            
+            return await self._execute_ffmpeg_command(cmd, "Transparent background composition")
+            
+        except Exception as e:
+            logger.error(f"Transparent background composition failed: {e}")
+            raise
     
     async def _debug_composition(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
         """
@@ -346,12 +407,13 @@ class ProfessionalVideoComposer:
                 logger.error(f"Avatar processing error: {stderr.decode()}")
                 raise Exception(f"Avatar processing failed: {stderr.decode()}")
             
-            # Step 3: Combine the processed videos
+            # Step 3: Combine the processed videos using proper filter syntax
+            filter_complex = "[0:v][1:v]overlay=925:118:shortest=1"
             cmd_final = [
                 'ffmpeg',
                 '-i', slide_debug,
                 '-i', avatar_debug,
-                '-filter_complex', '[0:v][1:v]overlay=925:118:shortest=1',
+                '-filter_complex', filter_complex,
                 '-c:v', config.video_codec,
                 '-c:a', config.audio_codec,
                 '-y',
@@ -359,6 +421,8 @@ class ProfessionalVideoComposer:
             ]
             
             logger.info("Combining videos for debug...")
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Debug final command: {' '.join(cmd_final)}")
+            
             result = await asyncio.create_subprocess_exec(
                 *cmd_final,
                 stdout=asyncio.subprocess.PIPE,
