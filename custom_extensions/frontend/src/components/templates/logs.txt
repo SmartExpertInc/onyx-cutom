@@ -1,10 +1,9 @@
-backend:
+backend logs:
 custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
 custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
 custom_backend-1  | INFO:main:Video generation service imported successfully
 custom_backend-1  | INFO:app.services.video_composer_service:Professional Video Composer initialized
-custom_backend-1  | INFO:app.services.presentation_service:Professional Presentation Service initialized
-custom_backend-1  | INFO:main:Presentation service imported successfully
+custom_backend-1  | WARNING:main:Presentation service not available: No module named 'moviepy.editor'
 custom_backend-1  | INFO:     Started server process [1]
 custom_backend-1  | INFO:     Waiting for application startup.
 custom_backend-1  | INFO:main:Custom Backend starting...
@@ -117,135 +116,189 @@ custom_backend-1  |   "currentSlideId": "slide_1_intro",
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:36644 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48082 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:36648 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48096 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:36654 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:🎬 [SLIDE_VIDEO] Generating slide-only video
-custom_backend-1  | INFO:main:🎬 [SLIDE_VIDEO] Slides count: 1
-custom_backend-1  | INFO:main:🎬 [SLIDE_VIDEO] Theme: dark-purple
-custom_backend-1  | ERROR:main:🎬 [SLIDE_VIDEO] Error generating slide-only video: __init__() missing 2 required positional arguments: 'slide_url' and 'voiceover_texts'
-custom_backend-1  | INFO:     172.18.0.12:36340 - "POST /api/custom/slide-video/generate HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Raw details_data type: <class 'dict'>, value: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1756200059325-fttq238ab",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-26T09:20:59.325Z",
-custom_backend-1  |         "updatedAt": "2025-08-26T09:21:09.310Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": ""
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Already dict, after round_hours: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1756200059325-fttq238ab",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-26T09:20:59.325Z",
-custom_backend-1  |         "updatedAt": "2025-08-26T09:21:09.310Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": ""
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:60826 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60828 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:60838 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:🎬 [SLIDE_VIDEO] Generating slide-only video
-custom_backend-1  | INFO:main:🎬 [SLIDE_VIDEO] Slides count: 1
-custom_backend-1  | INFO:main:🎬 [SLIDE_VIDEO] Theme: dark-purple
-custom_backend-1  | ERROR:main:🎬 [SLIDE_VIDEO] Error generating slide-only video: __init__() missing 2 required positional arguments: 'slide_url' and 'voiceover_texts'
-custom_backend-1  | INFO:     172.18.0.12:33554 - "POST /api/custom/slide-video/generate HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48098 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48108 - "POST /api/custom/presentations HTTP/1.1" 200 OK
 
 frontend:
 🎨 Font styles applied to Chudo and Forta themes
-page-8b1acb0ce1d4a7e9.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Video Lesson Presentation",\n  "slug":…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "AI Tools for Teachers",\n  "sli… "hasVoiceover": true,\n  "theme": "dark-purple"\n}', componentName: 'VideoLessonPresentationDisplay', …}
-page-8b1acb0ce1d4a7e9.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-8b1acb0ce1d4a7e9.js:1 📄 Slide 1 (avatar-service-slide): {slideId: 'slide-1756200059325-fttq238ab', templateId: 'avatar-service-slide', props: {…}}
-page-8b1acb0ce1d4a7e9.js:1 ✅ Component-based slides loaded with theme: {slideCount: 1, theme: 'dark-purple', themeColors: {…}, templates: Array(1)}
-page-8b1acb0ce1d4a7e9.js:1 🎬 Exposed slide data to window for video generation: {deck: {…}}
-page-8b1acb0ce1d4a7e9.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
-page-8b1acb0ce1d4a7e9.js:1 🎭 [AVATAR_MANAGER] Response status: 200
-page-8b1acb0ce1d4a7e9.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
-page-8b1acb0ce1d4a7e9.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
-page-8b1acb0ce1d4a7e9.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
-page-8b1acb0ce1d4a7e9.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
-page-8b1acb0ce1d4a7e9.js:1 🎬 [SLIDE_VIDEO] Starting slide-only video generation...
-page-8b1acb0ce1d4a7e9.js:1 🎬 [SLIDE_VIDEO] Extracting slide data from current project...
-page-8b1acb0ce1d4a7e9.js:1 🎬 [SLIDE_VIDEO] Found slide data in window object: 1 slides
-page-8b1acb0ce1d4a7e9.js:1 🎬 [SLIDE_VIDEO] Slide data extracted successfully
-page-8b1acb0ce1d4a7e9.js:1 🎬 [SLIDE_VIDEO] Slides count: 1
-page-8b1acb0ce1d4a7e9.js:1 🎬 [SLIDE_VIDEO] Theme: dark-purple
-page-8b1acb0ce1d4a7e9.js:1 🎬 [SLIDE_VIDEO] Request payload: {slides: Array(1), theme: 'dark-purple'}
-684-061671409fcbce74.js:1 🎬 [SLIDE_VIDEO] Video generation failed: Error: Failed to generate slide-only video: __init__() missing 2 required positional arguments: 'slide_url' and 'voiceover_texts'
-    at h (page-8b1acb0ce1d4a7e9.js:1:221447)
+page-72aaa99f7b2ec01f.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Video Lesson Presentation",\n  "slug":…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "AI Tools for Teachers",\n  "sli… "hasVoiceover": true,\n  "theme": "dark-purple"\n}', componentName: 'VideoLessonPresentationDisplay', …}
+page-72aaa99f7b2ec01f.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-72aaa99f7b2ec01f.js:1 📄 Slide 1 (avatar-service-slide): {slideId: 'slide-1756200059325-fttq238ab', templateId: 'avatar-service-slide', props: {…}}
+page-72aaa99f7b2ec01f.js:1 ✅ Component-based slides loaded with theme: {slideCount: 1, theme: 'dark-purple', themeColors: {…}, templates: Array(1)}
+page-72aaa99f7b2ec01f.js:1 🎬 Exposed slide data to window for video generation: {deck: {…}}
+page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
+page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
+page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Environment check:
+page-72aaa99f7b2ec01f.js:1   - CUSTOM_BACKEND_URL: /api/custom-projects-backend
+page-72aaa99f7b2ec01f.js:1   - NEXT_PUBLIC_CUSTOM_BACKEND_URL: /api/custom-projects-backend
+page-72aaa99f7b2ec01f.js:1   - Window location: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from slide data...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data for voiceover: {slides: Array(1), theme: 'dark-purple'}
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Slide 1 title: Welcome to the Course on AI Tools for Teachers
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts: ['Welcome to the Course on AI Tools for Teachers']
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: ['Welcome to the Course on AI Tools for Teachers']
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Slide URL for capture: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 3: Extracting slide data...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data: {slides: Array(1), theme: 'dark-purple'}
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation creation response: {success: false, error: 'Presentation service not available. Please check backend configuration.'}
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Video generation failed with error: Error: Presentation service not available. Please check backend configuration.
+    at g (page-72aaa99f7b2ec01f.js:1:230445)
 push.6905.window.console.error @ 684-061671409fcbce74.js:1
-h @ page-8b1acb0ce1d4a7e9.js:1
-await in h
+g @ page-72aaa99f7b2ec01f.js:1
+await in g
 iX @ 4bd1b696-4bfbcd47340ed67c.js:1
 (anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
 nS @ 4bd1b696-4bfbcd47340ed67c.js:1
 i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
 s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
 s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 Video generation error: Failed to generate slide-only video: __init__() missing 2 required positional arguments: 'slide_url' and 'voiceover_texts'
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error type: object
 push.6905.window.console.error @ 684-061671409fcbce74.js:1
-onError @ page-8b1acb0ce1d4a7e9.js:1
-h @ page-8b1acb0ce1d4a7e9.js:1
-await in h
+g @ page-72aaa99f7b2ec01f.js:1
+await in g
 iX @ 4bd1b696-4bfbcd47340ed67c.js:1
 (anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
 nS @ 4bd1b696-4bfbcd47340ed67c.js:1
 i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
 s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
 s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-layout-1e76a94cbd5c836b.js:1 ✅ Mont thin font preloaded successfully
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error constructor: Error
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+g @ page-72aaa99f7b2ec01f.js:1
+await in g
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error stack: Error: Presentation service not available. Please check backend configuration.
+    at g (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-72aaa99f7b2ec01f.js:1:230445)
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+g @ page-72aaa99f7b2ec01f.js:1
+await in g
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error message: Presentation service not available. Please check backend configuration.
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+g @ page-72aaa99f7b2ec01f.js:1
+await in g
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error name: Error
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+g @ page-72aaa99f7b2ec01f.js:1
+await in g
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Calling onError with message: Presentation service not available. Please check backend configuration.
+684-061671409fcbce74.js:1 Video generation error: Presentation service not available. Please check backend configuration.
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+onError @ page-72aaa99f7b2ec01f.js:1
+g @ page-72aaa99f7b2ec01f.js:1
+await in g
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
+63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+push.3755.Object.entries.map.a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
+684-061671409fcbce74.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont regular font
+    at push.3755.Object.entries.map.a.onerror (layout-1e76a94cbd5c836b.js:1:738)
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+r @ layout-1e76a94cbd5c836b.js:1
+await in r
+(anonymous) @ layout-1e76a94cbd5c836b.js:1
+(anonymous) @ layout-1e76a94cbd5c836b.js:1
+oq @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+um @ 4bd1b696-4bfbcd47340ed67c.js:1
+uh @ 4bd1b696-4bfbcd47340ed67c.js:1
+iS @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+w @ 684-061671409fcbce74.js:1Understand this error
+layout-1e76a94cbd5c836b.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
+63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
+push.6905.window.console.error @ 684-061671409fcbce74.js:1
+push.3755.Object.entries.map.a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
+63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
+63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+684-061671409fcbce74.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf

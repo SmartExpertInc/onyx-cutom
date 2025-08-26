@@ -53,7 +53,7 @@ class ElaiVideoGenerationService:
         """
         if not self.client:
             return {
-                "success": False, 
+                "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
@@ -70,7 +70,7 @@ class ElaiVideoGenerationService:
             else:
                 logger.error(f"Failed to fetch avatars: {response.status_code} - {response.text}")
                 return {
-                    "success": False, 
+                    "success": False,
                     "error": f"Failed to fetch avatars: {response.status_code}"
                 }
                 
@@ -543,7 +543,7 @@ class ElaiVideoGenerationService:
                     # Log additional error details if available
                     error_details = video_data.get("error", {})
                     if error_details:
-                        logger.warning(f"Video {video_id} error details: {error_details}")
+                    logger.warning(f"Video {video_id} error details: {error_details}")
                 
                 return {
                     "success": True,
