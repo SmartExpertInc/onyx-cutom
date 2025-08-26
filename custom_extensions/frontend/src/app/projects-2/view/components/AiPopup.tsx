@@ -65,8 +65,8 @@ export default function AiPopup({ isOpen, onClose, position }: AiPopupProps) {
       >
         <div className="p-4">
           {/* Row 1: Header */}
-          <div className="flex items-start gap-2 mb-3">
-            <div className="flex-shrink-0 mt-1">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex-shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" className="text-gray-500">
                 <defs>
                   <path id="arcticonsAiChat0" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M16.63 29.522v4.224l-2.836 1.638a4.378 4.378 0 0 1-5.981-1.608l-.34-.589a4.369 4.369 0 0 1 1.608-5.971l2.896-1.668l3.535 2.047a2.227 2.227 0 0 1 1.118 1.927Zm6.252-14.699l-3.595-2.077V9.55a4.373 4.373 0 0 1 4.373-4.374h.69a4.37 4.37 0 0 1 4.363 4.374v3.196l-3.595 2.077c-.689.4-1.547.4-2.237 0ZM33.347 24l-3.915 2.257c-.449.26-.719.729-.719 1.238v4.724l-3.994-2.307h-.01c-.44-.26-.979-.26-1.418 0l-.01-.01l-3.994 2.307v-4.714c0-.51-.27-.978-.72-1.238L14.654 24l3.915-2.257c.45-.26.719-.729.719-1.238V15.79l3.994 2.307l.01-.01c.44.26.979.26 1.418 0l.01.01l3.994-2.307v4.714c0 .51.27.979.72 1.238L33.346 24Zm7.17 9.197l-.34.6a4.378 4.378 0 0 1-5.971 1.587l-2.836-1.638v-4.224c0-.799.43-1.528 1.118-1.927l3.535-2.047l2.896 1.668a4.375 4.375 0 0 1 1.598 5.981Z"/>
