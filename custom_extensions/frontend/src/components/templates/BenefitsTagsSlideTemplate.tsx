@@ -398,11 +398,13 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '16px',
+                fontSize: '24px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
+                display: 'flex',
+                justifyContent: 'center',
                 width: '360px'
               }}
               onClick={() => isEditable && setEditingTags(index + 5)}
