@@ -17523,8 +17523,10 @@ async def generate_slide_video(request: Request):
         # Extract actual props
         actual_props = slide_props.get("props", slide_props)
         
-        # Create presentation request
+        # Create presentation request with required arguments
         presentation_request = PresentationRequest(
+            slide_url="",  # Empty for slide-only mode
+            voiceover_texts=[],  # Empty for slide-only mode
             slides_data=slides_data,
             theme=theme,
             slide_only=True  # Flag to indicate slide-only video
