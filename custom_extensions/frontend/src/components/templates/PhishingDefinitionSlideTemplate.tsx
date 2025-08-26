@@ -156,7 +156,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    height: '562.5px',
     backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
