@@ -167,9 +167,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         const newHsb = hexToHsb(value);
         setHsb(newHsb); // Update HSB to reflect in square and slider
         setHex(value);
-        setRgba(hexToRgba(value));
-        setHsla(hexToHsla(value));
-        onColorChange(value);
+        const newRgba = { ...hexToRgba(value), a: opacity };
+        const newHsla = { ...hexToHsla(value), a: opacity };
+        setRgba(newRgba);
+        setHsla(newHsla);
+        // Pass the color with current opacity to the parent component
+        const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+        onColorChange(colorWithOpacity);
       }
     }
   };
@@ -180,9 +184,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
       const newHsb = hexToHsb(hex);
       setHsb(newHsb); // Update HSB to reflect in square and slider
-      setRgba(hexToRgba(hex));
-      setHsla(hexToHsla(hex));
-      onColorChange(hex);
+      const newRgba = { ...hexToRgba(hex), a: opacity };
+      const newHsla = { ...hexToHsla(hex), a: opacity };
+      setRgba(newRgba);
+      setHsla(newHsla);
+      // Pass the color with current opacity to the parent component
+      const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+      onColorChange(colorWithOpacity);
     }
   };
 
@@ -265,9 +273,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const handleRecentColorClick = (color: string) => {
     setHex(color);
     setHsb(hexToHsb(color));
-    setRgba(hexToRgba(color));
-    setHsla(hexToHsla(color));
-    onColorChange(color);
+    const newRgba = { ...hexToRgba(color), a: opacity };
+    const newHsla = { ...hexToHsla(color), a: opacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Pass the color with current opacity to the parent component
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
     addToRecentColors(color); // Add to recent colors when explicitly selecting
   };
 
@@ -277,9 +289,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setHsb(newHsb);
     const newHex = hsbToHex(newHsb);
     setHex(newHex);
-    setRgba(hexToRgba(newHex));
-    setHsla(hexToHsla(newHex));
-    onColorChange(newHex);
+    const newRgba = { ...hexToRgba(newHex), a: opacity };
+    const newHsla = { ...hexToHsla(newHex), a: opacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Pass the color with current opacity to the parent component
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
     // Don't add to recent colors for hue slider - only for saturation/brightness square
   };
 
@@ -292,8 +308,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const newHsla = { ...hsla, a: newOpacity };
     setRgba(newRgba);
     setHsla(newHsla);
-    // Note: HEX doesn't support opacity, so we don't update it
-    // You might want to call onColorChange with rgba/hsla format instead
+    // Pass the color with opacity to the parent component
+    // Use RGBA format since it supports opacity
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
   };
 
   // --- Saturation/Brightness square ---
@@ -310,11 +328,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setHsb(newHsb);
     const newHex = hsbToHex(newHsb);
     setHex(newHex);
-    setRgba(hexToRgba(newHex));
-    setHsla(hexToHsla(newHex));
-    onColorChange(newHex);
+    const newRgba = { ...hexToRgba(newHex), a: opacity };
+    const newHsla = { ...hexToHsla(newHex), a: opacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Pass the color with current opacity to the parent component
+    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
     addToRecentColors(newHex); // Add to recent colors when using saturation/brightness square
-  }, [hsb, addToRecentColors]);
+  }, [hsb, opacity, addToRecentColors]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
@@ -430,7 +452,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </Box>
 
         {/* Opacity Slider */}
-        <Box sx={{ position: 'relative', zIndex: 10001, mt: 1 }}>
+        <Box sx={{ position: 'relative', zIndex: 10001, mt: 0.5 }}>
           <Slider
             value={opacity}
             min={0}
@@ -466,7 +488,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           <Typography variant="caption" sx={{ 
             color: 'text.secondary', 
             fontSize: '11px', 
-            mt: 0.5, 
+            mt: 0.25, 
+            mb: 1,
             display: 'block',
             textAlign: 'center'
           }}>

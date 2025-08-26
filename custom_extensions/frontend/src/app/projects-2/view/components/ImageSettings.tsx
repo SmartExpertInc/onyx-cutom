@@ -103,7 +103,7 @@ export default function ImageSettings() {
       </div>
       
       {/* Content area */}
-      <div ref={contentRef} className="p-4 overflow-y-auto" style={{ height: 'calc(100% - 112px)' }}>
+      <div ref={contentRef} className="p-4">
         {activeTab === 'format' && (
           <div className="space-y-4">
             {/* Reset size */}
