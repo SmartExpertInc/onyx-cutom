@@ -460,7 +460,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                             value={emailInput.email}
                             onChange={(e) => handleEmailChange(emailInput.id, e.target.value)}
                             placeholder="Work email e.g. john@company.com"
-                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-black focus:border-[2px] placeholder-gray-500"
+                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:border-black focus:border-[2px] placeholder-gray-500"
                           />
                         </div>
                         

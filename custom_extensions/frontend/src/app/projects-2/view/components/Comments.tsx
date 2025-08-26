@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, X, RotateCcw, Check } from 'lucide-react';
 
 interface CommentsProps {
@@ -19,6 +19,8 @@ export default function Comments({}: CommentsProps) {
     tagged: [],
     groupedBy: []
   });
+
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleStatusToggle = (status: string) => {
     setSelectedStatuses(prev => 
@@ -53,6 +55,23 @@ export default function Comments({}: CommentsProps) {
     // No action for now
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setStatusDropdownOpen(false);
+      }
+    };
+
+    if (statusDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [statusDropdownOpen]);
+
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-4 min-w-[300px] relative overflow-hidden h-full flex flex-col">
       {/* Top row with search, status dropdown, and icon button */}
@@ -71,7 +90,7 @@ export default function Comments({}: CommentsProps) {
         </div>
 
         {/* Status dropdown */}
-        <div className="relative">
+        <div className="relative" ref={statusDropdownRef}>
           <button
             onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
             className="flex items-center gap-1 px-3 py-2 text-base hover:bg-gray-100 rounded-md transition-colors"

@@ -137,7 +137,7 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                     placeholder="written form"
                     value={writtenForm}
                     onChange={(e) => setWrittenForm(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500 text-gray-900"
                   />
                 </div>
                 
@@ -148,7 +148,7 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                     placeholder="new spelling"
                     value={phoneticSpelling}
                     onChange={(e) => setPhoneticSpelling(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500 text-gray-900"
                   />
                 </div>
                 
@@ -157,7 +157,7 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                   <button
                     ref={dropdownButtonRef}
                     onClick={handleDropdownToggle}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex items-center justify-between"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent flex items-center justify-between"
                   >
                     <span className={selectedVoice ? "text-gray-900" : "text-gray-400"}>
                       {selectedVoice || "search"}
@@ -204,7 +204,6 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
           }}
         >
           <div className="p-2">
-            <div className="px-2 py-1 text-xs text-gray-500 font-medium">All languages</div>
             {voices.map((voice, index) => (
               <button
                 key={index}
@@ -270,7 +269,7 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
+                className="w-full pl-9 pr-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-500 text-gray-900"
               />
             </div>
             
@@ -321,7 +320,7 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
                   <button className="p-1 text-black hover:text-gray-700 hover:bg-gray-100 rounded transition-colors">
                     <Play size={18} />
                   </button>
-                  <button className="p-1 text-black hover:text-red-600 hover:bg-gray-100 rounded transition-colors">
+                  <button className="p-1 text-black hover:text-black hover:bg-gray-100 rounded transition-colors">
                     <Trash2 size={18} />
                   </button>
                 </div>
