@@ -8,7 +8,7 @@ export default function ImageSettings() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCropMode, setIsCropMode] = useState(false);
-  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+
   const contentRef = useRef<HTMLDivElement>(null);
   
   const animationDropdownRef = useRef<HTMLDivElement>(null);
@@ -203,58 +203,21 @@ export default function ImageSettings() {
               </div>
             </div>
 
-                          {/* Advanced Settings Toggle */}
-              <div className="flex items-center justify-center py-2">
-                <button
-                  onClick={() => {
-                    const scrollTop = contentRef.current?.scrollTop || 0;
-                    setShowAdvancedSettings(!showAdvancedSettings);
-                    // Preserve scroll position after state update
-                    setTimeout(() => {
-                      if (contentRef.current) {
-                        contentRef.current.scrollTop = scrollTop;
-                      }
-                    }, 0);
-                  }}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                <span className="text-xs text-gray-500">
-                  {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
-                </span>
-                <svg 
-                  className={`w-4 h-4 text-gray-700 transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Advanced Settings Content */}
-            <div className={`transition-all duration-300 ease-in-out ${
-              showAdvancedSettings ? 'max-h-48' : 'max-h-0'
-            } overflow-hidden`}>
-              <div className={`transition-all duration-300 ease-in-out ${
-                showAdvancedSettings ? 'pt-4 pb-2' : 'pt-0 pb-0'
-              }`}>
-                <div className={`transition-all duration-300 ${showAdvancedSettings ? 'opacity-100' : 'opacity-0'}`}>
-                  <AdvancedSettings
-                    rotation={rotation}
-                    onRotationChange={setRotation}
-                    positionX={positionX}
-                    onPositionXChange={setPositionX}
-                    positionY={positionY}
-                    onPositionYChange={setPositionY}
-                    width={width}
-                    onWidthChange={setWidth}
-                    height={height}
-                    onHeightChange={setHeight}
-                  />
-                </div>
+                                        {/* Advanced Settings Content */}
+              <div className="pt-4">
+                <AdvancedSettings
+                  rotation={rotation}
+                  onRotationChange={setRotation}
+                  positionX={positionX}
+                  onPositionXChange={setPositionX}
+                  positionY={positionY}
+                  onPositionYChange={setPositionY}
+                  width={width}
+                  onWidthChange={setWidth}
+                  height={height}
+                  onHeightChange={setHeight}
+                />
               </div>
-            </div>
           </div>
         )}
 

@@ -51,6 +51,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(initialColor));
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
+  const [opacity, setOpacity] = useState(1); // 0-1 range for opacity
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -208,6 +209,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setHsb(newHsb); // Update HSB to reflect in square and slider
         setHex(newHex);
         setHsla(hexToHsla(newHex));
+        setOpacity(newRgba.a); // Update opacity slider
         onColorChange(newHex);
       }
     }
@@ -236,6 +238,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         setHsb(newHsb); // Update HSB to reflect in square and slider
         setHex(newHex);
         setRgba(hexToRgba(newHex));
+        setOpacity(newHsla.a); // Update opacity slider
         onColorChange(newHex);
       }
     }
@@ -278,6 +281,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setHsla(hexToHsla(newHex));
     onColorChange(newHex);
     // Don't add to recent colors for hue slider - only for saturation/brightness square
+  };
+
+  // --- Opacity slider ---
+  const handleOpacityChange = (e: Event, value: number | number[]) => {
+    const newOpacity = value as number;
+    setOpacity(newOpacity);
+    // Update RGBA and HSLA with new opacity
+    const newRgba = { ...rgba, a: newOpacity };
+    const newHsla = { ...hsla, a: newOpacity };
+    setRgba(newRgba);
+    setHsla(newHsla);
+    // Note: HEX doesn't support opacity, so we don't update it
+    // You might want to call onColorChange with rgba/hsla format instead
   };
 
   // --- Saturation/Brightness square ---
@@ -413,6 +429,51 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           />
         </Box>
 
+        {/* Opacity Slider */}
+        <Box sx={{ position: 'relative', zIndex: 10001, mt: 1 }}>
+          <Slider
+            value={opacity}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={handleOpacityChange}
+            sx={{
+              height: 8,
+              position: 'relative',
+              "& .MuiSlider-rail": {
+                background: `linear-gradient(to right, 
+                  rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))`,
+                height: 8,
+                borderRadius: 6,
+                opacity: 1
+              },
+              "& .MuiSlider-track": {
+                background: 'transparent',
+                height: 8,
+                borderRadius: 6,
+                opacity: 1
+              },
+              "& .MuiSlider-thumb": {
+                width: 16, 
+                height: 16, 
+                backgroundColor: "#fff", 
+                border: "2px solid #888",
+                borderRadius: '50%',
+                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+              }
+            }}
+          />
+          <Typography variant="caption" sx={{ 
+            color: 'text.secondary', 
+            fontSize: '11px', 
+            mt: 0.5, 
+            display: 'block',
+            textAlign: 'center'
+          }}>
+            Opacity: {Math.round(opacity * 100)}%
+          </Typography>
+        </Box>
+
         {/* Saturation/Brightness Square */}
         <Box
           ref={sbRef}
@@ -530,15 +591,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.r)}
                   onChange={handleRgbaChange('r')}
                   onKeyDown={handleRgbaKeyDown('r')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when RGBA changes
-                    const newHex = rgbaToHex(rgba);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setHsla(hexToHsla(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, r: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -570,15 +637,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.g)}
                   onChange={handleRgbaChange('g')}
                   onKeyDown={handleRgbaKeyDown('g')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when RGBA changes
-                    const newHex = rgbaToHex(rgba);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setHsla(hexToHsla(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, g: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -610,15 +683,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(rgba.b)}
                   onChange={handleRgbaChange('b')}
                   onKeyDown={handleRgbaKeyDown('b')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when RGBA changes
-                    const newHex = rgbaToHex(rgba);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setHsla(hexToHsla(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, b: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -650,15 +729,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={rgba.a}
                   onChange={handleRgbaChange('a')}
                   onKeyDown={handleRgbaKeyDown('a')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when RGBA changes
-                    const newHex = rgbaToHex(rgba);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setHsla(hexToHsla(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newRgba = { ...rgba, a: value };
+                      const newHex = rgbaToHex(newRgba);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setRgba(newRgba);
+                      setHsla(hexToHsla(newHex));
+                      setOpacity(newRgba.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
@@ -700,15 +785,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.h)}
                   onChange={handleHslaChange('h')}
                   onKeyDown={handleHslaKeyDown('h')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when HSLA changes
-                    const newHex = hslaToHex(hsla);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setRgba(hexToRgba(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, h: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 360 }}
                   onClick={handleInputClick}
@@ -740,15 +831,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.s)}
                   onChange={handleHslaChange('s')}
                   onKeyDown={handleHslaKeyDown('s')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when HSLA changes
-                    const newHex = hslaToHex(hsla);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setRgba(hexToRgba(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, s: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -780,15 +877,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={Math.round(hsla.l)}
                   onChange={handleHslaChange('l')}
                   onKeyDown={handleHslaKeyDown('l')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when HSLA changes
-                    const newHex = hslaToHex(hsla);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setRgba(hexToRgba(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, l: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -820,15 +923,21 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   value={hsla.a}
                   onChange={handleHslaChange('a')}
                   onKeyDown={handleHslaKeyDown('a')}
-                  onBlur={() => {
+                  onBlur={(e) => {
                     setIsUserTyping(false);
                     // Update HSB when HSLA changes
-                    const newHex = hslaToHex(hsla);
-                    const newHsb = hexToHsb(newHex);
-                    setHsb(newHsb); // Update HSB to reflect in square and slider
-                    setHex(newHex);
-                    setRgba(hexToRgba(newHex));
-                    onColorChange(newHex);
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      const newHsla = { ...hsla, a: value };
+                      const newHex = hslaToHex(newHsla);
+                      const newHsb = hexToHsb(newHex);
+                      setHsb(newHsb); // Update HSB to reflect in square and slider
+                      setHex(newHex);
+                      setHsla(newHsla);
+                      setRgba(hexToRgba(newHex));
+                      setOpacity(newHsla.a); // Update opacity slider
+                      onColorChange(newHex);
+                    }
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
@@ -865,10 +974,24 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         {/* Color Preview */}
         <Box sx={{
           mt: 2, width: 40, height: 40, border: '1px solid #ccc',
-          borderRadius: 2, backgroundColor: hex,
-          zIndex: 10001,
-          position: 'relative'
-        }} />
+          borderRadius: 2, 
+          background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                       linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                       linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                       linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+          backgroundSize: '10px 10px',
+          backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px',
+          position: 'relative',
+          zIndex: 10001
+        }}>
+          <Box sx={{
+            width: '100%',
+            height: '100%',
+            backgroundColor: hex,
+            opacity: opacity,
+            borderRadius: 2,
+          }} />
+        </Box>
 
         {/* Recent Colors */}
         {onRecentColorChange && (
