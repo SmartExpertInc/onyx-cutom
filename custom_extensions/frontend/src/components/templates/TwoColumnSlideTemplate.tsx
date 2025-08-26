@@ -284,7 +284,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
       {/* Right section with image */}
       <div style={{
-        width: '50%',
+        width: '85%',
         height: '100%',
         position: 'relative'
       }}>

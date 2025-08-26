@@ -262,7 +262,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           width: '300px',
           height: '200px',
           backgroundColor: themeAccent,
-          borderRadius: '10px',
+          borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
