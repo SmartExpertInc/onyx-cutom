@@ -161,7 +161,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '596px',
+    height: '670px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
@@ -290,7 +290,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         gap: '20px',
         maxWidth: '600px',
         position: 'relative',
-        left: '-43%'
+        marginTop: '80px',
+        left: '-28%'
       }}>
         {/* First row */}
         <div style={{
@@ -305,12 +306,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '16px',
+                fontSize: '24px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
-                width: index === 0 ? '200px' : '160px'
+                display: 'flex',
+                justifyContent: 'center',
+                width: index === 0 ? '350px' : '130px'
               }}
               onClick={() => isEditable && setEditingTags(index)}
             >
@@ -349,12 +352,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '16px',
+                fontSize: '24px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
-                width: index === 0 ? '180px' : index === 1 ? '180px' : '140px'
+                width: index === 0 ? '200px' : index === 1 ? '130px' : '130px'
               }}
               onClick={() => isEditable && setEditingTags(index + 2)}
             >
@@ -428,7 +431,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       {/* Footer */}
       <div style={{
         position: 'absolute',
-        bottom: '40px',
+        bottom: '0px',
         left: '80px',
         display: 'flex',
         alignItems: 'center',

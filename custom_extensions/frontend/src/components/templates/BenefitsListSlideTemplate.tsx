@@ -431,7 +431,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           gridTemplateColumns: '1fr 1fr 1fr',
           gap: '20px',
           maxWidth: '1000px',
-          marginBottom: '20px'
+          marginTop: '20px'
         }}>
           {currentBenefits.map((benefit, index) => (
             <div
@@ -473,12 +473,22 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           ))}
         </div>
 
+        {/* Horizontal line separator */}
+        <hr style={{
+          border: 'none',
+          height: '1px',
+          backgroundColor: themeContent,
+          opacity: 0.3,
+          margin: '20px 0'
+        }} />
+
         {/* Footer */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          marginTop: 'auto'
+          marginTop: 'auto',
+          marginBottom: '20px'
         }}>
           <div style={{
             width: '16px',
