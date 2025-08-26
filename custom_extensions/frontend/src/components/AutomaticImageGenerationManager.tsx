@@ -65,26 +65,46 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
     if (!currentTheme?.colors) return basePrompt;
     
     const colors = currentTheme.colors;
+    
+    // Create a professional, detailed prompt structure
     let enhancedPrompt = basePrompt;
     
-    // Extract color information for the prompt
-    const colorPalette = [];
-    if (colors.backgroundColor) {
-      const bgType = colors.backgroundColor === '#ffffff' || colors.backgroundColor.includes('fff') ? 'light background' : 'dark background';
-      colorPalette.push(bgType);
-    }
-    if (colors.accentColor) {
-      colorPalette.push(`accent color ${colors.accentColor}`);
-    }
-    if (colors.titleColor) {
-      colorPalette.push(`title color ${colors.titleColor}`);
+    // If the prompt doesn't already specify it's for a presentation, add that context
+    if (!basePrompt.toLowerCase().includes('presentation') && !basePrompt.toLowerCase().includes('slide')) {
+      enhancedPrompt = `A minimalist and modern vector illustration for a presentation slide. ${basePrompt}`;
     }
     
-    // Add color harmony information
-    if (colorPalette.length > 0) {
-      enhancedPrompt += `, using a color palette with ${colorPalette.join(', ')}`;
-      enhancedPrompt += ', harmonious colors that complement the presentation theme';
+    // Build the color palette specification
+    const colorSpecs = [];
+    
+    if (colors.backgroundColor) {
+      const bgColor = colors.backgroundColor;
+      if (bgColor === '#ffffff' || bgColor.includes('fff')) {
+        colorSpecs.push('clean white background (#ffffff)');
+      } else {
+        colorSpecs.push(`background color (${bgColor})`);
+      }
     }
+    
+    if (colors.accentColor) {
+      colorSpecs.push(`primary accent color (${colors.accentColor})`);
+    }
+    
+    if (colors.titleColor && colors.titleColor !== colors.backgroundColor) {
+      colorSpecs.push(`secondary color (${colors.titleColor})`);
+    }
+    
+    if (colors.subtitleColor && colors.subtitleColor !== colors.titleColor && colors.subtitleColor !== colors.backgroundColor) {
+      colorSpecs.push(`tertiary color (${colors.subtitleColor})`);
+    }
+    
+    // Add professional styling and color specifications
+    if (colorSpecs.length > 0) {
+      enhancedPrompt += ` The illustration uses a cohesive and professional color palette dominated by ${colorSpecs.join(', ')}, with complementary neutral tones.`;
+    }
+    
+    // Add professional styling requirements
+    enhancedPrompt += ' The style is clean and modern, with flat colors, simple geometric shapes, and clear visual hierarchy, perfect for a corporate presentation. The design should be minimalist, professional, and easily readable when displayed on a presentation slide.';
     
     return enhancedPrompt;
   }, [currentTheme]);
