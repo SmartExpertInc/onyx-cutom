@@ -965,10 +965,10 @@ export class TemplateExtractor {
     }
 
     // Content on the right
-    if (props.subtitle) {
+    if (props.content) {
       items.push(TemplateExtractor.createTextItem(
         'subtitle',
-        props.subtitle,
+        props.content,
         { x: 500, y: 160, width: 640, height: 400 },
         'text'
       ));
