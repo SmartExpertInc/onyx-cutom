@@ -941,13 +941,13 @@ export default function ProjectInstanceViewPage() {
                 reader.releaseLock();
             }
 
-            // Now download the actual PDF using blob approach (like other working downloads)
+            // Now download the actual PDF using blob approach (same as ProjectsTable)
             console.log('Attempting to download PDF with URL:', downloadUrl);
             if (downloadUrl) {
                 const fullDownloadUrl = `${CUSTOM_BACKEND_URL}${downloadUrl}`;
-                console.log('Fetching PDF from:', fullDownloadUrl);
+                console.log('Fetching PDF blob from:', fullDownloadUrl);
                 
-                // Fetch the PDF and create blob download (same as working ProjectsTable pattern)
+                // Fetch the PDF as blob and trigger download (same pattern as ProjectsTable)
                 const pdfResponse = await fetch(fullDownloadUrl, {
                     method: 'GET',
                     credentials: 'same-origin'
@@ -957,24 +957,24 @@ export default function ProjectInstanceViewPage() {
                     throw new Error(`PDF download failed: ${pdfResponse.status}`);
                 }
 
+                // Get the blob from the response
                 const blob = await pdfResponse.blob();
-                console.log('Blob created, size:', blob.size, 'type:', blob.type);
-                
-                // Create download link (same pattern as ProjectsTable and TextView)
+                console.log('PDF blob received, size:', blob.size);
+
+                // Create a download link (same pattern as ProjectsTable)
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                console.log('Download link created:', { href: a.href, download: a.download });
                 
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-                
                 console.log('PDF download completed');
             } else {
                 console.error('No download URL received from server');
-                console.log('Variables state:', { downloadUrl, filename });
                 throw new Error('No download URL received from server');
             }
         } catch (error) {
