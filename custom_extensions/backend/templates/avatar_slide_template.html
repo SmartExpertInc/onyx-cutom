@@ -393,6 +393,8 @@
             background-color: #1a1a2e !important; /* Force the specific color */
             border-radius: 0 0 450px 0;
             z-index: 1;
+            /* Debug: Add a border to see if the element is positioned correctly */
+            border: 2px solid red;
         }
         
         /* Avatar With Buttons Slide Template */
@@ -587,14 +589,10 @@
         
         /* CRITICAL FIX: Ensure background fills completely for avatar-service template */
         .avatar-service,
-        .avatar-service .content-container,
-        .avatar-service .left-content,
-        .avatar-service .right-content {
-            background-color: var(--bg-color) !important;
-        }
+        /* REMOVED: This was overriding the transparent backgrounds for avatar-service content containers */
         
-        /* Ensure no gaps in background coverage for avatar-service */
-        .avatar-service > * {
+        /* Ensure no gaps in background coverage for avatar-service - but exclude content containers */
+        .avatar-service > *:not(.content-container):not(.left-content):not(.right-content) {
             background-color: var(--bg-color);
         }
         
@@ -656,15 +654,20 @@
         }
         
         /* PRESERVE DECORATIVE SHAPES - Override background for specific decorative elements */
-        .avatar-service .dark-shape,
-        .avatar-checklist .pink-shape,
-        .avatar-checklist .dark-shape {
-            background-color: inherit !important; /* Use their original colors */
+        .avatar-checklist .pink-shape {
+            background-color: var(--title-color) !important; /* Use their original colors */
         }
         
         /* Specific overrides for decorative shapes */
         .avatar-service .dark-shape {
             background-color: #1a1a2e !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 600px !important;
+            height: 750px !important;
+            border-radius: 0 0 450px 0 !important;
+            z-index: 1 !important;
         }
         
         .avatar-checklist .pink-shape {
@@ -673,6 +676,19 @@
         
         .avatar-checklist .dark-shape {
             background-color: #1a1a2e !important;
+        }
+        
+        /* FINAL OVERRIDE: Ensure dark shape is visible with maximum specificity */
+        .slide-page .slide-content .avatar-service .dark-shape {
+            background-color: #1a1a2e !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 600px !important;
+            height: 750px !important;
+            border-radius: 0 0 450px 0 !important;
+            z-index: 1 !important;
+            border: 2px solid red !important; /* Debug border */
         }
     </style>
 </head>
