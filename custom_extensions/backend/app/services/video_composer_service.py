@@ -152,6 +152,14 @@ class ProfessionalVideoComposer:
         try:
             logger.info("Creating picture-in-picture composition")
             
+            # Get video dimensions for proper scaling
+            slide_dimensions = await self._get_video_dimensions(slide_video)
+            avatar_dimensions = await self._get_video_dimensions(avatar_video)
+            
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Input video dimensions:")
+            logger.info(f"  - Slide video: {slide_dimensions}")
+            logger.info(f"  - Avatar video: {avatar_dimensions}")
+            
             # For avatar-service template, avatar should occupy right half
             # Template design: 935px × 843px avatar in 1920x1080 video
             # This is approximately 48.7% width × 78% height
@@ -171,11 +179,13 @@ class ProfessionalVideoComposer:
             logger.info(f"  - Template match: 935x843 design")
             
             # Build FFmpeg command for template-matched composition
+            # Use slide video as background, overlay avatar video
+            # Ensure slide video maintains full resolution as background with proper padding
             cmd = [
                 'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', f'[1:v]scale={avatar_width}:{avatar_height}[avatar_scaled];[0:v][avatar_scaled]overlay={avatar_x}:{avatar_y}:shortest=1',
+                '-i', slide_video,  # Background video (slide) - full 1920x1080
+                '-i', avatar_video,  # Overlay video (avatar) - will be scaled
+                '-filter_complex', f'[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[slide_bg];[1:v]scale={avatar_width}:{avatar_height}[avatar_scaled];[slide_bg][avatar_scaled]overlay={avatar_x}:{avatar_y}:shortest=1',
                 '-c:v', config.video_codec,
                 '-c:a', config.audio_codec,
                 '-crf', str(self.quality_presets[config.quality]['crf']),
@@ -186,6 +196,9 @@ class ProfessionalVideoComposer:
                 '-y',
                 config.output_path
             ]
+            
+            logger.info(f"🎬 [VIDEO_COMPOSITION] FFmpeg command:")
+            logger.info(f"  {' '.join(cmd)}")
             
             return await self._execute_ffmpeg_command(cmd, "Picture-in-picture composition")
             

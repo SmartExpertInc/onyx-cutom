@@ -201,11 +201,11 @@ class ElaiVideoGenerationService:
                     "canvas": {
                         "objects": [{
                             "type": "avatar",
-                            "left": 540,  # Center the avatar
-                            "top": 270,   # Center the avatar
+                            "left": 540,  # Center the avatar in 1080x1080 canvas
+                            "top": 270,   # Center the avatar in 1080x1080 canvas
                             "fill": "#4868FF",
-                            "scaleX": 0.6,   # Moderate avatar size (60% of canvas)
-                            "scaleY": 0.6,   # Moderate avatar size (60% of canvas)
+                            "scaleX": 0.8,   # Larger avatar size (80% of canvas) for better visibility
+                            "scaleY": 0.8,   # Larger avatar size (80% of canvas) for better visibility
                             "width": 1080,
                             "height": 1080,
                             "src": avatar.get("canvas"),
@@ -215,7 +215,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "#ffffff",  # White background for better compatibility
+                        "background": "transparent",  # Transparent background for overlay
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -250,7 +250,7 @@ class ElaiVideoGenerationService:
                 "data": {
                     "skipEmails": False,
                     "subtitlesEnabled": "false",
-                    "format": "16_9",  # Standard widescreen format
+                    "format": "1_1",  # Square format for better overlay composition
                     "resolution": "FullHD"  # High resolution for quality
                 }
             }
