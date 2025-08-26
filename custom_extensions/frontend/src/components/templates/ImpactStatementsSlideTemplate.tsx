@@ -155,7 +155,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '596px',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -225,7 +225,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         {/* Title */}
         <div style={{
           fontSize: '32px',
-          color: '#ffffff',
+          color: themeTitle,
           fontWeight: 'bold',
           lineHeight: '1.2',
           marginBottom: '40px'
@@ -237,12 +237,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               onCancel={handleTitleCancel}
               multiline={true}
               className="impact-title-editor"
-              style={{
-                fontSize: '32px',
-                color: '#ffffff',
-                fontWeight: 'bold',
-                lineHeight: '1.2'
-              }}
+                             style={{
+                 fontSize: '32px',
+                 color: themeTitle,
+                 fontWeight: 'bold',
+                 lineHeight: '1.2'
+               }}
             />
           ) : (
             <div
@@ -261,7 +261,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         <div style={{
           width: '300px',
           height: '200px',
-          backgroundColor: '#ff6b35',
+          backgroundColor: themeAccent,
           borderRadius: '10px',
           overflow: 'hidden',
           display: 'flex',
@@ -297,7 +297,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           <div
             key={index}
             style={{
-              backgroundColor: '#0066cc',
+              backgroundColor: themeAccent,
               borderRadius: '10px',
               padding: '30px',
               display: 'flex',
@@ -309,7 +309,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             {/* Number */}
             <div style={{
               fontSize: '48px',
-              color: '#ffffff',
+              color: themeBg,
               fontWeight: 'bold'
             }}>
               {isEditable && editingNumbers === index ? (
@@ -318,11 +318,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                   onSave={(value) => handleNumberSave(index, value)}
                   onCancel={handleNumberCancel}
                   className="number-editor"
-                  style={{
-                    fontSize: '48px',
-                    color: '#ffffff',
-                    fontWeight: 'bold'
-                  }}
+                                     style={{
+                     fontSize: '48px',
+                     color: themeBg,
+                     fontWeight: 'bold'
+                   }}
                 />
               ) : (
                 <div
@@ -340,7 +340,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             {/* Description */}
             <div style={{
               fontSize: '16px',
-              color: '#ffffff',
+              color: themeBg,
               lineHeight: '1.4'
             }}>
               {isEditable && editingStatements === index ? (
@@ -350,11 +350,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                   onCancel={handleStatementCancel}
                   multiline={true}
                   className="statement-editor"
-                  style={{
-                    fontSize: '16px',
-                    color: '#ffffff',
-                    lineHeight: '1.4'
-                  }}
+                                     style={{
+                     fontSize: '16px',
+                     color: themeBg,
+                     lineHeight: '1.4'
+                   }}
                 />
               ) : (
                 <div

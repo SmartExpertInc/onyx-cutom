@@ -478,8 +478,6 @@ export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
 export interface TwoColumnSlideProps extends BaseTemplateProps {
   title: string;
   content: string;
-  profileImagePath?: string;
-  profileImageAlt?: string;
   rightImagePath?: string;
   rightImageAlt?: string;
   backgroundColor?: string;
@@ -518,6 +516,19 @@ export interface ImpactStatementsSlideProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
+export interface ContentWithImageSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  content: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -549,7 +560,8 @@ export type TemplateId =
   | 'soft-skills-assessment-slide'
   | 'two-column-slide'
   | 'phishing-definition-slide'
-  | 'impact-statements-slide';
+  | 'impact-statements-slide'
+  | 'content-with-image-slide';
 
 export interface TemplatePreview {
   templateId: string;

@@ -33,6 +33,7 @@ import { SoftSkillsAssessmentSlideTemplate } from './SoftSkillsAssessmentSlideTe
 import { TwoColumnSlideTemplate } from './TwoColumnSlideTemplate';
 import { PhishingDefinitionSlideTemplate } from './PhishingDefinitionSlideTemplate';
 import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
+import { ContentWithImageSlideTemplate } from './ContentWithImageSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1365,26 +1366,14 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'We expect you to meet or exceed these metrics',
       content: 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
-      profileImagePath: '',
-      profileImageAlt: 'Profile image',
       rightImagePath: '',
-      rightImageAlt: 'Right side image',
-      backgroundColor: '#f5f5f5',
-      titleColor: '#333333',
-      contentColor: '#666666',
-      accentColor: '#ff6b35'
+      rightImageAlt: 'Right side image'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
       content: { type: 'text', label: 'Content', required: true },
-      profileImagePath: { type: 'image', label: 'Profile Image' },
-      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       rightImagePath: { type: 'image', label: 'Right Side Image' },
-      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' },
-      backgroundColor: { type: 'color', label: 'Background Color', default: '#f5f5f5' },
-      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
-      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
     }
   },
 
@@ -1406,11 +1395,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: '',
       profileImageAlt: 'Profile image',
       rightImagePath: '',
-      rightImageAlt: 'Right side image',
-      backgroundColor: '#ffffff',
-      titleColor: '#333333',
-      contentColor: '#666666',
-      accentColor: '#ff6b35'
+      rightImageAlt: 'Right side image'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -1418,11 +1403,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       rightImagePath: { type: 'image', label: 'Right Side Image' },
-      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' },
-      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
-      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
-      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
     }
   },
 
@@ -1442,20 +1423,37 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       ],
       profileImagePath: '',
       profileImageAlt: 'Profile image',
-      backgroundColor: '#1a1a1a',
-      titleColor: '#ffffff',
-      contentColor: '#ffffff',
-      accentColor: '#ff6b35'
+
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
       statements: { type: 'array', label: 'Statements', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a1a' },
-      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
-      contentColor: { type: 'color', label: 'Content Color', default: '#ffffff' },
-      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+
+    }
+  },
+
+  'content-with-image-slide': {
+    id: 'content-with-image-slide',
+    name: 'Content with Image Slide',
+    description: 'Slide with content on the left and image on the right',
+    category: 'content',
+    icon: '🖼️',
+    component: ContentWithImageSlideTemplate,
+    defaultProps: {
+      title: 'The Header',
+      subtitle: 'This is a sub-header',
+      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      rightImagePath: '',
+      rightImageAlt: 'Right side image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 100 },
+      content: { type: 'text', label: 'Content', required: true },
+      rightImagePath: { type: 'image', label: 'Right Image' },
+      rightImageAlt: { type: 'text', label: 'Right Image Alt Text' }
     }
   }
 };

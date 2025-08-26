@@ -1,7 +1,7 @@
-// custom_extensions/frontend/src/components/templates/PhishingDefinitionSlideTemplate.tsx
+// custom_extensions/frontend/src/components/templates/ContentWithImageSlideTemplate.tsx
 
 import React, { useState, useRef, useEffect } from 'react';
-import { PhishingDefinitionSlideProps } from '@/types/slideTemplates';
+import { ContentWithImageSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
@@ -121,19 +121,13 @@ function InlineEditor({
   );
 }
 
-export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlideProps & {
+export const ContentWithImageSlideTemplate: React.FC<ContentWithImageSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,
-  title = 'What is phishing?',
-  definitions = [
-    "Using data to access a victim's account and withdrawing money or making an online transaction, e.g. buying a product or service.",
-    "Using data to open fake bank accounts or credit cards in the name of the victim and using them to cash out illegal checks, etc.",
-    "Using the victim's computer systems to install viruses and worms and disseminating phishing emails further to their contacts.",
-    "Using data from some systems to gain access to high value organizational data such as banking information, employee credentials, social security numbers, etc."
-  ],
-  profileImagePath = '',
-  profileImageAlt = 'Profile image',
+  title = 'The Header',
+  subtitle = 'This is a sub-header',
+  content = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
   rightImagePath = '',
   rightImageAlt = 'Right side image',
   backgroundColor,
@@ -146,9 +140,11 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingDefinitions, setEditingDefinitions] = useState<number | null>(null);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingContent, setEditingContent] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
-  const [currentDefinitions, setCurrentDefinitions] = useState(definitions);
+  const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  const [currentContent, setCurrentContent] = useState(content);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -168,17 +164,23 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, content, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
-  const handleDefinitionSave = (index: number, newDefinition: string) => {
-    const newDefinitions = [...currentDefinitions];
-    newDefinitions[index] = newDefinition;
-    setCurrentDefinitions(newDefinitions);
-    setEditingDefinitions(null);
+  const handleSubtitleSave = (newSubtitle: string) => {
+    setCurrentSubtitle(newSubtitle);
+    setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, definitions: newDefinitions });
+      onUpdate({ ...{ title, subtitle, content, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+    }
+  };
+
+  const handleContentSave = (newContent: string) => {
+    setCurrentContent(newContent);
+    setEditingContent(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, content, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
     }
   };
 
@@ -187,32 +189,25 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
     setEditingTitle(false);
   };
 
-  const handleDefinitionCancel = () => {
-    setCurrentDefinitions(definitions);
-    setEditingDefinitions(null);
+  const handleSubtitleCancel = () => {
+    setCurrentSubtitle(subtitle);
+    setEditingSubtitle(false);
   };
 
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
+  const handleContentCancel = () => {
+    setCurrentContent(content);
+    setEditingContent(false);
   };
 
   const handleRightImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, rightImagePath: newImagePath });
-    }
-  };
-
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, content, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, rightImagePath: newImagePath });
     }
   };
 
   return (
-    <div className="phishing-definition-slide-template" style={slideStyles}>
-      {/* Left section with text */}
+    <div className="content-with-image-slide-template" style={slideStyles}>
+      {/* Left section with content */}
       <div style={{
         width: '50%',
         height: '100%',
@@ -220,14 +215,14 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         padding: '60px',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative'
+        justifyContent: 'center'
       }}>
         {/* Title */}
         <div style={{
           fontSize: '36px',
           color: themeTitle,
           fontWeight: 'bold',
-          marginBottom: '40px',
+          marginBottom: '20px',
           lineHeight: '1.2'
         }}>
           {isEditable && editingTitle ? (
@@ -236,7 +231,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               multiline={true}
-              className="phishing-title-editor"
+              className="content-title-editor"
               style={{
                 fontSize: '36px',
                 color: themeTitle,
@@ -257,101 +252,69 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           )}
         </div>
 
-        {/* Definitions */}
+        {/* Subtitle */}
         <div style={{
-          flex: '1',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          marginBottom: '40px'
+          fontSize: '24px',
+          color: themeContent,
+          marginBottom: '30px',
+          lineHeight: '1.3'
         }}>
-          {currentDefinitions.map((definition, index) => (
-            <div
-              key={index}
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={currentSubtitle}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              className="content-subtitle-editor"
               style={{
-                fontSize: '16px',
+                fontSize: '24px',
                 color: themeContent,
-                lineHeight: '1.5'
+                lineHeight: '1.3'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingSubtitle(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
               }}
             >
-              {isEditable && editingDefinitions === index ? (
-                <InlineEditor
-                  initialValue={definition}
-                  onSave={(value) => handleDefinitionSave(index, value)}
-                  onCancel={handleDefinitionCancel}
-                  multiline={true}
-                  className="definition-editor"
-                  style={{
-                    fontSize: '16px',
-                    color: themeContent,
-                    lineHeight: '1.5'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingDefinitions(index)}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
-                  }}
-                >
-                  {definition}
-                </div>
-              )}
+              {currentSubtitle}
             </div>
-          ))}
+          )}
         </div>
 
-        {/* Profile image at bottom left */}
+        {/* Content */}
         <div style={{
-          position: 'absolute',
-          bottom: '40px',
-          left: '60px',
-          width: '80px',
-          height: '80px',
-          borderRadius: '50%',
-          overflow: 'hidden'
+          fontSize: '18px',
+          color: themeContent,
+          lineHeight: '1.6'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="MEDIUM"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
-
-        {/* Profile image at bottom left */}
-        <div style={{
-          width: '80px',
-          height: '80px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          position: 'absolute',
-          bottom: '40px',
-          left: '60px'
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="MEDIUM"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
+          {isEditable && editingContent ? (
+            <InlineEditor
+              initialValue={currentContent}
+              onSave={handleContentSave}
+              onCancel={handleContentCancel}
+              multiline={true}
+              className="content-text-editor"
+              style={{
+                fontSize: '18px',
+                color: themeContent,
+                lineHeight: '1.6'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingContent(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentContent}
+            </div>
+          )}
         </div>
       </div>
 
@@ -379,4 +342,4 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   );
 };
 
-export default PhishingDefinitionSlideTemplate; 
+export default ContentWithImageSlideTemplate; 
