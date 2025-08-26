@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
+import { PositionableItem, CanvasConfig, PositioningMode } from '@/types/positioning';
 
 // --- Base Template System Types! ---
 
@@ -49,11 +50,20 @@ export interface ComponentBasedSlide {
   templateId: string;
   props: Record<string, any>;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  
+  // NEW: Positioning support
+  items?: PositionableItem[]; // Dynamic positioning data
+  positioningMode?: PositioningMode; // How items are positioned
+  canvasConfig?: CanvasConfig; // Canvas dimensions and settings
+  
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
     version?: string;
     notes?: string;
+    hasCustomPositioning?: boolean; // Flag for custom positions
+    originalTemplateId?: string; // Track original template if converted
+    elementPositions?: Record<string, { x: number; y: number }>; // Element drag positions
   };
 }
 
@@ -111,6 +121,12 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
   imagePath?: string; // Path to uploaded image
+  // New optional size/transform fields for placeholder/image
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -138,6 +154,12 @@ export interface BulletPointsProps extends BaseTemplateProps {
   imageAlt?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
   imagePath?: string;
+  // Optional size/transform fields for left placeholder image
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {
@@ -152,12 +174,22 @@ export interface TwoColumnProps extends BaseTemplateProps {
   leftImageAlt?: string;
   leftImagePrompt?: string;
   leftImagePath?: string; // Path to uploaded image for left column
+  // Optional size/transform fields for left placeholder image
+  leftWidthPx?: number;
+  leftHeightPx?: number;
+  leftImageScale?: number;
+  leftImageOffset?: { x: number; y: number };
   rightTitle: string;
   rightContent: string;
   rightImageUrl?: string;
   rightImageAlt?: string;
   rightImagePrompt?: string;
   rightImagePath?: string; // Path to uploaded image for right column
+  // Optional size/transform fields for right placeholder image
+  rightWidthPx?: number;
+  rightHeightPx?: number;
+  rightImageScale?: number;
+  rightImageOffset?: { x: number; y: number };
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
   backgroundColor?: string;
   titleColor?: string;

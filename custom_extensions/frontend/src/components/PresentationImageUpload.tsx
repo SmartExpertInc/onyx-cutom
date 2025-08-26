@@ -5,6 +5,14 @@ import { createPortal } from 'react-dom';
 import { X, Image } from 'lucide-react';
 import { uploadPresentationImage } from '../lib/designTemplateApi';
 
+// Debug logging utility
+const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const log = (source: string, event: string, data: any) => {
+  if (DEBUG) {
+    console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+  }
+};
+
 interface ImageUploadResponse {
   file_path: string;
 }
@@ -12,7 +20,7 @@ interface ImageUploadResponse {
 interface PresentationImageUploadProps {
   isOpen: boolean;
   onClose: () => void;
-  onImageUploaded: (imagePath: string) => void;
+  onImageUploaded: (imagePath: string, imageFile?: File) => void;
   title?: string;
 }
 
@@ -27,30 +35,88 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
+  log('PresentationImageUpload', 'render', { 
+    isOpen, 
+    uploading, 
+    hasError: !!error,
+    portalContainerExists: !!portalContainer
+  });
+
   // Create portal container on client side
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setPortalContainer(document.body);
+      log('PresentationImageUpload', 'portalContainerSet', { container: 'document.body' });
     }
   }, []);
 
   const uploadImage = async (file: File) => {
+    log('PresentationImageUpload', 'uploadImage_start', { 
+      fileName: file.name, 
+      fileSize: file.size, 
+      fileType: file.type 
+    });
+
     setUploading(true);
     setError(null);
     
     try {
+      log('PresentationImageUpload', 'uploadImage_apiCall', { 
+        fileName: file.name,
+        endpoint: '/api/custom/presentation/upload_image'
+      });
+
       const result = await uploadPresentationImage(file);
-      onImageUploaded(result.file_path);
+      
+      log('PresentationImageUpload', 'uploadImage_success', { 
+        fileName: file.name,
+        result,
+        filePath: result.file_path
+      });
+
+      log('PresentationImageUpload', 'uploadImage_callingOnImageUploaded', { 
+        filePath: result.file_path,
+        onImageUploadedType: typeof onImageUploaded,
+        hasFile: !!file
+      });
+
+      // Pass both the file path and the original file to enable cropping
+      onImageUploaded(result.file_path, file);
+      
+      log('PresentationImageUpload', 'uploadImage_onImageUploadedCalled', { 
+        filePath: result.file_path
+      });
+
+      log('PresentationImageUpload', 'uploadImage_callingOnClose', {});
       onClose();
+      
+      log('PresentationImageUpload', 'uploadImage_onCloseCalled', {});
     } catch (err: any) {
-      setError(err.message || 'Upload failed');
+      const errorMessage = err.message || 'Upload failed';
+      log('PresentationImageUpload', 'uploadImage_error', { 
+        fileName: file.name,
+        error: errorMessage,
+        errorObject: err
+      });
+      setError(errorMessage);
     } finally {
       setUploading(false);
+      log('PresentationImageUpload', 'uploadImage_finished', { 
+        fileName: file.name,
+        hadError: !!error
+      });
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    log('PresentationImageUpload', 'handleFileSelect', { 
+      hasFile: !!file,
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type
+    });
+
     if (file) {
       uploadImage(file);
     }
@@ -60,6 +126,14 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
     e.preventDefault();
     setDragActive(false);
     const file = e.dataTransfer.files?.[0];
+    
+    log('PresentationImageUpload', 'handleDrop', { 
+      hasFile: !!file,
+      fileName: file?.name,
+      fileType: file?.type,
+      isImage: file?.type.startsWith('image/')
+    });
+
     if (file && file.type.startsWith('image/')) {
       uploadImage(file);
     }
@@ -75,7 +149,19 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
     setDragActive(false);
   };
 
-  if (!isOpen || !portalContainer) return null;
+  if (!isOpen || !portalContainer) {
+    log('PresentationImageUpload', 'notRendering', { 
+      isOpen, 
+      portalContainerExists: !!portalContainer 
+    });
+    return null;
+  }
+
+  log('PresentationImageUpload', 'renderingModal', { 
+    isOpen, 
+    uploading, 
+    hasError: !!error 
+  });
 
   const modalContent = (
     <div 

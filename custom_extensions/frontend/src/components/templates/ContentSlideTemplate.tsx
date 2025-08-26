@@ -310,84 +310,102 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
 
   return (
     <div className="content-slide-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block',
-            lineHeight: '1.3'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            console.log('Title clicked, isEditable:', isEditable);
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Title - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: '1.3'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              
+              console.log('Title clicked, isEditable:', isEditable);
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
-      {/* Content */}
-      {isEditable && editingContent ? (
-        <InlineEditor
-          initialValue={content || ''}
-          onSave={handleContentSave}
-          onCancel={handleContentCancel}
-          multiline={true}
-          placeholder="Enter slide content..."
-          className="inline-editor-content"
-          style={{
-            ...contentStyles,
-            // Ensure content behaves exactly like div element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block',
-            lineHeight: '1.6'
-          }}
-        />
-      ) : (
-        <div 
-          style={contentStyles}
-          onClick={() => {
-            console.log('Content clicked, isEditable:', isEditable);
-            if (isEditable) {
-              setEditingContent(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {content ? parseContent(content) : <p>Click to add content...</p>}
-        </div>
-      )}
+      {/* Content - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+        {isEditable && editingContent ? (
+          <InlineEditor
+            initialValue={content || ''}
+            onSave={handleContentSave}
+            onCancel={handleContentCancel}
+            multiline={true}
+            placeholder="Enter slide content..."
+            className="inline-editor-content"
+            style={{
+              ...contentStyles,
+              // Ensure content behaves exactly like div element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: '1.6'
+            }}
+          />
+        ) : (
+          <div 
+            style={contentStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              
+              console.log('Content clicked, isEditable:', isEditable);
+              if (isEditable) {
+                setEditingContent(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+          >
+            {content ? parseContent(content) : <p>Click to add content...</p>}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

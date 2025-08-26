@@ -3,6 +3,14 @@ import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+// Debug logging utility
+const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const log = (source: string, event: string, data: any) => {
+  if (DEBUG) {
+    console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+  }
+};
+
 export interface BigImageTopProps extends BigImageLeftProps {
   // Можна додати додаткові пропси, якщо потрібно
 }
@@ -146,7 +154,11 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   onUpdate,
   theme,
   isEditable = false,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -156,6 +168,24 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Refs for MoveableManager integration
+  const imageRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
+  
+  log('BigImageTopTemplate', 'render', { 
+    slideId, 
+    isEditable, 
+    hasImagePath: !!imagePath,
+    imageRefExists: !!imageRef.current,
+    titleRefExists: !!titleRef.current,
+    subtitleRefExists: !!subtitleRef.current
+  });
+  
+  // Simple refs for elements (no complex MoveableManager needed)
+  // The ClickableImagePlaceholder now handles its own drag/resize with official react-moveable patterns
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -174,8 +204,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     flexDirection: 'column',
     alignItems: 'stretch',
     justifyContent: 'space-between',
-    paddingBottom: '50px'
-    // Removed overflow: 'hidden' to allow natural content expansion
+    paddingBottom: '50px',
+    position: 'relative'
   };
 
   const getImageDimensions = () => {
@@ -200,8 +230,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    height: '240px',
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '240px' }),
     margin: '0 auto'
   };
 
@@ -259,16 +289,63 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
 
   // Handle image upload
   const handleImageUploaded = (newImagePath: string) => {
+    log('BigImageTopTemplate', 'handleImageUploaded', { 
+      slideId, 
+      newImagePath: !!newImagePath,
+      imageRefExists: !!imageRef.current
+    });
+
     if (onUpdate) {
       onUpdate({ imagePath: newImagePath });
     }
   };
 
+  const handleSizeTransformChange = (payload: any) => {
+    log('BigImageTopTemplate', 'handleSizeTransformChange', { 
+      slideId, 
+      payload,
+      imageRefExists: !!imageRef.current
+    });
+
+    if (onUpdate) {
+      // Convert the payload to the expected format for the backend
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.imageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.widthPx = payload.imageSize.width;
+        updateData.heightPx = payload.imageSize.height;
+      }
+      
+      onUpdate(updateData);
+    }
+  };
+
+  // Handle crop mode change
+  const handleCropModeChange = (mode: 'cover' | 'contain' | 'fill') => {
+    log('BigImageTopTemplate', 'handleCropModeChange', { 
+      slideId, 
+      mode,
+      imageRefExists: !!imageRef.current
+    });
+    // Crop mode is now handled directly by ClickableImagePlaceholder
+  };
+
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
   const displayPrompt = imagePrompt || imageAlt || "man sitting on a chair";
 
+  log('BigImageTopTemplate', 'rendering', { 
+    slideId, 
+    isEditable,
+    hasImagePath: !!imagePath
+  });
+
   return (
-    <div style={slideStyles}>
+    <div ref={slideContainerRef} style={slideStyles}>
+      
       {/* Top - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
         <ClickableImagePlaceholder
@@ -280,86 +357,120 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
+          onSizeTransformChange={handleSizeTransformChange}
+          elementId={`${slideId}-image`}
+          elementRef={imageRef}
+          cropMode="contain"
+          onCropModeChange={handleCropModeChange}
+          slideContainerRef={slideContainerRef}
+          savedImagePosition={imageOffset}
+          savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
         />
       </div>
 
       {/* Bottom - Content */}
       <div style={contentContainerStyles}>
-        {/* Title */}
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={() => {
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
+        {/* Title - wrapped */}
+        <div 
+          ref={titleRef}
+          data-moveable-element={`${slideId}-title`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title || ''}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                // Ensure title behaves exactly like h1 element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || 'Click to add title'}
+            </h1>
+          )}
+        </div>
 
-        {/* Subtitle */}
-        {isEditable && editingSubtitle ? (
-          <InlineEditor
-            initialValue={subtitle || ''}
-            onSave={handleSubtitleSave}
-            onCancel={handleSubtitleCancel}
-            multiline={true}
-            placeholder="Enter slide content..."
-            className="inline-editor-subtitle"
-            style={{
-              ...subtitleStyles,
-              // Ensure subtitle behaves exactly like div element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <div 
-            style={subtitleStyles}
-            onClick={() => {
-              if (isEditable) {
-                setEditingSubtitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {subtitle || 'Click to add content'}
-          </div>
-        )}
+        {/* Subtitle - wrapped */}
+        <div 
+          ref={subtitleRef}
+          data-moveable-element={`${slideId}-subtitle`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={subtitle || ''}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              placeholder="Enter slide content..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                // Ensure subtitle behaves exactly like div element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <div 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {subtitle || 'Click to add content'}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

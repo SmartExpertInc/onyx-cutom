@@ -4,6 +4,7 @@ import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplate } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import HybridTemplateBase from './templates/base/HybridTemplateBase';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
@@ -82,6 +83,9 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     );
   }
 
+  // Always use positioning for editable slides - PowerPoint-like behavior
+  const shouldUsePositioning = isEditable;
+  
   // Render the template component with props and theme
   const TemplateComponent = template.component;
   const templateProps = {
@@ -92,6 +96,31 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     theme: currentTheme
   };
 
+  // Use HybridTemplateBase for all editable slides (positioning enabled by default)
+  if (shouldUsePositioning) {
+    return (
+      <div 
+        className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} positioning-enabled`}
+        data-theme={theme || DEFAULT_SLIDE_THEME}
+      >
+        <HybridTemplateBase
+          slideId={slide.slideId}
+          slide={slide}
+          items={slide.items}
+          canvasConfig={slide.canvasConfig}
+          positioningMode={slide.positioningMode || (isEditable ? 'hybrid' : 'template')}
+          theme={currentTheme}
+          isEditable={isEditable}
+          onUpdate={handlePropsUpdate}
+          onSlideUpdate={onSlideUpdate}
+        >
+          <TemplateComponent {...templateProps} />
+        </HybridTemplateBase>
+      </div>
+    );
+  }
+
+  // Default template rendering
   return (
     <div 
       className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME}`}

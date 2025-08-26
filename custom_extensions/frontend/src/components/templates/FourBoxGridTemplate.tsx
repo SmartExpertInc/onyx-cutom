@@ -263,48 +263,56 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
 
   return (
     <div className="four-box-grid-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Title - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div style={gridStyles}>
         {Array.isArray(boxes) && boxes.length >= 4 ? (
-          boxes.slice(0, 4).map((box: BoxItem, idx: number) => (
-            <div key={idx} style={boxStyles}>
+          boxes.slice(0, 4).map((box: any, idx: number) => (
+            <div key={idx} style={boxStyles} data-draggable="true">
               {/* Box Heading */}
               {isEditable && editingBoxHeadings.includes(idx) ? (
                 <InlineEditor
@@ -332,12 +340,18 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
               ) : (
                 <div 
                   style={headingStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingBoxHeading(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                 >
                   {box.heading || 'Click to add heading'}
                 </div>
@@ -370,12 +384,18 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
               ) : (
                 <div 
                   style={textStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingBoxText(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                 >
                   {box.text || 'Click to add text'}
                 </div>

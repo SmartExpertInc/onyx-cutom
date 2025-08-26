@@ -30,6 +30,7 @@ try:
 except ImportError:
     generate_css_pie_chart = None
     logger.warning("CSS pie chart generator not available")
+import functools
 
 # Attempt to import settings (as before)
 try:
@@ -64,14 +65,14 @@ PDF_CACHE_DIR.mkdir(exist_ok=True)
 
 CHROME_EXEC_PATH = '/usr/bin/chromium'
 
-# Configuration constants for PDF generation - OPTIMIZED
+# Configuration constants for PDF generation - PERFORMANCE OPTIMIZED
 PDF_MIN_SLIDE_HEIGHT = 600
 PDF_MAX_SLIDE_HEIGHT = 3000
 PDF_HEIGHT_SAFETY_MARGIN = 40
-PDF_GENERATION_TIMEOUT = 60000  # Increased to 60 seconds
-PDF_PAGE_TIMEOUT = 30000  # 30 seconds per page
-MAX_CONCURRENT_SLIDES = 3  # Limit concurrent processing
-BROWSER_MEMORY_LIMIT = 1024  # MB
+PDF_GENERATION_TIMEOUT = 30000  # Reduced from 60s to 30s
+PDF_PAGE_TIMEOUT = 10000  # Reduced from 30s to 10s per page
+MAX_CONCURRENT_SLIDES = 2  # Reduced from 3 to 2 for stability
+BROWSER_MEMORY_LIMIT = 512  # Reduced from 1024 to 512 MB
 
 # --- Setup Jinja2 Environment ---
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -102,58 +103,297 @@ jinja_env.filters['shuffle'] = shuffle_filter
 jinja_env.filters['cos'] = lambda x: math.cos(float(x))
 jinja_env.filters['sin'] = lambda x: math.sin(float(x))
 
+# Font embedding functions for PDF generation
+def get_font_as_base64(font_filename: str) -> str:
+    """Convert a font file to base64 data URL for PDF embedding."""
+    try:
+        # Calculate the correct path to fonts from pdf_generator.py location
+        current_dir = os.path.dirname(__file__)  # app/services/
+        root_dir = os.path.dirname(os.path.dirname(current_dir))  # Go up 2 levels to root
+        fonts_dir = os.path.join(root_dir, 'static', 'fonts')
+        font_path = os.path.join(fonts_dir, font_filename)
+        
+        logger.info(f"🔤 Loading font: {font_path}")
+        
+        if os.path.exists(font_path):
+            with open(font_path, 'rb') as font_file:
+                font_data = font_file.read()
+                # Only create base64 if file is reasonable size (< 1MB)
+                if len(font_data) > 1024 * 1024:
+                    logger.warning(f"Font file {font_filename} is large ({len(font_data)} bytes), this may impact PDF generation performance")
+                
+                font_base64 = base64.b64encode(font_data).decode('utf-8')
+                data_url = f"data:font/truetype;base64,{font_base64}"
+                logger.info(f"✅ Font {font_filename} embedded successfully ({len(font_data)} bytes → {len(data_url)} chars)")
+                return data_url
+        else:
+            logger.warning(f"❌ Font file not found: {font_path}")
+            # Try to list available fonts for debugging
+            if os.path.exists(fonts_dir):
+                available_fonts = [f for f in os.listdir(fonts_dir) if f.endswith('.ttf')]
+                logger.info(f"Available fonts in {fonts_dir}: {available_fonts}")
+            return ""
+    except Exception as e:
+        logger.error(f"❌ Failed to load font {font_filename}: {e}", exc_info=True)
+        return ""
+
+def get_embedded_fonts_css() -> str:
+    """Generate CSS with embedded fonts for PDF rendering."""
+    logger.info("🎨 Generating embedded fonts CSS for PDF rendering...")
+    
+    mont_regular_data = get_font_as_base64('fonnts.com-Mont_Regular.ttf')
+    mont_bold_data = get_font_as_base64('fonnts.com-Mont_Bold.ttf')
+    
+    css = ""
+    
+    if mont_regular_data:
+        css += f"""
+        @font-face {{
+          font-family: 'Mont Regular';
+          src: url('{mont_regular_data}') format('truetype');
+          font-weight: 400;
+          font-style: normal;
+          font-display: block;
+        }}
+        """
+    else:
+        # Fallback CSS if font embedding fails
+        css += """
+        @font-face {
+          font-family: 'Mont Regular';
+          src: local('Arial'), local('Helvetica');
+          font-weight: 400;
+          font-style: normal;
+          font-display: block;
+        }
+        """
+        logger.warning("Using fallback font for Mont Regular")
+    
+    if mont_bold_data:
+        css += f"""
+        @font-face {{
+          font-family: 'Mont Bold';
+          src: url('{mont_bold_data}') format('truetype');
+          font-weight: 700;
+          font-style: normal;
+          font-display: block;
+        }}
+        """
+    else:
+        # Fallback CSS if font embedding fails
+        css += """
+        @font-face {
+          font-family: 'Mont Bold';
+          src: local('Arial Bold'), local('Helvetica Bold');
+          font-weight: 700;
+          font-style: normal;
+          font-display: block;
+        }
+        """
+        logger.warning("Using fallback font for Mont Bold")
+    
+    logger.info(f"✅ Embedded fonts CSS generated successfully ({len(css)} characters total)")
+    return css
+
+# Timeout wrapper to prevent 504 Gateway Timeout errors
+def timeout_wrapper(timeout_seconds: int):
+    """Decorator to add timeout to async functions to prevent 504 errors."""
+    def decorator(func):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                return await asyncio.wait_for(func(*args, **kwargs), timeout=timeout_seconds)
+            except asyncio.TimeoutError:
+                logger.error(f"Function {func.__name__} timed out after {timeout_seconds} seconds")
+                raise HTTPException(
+                    status_code=408, 
+                    detail=f"PDF generation timed out after {timeout_seconds} seconds. Please try with fewer slides or simpler content."
+                )
+        return wrapper
+    return decorator
+
 # Enhanced logging functions for debugging
 async def log_slide_data_structure(slide_data: dict, slide_index: int = None, template_id: str = None):
-    """Log detailed information about slide data structure."""
+    """Log detailed information about slide data structure with comprehensive image placeholder analysis."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
     template_info = f" ({template_id})" if template_id else ""
     
-    logger.info(f"=== SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
+    logger.info(f"=== COMPREHENSIVE SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
     
     # Log basic slide structure
-    logger.info(f"Slide data type: {type(slide_data)}")
-    logger.info(f"Slide keys: {list(slide_data.keys()) if isinstance(slide_data, dict) else 'Not a dict'}")
+    logger.info(f"PDF GEN: Slide data type: {type(slide_data)}")
+    logger.info(f"PDF GEN: Slide keys: {list(slide_data.keys()) if isinstance(slide_data, dict) else 'Not a dict'}")
     
     if isinstance(slide_data, dict):
         # Log template ID
         template_id = slide_data.get('templateId', 'Unknown')
-        logger.info(f"Template ID: {template_id}")
+        logger.info(f"PDF GEN: Template ID: {template_id}")
+        
+        # Log slide ID
+        slide_id = slide_data.get('slideId', 'Unknown')
+        logger.info(f"PDF GEN: Slide ID: {slide_id}")
+        
+        # Log metadata
+        metadata = slide_data.get('metadata', {})
+        logger.info(f"PDF GEN: Metadata keys: {list(metadata.keys()) if isinstance(metadata, dict) else 'No metadata'}")
+        
+        # Log element positions if available
+        if 'elementPositions' in metadata:
+            element_positions = metadata['elementPositions']
+            logger.info(f"PDF GEN: Element positions found: {len(element_positions)} elements")
+            for element_id, position in element_positions.items():
+                logger.info(f"PDF GEN:   Element '{element_id}': x={position.get('x', 'N/A')}, y={position.get('y', 'N/A')}")
         
         # Log props structure
         props = slide_data.get('props', {})
-        logger.info(f"Props type: {type(props)}")
-        logger.info(f"Props keys: {list(props.keys()) if isinstance(props, dict) else 'Not a dict'}")
+        logger.info(f"PDF GEN: Props type: {type(props)}")
+        logger.info(f"PDF GEN: Props keys: {list(props.keys()) if isinstance(props, dict) else 'Not a dict'}")
         
-        # Log specific properties for bullet points
-        if template_id in ['bullet-points', 'bullet-points-right']:
-            logger.info("=== BULLET POINTS TEMPLATE ANALYSIS ===")
+        # === IMAGE PLACEHOLDER PROPERTIES ANALYSIS ===
+        logger.info(f"PDF GEN: === IMAGE PLACEHOLDER PROPERTIES ANALYSIS ===")
+        
+        # Check for image path properties
+        image_path_props = ['imagePath', 'leftImagePath', 'rightImagePath']
+        for prop_name in image_path_props:
+            if prop_name in props:
+                image_path = props[prop_name]
+                logger.info(f"PDF GEN: {prop_name}: {image_path}")
+                logger.info(f"PDF GEN:   Type: {type(image_path)}")
+                logger.info(f"PDF GEN:   Is data URL: {str(image_path).startswith('data:') if image_path else False}")
+            else:
+                logger.info(f"PDF GEN: {prop_name}: NOT PRESENT")
+        
+        # Check for image sizing properties
+        size_props = ['widthPx', 'heightPx', 'leftWidthPx', 'leftHeightPx', 'rightWidthPx', 'rightHeightPx']
+        for prop_name in size_props:
+            if prop_name in props:
+                size_value = props[prop_name]
+                logger.info(f"PDF GEN: {prop_name}: {size_value}")
+                logger.info(f"PDF GEN:   Type: {type(size_value)}")
+                logger.info(f"PDF GEN:   Is number: {isinstance(size_value, (int, float))}")
+            else:
+                logger.info(f"PDF GEN: {prop_name}: NOT PRESENT")
+        
+        # Check for object fit properties
+        fit_props = ['objectFit', 'leftObjectFit', 'rightObjectFit']
+        for prop_name in fit_props:
+            if prop_name in props:
+                fit_value = props[prop_name]
+                logger.info(f"PDF GEN: {prop_name}: {fit_value}")
+                logger.info(f"PDF GEN:   Type: {type(fit_value)}")
+                logger.info(f"PDF GEN:   Valid values: cover, contain, fill")
+            else:
+                logger.info(f"PDF GEN: {prop_name}: NOT PRESENT")
+        
+        # Check for transform properties
+        transform_props = ['imageScale', 'imageOffset', 'leftImageScale', 'leftImageOffset', 'rightImageScale', 'rightImageOffset']
+        for prop_name in transform_props:
+            if prop_name in props:
+                transform_value = props[prop_name]
+                logger.info(f"PDF GEN: {prop_name}: {transform_value}")
+                logger.info(f"PDF GEN:   Type: {type(transform_value)}")
+                if prop_name.endswith('Scale'):
+                    logger.info(f"PDF GEN:   Is number: {isinstance(transform_value, (int, float))}")
+                elif prop_name.endswith('Offset'):
+                    if isinstance(transform_value, dict):
+                        logger.info(f"PDF GEN:   Offset keys: {list(transform_value.keys())}")
+                        logger.info(f"PDF GEN:   X: {transform_value.get('x', 'N/A')}")
+                        logger.info(f"PDF GEN:   Y: {transform_value.get('y', 'N/A')}")
+            else:
+                logger.info(f"PDF GEN: {prop_name}: NOT PRESENT")
+        
+        # Check for image prompt properties
+        prompt_props = ['imagePrompt', 'imageAlt', 'leftImagePrompt', 'leftImageAlt', 'rightImagePrompt', 'rightImageAlt']
+        for prop_name in prompt_props:
+            if prop_name in props:
+                prompt_value = props[prop_name]
+                logger.info(f"PDF GEN: {prop_name}: {prompt_value}")
+                logger.info(f"PDF GEN:   Type: {type(prompt_value)}")
+            else:
+                logger.info(f"PDF GEN: {prop_name}: NOT PRESENT")
+        
+        # === TEMPLATE-SPECIFIC ANALYSIS ===
+        logger.info(f"PDF GEN: === TEMPLATE-SPECIFIC ANALYSIS ===")
+        
+        if template_id == 'big-image-left':
+            logger.info(f"PDF GEN: Big Image Left Template Analysis:")
+            logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
+            logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
+            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default')}px")
+            logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default')}px")
+            logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
+            logger.info(f"PDF GEN:   Image Scale: {props.get('imageScale', 'Default 1.0')}")
+            logger.info(f"PDF GEN:   Image Offset: {props.get('imageOffset', 'Default {x:0, y:0}')}")
+            
+        elif template_id == 'big-image-top':
+            logger.info(f"PDF GEN: Big Image Top Template Analysis:")
+            logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
+            logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
+            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 100%')}")
+            logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 240px')}")
+            logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
+            logger.info(f"PDF GEN:   Image Scale: {props.get('imageScale', 'Default 1.0')}")
+            logger.info(f"PDF GEN:   Image Offset: {props.get('imageOffset', 'Default {x:0, y:0}')}")
+            
+        elif template_id == 'bullet-points':
+            logger.info(f"PDF GEN: Bullet Points Template Analysis:")
+            logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
+            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 50%')}")
+            logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 50%')}")
+            logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
+            logger.info(f"PDF GEN:   Image Scale: {props.get('imageScale', 'Default 1.0')}")
+            logger.info(f"PDF GEN:   Image Offset: {props.get('imageOffset', 'Default {x:0, y:0}')}")
             
             # Log bullets array
             bullets = props.get('bullets', [])
-            logger.info(f"Bullets type: {type(bullets)}")
-            logger.info(f"Bullets length: {len(bullets) if hasattr(bullets, '__len__') else 'Not iterable'}")
+            logger.info(f"PDF GEN:   Bullets type: {type(bullets)}")
+            logger.info(f"PDF GEN:   Bullets length: {len(bullets) if hasattr(bullets, '__len__') else 'Not iterable'}")
             
             if hasattr(bullets, '__iter__') and not isinstance(bullets, str):
                 for i, bullet in enumerate(bullets):
-                    logger.info(f"  Bullet {i}: type={type(bullet)}, value={bullet}")
+                    logger.info(f"PDF GEN:     Bullet {i}: {bullet}")
             else:
-                logger.warning(f"Bullets is not iterable: {bullets}")
+                logger.warning(f"PDF GEN:   Bullets is not iterable: {bullets}")
+                
+        elif template_id == 'bullet-points-right':
+            logger.info(f"PDF GEN: Bullet Points Right Template Analysis:")
+            logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
+            logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
+            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 320px')}")
+            logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 320px')}")
+            logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
+            logger.info(f"PDF GEN:   Image Scale: {props.get('imageScale', 'Default 1.0')}")
+            logger.info(f"PDF GEN:   Image Offset: {props.get('imageOffset', 'Default {x:0, y:0}')}")
             
-            # Log title and content
-            logger.info(f"Title: {props.get('title', 'No title')}")
-            logger.info(f"Content: {props.get('content', 'No content')}")
+            # Log bullets array
+            bullets = props.get('bullets', [])
+            logger.info(f"PDF GEN:   Bullets type: {type(bullets)}")
+            logger.info(f"PDF GEN:   Bullets length: {len(bullets) if hasattr(bullets, '__len__') else 'Not iterable'}")
             
-            # Log any other relevant properties
-            for key, value in props.items():
-                if key not in ['bullets', 'title', 'content']:
-                    logger.info(f"Additional prop '{key}': type={type(value)}, value={value}")
+            if hasattr(bullets, '__iter__') and not isinstance(bullets, str):
+                for i, bullet in enumerate(bullets):
+                    logger.info(f"PDF GEN:     Bullet {i}: {bullet}")
+            else:
+                logger.warning(f"PDF GEN:   Bullets is not iterable: {bullets}")
+        
+        # Log all other properties
+        logger.info(f"PDF GEN: === ALL OTHER PROPERTIES ===")
+        for key, value in props.items():
+            if key not in image_path_props + size_props + fit_props + transform_props + prompt_props + ['title', 'subtitle', 'bullets']:
+                logger.info(f"PDF GEN: Additional prop '{key}': type={type(value)}, value={value}")
     
-    logger.info(f"=== END SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
+    logger.info(f"PDF GEN: === END COMPREHENSIVE SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
 
 async def log_html_content(html_content: str, slide_index: int = None, template_id: str = None):
-    """Log HTML content for debugging."""
+    """Log detailed HTML content analysis for debugging."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
     template_info = f" ({template_id})" if template_id else ""
+    
+    logger.info(f"PDF GEN: === HTML CONTENT ANALYSIS for {slide_info}{template_info} ===")
     
     # Log HTML content to file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -162,37 +402,123 @@ async def log_html_content(html_content: str, slide_index: int = None, template_
     try:
         with open(html_filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
-        logger.info(f"HTML content saved to: {html_filename}")
+        logger.info(f"PDF GEN: HTML content saved to: {html_filename}")
     except Exception as e:
-        logger.error(f"Failed to save HTML content: {e}")
+        logger.error(f"PDF GEN: Failed to save HTML content: {e}")
     
-    # Log key parts of HTML for quick reference
-    html_logger.info(f"=== HTML CONTENT for {slide_info}{template_info} ===")
+    # Analyze HTML content for image placeholder elements
+    logger.info(f"PDF GEN: === IMAGE PLACEHOLDER HTML ANALYSIS ===")
     
-    # Look for bullet points related content
-    if 'bullet-points' in html_content or 'bullet-points-right' in html_content:
-        html_logger.info("Found bullet points template in HTML")
+    # Look for image positioning containers
+    if 'image-positioning-container' in html_content:
+        logger.info(f"PDF GEN: Found image-positioning-container elements")
         
-        # Extract and log bullet points related sections
+        # Extract and log image positioning container sections
         lines = html_content.split('\n')
         for i, line in enumerate(lines):
-            if any(keyword in line for keyword in ['bullet-points', 'placeholder', 'bullet-item']):
-                html_logger.info(f"Line {i+1}: {line.strip()}")
+            if 'image-positioning-container' in line:
+                logger.info(f"PDF GEN: Line {i+1}: {line.strip()}")
+                
+                # Look for style attributes in the next few lines
+                for j in range(i, min(i + 10, len(lines))):
+                    if 'style=' in lines[j]:
+                        logger.info(f"PDF GEN:   Style line {j+1}: {lines[j].strip()}")
+                    if 'transform:' in lines[j]:
+                        logger.info(f"PDF GEN:   Transform line {j+1}: {lines[j].strip()}")
     
-    # Log CSS styles related to bullet points
-    if 'bullet-points' in html_content:
-        css_start = html_content.find('/* Bullet Points Template')
-        if css_start != -1:
-            css_end = html_content.find('}', css_start) + 1
-            bullet_css = html_content[css_start:css_end]
-            html_logger.info(f"Bullet points CSS found: {bullet_css}")
+    # Look for transformed-image elements
+    if 'transformed-image' in html_content:
+        logger.info(f"PDF GEN: Found transformed-image elements")
+        
+        lines = html_content.split('\n')
+        for i, line in enumerate(lines):
+            if 'transformed-image' in line:
+                logger.info(f"PDF GEN: Line {i+1}: {line.strip()}")
+                
+                # Look for style attributes in the next few lines
+                for j in range(i, min(i + 10, len(lines))):
+                    if 'style=' in lines[j]:
+                        logger.info(f"PDF GEN:   Style line {j+1}: {lines[j].strip()}")
+                    if 'object-fit:' in lines[j]:
+                        logger.info(f"PDF GEN:   Object-fit line {j+1}: {lines[j].strip()}")
+                    if 'transform:' in lines[j]:
+                        logger.info(f"PDF GEN:   Transform line {j+1}: {lines[j].strip()}")
     
-    html_logger.info(f"=== END HTML CONTENT for {slide_info}{template_info} ===")
+    # Look for template-specific sections
+    template_sections = ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']
+    for template_section in template_sections:
+        if template_section in html_content:
+            logger.info(f"PDF GEN: Found {template_section} template section")
+            
+            # Extract the template section
+            lines = html_content.split('\n')
+            for i, line in enumerate(lines):
+                if template_section in line and 'elif slide.templateId' in line:
+                    logger.info(f"PDF GEN: Template section start line {i+1}: {line.strip()}")
+                    
+                    # Log the next 20 lines to see the template structure
+                    for j in range(i, min(i + 20, len(lines))):
+                        if '{% endif %}' in lines[j]:
+                            logger.info(f"PDF GEN: Template section end line {j+1}: {lines[j].strip()}")
+                            break
+                        if any(keyword in lines[j] for keyword in ['imagePath', 'widthPx', 'heightPx', 'objectFit', 'imageScale', 'imageOffset']):
+                            logger.info(f"PDF GEN:   Property line {j+1}: {lines[j].strip()}")
+    
+    # Look for element positioning
+    if 'elementPositions' in html_content:
+        logger.info(f"PDF GEN: Found elementPositions in HTML")
+        
+        lines = html_content.split('\n')
+        for i, line in enumerate(lines):
+            if 'elementPositions' in line:
+                logger.info(f"PDF GEN: ElementPositions line {i+1}: {line.strip()}")
+    
+    # Look for transform attributes
+    if 'transform:' in html_content:
+        logger.info(f"PDF GEN: Found transform attributes in HTML")
+        
+        lines = html_content.split('\n')
+        for i, line in enumerate(lines):
+            if 'transform:' in line:
+                logger.info(f"PDF GEN: Transform line {i+1}: {line.strip()}")
+    
+    # Look for object-fit attributes
+    if 'object-fit:' in html_content:
+        logger.info(f"PDF GEN: Found object-fit attributes in HTML")
+        
+        lines = html_content.split('\n')
+        for i, line in enumerate(lines):
+            if 'object-fit:' in line:
+                logger.info(f"PDF GEN: Object-fit line {i+1}: {line.strip()}")
+    
+    # Look for width and height attributes
+    if 'widthPx' in html_content or 'heightPx' in html_content:
+        logger.info(f"PDF GEN: Found widthPx/heightPx in HTML")
+        
+        lines = html_content.split('\n')
+        for i, line in enumerate(lines):
+            if 'widthPx' in line or 'heightPx' in line:
+                logger.info(f"PDF GEN: Size property line {i+1}: {line.strip()}")
+    
+    # Look for image data URLs
+    if 'data:image' in html_content:
+        logger.info(f"PDF GEN: Found image data URLs in HTML")
+        
+        lines = html_content.split('\n')
+        for i, line in enumerate(lines):
+            if 'data:image' in line:
+                # Truncate the data URL for logging
+                truncated_line = line[:200] + "..." if len(line) > 200 else line
+                logger.info(f"PDF GEN: Image data URL line {i+1}: {truncated_line.strip()}")
+    
+    logger.info(f"PDF GEN: === END HTML CONTENT ANALYSIS for {slide_info}{template_info} ===")
 
 async def log_browser_console_output(page, slide_index: int = None, template_id: str = None):
-    """Log browser console output for debugging."""
+    """Log browser console output and element positioning for debugging."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
     template_info = f" ({template_id})" if template_id else ""
+    
+    logger.info(f"PDF GEN: === BROWSER CONSOLE AND ELEMENT ANALYSIS for {slide_info}{template_info} ===")
     
     try:
         # Get console logs
@@ -203,15 +529,283 @@ async def log_browser_console_output(page, slide_index: int = None, template_id:
         """)
         
         if logs:
-            logger.info(f"=== BROWSER CONSOLE OUTPUT for {slide_info}{template_info} ===")
-            for log in logs:
-                logger.info(f"Console: {log}")
-            logger.info(f"=== END BROWSER CONSOLE OUTPUT for {slide_info}{template_info} ===")
+            logger.info(f"PDF GEN: Browser console logs found: {len(logs)} entries")
+            for i, log in enumerate(logs):
+                logger.info(f"PDF GEN: Console log {i+1}: {log}")
         else:
-            logger.info(f"No console output captured for {slide_info}{template_info}")
+            logger.info(f"PDF GEN: No browser console logs found")
+        
+        # Analyze element positioning and styling
+        element_analysis = await page.evaluate("""
+            () => {
+                const analysis = {
+                    imageElements: [],
+                    positionedElements: [],
+                    transformedElements: [],
+                    containerElements: []
+                };
+                
+                // Find all image elements
+                const images = document.querySelectorAll('img');
+                images.forEach((img, index) => {
+                    const rect = img.getBoundingClientRect();
+                    const computedStyle = window.getComputedStyle(img);
+                    analysis.imageElements.push({
+                        index: index,
+                        src: img.src ? img.src.substring(0, 100) + '...' : 'No src',
+                        width: rect.width,
+                        height: rect.height,
+                        top: rect.top,
+                        left: rect.left,
+                        objectFit: computedStyle.objectFit,
+                        transform: computedStyle.transform,
+                        position: computedStyle.position,
+                        zIndex: computedStyle.zIndex
+                    });
+                });
+                
+                // Find positioned elements
+                const positioned = document.querySelectorAll('[style*="transform"], [style*="position: absolute"]');
+                positioned.forEach((el, index) => {
+                    const rect = el.getBoundingClientRect();
+                    const computedStyle = window.getComputedStyle(el);
+                    analysis.positionedElements.push({
+                        index: index,
+                        tagName: el.tagName,
+                        className: el.className,
+                        width: rect.width,
+                        height: rect.height,
+                        top: rect.top,
+                        left: rect.left,
+                        transform: computedStyle.transform,
+                        position: computedStyle.position,
+                        zIndex: computedStyle.zIndex
+                    });
+                });
+                
+                // Find transformed elements
+                const transformed = document.querySelectorAll('.transformed-image, .image-positioning-container');
+                transformed.forEach((el, index) => {
+                    const rect = el.getBoundingClientRect();
+                    const computedStyle = window.getComputedStyle(el);
+                    analysis.transformedElements.push({
+                        index: index,
+                        tagName: el.tagName,
+                        className: el.className,
+                        width: rect.width,
+                        height: rect.height,
+                        top: rect.top,
+                        left: rect.left,
+                        transform: computedStyle.transform,
+                        objectFit: computedStyle.objectFit,
+                        overflow: computedStyle.overflow
+                    });
+                });
+                
+                // Find container elements
+                const containers = document.querySelectorAll('.image-container, .placeholder-container, .content-container');
+                containers.forEach((el, index) => {
+                    const rect = el.getBoundingClientRect();
+                    const computedStyle = window.getComputedStyle(el);
+                    analysis.containerElements.push({
+                        index: index,
+                        tagName: el.tagName,
+                        className: el.className,
+                        width: rect.width,
+                        height: rect.height,
+                        top: rect.top,
+                        left: rect.left,
+                        display: computedStyle.display,
+                        flexDirection: computedStyle.flexDirection,
+                        alignItems: computedStyle.alignItems,
+                        justifyContent: computedStyle.justifyContent
+                    });
+                });
+                
+                return analysis;
+            }
+        """)
+        
+        # Log element analysis
+        if element_analysis:
+            logger.info(f"PDF GEN: === ELEMENT POSITIONING ANALYSIS ===")
+            
+            # Log image elements
+            if element_analysis.get('imageElements'):
+                logger.info(f"PDF GEN: Found {len(element_analysis['imageElements'])} image elements:")
+                for img in element_analysis['imageElements']:
+                    logger.info(f"PDF GEN:   Image {img['index']}: {img['width']}x{img['height']} at ({img['left']}, {img['top']})")
+                    logger.info(f"PDF GEN:     Object-fit: {img['objectFit']}, Transform: {img['transform']}")
+                    logger.info(f"PDF GEN:     Position: {img['position']}, Z-index: {img['zIndex']}")
+            
+            # Log positioned elements
+            if element_analysis.get('positionedElements'):
+                logger.info(f"PDF GEN: Found {len(element_analysis['positionedElements'])} positioned elements:")
+                for el in element_analysis['positionedElements']:
+                    logger.info(f"PDF GEN:   {el['tagName']}.{el['className']}: {el['width']}x{el['height']} at ({el['left']}, {el['top']})")
+                    logger.info(f"PDF GEN:     Transform: {el['transform']}, Position: {el['position']}")
+            
+            # Log transformed elements
+            if element_analysis.get('transformedElements'):
+                logger.info(f"PDF GEN: Found {len(element_analysis['transformedElements'])} transformed elements:")
+                for el in element_analysis['transformedElements']:
+                    logger.info(f"PDF GEN:   {el['tagName']}.{el['className']}: {el['width']}x{el['height']} at ({el['left']}, {el['top']})")
+                    logger.info(f"PDF GEN:     Transform: {el['transform']}, Object-fit: {el['objectFit']}")
+                    logger.info(f"PDF GEN:     Overflow: {el['overflow']}")
+            
+            # Log container elements
+            if element_analysis.get('containerElements'):
+                logger.info(f"PDF GEN: Found {len(element_analysis['containerElements'])} container elements:")
+                for el in element_analysis['containerElements']:
+                    logger.info(f"PDF GEN:   {el['tagName']}.{el['className']}: {el['width']}x{el['height']} at ({el['left']}, {el['top']})")
+                    logger.info(f"PDF GEN:     Display: {el['display']}, Flex-direction: {el['flexDirection']}")
+                    logger.info(f"PDF GEN:     Align-items: {el['alignItems']}, Justify-content: {el['justifyContent']}")
             
     except Exception as e:
-        logger.error(f"Failed to capture console output: {e}")
+        logger.error(f"PDF GEN: Error analyzing browser elements: {e}")
+    
+    logger.info(f"PDF GEN: === END BROWSER CONSOLE AND ELEMENT ANALYSIS for {slide_info}{template_info} ===")
+
+async def log_transform_applications(page, slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log detailed information about transform applications."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    logger.info(f"PDF GEN: === TRANSFORM APPLICATION ANALYSIS for {slide_info}{template_info} ===")
+    
+    # Log image offset and scale properties
+    props = slide_data.get('props', {})
+    
+    # Check for image properties
+    image_props = ['imagePath', 'leftImagePath', 'rightImagePath']
+    for prop in image_props:
+        if prop in props:
+            logger.info(f"PDF GEN: Found {prop}: {props[prop]}")
+            
+            # Check for corresponding offset and scale
+            if prop == 'imagePath':
+                offset_prop = 'imageOffset'
+                scale_prop = 'imageScale'
+            elif prop == 'leftImagePath':
+                offset_prop = 'leftImageOffset'
+                scale_prop = 'leftImageScale'
+            elif prop == 'rightImagePath':
+                offset_prop = 'rightImageOffset'
+                scale_prop = 'rightImageScale'
+            
+            if offset_prop in props:
+                offset = props[offset_prop]
+                logger.info(f"PDF GEN:   {offset_prop}: {offset}")
+                if isinstance(offset, dict):
+                    logger.info(f"PDF GEN:     X: {offset.get('x', 'undefined')}")
+                    logger.info(f"PDF GEN:     Y: {offset.get('y', 'undefined')}")
+            else:
+                logger.info(f"PDF GEN:   {offset_prop}: NOT PRESENT")
+            
+            if scale_prop in props:
+                scale = props[scale_prop]
+                logger.info(f"PDF GEN:   {scale_prop}: {scale}")
+            else:
+                logger.info(f"PDF GEN:   {scale_prop}: NOT PRESENT")
+    
+    # Check for element positions in metadata
+    metadata = slide_data.get('metadata', {})
+    if 'elementPositions' in metadata:
+        element_positions = metadata['elementPositions']
+        logger.info(f"PDF GEN: Element positions found: {len(element_positions)} elements")
+        for element_id, position in element_positions.items():
+            logger.info(f"PDF GEN:   Element '{element_id}': x={position.get('x', 'undefined')}, y={position.get('y', 'undefined')}")
+    else:
+        logger.info(f"PDF GEN: No element positions found in metadata")
+    
+    # Check browser for actual transform applications
+    try:
+        transform_info = await page.evaluate("""
+            () => {
+                const results = {
+                    imageTransforms: [],
+                    elementTransforms: [],
+                    computedTransforms: []
+                };
+                
+                // Check all images for transforms
+                const images = document.querySelectorAll('img');
+                images.forEach((img, index) => {
+                    const computedStyle = window.getComputedStyle(img);
+                    const transform = computedStyle.transform;
+                    const rect = img.getBoundingClientRect();
+                    
+                    results.imageTransforms.push({
+                        index: index,
+                        src: img.src.substring(0, 100) + '...',
+                        transform: transform,
+                        transformOrigin: computedStyle.transformOrigin,
+                        objectFit: computedStyle.objectFit,
+                        position: computedStyle.position,
+                        rect: {
+                            top: rect.top,
+                            left: rect.left,
+                            width: rect.width,
+                            height: rect.height
+                        }
+                    });
+                });
+                
+                // Check all elements with transforms
+                const allElements = document.querySelectorAll('*');
+                allElements.forEach((el, index) => {
+                    const computedStyle = window.getComputedStyle(el);
+                    const transform = computedStyle.transform;
+                    
+                    if (transform && transform !== 'none' && transform !== 'matrix(1, 0, 0, 1, 0, 0)') {
+                        const rect = el.getBoundingClientRect();
+                        results.elementTransforms.push({
+                            index: index,
+                            tagName: el.tagName,
+                            className: el.className,
+                            id: el.id,
+                            transform: transform,
+                            transformOrigin: computedStyle.transformOrigin,
+                            position: computedStyle.position,
+                            rect: {
+                                top: rect.top,
+                                left: rect.left,
+                                width: rect.width,
+                                height: rect.height
+                            }
+                        });
+                    }
+                });
+                
+                return results;
+            }
+        """)
+        
+        if transform_info:
+            # Log image transforms
+            if transform_info.get('imageTransforms'):
+                logger.info(f"PDF GEN: Found {len(transform_info['imageTransforms'])} images with transforms:")
+                for img in transform_info['imageTransforms']:
+                    logger.info(f"PDF GEN:   Image {img['index']}: {img['src']}")
+                    logger.info(f"PDF GEN:     Transform: {img['transform']}")
+                    logger.info(f"PDF GEN:     Transform-origin: {img['transformOrigin']}")
+                    logger.info(f"PDF GEN:     Object-fit: {img['objectFit']}")
+                    logger.info(f"PDF GEN:     Position: {img['position']}")
+                    logger.info(f"PDF GEN:     Rect: {img['rect']['width']}x{img['rect']['height']} at ({img['rect']['left']}, {img['rect']['top']})")
+            
+            # Log element transforms
+            if transform_info.get('elementTransforms'):
+                logger.info(f"PDF GEN: Found {len(transform_info['elementTransforms'])} elements with transforms:")
+                for el in transform_info['elementTransforms']:
+                    logger.info(f"PDF GEN:   {el['tagName']}.{el['className']}: {el['transform']}")
+                    logger.info(f"PDF GEN:     Transform-origin: {el['transformOrigin']}")
+                    logger.info(f"PDF GEN:     Position: {el['position']}")
+                    logger.info(f"PDF GEN:     Rect: {el['rect']['width']}x{el['rect']['height']} at ({el['rect']['left']}, {el['rect']['top']})")
+    
+    except Exception as e:
+        logger.error(f"PDF GEN: Error analyzing transforms: {e}")
+    
+    logger.info(f"PDF GEN: === END TRANSFORM APPLICATION ANALYSIS for {slide_info}{template_info} ===")
 
 async def log_computed_styles(page, slide_index: int = None, template_id: str = None):
     """Log computed styles for key elements."""
@@ -321,8 +915,8 @@ async def log_computed_styles(page, slide_index: int = None, template_id: str = 
 
 # Optimized browser launch options
 def get_browser_launch_options():
-    """Get optimized browser launch options for better stability and debugging."""
-    logger.info("Configuring browser launch options for enhanced debugging")
+    """Get optimized browser launch options for performance and stability."""
+    logger.info("Configuring browser launch options for optimal performance")
     return {
         'headless': 'new',
         'args': [
@@ -344,16 +938,19 @@ def get_browser_launch_options():
             '--safeBrowse-disable-auto-update',
             '--font-render-hinting=none',
             '--enable-font-antialiasing',
-            '--enable-logging',
-            '--v=1',
-            '--enable-logging=stderr',
-            '--log-level=0',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-features=TranslateUI',
+            '--disable-ipc-flooding-protection',
+            '--disable-web-security',
+            '--allow-running-insecure-content',
             '--force-color-profile=srgb',
             '--disable-background-timer-throttling',
             '--disable-renderer-backgrounding',
             '--disable-backgrounding-occluded-windows'
         ],
-        'dumpio': True,  # Capture browser console output
+        'dumpio': False,  # Disabled for performance
         'devtools': False,
         'ignoreHTTPSErrors': True,
         'defaultViewport': None,
@@ -582,12 +1179,21 @@ async def generate_pdf_from_html_template(
         await page.setContent(html_content)
         logger.info("HTML content set in Pyppeteer page.")
         
-        # Wait for fonts to load and rendering to complete
-        await page.waitForFunction("""
-            () => {
-                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-            }
-        """, timeout=10000)
+        # Wait for fonts to load and rendering to complete - OPTIMIZED
+        try:
+            await page.waitForFunction("""
+                () => {
+                    // Quick font readiness check with fallback
+                    if (document.fonts && document.fonts.ready) {
+                        return document.fonts.ready.then(() => true);
+                    }
+                    // Fallback: just check if document is loaded
+                    return document.readyState === 'complete';
+                }
+            """, timeout=5000)  # Reduced from 10s to 5s
+        except Exception as e:
+            logger.warning(f"Font loading timeout, proceeding anyway: {e}")
+            # Continue with PDF generation even if fonts aren't fully loaded
         
         # Additional delay for complex rendering
         await asyncio.sleep(2)
@@ -859,7 +1465,8 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         context_data = {
             'slide': safe_slide_data,
             'theme': theme,
-            'slide_height': 600  # Start with minimum height
+            'slide_height': 600,  # Start with minimum height
+            'embedded_fonts_css': get_embedded_fonts_css()  # Add embedded fonts CSS
         }
         
         # Render the single slide template
@@ -897,11 +1504,20 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         
         # Set content and wait for rendering
         await page.setContent(html_content)
-        await page.waitForFunction("""
-            () => {
-                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-            }
-        """, timeout=PDF_PAGE_TIMEOUT)
+        try:
+            await page.waitForFunction("""
+                () => {
+                    // Quick font readiness check with fallback
+                    if (document.fonts && document.fonts.ready) {
+                        return document.fonts.ready.then(() => true);
+                    }
+                    // Fallback: just check if document is loaded
+                    return document.readyState === 'complete';
+                }
+            """, timeout=3000)  # Even shorter timeout for height calculation
+        except Exception as e:
+            logger.warning(f"Font loading timeout during height calculation for {template_id}, proceeding anyway: {e}")
+            # Continue with height calculation even if fonts aren't fully loaded
         
         # Additional delay for complex rendering
         await asyncio.sleep(1)
@@ -982,8 +1598,13 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         bool: True if successful, False otherwise
     """
     logger.info(f"=== STARTING ENHANCED SINGLE SLIDE PDF GENERATION ===")
+    logger.info(f"PDF GEN: Slide Index: {slide_index}")
+    logger.info(f"PDF GEN: Template ID: {template_id}")
+    logger.info(f"PDF GEN: Theme: {theme}")
+    logger.info(f"PDF GEN: Slide Height: {slide_height}px")
+    logger.info(f"PDF GEN: Output Path: {output_path}")
     
-    # Log slide data structure
+    # Enable detailed logging for debugging
     await log_slide_data_structure(slide_data, slide_index, template_id)
     
     should_close_browser = browser is None
@@ -1070,8 +1691,38 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         context_data = {
             'slide': safe_slide_data,
             'theme': theme,
-            'slide_height': slide_height
+            'slide_height': slide_height,
+            'embedded_fonts_css': get_embedded_fonts_css()  # Add embedded fonts CSS
         }
+        
+        # Generate pie chart CSS if needed
+        if safe_slide_data.get('templateId') == 'pie-chart-infographics' and generate_css_pie_chart:
+            try:
+                chart_data = safe_slide_data.get('props', {}).get('chartData', {})
+                segments = chart_data.get('segments', [])
+                
+                if segments:
+                    logger.info(f"Generating CSS pie chart for {slide_info}{template_info}")
+                    chart_id = f"pie-chart-{slide_index}" if slide_index is not None else "pie-chart"
+                    css_pie_chart = generate_css_pie_chart(segments, chart_id)
+                    context_data['pie_chart_html'] = css_pie_chart['html']
+                    context_data['pie_chart_css'] = css_pie_chart['css']
+                    context_data['pie_chart_image'] = ""  # Empty for CSS version
+                    logger.info(f"CSS pie chart generated successfully for {slide_info}{template_info}")
+                else:
+                    logger.warning(f"No segments found for pie chart in {slide_info}{template_info}")
+                    context_data['pie_chart_html'] = ""
+                    context_data['pie_chart_css'] = ""
+                    context_data['pie_chart_image'] = ""
+            except Exception as e:
+                logger.error(f"Error generating CSS pie chart for {slide_info}{template_info}: {e}")
+                context_data['pie_chart_html'] = ""
+                context_data['pie_chart_css'] = ""
+                context_data['pie_chart_image'] = ""
+        else:
+            context_data['pie_chart_html'] = ""
+            context_data['pie_chart_css'] = ""
+            context_data['pie_chart_image'] = ""
         
         # Generate pie chart CSS if needed
         if safe_slide_data.get('templateId') == 'pie-chart-infographics' and generate_css_pie_chart:
@@ -1118,53 +1769,134 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             # List of image path properties to process
             image_props = ['imagePath', 'leftImagePath', 'rightImagePath', 'imageUrl']
             
+            # Enhanced image processing with better positioning data
             for prop_name in image_props:
                 if prop_name in props and props[prop_name]:
-                    original_src = props[prop_name]
-                    logger.info(f"PDF GEN: Processing {prop_name}: {original_src}")
+                    image_path = props[prop_name]
+                    logger.info(f"PDF GEN: Processing {prop_name}: {image_path}")
                     
-                    # Only transform if not already a data URL
-                    if original_src and not original_src.startswith('data:'):
-                        if original_src.startswith('/static_design_images/'):
-                            filename = original_src.replace('/static_design_images/', '')
-                            full_path = os.path.join(static_images_abs_path, filename)
+                    # Handle both data URLs and file paths
+                    if image_path.startswith('data:'):
+                        logger.info(f"PDF GEN: {prop_name} is already a data URL")
+                        continue
+                    
+                    # Process file path (remove leading slash and construct full path)
+                    if image_path.startswith('/static_design_images/'):
+                        # Extract filename from path
+                        filename = os.path.basename(image_path)
+                        logger.info(f"PDF GEN: {prop_name} - Original: {image_path}")
+                        logger.info(f"PDF GEN: {prop_name} - Filename: {filename}")
+                        
+                        # Construct full path
+                        full_image_path = os.path.join(static_images_abs_path, filename)
+                        logger.info(f"PDF GEN: {prop_name} - Full path: {full_image_path}")
+                        
+                        # Check if file exists
+                        if os.path.exists(full_image_path):
+                            logger.info(f"PDF GEN: {prop_name} - File exists: True")
                             
-                            logger.info(f"PDF GEN: {prop_name} - Original: {original_src}")
-                            logger.info(f"PDF GEN: {prop_name} - Filename: {filename}")
-                            logger.info(f"PDF GEN: {prop_name} - Full path: {full_path}")
-                            logger.info(f"PDF GEN: {prop_name} - File exists: {os.path.exists(full_path)}")
-                            
-                            if os.path.exists(full_path):
-                                try:
-                                    # Read the image file and convert to base64
-                                    with open(full_path, 'rb') as image_file:
-                                        image_data = image_file.read()
-                                        image_base64 = base64.b64encode(image_data).decode('utf-8')
-                                        
-                                        # Determine MIME type
-                                        mime_type, _ = mimetypes.guess_type(full_path)
-                                        if not mime_type:
-                                            mime_type = 'image/jpeg'  # Default fallback
-                                        
-                                        # Create data URL
-                                        data_url = f"data:{mime_type};base64,{image_base64}"
-                                        
-                                        logger.info(f"PDF GEN: {prop_name} - MIME type: {mime_type}")
-                                        logger.info(f"PDF GEN: {prop_name} - Image size: {len(image_data)} bytes")
-                                        logger.info(f"PDF GEN: {prop_name} - Successfully converted to data URL")
-                                        
-                                        props[prop_name] = data_url
-                                        
-                                except Exception as e:
-                                    logger.error(f"PDF GEN: Failed to read image file {full_path}: {e}")
-                                    logger.info(f"PDF GEN: Keeping original {prop_name}: {original_src}")
-                            else:
-                                logger.warning(f"PDF GEN: Image file not found: {full_path}")
-                                logger.info(f"PDF GEN: Keeping original {prop_name}: {original_src}")
+                            try:
+                                # Read and convert to base64
+                                with open(full_image_path, 'rb') as img_file:
+                                    img_data = img_file.read()
+                                    
+                                    # Detect MIME type
+                                    mime_type = 'image/jpeg'  # default
+                                    if filename.lower().endswith('.png'):
+                                        mime_type = 'image/png'
+                                    elif filename.lower().endswith('.gif'):
+                                        mime_type = 'image/gif'
+                                    elif filename.lower().endswith('.webp'):
+                                        mime_type = 'image/jpeg'  # Convert WebP to JPEG for better PDF compatibility
+                                    
+                                    logger.info(f"PDF GEN: {prop_name} - MIME type: {mime_type}")
+                                    logger.info(f"PDF GEN: {prop_name} - Image size: {len(img_data)} bytes")
+                                    
+                                    # Convert to base64 data URL
+                                    img_base64 = base64.b64encode(img_data).decode('utf-8')
+                                    data_url = f"data:{mime_type};base64,{img_base64}"
+                                    
+                                    # Update the prop with data URL
+                                    props[prop_name] = data_url
+                                    logger.info(f"PDF GEN: {prop_name} - Successfully converted to data URL")
+                                    
+                            except Exception as e:
+                                logger.error(f"PDF GEN: {prop_name} - Failed to convert to data URL: {e}")
+                                # Keep original path as fallback
                         else:
-                            logger.info(f"PDF GEN: {prop_name} - Keeping original src: {original_src}")
-                    else:
-                        logger.info(f"PDF GEN: {prop_name} - Already data URL or empty: {original_src}")
+                            logger.warning(f"PDF GEN: {prop_name} - File does not exist: {full_image_path}")
+                    
+            # Process and normalize positioning data for better PDF compatibility
+            positioning_props = [
+                ('imageOffset', 'imageScale', 'widthPx', 'heightPx', 'objectFit'),
+                ('leftImageOffset', 'leftImageScale', 'leftWidthPx', 'leftHeightPx', 'leftObjectFit'),
+                ('rightImageOffset', 'rightImageScale', 'rightWidthPx', 'rightHeightPx', 'rightObjectFit')
+            ]
+            
+            for offset_prop, scale_prop, width_prop, height_prop, fit_prop in positioning_props:
+                # Ensure image offset is properly formatted
+                if offset_prop in props and props[offset_prop]:
+                    offset = props[offset_prop]
+                    if isinstance(offset, dict) and 'x' in offset and 'y' in offset:
+                        # Ensure x and y are numbers, not None
+                        props[offset_prop] = {
+                            'x': float(offset['x']) if offset['x'] is not None else 0.0,
+                            'y': float(offset['y']) if offset['y'] is not None else 0.0
+                        }
+                        logger.info(f"PDF GEN: Normalized {offset_prop}: {props[offset_prop]}")
+                
+                # Ensure image scale is a number
+                if scale_prop in props and props[scale_prop]:
+                    try:
+                        props[scale_prop] = float(props[scale_prop])
+                        logger.info(f"PDF GEN: Normalized {scale_prop}: {props[scale_prop]}")
+                    except (ValueError, TypeError):
+                        props[scale_prop] = 1.0
+                        logger.warning(f"PDF GEN: Invalid {scale_prop}, defaulting to 1.0")
+                
+                # Ensure dimensions are numbers
+                for dim_prop in [width_prop, height_prop]:
+                    if dim_prop in props and props[dim_prop]:
+                        try:
+                            props[dim_prop] = int(float(props[dim_prop]))
+                            logger.info(f"PDF GEN: Normalized {dim_prop}: {props[dim_prop]}")
+                        except (ValueError, TypeError):
+                            props[dim_prop] = None
+                            logger.warning(f"PDF GEN: Invalid {dim_prop}, setting to None")
+                
+                # Ensure object fit is valid
+                if fit_prop in props and props[fit_prop]:
+                    valid_fits = ['cover', 'contain', 'fill', 'scale-down', 'none']
+                    if props[fit_prop] not in valid_fits:
+                        props[fit_prop] = 'cover'
+                        logger.warning(f"PDF GEN: Invalid {fit_prop}, defaulting to 'cover'")
+            
+            # Ensure metadata is properly structured for element positioning
+            if 'metadata' not in safe_slide_data:
+                safe_slide_data['metadata'] = {}
+            
+            metadata = safe_slide_data['metadata']
+            if 'elementPositions' not in metadata:
+                metadata['elementPositions'] = {}
+            
+            # Log final positioning data
+            logger.info(f"PDF GEN: Final element positions: {metadata.get('elementPositions', {})}")
+            for prop_name in image_props:
+                if prop_name in props:
+                    base_prop = prop_name.replace('ImagePath', '')
+                    offset_prop = f"{base_prop}ImageOffset" if base_prop else "imageOffset"
+                    scale_prop = f"{base_prop}ImageScale" if base_prop else "imageScale"
+                    
+                    if offset_prop in props:
+                        logger.info(f"PDF GEN: {prop_name} positioning - offset: {props.get(offset_prop)}, scale: {props.get(scale_prop)}")
+        
+        # Log comprehensive template context for debugging
+        logger.info(f"PDF GEN: === TEMPLATE RENDERING ANALYSIS ===")
+        logger.info(f"PDF GEN: Template file: single_slide_pdf_template.html")
+        logger.info(f"PDF GEN: Context data keys: {list(context_data.keys())}")
+        logger.info(f"PDF GEN: Theme in context: {context_data.get('theme')}")
+        logger.info(f"PDF GEN: Slide height in context: {context_data.get('slide_height')}")
+        logger.info(f"PDF GEN: Slide data keys: {list(safe_slide_data.keys())}")
         
         # Render the single slide template
         try:
@@ -1203,14 +1935,14 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             await log_html_content(html_content, slide_index, template_id)
             
         except Exception as template_error:
-            logger.error(f"Template rendering error for {slide_info}{template_info}: {template_error}", exc_info=True)
+            logger.error(f"PDF GEN: Template rendering error for {slide_info}{template_info}: {template_error}", exc_info=True)
             # Fallback to a simple template
             html_content = f"""
             <!DOCTYPE html>
             <html>
             <head><style>
                 body {{ margin: 0; padding: 40px; font-family: Arial, sans-serif; background: #f0f0f0; }}
-                .slide-page {{ width: 1174px; height: {slide_height}px; background: white; padding: 40px; border-radius: 8px; }}
+                .slide-page {{ width: 1174px; height: 600px; background: white; padding: 40px; border-radius: 8px; }}
                 .slide-content {{ display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }}
                 .slide-title {{ font-size: 32px; font-weight: bold; margin-bottom: 20px; }}
                 .content {{ font-size: 18px; }}
@@ -1219,33 +1951,118 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 <div class="slide-page">
                     <div class="slide-content">
                         <div class="slide-title">{safe_slide_data.get('props', {}).get('title', 'Untitled Slide')}</div>
-                        <div class="content">Slide content could not be rendered properly.</div>
+                        <div class="content">Slide content could not be rendered properly. Template error: {template_error}</div>
                     </div>
                 </div>
             </body>
             </html>
             """
         
+        # Enhanced HTML content analysis for debugging
+        logger.info(f"PDF GEN: === HTML CONTENT ANALYSIS for {slide_info}{template_info} ===")
+        
+        # Save HTML content for debugging
+        debug_html_path = f"/tmp/html_debug_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{slide_index}_{template_id}.html"
+        try:
+            with open(debug_html_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            logger.info(f"PDF GEN: HTML content saved to: {debug_html_path}")
+        except Exception as e:
+            logger.warning(f"PDF GEN: Could not save HTML debug file: {e}")
+        
+        # Analyze HTML content for positioning and transform issues
+        html_lines = html_content.split('\n')
+        logger.info(f"PDF GEN: === IMAGE PLACEHOLDER HTML ANALYSIS ===")
+        
+        # Look for image positioning containers
+        for i, line in enumerate(html_lines, 1):
+            if 'image-positioning-container' in line:
+                logger.info(f"PDF GEN: Found image-positioning-container elements")
+                logger.info(f"PDF GEN: Line {i}: {line.strip()}")
+                
+                # Look for style attributes in subsequent lines
+                for j in range(i, min(i + 10, len(html_lines))):
+                    if 'style=' in html_lines[j] and any(attr in html_lines[j] for attr in ['width:', 'height:', 'transform:']):
+                        logger.info(f"PDF GEN:   Style line {j + 1}: {html_lines[j].strip()}")
+        
+        # Look for transformed images
+        for i, line in enumerate(html_lines, 1):
+            if 'transformed-image' in line:
+                logger.info(f"PDF GEN: Found transformed-image elements")
+                logger.info(f"PDF GEN: Line {i}: {line.strip()}")
+                
+                # Look for style attributes in subsequent lines
+                for j in range(i, min(i + 10, len(html_lines))):
+                    if 'style=' in html_lines[j]:
+                        logger.info(f"PDF GEN:   Style line {j + 1}: {html_lines[j].strip()}")
+                    if 'object-fit:' in html_lines[j]:
+                        logger.info(f"PDF GEN:   Object-fit line {j + 1}: {html_lines[j].strip()}")
+        
+        # Look for template sections
+        template_sections = ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']
+        for section in template_sections:
+            if section in html_content:
+                logger.info(f"PDF GEN: Found {section} template section")
+        
+        # Look for transform and object-fit attributes
+        transform_count = 0
+        objectfit_count = 0
+        for i, line in enumerate(html_lines, 1):
+            if 'transform:' in line:
+                transform_count += 1
+                logger.info(f"PDF GEN: Transform line {i}: {line.strip()}")
+            if 'object-fit:' in line:
+                objectfit_count += 1
+                logger.info(f"PDF GEN: Object-fit line {i}: {line.strip()}")
+        
+        # Look for image data URLs
+        for i, line in enumerate(html_lines, 1):
+            if 'data:image/' in line and 'src=' in line:
+                # Extract just the beginning of the data URL for logging
+                src_start = line.find('src="data:image/')
+                if src_start != -1:
+                    src_end = line.find('"', src_start + 5)
+                    if src_end != -1:
+                        data_url_preview = line[src_start:min(src_end, src_start + 100)]
+                        logger.info(f"PDF GEN: Image data URL line {i}: <img {data_url_preview}...")
+        
+        logger.info(f"PDF GEN: === END HTML CONTENT ANALYSIS for {slide_info}{template_info} ===")
+        
         # Set content and wait for rendering
-        logger.info("Setting HTML content in page")
         await page.setContent(html_content)
+        logger.info(f"PDF GEN: Setting HTML content in page")
+        
+        # Log browser console output for debugging
+        await log_browser_console_output(page, slide_index, template_id)
+        
+        # Log transform applications for debugging
+        await log_transform_applications(page, slide_data, slide_index, template_id)
         
         logger.info("Waiting for fonts to load")
-        await page.waitForFunction("""
-            () => {
-                return document.fonts && document.fonts.ready && document.fonts.ready.then(() => true);
-            }
-        """, timeout=PDF_PAGE_TIMEOUT)
+        try:
+            await page.waitForFunction("""
+                () => {
+                    // Quick font readiness check with fallback
+                    if (document.fonts && document.fonts.ready) {
+                        return document.fonts.ready.then(() => true);
+                    }
+                    // Fallback: just check if document is loaded
+                    return document.readyState === 'complete';
+                }
+            """, timeout=5000)  # Fixed timeout to 5s instead of PDF_PAGE_TIMEOUT
+        except Exception as e:
+            logger.warning(f"Font loading timeout for {slide_info}{template_info}, proceeding anyway: {e}")
+            # Continue with PDF generation even if fonts aren't fully loaded
         
         # Additional delay for complex rendering
         await asyncio.sleep(1)
         logger.info("Rendering delay completed")
         
-        # Log computed styles
-        await log_computed_styles(page, slide_index, template_id)
+        # Log computed styles - DISABLED FOR PERFORMANCE
+        # await log_computed_styles(page, slide_index, template_id)
         
-        # Log browser console output
-        await log_browser_console_output(page, slide_index, template_id)
+        # Log browser console output - DISABLED FOR PERFORMANCE
+        # await log_browser_console_output(page, slide_index, template_id)
         
         # Generate PDF with exact dimensions
         await page.pdf({
@@ -1302,6 +2119,7 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     
     return successful_paths
 
+@timeout_wrapper(120)  # 2 minute timeout to prevent 504 errors
 async def generate_slide_deck_pdf_with_dynamic_height(
     slides_data: list,
     theme: str,
