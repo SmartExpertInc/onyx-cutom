@@ -27,7 +27,7 @@ export interface TemplateComponentInfo {
 }
 
 export interface PropDefinition {
-  type: 'text' | 'richtext' | 'image' | 'color' | 'number' | 'boolean' | 'select' | 'array';
+  type: 'text' | 'richtext' | 'image' | 'color' | 'number' | 'boolean' | 'select' | 'array' | 'object';
   label: string;
   description?: string;
   required?: boolean;

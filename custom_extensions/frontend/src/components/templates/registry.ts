@@ -1110,7 +1110,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
       tableData: {
-        type: 'array',
+        type: 'object',
         label: 'Table Data',
         required: true
       },
@@ -1160,7 +1160,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
       tableData: {
-        type: 'array',
+        type: 'object',
         label: 'Table Data',
         required: true
       },

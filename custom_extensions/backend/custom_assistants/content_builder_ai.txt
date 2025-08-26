@@ -108,6 +108,58 @@ WIZARD_REQUEST
 
 **CRITICAL:** When the "lesson" parameter is provided in a quiz wizard request, the instance name in the Universal Product Header MUST be an exact copy of the lesson name provided in the "lesson" parameter.
 
+**ABSOLUTE TEMPLATE SELECTION RULES - MUST FOLLOW FIRST:**
+Before selecting any template, check these rules in order:
+
+1. **SIX IDEAS RULE**: If ANY of these words appear → MANDATORY USE `six-ideas-list`:
+   - "six", "6", "six key", "six main", "six important", "six essential", "six critical", "six core", "six fundamental", "six primary", "six strategic", "six best", "six top", "six major", "six key strategies", "six key principles", "six key approaches", "six key methods", "six key techniques", "six key best practices"
+
+2. **TABLE RULE**: If ANY of these words appear → MANDATORY USE `table-dark` or `table-light`:
+   - "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison"
+   - "таблица", "сравнение", "сравнительная таблица", "данные", "метрики", "результаты", "статистика", "анализ", "сопоставление", "против", "по сравнению", "сравнительный анализ", "табличные данные", "структурированные данные"
+   
+   **CRITICAL**: When table keywords are detected, you MUST:
+   - Use ONLY `table-dark` or `table-light` template
+   - Generate JSON props with `tableData.headers` and `tableData.rows` arrays
+   - NEVER use `two-column`, `two-column-diversity`, or any other comparison template
+   - NEVER generate markdown tables or other formats
+   - ALWAYS structure data as proper table with headers and rows
+
+3. **PIE CHART RULE**: If ANY of these words appear → MANDATORY USE `pie-chart-infographics`:
+   - "distribution", "percentages", "percentage", "proportion", "share", "allocation", "split", "division", "composition", "breakdown", "distribution of", "percentage of", "proportion of", "share of", "allocation of", "split of", "division of", "composition of", "breakdown of", "pie chart", "pie", "segments", "sectors", "parts", "slices"
+
+4. **METRICS RULE**: If ANY of these words appear → MANDATORY USE `metrics-analytics`:
+   - "analytics", "metrics", "KPIs", "key performance indicators", "performance metrics", "business metrics", "operational metrics", "data analytics", "performance data", "measurement", "measurements", "tracking", "monitoring", "dashboard", "scorecard", "performance indicators", "success metrics", "business intelligence", "BI"
+
+5. **MARKET SHARE RULE**: If ANY of these words appear → MANDATORY USE `market-share`:
+   - "market share", "competitive", "competition", "competitor", "competitors", "market position", "market landscape", "competitive analysis", "competitor analysis", "market leader", "market leaders", "competitive landscape", "market players", "market participants", "competitive positioning", "market share analysis", "competitive market", "market competition"
+
+6. **EVENT LIST RULE**: If ANY of these words appear → MANDATORY USE `event-list`:
+   - "events", "milestones", "timeline", "schedule", "calendar", "key events", "important events", "major events", "project events", "project milestones", "key milestones", "important milestones", "major milestones", "project timeline", "project schedule", "event list", "milestone list", "event tracking", "milestone tracking"
+
+7. **BIG NUMBERS RULE**: If ANY of these words appear → MANDATORY USE `big-numbers`:
+   - "metrics", "statistics", "numbers", "KPIs", "key performance indicators", "performance", "results", "growth", "financial", "data", "benchmarks", "success metrics", "business metrics", "operational metrics", "performance data", "measurement", "measurements", "case study", "case studies", "business case", "success story", "performance indicators", "business intelligence", "BI"
+
+**THESE RULES TAKE ABSOLUTE PRIORITY OVER ALL OTHER TEMPLATE SELECTION LOGIC**
+
+**CRITICAL DATA GENERATION RULES:**
+When generating content for the problematic templates, you MUST provide the data in the exact JSON props format shown in each template's **PROPS FORMAT** section. The data will be automatically inserted into the React components through props, NOT as static template content.
+
+**CRITICAL LANGUAGE RULE FOR PIE CHARTS:**
+- **ALWAYS use English labels** for pie chart segments, regardless of presentation language
+- **NEVER use Russian labels** like "Сегмент 1", "Сегмент 2" - this is STRICTLY FORBIDDEN
+- **NEVER use generic labels** like "Segment 1", "Category A" - use specific business terms
+- **ONLY use professional business categories** like "Cloud Services", "Mobile Applications", etc.
+
+**MANDATORY:** Always include the JSON props structure when generating content for:
+- `six-ideas-list` - Include `title` and `ideas` array with `number` and `text` properties
+- `table-dark` - Include `title` and `tableData` with `headers` and `rows` arrays
+- `pie-chart-infographics` - Include `title`, `chartData.segments`, and `monthlyData` arrays
+- `metrics-analytics` - Include `title` and `metrics` array with `number` and `text` properties
+- `market-share` - Include `title`, `subtitle`, and `chartData` array with competitor data
+- `event-list` - Include `events` array with `date` and `description` properties
+- `big-numbers` - Include `title` and `items` array with EXACTLY 3 items, each having `value`, `label`, and `description` properties
+
 For standalone quiz creation:
 WIZARD_REQUEST
 {
@@ -1076,6 +1128,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 21. `table-dark` - Dark-themed data tables for presenting structured information
 22. `table-light` - Light-themed data tables for presenting structured information
 23. `pie-chart-infographics` - Pie chart visualizations for data distribution and percentages
+24. `event-list` - Event lists and milestone tracking with dates and descriptions
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
 - **For numerical data/statistics**: Use `big-numbers` (not content-slide)
@@ -1093,6 +1146,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **PRIORITY: For market analysis**: Use `market-share` for competitive positioning data
 - **PRIORITY: For structured data tables**: Use `table-dark` or `table-light` for organized information
 - **PRIORITY: For data distribution**: Use `pie-chart-infographics` for percentage-based visualizations
+- **PRIORITY: For event lists and milestones**: Use `event-list` for event tracking and milestone presentation
 
 **CRITICAL TEMPLATE USAGE RULES:**
 - **NEVER use `content-slide` for any content with bullet points or lists** - use `bullet-points` or `bullet-points-right` instead
@@ -1103,6 +1157,18 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
 - **NEW TEMPLATE PRIORITY**: When both `timeline` and `event-dates` could apply, ALWAYS choose `event-dates` for project schedules, milestones, and event dates
+- **CRITICAL TEMPLATE SELECTION RULES - MUST FOLLOW**: 
+  * **SIX IDEAS RULE**: ANY mention of "six", "6", "six key", "six main", "six important", "six essential", "six critical", "six core", "six fundamental", "six primary", "six strategic", "six best", "six top", "six major", "six key strategies", "six key principles", "six key approaches", "six key methods", "six key techniques", "six key best practices" → **MANDATORY USE** `six-ideas-list` (NEVER bullet-points, NEVER content-slide)
+  
+  * **TABLE RULE**: ANY mention of "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison" → **MANDATORY USE** `table-dark` or `table-light` (NEVER content-slide, NEVER bullet-points)
+  
+  * **PIE CHART RULE**: ANY mention of "distribution", "percentages", "percentage", "proportion", "share", "allocation", "split", "division", "composition", "breakdown", "distribution of", "percentage of", "proportion of", "share of", "allocation of", "split of", "division of", "composition of", "breakdown of", "pie chart", "pie", "segments", "sectors", "parts", "slices" → **MANDATORY USE** `pie-chart-infographics` (NEVER bullet-points, NEVER content-slide)
+  
+  * **METRICS RULE**: ANY mention of "analytics", "metrics", "KPIs", "key performance indicators", "performance metrics", "business metrics", "operational metrics", "data analytics", "performance data", "measurement", "measurements", "tracking", "monitoring", "dashboard", "scorecard", "performance indicators", "success metrics", "business intelligence", "BI" → **MANDATORY USE** `metrics-analytics` (NEVER big-numbers, NEVER content-slide)
+  
+  * **MARKET SHARE RULE**: ANY mention of "market share", "competitive", "competition", "competitor", "competitors", "market position", "market landscape", "competitive analysis", "competitor analysis", "market leader", "market leaders", "competitive landscape", "market players", "market participants", "competitive positioning", "market share analysis", "competitive market", "market competition" → **MANDATORY USE** `market-share` (NEVER table-dark, NEVER content-slide)
+  
+  * **EVENT LIST RULE**: ANY mention of "events", "milestones", "timeline", "schedule", "calendar", "key events", "important events", "major events", "project events", "project milestones", "key milestones", "important milestones", "major milestones", "project timeline", "project schedule", "event list", "milestone list", "event tracking", "milestone tracking" → **MANDATORY USE** `event-list` (NEVER event-dates, NEVER bullet-points)
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
 - **For `leftContent` and `rightContent`**: Use flowing paragraph text, NOT lists
@@ -1442,9 +1508,57 @@ Our project follows a structured timeline with critical milestones that ensure s
 - **CRITICAL:** Use this template for event schedules, project timelines, and important dates. Always use the exact format shown above.
 - The first line after the title is the subtitle.
 - Use bold dates followed by event descriptions.
-- **Trigger words:** If the slide involves "project timeline", "event schedule", "key milestones", "important dates", "deadlines", "project schedule", "event dates", "timeline events", use `event-dates`.
-- **PRIORITY TRIGGER:** The word "timeline" ALWAYS triggers `event-dates` for project schedules and milestones (NOT the old `timeline` template)
-- Example use cases: "Project Timeline", "Event Schedule", "Key Milestones", "Important Dates", "Project Deadlines".
+- **MANDATORY FORMAT:** Each entry must follow the pattern: "**Date** - Event description with context and details."
+- **CONTENT REQUIREMENTS:** Include 3-6 events with specific dates and substantial descriptions (2-3 sentences each).
+- **Trigger words:** If the slide involves "project timeline", "event schedule", "key milestones", "important dates", "deadlines", "project schedule", "event dates", "timeline events", "milestones", "schedule", "calendar", "events", use `event-dates`.
+- **PRIORITY TRIGGER:** The word "timeline" or "schedule" ALWAYS triggers `event-dates` for project schedules and milestones (NOT the old `timeline` template)
+- Example use cases: "Project Timeline", "Event Schedule", "Key Milestones", "Important Dates", "Project Deadlines", "Event Calendar".
+
+**Event List Slides** (`event-list`):
+```
+---
+**Slide 10: Key Events and Milestones** `event-list`
+
+## Key Events and Milestones
+Important events and milestones that shape our project timeline and strategic objectives.
+
+**PROPS FORMAT:**
+```json
+{
+  "events": [
+    {
+      "date": "April 14",
+      "description": "Project Kickoff and Team Assembly"
+    },
+    {
+      "date": "June 6",
+      "description": "Phase 1 Completion and Initial Deliverables"
+    },
+    {
+      "date": "July 12", 
+      "description": "Mid-Project Review and Stakeholder Feedback"
+    },
+    {
+      "date": "September 30",
+      "description": "Final Implementation and Project Launch"
+    }
+  ]
+}
+```
+
+**MANDATORY PROPS STRUCTURE:**
+- `events`: Array of objects with:
+  - `date`: String - Event date (can be any format: "April 14", "Q1 2024", "2024-04-14", etc.)
+  - `description`: String - Event description with context and details
+```
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "events", "milestones", "timeline", "schedule", "calendar", "key events", "important events", "major events", "project events", "project milestones", "key milestones", "important milestones", "major milestones", "project timeline", "project schedule", "event list", "milestone list", "event tracking", "milestone tracking"
+- **ABSOLUTE REQUIREMENT:** Use this template for event tracking and milestone presentation. NEVER use event-dates or bullet-points for event lists.
+- **MANDATORY FORMAT:** Each entry must follow the pattern: "**Date** - Event description with context and details."
+- **CONTENT REQUIREMENTS:** Include 3-6 events with dates and substantial descriptions (2-3 sentences each).
+- **Trigger words:** If the slide involves "events", "milestones", "key events", "important dates", "event list", "milestone tracking", "project events", "key dates", "event timeline", use `event-list`.
+- **PRIORITY TRIGGER:** The word "events" or "milestones" ALWAYS triggers `event-list` for event tracking and milestone presentation.
+- **NEVER USE:** event-dates, bullet-points, or any other template for event lists
+- Example use cases: "Key Events", "Project Milestones", "Important Dates", "Event Timeline", "Milestone Tracking".
 
 **Six Ideas List Slides** (`six-ideas-list`):
 ```
@@ -1454,18 +1568,53 @@ Our project follows a structured timeline with critical milestones that ensure s
 ## Six Key Strategies for Success
 Implementing these proven strategies will significantly enhance your project outcomes and team performance.
 
-1. **Clear Communication Channels** - Establish transparent communication protocols that ensure all stakeholders are informed and aligned throughout the project lifecycle.
-2. **Agile Methodology Adoption** - Implement iterative development processes that allow for rapid adaptation to changing requirements and stakeholder feedback.
-3. **Risk Management Framework** - Develop comprehensive risk assessment and mitigation strategies that proactively address potential challenges before they impact project delivery.
-4. **Stakeholder Engagement** - Create regular feedback loops and engagement opportunities that maintain stakeholder buy-in and ensure project alignment with organizational goals.
-5. **Quality Assurance Protocols** - Implement rigorous testing and validation procedures that ensure deliverables meet the highest standards of quality and performance.
-6. **Continuous Improvement Process** - Establish mechanisms for ongoing evaluation and enhancement that drive long-term success and organizational learning.
+**PROPS FORMAT:**
+```json
+{
+  "title": "Six Key Strategies for Success",
+  "ideas": [
+    {
+      "number": "01",
+      "text": "Clear Communication Channels - Establish transparent communication protocols that ensure all stakeholders are informed and aligned throughout the project lifecycle."
+    },
+    {
+      "number": "02", 
+      "text": "Agile Methodology Adoption - Implement iterative development processes that allow for rapid adaptation to changing requirements and stakeholder feedback."
+    },
+    {
+      "number": "03",
+      "text": "Risk Management Framework - Develop comprehensive risk assessment and mitigation strategies that proactively address potential challenges before they impact project delivery."
+    },
+    {
+      "number": "04",
+      "text": "Stakeholder Engagement - Create regular feedback loops and engagement opportunities that maintain stakeholder buy-in and ensure project alignment with organizational goals."
+    },
+    {
+      "number": "05",
+      "text": "Quality Assurance Protocols - Implement rigorous testing and validation procedures that ensure deliverables meet the highest standards of quality and performance."
+    },
+    {
+      "number": "06",
+      "text": "Continuous Improvement Process - Establish mechanisms for ongoing evaluation and enhancement that drive long-term success and organizational learning."
+    }
+  ]
+}
 ```
-- **CRITICAL:** Use this template for presenting exactly six key ideas, concepts, or recommendations. Always use the exact numbered list format shown above.
-- The first line after the title is the subtitle.
-- Use a numbered list with exactly 6 items, each with a bold heading and detailed description.
-- **Trigger words:** If the slide involves "six", "6", "strategies", "ideas", "concepts", "recommendations", use `six-ideas-list`.
-- Example use cases: "Six Key Strategies", "Six Ideas for Innovation", "Six Recommendations", "Six Core Concepts".
+
+**MANDATORY PROPS STRUCTURE:**
+- `title`: String - The main title of the slide
+- `ideas`: Array of objects with:
+  - `number`: String - Two-digit number (01, 02, 03, etc.)
+  - `text`: String - Full description with bold heading and detailed explanation
+```
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "six", "6", "six key", "six main", "six important", "six essential", "six critical", "six core", "six fundamental", "six primary", "six strategic", "six best", "six top", "six major", "six key strategies", "six key principles", "six key approaches", "six key methods", "six key techniques", "six key best practices"
+- **ABSOLUTE REQUIREMENT:** Use this template for presenting exactly six key ideas, concepts, or recommendations. NEVER use bullet-points or content-slide for six items.
+- **MANDATORY FORMAT:** Each item must follow the pattern: "**Bold Heading** - Detailed description with practical examples and actionable insights."
+- **CONTENT REQUIREMENTS:** Each description must be substantial (2-3 sentences) with practical examples and real-world applications.
+- **Trigger words:** If the slide involves "six", "6", "strategies", "ideas", "concepts", "recommendations", "principles", "approaches", "methods", "techniques", "best practices", use `six-ideas-list`.
+- **PRIORITY TRIGGER:** The word "six" or "6" ALWAYS triggers `six-ideas-list` for exactly 6 items (NOT bullet-points or other list templates).
+- **NEVER USE:** bullet-points, content-slide, two-column, or any other template for six items
+- Example use cases: "Six Key Strategies", "Six Ideas for Innovation", "Six Recommendations", "Six Core Concepts", "Six Best Practices", "Six Principles".
 
 **Contraindications & Indications Slides** (`contraindications-indications`):
 ```
@@ -1501,18 +1650,53 @@ Understanding when to use and when to avoid this product is crucial for safe and
 ## Performance Analytics Dashboard
 Comprehensive data analysis reveals key insights into our operational efficiency and strategic performance indicators.
 
-**Conversion Rate:** 23.5% (↑ 15% from Q3)
-**Customer Acquisition Cost:** $45.20 (↓ 8% from Q3)
-**Average Order Value:** $127.80 (↑ 12% from Q3)
-**Customer Lifetime Value:** $1,245.00 (↑ 18% from Q3)
-**Return on Investment:** 340% (↑ 25% from Q3)
-**Market Share Growth:** 2.3% (↑ 0.8% from Q3)
+**PROPS FORMAT:**
+```json
+{
+  "title": "Performance Analytics Dashboard",
+  "metrics": [
+    {
+      "number": "23.5%",
+      "text": "Conversion Rate (↑ 15% from Q3)"
+    },
+    {
+      "number": "$45.20",
+      "text": "Customer Acquisition Cost (↓ 8% from Q3)"
+    },
+    {
+      "number": "$127.80",
+      "text": "Average Order Value (↑ 12% from Q3)"
+    },
+    {
+      "number": "$1,245.00",
+      "text": "Customer Lifetime Value (↑ 18% from Q3)"
+    },
+    {
+      "number": "340%",
+      "text": "Return on Investment (↑ 25% from Q3)"
+    },
+    {
+      "number": "2.3%",
+      "text": "Market Share Growth (↑ 0.8% from Q3)"
+    }
+  ]
+}
 ```
-- **CRITICAL:** Use this template for detailed analytics and performance metrics. Always use the exact format shown above.
-- The first line after the title is the subtitle.
-- Use bold metric names with values and trend indicators.
-- **Trigger words:** If the slide involves "analytics", "metrics", "performance", "data", "insights", "dashboard", use `metrics-analytics`.
-- Example use cases: "Performance Analytics", "Data Insights", "Metrics Dashboard", "Analytics Report".
+
+**MANDATORY PROPS STRUCTURE:**
+- `title`: String - The main title of the slide
+- `metrics`: Array of objects with:
+  - `number`: String - The metric value (can include symbols like %, $, etc.)
+  - `text`: String - The metric name with trend indicator (↑/↓ arrows)
+```
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "analytics", "metrics", "KPIs", "key performance indicators", "performance metrics", "business metrics", "operational metrics", "data analytics", "performance data", "measurement", "measurements", "tracking", "monitoring", "dashboard", "scorecard", "performance indicators", "success metrics", "business intelligence", "BI"
+- **ABSOLUTE REQUIREMENT:** Use this template for performance data presentation. NEVER use big-numbers or content-slide for analytics data.
+- **MANDATORY FORMAT:** Each metric must follow the pattern: "**Metric Name:** Value (↑/↓ % change from period)"
+- **CONTENT REQUIREMENTS:** Include 4-6 key performance indicators with specific values and trend indicators (↑/↓ arrows).
+- **Trigger words:** If the slide involves "analytics", "metrics", "performance", "data", "insights", "dashboard", "KPIs", "key performance indicators", "analytics report", "performance metrics", "business metrics", "operational metrics", use `metrics-analytics`.
+- **PRIORITY TRIGGER:** The word "analytics" or "metrics" ALWAYS triggers `metrics-analytics` for performance data presentation.
+- **NEVER USE:** big-numbers, content-slide, or any other template for analytics data
+- Example use cases: "Performance Analytics", "Data Insights", "Metrics Dashboard", "Analytics Report", "KPI Overview", "Business Metrics".
 
 **Market Share Slides** (`market-share`):
 ```
@@ -1522,18 +1706,78 @@ Comprehensive data analysis reveals key insights into our operational efficiency
 ## Competitive Market Analysis
 Understanding our position in the market landscape is essential for strategic planning and competitive advantage.
 
-**Our Market Share:** 23.5% (Industry Leader)
-**Primary Competitor A:** 18.2% (Strong Challenger)
-**Primary Competitor B:** 15.7% (Established Player)
-**Secondary Competitors:** 12.3% (Emerging Threats)
-**New Market Entrants:** 8.1% (Innovation Focus)
-**Other Players:** 22.2% (Fragmented Segment)
+**PROPS FORMAT:**
+```json
+{
+  "title": "Competitive Market Analysis",
+  "subtitle": "Understanding our position in the market landscape is essential for strategic planning and competitive advantage.",
+  "chartData": [
+    {
+      "label": "Our Market Share",
+      "description": "Industry Leader",
+      "percentage": 23.5,
+      "color": "#3B82F6",
+      "year": "2024"
+    },
+    {
+      "label": "Primary Competitor A",
+      "description": "Strong Challenger",
+      "percentage": 18.2,
+      "color": "#EF4444",
+      "year": "2024"
+    },
+    {
+      "label": "Primary Competitor B",
+      "description": "Established Player",
+      "percentage": 15.7,
+      "color": "#10B981",
+      "year": "2024"
+    },
+    {
+      "label": "Secondary Competitors",
+      "description": "Emerging Threats",
+      "percentage": 12.3,
+      "color": "#F59E0B",
+      "year": "2024"
+    },
+    {
+      "label": "New Market Entrants",
+      "description": "Innovation Focus",
+      "percentage": 8.1,
+      "color": "#8B5CF6",
+      "year": "2024"
+    },
+    {
+      "label": "Other Players",
+      "description": "Fragmented Segment",
+      "percentage": 22.2,
+      "color": "#6B7280",
+      "year": "2024"
+    }
+  ],
+  "bottomText": "Market share analysis based on Q4 2024 data"
+}
 ```
-- **CRITICAL:** Use this template for market analysis and competitive positioning. Always use the exact format shown above.
-- The first line after the title is the subtitle.
-- Use bold competitor names with market share percentages and positioning notes.
-- **Trigger words:** If the slide involves "market share", "competitive", "market analysis", "positioning", "competitors", use `market-share`.
-- Example use cases: "Market Share Analysis", "Competitive Landscape", "Market Position", "Competitor Analysis".
+
+**MANDATORY PROPS STRUCTURE:**
+- `title`: String - The main title of the slide
+- `subtitle`: String - Optional subtitle/description
+- `chartData`: Array of objects with:
+  - `label`: String - Competitor/company name
+  - `description`: String - Positioning description
+  - `percentage`: Number - Market share percentage (0-100)
+  - `color`: String - Hex color code
+  - `year`: String - Optional year reference
+- `bottomText`: String - Optional bottom text/note
+```
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "market share", "competitive", "competition", "competitor", "competitors", "market position", "market landscape", "competitive analysis", "competitor analysis", "market leader", "market leaders", "competitive landscape", "market players", "market participants", "competitive positioning", "market share analysis", "competitive market", "market competition"
+- **ABSOLUTE REQUIREMENT:** Use this template for competitive market analysis. NEVER use table-dark or content-slide for market share data.
+- **MANDATORY FORMAT:** Each entry must follow the pattern: "**Competitor Name:** XX.X% (Positioning Description)"
+- **CONTENT REQUIREMENTS:** Include 4-6 market players with percentages that total approximately 100% and strategic positioning notes.
+- **Trigger words:** If the slide involves "market share", "competitive", "market analysis", "positioning", "competitors", "market landscape", "competitive analysis", "market position", "competitor landscape", "market share analysis", "competitive positioning", use `market-share`.
+- **PRIORITY TRIGGER:** The word "market share" or "competitive" ALWAYS triggers `market-share` for competitive market analysis.
+- **NEVER USE:** table-dark, content-slide, or any other template for market share data
+- Example use cases: "Market Share Analysis", "Competitive Landscape", "Market Position", "Competitor Analysis", "Market Share Overview", "Competitive Positioning".
 
 **Table Dark Slides** (`table-dark`):
 ```
@@ -1543,18 +1787,36 @@ Understanding our position in the market landscape is essential for strategic pl
 ## Financial Performance Summary
 Comprehensive overview of our financial metrics and performance indicators across key business areas.
 
-| Metric | Q1 2024 | Q2 2024 | Q3 2024 | Q4 2024 |
-|--------|---------|---------|---------|---------|
-| Revenue | $2.4M | $2.8M | $3.1M | $3.5M |
-| Profit Margin | 18.5% | 19.2% | 20.1% | 21.3% |
-| Operating Costs | $1.9M | $2.2M | $2.4M | $2.7M |
-| Growth Rate | 12.5% | 16.7% | 10.7% | 12.9% |
+**PROPS FORMAT:**
+```json
+{
+  "title": "Financial Performance Summary",
+  "tableData": {
+    "headers": ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"],
+    "rows": [
+      ["Revenue", "$2.4M", "$2.8M", "$3.1M", "$3.5M"],
+      ["Profit Margin", "18.5%", "19.2%", "20.1%", "21.3%"],
+      ["Operating Costs", "$1.9M", "$2.2M", "$2.4M", "$2.7M"],
+      ["Growth Rate", "12.5%", "16.7%", "10.7%", "12.9%"]
+    ]
+  }
+}
 ```
-- **CRITICAL:** Use this template for dark-themed data tables. Always use the exact table format shown above.
-- The first line after the title is the subtitle.
-- Use proper markdown table formatting with headers and data rows.
-- **Trigger words:** If the slide involves "table", "data", "comparison", "summary", "dark theme", use `table-dark`.
-- Example use cases: "Financial Summary", "Data Comparison", "Performance Table", "Results Summary".
+
+**MANDATORY PROPS STRUCTURE:**
+- `title`: String - The main title of the slide
+- `tableData`: Object with:
+  - `headers`: Array of strings - Column headers
+  - `rows`: Array of arrays of strings - Each row must have the same number of cells as headers
+```
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "table", "data table", "comparison table", "metrics table", "performance table", "results table", "statistics table", "summary table", "analysis table", "comparison data", "tabular data", "data comparison", "side by side", "versus", "vs", "compare", "comparison"
+- **ABSOLUTE REQUIREMENT:** Use this template for structured data presentation. NEVER use content-slide or bullet-points for tabular data.
+- **MANDATORY FORMAT:** Provide data ONLY as JSON props in `tableData.headers` and `tableData.rows`. Do NOT use markdown tables.
+- **CONTENT REQUIREMENTS:** Include 3-5 data rows with meaningful metrics, percentages, or comparative data.
+- **Trigger words:** If the slide involves "table", "data", "comparison", "summary", "dark theme", "metrics table", "performance table", "comparison table", "data summary", "results table", "statistics table", use `table-dark`.
+- **PRIORITY TRIGGER:** The word "table" combined with data/comparison/summary ALWAYS triggers `table-dark` for structured data presentation.
+- **NEVER USE:** content-slide, bullet-points, or any other template for tabular data
+- Example use cases: "Financial Summary", "Data Comparison", "Performance Table", "Results Summary", "Metrics Comparison", "Statistical Data".
 
 **Table Light Slides** (`table-light`):
 ```
@@ -1564,17 +1826,25 @@ Comprehensive overview of our financial metrics and performance indicators acros
 ## Product Feature Comparison
 Detailed comparison of our product features against competitive offerings in the market.
 
-| Feature | Our Product | Competitor A | Competitor B |
-|---------|-------------|--------------|--------------|
-| Core Functionality | ✓ Advanced | ✓ Basic | ✓ Standard |
-| Integration Options | ✓ Multiple APIs | ✗ Limited | ✓ Standard |
-| Security Features | ✓ Enterprise-grade | ✓ Basic | ✓ Advanced |
-| Support Quality | ✓ 24/7 Premium | ✗ Business Hours | ✓ Extended Hours |
-| Pricing Model | ✓ Flexible | ✗ Fixed | ✓ Tiered |
+**PROPS FORMAT:**
+```json
+{
+  "title": "Product Feature Comparison",
+  "tableData": {
+    "headers": ["Feature", "Our Product", "Competitor A", "Competitor B"],
+    "rows": [
+      ["Core Functionality", "✓ Advanced", "✓ Basic", "✓ Standard"],
+      ["Integration Options", "✓ Multiple APIs", "✗ Limited", "✓ Standard"],
+      ["Security Features", "✓ Enterprise-grade", "✓ Basic", "✓ Advanced"],
+      ["Support Quality", "✓ 24/7 Premium", "✗ Business Hours", "✓ Extended Hours"],
+      ["Pricing Model", "✓ Flexible", "✗ Fixed", "✓ Tiered"]
+    ]
+  }
+}
 ```
-- **CRITICAL:** Use this template for light-themed data tables. Always use the exact table format shown above.
-- The first line after the title is the subtitle.
-- Use proper markdown table formatting with headers and data rows.
+```
+- **CRITICAL:** Use this template for light-themed data tables. Always provide `tableData.headers` and `tableData.rows`.
+- Do NOT use markdown table formatting. JSON props only.
 - **Trigger words:** If the slide involves "table", "comparison", "features", "light theme", "data", use `table-light`.
 - Example use cases: "Feature Comparison", "Product Analysis", "Data Table", "Comparison Chart".
 
@@ -1586,16 +1856,221 @@ Detailed comparison of our product features against competitive offerings in the
 ## Revenue Distribution Analysis
 Understanding how our revenue is distributed across different business segments and product lines.
 
-**Product A Revenue:** 35% - Our flagship product continues to drive significant revenue with strong market demand and customer satisfaction.
-**Product B Revenue:** 28% - Secondary product line showing consistent growth and expanding market penetration.
-**Service Revenue:** 22% - Professional services and consulting contributing substantial recurring revenue streams.
-**Licensing Revenue:** 15% - Technology licensing and partnerships providing additional revenue diversification.
+**PROPS FORMAT:**
+```json
+{
+  "title": "Revenue Distribution Analysis",
+  "chartData": {
+    "segments": [
+      {
+        "label": "Cloud Services",
+        "percentage": 35,
+        "color": "#3B82F6",
+        "description": "Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction."
+      },
+      {
+        "label": "Mobile Applications", 
+        "percentage": 25,
+        "color": "#10B981",
+        "description": "Mobile app development showing consistent growth and expanding market penetration."
+      },
+      {
+        "label": "Data Analytics",
+        "percentage": 20,
+        "color": "#F59E0B",
+        "description": "Data analytics services contributing substantial recurring revenue streams."
+      },
+      {
+        "label": "AI Solutions",
+        "percentage": 12,
+        "color": "#EF4444",
+        "description": "AI and machine learning solutions providing additional revenue diversification."
+      },
+      {
+        "label": "Security Tools",
+        "percentage": 6,
+        "color": "#8B5CF6",
+        "description": "Cybersecurity tools and services addressing critical market needs."
+      },
+      {
+        "label": "Integration Services",
+        "percentage": 2,
+        "color": "#6B7280",
+        "description": "System integration and consulting services rounding out our portfolio."
+      }
+    ]
+  },
+  "monthlyData": [
+    {
+      "month": "Cloud Services",
+      "description": "Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.",
+      "color": "#3B82F6",
+      "percentage": "35%"
+    },
+    {
+      "month": "Mobile Applications",
+      "description": "Mobile app development showing consistent growth and expanding market penetration.",
+      "color": "#10B981", 
+      "percentage": "25%"
+    },
+    {
+      "month": "Data Analytics",
+      "description": "Data analytics services contributing substantial recurring revenue streams.",
+      "color": "#F59E0B",
+      "percentage": "20%"
+    },
+    {
+      "month": "AI Solutions",
+      "description": "AI and machine learning solutions providing additional revenue diversification.",
+      "color": "#EF4444",
+      "percentage": "12%"
+    },
+    {
+      "month": "Security Tools",
+      "description": "Cybersecurity tools and services addressing critical market needs.",
+      "color": "#8B5CF6",
+      "percentage": "6%"
+    },
+    {
+      "month": "Integration Services",
+      "description": "System integration and consulting services rounding out our portfolio.",
+      "color": "#6B7280",
+      "percentage": "2%"
+    }
+  ]
+}
 ```
-- **CRITICAL:** Use this template for pie chart visualizations and data distribution. Always use the exact format shown above.
-- The first line after the title is the subtitle.
-- Use bold category names with percentages and detailed descriptions.
-- **Trigger words:** If the slide involves "distribution", "pie chart", "percentages", "breakdown", "segments", use `pie-chart-infographics`.
-- Example use cases: "Revenue Distribution", "Market Breakdown", "Data Segmentation", "Percentage Analysis".
+
+**MANDATORY PROPS STRUCTURE:**
+- `title`: String - The main title of the slide
+- `chartData`: Object with:
+  - `segments`: Array of objects with:
+    - `label`: String - Category name
+    - `percentage`: Number - Percentage value (0-100)
+    - `color`: String - Hex color code
+    - `description`: String - Detailed description
+- `monthlyData`: Array of objects with:
+  - `month`: String - Category name (same as label)
+  - `description`: String - Detailed description
+  - `color`: String - Hex color code
+  - `percentage`: String - Percentage with % symbol
+```
+
+**CRITICAL PIE CHART DATA GENERATION RULES:**
+When generating content for `pie-chart-infographics`, you MUST:
+
+1. **ALWAYS generate EXACTLY 6 segments** - no more, no less
+2. **ALWAYS use meaningful category names** instead of "Сегмент 1", "Сегмент 2"
+3. **CRITICAL PERCENTAGE CALCULATION:** You MUST calculate percentages so they total EXACTLY 100%
+   - **NEVER exceed 100% total** - this is mathematically incorrect
+   - **NEVER use random percentages** that don't add up to 100%
+   - **ALWAYS verify:** Segment 1% + Segment 2% + Segment 3% + Segment 4% + Segment 5% + Segment 6% = 100%
+   - **Example correct calculation:** 35% + 25% + 20% + 12% + 6% + 2% = 100%
+   - **MANDATORY VERIFICATION:** Before generating, calculate: 35+25+20+12+6+2 = 100
+4. **ALWAYS provide detailed descriptions** for each segment
+5. **ALWAYS use the exact JSON structure** shown above
+6. **NEVER use Russian labels** like "Сегмент 1", "Сегмент 2" - ONLY use English business terms
+7. **NEVER use generic labels** like "Segment 1", "Category A", "Part 1" - ONLY use specific business categories
+8. **MANDATORY PERCENTAGE PATTERNS:** Use these exact patterns:
+   - Pattern 1: 35% + 25% + 20% + 12% + 6% + 2% = 100%
+   - Pattern 2: 40% + 30% + 20% + 6% + 3% + 1% = 100%
+   - Pattern 3: 30% + 25% + 20% + 15% + 8% + 2% = 100%
+
+**MANDATORY PIE CHART CONTENT REQUIREMENTS:**
+- **EXACTLY 6 segments** with meaningful category names
+- **CRITICAL: Percentages MUST total EXACTLY 100%** - this is mathematically required
+- **Detailed descriptions** explaining each segment's significance
+- **Real-world context** and practical insights for each segment
+- **Professional category names** like "Enterprise Solutions", "SMB Market", "Consumer Products", etc.
+- **VERIFICATION REQUIRED:** Always double-check that all 6 percentages add up to exactly 100%
+
+**ABSOLUTELY FORBIDDEN LABELS:**
+- ❌ "Сегмент 1", "Сегмент 2", "Сегмент 3", "Сегмент 4", "Сегмент 5", "Сегмент 6"
+- ❌ "Segment 1", "Segment 2", "Segment 3", "Segment 4", "Segment 5", "Segment 6"
+- ❌ "Category A", "Category B", "Category C", "Category D", "Category E", "Category F"
+- ❌ "Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6"
+- ❌ Any generic numbered labels
+
+**MANDATORY BUSINESS CATEGORIES TO USE:**
+- ✅ "Cloud Services", "Mobile Applications", "Data Analytics", "AI Solutions", "Security Tools", "Integration Services"
+- ✅ "Enterprise Solutions", "SMB Market", "Consumer Products", "Professional Services", "Hardware Sales", "Software Licenses"
+- ✅ "North America", "Europe", "Asia Pacific", "Latin America", "Middle East", "Africa"
+- ✅ "Q1 Revenue", "Q2 Revenue", "Q3 Revenue", "Q4 Revenue", "Annual Growth", "Market Expansion"
+- ✅ "Product Development", "Marketing", "Sales", "Customer Support", "Operations", "Administration"
+- ✅ "Direct Sales", "Channel Partners", "Online Sales", "Consulting", "Training", "Maintenance"
+
+**CRITICAL LANGUAGE ENFORCEMENT:**
+- **ENGLISH ONLY:** All labels MUST be in English, regardless of the presentation language
+- **BUSINESS TERMS:** Use professional business terminology, not generic labels
+- **SPECIFIC CATEGORIES:** Each segment must represent a real business category or metric
+
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "distribution", "percentages", "percentage", "proportion", "share", "allocation", "split", "division", "composition", "breakdown", "distribution of", "percentage of", "proportion of", "share of", "allocation of", "split of", "division of", "composition of", "breakdown of", "pie chart", "pie", "segments", "sectors", "parts", "slices"
+- **ABSOLUTE REQUIREMENT:** Use this template for percentage-based data visualization. NEVER use bullet-points or content-slide for distribution data.
+- **MANDATORY FORMAT:** Each item must follow the pattern: "**Category Name:** XX% - Detailed description with context and insights."
+- **CONTENT REQUIREMENTS:** Include 3-6 segments with percentages that total 100% and substantial descriptions (2-3 sentences each).
+- **Trigger words:** If the slide involves "distribution", "pie chart", "percentages", "breakdown", "segments", "proportion", "share", "allocation", "split", "division", "composition", use `pie-chart-infographics`.
+- **PRIORITY TRIGGER:** The word "distribution" or "percentages" ALWAYS triggers `pie-chart-infographics` for percentage-based data visualization.
+- **NEVER USE:** bullet-points, content-slide, or any other template for distribution data
+- Example use cases: "Revenue Distribution", "Market Breakdown", "Data Segmentation", "Percentage Analysis", "Budget Allocation", "Market Share Distribution".
+
+**Big Numbers Slides** (`big-numbers`):
+```
+---
+**Slide 6: Performance Metrics and Success Indicators** `big-numbers`
+
+## Performance Metrics and Success Indicators
+Key performance indicators that demonstrate the success of our AI implementation strategy.
+
+**PROPS FORMAT:**
+```json
+{
+  "title": "Performance Metrics and Success Indicators",
+  "items": [
+    {
+      "value": "85%",
+      "label": "Accuracy Improvement",
+      "description": "Average accuracy improvement reported across all AI models deployed in production environments"
+    },
+    {
+      "value": "40%",
+      "label": "Cost Reduction",
+      "description": "Significant reduction in operational costs achieved through automated AI-driven processes"
+    },
+    {
+      "value": "3.2x",
+      "label": "Efficiency Gain",
+      "description": "Measurable increase in processing speed and workflow efficiency across all departments"
+    }
+  ]
+}
+```
+
+**MANDATORY PROPS STRUCTURE:**
+- `title`: String - The main title of the slide
+- `items`: Array of EXACTLY 3 objects with:
+  - `value`: String - The metric value (can include symbols like %, x, etc.)
+  - `label`: String - The metric name/label
+  - `description`: String - Detailed description of the metric and its significance
+
+**CRITICAL BIG NUMBERS DATA GENERATION RULES:**
+When generating content for `big-numbers`, you MUST:
+
+1. **ALWAYS generate EXACTLY 3 items** - no more, no less
+2. **ALWAYS use meaningful metric names** instead of generic labels
+3. **ALWAYS provide detailed descriptions** explaining the significance of each metric
+4. **ALWAYS use the exact JSON structure** shown above
+5. **ALWAYS ensure metrics are relevant** to the presentation topic
+
+**MANDATORY FORMAT:** Each item must follow the pattern: "**Value** - **Label** - Detailed description explaining the metric's significance and impact."
+
+**CONTENT REQUIREMENTS:** Include exactly 3 key performance indicators with specific values, clear labels, and detailed descriptions explaining their significance.
+
+- **CRITICAL - MANDATORY SELECTION:** This template MUST be used whenever ANY of these words appear: "metrics", "statistics", "numbers", "KPIs", "key performance indicators", "performance", "results", "growth", "financial", "data", "benchmarks", "success metrics", "business metrics", "operational metrics", "performance data", "measurement", "measurements", "case study", "case studies", "business case", "success story", "performance indicators", "business intelligence", "BI"
+- **ABSOLUTE REQUIREMENT:** Use this template for presenting exactly 3 key performance indicators or success metrics. NEVER use metrics-analytics or content-slide for case study data.
+- **Trigger words:** If the slide involves "metrics", "statistics", "numbers", "performance", "results", "case study", "success story", "business case", use `big-numbers`.
+- **PRIORITY TRIGGER:** The word "case study" or "success story" ALWAYS triggers `big-numbers` for exactly 3 items.
+- **NEVER USE:** metrics-analytics, content-slide, or any other template for case study data
+- Example use cases: "Case Study Results", "Success Metrics", "Performance Numbers", "Business Case Results", "Success Story Metrics".
 
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):
