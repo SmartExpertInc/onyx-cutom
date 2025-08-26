@@ -365,7 +365,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
-    inputProps?: any;
+    inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
     flex?: number;
   }) => (
     <TextField
@@ -375,7 +375,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       onKeyDown={onKeyDown}
       onBlur={onBlur}
       onClick={(e) => e.stopPropagation()}
-      inputProps={inputProps}
+      slotProps={{
+        input: inputProps as any
+      }}
       sx={{ ...commonTextFieldStyles, flex }}
       variant="outlined"
     />
@@ -601,7 +603,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 onBlur={handleHexBlur}
                 fullWidth
                 variant="outlined"
-                inputProps={{ maxLength: 7 }}
+                slotProps={{
+                  input: {
+                    maxLength: 7
+                  } as any
+                }}
                 onClick={(e) => e.stopPropagation()}
                 sx={{
                   ...commonTextFieldStyles,
@@ -635,7 +641,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       onKeyDown={handlers.handleKeyDown}
                       onBlur={handlers.handleBlur}
                       inputProps={{ 
-                        min: field === 'a' ? 0 : 0, 
+                        min: 0, 
                         max: field === 'a' ? 1 : 255,
                         step: field === 'a' ? 0.1 : 1
                       }}
@@ -663,7 +669,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       onKeyDown={handlers.handleKeyDown}
                       onBlur={handlers.handleBlur}
                       inputProps={{ 
-                        min: field === 'h' ? 0 : 0, 
+                        min: 0, 
                         max: field === 'h' ? 360 : 100,
                         step: field === 'a' ? 0.1 : 1
                       }}
