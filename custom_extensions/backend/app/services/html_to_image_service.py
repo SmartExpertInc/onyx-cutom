@@ -64,103 +64,33 @@ class HTMLToImageService:
 
     
     async def convert_html_to_png_html2image(self, html_content: str, output_path: str) -> bool:
-        """Convert HTML to PNG using html2image library with optimized settings."""
+        """Convert HTML to PNG using html2image library."""
         try:
             from html2image import Html2Image
             
-            # Configure html2image with PDF-generator-inspired Chrome flags for perfect rendering
+            # Configure html2image with proper Chrome flags for Docker environment
             hti = Html2Image(
                 size=(self.video_width, self.video_height),
                 output_path=os.path.dirname(output_path),
                 custom_flags=[
                     '--no-sandbox',
-                    '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
                     '--disable-gpu',
-                    '--no-zygote',
                     '--disable-web-security',
                     '--disable-features=VizDisplayCompositor',
                     '--force-device-scale-factor=1',  # Ensure 1:1 pixel mapping
-                    '--high-dpi-support=1',
-                    '--single-process',
-                    '--disable-extensions',
-                    '--disable-default-apps',
-                    '--disable-sync',
-                    '--disable-translate',
-                    '--hide-scrollbars',
-                    '--metrics-recording-only',
-                    '--mute-audio',
-                    '--no-first-run',
-                    '--font-render-hinting=none',
-                    '--enable-font-antialiasing',
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding',
-                    '--disable-features=TranslateUI',
-                    '--disable-ipc-flooding-protection',
-                    '--allow-running-insecure-content',
-                    # Critical: Force exact viewport dimensions
-                    f'--window-size={self.video_width},{self.video_height}',
-                    '--virtual-time-budget=5000'  # Allow time for rendering
+                    '--high-dpi-support=1'  # Better high DPI support
                 ]
             )
             
             filename = os.path.basename(output_path)
             
-            logger.info(f"🎬 [HTML2IMAGE] Converting HTML to image with exact dimensions: {self.video_width}x{self.video_height}")
-            
-            # Convert HTML to image with exact size enforcement
+            # Convert HTML to image
             hti.screenshot(
                 html_str=html_content,
                 save_as=filename,
                 size=(self.video_width, self.video_height)
             )
-            
-            # Add a small delay to ensure rendering is complete
-            import time
-            time.sleep(0.5)
-            
-            # Post-process the image to ensure background fills completely
-            try:
-                from PIL import Image, ImageDraw
-                with Image.open(output_path) as img:
-                    # Check if there are any white pixels at the bottom
-                    width, height = img.size
-                    bottom_row = img.crop((0, height-10, width, height))
-                    
-                    # Convert to RGB if needed
-                    if bottom_row.mode != 'RGB':
-                        bottom_row = bottom_row.convert('RGB')
-                    
-                    # Check if bottom row has white pixels (indicating white line)
-                    white_pixels = 0
-                    total_pixels = bottom_row.width * bottom_row.height
-                    
-                    for x in range(bottom_row.width):
-                        for y in range(bottom_row.height):
-                            pixel = bottom_row.getpixel((x, y))
-                            if pixel == (255, 255, 255):  # White pixel
-                                white_pixels += 1
-                    
-                    white_percentage = (white_pixels / total_pixels) * 100
-                    
-                    if white_percentage > 50:  # If more than 50% white pixels at bottom
-                        logger.warning(f"🎬 [HTML2IMAGE] Detected white line at bottom ({white_percentage:.1f}% white pixels)")
-                        
-                        # Fill the bottom with background color
-                        draw = ImageDraw.Draw(img)
-                        # Get the background color from the top-left pixel
-                        bg_color = img.getpixel((0, 0))
-                        draw.rectangle([0, height-10, width, height], fill=bg_color)
-                        img.save(output_path, 'PNG')
-                        logger.info(f"🎬 [HTML2IMAGE] Fixed white line by filling bottom with background color")
-                    else:
-                        logger.info(f"🎬 [HTML2IMAGE] No white line detected at bottom ({white_percentage:.1f}% white pixels)")
-                        
-            except ImportError:
-                logger.warning("PIL not available for white line detection")
-            except Exception as e:
-                logger.warning(f"Failed to check for white line: {e}")
             
             if os.path.exists(output_path):
                 file_size = os.path.getsize(output_path)
@@ -170,29 +100,6 @@ class HTMLToImageService:
                 if file_size == 0:
                     logger.error("html2image created empty file - falling back to simple method")
                     return False
-                
-                # Verify the image dimensions using PIL
-                try:
-                    from PIL import Image
-                    with Image.open(output_path) as img:
-                        actual_width, actual_height = img.size
-                        logger.info(f"🎬 [HTML2IMAGE] Generated image dimensions: {actual_width}x{actual_height}")
-                        
-                        # Check if dimensions match expected
-                        if actual_width != self.video_width or actual_height != self.video_height:
-                            logger.warning(f"🎬 [HTML2IMAGE] Dimension mismatch! Expected: {self.video_width}x{self.video_height}, Got: {actual_width}x{actual_height}")
-                            
-                            # Resize to exact dimensions if needed
-                            resized_img = img.resize((self.video_width, self.video_height), Image.Resampling.LANCZOS)
-                            resized_img.save(output_path, 'PNG')
-                            logger.info(f"🎬 [HTML2IMAGE] Resized image to exact dimensions: {self.video_width}x{self.video_height}")
-                        else:
-                            logger.info(f"🎬 [HTML2IMAGE] Perfect dimension match!")
-                            
-                except ImportError:
-                    logger.warning("PIL not available for dimension verification")
-                except Exception as e:
-                    logger.warning(f"Failed to verify image dimensions: {e}")
                     
                 return True
             else:
