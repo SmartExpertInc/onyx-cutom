@@ -160,7 +160,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '56.25vw',
+    height: '600px',
     backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',

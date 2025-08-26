@@ -151,7 +151,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '56.25vw',
+    height: '600px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'row-reverse',
