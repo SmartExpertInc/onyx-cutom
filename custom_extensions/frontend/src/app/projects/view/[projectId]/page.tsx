@@ -941,15 +941,37 @@ export default function ProjectInstanceViewPage() {
                 reader.releaseLock();
             }
 
-            // Now download the actual PDF using the same approach as other PDFs
+            // Now download the actual PDF using blob approach (like other working downloads)
             console.log('Attempting to download PDF with URL:', downloadUrl);
             if (downloadUrl) {
                 const fullDownloadUrl = `${CUSTOM_BACKEND_URL}${downloadUrl}`;
-                console.log('Opening PDF in new tab:', fullDownloadUrl);
+                console.log('Fetching PDF from:', fullDownloadUrl);
                 
-                // Use the same approach as the original PDF download for other component types
-                window.open(fullDownloadUrl, '_blank');
-                console.log('PDF download initiated');
+                // Fetch the PDF and create blob download (same as working ProjectsTable pattern)
+                const pdfResponse = await fetch(fullDownloadUrl, {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+
+                if (!pdfResponse.ok) {
+                    throw new Error(`PDF download failed: ${pdfResponse.status}`);
+                }
+
+                const blob = await pdfResponse.blob();
+                console.log('Blob created, size:', blob.size, 'type:', blob.type);
+                
+                // Create download link (same pattern as ProjectsTable and TextView)
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                console.log('PDF download completed');
             } else {
                 console.error('No download URL received from server');
                 console.log('Variables state:', { downloadUrl, filename });
