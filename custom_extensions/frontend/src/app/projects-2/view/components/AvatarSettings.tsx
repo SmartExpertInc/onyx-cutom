@@ -102,7 +102,7 @@ export default function AvatarSettings() {
       </div>
       
       {/* Content area */}
-      <div ref={contentRef} className="p-4">
+      <div ref={contentRef} className="p-4 overflow-y-auto" style={{ height: 'calc(100% - 112px)' }}>
         <div className="space-y-4">
           {/* View */}
           <div className="flex items-center justify-between">

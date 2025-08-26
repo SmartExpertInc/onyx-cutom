@@ -296,7 +296,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Pass the color with current opacity to the parent component
     const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
     onColorChange(colorWithOpacity);
-    // Don't add to recent colors for hue slider - only for saturation/brightness square
+  };
+
+  const handleHueChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
+    // This is called when the user finishes dragging the hue slider
+    addToRecentColors(hex);
+    // Pass the final color to parent component
+    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
+    onColorChange(colorWithOpacity);
   };
 
   // --- Opacity slider ---
@@ -311,6 +318,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Pass the color with opacity to the parent component
     // Use RGBA format since it supports opacity
     const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
+    onColorChange(colorWithOpacity);
+  };
+
+  const handleOpacityChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
+    // This is called when the user finishes dragging the opacity slider
+    addToRecentColors(hex);
+    // Pass the final color to parent component
+    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
     onColorChange(colorWithOpacity);
   };
 
@@ -335,8 +350,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Pass the color with current opacity to the parent component
     const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
     onColorChange(colorWithOpacity);
-    addToRecentColors(newHex); // Add to recent colors when using saturation/brightness square
-  }, [hsb, opacity, addToRecentColors]);
+  }, [hsb, opacity, onColorChange]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
@@ -347,7 +361,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (isDraggingRef.current) handleSBUpdate(e.clientX, e.clientY);
   }, [handleSBUpdate]);
 
-  const handleMouseUp = () => { isDraggingRef.current = false; };
+  const handleMouseUp = () => { 
+    isDraggingRef.current = false; 
+    // Add the current color to recent colors when dragging the saturation/brightness square ends
+    addToRecentColors(hex);
+    // Pass the final color to parent component
+    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
+    onColorChange(colorWithOpacity);
+  };
 
   useEffect(() => {
     document.addEventListener("mousemove", handleMouseMove);
@@ -420,6 +441,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             min={0}
             max={360}
             onChange={handleHueChange}
+            onChangeCommitted={handleHueChangeCommitted}
             sx={{
               height: 8,
               position: 'relative',
@@ -459,6 +481,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             max={1}
             step={0.01}
             onChange={handleOpacityChange}
+            onChangeCommitted={handleOpacityChangeCommitted}
             sx={{
               height: 8,
               position: 'relative',
