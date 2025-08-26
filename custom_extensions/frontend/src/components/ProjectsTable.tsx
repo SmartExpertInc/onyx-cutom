@@ -1323,9 +1323,7 @@ const ProjectCard: React.FC<{
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(
-    project.designMicroproductType
-      ? project.title
-      : project.instanceName || project.title
+    project.title || project.instanceName || "Product"
   );
   const [menuPosition, setMenuPosition] = useState<"above" | "below">("below");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
