@@ -93,7 +93,15 @@ export class TemplateExtractor {
       'big-image-left': this.extractBigImageLeft,
       'big-image-top': this.extractBigImageTop,
       'quote-center': this.extractQuoteCenter,
-      'four-box-grid': this.extractFourBoxGrid
+      'four-box-grid': this.extractFourBoxGrid,
+      'event-list': this.extractEventList,
+      'six-ideas-list': this.extractSixIdeasList,
+      'contraindications-indications': this.extractContraindicationsIndications,
+      'metrics-analytics': this.extractMetricsAnalytics,
+      'org-chart': this.extractOrgChart,
+      'pie-chart-infographics': this.extractPieChartInfographics,
+      'bar-chart-infographics': this.extractBarChartInfographics,
+      'market-share': this.extractMarketShare
     };
 
     return extractors[templateId] || null;
@@ -1139,6 +1147,447 @@ export class TemplateExtractor {
         isUserCreated: false,
         lastModified: new Date().toISOString()
       }
+    };
+  }
+
+  // === NEW TEMPLATE EXTRACTORS ===
+
+  /**
+   * Extract items from event list template
+   */
+  private static extractEventList(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Events list
+    if (props.events && props.events.length > 0) {
+      let currentY = 180;
+      props.events.forEach((event: any, index: number) => {
+        // Date
+        if (event.date) {
+          items.push(TemplateExtractor.createTextItem(
+            `event-date-${index + 1}`,
+            event.date,
+            { x: 60, y: currentY, width: 200, height: 40 },
+            'text'
+          ));
+        }
+
+        // Description
+        if (event.description) {
+          items.push(TemplateExtractor.createTextItem(
+            `event-description-${index + 1}`,
+            event.description,
+            { x: 280, y: currentY, width: 860, height: 40 },
+            'text'
+          ));
+        }
+
+        currentY += 60;
+      });
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from six ideas list template
+   */
+  private static extractSixIdeasList(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Image (if present)
+    if (props.imagePath || props.imageUrl) {
+      items.push(TemplateExtractor.createImageItem(
+        'main-image',
+        props.imagePath || props.imageUrl || '',
+        props.imagePrompt || '',
+        { x: 800, y: 180, width: 340, height: 400 }
+      ));
+    }
+
+    // Ideas list
+    if (props.ideas && props.ideas.length > 0) {
+      let currentY = 180;
+      props.ideas.forEach((idea: any, index: number) => {
+        if (index < 6) { // Only handle first 6 ideas
+          // Number
+          if (idea.number) {
+            items.push(TemplateExtractor.createTextItem(
+              `idea-number-${index + 1}`,
+              idea.number,
+              { x: 60, y: currentY, width: 60, height: 40 },
+              'heading'
+            ));
+          }
+
+          // Text
+          if (idea.text) {
+            items.push(TemplateExtractor.createTextItem(
+              `idea-text-${index + 1}`,
+              idea.text,
+              { x: 140, y: currentY, width: 640, height: 40 },
+              'text'
+            ));
+          }
+
+          currentY += 60;
+        }
+      });
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from contraindications indications template
+   */
+  private static extractContraindicationsIndications(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+    const columnWidth = 520;
+    const gap = 40;
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Contraindications column
+    if (props.contraindications && props.contraindications.length > 0) {
+      items.push(TemplateExtractor.createTextItem(
+        'contraindications-title',
+        'Contraindications',
+        { x: 60, y: 160, width: columnWidth, height: 40 },
+        'heading'
+      ));
+
+      items.push(TemplateExtractor.createBulletListItem(
+        'contraindications-list',
+        props.contraindications,
+        { x: 60, y: 220, width: columnWidth, height: props.contraindications.length * 40 + 20 },
+        'contraindication'
+      ));
+    }
+
+    // Indications column
+    if (props.indications && props.indications.length > 0) {
+      const rightX = 60 + columnWidth + gap;
+      
+      items.push(TemplateExtractor.createTextItem(
+        'indications-title',
+        'Indications',
+        { x: rightX, y: 160, width: columnWidth, height: 40 },
+        'heading'
+      ));
+
+      items.push(TemplateExtractor.createBulletListItem(
+        'indications-list',
+        props.indications,
+        { x: rightX, y: 220, width: columnWidth, height: props.indications.length * 40 + 20 },
+        'indication'
+      ));
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from metrics analytics template
+   */
+  private static extractMetricsAnalytics(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Metrics
+    if (props.metrics && props.metrics.length > 0) {
+      const itemWidth = Math.floor((1080 - (props.metrics.length - 1) * 40) / props.metrics.length);
+      
+      props.metrics.forEach((metric: any, index: number) => {
+        const x = 60 + index * (itemWidth + 40);
+        const y = 200;
+
+        items.push(TemplateExtractor.createBigNumberItem(
+          `metric-${index + 1}`,
+          metric,
+          { x, y, width: itemWidth, height: 300 }
+        ));
+      });
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from org chart template
+   */
+  private static extractOrgChart(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Org chart items
+    if (props.chartData && props.chartData.length > 0) {
+      let currentY = 180;
+      props.chartData.forEach((item: any, index: number) => {
+        items.push(TemplateExtractor.createContainerItem(
+          `org-item-${index + 1}`,
+          {
+            type: 'org-chart-item',
+            title: item.title,
+            level: item.level,
+            parentId: item.parentId
+          },
+          { x: 60 + (item.level * 100), y: currentY, width: 300, height: 80 }
+        ));
+        currentY += 100;
+      });
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from pie chart infographics template
+   */
+  private static extractPieChartInfographics(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Pie chart (as a shape)
+    items.push(TemplateExtractor.createShapeItem(
+      'pie-chart',
+      'pie-chart',
+      { x: 60, y: 180, width: 400, height: 400 }
+    ));
+
+    // Chart data legend
+    if (props.chartData && props.chartData.segments) {
+      let currentY = 180;
+      props.chartData.segments.forEach((segment: any, index: number) => {
+        items.push(TemplateExtractor.createContainerItem(
+          `segment-${index + 1}`,
+          {
+            type: 'pie-segment',
+            label: segment.label,
+            percentage: segment.percentage,
+            color: segment.color,
+            description: segment.description
+          },
+          { x: 500, y: currentY, width: 640, height: 60 }
+        ));
+        currentY += 80;
+      });
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from bar chart infographics template
+   */
+  private static extractBarChartInfographics(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Bar chart (as a shape)
+    items.push(TemplateExtractor.createShapeItem(
+      'bar-chart',
+      'bar-chart',
+      { x: 60, y: 180, width: 800, height: 400 }
+    ));
+
+    // Chart data legend
+    if (props.chartData && props.chartData.categories) {
+      let currentY = 180;
+      props.chartData.categories.forEach((category: any, index: number) => {
+        items.push(TemplateExtractor.createContainerItem(
+          `category-${index + 1}`,
+          {
+            type: 'bar-category',
+            label: category.label,
+            value: category.value,
+            color: category.color,
+            description: category.description
+          },
+          { x: 900, y: currentY, width: 240, height: 60 }
+        ));
+        currentY += 80;
+      });
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
+
+  /**
+   * Extract items from market share template
+   */
+  private static extractMarketShare(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Subtitle
+    if (props.subtitle) {
+      items.push(TemplateExtractor.createTextItem(
+        'subtitle',
+        props.subtitle,
+        { x: 60, y: 160, width: 1080, height: 40 },
+        'text'
+      ));
+    }
+
+    // Market share chart (as a shape)
+    items.push(TemplateExtractor.createShapeItem(
+      'market-share-chart',
+      'market-share-chart',
+      { x: 60, y: 220, width: 600, height: 300 }
+    ));
+
+    // Chart data legend
+    if (props.chartData && props.chartData.length > 0) {
+      let currentY = 220;
+      props.chartData.forEach((item: any, index: number) => {
+        items.push(TemplateExtractor.createContainerItem(
+          `market-item-${index + 1}`,
+          {
+            type: 'market-share-item',
+            label: item.label,
+            description: item.description,
+            percentage: item.percentage,
+            color: item.color,
+            year: item.year
+          },
+          { x: 700, y: currentY, width: 440, height: 80 }
+        ));
+        currentY += 100;
+      });
+    }
+
+    // Bottom text
+    if (props.bottomText) {
+      items.push(TemplateExtractor.createTextItem(
+        'bottom-text',
+        props.bottomText,
+        { x: 60, y: 540, width: 1080, height: 40 },
+        'text'
+      ));
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
