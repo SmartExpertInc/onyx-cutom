@@ -134,19 +134,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     return hsbToHex({ h, s, b });
   }
 
-  // Update all color formats when HSB changes
-  // useEffect(() => {
-  //   if (!isUserTyping && !isManualUpdate) {
-  //     const newHex = hsbToHex(hsb);
-  //     if (newHex !== hex && newHex !== lastManualValueRef.current) {
-  //       setHex(newHex);
-  //       setRgba(hexToRgba(newHex));
-  //       setHsla(hexToHsla(newHex));
-  //       onColorChange(newHex);
-  //       addToRecentColors(newHex);
-  //     }
-  //   }
-  // }, [hsb, onColorChange, hex, isUserTyping, isManualUpdate]);
+  // Update all color formats when HSB changes (from slider/square)
+  useEffect(() => {
+    if (!isUserTyping) {
+      const newHex = hsbToHex(hsb);
+      if (newHex !== hex) {
+        setHex(newHex);
+        setRgba(hexToRgba(newHex));
+        setHsla(hexToHsla(newHex));
+        onColorChange(newHex);
+        addToRecentColors(newHex);
+      }
+    }
+  }, [hsb, onColorChange, hex, isUserTyping]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,6 +175,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleHexBlur = () => {
     setIsUserTyping(false);
+    // Update other formats if we have a complete valid HEX code
+    if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      const newHsb = hexToHsb(hex);
+      setHsb(newHsb); // Update HSB to reflect in square and slider
+      setRgba(hexToRgba(hex));
+      setHsla(hexToHsla(hex));
+      onColorChange(hex);
+    }
   };
 
   const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -524,6 +532,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('r')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const newHex = rgbaToHex(rgba);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setHsla(hexToHsla(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -557,6 +572,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('g')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const newHex = rgbaToHex(rgba);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setHsla(hexToHsla(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -590,6 +612,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('b')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const newHex = rgbaToHex(rgba);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setHsla(hexToHsla(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 255 }}
                   onClick={handleInputClick}
@@ -623,6 +652,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleRgbaKeyDown('a')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when RGBA changes
+                    const newHex = rgbaToHex(rgba);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setHsla(hexToHsla(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
@@ -666,6 +702,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('h')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const newHex = hslaToHex(hsla);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setRgba(hexToRgba(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 360 }}
                   onClick={handleInputClick}
@@ -699,6 +742,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('s')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const newHex = hslaToHex(hsla);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setRgba(hexToRgba(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -732,6 +782,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('l')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const newHex = hslaToHex(hsla);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setRgba(hexToRgba(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 100 }}
                   onClick={handleInputClick}
@@ -765,6 +822,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onKeyDown={handleHslaKeyDown('a')}
                   onBlur={() => {
                     setIsUserTyping(false);
+                    // Update HSB when HSLA changes
+                    const newHex = hslaToHex(hsla);
+                    const newHsb = hexToHsb(newHex);
+                    setHsb(newHsb); // Update HSB to reflect in square and slider
+                    setHex(newHex);
+                    setRgba(hexToRgba(newHex));
+                    onColorChange(newHex);
                   }}
                   inputProps={{ min: 0, max: 1, step: 0.1 }}
                   onClick={handleInputClick}
