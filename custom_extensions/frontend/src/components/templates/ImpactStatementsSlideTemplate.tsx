@@ -319,7 +319,29 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 color: themeBg,
                 fontWeight: 'bold'
               }}>
-                {statement.number}
+                {isEditable && editingNumbers === index ? (
+                  <InlineEditor
+                    initialValue={statement.number}
+                    onSave={(value) => handleNumberSave(index, value)}
+                    onCancel={handleNumberCancel}
+                    className="statement-number-editor"
+                    style={{
+                      fontSize: '48px',
+                      color: themeBg,
+                      fontWeight: 'bold'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingNumbers(index)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {statement.number}
+                  </div>
+                )}
               </div>
 
               {/* Description */}
@@ -328,7 +350,30 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 color: themeBg,
                 lineHeight: '1.4'
               }}>
-                {statement.description}
+                {isEditable && editingStatements === index ? (
+                  <InlineEditor
+                    initialValue={statement.description}
+                    onSave={(value) => handleStatementSave(index, value)}
+                    onCancel={handleStatementCancel}
+                    multiline={true}
+                    className="statement-description-editor"
+                    style={{
+                      fontSize: '16px',
+                      color: themeBg,
+                      lineHeight: '1.4'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingStatements(index)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {statement.description}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -357,14 +402,59 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 color: themeBg,
                 fontWeight: 'bold'
               }}>
-                {currentStatements[2].number}
+                {isEditable && editingNumbers === 2 ? (
+                  <InlineEditor
+                    initialValue={currentStatements[2].number}
+                    onSave={(value) => handleNumberSave(2, value)}
+                    onCancel={handleNumberCancel}
+                    className="statement-number-editor"
+                    style={{
+                      fontSize: '48px',
+                      color: themeBg,
+                      fontWeight: 'bold'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingNumbers(2)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {currentStatements[2].number}
+                  </div>
+                )}
               </div>
               <div style={{
                 fontSize: '16px',
                 color: themeBg,
                 lineHeight: '1.4'
               }}>
-                {currentStatements[2].description}
+                {isEditable && editingStatements === 2 ? (
+                  <InlineEditor
+                    initialValue={currentStatements[2].description}
+                    onSave={(value) => handleStatementSave(2, value)}
+                    onCancel={handleStatementCancel}
+                    multiline={true}
+                    className="statement-description-editor"
+                    style={{
+                      fontSize: '16px',
+                      color: themeBg,
+                      lineHeight: '1.4'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingStatements(2)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {currentStatements[2].description}
+                  </div>
+                )}
               </div>
             </div>
           )}
